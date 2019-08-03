@@ -1,0 +1,74 @@
+module Game.Baseball.Model where
+
+import Prelude
+import Data.Array ((!!), elem, mapWithIndex, all, updateAt)
+import Data.Maybe (Maybe(Nothing), maybe, fromMaybe)
+import Lib.Game (class Game, State(..))
+
+type Position = Array (Maybe Int)
+
+data RoueCls = RoueCls
+
+data MoveFrom = FromColor Int  | FromWheel Int
+data Move = Move MoveFrom MoveTo
+
+type RoueState = State RoueCls (Array Int) (size :: Int, rotation :: Int)
+
+aligned :: RoueState -> Array Boolean
+aligned St{position, rotation} = 
+    position # mapWithIndex (\index color -> color # maybe false $ \c -> c == (index + rotation) `mod` n)
+    where n = position # length
+
+validRotation :: RoueState -> Boolean
+validRotation st@St{position} =>
+    (st # aligned # filter identity # length) == 1 and position # all(x => x !== null);
+
+rotate :: Int -> RoueState -> RoueState
+rotate i (St st@{rotation}) = St st{rotation = rotation + val}
+
+-- const check = state => !validRotation(state) ?
+--    state
+--    :
+--    [{ ...state, locked: true }, [async dispatch => {
+--        for (let i = 0; i < state.size; i++) {
+--            const state2 = dispatch(rotate, 1);
+--            if (!validRotation(state2)) {
+--                dispatch(set('locked', false));
+--                return;
+--            }
+--            await delay(600);
+--        }
+--        dispatch(set('winVisible', true));
+--        await delay(1000);
+--        dispatch(merge({ winVisible: false, locked: false }));
+--   }]];
+
+instance roueGame :: Game RoueCls (Array (Maybe Int)) Int (size :: Int, rotation :: Int) where
+    initialPosition St@{size} = duplicate size Nothing
+    play state {from, to} =
+            state.position # (
+                case (dslk to of
+                    Board -> updateAt from Nothing
+                    Some t -> from < 0 
+                    then updateAt to, -from-1
+                else
+                    if
+                        to === 'BOARD' ? set(from, null)
+                : swap(from, to)
+            )
+
+    canPlay _ (Move (FromWheel _) _) = true
+    canPlay _ (Move _ (Id _)) = true
+    canPlay _ _ = false
+    
+    isLevelFinished _ = false
+    
+    newGame (St st) => St st{rotation = 0}
+
+-- setSize: $.newGame('size'),
+
+--    computed: state => ({
+--        aligned: aligned(state),
+--        validRotation: validRotation(state),
+--    })
+-- });

@@ -1,0 +1,32 @@
+
+-- export default template({
+--     state: {
+--        rows: 4,
+--        columns: 4
+
+--        sizeLimit: [1, 2, 6, 12],
+    
+    initialPosition state = duplicate (state.rows * state.columns) 1
+    play St@{position} (Move from to) =
+        fromMaybe position $ do
+            pfrom <- position !! from
+            position # updateAt from 0 >>= modifyAt to (+ pfrom)
+    
+    canPlay St@{position, columns} (Move from, to) =
+        fromMaybe false $ do
+            let {row, col} = dCoords columns from to in
+            pfrom <- position[from]
+            pto <- position[to]
+            pure (pfrom > 0 && pfrom <= pto && row * row + col * col === 1)
+    
+    isLevelFinished St@{position, columns} =
+            not $ position # some((val, i) =>
+                val && (position[i+1] && (i+1) % columns !== 0 || position[i+columns])
+            )
+    
+    objective = "minimize",
+    function = nbNonEmptyCells
+    params = attrs('columns,rows')
+    isCustomLevel _ = false
+
+nbNonEmptyCells St{position} = position # filter (_ > 0) # length

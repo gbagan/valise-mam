@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "bower": "^1.8.8",
+    "pulp": "^13.0.0",
+    "purescript": "^0.13.2",
+    "rollup": "^1.17.0",
+    "rollup-plugin-purs": "^1.0.38"
+  },
+  "scripts": {
+    "build": "rollup --config"
+  }
+}

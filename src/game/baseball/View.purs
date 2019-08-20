@@ -2,23 +2,21 @@ module Game.Baseball.View where
 
 import Prelude
 import Data.Int (toNumber)
-import Data.Maybe (fromMaybe)
-import Data.Array ((!!), (..), mapWithIndex, concat)
-import Optic.Core (Lens', over)
+import Data.Maybe (fromMaybe, Maybe(Nothing, Just))
+import Data.Array ((!!), mapWithIndex, concat)
 import Math (cos, sin, pi)
-import Pha (VDom, emptyNode)
+import Pha (VDom, emptyNode, text)
 import Pha.Html (div', svg, g, rect, use, class', key, style,
             click, width, href,
             height, x, y, stroke, fill, viewBox, transform)
-import Lib.Game (State(St), canPlay, _play', isLevelFinished)
+import Lib.Core (repeat)
+import Lib.Random (Random)
+import Lib.Game (State(St), canPlay, _play', isLevelFinished, setDialog, confirmNewGame,
+                Dialog(NoDialog, Rules, ConfirmNewGame))
 import Game.Baseball.Model (BaseballState, setNbBases)
-import UI.Dialog (card)
+import UI.Dialog (card, dialog)
 import UI.Icon (icongroup, Icon(IconText))
-import UI.Icons (iconbutton, iundo, iredo, ireset)
-
-
-repeat :: forall a. Int -> (Int -> a) -> Array a
-repeat n f = 0 .. (n - 1) # map f
+import UI.Icons (iconbutton, iundo, iredo, ireset, irules, winPanel)
 
 colors :: Array String
 colors = ["blue", "red", "green", "magenta", "orange", "black", "cyan", "gray"]
@@ -38,19 +36,17 @@ transformBase i nbBases =
         x = 500.0 + 350.0 * cos (toNumber i * 2.0 * pi / toNumber nbBases)
         y = 500.0 + 350.0 * sin (toNumber i * 2.0 * pi / toNumber nbBases)
 
-view :: forall a. Lens' a BaseballState -> BaseballState -> VDom a
-view lens st@(St state) = 
+view :: forall a. ((BaseballState -> BaseballState) -> a -> a) ->
+    ((BaseballState -> Random BaseballState) -> a -> a)
+    -> BaseballState -> VDom a
+view action rndaction st@(St state) = 
     div' [] [
         div' [class' "main-container" true] [
-            div' [] [board],
-            --WinPanel()
+            div' [] [board, winPanel st],
             config
-        ]
+        ],
     
-    --        ),
-    --        state.dialog === 'rules' && O.HelpDialog(),
-    --        state.dialog === 'confirm' && ConfirmDialog(),
-    --        O.dialogs && state.dialog && O.dialogs[state.dialog] && O.dialogs[state.dialog]()
+        dialog' state.dialog
     ]
 
     where
@@ -62,10 +58,10 @@ view lens st@(St state) =
                 iconbutton st (_{
                     icon = IconText $ show i,
                     selected = state.nbBases == i
-                }) [click $ over lens (setNbBases i)]
+                }) [click $ rndaction (setNbBases i)]
             ),
             icongroup "Options" [
-                iundo lens st, iredo lens st, ireset lens st
+                iundo action st, iredo action st, ireset action st, irules action st
             ]
         ]
 
@@ -95,7 +91,7 @@ view lens st@(St state) =
                         ] [ 
                             use [
                                 href "#meeple",
-                                click $ over lens (_play' player),
+                                click $ action (_play' player),
                                 width "70",
                                 height "70",
                                 fill $ fromMaybe "black" (colors !! (player / 2)),
@@ -110,4 +106,17 @@ view lens st@(St state) =
                         ]
                 )
             ]
-        ] 
+        ]
+
+    dialog' Rules =
+        dialog {title: "Règles", onOk: Just (action $ setDialog NoDialog), onCancel: Nothing} [
+            text "blah blah blah blah"
+        ]
+
+    dialog' (ConfirmNewGame s) =
+        dialog {title: "Règles", onCancel: Just (action $ setDialog NoDialog), onOk: Just (action $ confirmNewGame s)} [
+            text "blah blah blah blah"
+        ]
+    dialog' _ = emptyNode
+    
+    

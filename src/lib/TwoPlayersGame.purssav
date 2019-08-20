@@ -1,0 +1,16 @@
+module Lib.Game where
+
+import Prelude 
+import Lib.Random (Random)
+
+
+    | ext
+)
+
+class TwoPlayersGame cls pos ext mov | cls -> pos mov ext where
+    isLosingPosition :: TwoPlayersState pos ext mov -> Boolean
+    possibleMoves :: TwoPlayersState pos ext mov -> Array mov
+
+computerMove :: forall cls pos ext mov. TwoPlayersGame cls pos ext mov =>
+            TwoPlayersState cls pos ext -> Random mov
+

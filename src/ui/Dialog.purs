@@ -2,7 +2,7 @@ module UI.Dialog where
 import Prelude
 import Data.Maybe (Maybe, maybe)
 import Pha (VDom, text, emptyNode, Action)
-import Pha.Html (div', span, button, class', click)
+import Pha.Html (div', button, class', click)
 
 card :: forall a. String -> Array (VDom a) -> VDom a
 card title children =

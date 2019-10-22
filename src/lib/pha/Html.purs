@@ -26,13 +26,13 @@ br = h "br" [] []
 button :: forall a. Array (Prop a) -> Array (VDom a) -> VDom a
 button = h "button"
 
-div' :: forall a b. Array (Prop a) -> Array (VDom a) -> VDom a
+div' :: forall a. Array (Prop a) -> Array (VDom a) -> VDom a
 div' = h "div"
 
-span :: forall a b. Array (Prop a) -> Array (VDom a) -> VDom a
+span :: forall a. Array (Prop a) -> Array (VDom a) -> VDom a
 span = h "span"
 
-h2 :: forall a b. Array (Prop a) -> Array (VDom a) -> VDom a
+h2 :: forall a. Array (Prop a) -> Array (VDom a) -> VDom a
 h2 = h "h2"
 
 -- attributes
@@ -59,10 +59,10 @@ viewBox = attr "viewBox"
 transform :: forall a. String -> Prop a
 transform = attr "transform"
 
-g :: forall a b. Array (Prop a) -> Array (VDom a) -> VDom a
+g :: forall a. Array (Prop a) -> Array (VDom a) -> VDom a
 g = h "g"
 
-svg :: forall a b. Array (Prop a) -> Array (VDom a) -> VDom a
+svg :: forall a. Array (Prop a) -> Array (VDom a) -> VDom a
 svg = h "svg"
 
 rect :: forall a. Array (Prop a) -> Array (VDom a) -> VDom a

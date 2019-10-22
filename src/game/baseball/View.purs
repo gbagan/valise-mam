@@ -5,15 +5,16 @@ import Data.Int (toNumber)
 import Data.Maybe (fromMaybe, Maybe(Nothing, Just))
 import Data.Array ((!!), mapWithIndex, concat)
 import Math (cos, sin, pi)
-import Pha (VDom, emptyNode, text)
+import Optic.Core (Lens', (^.), (.~))
+import Pha (VDom, emptyNode, text, lensAction, action, rndAction)
 import Pha.Html (div', svg, g, rect, use, class', key, style,
             click, width, href,
             height, x, y, stroke, fill, viewBox, transform)
 import Lib.Core (repeat)
 import Lib.Random (Random)
-import Lib.Game (State(St), canPlay, _play', isLevelFinished, setDialog, confirmNewGame,
-                Dialog(NoDialog, Rules, ConfirmNewGame))
-import Game.Baseball.Model (BaseballState, setNbBases)
+import Lib.Game (canPlay, _play', isLevelFinished, confirmNewGame,
+                Dialog(NoDialog, Rules, ConfirmNewGame), _position, _dialog)
+import Game.Baseball.Model (BaseballState, setNbBases, _nbBases)
 import UI.Dialog (card, dialog)
 import UI.Icon (icongroup, Icon(IconText))
 import UI.Icons (iconbutton, iundo, iredo, ireset, irules, winPanel)
@@ -36,39 +37,40 @@ transformBase i nbBases =
         x = 500.0 + 350.0 * cos (toNumber i * 2.0 * pi / toNumber nbBases)
         y = 500.0 + 350.0 * sin (toNumber i * 2.0 * pi / toNumber nbBases)
 
-view :: forall a. ((BaseballState -> BaseballState) -> a -> a) ->
-    ((BaseballState -> Random BaseballState) -> a -> a)
-    -> BaseballState -> VDom a
-view action rndaction st@(St state) = 
+view :: forall a. Lens' a BaseballState -> BaseballState -> VDom a
+view lens state = 
     div' [] [
         div' [class' "main-container" true] [
-            div' [] [board, winPanel st],
+            div' [] [board, winPanel state],
             config
         ],
     
-        dialog' state.dialog
+        dialog' (state^._dialog)
     ]
 
     where
-    levelFinished = isLevelFinished st
+    position = state^._position
+    nbBases = state^._nbBases
+    levelFinished = isLevelFinished state
+    laction = lensAction lens <<< action
     
     config =
         card "Baseball multicolore" [
             icongroup "nombres de bases" $ [4, 5, 6, 7, 8] # map(\i ->
-                iconbutton st (_{
+                iconbutton state (_{
                     icon = IconText $ show i,
-                    selected = state.nbBases == i
-                }) [click $ rndaction (setNbBases i)]
+                    selected = nbBases == i
+                }) [click $ lensAction lens $ rndAction (setNbBases i)]
             ),
             icongroup "Options" [
-                iundo action st, iredo action st, ireset action st, irules action st
+                iundo lens state, iredo lens state, ireset lens state, irules lens state
             ]
         ]
 
     board =
         div' [class' "ui-board baseball-board" true] [
             svg [width "100%", height "100%", viewBox "0 0 1000 1000"] $ concat [
-                repeat state.nbBases (\i ->
+                repeat nbBases (\i ->
                     rect [
                         key ("b" <> show i),
                         class' "baseball-base" true,
@@ -77,31 +79,31 @@ view action rndaction st@(St state) =
                         height "200",
                         x "-100",
                         y "-100",
-                        transform $ transformBase i state.nbBases
+                        transform $ transformBase i nbBases
                     ] []
                 ),
-                state.position # mapWithIndex (\player position ->
+                position # mapWithIndex (\player pos ->
                     if player == 0 then
                         emptyNode
                     else
                         g [
                             class' "baseball-player" true,
-                            style "transform" $ translatePlayer position state.nbBases,
+                            style "transform" $ translatePlayer pos nbBases,
                             key $ "p" <> show player
                         ] [ 
                             use [
                                 href "#meeple",
-                                click $ action (_play' player),
+                                click $ laction (_play' player),
                                 width "70",
                                 height "70",
                                 fill $ fromMaybe "black" (colors !! (player / 2)),
                                 style "animation"
                                     if levelFinished then
-                                        "baseballHola 4s linear " <> show (1000 + 2000 * player / state.nbBases)
+                                        "baseballHola 4s linear " <> show (1000 + 2000 * player / nbBases)
                                         <> "ms infinite"
                                     else
                                         "none",
-                                style "cursor" $ if canPlay st player then "pointer" else "not-allowed"
+                                style "cursor" $ if canPlay state player then "pointer" else "not-allowed"
                             ] []
                         ]
                 )
@@ -109,12 +111,12 @@ view action rndaction st@(St state) =
         ]
 
     dialog' Rules =
-        dialog {title: "Règles", onOk: Just (action $ setDialog NoDialog), onCancel: Nothing} [
+        dialog {title: "Règles", onOk: Just (laction $ _dialog .~ NoDialog), onCancel: Nothing} [
             text "blah blah blah blah"
         ]
 
     dialog' (ConfirmNewGame s) =
-        dialog {title: "Règles", onCancel: Just (action $ setDialog NoDialog), onOk: Just (action $ confirmNewGame s)} [
+        dialog {title: "Règles", onCancel: Just (laction $ _dialog .~ NoDialog), onOk: Just (laction $ confirmNewGame s)} [
             text "blah blah blah blah"
         ]
     dialog' _ = emptyNode

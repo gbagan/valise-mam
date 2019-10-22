@@ -380,10 +380,10 @@ const app = props => () => {
   const subs = []
 
   const listener = function(event) {
-    dispatch(this.actions[event.type], event)
+    this.actions[event.type](setState)(event)(state)();
   }
 
-  const setState = newState => {
+  const setState = newState => () => {
     if (state !== newState) {
       state = newState
       if (subscriptions) {
@@ -393,7 +393,7 @@ const app = props => () => {
     }
     return state
   }
-
+  /*
   const dispatch = action => {
     let res = action(state);
     //const fxs = res.fxs || [];
@@ -402,7 +402,7 @@ const app = props => () => {
     setState(res);
     return state;
   }
-
+*/
 
   const render = () => {
     lock = false
@@ -415,10 +415,8 @@ const app = props => () => {
     )
   }
 
-  dispatch(props.init)
+  setState(props.init)()
 }
-
-const text = createTextVNode;
 
 const h = isStyle => name => ps => children => {
     const style = {};
@@ -452,4 +450,4 @@ const h = isStyle => name => ps => children => {
 exports.emptyNode = null;
 exports.app = app;
 exports.hAux = h;
-exports.text = text;
+exports.text = createTextVNode;

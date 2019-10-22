@@ -1,13 +1,15 @@
 module Lib.Random where
 import Prelude
-import Optic.Core (Lens', (^.), set)
-import Data.Tuple (Tuple(Tuple), uncurry)
+import Math (sin)
+import Effect (Effect)
+import Data.Int (floor, toNumber)
+import Data.Tuple (Tuple(Tuple), fst, uncurry)
 import Data.Traversable (sequence)
 import Data.Array (replicate, length, mapWithIndex, foldr)
 import Lib.Core (repeat, swap)
 
-newtype Seed = Seed Int
-newtype Random a = Random (Seed -> Tuple a Seed)
+newtype Seed = Seed Number
+newtype Random a = Random  (Seed -> Tuple a Seed)
 
 instance monadRandom :: Monad Random
 
@@ -18,7 +20,7 @@ instance applyRandom :: Apply Random where
     apply = ap
 
 instance applicativeRandom :: Applicative Random where
-    pure x = Random $ \seed -> Tuple x seed
+    pure x = Random $ Tuple x
 
 instance bindRandom :: Bind Random where
     bind (Random m) f = Random \seed ->
@@ -27,13 +29,13 @@ instance bindRandom :: Bind Random where
         m2 seed2
 
 
-
-
 intFromSeed :: Seed -> Int -> Int
-intFromSeed (Seed i) max = i `mod` max
+intFromSeed (Seed i) max = floor $ i * toNumber max
 
-foreign import nextSeed :: Seed -> Seed
+nextSeed :: Seed -> Seed
+nextSeed (Seed x) = Seed $ (sin (x * 2819921.0) + 1.0) / 2.0
 
+foreign import genSeed :: Effect Seed
 
 randomInt :: Int -> Random Int
 randomInt n = Random (\seed -> Tuple (intFromSeed seed n) (nextSeed seed))
@@ -53,5 +55,7 @@ shuffle array = do
     )
     where n = length array
 
-run :: forall a. Lens' a Seed -> a -> Random a -> a
-run lens st (Random m) = set lens seed st' where Tuple st' seed = m $ st ^. lens
+runRnd :: forall a. Random a -> Effect a
+runRnd (Random m) = do
+    seed <- genSeed
+    pure $ fst $ m seed

@@ -1,1 +1,1 @@
-exports.nextSeed = seed => ((1 + Math.sin(seed)) * (1 << 30)) | 0;
+exports.genSeed = Math.random;

@@ -1,11 +1,12 @@
 module UI.Icons where
 import Prelude
 import Data.Array (null)
+import Data.Maybe (Maybe(..))
 import Optic.Core (Lens', (^.), (.~))
 import Pha (VDom, Prop, text, Action, action, lensAction)
 import Pha.Html (div', click, class', style)
-import Lib.Game (State, class Game, undo, redo, reset, Dialog(Rules), _dialog, _history, _showWin)
-import UI.Icon (iconbutton, Options, Icon(IconSymbol)) as I
+import Lib.Game (State, class Game, undo, redo, reset, Dialog(Rules), Mode(..), _dialog, _history, _showWin, _mode)
+import UI.Icon (iconbutton, icongroup, Options, Icon(IconSymbol)) as I
 
 type LensAction a b = (b -> b) -> Action a
 
@@ -47,6 +48,24 @@ irules lens state =
         selected = case state^._dialog of
             Rules -> true
             _ -> false
+
+icons2Players :: forall a b c d.  Game a b c => Lens' d (State a b) -> State a b -> VDom d
+icons2Players lens state =
+    I.icongroup "Mode de jeu" [
+        iconbutton
+            state
+            (_{icon = I.IconSymbol "#school", selected = state^._mode == RandomMode, tooltip = Just "IA mode facile"})
+            [click $ lensAction lens $ action $ _mode .~ RandomMode],
+        iconbutton
+            state
+            (_{icon = I.IconSymbol "#enstein", selected = state^._mode == ExpertMode, tooltip = Just "IA mode expert"})
+            [click $ lensAction lens $ action $ _mode .~ ExpertMode],
+        iconbutton
+            state
+            (_{icon = I.IconSymbol "#duel", selected = state^._mode == DuelMode, tooltip = Just "Affronte un autre joueur"})
+            [click $ lensAction lens $ action $ _mode .~ DuelMode]
+    ]
+
 
 winPanel :: forall a b d. State a b -> VDom d
 winPanel state =

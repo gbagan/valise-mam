@@ -2,20 +2,19 @@ module Game.Baseball.View where
 
 import Prelude
 import Data.Int (toNumber)
-import Data.Maybe (fromMaybe, Maybe(Nothing, Just))
+import Data.Maybe (fromMaybe)
 import Data.Array ((!!), mapWithIndex, concat)
 import Math (cos, sin, pi)
-import Optic.Core (Lens', (^.), (.~))
-import Pha (VDom, emptyNode, text, lensAction, action, rndAction)
+import Optic.Core (Lens', (^.))
+import Pha (VDom, emptyNode, text, lensAction)
 import Pha.Html (div', svg, g, rect, use, class', key, style,
             click, width, href,
             height, x, y, stroke, fill, viewBox, transform)
 import Lib.Core (repeat)
-import Lib.Game (canPlay, _play', isLevelFinished, confirmNewGame,
-                Dialog(NoDialog, Rules, ConfirmNewGame), _position, _dialog)
+import Lib.Game ((🎲), canPlay, _play', isLevelFinished, _position)
 import Game.Baseball.Model (BaseballState, setNbBases, _nbBases)
 import UI.Template (template)
-import UI.Dialog (card, dialog)
+import UI.Dialog (card)
 import UI.Icon (icongroup, Icon(IconText))
 import UI.Icons (iconbutton, iundo, iredo, ireset, irules)
 
@@ -41,7 +40,6 @@ view :: forall a. Lens' a BaseballState -> BaseballState -> VDom a
 view lens state = template lens elements state where
     nbBases = state^._nbBases
     levelFinished = isLevelFinished state
-    laction = lensAction lens <<< action
     elements = {
         config:
             card "Baseball multicolore" [
@@ -49,7 +47,7 @@ view lens state = template lens elements state where
                     iconbutton state (_{
                         icon = IconText $ show i,
                         selected = nbBases == i
-                    }) [click $ lensAction lens $ rndAction (setNbBases i)]
+                    }) [click $ lens 🎲 setNbBases i]
                 ,
                 icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> \x -> x lens state
             ],
@@ -94,16 +92,8 @@ view lens state = template lens elements state where
                             ]
                 ]
             ],
-        dialog: dialog'
+        rules: [text "blah blah blah blah"]
     }
-    dialog' Rules =
-        dialog {title: "Règles", onOk: Just (laction $ _dialog .~ NoDialog), onCancel: Nothing} [
-            text "blah blah blah blah"
-        ]
-    dialog' (ConfirmNewGame s) =
-        dialog {title: "Nouvelle partie", onCancel: Just (laction $ _dialog .~ NoDialog), onOk: Just (laction $ confirmNewGame s)} [
-            text "blah blah blah blah"
-        ]
-    dialog' _ = emptyNode
+
     
     

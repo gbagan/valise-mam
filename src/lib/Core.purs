@@ -16,3 +16,16 @@ swap i j array = fromMaybe array $ do
     x <- array !! i
     y <- array !! j
     array # updateAt i y >>= updateAt j x
+
+type Coord = {row :: Int, col :: Int}
+
+coords :: Int -> Int -> Coord
+coords cols i = { row: i / cols, col: i `mod` cols }
+    
+dCoords :: Int -> Int -> Int -> Coord
+dCoords cols x y = {
+    row: p.row - q.row,
+    col: p.col - q.col
+} where
+    p = coords cols x
+    q = coords cols y

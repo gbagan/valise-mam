@@ -1,11 +1,15 @@
 module Lib.Game where
 
 import Prelude
-import Data.Maybe (fromMaybe)
-import Data.Array (cons, null)
+import Data.Maybe (Maybe, fromMaybe)
+import Data.Array (snoc, null)
 import Data.Array.NonEmpty (fromArray, head, init, last) as NArray
-import Lib.Random (Random)
+import Data.Time.Duration (Milliseconds(..))
+import Effect.Aff (delay, launchAff)
+import Effect.Class (liftEffect)
 import Optic.Core (lens, Lens', (^.), (.~), (%~))
+import Lib.Random (Random)
+import Pha (Action)
 
 data Dialog a = Rules | NoDialog | ConfirmNewGame a
 data Mode = SoloMode | RandomMode | ExpertMode | DuelMode
@@ -17,8 +21,26 @@ type CoreState pos ext = {
     levelFinished :: Boolean,
     dialog :: Dialog (State pos ext),
     turn :: Int,
-    mode :: Mode
+    mode :: Mode,
+    showWin :: Boolean
 }
+
+data State pos ext = State (CoreState pos ext) ext
+
+defaultCoreState :: forall pos ext. pos -> CoreState pos ext
+defaultCoreState p = {
+    position: p,
+    history: [],
+    redoHistory: [],
+    levelFinished: false,
+    dialog: Rules,
+    turn: 0,
+    mode: SoloMode,
+    showWin: false
+}
+
+genState :: forall pos ext. pos -> (CoreState pos ext -> CoreState pos ext) -> ext -> State pos ext
+genState p f ext = State (f $ defaultCoreState p) ext
 
 _position :: forall pos ext. Lens' (State pos ext) pos
 _position = lens (\(State s _) -> s.position) (\(State s ext) x -> State s{position = x} ext)
@@ -41,13 +63,17 @@ _dialog = lens (\(State s _) -> s.dialog) (\(State s ext) x -> State s{dialog = 
 _levelFinished :: forall pos ext. Lens' (State pos ext) Boolean
 _levelFinished = lens (\(State s _) -> s.levelFinished) (\(State s ext) x -> State s{levelFinished = x} ext)
 
-data State pos ext = State (CoreState pos ext) ext
+_showWin :: forall pos ext. Lens' (State pos ext) Boolean
+_showWin = lens (\(State s _) -> s.showWin) (\(State s ext) x -> State s{showWin = x} ext)
+
+
 
 class Game pos ext mov | ext -> pos mov where
     play :: State pos ext -> mov -> pos
     canPlay :: State pos ext -> mov -> Boolean
     initialPosition :: State pos ext -> Random pos
     isLevelFinished :: State pos ext -> Boolean
+    computerMove :: State pos ext -> Maybe (Random mov)
 
 changeTurn :: forall pos ext. State pos ext -> State pos ext
 changeTurn state =
@@ -63,7 +89,7 @@ undo state = fromMaybe state $ do
     $ changeTurn
     $ _position .~ NArray.last hs
     $ _history .~ NArray.init hs
-    $ _redoHistory %~ cons position
+    $ _redoHistory %~ flip snoc position
     $ state)
 
 redo :: forall pos ext. State pos ext -> State pos ext
@@ -74,7 +100,7 @@ redo state = fromMaybe state $ do
     $ changeTurn
     $ _position .~ NArray.last hs
     $ _redoHistory .~ NArray.init hs
-    $ _history %~ cons position
+    $ _history %~ flip snoc position
     $ state)
 
 reset :: forall pos ext. State pos ext -> State pos ext
@@ -91,21 +117,31 @@ _play :: forall pos ext mov. Game pos ext mov =>
     {move :: mov, pushToHistory :: Boolean} -> State pos ext -> State pos ext
 _play {move, pushToHistory} state =
     if canPlay state move then
-        let position = state ^. _position
+        let position = state^._position
             state2 = state
                     # _position .~ play state move
-                    # _history %~ cons position
-                    # _redoHistory .~ [] in
+                    # _history %~ flip snoc position
+                    # _redoHistory .~ []
+                    # _turn %~ (1 - _) in
         state2 # _levelFinished .~ isLevelFinished state2
     else
         state
 
-_play' :: forall pos ext mov. Game pos ext mov =>
-    mov -> State pos ext -> State pos ext
-_play' move = _play {move, pushToHistory: true}
+_play' :: forall pos ext mov. Game pos ext mov => mov -> Action (State pos ext)
+_play' move setState state = void $ launchAff $ do
+    let st2 = _play {move, pushToHistory: true} state
+    _ <- liftEffect $ setState st2
+    if isLevelFinished st2 then do
+        _ <- liftEffect $ setState $ _showWin .~ true $ st2
+        delay $ Milliseconds 1000.0
+        _ <- liftEffect $ setState $ st2
+        pure unit
+    else
+        pure unit
+
 
 newGame :: forall pos ext mov. Game pos ext mov =>
-    (State pos ext -> State pos ext)  -> State pos ext -> Random (State pos ext)
+    (State pos ext -> State pos ext) -> State pos ext -> Random (State pos ext)
 newGame f state =
     let state2 = f state in do
         position <- initialPosition state2
@@ -116,7 +152,7 @@ newGame f state =
         if null $ state2 ^. _history then
             pure state3
         else
-            pure $ _dialog .~ ConfirmNewGame state3 $ state3
+            pure $ _dialog .~ ConfirmNewGame state3 $ state
 
 newGame' :: forall a pos ext mov. Game pos ext mov =>
     (a -> State pos ext -> State pos ext) -> a -> State pos ext -> Random (State pos ext)

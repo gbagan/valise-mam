@@ -380,7 +380,7 @@ const app = props => () => {
   const subs = []
 
   const listener = function(event) {
-    this.actions[event.type](setState)(event)(state)();
+    this.actions[event.type](setState)(state)();
   }
 
   const setState = newState => () => {
@@ -393,16 +393,6 @@ const app = props => () => {
     }
     return state
   }
-  /*
-  const dispatch = action => {
-    let res = action(state);
-    //const fxs = res.fxs || [];
-    //res = res.res;
-    //batch(fxs.map(fx => fx && fx[0](dispatch, fx[1], props)));
-    setState(res);
-    return state;
-  }
-*/
 
   const render = () => {
     lock = false

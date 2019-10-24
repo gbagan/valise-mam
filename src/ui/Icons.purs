@@ -3,15 +3,15 @@ import Prelude
 import Data.Array (null)
 import Optic.Core (Lens', (^.), (.~))
 import Pha (VDom, Prop, text, Action, action, lensAction)
-import Pha.Html (div', click, class')
-import Lib.Game (State, class Game, undo, redo, reset, Dialog(Rules), _dialog, _history, _levelFinished)
+import Pha.Html (div', click, class', style)
+import Lib.Game (State, class Game, undo, redo, reset, Dialog(Rules), _dialog, _history, _showWin)
 import UI.Icon (iconbutton, Options, Icon(IconSymbol)) as I
 
 type LensAction a b = (b -> b) -> Action a
 
 iconbutton :: forall a b c d. Game a b c =>
     State a b
-    -> (I.Options -> I.Options) 
+    -> (I.Options -> I.Options)
     -> Array (Prop d)
     -> VDom d
 iconbutton state optionFn props = I.iconbutton optionFn props
@@ -28,7 +28,7 @@ iredo lens state =
     iconbutton
         state
         (_{icon = I.IconSymbol "#undo", disabled = null $ state^._history})
-        [click $ lensAction lens $ action redo]
+        [click $ lensAction lens $ action redo, style "transform" "scaleX(-1)"]
 
 ireset :: forall a b c d.  Game a b c => Lens' d (State a b) -> State a b -> VDom d
 ireset lens state =
@@ -51,7 +51,7 @@ irules lens state =
 winPanel :: forall a b d. State a b -> VDom d
 winPanel state =
     div' [class' "ui-flex-center ui-absolute component-win-container" true] [
-        div' [class' "component-win" true, class' "visible" $ state^._levelFinished] [
+        div' [class' "component-win" true, class' "visible" $ state^._showWin] [
             text "GAGNÉ"
         ]
     ]

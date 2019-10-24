@@ -1,3 +1,6 @@
+module Game.Jetons.Model where
+
+import Prelude
 
 -- export default template({
 --     state: {
@@ -6,23 +9,29 @@
 
 --        sizeLimit: [1, 2, 6, 12],
     
+
     initialPosition state = duplicate (state.rows * state.columns) 1
-    play St@{position} (Move from to) =
+
+    play state (Move from to) =
+        let position = state^._position in
         fromMaybe position $ do
             pfrom <- position !! from
             position # updateAt from 0 >>= modifyAt to (+ pfrom)
     
-    canPlay St@{position, columns} (Move from, to) =
+    canPlay state (Move from, to) =
+        let position = state^._position in
         fromMaybe false $ do
             let {row, col} = dCoords columns from to in
-            pfrom <- position[from]
-            pto <- position[to]
+            pfrom <- position !! from
+            pto <- position !! to
             pure (pfrom > 0 && pfrom <= pto && row * row + col * col === 1)
     
-    isLevelFinished St@{position, columns} =
-            not $ position # some((val, i) =>
-                val && (position[i+1] && (i+1) % columns !== 0 || position[i+columns])
-            )
+    isLevelFinished state =
+            (0 .. length position - 1) # all \i ->
+                let x = fromMaybe 0 $ position !! i
+                    y = if (i+1) `mod` columns === 0 then 0 else fromMaybe 0 $ position !! i+1
+                    z = fromMaybe 0 $ position !! i+columns in
+                x * (y + z) == 0
     
     objective = "minimize",
     function = nbNonEmptyCells

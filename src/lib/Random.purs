@@ -4,8 +4,10 @@ import Math (sin)
 import Effect (Effect)
 import Data.Int (floor, toNumber)
 import Data.Tuple (Tuple(Tuple), fst, uncurry)
+import Data.Array.NonEmpty (NonEmptyArray, unsafeIndex, length) as N
 import Data.Traversable (sequence)
 import Data.Array (replicate, length, mapWithIndex, foldr)
+import Partial.Unsafe (unsafePartial)
 import Lib.Core (repeat, swap)
 
 newtype Seed = Seed Number
@@ -20,11 +22,11 @@ instance applyRandom :: Apply Random where
     apply = ap
 
 instance applicativeRandom :: Applicative Random where
-    pure x = Random $ Tuple x
+    pure x = Random  $ Tuple x
 
 instance bindRandom :: Bind Random where
     bind (Random m) f = Random \seed ->
-        let Tuple res seed2 = m seed in 
+        let Tuple res seed2 = m seed in
         let Random m2 = f res in
         m2 seed2
 
@@ -55,7 +57,12 @@ shuffle array = do
     )
     where n = length array
 
+randomPick :: forall a. N.NonEmptyArray a -> Random a
+randomPick t =
+    unsafePartial $ N.unsafeIndex t <$> (randomInt $ N.length t)
+
 runRnd :: forall a. Random a -> Effect a
 runRnd (Random m) = do
     seed <- genSeed
     pure $ fst $ m seed
+

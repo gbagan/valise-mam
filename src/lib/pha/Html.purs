@@ -1,6 +1,5 @@
 module Pha.Html where
 
-import Prelude
 import Pha (h, Action, VDom, Prop(..))
 
 key :: forall a. String -> Prop a

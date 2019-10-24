@@ -8,7 +8,7 @@ import Data.Array.NonEmpty (NonEmptyArray, unsafeIndex, length) as N
 import Data.Traversable (sequence)
 import Data.Array (replicate, length, mapWithIndex, foldr)
 import Partial.Unsafe (unsafePartial)
-import Lib.Core (repeat, swap)
+import Lib.Core (tabulate, swap)
 
 newtype Seed = Seed Number
 newtype Random a = Random  (Seed -> Tuple a Seed)
@@ -46,7 +46,7 @@ randomInts :: Int -> Int -> Random (Array Int)
 randomInts n x = sequence $ replicate n (randomInt x)
 
 randomInts' :: Int -> (Int -> Int) -> Random (Array Int)
-randomInts' n fn = sequence $ repeat n (\i -> randomInt $ fn i)
+randomInts' n fn = sequence $ tabulate n (\i -> randomInt $ fn i)
 
 shuffle :: forall a. Array a -> Random (Array a)
 shuffle array = do

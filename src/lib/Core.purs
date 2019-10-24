@@ -2,14 +2,26 @@ module Lib.Core where
 
 import Prelude
 import Data.Maybe (fromMaybe)
-import Data.Array ((..), (!!), updateAt)
+import Data.Tuple (Tuple (..))
+import Data.Array ((..), (!!), updateAt, length, unsafeIndex)
+import Partial.Unsafe (unsafePartial)
 
-repeat :: forall a. Int -> (Int -> a) -> Array a
-repeat 0 _ = []
-repeat n f = 0 .. (n - 1) # map f
+tabulate :: forall a. Int -> (Int -> a) -> Array a
+tabulate 0 _ = []
+tabulate n f = 0 .. (n - 1) <#> f
 
-repeat2 :: forall a. Int -> Int -> ({ row :: Int, col :: Int } -> a) -> Array a
-repeat2 n m f = repeat (n * m) $ \i -> f { row: i / m, col : i `mod` m }
+tabulate2 :: forall a. Int -> Int -> ({ row :: Int, col :: Int } -> a) -> Array a
+tabulate2 n m f = tabulate (n * m) $ \i -> f { row: i / m, col : i `mod` m }
+
+floatRange :: Number -> Number -> Number -> Array Number
+floatRange begin end step = []
+
+pairwise :: forall a. Array a -> Array (Tuple a a)
+pairwise l =
+    if length l <= 1 then
+        []
+    else
+        unsafePartial $ (0 .. (length l - 2)) <#> \i -> Tuple (unsafeIndex l i) (unsafeIndex l (i+1))
 
 swap :: forall a. Int -> Int -> Array a -> Array a
 swap i j array = fromMaybe array $ do

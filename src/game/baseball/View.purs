@@ -10,7 +10,7 @@ import Pha (VDom, emptyNode, text, lensAction)
 import Pha.Html (div', svg, g, rect, use, class', key, style,
             click, width, href,
             height, x, y, stroke, fill, viewBox, transform)
-import Lib.Core (repeat)
+import Lib.Core (tabulate)
 import Lib.Game ((🎲), canPlay, _play', isLevelFinished, _position)
 import Game.Baseball.Model (BaseballState, setNbBases, _nbBases)
 import UI.Template (template)
@@ -55,7 +55,7 @@ view lens state = template lens elements state where
         board:
             div' [class' "ui-board baseball-board" true] [
                 svg [width "100%", height "100%", viewBox "0 0 1000 1000"] $ concat [
-                    repeat nbBases \i ->
+                    tabulate nbBases \i ->
                         rect [
                             key ("b" <> show i),
                             class' "baseball-base" true,
@@ -65,7 +65,7 @@ view lens state = template lens elements state where
                             x "-100",
                             y "-100",
                             transform $ transformBase i nbBases
-                        ] [],
+                        ],
                         state^._position # mapWithIndex \peg pos ->
                         if peg == 0 then
                             emptyNode
@@ -88,7 +88,7 @@ view lens state = template lens elements state where
                                         else
                                             "none",
                                     style "cursor" $ if canPlay state peg then "pointer" else "not-allowed"
-                                ] []
+                                ]
                             ]
                 ]
             ],

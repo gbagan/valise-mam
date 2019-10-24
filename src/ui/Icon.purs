@@ -41,7 +41,7 @@ iconbutton optionFn props =
         case icon of
             IconSymbol symbol ->
                 svg [attr "width" "100%", attr "heigh" "100%", class' "ui-icon-symbol" true] [
-                    use [attr "href" symbol] []
+                    use [attr "href" symbol]
                 ]
             IconText t ->
                 span [class' "ui-icon-text" true] [text t]

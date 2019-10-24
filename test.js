@@ -3122,6 +3122,26 @@ var PS = {};
   var Data_EuclideanRing = $PS["Data.EuclideanRing"];
   var Data_Functor = $PS["Data.Functor"];
   var Data_Maybe = $PS["Data.Maybe"];                
+  var tabulate = function (v) {
+      return function (v1) {
+          if (v === 0) {
+              return [  ];
+          };
+          return Data_Functor.mapFlipped(Data_Functor.functorArray)(Data_Array.range(0)(v - 1 | 0))(v1);
+      };
+  };
+  var tabulate2 = function (n) {
+      return function (m) {
+          return function (f) {
+              return tabulate(n * m | 0)(function (i) {
+                  return f({
+                      row: Data_EuclideanRing.div(Data_EuclideanRing.euclideanRingInt)(i)(m),
+                      col: Data_EuclideanRing.mod(Data_EuclideanRing.euclideanRingInt)(i)(m)
+                  });
+              });
+          };
+      };
+  };
   var swap = function (i) {
       return function (j) {
           return function (array) {
@@ -3133,28 +3153,8 @@ var PS = {};
           };
       };
   };
-  var repeat = function (v) {
-      return function (v1) {
-          if (v === 0) {
-              return [  ];
-          };
-          return Data_Functor.map(Data_Functor.functorArray)(v1)(Data_Array.range(0)(v - 1 | 0));
-      };
-  };
-  var repeat2 = function (n) {
-      return function (m) {
-          return function (f) {
-              return repeat(n * m | 0)(function (i) {
-                  return f({
-                      row: Data_EuclideanRing.div(Data_EuclideanRing.euclideanRingInt)(i)(m),
-                      col: Data_EuclideanRing.mod(Data_EuclideanRing.euclideanRingInt)(i)(m)
-                  });
-              });
-          };
-      };
-  };
-  exports["repeat"] = repeat;
-  exports["repeat2"] = repeat2;
+  exports["tabulate"] = tabulate;
+  exports["tabulate2"] = tabulate2;
   exports["swap"] = swap;
 })(PS);
 (function(exports) {
@@ -3241,7 +3241,7 @@ var PS = {};
   });
   var randomInts$prime = function (n) {
       return function (fn) {
-          return Data_Traversable.sequence(Data_Traversable.traversableArray)(applicativeRandom)(Lib_Core.repeat(n)(function (i) {
+          return Data_Traversable.sequence(Data_Traversable.traversableArray)(applicativeRandom)(Lib_Core.tabulate(n)(function (i) {
               return randomInt(fn(i));
           }));
       };
@@ -4518,7 +4518,7 @@ var PS = {};
   var Data_Const = $PS["Data.Const"];
   var Data_Eq = $PS["Data.Eq"];
   var Data_Foldable = $PS["Data.Foldable"];
-  var Data_Functor = $PS["Data.Functor"];
+  var Data_Function = $PS["Data.Function"];
   var Data_HeytingAlgebra = $PS["Data.HeytingAlgebra"];
   var Data_Identity = $PS["Data.Identity"];
   var Data_Int_Bits = $PS["Data.Int.Bits"];
@@ -4607,30 +4607,28 @@ var PS = {};
       };
   })(), function (state) {
       return Data_Array.sortWith(Data_Ord.ordInt)(function (v) {
-          return Data_Maybe.fromMaybe(0)(Data_Functor.mapFlipped(Data_Maybe.functorMaybe)(Data_Array.index(Optic_Getter.weiv(state)(Lib_Game["_position"](Data_Const.functorConst)))(v.value0))(function (x) {
+          return Data_Function.flip(Data_Maybe.maybe(0))(Data_Array.index(Optic_Getter.weiv(state)(Lib_Game["_position"](Data_Const.functorConst)))(v.value0))(function (x) {
               var $38 = Optic_Getter.weiv(state)(Lib_Game["_turn"](Data_Const.functorConst)) === 0;
               if ($38) {
                   return Data_Tuple.fst(x) - v.value1 | 0;
               };
               return v.value1 - Data_Tuple.snd(x) | 0;
-          }));
-      })(Data_Array.filter(function (m) {
-          return Lib_Game.canPlay(nimGame)(state)(m);
-      })(Lib_Core.repeat2(Optic_Getter.weiv(state)(_nbPiles(Data_Const.functorConst)))(Optic_Getter.weiv(state)(_length(Data_Const.functorConst)))(function (v) {
+          });
+      })(Data_Array.filter(Lib_Game.canPlay(nimGame)(state))(Lib_Core.tabulate2(Optic_Getter.weiv(state)(_nbPiles(Data_Const.functorConst)))(Optic_Getter.weiv(state)(_length(Data_Const.functorConst)))(function (v) {
           return new Move(v.row, v.col);
       })));
   });
   var nimGame = new Lib_Game.Game(function (state) {
       return function (v) {
-          return Data_Maybe.fromMaybe(false)(Control_Bind.bind(Data_Maybe.bindMaybe)(Data_Array.index(Optic_Getter.weiv(state)(Lib_Game["_position"](Data_Const.functorConst)))(v.value0))(function (v1) {
-              return Control_Applicative.pure(Data_Maybe.applicativeMaybe)(v.value1 !== v1.value0 && (v.value1 !== v1.value1 && (function () {
+          return Data_Function.flip(Data_Maybe.maybe(false))(Data_Array.index(Optic_Getter.weiv(state)(Lib_Game["_position"](Data_Const.functorConst)))(v.value0))(function (v1) {
+              return v.value1 !== v1.value0 && (v.value1 !== v1.value1 && (function () {
                   var $44 = Optic_Getter.weiv(state)(Lib_Game["_turn"](Data_Const.functorConst)) === 0;
                   if ($44) {
                       return v.value1 < v1.value1;
                   };
                   return v.value1 > v1.value0;
-              })()));
-          }));
+              })());
+          });
       };
   }, Lib_Game["computerMove'"](nimGame2), function (state) {
       return Data_Traversable.sequence(Data_Traversable.traversableArray)(Lib_Random.applicativeRandom)(Data_Array.replicate(Optic_Getter.weiv(state)(_nbPiles(Data_Const.functorConst)))(Control_Bind.bind(Lib_Random.bindRandom)(Lib_Random.randomInt(5))(function (v) {
@@ -4640,12 +4638,12 @@ var PS = {};
       })));
   }, function (state) {
       return Data_Foldable.all(Data_Foldable.foldableArray)(Data_HeytingAlgebra.heytingAlgebraBoolean)(function (v) {
-          return (v.value1 - v.value0 | 0) === 1 && (function () {
+          return (v.value1 - v.value0 | 0) === 1 && v.value0 === (function () {
               var $52 = Optic_Getter.weiv(state)(Lib_Game["_turn"](Data_Const.functorConst)) === 1;
               if ($52) {
-                  return v.value1 === (Optic_Getter.weiv(state)(_length(Data_Const.functorConst)) - 1 | 0);
+                  return Optic_Getter.weiv(state)(_length(Data_Const.functorConst)) - 2 | 0;
               };
-              return v.value0 === 0;
+              return 0;
           })();
       })(Optic_Getter.weiv(state)(Lib_Game["_position"](Data_Const.functorConst)));
   }, function (state) {
@@ -4677,11 +4675,15 @@ var PS = {};
   $PS["Pha.Html"] = $PS["Pha.Html"] || {};
   var exports = $PS["Pha.Html"];
   var Pha = $PS["Pha"];                
-  var use = Pha.h("use");
+  var use = function (props) {
+      return Pha.h("use")(props)([  ]);
+  };
   var svg = Pha.h("svg");
   var style = Pha.Style.create;
   var span = Pha.h("span");
-  var rect = Pha.h("rect");
+  var rect = function (props) {
+      return Pha.h("rect")(props)([  ]);
+  };
   var key = Pha.Key.create;
   var h2 = Pha.h("h2");
   var div$prime = Pha.h("div");
@@ -4796,7 +4798,7 @@ var PS = {};
           var v = optionFn(defaultOptions);
           return Pha_Html["div'"](Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html["class'"]("ui-icon")(true), Pha_Html["class'"]("selected")(v.selected), Pha_Html["class'"]("round")(v.large), Pha_Html["class'"]("hidden")(v.hidden), Pha_Html["class'"]("disabled")(v.disabled) ])(props))([ (function () {
               if (v.icon instanceof IconSymbol) {
-                  return Pha_Html.svg([ Pha_Html.attr("width")("100%"), Pha_Html.attr("heigh")("100%"), Pha_Html["class'"]("ui-icon-symbol")(true) ])([ Pha_Html.use([ Pha_Html.attr("href")(v.icon.value0) ])([  ]) ]);
+                  return Pha_Html.svg([ Pha_Html.attr("width")("100%"), Pha_Html.attr("heigh")("100%"), Pha_Html["class'"]("ui-icon-symbol")(true) ])([ Pha_Html.use([ Pha_Html.attr("href")(v.icon.value0) ]) ]);
               };
               if (v.icon instanceof IconText) {
                   return Pha_Html.span([ Pha_Html["class'"]("ui-icon-text")(true) ])([ Pha.text(v.icon.value0) ]);
@@ -5108,7 +5110,7 @@ var PS = {};
                               return "50";
                           };
                           return "100";
-                      })()), Pha_Html.fill("snow") ])([  ]) ])(Data_Semigroup.append(Data_Semigroup.semigroupArray)(Lib_Core.repeat(length)(function (j) {
+                      })()), Pha_Html.fill("snow") ]) ])(Data_Semigroup.append(Data_Semigroup.semigroupArray)(Lib_Core.tabulate(length)(function (j) {
                           return Pha_Html.rect([ Pha_Html.key("base-" + (Data_Show.show(Data_Show.showInt)(i) + ("-" + Data_Show.show(Data_Show.showInt)(j)))), Pha_Html.width("5"), Pha_Html.height("5"), Pha_Html.x("-2.5"), Pha_Html.y("-2.5"), Pha_Html.fill("gray"), Pha_Html.click(Pha.lensAction(function (dictFunctor) {
                               return lens(dictFunctor);
                           })(Lib_Game["_play'"](Game_Nim_Model.nimGame)(new Game_Nim_Model.Move(i, j)))), Pha_Html.style("transform")(translate((function () {
@@ -5123,7 +5125,7 @@ var PS = {};
                                   return "pointer";
                               };
                               return "not-allowed";
-                          })()) ])([  ]);
+                          })()) ]);
                       }))(Data_Array.mapWithIndex(function (j) {
                           return function (peg) {
                               return Pha_Html.use([ Pha_Html.key("p-" + (Data_Show.show(Data_Show.showInt)(i) + ("-" + Data_Show.show(Data_Show.showInt)(j)))), Pha_Html.href("#meeple"), Pha_Html.width("8"), Pha_Html.height("8"), Pha_Html["class'"]("nim-player")(true), Pha_Html.fill((function () {
@@ -5138,7 +5140,7 @@ var PS = {};
                                       return 26;
                                   };
                                   return 1;
-                              })() + (10 * peg | 0) | 0)(8 + (20 * i | 0) | 0)) ])([  ]);
+                              })() + (10 * peg | 0) | 0)(8 + (20 * i | 0) | 0)) ]);
                           };
                       })([ Data_Tuple.fst(pile), Data_Tuple.snd(pile) ])));
                   };

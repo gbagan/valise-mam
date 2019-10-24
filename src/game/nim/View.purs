@@ -7,7 +7,7 @@ import Pha (VDom, text, lensAction)
 import Pha.Html (div', span, br, svg, rect, use, class', key, style,
             click, width, href,
             height, x, y, fill, viewBox)
-import Lib.Core (repeat)
+import Lib.Core (tabulate)
 import Lib.Game ((🎲), canPlay, _play', isLevelFinished, _position, _turn)
 import Game.Nim.Model (NimState, Move(..), setNbPiles, _nbPiles, _length, setLength)
 import UI.Template (template)
@@ -53,8 +53,8 @@ view lens state = template lens elements state where
                             height "10",
                             width $ if length == 5 then "50" else "100",
                             fill "snow"
-                        ] []] <>
-                        (repeat length \j ->
+                        ]] <>
+                        (tabulate length \j ->
                             rect [
                                 key $ "base-" <> show i <> "-" <> show j,
                                 width "5",
@@ -65,7 +65,7 @@ view lens state = template lens elements state where
                                 click $ lensAction lens $ _play' $ Move i j,
                                 style "transform" $ translate ((if length == 5 then 30 else 5) + 10 * j) (12 + 20 * i) <> " rotate(45deg)",
                                 style "cursor" $ if canPlay state (Move i j) then "pointer" else "not-allowed"
-                            ] []) <> (
+                            ]) <> (
                         [fst pile, snd pile] # mapWithIndex \j peg ->
                             use [
                                 key $ "p-" <> show i <> "-" <> show j,
@@ -75,7 +75,7 @@ view lens state = template lens elements state where
                                 class' "nim-player" true,
                                 fill $ if j == 0 then "blue" else "red",
                                 style "transform" $ translate ((if length == 5 then 26 else 1) + 10 * peg) (8 + 20 * i)
-                            ] []
+                            ]
                         ),
                 span [class' "nim-turn-message" true] [
                     text (if isLevelFinished state then

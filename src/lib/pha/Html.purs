@@ -64,8 +64,8 @@ g = h "g"
 svg :: forall a. Array (Prop a) -> Array (VDom a) -> VDom a
 svg = h "svg"
 
-rect :: forall a. Array (Prop a) -> Array (VDom a) -> VDom a
-rect = h "rect"
+rect :: forall a. Array (Prop a) -> VDom a
+rect props = h "rect" props []
 
-use :: forall a. Array (Prop a) -> Array (VDom a) -> VDom a
-use = h "use"
+use :: forall a. Array (Prop a) -> VDom a
+use props = h "use" props []

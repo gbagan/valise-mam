@@ -21,8 +21,6 @@ data Ext = Ext
 type JetonState = State Position Unit
 
 instance jetonsGame :: Game (Array Int) Ext Move where
-    initialPosition state = pure $ replicate (state^._nbRows * state^._nbColumns) 1
-
     play state (Move from to) =
         let position = state^._position in
         fromMaybe position $ do
@@ -39,6 +37,8 @@ instance jetonsGame :: Game (Array Int) Ext Move where
             pto <- position !! to
             pure $ pfrom > 0 && pfrom <= pto && row * row + col * col == 1
     
+    initialPosition state = pure $ replicate (state^._nbRows * state^._nbColumns) 1
+
     isLevelFinished state =
         let position = state^._position
             columns = state^._nbColumns

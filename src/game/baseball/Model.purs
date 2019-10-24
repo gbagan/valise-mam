@@ -22,7 +22,7 @@ example :: BaseballState
 example = genState [] identity (Ext { nbBases: 5 })
 
 instance baseballGame :: Game (Array Int) ExtState Int where
-    play state i = state ^. _position # swap 0 i
+    play state i = state^._position # swap 0 i
     canPlay state i = fromMaybe false $ do
         let position = state^._position
         let nbBases = state^._nbBases

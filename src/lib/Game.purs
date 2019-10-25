@@ -90,12 +90,22 @@ instance lensactionrnd :: LensAction  a (State pos aux) (State pos aux -> Random
 
 infixl 3  _lensaction as 🎲
 
+data SizeLimit = SizeLimit Int Int Int Int
+
 class Game pos ext mov | ext -> pos mov where
     play :: State pos ext -> mov -> pos
     canPlay :: State pos ext -> mov -> Boolean
     initialPosition :: State pos ext -> Random pos
     isLevelFinished :: State pos ext -> Boolean
+    sizeLimit ::  State pos ext -> SizeLimit
     computerMove :: State pos ext -> Maybe (Random mov)
+    onNewGame :: State pos ext -> Random (State pos ext)
+
+defaultSizeLimit :: forall a. a -> SizeLimit
+defaultSizeLimit _ = SizeLimit 0 0 0 0
+
+defaultOnNewGame :: forall a. a -> Random a
+defaultOnNewGame = pure
 
 changeTurn :: forall pos ext. State pos ext -> State pos ext
 changeTurn state = if state^._mode == DuelMode then state # _turn %~ \x -> 1 - x else state
@@ -178,10 +188,11 @@ newGame f state =
                     # _position .~ position
                     # _history .~ []
                     # _redoHistory .~ []
+        state4 <- onNewGame state3
         if null $ state2 ^. _history then
-            pure state3
+            pure state4
         else
-            pure $ _dialog .~ ConfirmNewGame state3 $ state
+            pure $ _dialog .~ ConfirmNewGame state4 $ state
 
 newGame' :: forall a pos ext mov. Game pos ext mov =>
     (a -> State pos ext -> State pos ext) -> a -> State pos ext -> Random (State pos ext)
@@ -189,6 +200,15 @@ newGame' f val = newGame $ f val
 
 init :: forall pos ext mov. Game pos ext mov => State pos ext -> Random (State pos ext)
 init = newGame identity
+
+setCustomSize :: forall pos ext mov. Game pos ext mov => Int -> Int -> State pos ext -> Random (State pos ext)
+setCustomSize x y = newGame $ setCustomSize' x y where
+    setCustomSize' nbRows nbColumns state =
+        if nbRows >= minrows && nbRows <= maxrows && nbColumns >= mincols && nbColumns <= maxcols then
+            state # _nbRows .~ nbRows # _nbColumns .~ nbColumns
+        else
+            state
+        where SizeLimit minrows mincols maxrows maxcols = sizeLimit state
 
 confirmNewGame :: forall pos ext. State pos ext -> State pos ext -> State pos ext
 confirmNewGame st _ = st # _dialog .~ NoDialog

@@ -2,13 +2,23 @@ module Game.Frog.View where
 
 import Prelude
 import Math (cos, sin, pi, sqrt)
-import Data.Array (concat, mapWithIndex, reverse)
+import Data.Array ((!!), concat, mapWithIndex, reverse)
+import Data.Maybe (maybe, fromMaybe)
 import Data.Tuple (Tuple(..))
 import Data.String (joinWith)
 import Data.Int (toNumber)
+import Optic.Core (Lens', (^.))
 import Lib.Core (tabulate, pairwise, floatRange)
-import Pha (VDom)
-import Pha.Html (use, class', href, x, y, width, height)
+import Pha (VDom, text, lensAction)
+import Pha.Html (div', span, br, svg, viewBox, g, use, line, path, text',
+                class', key, click, style,
+                width, height, stroke, fill, strokeDasharray, strokeWidth, translate)
+import UI.Template (template, incDecGrid)
+import UI.Dialog (card)
+import UI.Icon (icongroup)
+import UI.Icons (iconSelectGroupM, icons2Players, iundo, iredo, ireset, irules)
+import Lib.Game (Mode(..), (🎲), _nbRows, _position, _turn, _mode, _play')
+import Game.Frog.Model (FrogState, _moves, selectMove, reachableArray)
 
 type Cartesian = { x :: Number, y :: Number}
 type Polar = { radius :: Number, theta :: Number }
@@ -55,114 +65,89 @@ spiralPath :: String
 spiralPath = spiral { x: 0.0, y: 0.0 } 0.0 61.0 0.0 (37.0 / 6.0 * pi) (pi / 6.0)
 
 -- shift = (_, e) => e.shiftKey;
-lily :: forall a. Number -> Number -> Int -> Boolean -> Boolean -> VDom a
-lily px py i reachable hidden =
-    use ([
-        href "#lily",
+lily :: forall a. Int -> Number -> Number -> Boolean -> Boolean -> VDom a
+lily i x y reachable hidden =
+    (if i == 0 then
+        use (x - 30.0) (y - 45.0) 80.0 80.0 
+    else
+        use (x - 24.0) (y - 24.0) 48.0 48.0
+    ) "#lily" [
         class' "frog-lily" true,
         class' "reachable" reachable,
-        class' "hidden" hidden  
-    ] <> (if i == 0 then
-            [ width "80", height "80", x $ show $ px - 30.0, y $ show $ py - 45.0]
-        else
-            [ width "48", height "48", x $ show $ px - 24.0, y $ show $ py - 24.0]
-    ))
-{-
-export default state => template(state, actions, C => {
-    const pointsPolar = spiralPointsPolar(state.rows);
+        class' "hidden" hidden
+    ]
 
-    const Config = () => iconfactory(state, actions)(I =>
-        Card({ title: 'La grenouille' },
-            I.Group({
-                title: 'Déplacements autorisés',
-                list: [1, 2, 3, 4, 5],
-                multi: true,
-                select: state.moves,
-                onclick: actions.selectMove
-            }),
-            I.For2Players(),
-            I.Group({ title: 'Options' },
-                I.Help(), I.Undo(), I.Redo(), I.Reset(), I.Rules()
-            )
-        )
-    );
-
-    const Grid = () =>
-        div({ class: 'ui-board frog-board' },
-            svg({ viewBox: '-190 -200 400 400', height: '100%', width: '100%' },
-                path({ id: 'spiral', d: spiralPath, fill: 'none', stroke: 'black', 'stroke-width': 3 }),
-                line({ x1: 153, y1: 9, x2: 207, y2: 20, stroke: 'black', 'stroke-dasharray': 5, 'stroke-width': 6 }),
-                line({ x1: 153, y1: 7, x2: 153, y2: 39, stroke: 'black', 'stroke-width': 3 }),
-                line({ x1: 207, y1: 18, x2: 207, y2: 50, stroke: 'black', 'stroke-width': 3 }),
-
-                spiralPoints(state.rows).map(({ x, y }, i) =>
-                    g({
-                        key: 'lily' + i,
-                        onclick: actions.when(shift, [actions.mark, i], [actions.play, i])
-                    },
-                        lily({ i, x, y, reachable: false }),
-                        lily({ i, x, y, reachable: true, hidden: !state.reachable[i] || state.hideReachable }),
-                        text({ x, y, class: 'frog-index' }, state.help && state.rows - i)
-                    )
-                ),
-
-                state.marked.map((b, i) => b && i !== state.position &&
-                    use({
-                        key: 'reach' + i,
-                        href: '#frog',
-                        class: 'frog-frog marked',
-                        x: spiralPoints[i].x - 16,
-                        y: spiralPoints[i].y - 20,
-                        width: 32,
-                        height: 32
-                    })
-                ),
-
-                g({
-                    key: 'frog',
-                    class: 'frog-frog-container',
-                    style: {
-                        transform: `translate(${pointsPolar[state.position].radius}px, 0)`
-                            + ` rotate(${pointsPolar[state.position].theta * 180 / Math.PI}deg)`,
-                        'transform-origin': `${-pointsPolar[state.position].radius}px 0`,
-                    }
-                },
-                    g({
-                        class: 'frog-frog-container',
-                        style: {
-                            transform: `rotate(-${pointsPolar[state.position].theta * 180 / Math.PI}deg)`,
-                        }
-                    },
-                        use({
-                            href: '#frog',
-                            width: 40,
-                            height: 40,
-                            x: -20,
-                            y: -20,
-                            class: {
-                                'frog-frog': true,
-                                goal: state.position === 0
-                            },
-                        })
-                    ),
+view :: forall a. Lens' a FrogState -> FrogState -> VDom a
+view lens state = template lens {config, board, rules} state where
+    position = state^._position
+    reachable = reachableArray state
+    pointsPolar = spiralPointsPolar $ state^._nbRows
+    config = card "La grenouille" [
+        iconSelectGroupM lens state "Déplacements autorisés" [1, 2, 3, 4, 5] (state^._moves) selectMove,
+        icons2Players lens state,
+        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x lens state -- help
+    ]
+    grid = 
+        div' [class' "ui-board frog-board" true] [
+            svg [viewBox "-190 -200 400 400", height "100%", width "100%"] $
+                [
+                    path spiralPath [fill "none", stroke "black", strokeWidth "3"],
+                    line 153.0 9.0 207.0 20.0 [stroke "black", strokeDasharray "5", strokeWidth "6"],
+                    line 153.0 7.0 153.0 39.0 [stroke "black", strokeWidth "3"],
+                    line 207.0 18.0 207.0 50.0 [stroke "black", strokeWidth "3"]
+                ] <> (spiralPoints (state^._nbRows) # mapWithIndex \i {x, y} ->
+                    g [
+                        key $ "lily" <> show i,
+                        click $ lensAction lens $ _play' i   -- actions.when(shift, [actions.mark, i], [actions.play, i])
+                    ] [
+                        lily i x y false false,
+                        lily i x y true (maybe true not $ reachable !! i), --  || state.hideReachable),
+                        text' x y (if true {- state^._help -} then show $ (state^._nbRows) - i else "") [class' "frog-index" true]
+                    ]
                 )
-            ),
-            span(state.position === 0 ? 'Partie finie' : state.turn === 0
-                ? 'Tour du premier joueur' : state.mode === 'duel' ? 'Tour du second joueur' : 'Tour de l\'IA'
-            )
-        );
+                {- <> state.marked.map((b, i) => b && i !== state.position &&
+                use({
+                    key: 'reach' + i,
+                    href: '#frog',
+                    class: 'frog-frog marked',
+                                            x: spiralPoints[i].x - 16,
+                    y: spiralPoints[i].y  20,
+                    width: 32,
+                    height: 32
+                }) -}
+                <> [ let {radius, theta} = fromMaybe {radius: 0.0, theta: 0.0} (pointsPolar !! position) in
+                    g [
+                    key "frog",
+                    class' "frog-frog-container" true,
+                    style "transform" $ translate radius 0.0 <> " rotate(" <> show (theta * 180.0 / pi) <> "deg)",
+                    style "transform-origin" $ show (-radius) <> "px 0"
+                ] [
+                    g [
+                        class' "frog-frog-container" true,
+                        style "transform" $ "rotate(" <> show (-theta * 180.0 / pi) <> "deg)"
+                    ] [
+                        use (-20.0) (-20.0) 40.0 40.0 "#frog" [
+                            class' "frog-frog" true,
+                            class' "goal" $ position == 0
+                        ]
+                    ]
+                ]],
+            span [] [text $
+                if position == 0 then
+                    "Partie finie"
+                else if state^._turn == 0 then
+                    "Tour du premier joueur"
+                else if state^._mode == DuelMode then
+                    "Tour du second joueur"
+                else 
+                    "Tour de l'IA"
+            ]
+        ]
 
-    const Board = () => C.IncDecGrid(Grid());
+    board = incDecGrid lens state [grid]
 
-    const HelpDialog = () =>
-        C.HelpDialog(
-            'Jeu de la grenouille', br,
-            'Règles pas encore définies'
-        );
-
-    return {
-        Board, HelpDialog, Config,
-        winTitle: winTitleFor2Players(state)
-    };
-});
--}
+    rules = [
+        text "Jeu de la grenouille", br,
+        text "Règles pas encore définies"
+    ]
+    -- winTitle: winTitleFor2Players(state)

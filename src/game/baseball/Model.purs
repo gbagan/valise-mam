@@ -6,7 +6,7 @@ import Data.Maybe (Maybe(..), fromMaybe)
 import Optic.Core (lens, Lens', set, (^.))
 import Lib.Core (swap)
 import Lib.Random (Random, shuffle)
-import Lib.Game (class Game, State(..), genState, newGame', _position)
+import Lib.Game (class Game, State(..), genState, newGame', _position, defaultSizeLimit, defaultOnNewGame)
 
 type Position = Array Int
 type Move = Int
@@ -18,8 +18,8 @@ type BaseballState = State Position ExtState
 _nbBases :: Lens' BaseballState Int
 _nbBases = lens (\(State _ (Ext s)) -> s.nbBases) (\(State s (Ext ext)) x -> State s (Ext ext{nbBases = x}))
 
-example :: BaseballState
-example = genState [] identity (Ext { nbBases: 5 })
+baseballState :: BaseballState
+baseballState = genState [] identity (Ext { nbBases: 5 })
 
 instance baseballGame :: Game (Array Int) ExtState Int where
     play state i = state^._position # swap 0 i
@@ -34,6 +34,8 @@ instance baseballGame :: Game (Array Int) ExtState Int where
     initialPosition state = shuffle $ 0 .. (2 * (state^._nbBases) - 1)
     isLevelFinished state = state^._position # mapWithIndex (\i j -> i / 2 == j / 2) # all identity
     computerMove state = Nothing
+    sizeLimit = defaultSizeLimit
+    onNewGame = defaultOnNewGame
 
 setNbBases :: Int -> BaseballState -> Random BaseballState
 setNbBases = newGame'(set _nbBases)

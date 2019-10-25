@@ -4,6 +4,7 @@ import Prelude
 import Data.Maybe (fromMaybe)
 import Data.Tuple (Tuple (..))
 import Data.Array ((..), (!!), updateAt, length, unsafeIndex)
+import Data.Int (toNumber, floor)
 import Partial.Unsafe (unsafePartial)
 
 tabulate :: forall a. Int -> (Int -> a) -> Array a
@@ -14,7 +15,7 @@ tabulate2 :: forall a. Int -> Int -> ({ row :: Int, col :: Int } -> a) -> Array 
 tabulate2 n m f = tabulate (n * m) $ \i -> f { row: i / m, col : i `mod` m }
 
 floatRange :: Number -> Number -> Number -> Array Number
-floatRange begin end step = []
+floatRange begin end step = tabulate (max 0 (floor $ 1.0 + (end - begin) / step)) \i -> begin + toNumber i * step
 
 pairwise :: forall a. Array a -> Array (Tuple a a)
 pairwise l =

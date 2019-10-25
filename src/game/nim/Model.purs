@@ -9,7 +9,8 @@ import Data.Int.Bits (xor)
 import Optic.Core (lens, Lens', view, set, (^.))
 import Lib.Core (tabulate2)
 import Lib.Random (Random, randomInt)
-import Lib.Game (class Game, class TwoPlayersGame, State (..), Mode(..), genState, newGame', canPlay, _position, _turn, computerMove')
+import Lib.Game (class Game, class TwoPlayersGame, State (..), Mode(..),
+                genState, newGame', canPlay, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
 
 data Move = Move Int Int
 data ExtState = Ext {
@@ -47,6 +48,8 @@ instance nimGame :: Game (Array (Tuple Int Int)) ExtState Move where
             pure $ Tuple x (y + 5)
 
     computerMove = computerMove'
+    sizeLimit = defaultSizeLimit
+    onNewGame = defaultOnNewGame
 
 instance nimGame2 :: TwoPlayersGame (Array (Tuple Int Int)) ExtState Move where
     possibleMoves state =

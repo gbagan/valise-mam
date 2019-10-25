@@ -1,12 +1,21 @@
-import purs from "rollup-plugin-purs";
+import commonjs from 'rollup-plugin-commonjs';
+import { terser } from "rollup-plugin-terser";
 
 export default {
-    input: "src/Main.purs",
+    input: "./index.js",
     output: {
-        file: "bundle.js",
-        format: "iife"
+        file: "./bundle.js",
+        format: "iife",
+        name: "f"
     },
+
     plugins: [
-        purs()
+        commonjs(),
+        terser({
+                ecma: 6,
+                compress: {
+                    unsafe_arrows: true
+                }
+        })
     ]
 };

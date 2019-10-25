@@ -1,55 +1,76 @@
 module UI.Icons where
 import Prelude
-import Data.Array (null)
+import Data.Array (null, elem)
 import Data.Maybe (Maybe(..))
 import Optic.Core (Lens', (^.), (.~))
-import Pha (VDom, Prop, text, Action, action, lensAction)
-import Pha.Html (div', click, class', style)
-import Lib.Game (State, class Game, undo, redo, reset, Dialog(Rules), Mode(..), _dialog, _history, _showWin, _mode)
-import UI.Icon (iconbutton, icongroup, Options, Icon(IconSymbol)) as I
+import Pha (VDom, Prop, Action, action, lensAction)
+import Pha.Html (click, style)
+import Lib.Game (State, class LensAction, (🎲), undo, redo, reset, Dialog(Rules), Mode(..),
+                _dialog, _history, _redoHistory, _mode)
+import UI.Icon (iconbutton, icongroup, Options, Icon(..)) as I
 
 type LensAction a b = (b -> b) -> Action a
 
-iconbutton :: forall a b c d. Game a b c =>
+iconbutton :: forall a b d.
     State a b
     -> (I.Options -> I.Options)
     -> Array (Prop d)
     -> VDom d
 iconbutton state optionFn props = I.iconbutton optionFn props
 
-iundo :: forall a b c d.  Game a b c => Lens' d (State a b) -> State a b -> VDom d
+iundo :: forall a b d. Lens' d (State a b) -> State a b -> VDom d
 iundo lens state =
     iconbutton
         state
-        (_{icon = I.IconSymbol "#undo", disabled = null $ state^._history})
+        (_{icon = I.IconSymbol "#undo", tooltip = Just "Annule le dernier coup effectué", disabled = null $ state^._history})
         [click $ lensAction lens $ action undo]
 
-iredo :: forall a b c d.  Game a b c => Lens' d (State a b) -> State a b -> VDom d
+iredo :: forall a b d. Lens' d (State a b) -> State a b -> VDom d
 iredo lens state =
     iconbutton
         state
-        (_{icon = I.IconSymbol "#undo", disabled = null $ state^._history})
+        (_{icon = I.IconSymbol "#undo", tooltip = Just "Rejoue le coup annulé", disabled = null $ state^._redoHistory})
         [click $ lensAction lens $ action redo, style "transform" "scaleX(-1)"]
 
-ireset :: forall a b c d.  Game a b c => Lens' d (State a b) -> State a b -> VDom d
+ireset :: forall a b d. Lens' d (State a b) -> State a b -> VDom d
 ireset lens state =
     iconbutton
         state
-        (_{icon = I.IconSymbol "#reset", disabled = null $ state^._history})
+        (_{icon = I.IconSymbol "#reset", tooltip = Just "Recommence la partie", disabled = null $ state^._history})
         [click $ lensAction lens $ action reset]
 
-irules :: forall a b c d.  Game a b c => Lens' d (State a b) -> State a b -> VDom d
+irules :: forall a b d. Lens' d (State a b) -> State a b -> VDom d
 irules lens state =
     iconbutton
         state
-        (_{icon = I.IconSymbol "#rules", selected = selected})
+        (_{icon = I.IconSymbol "#rules", tooltip = Just "Règles", selected = selected})
         [click $ lensAction lens $ action $ _dialog .~ Rules]
     where
         selected = case state^._dialog of
             Rules -> true
             _ -> false
 
-icons2Players :: forall a b c d.  Game a b c => Lens' d (State a b) -> State a b -> VDom d
+iconSelectGroup :: forall a pos ext d act.
+    Show a => Eq a => LensAction d (State pos ext) act =>
+    Lens' d (State pos ext) -> State pos ext -> String -> Array a -> a -> (a -> act) -> VDom d
+iconSelectGroup lens state title values selected action =
+    I.icongroup title $ values <#> \val ->
+        iconbutton state (_{
+            icon = I.IconText $ show val,
+            selected = val == selected
+        }) [click $ lens 🎲 action val]
+
+iconSelectGroupM :: forall a pos ext d act.
+    Show a => Eq a => LensAction d (State pos ext) act =>
+    Lens' d (State pos ext) -> State pos ext -> String -> Array a -> Array a -> (a -> act) -> VDom d
+iconSelectGroupM lens state title values selected action =
+    I.icongroup title $ values <#> \val ->
+        iconbutton state (_{
+            icon = I.IconText $ show val,
+            selected = elem val selected
+        }) [click $ lens 🎲 action val]
+
+icons2Players :: forall a b d. Lens' d (State a b) -> State a b -> VDom d
 icons2Players lens state =
     I.icongroup "Mode de jeu" [
         iconbutton
@@ -66,11 +87,3 @@ icons2Players lens state =
             [click $ lensAction lens $ action $ _mode .~ DuelMode]
     ]
 
-
-winPanel :: forall a b d. State a b -> VDom d
-winPanel state =
-    div' [class' "ui-flex-center ui-absolute component-win-container" true] [
-        div' [class' "component-win" true, class' "visible" $ state^._showWin] [
-            text "GAGNÉ"
-        ]
-    ]

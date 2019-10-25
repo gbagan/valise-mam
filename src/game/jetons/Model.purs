@@ -5,7 +5,7 @@ import Data.Array (length, replicate, (!!), (..), updateAt, modifyAt, all)
 import Data.Maybe (Maybe (..), fromMaybe)
 import Optic.Core ((^.))
 import Lib.Core (dCoords)
-import Lib.Game (class Game, State, _position, _nbColumns, _nbRows)
+import Lib.Game (class Game, State, _position, _nbColumns, _nbRows, defaultSizeLimit, defaultOnNewGame)
 
 
 -- export default template({
@@ -50,7 +50,8 @@ instance jetonsGame :: Game (Array Int) Ext Move where
             x * (y + z) == 0
     
     computerMove _ = Nothing
-
+    sizeLimit = defaultSizeLimit
+    onNewGame = defaultOnNewGame
     -- objective = "minimize",
     --function = nbNonEmptyCells
     -- params = attrs('columns,rows')

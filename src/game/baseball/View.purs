@@ -9,7 +9,7 @@ import Pha (VDom, emptyNode, text, (🎲))
 import Pha.Html (div', svg, g, rect, use, class', key, style,
             click, width, height, stroke, fill, viewBox, translate)
 import Lib.Core (map2)
-import Lib.Game (canPlay, _play', isLevelFinished, _position)
+import Lib.Game (canPlay, playA, isLevelFinished, _position)
 import Game.Baseball.Model (BaseballState, setNbBases, _nbBases)
 import UI.Template (template)
 import UI.Dialog (card)
@@ -38,7 +38,7 @@ view lens state = template lens {config, board, rules} state where
     levelFinished = isLevelFinished state
     config =
         card "Baseball multicolore" [
-            iconSelectGroup lens state "nombres de bases" [4, 5, 6, 7, 8] nbBases setNbBases,
+            iconSelectGroup lens state "nombres de bases" [4, 5, 6, 7, 8] (\_ -> identity) nbBases setNbBases,
             icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> \x -> x lens state
         ]
 
@@ -62,7 +62,7 @@ view lens state = template lens {config, board, rules} state where
                             key $ "p" <> show peg
                         ] [ 
                             use 0.0 0.0 7.0 7.0 "#meeple" [
-                                click $ lens 🎲 _play' peg,
+                                click $ lens 🎲 playA peg,
                                 fill $ color,
                                 style "animation"
                                     if levelFinished then

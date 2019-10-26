@@ -9,7 +9,7 @@ import Effect (Effect)
 import Effect.Aff (Aff, delay, launchAff)
 import Effect.Class (liftEffect)
 import Control.Alt ((<|>))
-import Optic.Core (lens, Lens', (^.), (.~), (%~))
+import Optic.Core (lens, Lens', set, (^.), (.~), (%~))
 import Lib.Random (Random, RandomFn(..), runRnd, randomPick)
 import Pha (Action(..))
 
@@ -27,6 +27,7 @@ type CoreState pos ext = {
     nbRows :: Int,
     nbColumns :: Int,
     mode :: Mode,
+    help :: Boolean,
     showWin :: Boolean
 }
 
@@ -42,6 +43,7 @@ defaultCoreState p = {
     turn: 0,
     nbRows: 0,
     nbColumns: 0,
+    help: false,
     mode: SoloMode,
     showWin: false
 }
@@ -60,6 +62,9 @@ _redoHistory = lens (\(State s _) -> s.redoHistory) (\(State s ext) x -> State s
 
 _mode :: forall pos ext. Lens' (State pos ext) Mode
 _mode = lens (\(State s _) -> s.mode) (\(State s ext) x -> State s{mode = x} ext)
+
+_help :: forall pos ext. Lens' (State pos ext) Boolean
+_help = lens (\(State s _) -> s.help) (\(State s ext) x -> State s{help = x} ext)
 
 _turn :: forall pos ext. Lens' (State pos ext) Int
 _turn = lens (\(State s _) -> s.turn) (\(State s ext) x -> State s{turn = x} ext)
@@ -123,6 +128,9 @@ reset state = flip (maybe state) (N.fromArray $ state^._history) \hs ->
     $ _turn .~ 0
     $ state
 
+toggleHelp :: forall pos ext. State pos ext -> State pos ext
+toggleHelp = _help %~ not
+
 _play :: forall pos ext mov. Game pos ext mov => mov -> State pos ext -> State pos ext
 _play move state =
     if canPlay state move then
@@ -144,8 +152,23 @@ showVictory setState state = do
     liftEffect $ setState $ state
     pure unit
 
-_play' :: forall pos ext mov. Game pos ext mov => mov -> Action (State pos ext)
-_play' move = Action \setState _ state -> void $ launchAff $ do
+computerPlay :: forall pos ext mov. Game pos ext mov => (State pos ext -> Effect Unit) -> (State pos ext) -> Aff Unit
+computerPlay setState state = flip (maybe $ pure unit) (computerMove state) \rndmove -> do
+    move2 <- liftEffect $ runRnd rndmove
+    let st2 = _play move2 state
+    liftEffect $ setState $ st2
+    if isLevelFinished st2 then
+        showVictory setState st2
+    else
+        pure unit
+
+computerStarts :: forall pos ext mov. Game pos ext mov => Action (State pos ext)
+computerStarts = Action \setState _ state -> void $ launchAff $ do
+    let st2 = pushToHistory state
+    computerPlay setState st2
+
+playA :: forall pos ext mov. Game pos ext mov => mov -> Action (State pos ext)
+playA move = Action \setState _ state -> void $ launchAff $ do
     if not $ canPlay state move then
         pure unit
     else do
@@ -155,15 +178,7 @@ _play' move = Action \setState _ state -> void $ launchAff $ do
             showVictory setState st2
         else if state^._mode == ExpertMode then do
             delay $ Milliseconds 1000.0
-            flip (maybe $ pure unit) (computerMove st2) \rndmove -> do
-                move2 <- liftEffect $ runRnd rndmove
-                let st3 = _play move2 st2
-                liftEffect $ setState $ st3
-                if isLevelFinished st3 then
-                    showVictory setState st3
-                else
-                    pure unit
-            
+            computerPlay setState st2
         else 
             pure unit
 
@@ -172,12 +187,13 @@ newGame :: forall pos ext mov. Game pos ext mov =>
     (State pos ext -> State pos ext) -> RandomFn (State pos ext)
 newGame f = RandomFn \state ->
     let state2 = f state in do
-        position <- initialPosition state2
-        let state3 = state2
+        state3 <- onNewGame state2
+        position <- initialPosition state3
+        let state4 = state3
                     # _position .~ position
                     # _history .~ []
                     # _redoHistory .~ []
-        state4 <- onNewGame state3
+        
         if null $ state2 ^. _history then
             pure state4
         else
@@ -190,9 +206,12 @@ newGame' f val = newGame $ f val
 init :: forall pos ext mov. Game pos ext mov => State pos ext -> Random (State pos ext)
 init = init' where RandomFn init' = newGame identity
 
+setMode :: forall pos ext mov. Game pos ext mov => Mode -> RandomFn (State pos ext)
+setMode = newGame' (set _mode)
+
 setCustomSize :: forall pos ext mov. Game pos ext mov => Int -> Int -> RandomFn (State pos ext)
-setCustomSize x y = newGame $ setCustomSize' x y where
-    setCustomSize' nbRows nbColumns state =
+setCustomSize nbRows nbColumns = newGame $ setCustomSize' where
+    setCustomSize' state =
         if nbRows >= minrows && nbRows <= maxrows && nbColumns >= mincols && nbColumns <= maxcols then
             state # _nbRows .~ nbRows # _nbColumns .~ nbColumns
         else

@@ -2,8 +2,8 @@ module UI.Icon where
 
 import Prelude
 import Data.Maybe (Maybe (Nothing), maybe)
-import Pha (text, VDom, Prop, emptyNode, h)
-import Pha.Html (attr, div', span, svg, class', h2)
+import Pha (text, VDom, Prop, emptyNode)
+import Pha.Html (div', span, svguse, class', h2)
 
 data Icon = IconText String | IconSymbol String | IconNone
 
@@ -39,14 +39,9 @@ iconbutton optionFn props =
         class' "disabled" disabled
     ] <> props) [
         case icon of
-            IconSymbol symbol ->
-                svg [attr "width" "100%", attr "heigh" "100%", class' "ui-icon-symbol" true] [
-                    h "use" [attr "href" symbol] []
-                ]
-            IconText t ->
-                span [class' "ui-icon-text" true] [text t]
-            IconNone ->
-                emptyNode,  
+            IconSymbol symbol -> svguse symbol [class' "ui-icon-symbol" true]
+            IconText t -> span [class' "ui-icon-text" true] [text t]
+            IconNone -> emptyNode,  
         tooltip # maybe emptyNode (\t -> span [class' "ui-icon-tooltip" true] [text t])
     ]
 

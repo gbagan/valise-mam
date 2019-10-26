@@ -4,11 +4,10 @@ import Data.Tuple (Tuple (Tuple))
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Traversable (sequence)
 import Data.Array ((!!), replicate, mapWithIndex, all, foldr, modifyAtIndices)
-import Optic.Core (Lens', lens, (^.), (.~))
-import Lib.Random (Random, randomInt)
-import Lib.Core (tabulate, dCoords)
-import Lib.Game (class Game, class TwoPlayersGame, State (..), Mode(..), SizeLimit(..),
-                defaultSizeLimit, defaultOnNewGame, _position, _nbColumns, _nbRows, genState)
+import Optic.Core (Lens', lens, (^.), (.~), set)
+import Lib.Random (Random, RandomFn, randomInt)
+import Lib.Core (dCoords)
+import Lib.Game (class Game, State (..), SizeLimit(..), _position, _nbColumns, _nbRows, newGame', genState)
 
 type Position = { light :: Array Boolean, played :: Array Boolean }
 data ExtState = Ext {
@@ -67,6 +66,10 @@ instance jetonsGame :: Game { light :: Array Boolean, played :: Array Boolean } 
 sizes :: Array (Tuple Int Int)
 sizes = [ Tuple 3 3, Tuple 4 4, Tuple 2 10, Tuple 3 10, Tuple 5 5, Tuple 8 8, Tuple 8 8]
 
+selectMode :: Int -> RandomFn NoirblancState
+selectMode = newGame' \mode state -> state # _mode2 .~ mode # _level .~ 0
+selectLevel :: Int -> RandomFn NoirblancState
+selectLevel = newGame' (set _level)
 
 {-
     state: {
@@ -78,8 +81,8 @@ sizes = [ Tuple 3 3, Tuple 4 4, Tuple 2 10, Tuple 3 10, Tuple 5 5, Tuple 8 8, Tu
     },
 
     actions: $ => ({
-        selectLevel: $.newGame('level'),
-        selectMode: $.newGame(mode => ({ mode, level: 0 })),
+        
+        
         whenLevelFinished: state =>
             max(
                 state.level >= 4 ?

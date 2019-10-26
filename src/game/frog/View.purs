@@ -17,8 +17,8 @@ import Pha.Event (shift)
 import UI.Template (template, incDecGrid)
 import UI.Dialog (card)
 import UI.Icon (icongroup)
-import UI.Icons (iconSelectGroupM, icons2Players, iundo, iredo, ireset, irules)
-import Lib.Game (Mode(..), _nbRows, _position, _turn, _mode, _play')
+import UI.Icons (iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
+import Lib.Game (Mode(..), _nbRows, _position, _turn, _mode, _help, playA)
 import Game.Frog.Model (FrogState, _moves, _marked, selectMove, reachableArray, mark)
 
 type Cartesian = { x :: Number, y :: Number}
@@ -65,7 +65,6 @@ spiralPoints n = spiralPointsPolar n <#> polarToCartesian
 spiralPath :: String
 spiralPath = spiral { x: 0.0, y: 0.0 } 0.0 61.0 0.0 (37.0 / 6.0 * pi) (pi / 6.0)
 
--- shift = (_, e) => e.shiftKey;
 lily :: forall a. Int -> Number -> Number -> Boolean -> Boolean -> VDom a
 lily i x y reachable hidden =
     (if i == 0 then
@@ -87,7 +86,7 @@ view lens state = template lens {config, board, rules} state where
     config = card "La grenouille" [
         iconSelectGroupM lens state "Déplacements autorisés" [1, 2, 3, 4, 5] (state^._moves) selectMove,
         icons2Players lens state,
-        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x lens state -- help
+        icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x lens state
     ]
     grid = 
         div' [class' "ui-board frog-board" true] [
@@ -100,11 +99,11 @@ view lens state = template lens {config, board, rules} state where
                 ] <> (map2 spoints reachable \i {x, y} reach ->
                     g [
                         key $ "lily" <> show i,
-                        click $ lens 🎲 ifThenElseA shift (mark i) (_play' i)
+                        click $ lens 🎲 ifThenElseA shift (mark i) (playA i)
                     ] [
                         lily i x y false false,
                         lily i x y true (not reach), --  || state.hideReachable),
-                        text' x y (if true {- state^._help -} then show $ (state^._nbRows) - i else "") [class' "frog-index" true]
+                        text' x y (if state^._help then show $ (state^._nbRows) - i else "") [class' "frog-index" true]
                     ]
                 ) <> (map2 (state^._marked) spoints \i mark {x, y} ->
                     if mark && i /= position then

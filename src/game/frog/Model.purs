@@ -46,10 +46,10 @@ instance frogGame :: Game Int ExtState Int where
         --        }),
     isLevelFinished state = state^._position == 0
     computerMove = computerMove'
-    sizeLimit _ = SizeLimit 5 1 20 1
+    sizeLimit _ = SizeLimit 5 0 30 0
 
 instance frogGame2 :: TwoPlayersGame Int ExtState Int where
-    possibleMoves state = filter (canPlay state) (0 .. 20)
+    possibleMoves state = filter (canPlay state) (0 .. (state^._nbRows))
     isLosingPosition state = fromMaybe true $ state^._winning !! (state^._position)
 
 selectMove :: Int -> RandomFn FrogState

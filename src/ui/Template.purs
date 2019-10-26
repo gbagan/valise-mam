@@ -1,9 +1,10 @@
-module UI.Template (template, incDecGrid) where
+module UI.Template (template, gridStyle, incDecGrid) where
 import Prelude
+import Data.Int (toNumber)
 import Data.Maybe (Maybe(..))
 import Optic.Core (Lens', (^.), (.~))
-import Pha (VDom, text, emptyNode, (🎲))
-import Pha.Html (div', class')
+import Pha (VDom, Prop, text, emptyNode, (🎲))
+import Pha.Html (div', class', style)
 import Lib.Game (class Game, State, SizeLimit(..), Dialog(..),
         setCustomSize, _dialog, _nbColumns, _nbRows, _showWin, sizeLimit, confirmNewGame)
 import UI.Dialog (dialog)
@@ -23,6 +24,11 @@ winPanel state =
         ]
     ]
 
+gridStyle :: forall a. Int -> Int -> Array (Prop a)
+gridStyle rows columns = [style "height" $ show (toNumber rows / m * 100.0) <> "%",
+                                style "width" $ show (toNumber columns / m * 100.0) <> "%"]
+    where m = toNumber $ max 5 $ max rows columns
+
 incDecGrid :: forall pos ext mov d. Game pos ext mov => Lens' d (State pos ext) -> State pos ext -> Array (VDom d) -> VDom d
 incDecGrid lens state = U.incDecGrid {
     nbRows: state^._nbRows,
@@ -30,7 +36,7 @@ incDecGrid lens state = U.incDecGrid {
     showRowButtons: minRows < maxRows,
     showColButtons: minCols < maxCols,
     customSize: true,
-    onResize: \x y -> lens 🎲 (setCustomSize x y)
+    onResize: \x y -> lens 🎲 setCustomSize x y
 } where
     SizeLimit minRows minCols maxRows maxCols = sizeLimit state 
     
@@ -50,6 +56,6 @@ template lens elements state =
             dialog {title: "Règles du jeu", onCancel: Nothing, onOk: Just (lens 🎲 _dialog .~ NoDialog)} elements.rules
         dialog' (ConfirmNewGame s) =
             dialog {title: "Nouvelle partie", onCancel: Just (lens 🎲 _dialog .~ NoDialog), onOk: Just (lens 🎲 confirmNewGame s)} [
-                text "blah blah blah blah"
+                text "Tu es sur le point de créer une nouvelle partie. Ta partie en cours sera perdue. Es-tu sûr(e)?"
             ]
         dialog' _ = emptyNode

@@ -4420,7 +4420,7 @@ var PS = {};
   exports["_play"] = _play;
   exports["pushToHistory"] = pushToHistory;
   exports["showVictory"] = showVictory;
-  exports["_play'"] = _play$prime;
+  exports["playA"] = _play$prime;
   exports["newGame"] = newGame;
   exports["newGame'"] = newGame$prime;
   exports["init"] = init;
@@ -5113,7 +5113,7 @@ var PS = {};
                       })()), Pha_Html.fill("snow") ]) ])(Data_Semigroup.append(Data_Semigroup.semigroupArray)(Lib_Core.tabulate(length)(function (j) {
                           return Pha_Html.rect([ Pha_Html.key("base-" + (Data_Show.show(Data_Show.showInt)(i) + ("-" + Data_Show.show(Data_Show.showInt)(j)))), Pha_Html.width("5"), Pha_Html.height("5"), Pha_Html.x("-2.5"), Pha_Html.y("-2.5"), Pha_Html.fill("gray"), Pha_Html.click(Pha.lensAction(function (dictFunctor) {
                               return lens(dictFunctor);
-                          })(Lib_Game["_play'"](Game_Nim_Model.nimGame)(new Game_Nim_Model.Move(i, j)))), Pha_Html.style("transform")(translate((function () {
+                          })(Lib_Game["playA"](Game_Nim_Model.nimGame)(new Game_Nim_Model.Move(i, j)))), Pha_Html.style("transform")(translate((function () {
                               var $10 = length === 5;
                               if ($10) {
                                   return 30;

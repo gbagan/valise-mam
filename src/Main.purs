@@ -14,6 +14,8 @@ import Game.Nim.Model (NimState, nimState)
 import Game.Nim.View (view) as NimView
 import Game.Frog.Model (FrogState, frogState)
 import Game.Frog.View (view) as FrogView
+import Game.Noirblanc.Model (NoirblancState, noirblancState)
+import Game.Noirblanc.View (view) as NoirblancView
 
 extractLocation :: String -> String -> String
 extractLocation url defaultValue =
@@ -24,7 +26,8 @@ type RootState = {
     location :: String,
     baseball :: BaseballState,
     nim :: NimState,
-    frog :: FrogState
+    frog :: FrogState,
+    noirblanc :: NoirblancState
 }
 
 baseballLens :: Lens' RootState BaseballState
@@ -35,6 +38,9 @@ nimLens = lens (_.nim) (_{nim = _})
 
 frogLens :: Lens' RootState FrogState
 frogLens = lens (_.frog) (_{frog = _})
+
+noirblancLens :: Lens' RootState NoirblancState
+noirblancLens = lens (_.noirblanc) (_{noirblanc = _})
 
 foreign import getLocationHref :: Effect String
 
@@ -53,6 +59,7 @@ view :: RootState -> VDom RootState
 view state = case state.location of
     "baseball" -> BaseballView.view baseballLens state.baseball
     "frog" -> FrogView.view frogLens state.frog
+    "noirblanc" -> NoirblancView.view noirblancLens state.noirblanc
     _ -> NimView.view nimLens state.nim
 
 main :: Effect Unit
@@ -62,10 +69,12 @@ main = do
     baseballState' <- runRnd $ init baseballState
     nimState' <- runRnd $ init nimState
     frogState' <- runRnd $ init frogState
+    noirblancState' <- runRnd $ init noirblancState
     let state = {
         baseball: baseballState',
         nim: nimState',
         frog: frogState',
+        noirblanc: noirblancState',
         location: location
     }
     app {

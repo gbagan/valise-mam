@@ -84,3 +84,7 @@ text' x y t props = h "text" ([attr "x" $ show x, attr "y" $ show y] <> props) [
 translate :: Number -> Number -> String
 translate x y = "translate(" <> show x <> "px," <> show y <> "px)"
 
+
+svguse :: forall a. String -> Array (Prop a) -> VDom a
+svguse symbol props = svg [width "100%", height "100%"] [h "use" [attr "href" symbol] []]
+

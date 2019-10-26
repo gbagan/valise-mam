@@ -1,83 +1,69 @@
-{- const levels = [
-    { text: '3x3' },
-    { text: '4x4' },
-    { text: '2x10' },
-    { text: '3x10' },
-    { text: '5x5' },
-    { text: 'NxM', tooltip: 'Dimensions personnalisées' },
-    { symbol: 'lo-rand', tooltip: 'Grille aléatoire' },
-];
--}
+module Game.Noirblanc.View where
+
+import Prelude
+import Data.Int (toNumber)
+import Data.Maybe (Maybe(..))
+import Optic.Core (Lens', (^.))
+import Pha (Prop, VDom, text, (🎲))
+import Pha.Html (div', svguse, class', key, style, click)
+import Lib.Core (coords, map2)
+import Lib.Game (_position, _nbRows, _nbColumns, _help, playA)
+import Game.Noirblanc.Model (NoirblancState, _mode2, selectLevel, selectMode)
+import UI.Dialog (card)
+import UI.Icon (icongroup, Icon(..), Options)
+import UI.Icons (ihelp, ireset, irules, iconSelectGroup)
+import UI.Template (template, incDecGrid, gridStyle)
+
+levels :: Int -> Options -> Options
+levels i opt = case i of
+    0 -> opt { icon = IconText "4x4" }
+    1 -> opt { icon = IconText "4x4" }
+    2 -> opt { icon = IconText "2x10" }
+    3 -> opt { icon = IconText "3x10" }
+    4 -> opt { icon = IconText "5x5" }
+    5 -> opt { icon = IconText "NxM", tooltip = Just "Dimensions personnalisées" }
+    _ -> opt { icon = IconSymbol "#lo-rand", tooltip = Just "Grille aléatoire" }
 
 -- const lockedLevel = { symbol: 'locked', tooltip: 'Difficulté non débloquée', disabled: true };
 
-square :: forall a. Boolean -> Array (Attr a) -> VDom a
-square light attrs = 
-    div' ([class' "noirblanc-square"] <> attrs) [
+square :: forall a. Boolean -> Boolean -> Array (Prop a) -> VDom a
+square light cross props = 
+    div' ([class' "noirblanc-square" true] <> props) [
         div' [class' "noirblanc-square-inner" true, class' "blanc" light] [
-            div' [class' "noirblanc-square-blanc" true] [
-                {- cross && svg({
-                    width: '100%', height: '100%',
-                    class: 'ui-absolute noirblanc-cross'
-                }, use({href: '#cross'}))
-            ), -}
-            ],
+            div' [class' "noirblanc-square-blanc" true] $ 
+                if cross then [svguse "#cross" [class' "ui-absolute noirblanc-cross" true]] else [],
 
-            div' [class' "noirblanc-square-noir" true] [
-               {-
-                cross && svg({
-                    width: '100%', height: '100%',
-                    class: 'ui-absolute noirblanc-cross'
-                }, use({href: '#cross'}))
-                -}
-            ]
+            div' [class' "noirblanc-square-noir" true] $
+                if cross then [svguse "#cross" [class' "ui-absolute noirblanc-cross" true]] else []
         ]
     ]
 
-export default state => template(state, actions, C => {
-    grid = div' [class' "ui-board" true] [ -- style: gridStyle(state.rows, state.columns)
-        tabulate2 state.rows state.columns \row col index ->
+view :: forall a. Lens' a NoirblancState -> NoirblancState -> VDom a
+view lens state = template lens {config, board, rules} state where
+    rows = state^._nbRows
+    columns = state^._nbColumns
+    position = state^._position
+    grid = div' ([class' "ui-board" true] <> gridStyle rows columns) $
+        map2 position.light position.played \index light played ->
+            let {row, col} = coords columns index in
             square 
-                (state.position.light[index])
-                (state.help && state.position.played[index]) [
-                key' $ show index,
-                style "height" $ show (86.0 / state.nbRows) <> "%",
-                style "width" $ show (86.0 / state.nbColumns) <> "%",
-                style "left" $ show ((100.0 * toNumber col + 7) / state.columns) <> '%',
-                style "top" $ show (100 * row + 7) / state.rows + "%"
-                click: [actions.play, index]
+                light
+                (state^._help && played) [
+                key $ show index,
+                style "height" $ show (86.0 / toNumber rows) <> "%",
+                style "width" $ show (86.0 / toNumber columns) <> "%",
+                style "left" $ show ((100.0 * toNumber col + 7.0) / toNumber columns) <> "%",
+                style "top" $ show ((100.0 * toNumber row + 7.0) / toNumber rows) <> "%",
+                click $ lens 🎲 playA index
             ]
 
-    board = incDecGrid grid
+    board = incDecGrid lens state [grid]
 
-    config =
-        card "Tout noir tout blanc"
-            I.Group({
-                title: 'Mode jeu',
-                list: [0, 1, 2, 3],
-                symbol: i => `lo-mode${i + 1}`,
-                select: state.mode,
-                onclick: actions.selectMode
-            }),
-
-            I.Group({ title: 'Difficulté' },
-                levels.map((m, i) =>
-                    I.Icon({
-                        ...(i <= state.maxLevels[state.mode] ? m : lockedLevel),
-                        key: i,
-                        selected: state.level === i,
-                        onclick: [actions.selectLevel, i]
-                    })
-                )
-            ),
-
-            I.Group({ title: 'options' },
-                I.Help(), I.Reset(), I.Rules()
-            )
-        )
-    );
-
-    const HelpDialog = () => C.HelpDialog('blablahblah');
-
-    return { Config, Board, HelpDialog };
-});
+    config = card "Tout noir tout blanc" [
+        let fn i = _{icon = IconSymbol $ "#lo-mode" <> show (i + 1)} in
+        iconSelectGroup lens state "Mode jeu" [0, 1, 2, 3] fn (state^._mode2) selectMode,
+        let fn i opt = levels i opt in
+        iconSelectGroup lens state "Difficulté" [0, 1, 2, 3, 4, 5, 6] fn (state^._mode2) selectLevel,
+        icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state
+    ]
+    rules = [text "blablahblah"]

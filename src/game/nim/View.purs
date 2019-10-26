@@ -8,7 +8,7 @@ import Pha (VDom, text, (🎲))
 import Pha.Html (div', span, br, svg, rect, use, class', key, style,
             click, width, height, fill, viewBox, translate)
 import Lib.Core (tabulate)
-import Lib.Game (canPlay, _play', isLevelFinished, _position, _turn)
+import Lib.Game (canPlay, playA, isLevelFinished, _position, _turn)
 import Game.Nim.Model (NimState, Move(..), setNbPiles, _nbPiles, _length, setLength)
 import UI.Template (template)
 import UI.Dialog (card)
@@ -22,8 +22,8 @@ view lens state = template lens {config, board, rules} state where
     length = state^._length
 
     config = card "Poker Nim" [
-        iconSelectGroup lens state "Nombre de rangées" [1, 2, 3, 4, 5] nbPiles setNbPiles,
-        iconSelectGroup lens state "Taille des rangées" [10, 5] length setLength,
+        iconSelectGroup lens state "Nombre de rangées" [1, 2, 3, 4, 5] (\_ -> identity) nbPiles setNbPiles,
+        iconSelectGroup lens state "Taille des rangées" [10, 5] (\_ -> identity) length setLength,
         icons2Players lens state,
         icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x lens state
     ]
@@ -43,7 +43,7 @@ view lens state = template lens {config, board, rules} state where
                     rect (-2.5) (-2.5) 5.0 5.0 [
                         key $ "base-" <> show i <> "-" <> show j,
                         fill "gray",
-                        click $ lens 🎲 _play' (Move i j),
+                        click $ lens 🎲 playA (Move i j),
                         style "transform" $
                             translate (toNumber $ (if length == 5 then 30 else 5) + 10 * j) (toNumber $ 12 + 20 * i) <>
                             " rotate(45deg)",

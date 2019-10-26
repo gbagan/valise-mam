@@ -12,6 +12,7 @@ import Lib.Core (tabulate, swap)
 
 newtype Seed = Seed Number
 newtype Random a = Random  (Seed -> Tuple a Seed)
+newtype RandomFn a = RandomFn (a -> Random a)
 
 instance monadRandom :: Monad Random
 
@@ -42,15 +43,12 @@ foreign import genSeed :: Effect Seed
 randomInt :: Int -> Random Int
 randomInt n = Random (\seed -> Tuple (intFromSeed seed n) (nextSeed seed))
 
-randomInts :: Int -> Int -> Random (Array Int)
-randomInts n x = sequence $ replicate n (randomInt x)
-
-randomInts' :: Int -> (Int -> Int) -> Random (Array Int)
-randomInts' n fn = sequence $ tabulate n (\i -> randomInt $ fn i)
+randomBool :: Random Boolean
+randomBool = randomInt 2 <#> eq 0
 
 shuffle :: forall a. Array a -> Random (Array a)
 shuffle array = do
-    rnds <- randomInts' (n - 1) (\x -> n - x)
+    rnds <- sequence $ tabulate (n - 1) (\x -> randomInt $ n - x)
     pure (rnds 
         # mapWithIndex (\i j -> Tuple i (i + j))
         # foldr (uncurry swap) array

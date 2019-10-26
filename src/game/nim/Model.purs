@@ -8,7 +8,7 @@ import Data.Array ((!!), filter, sortWith, modifyAtIndices, all, replicate, fold
 import Data.Int.Bits (xor)
 import Optic.Core (lens, Lens', view, set, (^.))
 import Lib.Core (tabulate2)
-import Lib.Random (Random, randomInt)
+import Lib.Random (RandomFn, randomInt)
 import Lib.Game (class Game, class TwoPlayersGame, State (..), Mode(..),
                 genState, newGame', canPlay, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
 
@@ -61,8 +61,8 @@ instance nimGame2 :: TwoPlayersGame (Array (Tuple Int Int)) ExtState Move where
 
     isLosingPosition = view _position >>> foldr (\t -> xor (snd t - fst t - 1)) 0 >>> eq 0
 
-setNbPiles :: Int -> NimState -> Random NimState
+setNbPiles :: Int -> RandomFn NimState
 setNbPiles = newGame'(set _nbPiles)
 
-setLength :: Int -> NimState -> Random NimState
+setLength :: Int -> RandomFn NimState
 setLength = newGame'(set _length)

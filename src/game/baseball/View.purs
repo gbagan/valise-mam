@@ -2,15 +2,14 @@ module Game.Baseball.View where
 
 import Prelude
 import Data.Int (toNumber)
-import Data.Maybe (fromMaybe)
-import Data.Array ((!!), mapWithIndex)
+import Data.Array (take, mapWithIndex, concatMap)
 import Math (cos, sin, pi)
 import Optic.Core (Lens', (^.))
-import Pha (VDom, emptyNode, text, lensAction)
+import Pha (VDom, emptyNode, text, (🎲))
 import Pha.Html (div', svg, g, rect, use, class', key, style,
             click, width, height, stroke, fill, viewBox, translate)
-import Lib.Core (tabulate)
-import Lib.Game ((🎲), canPlay, _play', isLevelFinished, _position)
+import Lib.Core (map2)
+import Lib.Game (canPlay, _play', isLevelFinished, _position)
 import Game.Baseball.Model (BaseballState, setNbBases, _nbBases)
 import UI.Template (template)
 import UI.Dialog (card)
@@ -19,6 +18,8 @@ import UI.Icons (iconSelectGroup, iundo, iredo, ireset, irules)
 
 colors :: Array String
 colors = ["blue", "red", "green", "magenta", "orange", "black", "cyan", "gray"]
+dupColors :: Array String
+dupColors = colors # concatMap \x -> [x, x]
 
 translatePeg :: Int -> Int -> String
 translatePeg position nbBases = translate x y  where
@@ -44,14 +45,14 @@ view lens state = template lens {config, board, rules} state where
     board =
         div' [class' "ui-board baseball-board" true] [
             svg [width "100%", height "100%", viewBox "0 0 100 100"] $ 
-                (tabulate nbBases \i ->
+                (take nbBases colors # mapWithIndex \i color ->
                     rect (-10.0) (-10.0) 20.0 20.0 [
-                        key ("b" <> show i),
+                        key $ "b" <> show i,
                         class' "baseball-base" true,
-                        stroke $ fromMaybe "black" $ colors !! i,
+                        stroke $ color,
                         style "transform" $ transformBase i nbBases
                     ]
-                ) <> (state^._position # mapWithIndex \peg pos ->
+                ) <> (map2 (state^._position) dupColors \peg pos color ->
                     if peg == 0 then
                         emptyNode
                     else
@@ -61,8 +62,8 @@ view lens state = template lens {config, board, rules} state where
                             key $ "p" <> show peg
                         ] [ 
                             use 0.0 0.0 7.0 7.0 "#meeple" [
-                                click $ lensAction lens $ _play' peg,
-                                fill $ fromMaybe "black" $ colors !! (peg / 2),
+                                click $ lens 🎲 _play' peg,
+                                fill $ color,
                                 style "animation"
                                     if levelFinished then
                                         "baseballHola 4s linear " <> show (1000 + 2000 * peg / nbBases)

@@ -10,8 +10,8 @@ import Effect.Aff (Aff, delay, launchAff)
 import Effect.Class (liftEffect)
 import Control.Alt ((<|>))
 import Optic.Core (lens, Lens', (^.), (.~), (%~))
-import Lib.Random (Random, runRnd, randomPick)
-import Pha (Action, action, rndAction, lensAction)
+import Lib.Random (Random, RandomFn(..), runRnd, randomPick)
+import Pha (Action(..))
 
 data Dialog a = Rules | NoDialog | ConfirmNewGame a
 data Mode = SoloMode | RandomMode | ExpertMode | DuelMode
@@ -79,17 +79,6 @@ _levelFinished = lens (\(State s _) -> s.levelFinished) (\(State s ext) x -> Sta
 _showWin :: forall pos ext. Lens' (State pos ext) Boolean
 _showWin = lens (\(State s _) -> s.showWin) (\(State s ext) x -> State s{showWin = x} ext)
 
-class LensAction a b c | c -> b where 
-    _lensaction :: Lens' a b -> c -> Action a
-      
-instance lensaction1 :: LensAction  a (State pos aux) (State pos aux -> State pos aux) where
-    _lensaction lens f = lensAction lens $ action f
-
-instance lensactionrnd :: LensAction  a (State pos aux) (State pos aux -> Random(State pos aux)) where
-    _lensaction lens f = lensAction lens $ rndAction f
-
-infixl 3  _lensaction as 🎲
-
 data SizeLimit = SizeLimit Int Int Int Int
 
 class Game pos ext mov | ext -> pos mov where
@@ -156,7 +145,7 @@ showVictory setState state = do
     pure unit
 
 _play' :: forall pos ext mov. Game pos ext mov => mov -> Action (State pos ext)
-_play' move setState state = void $ launchAff $ do
+_play' move = Action \setState _ state -> void $ launchAff $ do
     if not $ canPlay state move then
         pure unit
     else do
@@ -180,8 +169,8 @@ _play' move setState state = void $ launchAff $ do
 
 
 newGame :: forall pos ext mov. Game pos ext mov =>
-    (State pos ext -> State pos ext) -> State pos ext -> Random (State pos ext)
-newGame f state =
+    (State pos ext -> State pos ext) -> RandomFn (State pos ext)
+newGame f = RandomFn \state ->
     let state2 = f state in do
         position <- initialPosition state2
         let state3 = state2
@@ -195,13 +184,13 @@ newGame f state =
             pure $ _dialog .~ ConfirmNewGame state4 $ state
 
 newGame' :: forall a pos ext mov. Game pos ext mov =>
-    (a -> State pos ext -> State pos ext) -> a -> State pos ext -> Random (State pos ext)
+    (a -> State pos ext -> State pos ext) -> a -> RandomFn (State pos ext)
 newGame' f val = newGame $ f val
 
 init :: forall pos ext mov. Game pos ext mov => State pos ext -> Random (State pos ext)
-init = newGame identity
+init = init' where RandomFn init' = newGame identity
 
-setCustomSize :: forall pos ext mov. Game pos ext mov => Int -> Int -> State pos ext -> Random (State pos ext)
+setCustomSize :: forall pos ext mov. Game pos ext mov => Int -> Int -> RandomFn (State pos ext)
 setCustomSize x y = newGame $ setCustomSize' x y where
     setCustomSize' nbRows nbColumns state =
         if nbRows >= minrows && nbRows <= maxrows && nbColumns >= mincols && nbColumns <= maxcols then
@@ -218,7 +207,7 @@ class Game pos ext mov <= TwoPlayersGame pos ext mov | ext -> pos mov  where
     possibleMoves :: State pos ext -> Array mov
 
 computerMove' :: forall pos ext mov. TwoPlayersGame pos ext mov => State pos ext -> Maybe (Random mov)
-computerMove' state = 
+computerMove' state =
     if isLevelFinished state then
         Nothing
     else
@@ -228,6 +217,6 @@ computerMove' state =
                     if state^._mode == RandomMode then
                         Nothing
                     else
-                        moves # N.toArray # find (\move -> isLosingPosition $ _play move state)
+                        moves # N.toArray # find (isLosingPosition <<< flip _play state)
                 ) in
                     (bestMove <#> pure) <|> Just (randomPick moves)

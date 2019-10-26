@@ -380,7 +380,7 @@ const app = props => () => {
   const subs = []
 
   const listener = function(event) {
-    this.actions[event.type](setState)(state)();
+    this.actions[event.type](setState)(event)(state)();
   }
 
   const setState = newState => () => {

@@ -3,22 +3,23 @@ module Game.Frog.View where
 import Prelude
 import Math (cos, sin, pi, sqrt)
 import Data.Array ((!!), concat, mapWithIndex, reverse)
-import Data.Maybe (maybe, fromMaybe)
+import Data.Maybe (fromMaybe)
 import Data.Tuple (Tuple(..))
 import Data.String (joinWith)
 import Data.Int (toNumber)
 import Optic.Core (Lens', (^.))
-import Lib.Core (tabulate, pairwise, floatRange)
-import Pha (VDom, text, lensAction)
+import Lib.Core (map2, tabulate, pairwise, floatRange)
+import Pha (VDom, emptyNode, text, (🎲), ifThenElseA)
 import Pha.Html (div', span, br, svg, viewBox, g, use, line, path, text',
                 class', key, click, style,
                 width, height, stroke, fill, strokeDasharray, strokeWidth, translate)
+import Pha.Event (shift)
 import UI.Template (template, incDecGrid)
 import UI.Dialog (card)
 import UI.Icon (icongroup)
 import UI.Icons (iconSelectGroupM, icons2Players, iundo, iredo, ireset, irules)
-import Lib.Game (Mode(..), (🎲), _nbRows, _position, _turn, _mode, _play')
-import Game.Frog.Model (FrogState, _moves, selectMove, reachableArray)
+import Lib.Game (Mode(..), _nbRows, _position, _turn, _mode, _play')
+import Game.Frog.Model (FrogState, _moves, _marked, selectMove, reachableArray, mark)
 
 type Cartesian = { x :: Number, y :: Number}
 type Polar = { radius :: Number, theta :: Number }
@@ -81,6 +82,7 @@ view :: forall a. Lens' a FrogState -> FrogState -> VDom a
 view lens state = template lens {config, board, rules} state where
     position = state^._position
     reachable = reachableArray state
+    spoints = spiralPoints (state^._nbRows)
     pointsPolar = spiralPointsPolar $ state^._nbRows
     config = card "La grenouille" [
         iconSelectGroupM lens state "Déplacements autorisés" [1, 2, 3, 4, 5] (state^._moves) selectMove,
@@ -95,27 +97,24 @@ view lens state = template lens {config, board, rules} state where
                     line 153.0 9.0 207.0 20.0 [stroke "black", strokeDasharray "5", strokeWidth "6"],
                     line 153.0 7.0 153.0 39.0 [stroke "black", strokeWidth "3"],
                     line 207.0 18.0 207.0 50.0 [stroke "black", strokeWidth "3"]
-                ] <> (spiralPoints (state^._nbRows) # mapWithIndex \i {x, y} ->
+                ] <> (map2 spoints reachable \i {x, y} reach ->
                     g [
                         key $ "lily" <> show i,
-                        click $ lensAction lens $ _play' i   -- actions.when(shift, [actions.mark, i], [actions.play, i])
+                        click $ lens 🎲 ifThenElseA shift (mark i) (_play' i)
                     ] [
                         lily i x y false false,
-                        lily i x y true (maybe true not $ reachable !! i), --  || state.hideReachable),
+                        lily i x y true (not reach), --  || state.hideReachable),
                         text' x y (if true {- state^._help -} then show $ (state^._nbRows) - i else "") [class' "frog-index" true]
                     ]
-                )
-                {- <> state.marked.map((b, i) => b && i !== state.position &&
-                use({
-                    key: 'reach' + i,
-                    href: '#frog',
-                    class: 'frog-frog marked',
-                                            x: spiralPoints[i].x - 16,
-                    y: spiralPoints[i].y  20,
-                    width: 32,
-                    height: 32
-                }) -}
-                <> [ let {radius, theta} = fromMaybe {radius: 0.0, theta: 0.0} (pointsPolar !! position) in
+                ) <> (map2 (state^._marked) spoints \i mark {x, y} ->
+                    if mark && i /= position then
+                        use (x - 20.0) (y - 20.0) 32.0 32.0 "#frog" [
+                            key $ "reach" <> show i,
+                            class' "frog-frog marked" true
+                        ]
+                    else
+                        emptyNode
+                ) <> [ let {radius, theta} = fromMaybe {radius: 0.0, theta: 0.0} (pointsPolar !! position) in
                     g [
                     key "frog",
                     class' "frog-frog-container" true,

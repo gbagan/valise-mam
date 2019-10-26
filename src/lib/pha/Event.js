@@ -1,0 +1,1 @@
+exports.shift = e => !!e.shiftKey;

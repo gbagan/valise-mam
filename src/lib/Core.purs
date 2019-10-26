@@ -14,6 +14,10 @@ tabulate n f = 0 .. (n - 1) <#> f
 tabulate2 :: forall a. Int -> Int -> ({ row :: Int, col :: Int } -> a) -> Array a
 tabulate2 n m f = tabulate (n * m) $ \i -> f { row: i / m, col : i `mod` m }
 
+map2 :: forall a b c. Array a -> Array b -> (Int -> a -> b -> c) -> Array c
+map2 t1 t2 fn = unsafePartial $ tabulate n \i -> fn i (unsafeIndex t1 i) (unsafeIndex t2 i)
+    where n = min (t1 # length) (t2 # length)
+
 floatRange :: Number -> Number -> Number -> Array Number
 floatRange begin end step = tabulate (max 0 (floor $ 1.0 + (end - begin) / step)) \i -> begin + toNumber i * step
 

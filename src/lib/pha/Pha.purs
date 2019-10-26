@@ -3,11 +3,36 @@ module Pha where
 import Prelude
 import Effect (Effect)
 import Optic.Core (Lens', (^.), set)
-import Lib.Random (Random, runRnd)
+import Lib.Random (RandomFn(..), runRnd)
 
 foreign import data VDom :: Type -> Type
+foreign import data Event :: Type
 
-type Action a = (a -> Effect Unit) -> a -> Effect Unit
+newtype Action a = Action ((a -> Effect Unit) -> Event -> a -> Effect Unit)
+
+class ClsAction st act | act -> st where 
+    action :: act -> Action st
+
+instance lensactionState :: ClsAction a (a -> a) where 
+    action fn = Action (\setState ev st -> setState $ fn st)
+
+instance lensactionrnd :: ClsAction a (RandomFn a) where
+    action (RandomFn fn) = Action (\setState ev st -> runRnd (fn st) >>= setState)
+
+instance lensactionId :: ClsAction a (Action a) where 
+    action = identity
+
+lensAction :: forall a b act. ClsAction b act => Lens' a b -> act -> Action a
+lensAction lens act = Action \setState ev st -> act' (\st' -> setState $ set lens st' st) ev (st^.lens)
+    where Action act' = action act
+
+infixl 3  lensAction as 🎲
+
+ifThenElseA :: forall a act1 act2. ClsAction a act1 => ClsAction a act2 =>
+        (Event -> Boolean) -> act1 -> act2 -> Action a
+ifThenElseA cond action1 action2 = Action (\setState ev st ->
+    let Action act = if cond ev then action action1 else action action2 in act setState ev st
+)
 
 data Prop a =
       Key String
@@ -27,15 +52,6 @@ h = hAux isStyle
 foreign import text :: forall a. String -> VDom a
 
 foreign import emptyNode :: forall a. VDom a
-
-action :: forall a. (a -> a) -> Action a
-action = (>>>)
-
-rndAction :: forall a. (a -> Random a) -> Action a
-rndAction fn setState st = runRnd (fn st) >>= setState
-
-lensAction :: forall a b. Lens' a b -> Action b -> Action a
-lensAction lens act setState st = act (\st' -> setState $ set lens st' st) (st ^. lens)
 
 foreign import app :: forall a. {
     init :: a,

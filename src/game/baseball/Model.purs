@@ -5,7 +5,7 @@ import Data.Array ((!!), elem, mapWithIndex, all, (..))
 import Data.Maybe (Maybe(..), fromMaybe)
 import Optic.Core (lens, Lens', set, (^.))
 import Lib.Core (swap)
-import Lib.Random (Random, shuffle)
+import Lib.Random (RandomFn, shuffle)
 import Lib.Game (class Game, State(..), genState, newGame', _position, defaultSizeLimit, defaultOnNewGame)
 
 type Position = Array Int
@@ -37,5 +37,5 @@ instance baseballGame :: Game (Array Int) ExtState Int where
     sizeLimit = defaultSizeLimit
     onNewGame = defaultOnNewGame
 
-setNbBases :: Int -> BaseballState -> Random BaseballState
-setNbBases = newGame'(set _nbBases)
+setNbBases :: Int -> RandomFn BaseballState
+setNbBases = newGame' (set _nbBases)

@@ -4,11 +4,11 @@ import Data.Array (mapWithIndex, concat)
 import Data.Tuple (fst, snd)
 import Data.Int (toNumber)
 import Optic.Core (Lens', (^.))
-import Pha (VDom, text, lensAction)
+import Pha (VDom, text, (🎲))
 import Pha.Html (div', span, br, svg, rect, use, class', key, style,
             click, width, height, fill, viewBox, translate)
 import Lib.Core (tabulate)
-import Lib.Game ((🎲), canPlay, _play', isLevelFinished, _position, _turn)
+import Lib.Game (canPlay, _play', isLevelFinished, _position, _turn)
 import Game.Nim.Model (NimState, Move(..), setNbPiles, _nbPiles, _length, setLength)
 import UI.Template (template)
 import UI.Dialog (card)
@@ -43,7 +43,7 @@ view lens state = template lens {config, board, rules} state where
                     rect (-2.5) (-2.5) 5.0 5.0 [
                         key $ "base-" <> show i <> "-" <> show j,
                         fill "gray",
-                        click $ lensAction lens $ _play' $ Move i j,
+                        click $ lens 🎲 _play' (Move i j),
                         style "transform" $
                             translate (toNumber $ (if length == 5 then 30 else 5) + 10 * j) (toNumber $ 12 + 20 * i) <>
                             " rotate(45deg)",

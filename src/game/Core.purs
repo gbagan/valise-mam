@@ -1,4 +1,4 @@
-module Lib.Game where
+module Game.Core where
 
 import Prelude
 import Data.Maybe (Maybe(..), maybe)
@@ -9,7 +9,7 @@ import Effect (Effect)
 import Effect.Aff (Aff, delay, launchAff)
 import Effect.Class (liftEffect)
 import Control.Alt ((<|>))
-import Optic.Core (lens, Lens', set, (^.), (.~), (%~))
+import Data.Lens (lens, Lens', set, (^.), (.~), (%~))
 import Lib.Random (Random, RandomFn(..), runRnd, randomPick)
 import Pha (Action(..))
 
@@ -51,38 +51,41 @@ defaultCoreState p = {
 genState :: forall pos ext. pos -> (CoreState pos ext -> CoreState pos ext) -> ext -> State pos ext
 genState p f ext = State (f $ defaultCoreState p) ext
 
+_core :: forall pos ext. Lens' (State pos ext) (CoreState pos ext)
+_core = lens (\(State c e) -> c) \(State _ ext) x -> State x ext
+
 _position :: forall pos ext. Lens' (State pos ext) pos
-_position = lens (\(State s _) -> s.position) (\(State s ext) x -> State s{position = x} ext)
+_position = _core <<< lens (_.position) (_{position = _})
 
 _history :: forall pos ext. Lens' (State pos ext) (Array pos)
-_history = lens (\(State s _) -> s.history) (\(State s ext) x -> State s{history = x} ext)
+_history = _core <<< lens (_.history) (_{history = _})
 
 _redoHistory :: forall pos ext. Lens' (State pos ext) (Array pos)
-_redoHistory = lens (\(State s _) -> s.redoHistory) (\(State s ext) x -> State s{redoHistory = x} ext)
+_redoHistory = _core <<< lens (_.redoHistory) (_{redoHistory = _})
 
 _mode :: forall pos ext. Lens' (State pos ext) Mode
-_mode = lens (\(State s _) -> s.mode) (\(State s ext) x -> State s{mode = x} ext)
+_mode = _core <<< lens (_.mode) (_{mode = _})
 
 _help :: forall pos ext. Lens' (State pos ext) Boolean
-_help = lens (\(State s _) -> s.help) (\(State s ext) x -> State s{help = x} ext)
+_help = _core <<< lens (_.help) (_{help = _})
 
 _turn :: forall pos ext. Lens' (State pos ext) Int
-_turn = lens (\(State s _) -> s.turn) (\(State s ext) x -> State s{turn = x} ext)
+_turn = _core <<< lens (_.turn) (_{turn = _})
 
 _dialog :: forall pos ext. Lens' (State pos ext) (Dialog (State pos ext))
-_dialog = lens (\(State s _) -> s.dialog) (\(State s ext) x -> State s{dialog = x} ext)
+_dialog = _core <<< lens (_.dialog) (_{dialog = _})
 
 _nbRows :: forall pos ext. Lens' (State pos ext) Int
-_nbRows = lens (\(State s _) -> s.nbRows) (\(State s ext) x -> State s{nbRows = x} ext)
+_nbRows = _core <<< lens (_.nbRows) (_{nbRows = _})
 
 _nbColumns :: forall pos ext. Lens' (State pos ext) Int
-_nbColumns = lens (\(State s _) -> s.nbColumns) (\(State s ext) x -> State s{nbColumns = x} ext)
+_nbColumns = _core <<< lens (_.nbColumns) (_{nbColumns = _})
 
 _levelFinished :: forall pos ext. Lens' (State pos ext) Boolean
-_levelFinished = lens (\(State s _) -> s.levelFinished) (\(State s ext) x -> State s{levelFinished = x} ext)
+_levelFinished = _core <<< lens (_.levelFinished) (_{levelFinished = _})
 
 _showWin :: forall pos ext. Lens' (State pos ext) Boolean
-_showWin = lens (\(State s _) -> s.showWin) (\(State s ext) x -> State s{showWin = x} ext)
+_showWin = _core <<< lens (_.showWin) (_{showWin = _})
 
 data SizeLimit = SizeLimit Int Int Int Int
 

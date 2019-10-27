@@ -7,7 +7,7 @@ import Data.Maybe (fromMaybe)
 import Data.Tuple (Tuple(..))
 import Data.String (joinWith)
 import Data.Int (toNumber)
-import Optic.Core (Lens', (^.))
+import Data.Lens (Lens', (^.))
 import Lib.Core (map2, tabulate, pairwise, floatRange)
 import Pha (VDom, emptyNode, text, (🎲), ifThenElseA)
 import Pha.Html (div', span, br, svg, viewBox, g, use, line, path, text',
@@ -18,7 +18,7 @@ import UI.Template (template, incDecGrid)
 import UI.Dialog (card)
 import UI.Icon (icongroup)
 import UI.Icons (iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
-import Lib.Game (Mode(..), _nbRows, _position, _turn, _mode, _help, playA)
+import Game.Core (Mode(..), _nbRows, _position, _turn, _mode, _help, playA)
 import Game.Frog.Model (FrogState, _moves, _marked, selectMove, reachableArray, mark)
 
 type Cartesian = { x :: Number, y :: Number}

@@ -1,12 +1,12 @@
 module Main where
 import Prelude
 import Data.Maybe (maybe)
+import Data.Lens (Lens', lens)
 import Data.String (drop, indexOf)
 import Data.String.Pattern (Pattern (..))
 import Effect (Effect)
-import Optic.Core (Lens', lens)
 import Pha (VDom, app, Action(..))
-import Lib.Game (init)
+import Game.Core (init)
 import Lib.Random (runRnd)
 import Game.Baseball.Model (BaseballState, baseballState)
 import Game.Baseball.View (view) as BaseballView
@@ -16,6 +16,8 @@ import Game.Frog.Model (FrogState, frogState)
 import Game.Frog.View (view) as FrogView
 import Game.Noirblanc.Model (NoirblancState, noirblancState)
 import Game.Noirblanc.View (view) as NoirblancView
+import Game.Solitaire.Model (SolitaireState, solitaireState)
+import Game.Solitaire.View (view) as SolitaireView
 
 extractLocation :: String -> String -> String
 extractLocation url defaultValue =
@@ -27,7 +29,8 @@ type RootState = {
     baseball :: BaseballState,
     nim :: NimState,
     frog :: FrogState,
-    noirblanc :: NoirblancState
+    noirblanc :: NoirblancState,
+    solitaire :: SolitaireState
 }
 
 baseballLens :: Lens' RootState BaseballState
@@ -41,6 +44,9 @@ frogLens = lens (_.frog) (_{frog = _})
 
 noirblancLens :: Lens' RootState NoirblancState
 noirblancLens = lens (_.noirblanc) (_{noirblanc = _})
+
+solitaireLens :: Lens' RootState SolitaireState
+solitaireLens = lens (_.solitaire) (_{solitaire = _})
 
 foreign import getLocationHref :: Effect String
 
@@ -60,6 +66,7 @@ view state = case state.location of
     "baseball" -> BaseballView.view baseballLens state.baseball
     "frog" -> FrogView.view frogLens state.frog
     "noirblanc" -> NoirblancView.view noirblancLens state.noirblanc
+    "solitaire" -> SolitaireView.view solitaireLens state.solitaire
     _ -> NimView.view nimLens state.nim
 
 main :: Effect Unit
@@ -70,11 +77,13 @@ main = do
     nimState' <- runRnd $ init nimState
     frogState' <- runRnd $ init frogState
     noirblancState' <- runRnd $ init noirblancState
+    solitaireState' <- runRnd $ init solitaireState
     let state = {
         baseball: baseballState',
         nim: nimState',
         frog: frogState',
         noirblanc: noirblancState',
+        solitaire: solitaireState',
         location: location
     }
     app {

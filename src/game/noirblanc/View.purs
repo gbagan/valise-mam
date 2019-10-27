@@ -3,11 +3,11 @@ module Game.Noirblanc.View where
 import Prelude
 import Data.Int (toNumber)
 import Data.Maybe (Maybe(..))
-import Optic.Core (Lens', (^.))
+import Data.Lens (Lens', (^.))
 import Pha (Prop, VDom, text, (🎲))
 import Pha.Html (div', svguse, class', key, style, click)
 import Lib.Core (coords, map2)
-import Lib.Game (_position, _nbRows, _nbColumns, _help, playA)
+import Game.Core (_position, _nbRows, _nbColumns, _help, playA)
 import Game.Noirblanc.Model (NoirblancState, _mode2, selectLevel, selectMode)
 import UI.Dialog (card)
 import UI.Icon (icongroup, Icon(..), Options)

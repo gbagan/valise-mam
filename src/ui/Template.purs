@@ -2,10 +2,10 @@ module UI.Template (template, gridStyle, incDecGrid) where
 import Prelude
 import Data.Int (toNumber)
 import Data.Maybe (Maybe(..))
-import Optic.Core (Lens', (^.), (.~))
+import Data.Lens (Lens', (^.), (.~))
 import Pha (VDom, Prop, text, emptyNode, (🎲))
 import Pha.Html (div', class', style)
-import Lib.Game (class Game, State, SizeLimit(..), Dialog(..),
+import Game.Core (class Game, State, SizeLimit(..), Dialog(..),
         setCustomSize, _dialog, _nbColumns, _nbRows, _showWin, sizeLimit, confirmNewGame)
 import UI.Dialog (dialog)
 import UI.IncDecGrid (incDecGrid) as U

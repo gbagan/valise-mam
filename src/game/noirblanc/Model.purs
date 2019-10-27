@@ -4,26 +4,25 @@ import Data.Tuple (Tuple (Tuple))
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Traversable (sequence)
 import Data.Array ((!!), replicate, mapWithIndex, all, foldr, modifyAtIndices)
-import Optic.Core (Lens', lens, (^.), (.~), set)
+import Data.Lens (Lens', lens, (^.), (.~), set)
 import Lib.Random (Random, RandomFn, randomInt)
 import Lib.Core (dCoords)
-import Lib.Game (class Game, State (..), SizeLimit(..), _position, _nbColumns, _nbRows, newGame', genState)
+import Game.Core (class Game, State (..), SizeLimit(..), _position, _nbColumns, _nbRows, newGame', genState)
 
 type Position = { light :: Array Boolean, played :: Array Boolean }
-data ExtState = Ext {
-    mode2 :: Int,
-    level :: Int
-}
+type Ext' = { mode2 :: Int, level :: Int }
+newtype ExtState = Ext Ext'
 type NoirblancState = State Position ExtState
 
 noirblancState :: NoirblancState
 noirblancState = genState {light: [], played: []} identity (Ext { level: 0, mode2: 0 })
 
+_ext :: Lens' NoirblancState Ext'
+_ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _mode2 :: Lens' NoirblancState Int
-_mode2 = lens (\(State _ (Ext s)) -> s.mode2) (\(State s (Ext ext)) x -> State s (Ext ext{mode2 = x}))
+_mode2 = _ext <<< lens (_.mode2) (_{mode2 = _})
 _level :: Lens' NoirblancState Int
-_level = lens (\(State _ (Ext s)) -> s.level) (\(State s (Ext ext)) x -> State s (Ext ext{level = x}))
-
+_level = _ext <<< lens (_.level) (_{level = _})
 
 neighbor :: NoirblancState -> Int -> Int -> Boolean
 neighbor state index1 index2 =
@@ -45,7 +44,7 @@ genRandomBoard state = do
     pure $ foldr (toggleCell state) (replicate size true) rints
 
 
-instance jetonsGame :: Game { light :: Array Boolean, played :: Array Boolean } ExtState Int where
+instance noirblancGame :: Game { light :: Array Boolean, played :: Array Boolean } ExtState Int where
     play state index = { light: toggleCell state index light, played: modifyAtIndices [index] not played }
         where {light, played} = state^._position
     canPlay _ _ = true
@@ -67,7 +66,7 @@ sizes :: Array (Tuple Int Int)
 sizes = [ Tuple 3 3, Tuple 4 4, Tuple 2 10, Tuple 3 10, Tuple 5 5, Tuple 8 8, Tuple 8 8]
 
 selectMode :: Int -> RandomFn NoirblancState
-selectMode = newGame' \mode state -> state # _mode2 .~ mode # _level .~ 0
+selectMode = newGame' \mode -> (_mode2 .~ mode) >>> (_level .~ 0)
 selectLevel :: Int -> RandomFn NoirblancState
 selectLevel = newGame' (set _level)
 

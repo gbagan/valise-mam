@@ -6,7 +6,7 @@ import Data.Int (floor, toNumber)
 import Data.Tuple (Tuple(Tuple), fst, uncurry)
 import Data.Array.NonEmpty (NonEmptyArray, unsafeIndex, length) as N
 import Data.Traversable (sequence)
-import Data.Array (replicate, length, mapWithIndex, foldr)
+import Data.Array (length, mapWithIndex, foldr)
 import Partial.Unsafe (unsafePartial)
 import Lib.Core (tabulate, swap)
 

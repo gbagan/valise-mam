@@ -2,10 +2,10 @@ module UI.Icons where
 import Prelude
 import Data.Array (null, elem)
 import Data.Maybe (Maybe(..))
-import Optic.Core (Lens', (^.), (.~))
+import Data.Lens (Lens', (^.), (.~))
 import Pha (VDom, Prop, class ClsAction, (🎲))
 import Pha.Html (click, style)
-import Lib.Game (State, class Game, undo, redo, reset, toggleHelp, setMode, computerStarts, Dialog(Rules), Mode(..),
+import Game.Core (State, class Game, undo, redo, reset, toggleHelp, setMode, computerStarts, Dialog(Rules), Mode(..),
                 _help, _dialog, _history, _redoHistory, _mode)
 import UI.Icon (iconbutton, icongroup, Options, Icon(..)) as I
 

@@ -74,6 +74,9 @@ path d props = h "path" ([attr "d" d] <> props) []
 line :: forall a. Number -> Number -> Number -> Number -> Array (Prop a) -> VDom a
 line x1 y1 x2 y2 props = h "line" ([attr "x1" $ show x1, attr "y1" $ show y1, attr "x2" $ show x2, attr "y2" $ show y2] <> props) []
 
+circle :: forall a. Number -> Number -> Number -> Array (Prop a) -> VDom a
+circle cx cy r props = h "circle" ([attr "cx" $ show cx, attr "cy" $ show cy, attr "r" $ show r] <> props) []
+
 use :: forall a. Number -> Number -> Number -> Number -> String -> Array (Prop a) -> VDom a
 use x y w h' href' props =
     h "use" ([attr "x" $ show x, attr "y" $ show y, attr "width" $ show w, attr "height" $ show h', attr "href" href'] <> props) []

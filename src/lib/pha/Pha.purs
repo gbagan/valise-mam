@@ -2,7 +2,7 @@ module Pha where
 
 import Prelude
 import Effect (Effect)
-import Optic.Core (Lens', (^.), set)
+import Data.Lens (Lens', (^.), set)
 import Lib.Random (RandomFn(..), runRnd)
 
 foreign import data VDom :: Type -> Type

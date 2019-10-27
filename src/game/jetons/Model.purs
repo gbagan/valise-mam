@@ -3,9 +3,9 @@ module Game.Jetons.Model where
 import Prelude
 import Data.Array (length, replicate, (!!), (..), updateAt, modifyAt, all)
 import Data.Maybe (Maybe (..), fromMaybe)
-import Optic.Core ((^.))
+import Data.Lens ((^.))
 import Lib.Core (dCoords)
-import Lib.Game (class Game, State, _position, _nbColumns, _nbRows, defaultSizeLimit, defaultOnNewGame)
+import Game.Core (class Game, State, _position, _nbColumns, _nbRows, defaultSizeLimit, defaultOnNewGame)
 
 
 -- export default template({

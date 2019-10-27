@@ -3,7 +3,7 @@ module Game.Baseball.Model where
 import Prelude
 import Data.Array ((!!), elem, mapWithIndex, all, updateAt)
 import Data.Maybe (Maybe(Nothing), maybe, fromMaybe)
-import Lib.Game (class Game, State(..), canPlay)
+import Game.Core (class Game, State(..), canPlay)
 
 type Position = Array (Maybe Int)
 

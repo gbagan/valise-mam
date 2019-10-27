@@ -1,31 +1,35 @@
 module Game.Frog.Model where
 
 import Prelude
-import Data.Array ((..), (!!), elem, foldr, filter, all, null, replicate, modifyAtIndices)
+import Data.Array ((..), (!!), elem, foldr, filter, all, null, replicate)
 import Data.Lazy (defer, force)
 import Data.Maybe (maybe, fromMaybe)
-import Optic.Core (Lens', lens, (^.), (.~), (%~), over)
+import Data.Lens (Lens', lens, (^.), (.~), (%~), over)
+import Data.Lens.Index (ix)
 import Lib.Core (tabulate)
 import Lib.Random (RandomFn)
-import Lib.Game (class Game, canPlay, class TwoPlayersGame, Mode(..), State(..), SizeLimit(..),
+import Game.Core (class Game, canPlay, class TwoPlayersGame, Mode(..), State(..), SizeLimit(..),
                 newGame', computerMove', genState, _position, _nbRows)
 
 type Position = Int
 
-data ExtState = Ext {
+type Ext' = {
     moves :: Array Int,
     winning :: Array Boolean,
     marked :: Array Boolean
 }
+newtype ExtState = Ext Ext'
 
 type FrogState = State Position ExtState
 
+_ext :: Lens' FrogState Ext'
+_ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _moves :: Lens' FrogState (Array Int)
-_moves = lens (\(State _ (Ext s)) -> s.moves) (\(State s (Ext ext)) x -> State s (Ext ext{moves = x}))
+_moves = _ext <<< lens (_.moves) (_{moves = _})
 _winning :: Lens' FrogState (Array Boolean)
-_winning = lens (\(State _ (Ext s)) -> s.winning) (\(State s (Ext ext)) x -> State s (Ext ext{winning = x}))
+_winning = _ext <<< lens (_.winning) (_{winning = _})
 _marked :: Lens' FrogState (Array Boolean)
-_marked = lens (\(State _ (Ext s)) -> s.marked) (\(State s (Ext ext)) x -> State s (Ext ext{marked = x}))
+_marked = _ext <<< lens (_.marked) (_{marked = _})
 
 frogState :: FrogState
 frogState = genState 20 (_{nbRows = 20, mode = ExpertMode}) (Ext { moves: [1, 2, 3], winning: [], marked: [] })
@@ -68,7 +72,7 @@ reachableArray :: FrogState -> Array Boolean
 reachableArray state = tabulate (state^._nbRows + 1) (canPlay state)
 
 mark :: Int -> FrogState -> FrogState
-mark i = _marked %~ modifyAtIndices [i] not
+mark i = (_marked <<< ix i) %~ not
 
 -- export default template({
 --    state: {

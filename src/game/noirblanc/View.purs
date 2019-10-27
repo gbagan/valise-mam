@@ -39,7 +39,7 @@ square light cross props =
     ]
 
 view :: forall a. Lens' a NoirblancState -> NoirblancState -> VDom a
-view lens state = template lens {config, board, rules} state where
+view lens state = template lens {config, board, rules, winTitle} state where
     rows = state^._nbRows
     columns = state^._nbColumns
     position = state^._position
@@ -67,3 +67,5 @@ view lens state = template lens {config, board, rules} state where
         icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state
     ]
     rules = [text "blablahblah"]
+
+    winTitle = "GAGNÉ"

@@ -43,9 +43,9 @@ betweenInCircle :: Int -> Int -> Int -> Maybe Int
 betweenInCircle from to size =
     if from - to == 2 || to - from == 2 then
         Just $ (from + to) / 2
-    else if to - from `mod` size == 2 then
+    else if (to - from) `mod` size == 2 then
         Just $ (from + 1) `mod` size
-    else if from - to `mod` size == 2 then
+    else if (from - to) `mod` size == 2 then
         Just $ (to + 1) `mod` size
     else
         Nothing

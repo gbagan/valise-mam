@@ -254,7 +254,8 @@ computerMove' state =
 
 dropA :: forall pos ext dnd. Eq dnd =>  Game pos ext {from :: dnd, to :: dnd} => Lens' (State pos ext) (Maybe dnd) -> dnd -> Action (State pos ext)
 dropA dragLens to = Action \setState ev state ->
+    let state2 = state # dragLens .~ Nothing in
     case state ^. dragLens of
         Nothing -> pure state
-        Just drag -> if drag /= to then (unwrapA $ playA { from: drag, to }) setState ev state
-                    else pure $ state # dragLens .~ Nothing
+        Just drag -> if drag /= to then (unwrapA $ playA { from: drag, to }) setState ev state2
+                    else pure $ state2

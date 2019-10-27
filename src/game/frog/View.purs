@@ -14,7 +14,7 @@ import Pha.Html (div', span, br, svg, viewBox, g, use, line, path, text',
                 class', key, click, style,
                 width, height, stroke, fill, strokeDasharray, strokeWidth, translate)
 import Pha.Event (shiftKey)
-import UI.Template (template, incDecGrid)
+import UI.Template (template, incDecGrid, winTitleFor2Players)
 import UI.Dialog (card)
 import UI.Icon (icongroup)
 import UI.Icons (iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
@@ -78,7 +78,7 @@ lily i x y reachable hidden =
     ]
 
 view :: forall a. Lens' a FrogState -> FrogState -> VDom a
-view lens state = template lens {config, board, rules} state where
+view lens state = template lens {config, board, rules, winTitle} state where
     position = state^._position
     reachable = reachableArray state
     spoints = spiralPoints (state^._nbRows)
@@ -148,4 +148,5 @@ view lens state = template lens {config, board, rules} state where
         text "Jeu de la grenouille", br,
         text "Règles pas encore définies"
     ]
-    -- winTitle: winTitleFor2Players(state)
+    
+    winTitle = winTitleFor2Players state

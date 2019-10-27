@@ -33,7 +33,7 @@ transformBase i nbBases = translate x y  <> " rotate(45deg)" where
     y = 50.0 + 35.0 * sin (toNumber i * 2.0 * pi / toNumber nbBases)
 
 view :: forall a. Lens' a BaseballState -> BaseballState -> VDom a
-view lens state = template lens {config, board, rules} state where
+view lens state = template lens {config, board, rules, winTitle} state where
     nbBases = state^._nbBases
     levelFinished = isLevelFinished state
     config =
@@ -76,6 +76,7 @@ view lens state = template lens {config, board, rules} state where
                 )
         ]
     rules = [text "blah blah blah blah"]
+    winTitle = "GAGNÉ"
 
     
     

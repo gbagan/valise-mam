@@ -34,6 +34,9 @@ lensAction lens (Action act) = Action \setState ev st -> do
 
 infixl 3  lensAction as 🎲
 
+noAction :: forall a. Action a
+noAction = Action (\setState ev st -> pure st)
+
 --combineA :: forall a act1 act2. ClsAction a act1 => ClsAction a act2 =>
 --    act1 -> act2 -> Action a
 
@@ -42,8 +45,7 @@ ifThenElseA cond (Action action1) (Action action2) = Action $ \setState ev st ->
     (if cond st ev then action1 else action2) setState ev st
 
 whenA :: forall a. (a -> Event -> Boolean) -> Action a -> Action a
-whenA cond act = ifThenElseA cond act $ Action (\setState ev st -> pure st)
-
+whenA cond act = ifThenElseA cond act noAction
 data Prop a =
       Key String
     | Attr String String

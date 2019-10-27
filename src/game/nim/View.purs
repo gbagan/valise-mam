@@ -16,7 +16,7 @@ import UI.Icon (icongroup)
 import UI.Icons (iconSelectGroup, icons2Players, iundo, iredo, ireset, irules)
 
 view :: forall a. Lens' a NimState -> NimState -> VDom a
-view lens state = template lens {config, board, rules} state where
+view lens state = template lens {config, board, rules, winTitle} state where
     -- winTitle: `Les ${state.turn ? 'bleu' : 'rouge'}s gagnent`,
     nbPiles = state^._nbPiles
     length = state^._length
@@ -74,3 +74,5 @@ view lens state = template lens {config, board, rules} state where
         text "Tu es obligé de déplacer un jeton d'au moins une case, tu ne peux pas passer ton tour.", br,
         text "Tu gagnes la partie si ton adversaire n'a aucun mouvement possible."
     ]
+
+    winTitle = "todo"

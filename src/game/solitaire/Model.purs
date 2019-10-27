@@ -16,13 +16,14 @@ data Board = FrenchBoard | EnglishBoard | CircleBoard | Grid3Board | RandomBoard
 derive instance boardMode :: Eq Board
 
 type Ext' = {
-    board :: Board, holes :: Array Boolean
+    board :: Board, holes :: Array Boolean, dragged :: Maybe Int
 }
+
 newtype ExtState = Ext Ext'
 type SolitaireState = State (Array Boolean) ExtState
 
 solitaireState :: SolitaireState
-solitaireState = genState [] (_{nbRows = 5, nbColumns = 1}) (Ext { board: CircleBoard, holes: [] })
+solitaireState = genState [] (_{nbRows = 5, nbColumns = 1}) (Ext { board: CircleBoard, holes: [], dragged: Nothing })
 
 _ext :: Lens' SolitaireState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
@@ -30,6 +31,8 @@ _board :: Lens' SolitaireState Board
 _board = _ext <<< lens (_.board) (_{board = _})
 _holes :: Lens' SolitaireState (Array Boolean)
 _holes = _ext <<< lens (_.holes) (_{holes = _})
+_dragged :: Lens' SolitaireState (Maybe Int)
+_dragged = _ext <<< lens (_.dragged) (_{dragged = _})
 
 betweenMove :: SolitaireState -> Move -> Maybe Int
 betweenMove state { from, to } = 

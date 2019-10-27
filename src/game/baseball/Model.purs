@@ -5,7 +5,8 @@ import Data.Array ((!!), elem, mapWithIndex, all, (..))
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Lens (lens, Lens', set, (^.))
 import Lib.Core (swap)
-import Lib.Random (RandomFn, shuffle)
+import Lib.Random (shuffle)
+import Pha (Action)
 import Game.Core (class Game, State(..), genState, newGame', _position, defaultSizeLimit, defaultOnNewGame)
 
 type Position = Array Int
@@ -38,5 +39,5 @@ instance baseballGame :: Game (Array Int) ExtState Int where
     sizeLimit = defaultSizeLimit
     onNewGame = defaultOnNewGame
 
-setNbBases :: Int -> RandomFn BaseballState
+setNbBases :: Int -> Action BaseballState
 setNbBases = newGame' (set _nbBases)

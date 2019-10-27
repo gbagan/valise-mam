@@ -2,37 +2,47 @@ module Pha where
 
 import Prelude
 import Effect (Effect)
-import Data.Lens (Lens', (^.), set)
-import Lib.Random (RandomFn(..), runRnd)
+import Effect.Aff (Aff, Fiber, launchAff)
+import Effect.Class (liftEffect)
+import Data.Lens (Lens', (^.), (.~), set)
+import Lib.Random (Random, runRnd)
 
 foreign import data VDom :: Type -> Type
 foreign import data Event :: Type
 
-newtype Action a = Action ((a -> Effect Unit) -> Event -> a -> Effect Unit)
+newtype Action a = Action ((a -> Effect a) -> Event -> a -> Aff a)
 
+unwrapA :: forall a. Action a -> ((a -> Effect a) -> Event -> a -> Aff a)
+unwrapA (Action a) = a
+
+{-
 class ClsAction st act | act -> st where 
     action :: act -> Action st
+-}
+action :: forall a. (a -> a) -> Action a
+action fn = Action $ \setState ev st -> liftEffect $ setState $ fn st
 
-instance lensactionState :: ClsAction a (a -> a) where 
-    action fn = Action (\setState ev st -> setState $ fn st)
+randomAction :: forall a. (a -> Random a) -> Action a
+randomAction fn = Action $ \setState ev st -> do
+    st' <- liftEffect $ runRnd (fn st)
+    liftEffect $ setState st'
 
-instance lensactionrnd :: ClsAction a (RandomFn a) where
-    action (RandomFn fn) = Action (\setState ev st -> runRnd (fn st) >>= setState)
-
-instance lensactionId :: ClsAction a (Action a) where 
-    action = identity
-
-lensAction :: forall a b act. ClsAction b act => Lens' a b -> act -> Action a
-lensAction lens act = Action \setState ev st -> act' (\st' -> setState $ set lens st' st) ev (st^.lens)
-    where Action act' = action act
+lensAction :: forall a b. Lens' a b -> Action b -> Action a
+lensAction lens (Action act) = Action \setState ev st -> do
+    st2 <- act (\st' -> (setState $ set lens st' st) >>= \_ -> pure st') ev (st^.lens)
+    pure $ st # lens .~ st2
 
 infixl 3  lensAction as 🎲
 
-ifThenElseA :: forall a act1 act2. ClsAction a act1 => ClsAction a act2 =>
-        (Event -> Boolean) -> act1 -> act2 -> Action a
-ifThenElseA cond action1 action2 = Action (\setState ev st ->
-    let Action act = if cond ev then action action1 else action action2 in act setState ev st
-)
+--combineA :: forall a act1 act2. ClsAction a act1 => ClsAction a act2 =>
+--    act1 -> act2 -> Action a
+
+ifThenElseA :: forall a. (a -> Event -> Boolean) -> Action a -> Action a -> Action a
+ifThenElseA cond (Action action1) (Action action2) = Action $ \setState ev st ->
+    (if cond st ev then action1 else action2) setState ev st
+
+whenA :: forall a. (a -> Event -> Boolean) -> Action a -> Action a
+whenA cond act = ifThenElseA cond act $ Action (\setState ev st -> pure st)
 
 data Prop a =
       Key String
@@ -53,8 +63,16 @@ foreign import text :: forall a. String -> VDom a
 
 foreign import emptyNode :: forall a. VDom a
 
-foreign import app :: forall a. {
+foreign import appAux :: forall a. {
+    init :: a,
+    view :: a -> VDom a,
+    node :: String,
+    launchAff :: Aff a -> Effect (Fiber a)
+} -> Effect Unit
+
+app :: forall a. {
     init :: a,
     view :: a -> VDom a,
     node :: String
 } -> Effect Unit
+app {init, view, node} = appAux {init, view, node, launchAff}

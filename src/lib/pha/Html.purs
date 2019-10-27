@@ -18,6 +18,19 @@ style = Style
 click :: forall a. Action a -> Prop a
 click = Event "click"
 
+pointermove :: forall a. Action a -> Prop a
+pointermove = Event "pointermove"
+
+pointerup :: forall a. Action a -> Prop a
+pointerup = Event "pointerup"
+
+pointerdown :: forall a. Action a -> Prop a
+pointerdown = Event "pointerdown"
+
+pointerleave :: forall a. Action a -> Prop a
+pointerleave = Event "pointerleave"
+
+
 -- elements
 
 br :: forall a. VDom a
@@ -86,7 +99,6 @@ text' x y t props = h "text" ([attr "x" $ show x, attr "y" $ show y] <> props) [
 
 translate :: Number -> Number -> String
 translate x y = "translate(" <> show x <> "px," <> show y <> "px)"
-
 
 svguse :: forall a. String -> Array (Prop a) -> VDom a
 svguse symbol props = svg [width "100%", height "100%"] [h "use" [attr "href" symbol] []]

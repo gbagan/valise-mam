@@ -4,16 +4,17 @@ import Prelude
 import Data.Int (toNumber)
 import Data.Lens (Lens', (^.))
 import Data.Array (mapWithIndex)
+import Data.Maybe (maybe)
 import Math (sin, cos, pi)
 import Lib.Core (coords)
-import Pha (VDom, text, emptyNode)
-import Pha.Html (div', br, svg, circle, key, class', style, width, height, viewBox, fill, stroke, strokeWidth, transform, translate)
-import Game.Core (_position, _nbColumns, _nbRows)
+import Pha (VDom, text, emptyNode, (🎲))
+import Pha.Html (div', br, svg, circle, key, class', style, width, height, viewBox, fill, stroke, strokeWidth, pointermove, translate)
+import Game.Core (_position, _nbColumns, _nbRows, _pointerPosition)
 import Game.Solitaire.Model (SolitaireState, Board(..), _board, _holes)
 import UI.Dialog (card)
 import UI.Icon (icongroup)
 import UI.Icons (iundo, iredo, ireset, irules)
-import UI.Template (template, gridStyle, incDecGrid)
+import UI.Template (template, gridStyle, incDecGrid, setPointerPositionA, svgCursorStyle, trackPointer)
 
 tricolor :: Int -> Int -> Int -> String
 tricolor i columns help = 
@@ -37,15 +38,11 @@ view lens state = template lens {config, board, rules} state where
         else
             translate (50.0 * toNumber col + 25.0) (50.0 * toNumber row + 25.0)
 
-    {-
-            const Cursor = () =>
-        circle({
-            fill: 'url(#soli-peg)',
-            style: svgCursorStyle(state.pointerPosition),
-            r: 20,
-            'pointer-events': 'none'
-        });
-    -}
+    cursor = state^._pointerPosition # maybe emptyNode 
+        \pos -> circle 0.0 0.0 20.0 ([fill "url(#soli-peg)"] <> (svgCursorStyle $ pos))
+            
+--            'pointer-events': 'none'
+--        });
 
     config = card "Jeu du solitaire" [
         {-    I.Group({
@@ -63,8 +60,9 @@ view lens state = template lens {config, board, rules} state where
 
     grid = div' ([
         -- hasDnD: true,
+        pointermove $ lens 🎲 setPointerPositionA,
         class' "ui-board" true
-    ] <> (if isCircleBoard then [style "width" "100%", style "height" "100%"]  else gridStyle rows columns)) [
+    ] <> trackPointer lens <> (if isCircleBoard then [style "width" "100%", style "height" "100%"]  else gridStyle rows columns)) [
         svg [width "100%", height "100%",
             viewBox $ if isCircleBoard then "0 0 250 250" else "0 0 " <> show (50 * columns) <> " " <> show (50 * rows)
         ] $
@@ -90,7 +88,7 @@ view lens state = template lens {config, board, rules} state where
                     -- id: i,
                     style "transform" $ itemStyle i
                 ]
-            )
+            ) <> [cursor]
             -- state.dragged !== null && state.pointerPosition && Cursor()
     ]
 

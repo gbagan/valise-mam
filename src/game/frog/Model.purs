@@ -7,7 +7,7 @@ import Data.Maybe (maybe, fromMaybe)
 import Data.Lens (Lens', lens, (^.), (.~), (%~), over)
 import Data.Lens.Index (ix)
 import Lib.Core (tabulate)
-import Lib.Random (RandomFn)
+import Pha (Action, action)
 import Game.Core (class Game, canPlay, class TwoPlayersGame, Mode(..), State(..), SizeLimit(..),
                 newGame', computerMove', genState, _position, _nbRows)
 
@@ -56,8 +56,8 @@ instance frogGame2 :: TwoPlayersGame Int ExtState Int where
     possibleMoves state = filter (canPlay state) (0 .. (state^._nbRows))
     isLosingPosition state = fromMaybe true $ state^._winning !! (state^._position)
 
-selectMove :: Int -> RandomFn FrogState
-selectMove = newGame' $ over _moves <<< _selectMove where
+selectMoveA :: Int -> Action FrogState
+selectMoveA = newGame' $ over _moves <<< _selectMove where
     _selectMove move moves =
         let moves2 = filter (\m -> (m == move) /= elem m moves) (1 .. 5) in
         if null moves2 then moves else moves2
@@ -71,8 +71,8 @@ winningPositions size moves =
 reachableArray :: FrogState -> Array Boolean
 reachableArray state = tabulate (state^._nbRows + 1) (canPlay state)
 
-mark :: Int -> FrogState -> FrogState
-mark i = (_marked <<< ix i) %~ not
+markA :: Int -> Action FrogState
+markA i = action $ (_marked <<< ix i) %~ not
 
 -- export default template({
 --    state: {

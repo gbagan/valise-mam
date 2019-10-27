@@ -13,13 +13,13 @@ import Pha (VDom, emptyNode, text, (🎲), ifThenElseA)
 import Pha.Html (div', span, br, svg, viewBox, g, use, line, path, text',
                 class', key, click, style,
                 width, height, stroke, fill, strokeDasharray, strokeWidth, translate)
-import Pha.Event (shift)
+import Pha.Event (shiftKey)
 import UI.Template (template, incDecGrid)
 import UI.Dialog (card)
 import UI.Icon (icongroup)
 import UI.Icons (iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
 import Game.Core (Mode(..), _nbRows, _position, _turn, _mode, _help, playA)
-import Game.Frog.Model (FrogState, _moves, _marked, selectMove, reachableArray, mark)
+import Game.Frog.Model (FrogState, _moves, _marked, selectMoveA, reachableArray, markA)
 
 type Cartesian = { x :: Number, y :: Number}
 type Polar = { radius :: Number, theta :: Number }
@@ -84,7 +84,7 @@ view lens state = template lens {config, board, rules} state where
     spoints = spiralPoints (state^._nbRows)
     pointsPolar = spiralPointsPolar $ state^._nbRows
     config = card "La grenouille" [
-        iconSelectGroupM lens state "Déplacements autorisés" [1, 2, 3, 4, 5] (state^._moves) selectMove,
+        iconSelectGroupM lens state "Déplacements autorisés" [1, 2, 3, 4, 5] (state^._moves) selectMoveA,
         icons2Players lens state,
         icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x lens state
     ]
@@ -99,7 +99,7 @@ view lens state = template lens {config, board, rules} state where
                 ] <> (map2 spoints reachable \i {x, y} reach ->
                     g [
                         key $ "lily" <> show i,
-                        click $ lens 🎲 ifThenElseA shift (mark i) (playA i)
+                        click $ lens 🎲 ifThenElseA (\_ -> shiftKey) (markA i) (playA i)
                     ] [
                         lily i x y false false,
                         lily i x y true (not reach), --  || state.hideReachable),

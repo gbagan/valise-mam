@@ -370,17 +370,17 @@ const Lazy = function(props) {
   }
 }
 
-const app = props => () => {
+const appAux = props => () => {
+  const {init, view, launchAff} = props
   let state = {}
   let lock = false
-  const view = props.view;
   let node = document.getElementById(props.node);
   const subscriptions = props.subscriptions;
   let vdom = node && recycleNode(node)
   const subs = []
 
   const listener = function(event) {
-    this.actions[event.type](setState)(event)(state)();
+    launchAff(this.actions[event.type](setState)(event)(state))();
   }
 
   const setState = newState => () => {
@@ -405,7 +405,7 @@ const app = props => () => {
     )
   }
 
-  setState(props.init)()
+  setState(init)()
 }
 
 const h = isStyle => name => ps => children => {
@@ -438,6 +438,6 @@ const h = isStyle => name => ps => children => {
 }
 
 exports.emptyNode = null;
-exports.app = app;
+exports.appAux = appAux;
 exports.hAux = h;
 exports.text = createTextVNode;

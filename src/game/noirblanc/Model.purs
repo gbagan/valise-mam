@@ -7,6 +7,7 @@ import Data.Array ((!!), replicate, mapWithIndex, all, foldr, modifyAtIndices)
 import Data.Lens (Lens', lens, (^.), (.~), set)
 import Lib.Random (Random, RandomFn, randomInt)
 import Lib.Core (dCoords)
+import Pha (Action)
 import Game.Core (class Game, State (..), SizeLimit(..), _position, _nbColumns, _nbRows, newGame', genState)
 
 type Position = { light :: Array Boolean, played :: Array Boolean }
@@ -65,10 +66,10 @@ instance noirblancGame :: Game { light :: Array Boolean, played :: Array Boolean
 sizes :: Array (Tuple Int Int)
 sizes = [ Tuple 3 3, Tuple 4 4, Tuple 2 10, Tuple 3 10, Tuple 5 5, Tuple 8 8, Tuple 8 8]
 
-selectMode :: Int -> RandomFn NoirblancState
-selectMode = newGame' \mode -> (_mode2 .~ mode) >>> (_level .~ 0)
-selectLevel :: Int -> RandomFn NoirblancState
-selectLevel = newGame' (set _level)
+selectModeA :: Int -> Action NoirblancState
+selectModeA = newGame' \mode -> (_mode2 .~ mode) >>> (_level .~ 0)
+selectLevelA :: Int -> Action NoirblancState
+selectLevelA = newGame' (set _level)
 
 {-
     state: {

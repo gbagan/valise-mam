@@ -10,12 +10,15 @@ import Effect.Aff (Aff, delay, launchAff)
 import Effect.Class (liftEffect)
 import Control.Alt ((<|>))
 import Data.Lens (lens, Lens', set, (^.), (.~), (%~))
-import Lib.Random (Random, RandomFn(..), runRnd, randomPick)
-import Pha (Action(..))
+import Lib.Random (Random, runRnd, randomPick)
+import Pha (Action(..), unwrapA, action, randomAction)
 
 data Dialog a = Rules | NoDialog | ConfirmNewGame a
 data Mode = SoloMode | RandomMode | ExpertMode | DuelMode
 derive instance eqMode :: Eq Mode
+
+
+type PointerPosition = {left :: Number, top :: Number, width :: Number, height :: Number}
 
 type CoreState pos ext = {
     position :: pos,
@@ -28,7 +31,8 @@ type CoreState pos ext = {
     nbColumns :: Int,
     mode :: Mode,
     help :: Boolean,
-    showWin :: Boolean
+    showWin :: Boolean,
+    pointerPosition :: Maybe PointerPosition
 }
 
 data State pos ext = State (CoreState pos ext) ext
@@ -45,7 +49,8 @@ defaultCoreState p = {
     nbColumns: 0,
     help: false,
     mode: SoloMode,
-    showWin: false
+    showWin: false,
+    pointerPosition: Nothing
 }
 
 genState :: forall pos ext. pos -> (CoreState pos ext -> CoreState pos ext) -> ext -> State pos ext
@@ -87,6 +92,9 @@ _levelFinished = _core <<< lens (_.levelFinished) (_{levelFinished = _})
 _showWin :: forall pos ext. Lens' (State pos ext) Boolean
 _showWin = _core <<< lens (_.showWin) (_{showWin = _})
 
+_pointerPosition :: forall pos ext. Lens' (State pos ext) (Maybe PointerPosition)
+_pointerPosition = _core <<< lens (_.pointerPosition) (_{pointerPosition = _})
+
 data SizeLimit = SizeLimit Int Int Int Int
 
 class Game pos ext mov | ext -> pos mov where
@@ -107,32 +115,32 @@ defaultOnNewGame = pure
 changeTurn :: forall pos ext. State pos ext -> State pos ext
 changeTurn state = if state^._mode == DuelMode then state # _turn %~ \x -> 1 - x else state
 
-undo :: forall pos ext. State pos ext -> State pos ext
-undo state = flip (maybe state) (N.fromArray $ state^._history) \hs ->
+undoA :: forall pos ext. Action (State pos ext)
+undoA = action \state -> flip (maybe state) (N.fromArray $ state^._history) \hs ->
     changeTurn
     $ _position .~ N.last hs
     $ _history .~ N.init hs
     $ _redoHistory %~ flip snoc (state^._position)
     $ state
 
-redo :: forall pos ext. State pos ext -> State pos ext
-redo state = flip (maybe state) (N.fromArray $ state^._redoHistory) \hs ->
+redoA :: forall pos ext. Action (State pos ext)
+redoA = action \state -> flip (maybe state) (N.fromArray $ state^._redoHistory) \hs ->
     changeTurn
     $ _position .~ N.last hs
     $ _redoHistory .~ N.init hs
     $ _history %~ flip snoc (state^._position)
     $ state
 
-reset :: forall pos ext. State pos ext -> State pos ext
-reset state = flip (maybe state) (N.fromArray $ state^._history) \hs ->
+resetA :: forall pos ext. Action (State pos ext)
+resetA = action \state -> flip (maybe state) (N.fromArray $ state^._history) \hs ->
     _position .~ N.head hs
     $ _history .~ []
     $ _redoHistory .~ []
     $ _turn .~ 0
     $ state
 
-toggleHelp :: forall pos ext. State pos ext -> State pos ext
-toggleHelp = _help %~ not
+toggleHelpA :: forall pos ext. Action (State pos ext)
+toggleHelpA = action $ _help %~ not
 
 _play :: forall pos ext mov. Game pos ext mov => mov -> State pos ext -> State pos ext
 _play move state =
@@ -148,47 +156,42 @@ _play move state =
 pushToHistory :: forall pos ext. State pos ext -> State pos ext
 pushToHistory state = state # _history %~ flip snoc (state^._position) # _redoHistory .~ []
 
-showVictory :: forall pos ext. (State pos ext -> Effect Unit) -> State pos ext -> Aff Unit
+showVictory :: forall pos ext. (State pos ext -> Effect (State pos ext)) -> State pos ext -> Aff (State pos ext)
 showVictory setState state = do
-    liftEffect $ setState $ _showWin .~ true $ state
+    _ <- liftEffect $ setState $ _showWin .~ true $ state
     delay $ Milliseconds 1000.0
     liftEffect $ setState $ state
-    pure unit
 
-computerPlay :: forall pos ext mov. Game pos ext mov => (State pos ext -> Effect Unit) -> (State pos ext) -> Aff Unit
-computerPlay setState state = flip (maybe $ pure unit) (computerMove state) \rndmove -> do
+computerPlay :: forall pos ext mov. Game pos ext mov => (State pos ext -> Effect (State pos ext)) -> (State pos ext) -> Aff (State pos ext)
+computerPlay setState state = flip (maybe $ pure state) (computerMove state) \rndmove -> do
     move2 <- liftEffect $ runRnd rndmove
-    let st2 = _play move2 state
-    liftEffect $ setState $ st2
+    st2 <- liftEffect $ setState $ _play move2 state
     if isLevelFinished st2 then
         showVictory setState st2
     else
-        pure unit
+        pure st2
 
-computerStarts :: forall pos ext mov. Game pos ext mov => Action (State pos ext)
-computerStarts = Action \setState _ state -> void $ launchAff $ do
-    let st2 = pushToHistory state
-    computerPlay setState st2
+computerStartsA :: forall pos ext mov. Game pos ext mov => Action (State pos ext)
+computerStartsA = Action \setState _ state -> computerPlay setState (pushToHistory state)
 
 playA :: forall pos ext mov. Game pos ext mov => mov -> Action (State pos ext)
-playA move = Action \setState _ state -> void $ launchAff $ do
+playA move = Action \setState _ state ->
     if not $ canPlay state move then
-        pure unit
+        pure state
     else do
-        let st2 = _play move $ pushToHistory $ state
-        liftEffect $ setState st2
+        st2 <- liftEffect $ setState (_play move $ pushToHistory $ state)
         if isLevelFinished st2 then do
             showVictory setState st2
         else if state^._mode == ExpertMode then do
             delay $ Milliseconds 1000.0
             computerPlay setState st2
         else 
-            pure unit
+            pure st2
 
 
-newGame :: forall pos ext mov. Game pos ext mov =>
-    (State pos ext -> State pos ext) -> RandomFn (State pos ext)
-newGame f = RandomFn \state ->
+newGameAux :: forall pos ext mov. Game pos ext mov =>
+    (State pos ext -> State pos ext) -> (State pos ext) -> Random (State pos ext)
+newGameAux f = \state ->
     let state2 = f state in do
         state3 <- onNewGame state2
         position <- initialPosition state3
@@ -202,18 +205,22 @@ newGame f = RandomFn \state ->
         else
             pure $ _dialog .~ ConfirmNewGame state4 $ state
 
+newGame :: forall pos ext mov. Game pos ext mov =>
+    (State pos ext -> State pos ext) -> Action (State pos ext)
+newGame f = randomAction $ newGameAux f 
+
 newGame' :: forall a pos ext mov. Game pos ext mov =>
-    (a -> State pos ext -> State pos ext) -> a -> RandomFn (State pos ext)
+    (a -> State pos ext -> State pos ext) -> a -> Action (State pos ext)
 newGame' f val = newGame $ f val
 
 init :: forall pos ext mov. Game pos ext mov => State pos ext -> Random (State pos ext)
-init = init' where RandomFn init' = newGame identity
+init = newGameAux identity
 
-setMode :: forall pos ext mov. Game pos ext mov => Mode -> RandomFn (State pos ext)
-setMode = newGame' (set _mode)
+setModeA :: forall pos ext mov. Game pos ext mov => Mode -> Action (State pos ext)
+setModeA = newGame' (set _mode)
 
-setCustomSize :: forall pos ext mov. Game pos ext mov => Int -> Int -> RandomFn (State pos ext)
-setCustomSize nbRows nbColumns = newGame $ setCustomSize' where
+setCustomSizeA :: forall pos ext mov. Game pos ext mov => Int -> Int -> Action (State pos ext)
+setCustomSizeA nbRows nbColumns = newGame $ setCustomSize' where
     setCustomSize' state =
         if nbRows >= minrows && nbRows <= maxrows && nbColumns >= mincols && nbColumns <= maxcols then
             state # _nbRows .~ nbRows # _nbColumns .~ nbColumns
@@ -221,8 +228,8 @@ setCustomSize nbRows nbColumns = newGame $ setCustomSize' where
             state
         where SizeLimit minrows mincols maxrows maxcols = sizeLimit state
 
-confirmNewGame :: forall pos ext. State pos ext -> State pos ext -> State pos ext
-confirmNewGame st _ = st # _dialog .~ NoDialog
+confirmNewGameA :: forall pos ext. State pos ext -> Action (State pos ext)
+confirmNewGameA st = action \_ -> st # _dialog .~ NoDialog
 
 class Game pos ext mov <= TwoPlayersGame pos ext mov | ext -> pos mov  where
     isLosingPosition :: State pos ext -> Boolean
@@ -242,3 +249,12 @@ computerMove' state =
                         moves # N.toArray # find (isLosingPosition <<< flip _play state)
                 ) in
                     (bestMove <#> pure) <|> Just (randomPick moves)
+
+--- todo
+
+dropA :: forall pos ext dnd. Eq dnd =>  Game pos ext {from :: dnd, to :: dnd} => Lens' (State pos ext) (Maybe dnd) -> dnd -> Action (State pos ext)
+dropA dragLens to = Action \setState ev state ->
+    case state ^. dragLens of
+        Nothing -> pure state
+        Just drag -> if drag /= to then (unwrapA $ playA { from: drag, to }) setState ev state
+                    else pure $ state # dragLens .~ Nothing

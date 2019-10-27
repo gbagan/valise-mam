@@ -8,7 +8,7 @@ import Pha (Prop, VDom, text, (🎲))
 import Pha.Html (div', svguse, class', key, style, click)
 import Lib.Core (coords, map2)
 import Game.Core (_position, _nbRows, _nbColumns, _help, playA)
-import Game.Noirblanc.Model (NoirblancState, _mode2, selectLevel, selectMode)
+import Game.Noirblanc.Model (NoirblancState, _mode2, selectLevelA, selectModeA)
 import UI.Dialog (card)
 import UI.Icon (icongroup, Icon(..), Options)
 import UI.Icons (ihelp, ireset, irules, iconSelectGroup)
@@ -61,9 +61,9 @@ view lens state = template lens {config, board, rules} state where
 
     config = card "Tout noir tout blanc" [
         let fn i = _{icon = IconSymbol $ "#lo-mode" <> show (i + 1)} in
-        iconSelectGroup lens state "Mode jeu" [0, 1, 2, 3] fn (state^._mode2) selectMode,
+        iconSelectGroup lens state "Mode jeu" [0, 1, 2, 3] fn (state^._mode2) selectModeA,
         let fn i opt = levels i opt in
-        iconSelectGroup lens state "Difficulté" [0, 1, 2, 3, 4, 5, 6] fn (state^._mode2) selectLevel,
+        iconSelectGroup lens state "Difficulté" [0, 1, 2, 3, 4, 5, 6] fn (state^._mode2) selectLevelA,
         icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state
     ]
     rules = [text "blablahblah"]

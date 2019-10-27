@@ -9,7 +9,7 @@ import Pha.Html (div', span, br, svg, rect, use, class', key, style,
             click, width, height, fill, viewBox, translate)
 import Lib.Core (tabulate)
 import Game.Core (canPlay, playA, isLevelFinished, _position, _turn)
-import Game.Nim.Model (NimState, Move(..), setNbPiles, _nbPiles, _length, setLength)
+import Game.Nim.Model (NimState, Move(..), _nbPiles, _length, setLengthA, setNbPilesA)
 import UI.Template (template)
 import UI.Dialog (card)
 import UI.Icon (icongroup)
@@ -22,8 +22,8 @@ view lens state = template lens {config, board, rules} state where
     length = state^._length
 
     config = card "Poker Nim" [
-        iconSelectGroup lens state "Nombre de rangées" [1, 2, 3, 4, 5] (\_ -> identity) nbPiles setNbPiles,
-        iconSelectGroup lens state "Taille des rangées" [10, 5] (\_ -> identity) length setLength,
+        iconSelectGroup lens state "Nombre de rangées" [1, 2, 3, 4, 5] (\_ -> identity) nbPiles setNbPilesA,
+        iconSelectGroup lens state "Taille des rangées" [10, 5] (\_ -> identity) length setLengthA,
         icons2Players lens state,
         icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x lens state
     ]

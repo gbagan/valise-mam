@@ -5,6 +5,7 @@ import Data.Lens (Lens', lens)
 import Data.String (drop, indexOf)
 import Data.String.Pattern (Pattern (..))
 import Effect (Effect)
+import Effect.Class (liftEffect)
 import Pha (VDom, app, Action(..))
 import Game.Core (init)
 import Lib.Random (runRnd)
@@ -51,10 +52,10 @@ solitaireLens = lens (_.solitaire) (_{solitaire = _})
 foreign import getLocationHref :: Effect String
 
 hashChange :: Action RootState
-hashChange = Action \setState event state -> do
+hashChange = Action \setState event state -> liftEffect $ do
     locationHref <- getLocationHref
     let location = extractLocation locationHref "valise"
-    setState $ state{location = location} 
+    setState $ state{location = location}
     --    } |> combine(
     --        enter(location2),
     --        state.location !== location && asyncToggle('anim', 50)

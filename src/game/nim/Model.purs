@@ -9,7 +9,8 @@ import Data.Int.Bits (xor)
 import Data.Lens (lens, Lens', view, set, (^.), (%~))
 import Data.Lens.Index (ix)
 import Lib.Core (tabulate2)
-import Lib.Random (RandomFn, randomInt)
+import Pha (Action)
+import Lib.Random (randomInt)
 import Game.Core (class Game, class TwoPlayersGame, State (..), Mode(..),
                 genState, newGame', canPlay, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
 
@@ -62,8 +63,8 @@ instance nimGame2 :: TwoPlayersGame (Array (Tuple Int Int)) ExtState Move where
 
     isLosingPosition = view _position >>> foldr (\t -> xor (snd t - fst t - 1)) 0 >>> eq 0
 
-setNbPiles :: Int -> RandomFn NimState
-setNbPiles = newGame' (set _nbPiles)
+setNbPilesA :: Int -> Action NimState
+setNbPilesA = newGame' (set _nbPiles)
 
-setLength :: Int -> RandomFn NimState
-setLength = newGame'(set _length)
+setLengthA :: Int -> Action NimState
+setLengthA = newGame'(set _length)

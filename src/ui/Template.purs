@@ -1,12 +1,16 @@
-module UI.Template (template, gridStyle, incDecGrid) where
+module UI.Template where
 import Prelude
 import Data.Int (toNumber)
 import Data.Maybe (Maybe(..))
 import Data.Lens (Lens', (^.), (.~))
-import Pha (VDom, Prop, text, emptyNode, (🎲))
-import Pha.Html (div', class', style)
-import Game.Core (class Game, State, SizeLimit(..), Dialog(..),
-        setCustomSize, _dialog, _nbColumns, _nbRows, _showWin, sizeLimit, confirmNewGame)
+import Effect (Effect)
+import Effect.Class (liftEffect)
+import Pha (VDom, Prop, Event, Action(..), action, text,  emptyNode, (🎲), whenA)
+import Pha.Html (div', class', attr, style, pointerup, pointerdown, pointerleave, pointermove)
+import Pha.Event (pointerType)
+import Game.Core (class Game, State, PointerPosition, SizeLimit(..), Dialog(..),
+         _dialog, _nbColumns, _nbRows, _showWin, _pointerPosition, sizeLimit,
+         setCustomSizeA, confirmNewGameA)
 import UI.Dialog (dialog)
 import UI.IncDecGrid (incDecGrid) as U
 
@@ -36,7 +40,7 @@ incDecGrid lens state = U.incDecGrid {
     showRowButtons: minRows < maxRows,
     showColButtons: minCols < maxCols,
     customSize: true,
-    onResize: \x y -> lens 🎲 setCustomSize x y
+    onResize: \x y -> lens 🎲 setCustomSizeA x y
 } where
     SizeLimit minRows minCols maxRows maxCols = sizeLimit state 
     
@@ -53,9 +57,66 @@ template lens elements state =
     ]
     where
         dialog' Rules = 
-            dialog {title: "Règles du jeu", onCancel: Nothing, onOk: Just (lens 🎲 _dialog .~ NoDialog)} elements.rules
+            dialog {title: "Règles du jeu", onCancel: Nothing, onOk: Just $ lens 🎲 action (_dialog .~ NoDialog)} elements.rules
         dialog' (ConfirmNewGame s) =
-            dialog {title: "Nouvelle partie", onCancel: Just (lens 🎲 _dialog .~ NoDialog), onOk: Just (lens 🎲 confirmNewGame s)} [
+            dialog {title: "Nouvelle partie", onCancel: Just $ lens 🎲 action (_dialog .~ NoDialog), onOk: Just (lens 🎲 confirmNewGameA s)} [
                 text "Tu es sur le point de créer une nouvelle partie. Ta partie en cours sera perdue. Es-tu sûr(e)?"
             ]
         dialog' _ = emptyNode
+
+
+foreign import relativePointerPositionAux :: Maybe PointerPosition -> (PointerPosition -> Maybe PointerPosition) -> Event -> Effect (Maybe PointerPosition)
+
+relativePointerPosition :: Event -> Effect (Maybe PointerPosition)
+relativePointerPosition = relativePointerPositionAux Nothing Just
+
+setPointerPositionA :: forall pos ext. Action (State pos ext)
+setPointerPositionA = Action \setState ev state -> liftEffect $ do
+    pos <- relativePointerPosition ev
+    setState $ state # _pointerPosition .~ pos
+
+svgCursorStyle :: forall a. PointerPosition -> Array (Prop a)
+svgCursorStyle {left, top, width, height} = [
+    style "transform" $ "translate(" <> show (100.0 * left / width) <> "%," <> show (100.0 * top / height) <> "%"
+]
+
+
+trackPointer :: forall a drag pos ext. Lens' a (State pos ext) -> Array (Prop a)
+trackPointer lens = [
+    attr "touch-action" "none", 
+    class' "ui-touch-action-none" true,
+    pointermove $ lens 🎲 move,
+    -- pointerup $ lens 🎲 whenA hasDnD && drop Nothing  ---  (if droppable then "BOARD" else null),
+    pointerleave $ lens 🎲 leave,
+    pointerdown $ lens 🎲 move --  todo tester
+] where
+    move :: Action (State pos ext)
+    move =  setPointerPositionA -- whenA
+        -- (\_ e -> pointerType e == Just "mouse")
+        -- combine(
+        -- setPointerPosition -- `withPayload` relativePointerPosition
+        --    whenA (\s -> s.pointerPosition == Nothing) (actions.drop NoDrop)
+        --)
+    leave = -- combine(
+           -- whenA
+            --    (\_ e -> hasDnD || pointerType e == Just "mouse")
+            action (_pointerPosition .~ Nothing)
+
+            -- hasDnD && drop NoDrop
+{-
+            Item: ({ tag = 'div', draggable, droppable, id, class: class2, drop, ...attrs }, children) => {
+                const candrop = droppable && state.dragged !== null && O.canPlay(state, { from: state.dragged, to: id });
+                const dragged = draggable && id === state.dragged; 
+                const dropHandler = candrop && combine([drop || actions.drop, id], stopPropagation);
+                return h(tag, {
+                    class: {
+                        ...toObject(class2),
+                        dragged,
+                        candrop
+                    },
+                    onpointerdown: draggable && combine([actions.drag, id], releasePointerCapture),
+                    onpointerup: dropHandler,
+                    ...attrs
+                }, children);
+            }
+-}

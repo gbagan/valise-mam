@@ -15,8 +15,6 @@ import Game.Core (class Game, State, Mode(..), PointerPosition, SizeLimit(..), D
 import UI.Dialog (dialog)
 import UI.IncDecGrid (incDecGrid) as U
 
-
-
 winPanel :: forall a b d. String -> State a b -> VDom d
 winPanel title state =
     div' [class' "ui-flex-center ui-absolute component-win-container" true] [

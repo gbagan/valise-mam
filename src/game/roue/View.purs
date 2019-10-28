@@ -1,0 +1,139 @@
+module Game.Roue.View where
+
+import Prelude
+import Data.Maybe (Maybe(..), maybe, fromMaybe, isJust)
+import Data.String (joinWith)
+import Data.Int (toNumber)
+import Data.Array (take, mapWithIndex, (!!))
+import Data.Lens (Lens', (^.))
+import Math (cos, sin, pi)
+import Lib.Core (map2)
+import Game.Core (_position, _pointerPosition)
+import Game.Roue.Model (RoueState, Ball(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, aligned, validRotation, validRotation')
+import Pha (text, emptyNode)
+import Pha.Class (VDom)
+import Pha.Action ((🎲))
+import Pha.Html (div', button, span, svg, path, key, class', click, style, viewBox, fill, stroke)
+import UI.Template (template, trackPointer, dndItemProps)
+import UI.Dialog (card)
+import UI.Icon (icongroup)
+import UI.Icons (iconSelectGroup, ireset, irules)
+
+
+colors :: Array String
+colors = ["blue", "red", "magenta", "orange", "brown", "cyan", "gray", "black"]
+
+polarToCartesian :: Number -> Number -> Number -> Number -> {x :: Number, y :: Number}
+polarToCartesian centerX centerY radius angle = {
+    x: centerX + radius * cos angle,
+    y: centerY + radius * sin angle
+}
+
+pizza :: Number -> Number -> Number -> Number -> Number -> String
+pizza cx cy radius startAngle endAngle =
+    joinWith " " [
+        "M", show cx, show cy,
+        "L", show e.x, show e.y,
+        "A", show radius, show radius, "0 0 0", show s.x, show s.y,
+        "L", show cx, show cy
+    ] where
+        s = polarToCartesian cx cy radius startAngle
+        e = polarToCartesian cx cy radius endAngle
+
+innerWheel :: forall a. Int -> VDom a 
+innerWheel size = div' [class' "roue-inner" true] [
+    svg [viewBox "0 0 100 100"] $ take size colors # mapWithIndex \i color ->
+        path (pizza 50.0 50.0 50.0 (2.0 * pi * (toNumber i - 0.5) / toNumber size) (2.0 * pi * (toNumber i + 0.5) / toNumber size)) [
+            fill color,
+            stroke "black"
+        ]
+]
+
+--const lock = action => actions.unless(s => s.locked, action);
+
+view :: forall a. Lens' a RoueState -> RoueState -> VDom a
+view lens state = template lens {config, board, rules, winTitle} state where
+    size = state^._size
+    position = state^._position
+
+    config = card "Roue des couleurs" [
+        iconSelectGroup lens state "Nombre de couleurs" [4, 5, 6, 7, 8] (\_ -> identity) size setSizeA,        
+        icongroup "Options" $ [ireset, irules] <#> \x -> x lens state
+    ]
+
+    rules = [text "blah blah"]
+
+    --- TODO todo :réécrire de manière plus élégante
+    draggedColor = state^._dragged >>= \d ->
+        let colorIndex =
+                        case d of
+                            Panel i -> i
+                            Wheel i -> fromMaybe 0 $ fromMaybe Nothing $ position !! i
+                            _ -> 0
+        in colors !! colorIndex
+
+    cursor = fromMaybe emptyNode $ do
+        {left, top} <- state^._pointerPosition
+        color <- draggedColor
+        pure $ div' [
+            class' "ui-cursor roue-select-color roue-cursor" true,
+            style "left" $ show left <> "px",
+            style "top" $ show top <> "px",
+            style "background-color" color
+        ] []
+
+    outerWheel = div' [
+        class' "roue-outer" true,
+        style "transform" $ "rotate(" <> show (360.0 * toNumber (state^._rotation) / toNumber size) <> "deg)"
+    ] $
+        [svg [key "svg", viewBox "0 0 100 100"] $ map2 position (aligned state) \i pos align ->
+            path (pizza 50.0 50.0 50.0 (2.0 * pi * (toNumber i - 0.5) / toNumber size) (2.0 * pi * (toNumber i + 0.5) / toNumber size)) ([
+                class' "roue-wheel-part" true,
+                fill $ if not align then  "#F0B27A" else if validRotation' state then "lightgreen" else "#F5B7B1"
+            ] <> dndItemProps lens _dragged (isJust pos) true (Wheel i) state)
+        ] <> (position # mapWithIndex \index c -> c # maybe emptyNode \color -> 
+            div' [
+                class' "roue-outer-piece" true,
+                key $ show index,
+                style "left" $ show (44.0 + 40.0 * cos(toNumber index * 2.0 * pi / toNumber size)) <> "%",
+                style "top" $ show (44.0 + 40.0 * sin(toNumber index * 2.0 * pi / toNumber size)) <> "%",
+                style "background-color" $ colors !! color # fromMaybe "black"
+            ] []
+        )
+
+    board = div' ([class' "roue-board" true] <> trackPointer lens _dragged true) [
+        div' [class' "roue-buttons" true] $
+            [button [
+                class' "ui-button ui-button-primary roue-button" true,
+                    -- disabled: state.locked,
+                click $ lens 🎲 rotateA (-1)
+            ] [text "↶"]]
+            <> (take size colors # mapWithIndex \i color ->
+                    div' ([
+                        class' "roue-select-color ui-flex-center" true,
+                        style "background-color" color
+                    ] <> dndItemProps lens _dragged true false (Panel i) state) [
+                    --    state.position.includes(i) && span('✓')
+                    ]
+            ) <> [button [
+                class' "ui-button ui-button-primary roue-button" true,
+                    -- disabled: state.locked,
+                    click $ lens 🎲 rotateA 1 -- lock
+            ] [text "↷"]],
+
+        div' [class' "roue-roue" true] [
+            outerWheel,
+            innerWheel size,
+            button [
+                class' "ui-button ui-button-primary roue-validate" true,
+                -- disabled: !state.validRotation || state.locked,
+                click $ lens 🎲 checkA
+            ] [text "Valider"],
+            div' [class' "roue-valid-rotation" true] [
+                if validRotation state then span [class' "valid" true] [text "✓"] else span [class' "invalid" true] [text "✗"]
+            ]
+        ],
+        cursor
+    ]
+
+    winTitle = "GAGNÉ"

@@ -20,6 +20,8 @@ import Game.Jetons.Model (JetonsState, jetonsState)
 import Game.Jetons.View (view) as JetonsView
 import Game.Noirblanc.Model (NoirblancState, noirblancState)
 import Game.Noirblanc.View (view) as NoirblancView
+import Game.Roue.Model (RoueState, roueState)
+import Game.Roue.View (view) as RoueView
 import Game.Solitaire.Model (SolitaireState, solitaireState)
 import Game.Solitaire.View (view) as SolitaireView
 
@@ -34,6 +36,7 @@ type RootState = {
     jetons :: JetonsState,
     nim :: NimState,
     noirblanc :: NoirblancState,
+    roue :: RoueState,
     solitaire :: SolitaireState,
     location :: String
 }
@@ -52,6 +55,9 @@ jetonsLens = lens (_.jetons) (_{jetons = _})
 
 noirblancLens :: Lens' RootState NoirblancState
 noirblancLens = lens (_.noirblanc) (_{noirblanc = _})
+
+roueLens :: Lens' RootState RoueState
+roueLens = lens (_.roue) (_{roue = _})
 
 solitaireLens :: Lens' RootState SolitaireState
 solitaireLens = lens (_.solitaire) (_{solitaire = _})
@@ -74,6 +80,7 @@ view state = case state.location of
     "baseball" -> BaseballView.view baseballLens state.baseball
     "frog" -> FrogView.view frogLens state.frog
     "noirblanc" -> NoirblancView.view noirblancLens state.noirblanc
+    "roue" -> RoueView.view roueLens state.roue
     "solitaire" -> SolitaireView.view solitaireLens state.solitaire
     "jetons" -> JetonsView.view jetonsLens state.jetons
     _ -> NimView.view nimLens state.nim
@@ -87,6 +94,7 @@ main = do
     frogState' <- runRnd $ init frogState
     jetonsState' <- runRnd $ init jetonsState
     noirblancState' <- runRnd $ init noirblancState
+    roueState' <- runRnd $ init roueState
     solitaireState' <- runRnd $ init solitaireState
     let state = {
         baseball: baseballState',
@@ -94,6 +102,7 @@ main = do
         frog: frogState',
         jetons: jetonsState',
         noirblanc: noirblancState',
+        roue: roueState',
         solitaire: solitaireState',
         location: location
     }

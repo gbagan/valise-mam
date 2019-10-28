@@ -4,16 +4,17 @@ import Prelude
 import Data.Tuple (Tuple(..))
 import Data.Lens (Lens', (^.))
 import Data.Int (floor, toNumber)
+import Data.Maybe (maybe, isJust)
 import Data.Array (filter, length, mapWithIndex)
 import Math (sqrt)
 import Pha (text, emptyNode)
 import Pha.Class (VDom)
 import Pha.Html (div', span, br, key, class', style, rgbColor)
-import Game.Core (_position, _nbColumns, _nbRows)
-import Game.Jetons.Model (JetonsState)
+import Game.Core (_position, _nbColumns, _nbRows, _pointerPosition)
+import Game.Jetons.Model (JetonsState, _dragged)
 import Lib.Core (coords)
 import UI.Dialog (card)
-import UI.Template (template, incDecGrid, gridStyle)
+import UI.Template (template, incDecGrid, gridStyle, trackPointer, dndItemProps, cursorStyle)
 import UI.Icon (icongroup)
 import UI.Icons (iconSizesGroup, iundo, iredo, ireset, irules)
 
@@ -31,13 +32,8 @@ view lens state = template lens {config, board, rules, winTitle} state where
     
     ]
 
-    {-
-    Cursor = () =>
-        div({
-            class: 'ui-cursor jetons-cursor',
-            style: cursorStyle(state, 60)
-        });
-    -}
+    cursor = state^._pointerPosition # maybe emptyNode \pp ->  
+        div' ([class' "ui-cursor jetons-cursor" true] <> cursorStyle pp rows columns 60.0) []
 
     piece i val props =
         let {row, col} = coords columns i in
@@ -71,12 +67,10 @@ view lens state = template lens {config, board, rules, winTitle} state where
         ); -}
 
     board = incDecGrid lens state [
-        div' ([class' "ui-board" true] <> gridStyle rows columns) $ -- 3 -- dnd
-            position # mapWithIndex \i val -> if val == 0 then emptyNode else
-                piece i val [key $ show i]
-                     --   draggable: true,
-                     --   droppable: true,
-                     --   id: i,
+        div' ([class' "ui-board" true] <> trackPointer lens _dragged true <> gridStyle rows columns) $ -- todo  3 -- dnd
+            (position # mapWithIndex \i val -> if val == 0 then emptyNode else
+                piece i val ([key $ show i] <> dndItemProps lens _dragged true true i state)
+            ) <> (if isJust $ state^._dragged then  [cursor] else [])
     ]
 
     rules = [

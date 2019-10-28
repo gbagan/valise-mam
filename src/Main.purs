@@ -92,7 +92,7 @@ main = do
         baseball: baseballState',
         nim: nimState',
         frog: frogState',
-        jetons: jetonsState,
+        jetons: jetonsState',
         noirblanc: noirblancState',
         solitaire: solitaireState',
         location: location

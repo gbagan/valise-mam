@@ -6,7 +6,7 @@ import Data.Array (snoc, null, find)
 import Data.Array.NonEmpty (fromArray, head, init, last, toArray) as N
 import Data.Time.Duration (Milliseconds(..))
 import Effect (Effect)
-import Effect.Aff (Aff, delay, launchAff)
+import Effect.Aff (Aff, delay)
 import Effect.Class (liftEffect)
 import Control.Alt ((<|>))
 import Data.Lens (lens, Lens', set, (^.), (.~), (%~))
@@ -183,7 +183,7 @@ playA move = Action \setState _ state ->
         st2 <- liftEffect $ setState (_play move $ pushToHistory $ state)
         if isLevelFinished st2 then do
             showVictory setState st2
-        else if state^._mode == ExpertMode then do
+        else if state^._mode == ExpertMode || state^._mode == RandomMode then do
             delay $ Milliseconds 1000.0
             computerPlay setState st2
         else 

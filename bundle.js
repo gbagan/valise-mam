@@ -4910,7 +4910,7 @@ var PS = {};
                           if ($104) {
                               return showVictory(setState)(v1);
                           };
-                          var $105 = Data_Eq.eq(eqMode)(Data_Lens_Getter.viewOn(state)(_mode(Data_Lens_Internal_Forget.strongForget)))(ExpertMode.value);
+                          var $105 = Data_Eq.eq(eqMode)(Data_Lens_Getter.viewOn(state)(_mode(Data_Lens_Internal_Forget.strongForget)))(ExpertMode.value) || Data_Eq.eq(eqMode)(Data_Lens_Getter.viewOn(state)(_mode(Data_Lens_Internal_Forget.strongForget)))(RandomMode.value);
                           if ($105) {
                               return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Effect_Aff.delay(1000.0))(function () {
                                   return computerPlay(dictGame)(setState)(v1);
@@ -6196,18 +6196,18 @@ var PS = {};
   var UI_Dialog = $PS["UI.Dialog"];
   var UI_IncDecGrid = $PS["UI.IncDecGrid"];                
   var winTitleFor2Players = function (state) {
-      var $22 = Data_Eq.eq(Game_Core.eqMode)(Data_Lens_Getter.viewOn(state)(Game_Core["_mode"](Data_Lens_Internal_Forget.strongForget)))(Game_Core.DuelMode.value);
-      if ($22) {
+      var $23 = Data_Eq.eq(Game_Core.eqMode)(Data_Lens_Getter.viewOn(state)(Game_Core["_mode"](Data_Lens_Internal_Forget.strongForget)))(Game_Core.DuelMode.value);
+      if ($23) {
           return "Le " + ((function () {
-              var $23 = Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)) === 1;
-              if ($23) {
+              var $24 = Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)) === 1;
+              if ($24) {
                   return "premier";
               };
               return "second";
           })() + " joueur gagne");
       };
-      var $24 = Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)) === 1;
-      if ($24) {
+      var $25 = Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)) === 1;
+      if ($25) {
           return "Tu as gagn\xe9";
       };
       return "L'IA gagne";
@@ -6356,10 +6356,20 @@ var PS = {};
           };
       };
   };
+  var cursorStyle = function (v) {
+      return function (rows) {
+          return function (columns) {
+              return function (size) {
+                  return [ Pha_Html.style("left")(Data_Show.show(Data_Show.showNumber)(v.left) + "px"), Pha_Html.style("top")(Data_Show.show(Data_Show.showNumber)(v.top) + "px"), Pha_Html.style("width")(Data_Show.show(Data_Show.showNumber)(size / Data_Int.toNumber(columns)) + "%"), Pha_Html.style("height")(Data_Show.show(Data_Show.showNumber)(size / Data_Int.toNumber(rows)) + "%") ];
+              };
+          };
+      };
+  };
   exports["gridStyle"] = gridStyle;
   exports["incDecGrid"] = incDecGrid;
   exports["template"] = template;
   exports["setPointerPositionA"] = setPointerPositionA;
+  exports["cursorStyle"] = cursorStyle;
   exports["svgCursorStyle"] = svgCursorStyle;
   exports["trackPointer"] = trackPointer;
   exports["dndItemProps"] = dndItemProps;
@@ -6879,6 +6889,7 @@ var PS = {};
   var Data_HeytingAlgebra = $PS["Data.HeytingAlgebra"];
   var Data_Lens_Getter = $PS["Data.Lens.Getter"];
   var Data_Lens_Internal_Forget = $PS["Data.Lens.Internal.Forget"];
+  var Data_Lens_Lens = $PS["Data.Lens.Lens"];
   var Data_Maybe = $PS["Data.Maybe"];
   var Data_Semiring = $PS["Data.Semiring"];
   var Game_Core = $PS["Game.Core"];
@@ -6922,8 +6933,8 @@ var PS = {};
       return Data_Foldable.all(Data_Foldable.foldableArray)(Data_HeytingAlgebra.heytingAlgebraBoolean)(function (i) {
           var z = Data_Maybe.fromMaybe(0)(Data_Array.index(position)(i + columns | 0));
           var y = (function () {
-              var $19 = Data_EuclideanRing.mod(Data_EuclideanRing.euclideanRingInt)(i + 1 | 0)(columns) === 0;
-              if ($19) {
+              var $26 = Data_EuclideanRing.mod(Data_EuclideanRing.euclideanRingInt)(i + 1 | 0)(columns) === 0;
+              if ($26) {
                   return 0;
               };
               return Data_Maybe.fromMaybe(0)(Data_Array.index(position)(i + 1 | 0));
@@ -6941,7 +6952,32 @@ var PS = {};
   }, function (v) {
       return new Game_Core.SizeLimit(1, 2, 6, 12);
   });
+  var _ext = function (dictStrong) {
+      return Data_Lens_Lens.lens(function (v) {
+          return v.value1;
+      })(function (v) {
+          return function (x) {
+              return new Game_Core.State(v.value0, x);
+          };
+      })(dictStrong);
+  };
+  var _dragged = function (dictStrong) {
+      var $38 = _ext(dictStrong);
+      var $39 = Data_Lens_Lens.lens(function (v) {
+          return v.dragged;
+      })(function (v) {
+          return function (v1) {
+              return {
+                  dragged: v1
+              };
+          };
+      })(dictStrong);
+      return function ($40) {
+          return $38($39($40));
+      };
+  };
   exports["jetonsState"] = jetonsState;
+  exports["_dragged"] = _dragged;
   exports["jetonsGame"] = jetonsGame;
 })(PS);
 (function($PS) {
@@ -6950,10 +6986,12 @@ var PS = {};
   $PS["Game.Jetons.View"] = $PS["Game.Jetons.View"] || {};
   var exports = $PS["Game.Jetons.View"];
   var Data_Array = $PS["Data.Array"];
+  var Data_Eq = $PS["Data.Eq"];
   var Data_Functor = $PS["Data.Functor"];
   var Data_Int = $PS["Data.Int"];
   var Data_Lens_Getter = $PS["Data.Lens.Getter"];
   var Data_Lens_Internal_Forget = $PS["Data.Lens.Internal.Forget"];
+  var Data_Maybe = $PS["Data.Maybe"];
   var Data_Semigroup = $PS["Data.Semigroup"];
   var Data_Show = $PS["Data.Show"];
   var Data_Tuple = $PS["Data.Tuple"];
@@ -6976,8 +7014,8 @@ var PS = {};
               return v > 0;
           })(position));
           var s = (function () {
-              var $6 = nbNonEmptyCells > 1;
-              if ($6) {
+              var $10 = nbNonEmptyCells > 1;
+              if ($10) {
                   return "s";
               };
               return "";
@@ -6991,6 +7029,9 @@ var PS = {};
               })(state);
           })) ]);
           var columns = Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget));
+          var cursor = Data_Maybe.maybe(Pha.emptyNode)(function (pp) {
+              return Pha_Html["div'"](Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html["class'"]("ui-cursor jetons-cursor")(true) ])(UI_Template.cursorStyle(pp)(rows)(columns)(60.0)))([  ]);
+          })(Data_Lens_Getter.viewOn(state)(Game_Core["_pointerPosition"](Data_Lens_Internal_Forget.strongForget)));
           var piece = function (i) {
               return function (val) {
                   return function (props) {
@@ -7001,15 +7042,29 @@ var PS = {};
           };
           var board = UI_Template.incDecGrid(Game_Jetons_Model.jetonsGame)(function (dictStrong) {
               return lens(dictStrong);
-          })(state)([ Pha_Html["div'"](Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html["class'"]("ui-board")(true) ])(UI_Template.gridStyle(rows)(columns)))(Data_Array.mapWithIndex(function (i) {
+          })(state)([ Pha_Html["div'"](Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html["class'"]("ui-board")(true) ])(Data_Semigroup.append(Data_Semigroup.semigroupArray)(UI_Template.trackPointer(Data_Eq.eqInt)(Game_Jetons_Model.jetonsGame)(function (dictStrong) {
+              return lens(dictStrong);
+          })(function (dictStrong) {
+              return Game_Jetons_Model["_dragged"](dictStrong);
+          })(true))(UI_Template.gridStyle(rows)(columns))))(Data_Semigroup.append(Data_Semigroup.semigroupArray)(Data_Array.mapWithIndex(function (i) {
               return function (val) {
-                  var $10 = val === 0;
-                  if ($10) {
+                  var $14 = val === 0;
+                  if ($14) {
                       return Pha.emptyNode;
                   };
-                  return piece(i)(val)([ Pha_Html.key(Data_Show.show(Data_Show.showInt)(i)) ]);
+                  return piece(i)(val)(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.key(Data_Show.show(Data_Show.showInt)(i)) ])(UI_Template.dndItemProps(Data_Eq.eqInt)(Game_Jetons_Model.jetonsGame)(function (dictStrong) {
+                      return lens(dictStrong);
+                  })(function (dictStrong) {
+                      return Game_Jetons_Model["_dragged"](dictStrong);
+                  })(true)(true)(i)(state)));
               };
-          })(position)) ]);
+          })(position))((function () {
+              var $15 = Data_Maybe.isJust(Data_Lens_Getter.viewOn(state)(Game_Jetons_Model["_dragged"](Data_Lens_Internal_Forget.strongForget)));
+              if ($15) {
+                  return [ cursor ];
+              };
+              return [  ];
+          })())) ]);
           return UI_Template.template(Game_Jetons_Model.jetonsGame)(function (dictStrong) {
               return lens(dictStrong);
           })({
@@ -8284,7 +8339,7 @@ var PS = {};
           baseball: v1,
           nim: v2,
           frog: v3,
-          jetons: Game_Jetons_Model.jetonsState,
+          jetons: v4,
           noirblanc: v5,
           solitaire: v6,
           location: location

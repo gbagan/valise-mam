@@ -3,9 +3,9 @@ module Game.Jetons.Model where
 import Prelude
 import Data.Array (length, replicate, (!!), (..), updateAt, modifyAt, all)
 import Data.Maybe (Maybe (..), fromMaybe)
-import Data.Lens ((^.))
+import Data.Lens (Lens', lens, (^.))
 import Lib.Core (dCoords)
-import Game.Core (class Game, State, SizeLimit (..), genState, _position, _nbColumns, _nbRows, defaultOnNewGame)
+import Game.Core (class Game, State(..), SizeLimit (..), genState, _position, _nbColumns, _nbRows, defaultOnNewGame)
 
 type Position = Array Int
 type Ext' = { dragged :: Maybe Int }
@@ -14,6 +14,11 @@ type JetonsState = State Position Ext
 
 jetonsState :: JetonsState
 jetonsState = genState [] (_{nbRows = 4, nbColumns = 4}) (Ext { dragged: Nothing })
+
+_ext :: Lens' JetonsState Ext'
+_ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
+_dragged :: Lens' JetonsState (Maybe Int)
+_dragged = _ext <<< lens (_.dragged) (_{dragged = _})
 
 instance jetonsGame :: Game (Array Int) Ext { from :: Int, to :: Int } where
     play state {from, to} =

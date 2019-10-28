@@ -12,7 +12,6 @@ import Lib.Core (tabulate, swap)
 
 newtype Seed = Seed Number
 newtype Random a = Random  (Seed -> Tuple a Seed)
-newtype RandomFn a = RandomFn (a -> Random a)
 
 instance monadRandom :: Monad Random
 

@@ -79,6 +79,14 @@ setPointerPositionA = Action \setState ev state -> liftEffect $ do
     pos <- relativePointerPosition ev
     setState $ state # _pointerPosition .~ pos
 
+cursorStyle :: forall a. PointerPosition -> Int -> Int -> Number -> Array (Prop a)    
+cursorStyle {left, top} rows columns size = [
+    style "left" $ show left <> "px",
+    style "top" $ show top <> "px",
+    style "width" $ show (size / toNumber columns) <> "%",
+    style "height" $ show (size / toNumber rows) <> "%"
+]
+
 svgCursorStyle :: forall a. PointerPosition -> Array (Prop a)
 svgCursorStyle {left, top, width, height} = [
     style "transform" $ "translate(" <> show (100.0 * left / width) <> "%," <> show (100.0 * top / height) <> "%"

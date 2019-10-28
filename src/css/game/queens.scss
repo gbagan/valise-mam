@@ -1,0 +1,46 @@
+.queens-piece {
+    pointer-events: none;
+}
+
+.queens-square {
+    float: left;
+    background: white;
+    box-shadow: 0px 0px 0px 1px #bdc3c7;
+}
+
+.queens-square-selected {
+    -webkit-filter: brightness(0.8);
+    filter: brightness(0.8);
+}
+
+.queens-square-nonavailable {
+    background: rgb(224, 123, 162);
+}
+
+.queens-square-capturable .queens-piece {
+    fill: red;
+    color: red;
+}   
+
+.queens-pieceselector {
+    margin-bottom: 0.5em;
+}
+
+.queens-bestscore-container {
+    width: 60vmin;
+    height: 60vmin;
+}
+
+.queens-custompiece-grid {
+    width: 50vmin;
+    height: 50vmin;
+}
+
+.queens-custompiece-directions {
+    width : 13em;
+    margin-left: 0.5em;
+}
+
+.queens-custompiece-directions > div {
+    margin: 0.3em;
+}

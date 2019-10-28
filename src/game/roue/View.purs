@@ -4,16 +4,16 @@ import Prelude
 import Data.Maybe (Maybe(..), maybe, fromMaybe, isJust)
 import Data.String (joinWith)
 import Data.Int (toNumber)
-import Data.Array (take, mapWithIndex, (!!))
+import Data.Array (take, elem, mapWithIndex, (!!))
 import Data.Lens (Lens', (^.))
 import Math (cos, sin, pi)
 import Lib.Core (map2)
-import Game.Core (_position, _pointerPosition)
+import Game.Core (_position, _pointerPosition, _locked)
 import Game.Roue.Model (RoueState, Ball(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, aligned, validRotation, validRotation')
 import Pha (text, emptyNode)
 import Pha.Class (VDom)
 import Pha.Action ((🎲))
-import Pha.Html (div', button, span, svg, path, key, class', click, style, viewBox, fill, stroke)
+import Pha.Html (div', button, span, svg, path, key, class', click, style, disabled, viewBox, fill, stroke)
 import UI.Template (template, trackPointer, dndItemProps)
 import UI.Dialog (card)
 import UI.Icon (icongroup)
@@ -55,6 +55,7 @@ view :: forall a. Lens' a RoueState -> RoueState -> VDom a
 view lens state = template lens {config, board, rules, winTitle} state where
     size = state^._size
     position = state^._position
+    valid = validRotation state
 
     config = card "Roue des couleurs" [
         iconSelectGroup lens state "Nombre de couleurs" [4, 5, 6, 7, 8] (\_ -> identity) size setSizeA,        
@@ -68,8 +69,8 @@ view lens state = template lens {config, board, rules, winTitle} state where
         let colorIndex =
                         case d of
                             Panel i -> i
-                            Wheel i -> fromMaybe 0 $ fromMaybe Nothing $ position !! i
-                            _ -> 0
+                            Wheel i -> fromMaybe (-1) $ (position !! i) >>= identity
+                            _ -> -1
         in colors !! colorIndex
 
     cursor = fromMaybe emptyNode $ do
@@ -105,19 +106,18 @@ view lens state = template lens {config, board, rules, winTitle} state where
         div' [class' "roue-buttons" true] $
             [button [
                 class' "ui-button ui-button-primary roue-button" true,
-                    -- disabled: state.locked,
+                disabled $ state^._locked,
                 click $ lens 🎲 rotateA (-1)
             ] [text "↶"]]
             <> (take size colors # mapWithIndex \i color ->
                     div' ([
                         class' "roue-select-color ui-flex-center" true,
                         style "background-color" color
-                    ] <> dndItemProps lens _dragged true false (Panel i) state) [
-                    --    state.position.includes(i) && span('✓')
-                    ]
+                    ] <> dndItemProps lens _dragged true false (Panel i) state)
+                        (if elem (Just i) position then [span [] $ [text "✓"]] else [])
             ) <> [button [
                 class' "ui-button ui-button-primary roue-button" true,
-                    -- disabled: state.locked,
+                    disabled $ state^._locked,
                     click $ lens 🎲 rotateA 1 -- lock
             ] [text "↷"]],
 
@@ -126,11 +126,11 @@ view lens state = template lens {config, board, rules, winTitle} state where
             innerWheel size,
             button [
                 class' "ui-button ui-button-primary roue-validate" true,
-                -- disabled: !state.validRotation || state.locked,
+                disabled $ not valid || state^._locked,
                 click $ lens 🎲 checkA
             ] [text "Valider"],
             div' [class' "roue-valid-rotation" true] [
-                if validRotation state then span [class' "valid" true] [text "✓"] else span [class' "invalid" true] [text "✗"]
+                if valid then span [class' "valid" true] [text "✓"] else span [class' "invalid" true] [text "✗"]
             ]
         ],
         cursor

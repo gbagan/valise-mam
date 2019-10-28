@@ -4,7 +4,7 @@ import Prelude
 import Data.Maybe (Maybe (Nothing), maybe)
 import Pha (text, emptyNode)
 import Pha.Class (VDom, Prop) 
-import Pha.Html (div', span, svguse, class', h2)
+import Pha.Html (button, div', span, svguse, class', h2, disabled)
 
 data Icon = IconText String | IconSymbol String | IconNone
 
@@ -31,18 +31,18 @@ defaultOptions = {
 
 iconbutton :: forall a. (Options -> Options) -> Array (Prop a) -> VDom a
 iconbutton optionFn props =
-    let {icon, selected, tooltip, round, large, hidden, disabled} = optionFn defaultOptions in
-    div' ([
+    let {icon, selected, tooltip, round, large, hidden, disabled: d} = optionFn defaultOptions in
+    button ([
         class' "ui-icon" true,
         class' "selected" selected,
         class' "round" large,
         class' "hidden" hidden,
-        class' "disabled" disabled
+        disabled d
     ] <> props) [
         case icon of
             IconSymbol symbol -> svguse symbol [class' "ui-icon-symbol" true]
             IconText t -> span [class' "ui-icon-text" true] [text t]
-            IconNone -> emptyNode,  
+            IconNone -> emptyNode,
         tooltip # maybe emptyNode (\t -> span [class' "ui-icon-tooltip" true] [text t])
     ]
 

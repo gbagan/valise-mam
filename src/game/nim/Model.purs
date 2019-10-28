@@ -33,7 +33,7 @@ _nbPiles = _ext <<< lens (_.nbPiles) (_{nbPiles = _})
 
 instance nimGame :: Game (Array (Tuple Int Int)) ExtState Move where
     canPlay state (Move pile pos) =
-        flip(maybe false) (state^._position !! pile)
+        state^._position !! pile # maybe false 
             \(Tuple p1 p2) -> pos /= p1 && pos /= p2 && if state^._turn == 0 then pos < p2 else pos > p1
 
     play state (Move pile pos) = 
@@ -57,8 +57,7 @@ instance nimGame2 :: TwoPlayersGame (Array (Tuple Int Int)) ExtState Move where
     possibleMoves state =
         tabulate2 (state^._nbPiles) (state^._length) (\{row, col} -> Move row col)
         # filter (canPlay state)
-        # sortWith \(Move pile pos) -> flip (maybe 0)
-            (state^._position !! pile)
+        # sortWith \(Move pile pos) -> state^._position !! pile # maybe 0
             \x -> if state^._turn == 0 then fst x - pos else pos - snd x
 
     isLosingPosition = view _position >>> foldr (\t -> xor (snd t - fst t - 1)) 0 >>> eq 0

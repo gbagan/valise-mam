@@ -1,0 +1,98 @@
+.roue-board {
+    height: 82.5vmin;
+    width: 75vmin;
+    border: thin solid gray;
+    position: relative;
+}
+
+.roue-roue {
+    height: 75vmin;
+    width: 75vmin;
+    position: relative;
+}
+
+.roue-outer {
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    left: 10%;
+    top: 10%; 
+    transition: all linear 0.5s;
+}
+
+.roue-inner {
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    left: 25%;
+    top: 25%; 
+    pointer-events: none;
+}
+
+
+.roue-outer-piece {
+    position: absolute;
+    width: 12%;
+    height: 12%;
+    border: thin solid gray;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.roue-select-color {
+    width: 6vmin;
+    height: 6vmin;
+    border: thin solid gray;
+    border-radius: 50%;
+    color: green;
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+.roue-button {
+    width: 6vmin;
+    height: 6vmin;
+    font-size: 4vmin;
+    padding: 0;
+}
+
+.roue-validate {
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    font-size: 4vmin;
+    padding: 0;
+}
+
+.roue-buttons {
+    height: 7.5vmin;
+    width: 75vmin;
+    display: flex;
+    justify-content: space-around;
+}
+
+.roue-wheel-part {
+    stroke: black;
+    &.candrop:hover {
+        stroke: green;
+        stroke-dasharray: 4;
+    }
+}
+
+.roue-valid-rotation {
+    position: absolute;
+    font-size: 4em;
+    right: 0.5em;
+    bottom: 1.2em;
+
+    .valid {
+        color: green;
+    }
+    .invalid {
+        color: red;
+    }
+}
+
+.roue-cursor {
+    opacity: 0.7;
+}

@@ -9,7 +9,7 @@ import Data.Time.Duration (Milliseconds(..))
 import Effect.Aff (delay)
 import Effect.Class (liftEffect)
 import Lib.Core (swap)
-import Game.Core (class Game, State(..), genState, newGame', _position, _showWin, defaultSizeLimit)
+import Game.Core (class Game, State(..), genState, newGame', lockAction, _position, _showWin, defaultSizeLimit)
 import Pha.Class (Action(..))
 import Pha.Action (action)
 
@@ -60,7 +60,7 @@ setSizeA :: Int -> Action RoueState
 setSizeA = newGame' (set _size)
 
 checkA :: Action RoueState
-checkA = Action \setState ev state -> aux setState (state^._size) state where
+checkA = lockAction $ Action \setState ev state -> aux setState (state^._size) state where
     aux setS 0 st2 = do
         _ <- liftEffect $ setS $ st2 # _showWin .~ true
         delay $ Milliseconds 1000.0

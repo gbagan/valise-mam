@@ -1,0 +1,25 @@
+.chocolat-square {
+    fill: #b37b47;
+    stroke: black;
+    stroke-width: 3;
+
+    &.soap {
+        fill: cyan;
+    }
+
+    &.hidden {
+        opacity: 0;
+    }
+}
+
+.chocolat-cutter {
+    fill: blue;
+}
+
+.chocolat-line-to-pointer {
+    stroke: red;
+    stroke-width: 2;
+    stroke-dasharray: 10;
+    pointer-events: none;
+    opacity: 0.6;
+}

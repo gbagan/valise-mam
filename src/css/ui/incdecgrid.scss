@@ -1,0 +1,39 @@
+.ui-incdecgrid-container {
+    position: relative;
+    width: 72vmin;
+    height: 72vmin;
+}
+
+.ui-incdecgrid-rows {
+    flex-direction: column;
+    width: 4rem;
+    height: 72vmin;
+    justify-content: space-around;
+}
+
+.ui-incdecgrid-cols {
+    width: 72vmin;
+    height: 4rem;
+    justify-content: space-around;
+}
+
+.ui-incdecgrid-text {
+    font-size: 2rem;
+    font-weight: bold;
+}
+/*
+@media (orientation: portrait) {
+    .ui-incdecgrid-container {
+        width: 68vmin;
+        height: 68vmin;
+    }
+    
+    .ui-incdecgrid-rows {
+        height: 68vmin;
+    }
+       
+    .ui-incdecgrid-cols {
+        width: 68vmin;
+    }
+}
+*/

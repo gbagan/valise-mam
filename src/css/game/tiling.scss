@@ -1,0 +1,23 @@
+.tiling-message {
+    color: blue;
+    font-size: 1.3em;
+}
+
+.tiling-darken {
+    -webkit-filter: url(#darken);
+    filter: url(#darken);
+}
+
+.tiling-cursor {
+    transition: transform 0.4s;
+}
+
+.tiling-success-container {
+    width: 60vmin;
+    height: 60vmin;
+}
+
+.tiling-customtile-grid-container {
+    width: 50vmin;
+    height: 50vmin;
+}

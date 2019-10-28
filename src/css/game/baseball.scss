@@ -1,0 +1,21 @@
+.baseball-board {
+    height: 80vmin;
+    width: 80vmin;
+    position: relative;
+    background-color: lightgreen;
+}
+
+.baseball-base {
+    stroke-width: 1.2;
+    fill: white;
+};
+
+.baseball-player {
+    transition: all 0.5s linear;
+}
+
+@keyframes baseballHola {
+    0%  { transform: translate(0, 0); }
+    10% { transform: translate(0, -5%); }
+    20%, 100% {transform: translate(0, 0); }
+}

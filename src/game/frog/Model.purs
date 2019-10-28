@@ -10,18 +10,16 @@ import Lib.Core (tabulate)
 import Pha.Class (Action)
 import Pha.Action (action)
 import Game.Core (class Game, canPlay, class TwoPlayersGame, Mode(..), State(..), SizeLimit(..),
-                newGame', computerMove', genState, _position, _nbRows)
-
-type Position = Int
+                newGame', computerMove', genState, _position, _help, _nbRows)
 
 type Ext' = {
-    moves :: Array Int,
-    winning :: Array Boolean,
-    marked :: Array Boolean
+    moves :: Array Int,  -- la liste des mouvements autorisées (en nombre de case)
+    winning :: Array Boolean, --- la liste des positions gagnantes
+    marked :: Array Boolean  -- la liste des posiions cochées par l'utilisateur 
 }
 newtype ExtState = Ext Ext'
 
-type FrogState = State Position ExtState
+type FrogState = State Int ExtState
 
 _ext :: Lens' FrogState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
@@ -46,9 +44,8 @@ instance frogGame :: Game Int ExtState Int where
     onNewGame state = pure $ state
                         # _winning .~ winningPositions (state^._nbRows + 1) (state^._moves)
                         # _marked .~ replicate (state^._nbRows + 1) false
-        --            help: false,
-        --            hideReachable: false,
-        --        }),
+                        # _help .~ false ---- todo utile?
+        --            hideReachable: false, todo
     isLevelFinished state = state^._position == 0
     computerMove = computerMove'
     sizeLimit _ = SizeLimit 5 0 30 0
@@ -69,40 +66,13 @@ winningPositions size moves =
             \_ -> i == 0 || (moves # all \m -> maybe false (not <<< force) (t !! (i - m))) in
     t <#> force
 
+--- calcule les positions accessibles depluis la position courante
 reachableArray :: FrogState -> Array Boolean
 reachableArray state = tabulate (state^._nbRows + 1) (canPlay state)
 
 markA :: Int -> Action FrogState
 markA i = action $ (_marked <<< ix i) %~ not
 
--- export default template({
---    state: {
---        moves: [1, 2, 3],
---        mode: 'expert',
---        keysequence: [],
---        rows: 20,
---        columns: 1,
---        customSize: true,
---    },
-
---   core: {
---        sizeLimit: [5, 1, 20, 1],
---        play,
---        canPlay,
---        newGame: state => ({
---            winning: winningPositions(state.rows + 1, state.moves),
---            marked: tabulate(state.rows + 1 , false),
---            help: false,
---            hideReachable: false,
---        }),
---    },
-
---    actions: $ => ({
---        mark: update(i => set(['marked', i], not)),
-
---        
---        play: when(canPlay, combine($.play, s => asyncToggle('hideReachable', s.mode === 'duel' ? 500 : 1500)(s))),
---        toggleHelp: set('help', not),
 --        keyDown: konamiCode(state => ({...state, marked: state.winning})),
 --    }),
 

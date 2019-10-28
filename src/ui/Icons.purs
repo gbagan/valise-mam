@@ -9,7 +9,7 @@ import Pha.Action (action, (🎲))
 import Pha.Html (click, style)
 import Game.Core (State, class Game, Dialog(Rules), Mode(..),
                 undoA, redoA, resetA, toggleHelpA, setModeA, computerStartsA, setGridSizeA,
-                _help, _dialog, _history, _redoHistory, _mode, _nbRows, _nbColumns)
+                _help, _dialog, _history, _redoHistory, _mode, _nbRows, _nbColumns, _locked)
 import UI.Icon (iconbutton, icongroup, Options, Icon(..)) as I
 
 iconbutton :: forall a b d.
@@ -17,7 +17,8 @@ iconbutton :: forall a b d.
     -> (I.Options -> I.Options)
     -> Array (Prop d)
     -> VDom d
-iconbutton state optionFn props = I.iconbutton optionFn props
+iconbutton state optionFn props =
+    I.iconbutton (\opts -> let opts2 = optionFn opts in opts2{disabled = opts2.disabled || state^._locked}) props
 
 iconSelect :: forall a pos ext sel. Eq sel =>
     Lens' a (State pos ext) -> State pos ext -> sel -> (sel -> Action (State pos ext)) -> sel

@@ -1,0 +1,24 @@
+.paths-darken {
+    -wekbit-filter: url(#darken);
+    filter: url(#darken);
+}
+
+.paths-path {
+    stroke-width: 5;
+    stroke: blue;
+    fill: none;
+}
+
+.paths-trap{
+    opacity: 0;
+
+    &.visible {
+        opacity: 1;
+        transition: all 100ms linear 500ms;
+    }
+}
+
+.paths-hero {
+    transition: all 500ms linear;
+    pointer-events: none;
+}

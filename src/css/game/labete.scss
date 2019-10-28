@@ -1,0 +1,36 @@
+.labete-color {
+    position: absolute;
+    left: 10rem;
+    top: -4em;
+    display: inline-block;
+    width: 3.5em;
+    height: 2.5em;
+}
+
+.labete-beast {
+    opacity: 0;
+    transition: opacity 0.3s ease-in;
+
+    &.visible {
+        opacity: 0.6;
+        transition: none;
+    }
+}
+
+.labete-cursor {
+    opacity: 0.7;
+
+    &.overtrap {
+        opacity: 0.3;
+    }
+}
+
+.labete-custombeast-grid-container {
+    width: 50vmin;
+    height: 50vmin;
+}
+
+.labete-bestscore-grid-container {
+    width: 60vmin;
+    height: 60vmin;
+}

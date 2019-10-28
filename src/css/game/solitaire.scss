@@ -1,0 +1,12 @@
+.solitaire-hole {
+    &.candrop {
+        stroke: green;
+        stroke-width: 4;
+    }
+}
+.solitaire-peg {
+    cursor: pointer;
+    &.dragged {
+        opacity: 0.3;
+    }
+}

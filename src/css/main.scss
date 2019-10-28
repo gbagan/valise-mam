@@ -1,0 +1,30 @@
+.main-main-container {
+    min-height: 100%;
+    width: 100%;
+    position: fixed;
+    transform: scale(1);
+    transition: linear 1s;
+    opacity: 1;
+
+    &.appear {
+        transform: scale(0.05);
+        transition: none;
+
+        &.valise {
+            transform: translate(-50%, -50%) scale(0.1);
+        }
+    }
+
+    &.exit {
+        transition: linear 0.5s;
+        opacity: 0;
+    }
+}
+
+.main-minivalise-link {
+    position: absolute;
+    left: 0;
+    width: calc(192vmin / 25);
+    height: calc(169vmin / 25);
+    z-index: 10;
+}

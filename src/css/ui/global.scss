@@ -1,0 +1,86 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    line-height: 1.15;
+    color: rgba(0, 0, 0, 0.65);
+    margin: 0;
+    font-size: 2vmin;
+    font-family: "Monospaced Number", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    background-size: contain;
+    background-repeat: no-repeat;
+    touch-action: none;
+}
+
+.flex {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.ui-flex-center{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ui-absolute {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+}
+
+.ui-board {
+    overflow: hidden;
+    box-shadow: 0px 0px 5px 5px #bdc3c7;
+    position: relative;
+}
+
+.ui-cursor {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.ui-touch-action-none {
+    touch-action: none;
+}
+
+@each $i in 2 /* 5 */ {
+    .gutter#{$i} {
+        & > div {
+            margin-left: $i * 0.5em / 2;
+            margin-right: $i * 0.5em / 2;
+            &:first-child {
+                margin-left: 0;
+            }
+            &:last-child {
+                margin-right: 0;   
+            }
+        }
+    }
+}
+
+.main-container {
+    position: fixed;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: space-around;
+    align-items: center;
+    background: linear-gradient(to right, #cfd9df, #e2ebf0);
+}
+
+@media screen and (orientation: portrait) {
+    .main-container {
+        flex-direction: column;
+    }
+}

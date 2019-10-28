@@ -32,6 +32,7 @@ type CoreState pos ext = {
     nbColumns :: Int,
     mode :: Mode,
     help :: Boolean,
+    locked :: Boolean,
     showWin :: Boolean,
     pointerPosition :: Maybe PointerPosition
 }
@@ -50,6 +51,7 @@ defaultCoreState p = {
     nbColumns: 0,
     help: false,
     mode: SoloMode,
+    locked: false,
     showWin: false,
     pointerPosition: Nothing
 }
@@ -90,6 +92,9 @@ _nbColumns = _core <<< lens (_.nbColumns) (_{nbColumns = _})
 _levelFinished :: forall pos ext. Lens' (State pos ext) Boolean
 _levelFinished = _core <<< lens (_.levelFinished) (_{levelFinished = _})
 
+_locked :: forall pos ext. Lens' (State pos ext) Boolean
+_locked = _core <<< lens (_.locked) (_{locked = _})
+
 _showWin :: forall pos ext. Lens' (State pos ext) Boolean
 _showWin = _core <<< lens (_.showWin) (_{showWin = _})
 
@@ -117,7 +122,7 @@ changeTurn :: forall pos ext. State pos ext -> State pos ext
 changeTurn state = if state^._mode == DuelMode then state # _turn %~ \x -> 1 - x else state
 
 undoA :: forall pos ext. Action (State pos ext)
-undoA = action \state -> flip (maybe state) (N.fromArray $ state^._history) \hs ->
+undoA = action \state -> N.fromArray (state^._history) # maybe state \hs ->
     changeTurn
     $ _position .~ N.last hs
     $ _history .~ N.init hs
@@ -125,7 +130,7 @@ undoA = action \state -> flip (maybe state) (N.fromArray $ state^._history) \hs 
     $ state
 
 redoA :: forall pos ext. Action (State pos ext)
-redoA = action \state -> flip (maybe state) (N.fromArray $ state^._redoHistory) \hs ->
+redoA = action \state -> N.fromArray (state^._redoHistory) # maybe state  \hs ->
     changeTurn
     $ _position .~ N.last hs
     $ _redoHistory .~ N.init hs
@@ -133,7 +138,7 @@ redoA = action \state -> flip (maybe state) (N.fromArray $ state^._redoHistory) 
     $ state
 
 resetA :: forall pos ext. Action (State pos ext)
-resetA = action \state -> flip (maybe state) (N.fromArray $ state^._history) \hs ->
+resetA = action \state -> N.fromArray (state^._history) # maybe state \hs ->
     _position .~ N.head hs
     $ _history .~ []
     $ _redoHistory .~ []
@@ -176,7 +181,7 @@ computerStartsA :: forall pos ext mov. Game pos ext mov => Action (State pos ext
 computerStartsA = Action \setState _ state -> computerPlay setState (pushToHistory state)
 
 playA :: forall pos ext mov. Game pos ext mov => mov -> Action (State pos ext)
-playA move = Action \setState _ state ->
+playA move = lockAction $ Action \setState _ state ->
     if not $ canPlay state move then
         pure state
     else do
@@ -189,6 +194,16 @@ playA move = Action \setState _ state ->
         else 
             pure st2
 
+-- affecte à true l'attribut locked avant le début de l'action act et l'affecte à false à la fin de l'action
+-- fonctionne sur toute la durée d'une action asynchrone
+lockAction :: forall pos ext. Action (State pos ext) -> Action (State pos ext)
+lockAction (Action act) = Action \setState ev state -> 
+    if state^._locked then
+        pure state
+    else do
+        st1 <- liftEffect $ setState $ state # _locked .~ true
+        st2 <- act setState ev st1
+        liftEffect $ setState $ st2 # _locked .~ false
 
 newGameAux :: forall pos ext mov. Game pos ext mov =>
     (State pos ext -> State pos ext) -> (State pos ext) -> Random (State pos ext)

@@ -18,6 +18,9 @@ map2 :: forall a b c. Array a -> Array b -> (Int -> a -> b -> c) -> Array c
 map2 t1 t2 fn = unsafePartial $ tabulate n \i -> fn i (unsafeIndex t1 i) (unsafeIndex t2 i)
     where n = min (t1 # length) (t2 # length)
 
+range :: Int -> Int -> Int -> Array Int
+range begin end step = tabulate (max 0 (1 + (end - begin) `div` step)) \i -> begin + i * step
+
 floatRange :: Number -> Number -> Number -> Array Number
 floatRange begin end step = tabulate (max 0 (floor $ 1.0 + (end - begin) / step)) \i -> begin + toNumber i * step
 

@@ -40,7 +40,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
     levelFinished = isLevelFinished state
     config =
         card "Baseball multicolore" [
-            iconSelectGroup lens state "nombres de bases" [4, 5, 6, 7, 8] (\_ -> identity) nbBases setNbBases,
+            iconSelectGroup lens state "Nombres de bases" [4, 5, 6, 7, 8] (\_ -> identity) nbBases setNbBases,
             icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> \x -> x lens state
         ]
 

@@ -1,0 +1,32 @@
+.dessin-board {
+    width: 75vmin;
+    height: 75vmin;
+}
+
+.dessin-svg {
+    display: block;
+}
+
+.dessin-line-to-pointer {
+    stroke: red;
+    stroke-width: 1.5;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.dessin-raise {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    font-size: 1.7rem;
+    padding: 0;
+}
+
+.dessin-raise-info {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    color: blue;
+    font-weight: bold;
+}

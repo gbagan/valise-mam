@@ -1,0 +1,58 @@
+.frog-board {
+    width: 100%;
+    height: 100%;
+
+    & > span {
+        position: absolute;
+        bottom: 0.5em;
+        left: 0.5em;
+        color: blue;
+        font-size: 1.3em;
+    }
+}
+
+.frog-lily {
+    fill: url(#lilyg);
+
+    &.reachable {
+        transition: opacity 0.3s linear;
+        fill: url(#lilyh);
+    }
+
+    &.hidden {
+        opacity: 0;
+    }
+}
+
+.frog-index {
+    fill: blue;
+    font-size: 20;
+    text-anchor: middle;
+}
+
+.frog-frog-container {
+    transition: all linear 0.6s;
+}
+
+.frog-frog {
+    fill: #bcd35f;
+    pointer-events: none;
+    &.marked {
+        opacity: 0.6;
+        fill: #bc835f;
+    }
+    &.goal {
+        animation: frog-jump 4s infinite;
+    }
+}
+
+@keyframes frog-jump {
+    0% { transform: translate(0 0); }
+    70% { transform: translate(0 0); }
+    75% { transform: translate(0 -30px); }
+    80% { transform: translate(0 0); }
+    85% { transform: translate(0 -30px); }
+    90% { transform: translate(0 -0); }
+    95% { transform: translate(0 -30px); }
+    100% { transform: translate(0 0); }
+  }

@@ -1,0 +1,16 @@
+.nim-board {
+    height: 80vmin;
+    width: 80vmin;
+    position: relative;
+    background-color: lightblue;
+}
+
+.nim-player {
+    cursor: not-allowed;
+    transition: all 0.5s linear;
+};
+
+.nim-turn-message {
+    color: blue;
+    font-size: 1.3em;
+}

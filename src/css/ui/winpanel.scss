@@ -1,0 +1,23 @@
+.component-win-container {
+    pointer-events: none;
+    z-index: 500;
+}
+
+.component-win {
+    background: white;
+    white-space: nowrap;
+    border-radius: 1rem;
+    border: thin solid red;
+    font-size: 4rem;
+    padding: 2rem;
+    color: red;
+    display: block;
+    opacity: 0;
+    z-index: 500;
+    transition: opacity 0.5s ease-in;
+
+    &.visible {
+        opacity: 1;
+        transition: none;
+    }
+}

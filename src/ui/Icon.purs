@@ -2,7 +2,8 @@ module UI.Icon where
 
 import Prelude
 import Data.Maybe (Maybe (Nothing), maybe)
-import Pha (text, VDom, Prop, emptyNode)
+import Pha (text, emptyNode)
+import Pha.Class (VDom, Prop) 
 import Pha.Html (div', span, svguse, class', h2)
 
 data Icon = IconText String | IconSymbol String | IconNone

@@ -6,7 +6,7 @@ import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Lens (lens, Lens', set, (^.))
 import Lib.Core (swap)
 import Lib.Random (shuffle)
-import Pha (Action)
+import Pha.Class (Action)
 import Game.Core (class Game, State(..), genState, newGame', _position, defaultSizeLimit, defaultOnNewGame)
 
 type Position = Array Int
@@ -16,7 +16,6 @@ type BaseballState = State Position ExtState
 
 _ext :: Lens' BaseballState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
-
 _nbBases :: Lens' BaseballState Int
 _nbBases = _ext <<< lens (_.nbBases) (_{nbBases = _})
 

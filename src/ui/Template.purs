@@ -5,11 +5,13 @@ import Data.Maybe (Maybe(..), maybe)
 import Data.Lens (Lens', (^.), (.~))
 import Effect (Effect)
 import Effect.Class (liftEffect)
-import Pha (VDom, Prop, Event, Action(..), action, noAction, text,  emptyNode, (🎲))
+import Pha.Class (VDom, Prop, Event, Action(..))
+import Pha (text, emptyNode)
+import Pha.Action (action, noAction, (🎲))
 import Pha.Html (div', class', attr, style, pointerup, pointerdown, pointerleave, pointermove)
 import Game.Core (class Game, State, Mode(..), PointerPosition, SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _mode, _turn, _showWin, _pointerPosition, canPlay, sizeLimit,
-         setCustomSizeA, confirmNewGameA, dropA)
+         setGridSizeA, confirmNewGameA, dropA)
 import UI.Dialog (dialog)
 import UI.IncDecGrid (incDecGrid) as U
 
@@ -35,7 +37,7 @@ incDecGrid lens state = U.incDecGrid {
     showRowButtons: minRows < maxRows,
     showColButtons: minCols < maxCols,
     customSize: true,
-    onResize: \x y -> lens 🎲 setCustomSizeA x y
+    onResize: \x y -> lens 🎲 setGridSizeA x y
 } where
     SizeLimit minRows minCols maxRows maxCols = sizeLimit state 
     
@@ -119,7 +121,7 @@ dndItemProps lens dragLens draggable droppable id state = [
     dragged = draggable && draggedItem == Just id
 
 
-winTitleFor2Players :: forall all pos ext. State pos ext -> String
+winTitleFor2Players :: forall pos ext. State pos ext -> String
 winTitleFor2Players state =
     if state^._mode == DuelMode then
         "Le " <> (if state^._turn == 1 then "premier" else "second") <> " joueur gagne"

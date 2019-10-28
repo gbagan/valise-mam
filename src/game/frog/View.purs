@@ -9,7 +9,9 @@ import Data.String (joinWith)
 import Data.Int (toNumber)
 import Data.Lens (Lens', (^.))
 import Lib.Core (map2, tabulate, pairwise, floatRange)
-import Pha (VDom, emptyNode, text, (🎲), ifThenElseA)
+import Pha.Class (VDom) 
+import Pha (emptyNode, text)
+import Pha.Action ((🎲), ifThenElseA)
 import Pha.Html (div', span, br, svg, viewBox, g, use, line, path, text',
                 class', key, click, style,
                 width, height, stroke, fill, strokeDasharray, strokeWidth, translate)

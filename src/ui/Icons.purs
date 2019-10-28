@@ -2,11 +2,14 @@ module UI.Icons where
 import Prelude
 import Data.Array (null, elem)
 import Data.Maybe (Maybe(..))
+import Data.Tuple (Tuple(..))
 import Data.Lens (Lens', (^.), (.~))
-import Pha (VDom, Prop, Action, action, (🎲))
+import Pha.Class (VDom, Prop, Action)
+import Pha.Action (action, (🎲))
 import Pha.Html (click, style)
-import Game.Core (State, class Game, undoA, redoA, resetA, toggleHelpA, setModeA, computerStartsA, Dialog(Rules), Mode(..),
-                _help, _dialog, _history, _redoHistory, _mode)
+import Game.Core (State, class Game, Dialog(Rules), Mode(..),
+                undoA, redoA, resetA, toggleHelpA, setModeA, computerStartsA, setGridSizeA,
+                _help, _dialog, _history, _redoHistory, _mode, _nbRows, _nbColumns)
 import UI.Icon (iconbutton, icongroup, Options, Icon(..)) as I
 
 iconbutton :: forall a b d.
@@ -75,7 +78,19 @@ iconSelectGroupM lens state title values selected action =
             selected = elem val selected
         }) [click $ lens 🎲 action val]
 
-icons2Players :: forall a b c d. Game a b c => Lens' d (State a b) -> State a b -> VDom d
+iconSizesGroup :: forall a pos ext mov. Game pos ext mov =>
+    Lens' a (State pos ext) -> State pos ext -> Array (Tuple Int Int) -> Boolean -> VDom a
+iconSizesGroup lens state sizeList customSize =
+    I.icongroup "Dimensions de la grille" $
+        sizeList <#> \(Tuple rows cols) ->
+            iconbutton state (_{
+                icon = I.IconText $ show rows <> "x" <> show cols,
+                selected = rows == crows && cols == ccols
+            }) [click $ lens 🎲 setGridSizeA rows cols] where
+    crows = state^._nbRows
+    ccols = state^._nbColumns
+
+icons2Players :: forall a pos ext mov. Game pos ext mov => Lens' a (State pos ext) -> State pos ext -> VDom a
 icons2Players lens state =
     I.icongroup "Mode de jeu" [
         iconbutton

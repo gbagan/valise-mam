@@ -1,5 +1,5 @@
 module Pha.Event where
-import Pha (Event)
+import Pha.Class (Event)
 import Data.Maybe (Maybe(..))
 
 foreign import shiftKey :: Event -> Boolean

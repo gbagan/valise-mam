@@ -11,7 +11,8 @@ import Effect.Class (liftEffect)
 import Control.Alt ((<|>))
 import Data.Lens (lens, Lens', set, (^.), (.~), (%~))
 import Lib.Random (Random, runRnd, randomPick)
-import Pha (Action(..), unwrapA, action, randomAction)
+import Pha.Class (Action(..))
+import Pha.Action (unwrapA, action, randomAction)
 
 data Dialog a = Rules | NoDialog | ConfirmNewGame a
 data Mode = SoloMode | RandomMode | ExpertMode | DuelMode
@@ -219,8 +220,8 @@ init = newGameAux identity
 setModeA :: forall pos ext mov. Game pos ext mov => Mode -> Action (State pos ext)
 setModeA = newGame' (set _mode)
 
-setCustomSizeA :: forall pos ext mov. Game pos ext mov => Int -> Int -> Action (State pos ext)
-setCustomSizeA nbRows nbColumns = newGame $ setCustomSize' where
+setGridSizeA :: forall pos ext mov. Game pos ext mov => Int -> Int -> Action (State pos ext)
+setGridSizeA nbRows nbColumns = newGame $ setCustomSize' where
     setCustomSize' state =
         if nbRows >= minrows && nbRows <= maxrows && nbColumns >= mincols && nbColumns <= maxcols then
             state # _nbRows .~ nbRows # _nbColumns .~ nbColumns

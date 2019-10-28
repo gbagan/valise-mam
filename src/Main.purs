@@ -6,7 +6,8 @@ import Data.String (drop, indexOf)
 import Data.String.Pattern (Pattern (..))
 import Effect (Effect)
 import Effect.Class (liftEffect)
-import Pha (VDom, app, Action(..))
+import Pha.Class (VDom, Action(..)) 
+import Pha (app)
 import Game.Core (init)
 import Lib.Random (runRnd)
 import Game.Baseball.Model (BaseballState, baseballState)
@@ -15,6 +16,8 @@ import Game.Nim.Model (NimState, nimState)
 import Game.Nim.View (view) as NimView
 import Game.Frog.Model (FrogState, frogState)
 import Game.Frog.View (view) as FrogView
+import Game.Jetons.Model (JetonsState, jetonsState)
+import Game.Jetons.View (view) as JetonsView
 import Game.Noirblanc.Model (NoirblancState, noirblancState)
 import Game.Noirblanc.View (view) as NoirblancView
 import Game.Solitaire.Model (SolitaireState, solitaireState)
@@ -26,12 +29,13 @@ extractLocation url defaultValue =
 
 
 type RootState = {
-    location :: String,
     baseball :: BaseballState,
-    nim :: NimState,
     frog :: FrogState,
+    jetons :: JetonsState,
+    nim :: NimState,
     noirblanc :: NoirblancState,
-    solitaire :: SolitaireState
+    solitaire :: SolitaireState,
+    location :: String
 }
 
 baseballLens :: Lens' RootState BaseballState
@@ -42,6 +46,9 @@ nimLens = lens (_.nim) (_{nim = _})
 
 frogLens :: Lens' RootState FrogState
 frogLens = lens (_.frog) (_{frog = _})
+
+jetonsLens :: Lens' RootState JetonsState
+jetonsLens = lens (_.jetons) (_{jetons = _})
 
 noirblancLens :: Lens' RootState NoirblancState
 noirblancLens = lens (_.noirblanc) (_{noirblanc = _})
@@ -68,6 +75,7 @@ view state = case state.location of
     "frog" -> FrogView.view frogLens state.frog
     "noirblanc" -> NoirblancView.view noirblancLens state.noirblanc
     "solitaire" -> SolitaireView.view solitaireLens state.solitaire
+    "jetons" -> JetonsView.view jetonsLens state.jetons
     _ -> NimView.view nimLens state.nim
 
 main :: Effect Unit
@@ -77,12 +85,14 @@ main = do
     baseballState' <- runRnd $ init baseballState
     nimState' <- runRnd $ init nimState
     frogState' <- runRnd $ init frogState
+    jetonsState' <- runRnd $ init jetonsState
     noirblancState' <- runRnd $ init noirblancState
     solitaireState' <- runRnd $ init solitaireState
     let state = {
         baseball: baseballState',
         nim: nimState',
         frog: frogState',
+        jetons: jetonsState,
         noirblanc: noirblancState',
         solitaire: solitaireState',
         location: location

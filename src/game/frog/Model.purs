@@ -7,7 +7,8 @@ import Data.Maybe (maybe, fromMaybe)
 import Data.Lens (Lens', lens, (^.), (.~), (%~), over)
 import Data.Lens.Index (ix)
 import Lib.Core (tabulate)
-import Pha (Action, action)
+import Pha.Class (Action)
+import Pha.Action (action)
 import Game.Core (class Game, canPlay, class TwoPlayersGame, Mode(..), State(..), SizeLimit(..),
                 newGame', computerMove', genState, _position, _nbRows)
 

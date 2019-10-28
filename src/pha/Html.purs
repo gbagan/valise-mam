@@ -1,7 +1,8 @@
 module Pha.Html where
 
 import Prelude
-import Pha (h, text, Action, VDom, Prop(..))
+import Pha.Class (Action, VDom, Prop(..))
+import Pha (h, text)
 
 key :: forall a. String -> Prop a
 key = Key
@@ -102,4 +103,7 @@ translate x y = "translate(" <> show x <> "px," <> show y <> "px)"
 
 svguse :: forall a. String -> Array (Prop a) -> VDom a
 svguse symbol props = svg [width "100%", height "100%"] [h "use" [attr "href" symbol] []]
+
+rgbColor :: Int -> Int -> Int -> String
+rgbColor r g' b = "rgb(" <> show r <> "," <> show g' <> "," <> show b <> ")"
 

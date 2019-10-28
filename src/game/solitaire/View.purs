@@ -4,7 +4,7 @@ import Prelude
 import Data.Int (toNumber)
 import Data.Lens (Lens', (^.))
 import Data.Array (mapWithIndex, filter, length)
-import Data.Maybe (maybe, isJust)
+import Data.Maybe (Maybe(..), maybe, isJust)
 import Math (sin, cos, pi)
 import Lib.Core (coords)
 import Pha.Class (VDom)
@@ -12,10 +12,10 @@ import Pha (text, emptyNode)
 import Pha.Action ((🎲))
 import Pha.Html (div', br, svg, circle, key, attr, class', style, width, height, viewBox, fill, stroke, strokeWidth, pointermove, translate)
 import Game.Core (_position, _nbColumns, _nbRows, _pointerPosition)
-import Game.Solitaire.Model (SolitaireState, Board(..), _board, _holes, _dragged)
+import Game.Solitaire.Model (SolitaireState, Board(..), _board, _holes, _dragged, setBoardA)
 import UI.Dialog (card)
-import UI.Icon (icongroup)
-import UI.Icons (iundo, iredo, ireset, irules)
+import UI.Icon (icongroup, Icon(..))
+import UI.Icons (iconSelect, iundo, iredo, ireset, irules)
 import UI.Template (template, gridStyle, incDecGrid, setPointerPositionA, svgCursorStyle, trackPointer, dndItemProps)
 
 tricolor :: Int -> Int -> Int -> String
@@ -43,19 +43,18 @@ view lens state = template lens {config, board, rules, winTitle} state where
     cursor = state^._pointerPosition # maybe emptyNode 
         \pos -> circle 0.0 0.0 20.0 ([attr "pointer-events" "none", fill "url(#soli-peg)"] <> (svgCursorStyle $ pos))
 
-    config = card "Jeu du solitaire" [
-        {-    I.Group({
-                title: 'Plateau',
-                list: ['circle', 'grid', 'random', 'english', 'french',],
-                symbol: ['circle', null, 'shuffle', 'tea', 'bread'],
-                text: [null, '3xN'],
-                tooltip: ['Cercle', 'Grille 3xN', 'Aléatoire', 'Anglais', 'Français'],
-                select: state.boardName,
-                onclick: actions.setBoard
-            }),
-        -}
-        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x lens state     --- help
-    ]
+    config =
+        let ic = iconSelect lens state (state^._board) setBoardA in
+        card "Jeu du solitaire" [
+            icongroup "Plateau" [
+                ic CircleBoard (_{icon = IconSymbol "#circle", tooltip = Just "Cercle"}),
+                ic Grid3Board (_{icon = IconText "3xN", tooltip = Just "3xN"}), 
+                ic RandomBoard (_{icon = IconSymbol "#shuffle", tooltip = Just "Aléatoire"}), 
+                ic EnglishBoard  (_{icon = IconSymbol "#bread", tooltip = Just "Anglais"}),
+                ic FrenchBoard (_{icon = IconSymbol "#tea", tooltip = Just "Français"}) 
+            ],
+            icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x lens state     --- help
+        ] 
 
     grid = div' ([
         pointermove $ lens 🎲 setPointerPositionA,

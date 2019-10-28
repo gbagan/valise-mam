@@ -62,4 +62,3 @@ runRnd :: forall a. Random a -> Effect a
 runRnd (Random m) = do
     seed <- genSeed
     pure $ fst $ m seed
-

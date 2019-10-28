@@ -6,9 +6,10 @@ import Data.Traversable (sequence)
 import Data.Array ((!!), replicate, all, mapWithIndex, updateAtIndices)
 import Data.Lens (Lens', lens, view, (^.), (.~))
 import Data.Lens.Index (ix)
+import Pha.Class (Action)
 import Lib.Random (Random, randomBool)
 import Lib.Core (tabulate, tabulate2, dCoords)
-import Game.Core (class Game, State(..), SizeLimit(..), genState, canPlay, _nbColumns, _nbRows, _position)
+import Game.Core (class Game, State(..), SizeLimit(..), genState, canPlay, _nbColumns, _nbRows, _position, newGame)
 
 type Move = {from :: Int, to :: Int}
 
@@ -95,18 +96,28 @@ instance solitaireGame :: Game (Array Boolean) ExtState {from :: Int, to :: Int}
                 CircleBoard -> generateBoard (state^._nbRows) 1 0 \_ -> true
                 Grid3Board -> {
                     holes: replicate (3 * state^._nbColumns) true,
-                    position: pure $ tabulate (3 * state^._nbColumns) (_ <= 2 * columns)
+                    position: pure $ tabulate (3 * state^._nbColumns) (_ < 2 * columns)
                 }
                 RandomBoard -> {
                     holes: replicate (3 * state^._nbColumns) true,
-                    position: (sequence $ replicate columns randomBool) <#> \bools -> bools <> replicate columns true <> bools <#> not
+                    position: (sequence $ replicate columns randomBool) <#> \bools -> bools <> replicate columns true <> (bools <#> not)
                 }
 
     sizeLimit state = if state^._board == CircleBoard then SizeLimit 3 1 12 1 else SizeLimit 3 1 3 9
 
     computerMove _ = Nothing
 
+setBoardA :: Board -> Action SolitaireState
+setBoardA board = newGame \state ->
+    let st2 = state # _board .~ board in 
+    case board of
+        CircleBoard -> st2 # _nbRows .~ 6 # _nbColumns .~ 1
+        Grid3Board -> st2 # _nbRows .~ 3 # _nbColumns .~ 5
+        RandomBoard -> st2 # _nbRows .~ 3 # _nbColumns .~ 5
+        _ -> st2 # _nbRows .~ 7 # _nbColumns .~ 7
+
 {-
+    todo
 const dimensions = {
     french: { rows: 7, columns: 7, customSize: false },
     english: { rows: 7, columns: 7, customSize: false },

@@ -19,6 +19,12 @@ iconbutton :: forall a b d.
     -> VDom d
 iconbutton state optionFn props = I.iconbutton optionFn props
 
+iconSelect :: forall a pos ext sel. Eq sel =>
+    Lens' a (State pos ext) -> State pos ext -> sel -> (sel -> Action (State pos ext)) -> sel
+  -> (I.Options -> I.Options) -> VDom a
+iconSelect lens state selection action value optionFn =
+    iconbutton state (\opt -> optionFn $ opt{selected = value == selection}) [click $ lens 🎲 action value]
+
 iundo :: forall a b d. Lens' d (State a b) -> State a b -> VDom d
 iundo lens state =
     iconbutton

@@ -13,10 +13,8 @@ import Pha.Html (div', span, br, key, class', style, rgbColor)
 import Game.Core (_position, _nbColumns, _nbRows, _pointerPosition)
 import Game.Jetons.Model (JetonsState, _dragged)
 import Lib.Util (coords)
-import UI.Dialog (card)
-import UI.Template (template, incDecGrid, gridStyle, dndBoardProps, dndItemProps, cursorStyle)
-import UI.Icon (icongroup)
-import UI.Icons (iconSizesGroup, iundo, iredo, ireset, irules)
+import UI.Template (template, card, incDecGrid, gridStyle, dndBoardProps, dndItemProps, cursorStyle)
+import UI.Icons (icongroup, iconSizesGroup, iundo, iredo, ireset, irules)
 
 view :: forall a. Lens' a JetonsState -> JetonsState -> VDom a
 view lens state = template lens {config, board, rules, winTitle} state where

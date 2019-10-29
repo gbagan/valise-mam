@@ -13,10 +13,8 @@ import Pha.Html (div', svg, g, rect, use, class', key, style,
 import Lib.Util (map2)
 import Game.Core (canPlay, playA, isLevelFinished, _position)
 import Game.Baseball.Model (BaseballState, setNbBases, _nbBases)
-import UI.Template (template)
-import UI.Dialog (card)
-import UI.Icon (icongroup)
-import UI.Icons (iconSelectGroup, iundo, iredo, ireset, irules)
+import UI.Template (template, card)
+import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 
 colors :: Array String
 colors = ["blue", "red", "green", "magenta", "orange", "black", "cyan", "gray"]

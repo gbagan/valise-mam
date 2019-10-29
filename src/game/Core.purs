@@ -185,19 +185,27 @@ computerPlay setState state = flip (maybe $ pure state) (computerMove state) \rn
 computerStartsA :: forall pos ext mov. Game pos ext mov => Action (State pos ext)
 computerStartsA = Action \setState _ state -> computerPlay setState (pushToHistory state)
 
-playA :: forall pos ext mov. Game pos ext mov => mov -> Action (State pos ext)
-playA move = lockAction $ Action \setState _ state ->
+type PlayOption = {
+    showWin :: Boolean
+}
+
+playA' :: forall pos ext mov. Game pos ext mov => (PlayOption -> PlayOption) -> mov -> Action (State pos ext)
+playA' optionFn move = lockAction $ Action \setState _ state ->
+    let {showWin} = optionFn {showWin: false} in
     if not $ canPlay state move then
         pure state
     else do
         st2 <- liftEffect $ setState (_play move $ pushToHistory $ state)
-        if isLevelFinished st2 then do
+        if showWin && isLevelFinished st2 then do
             showVictory setState st2
         else if state^._mode == ExpertMode || state^._mode == RandomMode then do
             delay $ Milliseconds 1000.0
             computerPlay setState st2
         else 
             pure st2
+
+playA :: forall pos ext mov. Game pos ext mov => mov -> Action (State pos ext)
+playA = playA' identity
 
 -- affecte à true l'attribut locked avant le début de l'action act et l'affecte à false à la fin de l'action
 -- fonctionne sur toute la durée d'une action asynchrone

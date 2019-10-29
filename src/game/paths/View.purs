@@ -13,10 +13,9 @@ import Game.Paths.Model (PathsState, Mode(..), _exit, _mode, selectVertexA, sele
 import Pha (emptyNode, text)
 import Pha.Action ((🎲))
 import Pha.Html (div', p, br, g, svg, use, path, key, class', attr, click, style, width, height, viewBox)
-import UI.Dialog (card)
-import UI.Icon (icongroup, Icon(..))
-import UI.Icons (iconSizesGroup, iconSelect, ihelp, iundo, iredo, ireset, irules)
-import UI.Template (template, incDecGrid, gridStyle, svgCursorStyle, trackPointer)
+import UI.Icon (Icon(..))
+import UI.Icons (icongroup, iconSizesGroup, iconSelect, ihelp, iundo, iredo, ireset, irules)
+import UI.Template (template, card, incDecGrid, gridStyle, svgCursorStyle, trackPointer)
 
 square :: forall a. Boolean -> Boolean -> Boolean -> Number -> Number -> Array (Prop a) -> VDom a
 square darken trap  door x y props =

@@ -5,15 +5,6 @@ import Pha.Class (VDom, Action)
 import Pha (text, emptyNode)
 import Pha.Html (div', button, class', click)
 
-card :: forall a. String -> Array (VDom a) -> VDom a
-card title children =
-    div' [class' "ui-card" true] [
-        div' [class' "ui-card-head ui-flex-center" true] [
-            div' [class' "ui-card-title" true] [text title]
-        ],
-        div' [class' "ui-card-body" true] children
-    ]
-
 type DialogOptions a = {
     title :: String,
     onOk :: Maybe (Action a),

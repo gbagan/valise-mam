@@ -4,13 +4,14 @@ import Data.Array (null, elem)
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
 import Data.Lens (Lens', (^.), (.~))
+import Pha (text)
 import Pha.Class (VDom, Prop, Action)
 import Pha.Action (action, (🎲))
-import Pha.Html (click)
+import Pha.Html (div', h2, class', click)
 import Game.Core (State, class Game, Dialog(Rules), Mode(..),
                 undoA, redoA, resetA, toggleHelpA, setModeA, computerStartsA, setGridSizeA,
                 _help, _dialog, _history, _redoHistory, _mode, _nbRows, _nbColumns, _locked, _customSize)
-import UI.Icon (iconbutton, icongroup, Options, Icon(..)) as I
+import UI.Icon (iconbutton, Options, Icon(..)) as I
 
 iconbutton :: forall a b d.
     State a b
@@ -19,6 +20,13 @@ iconbutton :: forall a b d.
     -> VDom d
 iconbutton state optionFn props =
     I.iconbutton (\opts -> let opts2 = optionFn opts in opts2{disabled = opts2.disabled || state^._locked}) props
+
+icongroup :: forall a. String -> Array (VDom a) -> VDom a
+icongroup title children =
+    div' [] [
+        h2 [] [text title],
+        div' [class' "ui-icon-grid" true] children
+    ]
 
 iconSelect :: forall a pos ext sel. Eq sel =>
     Lens' a (State pos ext) -> State pos ext -> sel -> (sel -> Action (State pos ext)) -> sel
@@ -72,7 +80,7 @@ iconSelectGroup :: forall a pos ext d.
     Show a => Eq a =>
     Lens' d (State pos ext) -> State pos ext -> String -> Array a -> (a -> I.Options -> I.Options) -> a -> (a -> Action (State pos ext)) -> VDom d
 iconSelectGroup lens state title values optionFn selected action =
-    I.icongroup title $ values <#> \val ->
+    icongroup title $ values <#> \val ->
         iconbutton state (optionFn val <<< (_{
             icon = I.IconText $ show val,
             selected = val == selected
@@ -80,18 +88,18 @@ iconSelectGroup lens state title values optionFn selected action =
 
 iconSelectGroupM :: forall a pos ext d.
     Show a => Eq a =>
-    Lens' d (State pos ext) -> State pos ext -> String -> Array a -> Array a -> (a -> Action (State pos ext)) -> VDom d
-iconSelectGroupM lens state title values selected action =
-    I.icongroup title $ values <#> \val ->
-        iconbutton state (_{
+    Lens' d (State pos ext) -> State pos ext -> String -> Array a -> (a -> I.Options -> I.Options) -> Array a -> (a -> Action (State pos ext)) -> VDom d
+iconSelectGroupM lens state title values optionFn selected action =
+    icongroup title $ values <#> \val ->
+        iconbutton state (optionFn val <<< (_{
             icon = I.IconText $ show val,
             selected = elem val selected
-        }) [click $ lens 🎲 action val]
+        })) [click $ lens 🎲 action val]
 
 iconSizesGroup :: forall a pos ext mov. Game pos ext mov =>
     Lens' a (State pos ext) -> State pos ext -> Array (Tuple Int Int) -> Boolean -> VDom a
 iconSizesGroup lens state sizeList customSize =
-    I.icongroup "Dimensions de la grille" $
+    icongroup "Dimensions de la grille" $
         (sizeList <#> \(Tuple rows cols) ->
             iconbutton state (_{
                 icon = I.IconText $ show rows <> "x" <> show cols,
@@ -107,7 +115,7 @@ iconSizesGroup lens state sizeList customSize =
 
 icons2Players :: forall a pos ext mov. Game pos ext mov => Lens' a (State pos ext) -> State pos ext -> VDom a
 icons2Players lens state =
-    I.icongroup "Mode de jeu" [
+    icongroup "Mode de jeu" [
         iconbutton
             state
             (_{icon = I.IconSymbol "#school", selected = state^._mode == RandomMode, tooltip = Just "IA mode facile"})

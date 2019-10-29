@@ -16,10 +16,8 @@ import Pha.Html (div', span, br, svg, viewBox, g, use, line, path, text',
                 class', key, click, style,
                 width, height, stroke, fill, strokeDasharray, strokeWidth, translate)
 import Pha.Event (shiftKey)
-import UI.Template (template, incDecGrid, winTitleFor2Players)
-import UI.Dialog (card)
-import UI.Icon (icongroup)
-import UI.Icons (iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
+import UI.Template (template, card, incDecGrid, winTitleFor2Players)
+import UI.Icons (icongroup, iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
 import Game.Core (Mode(..), _nbRows, _position, _turn, _mode, _help, playA)
 import Game.Frog.Model (FrogState, _moves, _marked, selectMoveA, reachableArray, markA)
 
@@ -86,7 +84,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
     spoints = spiralPoints (state^._nbRows)
     pointsPolar = spiralPointsPolar $ state^._nbRows
     config = card "La grenouille" [
-        iconSelectGroupM lens state "Déplacements autorisés" [1, 2, 3, 4, 5] (state^._moves) selectMoveA,
+        iconSelectGroupM lens state "Déplacements autorisés" [1, 2, 3, 4, 5]  (\_ -> identity) (state^._moves) selectMoveA,
         icons2Players lens state,
         icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x lens state
     ]

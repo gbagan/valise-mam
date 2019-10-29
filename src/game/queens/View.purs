@@ -5,46 +5,27 @@ import Data.Int (toNumber)
 import Data.Maybe (Maybe(..), maybe)
 import Data.Lens (Lens', (^.))
 import Data.Tuple (Tuple(..))
+import Data.Array (head)
 import Lib.Util (map3)
 import Pha (h, text)
 import Pha.Class (VDom, Prop)
 import Pha.Action ((🎲))
-import Pha.Html (div', br, class', attr, svg, use, style, width, height, href, click, pointerenter, pointerleave)
-import Game.Core (_position, _nbRows, _nbColumns, _help, _pointerPosition, playA)
-import Game.Queens.Model (QueensState, Piece(..), _selectedPiece, _selectedSquare, capturableSquares, attackedBySelected, selectSquareA)
-import UI.Dialog (card)
-import UI.Template (template, incDecGrid, gridStyle, trackPointer, cursorStyle)
-import UI.Icons (iconSizesGroup)
+import Pha.Html (div', br, class', attr, svg, key, style, width, height, href, click, pointerenter, pointerleave)
+import Game.Core (_position, _nbRows, _nbColumns, _help, _pointerPosition)
+import Game.Queens.Model (QueensState, Piece(..), _selectedPiece, _selectedSquare, _allowedPieces, _multiPieces,
+                           piecesList, capturableSquares, attackedBySelected,
+                           playA, selectSquareA, selectPieceA, selectAllowedPieceA, toggleMultiPiecesA)
+import UI.Template (template, card, incDecGrid, gridStyle, trackPointer, cursorStyle)
+import UI.Icon (Icon(..))
+import UI.Icons (iconbutton, icongroup, iconSizesGroup, iconSelectGroupM, ihelp, irules, ireset)
 
-{-
-const pieceTooltips = {
-    queen: 'Reine',
-    king: 'Roi',
-    rook: 'Tour',
-    bishop: 'Fou',
-    knight: 'Cavalier',
-    custom: 'Pièce personnalisée'
-};
--}
-
-pieceToString :: Piece -> String
-pieceToString Queen = "queen"
-pieceToString King = "king" 
-pieceToString Rook = "rook" 
-pieceToString Bishop = "bishop"
-pieceToString Knight = "knight"
-pieceToString _ = "custom"
-
-{-
-    queen: 'Reine',
-    king: 'Roi',
-    rook: 'Tour',
-    bishop: 'Fou',
-    knight: 'Cavalier',
-    custom: 'Pièce personnalisée'
-};
--}
-
+tooltip :: Piece -> String
+tooltip Queen = "Reine"
+tooltip King = "Roi"
+tooltip Rook = "Tour"
+tooltip Bishop = "Fou"
+tooltip Knight = "Cavalier"
+tooltip _ = "Pièce personnalisée"
 
 square :: forall a. { piece :: Piece, capturable :: Boolean, selected :: Boolean, nonavailable :: Boolean} -> Array (Prop a) -> VDom a
 square { piece, capturable, selected, nonavailable} props =
@@ -55,7 +36,7 @@ square { piece, capturable, selected, nonavailable} props =
         class' "queens-square-selected" selected
     ] <> props) $ if piece == Empty then [] else [
         svg [width "100%", height "100%", class' "queen-piece" true] [
-            h "use" [href $ "#piece-" <> pieceToString piece, attr "x" "10%", attr "y" "10%",
+            h "use" [href $ "#piece-" <> show piece, attr "x" "10%", attr "y" "10%",
                      width "80%", height "80%", class' "queens-piece" true] []
         ]
     ]
@@ -67,62 +48,39 @@ view lens state = template lens {config, board, rules, winTitle} state where
     columns = state^._nbColumns
         
     config = card "Les reines" [
-        iconSizesGroup lens state [Tuple 4 4, Tuple 5 5, Tuple 7 7, Tuple 8 8] true
+        iconSizesGroup lens state [Tuple 4 4, Tuple 5 5, Tuple 7 7, Tuple 8 8] true,
+        iconSelectGroupM lens state "Pièces disponibles" piecesList 
+                (\piece -> _{icon = IconSymbol $ "#piece-" <> show piece, tooltip = Just $ tooltip piece}) 
+                (state^._allowedPieces) selectAllowedPieceA,
+        icongroup "Options" $ [
+            iconbutton state (_{icon = IconSymbol "#customize",
+                              selected = head (state^._allowedPieces) == Just Custom,
+                              tooltip = Just "Crée ta propre propre pièce"}) [],
+            iconbutton state (_{icon = IconSymbol "#piece-mix", selected = state^._multiPieces, tooltip = Just "Mode mixte"}) [
+                click $ lens 🎲 toggleMultiPiecesA
+            ]
+        ] <> ([ihelp, ireset, irules] <#> \x -> x lens state)
     ]
-
-    {-
-
-            I.Group({
-                title: 'Pièces disponibles',
-                list: piecesList,
-                multi: true,
-                select: state.allowedPieces,
-                onclick: actions.selectAllowedPiece,
-                symbol: 'piece-',
-                tooltip: pieceTooltips
-            }),
-
-            I.Group({ title: 'Options' },
-                I.Icon({
-                    symbol: 'customize',
-                    tooltip: 'Crée ta propre propre pièce',
-                    selected: state.allowedPieces[0] === 'custom',
-                    onclick: actions.customize,
-                }),
-                I.Icon({
-                    symbol: 'piece-mix',
-                    selected: state.multiPieces,
-                    tooltip: 'Mode mixte',
-                    onclick: actions.toggleMultiPieces,
-                }),
-                I.Help(),
-                I.Rules()
-            ),
-
+            {-    
             I.Group({ title: `Meilleur score (${state.bestScore || 0})` },
                 I.BestScore()
-            )
-        )
-    );
-    ]
-
-    const PieceSelector = () =>
-        div({ class: 'ui-flex-center gutter2 queens-pieceselector' },
-            state.allowedPieces.map(piece =>
-                Icon({
-                    key: piece,
-                    selected: piece === state.selectedPiece,
-                    symbol: 'piece-' + piece,
-                    onclick: [actions.selectPieceType, piece],
-                })
-            )
-        );
 
     -}
+    pieceSelector = div' [class' "ui-flex-center gutter2 queens-pieceselector" true] $
+        state^._allowedPieces <#> \piece ->
+            let name = show piece in
+            iconbutton state (\x -> x{
+                    selected = piece == state^._selectedPiece,
+                    icon = IconSymbol $ "#piece-" <> name
+                }) [
+                    key $ name,
+                    click $ lens 🎲 selectPieceA piece
+                ]
+        
 
     cursor pp = div' ([class' "ui-cursor" true] <> cursorStyle pp rows columns 80.0) [
         svg [width "100%", height "100%"] [
-            h "use" [href $ "#piece-" <> pieceToString (state^._selectedPiece)] []
+            h "use" [href $ "#piece-" <> show (state^._selectedPiece)] []
         ]
     ]
 
@@ -139,15 +97,10 @@ view lens state = template lens {config, board, rules, winTitle} state where
                 pointerenter $ lens 🎲 selectSquareA (Just index),
                 pointerleave $ lens 🎲 selectSquareA Nothing
             ]
-        )     
-                   -- capturable: state.attackedSquares[index],
-                   -- nonavailable: state.help && (!!piece || state.attackedSquares[index]),
-                   -- selected: state.selectedSquare !== null &&
-                   --          (state.attackedBySelected[index] || index === state.selectedSquare),
-        <> (state^._pointerPosition # maybe [] (pure <<< cursor))
+        ) <> (state^._pointerPosition # maybe [] (pure <<< cursor))
 
-    board =  div' [] [
-           --  PieceSelector(),
+    board = div' [] [
+        pieceSelector,
         incDecGrid lens state [grid]
     ]
 

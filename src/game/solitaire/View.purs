@@ -13,10 +13,9 @@ import Pha.Action ((🎲))
 import Pha.Html (div', br, svg, rect, circle, key, attr, class', style,click, width, height, viewBox, fill, stroke, strokeWidth, pointermove, translate)
 import Game.Core (_position, _nbColumns, _nbRows, _pointerPosition)
 import Game.Solitaire.Model (SolitaireState, Board(..), _board, _holes, _dragged, _help, setBoardA, toggleHelpA)
-import UI.Dialog (card)
-import UI.Icon (icongroup, Icon(..))
-import UI.Icons (iconbutton, iconSelect, iundo, iredo, ireset, irules)
-import UI.Template (template, gridStyle, incDecGrid, setPointerPositionA, svgCursorStyle, dndBoardProps, dndItemProps)
+import UI.Icon (Icon(..))
+import UI.Icons (iconbutton, icongroup, iconSelect, iundo, iredo, ireset, irules)
+import UI.Template (template, card, gridStyle, incDecGrid, setPointerPositionA, svgCursorStyle, dndBoardProps, dndItemProps)
 
 tricolor :: Int -> Int -> Int -> String
 tricolor i columns help = 

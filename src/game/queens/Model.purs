@@ -1,31 +1,43 @@
 module Game.Queens.Model where
 
 import Prelude
-import Data.Array (foldr, mapWithIndex, replicate, zipWith, all)
+import Data.Array (all, elem, filter, foldr, head, mapWithIndex, null, replicate, zipWith)
 import Data.Lens (Lens', lens, (^.), (.~), (%~))
 import Data.Lens.Index (ix)
-import Data.Maybe (Maybe(..), maybe)
+import Data.Maybe (Maybe(..), maybe, fromMaybe)
 import Data.Tuple (Tuple(..))
 import Lib.Util (tabulate, dCoords, map2)
-import Game.Core (State(..), class Game, SizeLimit(..), genState, _position, _nbRows, _nbColumns)
+import Game.Core (State(..), class Game, SizeLimit(..), genState, newGame, _position, _nbRows, _nbColumns, playA')
 import Pha.Class (Action(..))
 import Pha.Action (action)
 
--- export const piecesList = ['rook', 'bishop', 'king', 'knight', 'queen'];
+piecesList :: Array Piece
+piecesList = [Rook, Bishop, King, Knight, Queen]
 
 data Piece = Rook | Bishop | King | Knight | Queen | Custom | Empty
 derive instance eqPiece :: Eq Piece
+instance showPiece :: Show Piece where 
+    show Queen = "queen"
+    show King = "king" 
+    show Rook = "rook" 
+    show Bishop = "bishop"
+    show Knight = "knight"
+    show _ = "custom"
 
 type Position = Array Piece
 type Ext' = {
     selectedPiece :: Piece,
-    selectedSquare :: Maybe Int
+    selectedSquare :: Maybe Int,
+    allowedPieces :: Array Piece,
+    multiPieces :: Boolean
 }
 newtype Ext = Ext Ext'
 type QueensState = State Position Ext
 
 queensState :: QueensState
-queensState = genState [] (_{nbRows = 8, nbColumns = 8}) (Ext {selectedPiece: Queen, selectedSquare: Nothing})
+queensState = genState []
+    (_{nbRows = 8, nbColumns = 8})
+    (Ext {selectedPiece: Queen, selectedSquare: Nothing, allowedPieces: [Queen], multiPieces: false})
 
 _ext :: Lens' QueensState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
@@ -33,6 +45,10 @@ _selectedPiece :: Lens' QueensState Piece
 _selectedPiece = _ext <<< lens (_.selectedPiece) (_{selectedPiece = _})
 _selectedSquare :: Lens' QueensState (Maybe Int)
 _selectedSquare = _ext <<< lens (_.selectedSquare) (_{selectedSquare = _})
+_allowedPieces :: Lens' QueensState (Array Piece)
+_allowedPieces = _ext <<< lens (_.allowedPieces) (_{allowedPieces = _})
+_multiPieces :: Lens' QueensState Boolean
+_multiPieces = _ext <<< lens (_.multiPieces) (_{multiPieces = _})
 
 -- const f9 = repeat(9, false);
 -- const f25 = repeat(25, false);
@@ -81,15 +97,6 @@ attackedBySelected state =
 
      
 -- const isCustom = state => state.multiPieces || state.customSize || state.allowedPieces.includes('custom');
-{-
-
-const toggleAllowedPiece = (state, piece) =>
-    state.allowedPieces.length === 1 && state.allowedPieces[0] === piece &&
-        state.allowedPieces
-    || state.multiPieces &&
-        piecesList.filter(p2 => (p2 === piece) !== state.allowedPieces.includes(p2))
-    || [piece];
--}
 
 instance pathGame :: Game (Array Piece) Ext Int where 
     canPlay _ _ = true
@@ -103,7 +110,7 @@ instance pathGame :: Game (Array Piece) Ext Int where
     isLevelFinished state = all identity $ map2 (capturableSquares state) (state^._position)
                             \index captured piece -> not captured || piece == Empty
     
-    onNewGame state = pure $ state # _selectedPiece .~ Queen
+    onNewGame state = pure $ state # _selectedPiece .~ fromMaybe Queen (head $ state^._allowedPieces)
       -- selectedPiece: state.allowedPieces[0]}),
     
     sizeLimit _ = SizeLimit 3 3 9 9
@@ -129,8 +136,6 @@ instance pathGame :: Game (Array Piece) Ext Int where
     },
 
     actions: $ => ({
-        selectAllowedPiece: $.newGame(piece => state => ({...state, allowedPieces: toggleAllowedPiece(state, piece)})),
-        selectPieceType: update('selectedPiece'),
         selectSquare: update('selectedSquare'),
         flipDirection: $.newGame(direction => set(['customMoves', 'directions', direction], not)),
         flipLocal: $.newGame(position => set(['customMoves', 'local', position], not)),
@@ -149,5 +154,23 @@ instance pathGame :: Game (Array Piece) Ext Int where
     })
 });
 -}
+
+playA :: Int -> Action QueensState
+playA = playA' (_{showWin = false})
+
+toggleAllowedPiece :: Piece ->  Boolean -> Array Piece -> Array Piece
+toggleAllowedPiece piece false pieces = [piece]
+toggleAllowedPiece piece true pieces = if null pieces2 then pieces else pieces2 where
+    pieces2 = piecesList # filter \p2 -> (p2 == piece) /= elem p2 pieces
+    
+selectPieceA :: Piece -> Action QueensState
+selectPieceA piece = action $ _selectedPiece .~ piece
+
 selectSquareA :: Maybe Int -> Action QueensState
 selectSquareA a = action $ _selectedSquare .~ a
+
+selectAllowedPieceA :: Piece -> Action QueensState
+selectAllowedPieceA piece = newGame $ \state -> state # _allowedPieces %~ toggleAllowedPiece piece (state^._multiPieces)
+
+toggleMultiPiecesA :: Action QueensState
+toggleMultiPiecesA = action $ _multiPieces %~ not

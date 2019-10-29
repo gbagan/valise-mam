@@ -14,11 +14,8 @@ import Pha (text, emptyNode)
 import Pha.Class (VDom)
 import Pha.Action ((🎲))
 import Pha.Html (div', button, span, svg, path, key, class', click, style, disabled, viewBox, fill, stroke)
-import UI.Template (template, trackPointer, dndItemProps)
-import UI.Dialog (card)
-import UI.Icon (icongroup)
-import UI.Icons (iconSelectGroup, ireset, irules)
-
+import UI.Template (template, card, trackPointer, dndItemProps)
+import UI.Icons (icongroup, iconSelectGroup, ireset, irules)
 
 colors :: Array String
 colors = ["blue", "red", "magenta", "orange", "brown", "cyan", "gray", "black"]

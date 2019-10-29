@@ -11,10 +11,9 @@ import Pha.Html (div', svguse, class', key, style, click)
 import Lib.Util (coords, map2)
 import Game.Core (_position, _nbRows, _nbColumns, _help, playA)
 import Game.Noirblanc.Model (NoirblancState, _mode2, selectLevelA, selectModeA)
-import UI.Dialog (card)
-import UI.Icon (icongroup, Icon(..), Options)
-import UI.Icons (ihelp, ireset, irules, iconSelectGroup)
-import UI.Template (template, incDecGrid, gridStyle)
+import UI.Icon (Icon(..), Options)
+import UI.Icons (icongroup, ihelp, ireset, irules, iconSelectGroup)
+import UI.Template (template, card, incDecGrid, gridStyle)
 
 levels :: Int -> Options -> Options
 levels i opt = case i of

@@ -48,10 +48,3 @@ iconbutton optionFn props =
             IconNone -> emptyNode,
         tooltip # maybe emptyNode (\t -> span [class' "ui-icon-tooltip" true] [text t])
     ]
-
-icongroup :: forall a. String -> Array (VDom a) -> VDom a
-icongroup title children =
-    div' [] [
-        h2 [] [text title],
-        div' [class' "ui-icon-grid" true] children
-    ]

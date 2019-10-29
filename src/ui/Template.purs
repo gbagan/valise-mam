@@ -90,14 +90,12 @@ svgCursorStyle {left, top, width, height} = [
     style "transform" $ "translate(" <> show (100.0 * left / width) <> "%," <> show (100.0 * top / height) <> "%"
 ]
 
-trackPointer :: forall pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>
-    Lens' a (State pos ext) -> Lens' (State pos ext) (Maybe dnd) -> Boolean -> Array (Prop a)
-trackPointer lens dragLens hasDnD = [
+trackPointer :: forall pos ext a. Lens' a (State pos ext) -> Array (Prop a)
+trackPointer lens = [
     attr "touch-action" "none", 
     class' "ui-touch-action-none" true,
     pointermove $ lens 🎲 move,
-    pointerup $ (if hasDnD then lens 🎲 action (dragLens .~ Nothing) else noAction), ---  (if droppable then "BOARD" else null),
-    pointerleave $ lens 🎲 leave,
+    pointerleave $ lens 🎲  action (_pointerPosition .~ Nothing),
     pointerdown $ lens 🎲 move --  todo tester
 ] where
     move :: Action (State pos ext)
@@ -112,6 +110,27 @@ trackPointer lens dragLens hasDnD = [
             --    (\_ e -> hasDnD || pointerType e == Just "mouse")
             action (_pointerPosition .~ Nothing)
 
+            -- hasDnD && drop NoDrop
+
+
+dndBoardProps :: forall pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>
+    Lens' a (State pos ext) -> Lens' (State pos ext) (Maybe dnd) -> Array (Prop a)
+dndBoardProps lens dragLens = [
+    attr "touch-action" "none", 
+    class' "ui-touch-action-none" true,
+    pointermove $ lens 🎲 move,
+    pointerup $ lens 🎲 action (dragLens .~ Nothing), ---  (if droppable then "BOARD" else null),
+    pointerleave $ lens 🎲 leave,
+    pointerdown $ lens 🎲 move --  todo tester
+] where
+    move :: Action (State pos ext)
+    move =  setPointerPositionA -- whenA
+        -- (\_ e -> pointerType e == Just "mouse")
+        -- combine(
+        -- setPointerPosition -- `withPayload` relativePointerPosition
+        --    whenA (\s -> s.pointerPosition == Nothing) (actions.drop NoDrop)
+        --)
+    leave = action (_pointerPosition .~ Nothing)
             -- hasDnD && drop NoDrop
 
 dndItemProps :: forall pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>

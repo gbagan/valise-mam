@@ -3,26 +3,30 @@ import Prelude
 import Data.Maybe (Maybe(..), maybe, fromMaybe, isNothing)
 import Data.Array (length, nub, elem, null, head, last)
 import Data.Array.NonEmpty (fromArray, head, last, init, tail) as N
-import Data.Lens (Lens', lens, view, (^.), (.~))
+import Data.Lens (Lens', lens, view, set, (^.), (.~))
 import Lib.Random (randomInt)
 import Lib.Core (dCoords, range)
-import Game.Core (State(..), class Game, SizeLimit(..), genState, _nbRows, _nbColumns, _position, playA)
+import Game.Core (State(..), class Game, SizeLimit(..), newGame', genState, _nbRows, _nbColumns, _position, playA)
 import Pha.Class (Action)
 import Pha.Action (action, ifThenElseA)
 
+data Mode = Mode1 | Mode2
+derive instance eqMode :: Eq Mode
+
 type Position = Array Int
-type Ext' = { exit :: Maybe Int }
+type Ext' = { exit :: Maybe Int, mode' :: Mode }
 newtype Ext = Ext Ext'
 type PathsState = State Position Ext
 
 pathsState :: PathsState
-pathsState = genState [] (_{nbRows = 6, nbColumns = 6}) (Ext { exit: Nothing })
+pathsState = genState [] (_{nbRows = 6, nbColumns = 6}) (Ext { exit: Nothing, mode': Mode1 })
 
 _ext :: Lens' PathsState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
-_exit:: Lens' PathsState (Maybe Int)
+_exit :: Lens' PathsState (Maybe Int)
 _exit = _ext <<< lens (_.exit) (_{exit = _})
-
+_mode :: Lens' PathsState Mode
+_mode = _ext <<< lens (_.mode') (_{mode' = _})
 
 -- renvoie un chemin horizontal ou vertical entre u et v si celui ci existe (u exclus)
 pathBetween :: Int -> Int -> Int -> Maybe (Array Int)
@@ -53,7 +57,7 @@ isValidPath state path = fromMaybe true $ do
 instance pathGame :: Game (Array Int) Ext Int where
     canPlay state v =
         case N.fromArray (state^._position) of
-            Nothing -> true --  state.mode == 0 || v == state.firstVertex
+            Nothing -> state^._mode == Mode2
             Just path ->
                 pathBetween (state^._nbColumns) (N.last path) v # maybe false \p ->
                     not (null p) && isValidPath state (state^._position <> p)
@@ -73,7 +77,7 @@ instance pathGame :: Game (Array Int) Ext Int where
     initialPosition = pure <<< view _position 
 
     onNewGame state =
-        if true then -- state.mode === 0
+        if state^._mode == Mode1 then
             randomInt (state^._nbRows * state^._nbColumns) <#>
                 \begin -> state # _position .~ [begin] # _exit .~ Just begin 
         else
@@ -92,8 +96,5 @@ selectVertexA v =
             (playA v)
 
 
-{-
-    actions: $ => ({
-        selectMode: $.newGame('mode'),
-    })
-});
+selectModeA :: Mode -> Action PathsState
+selectModeA = newGame' $ (set _mode)

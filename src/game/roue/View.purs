@@ -102,7 +102,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
             ] []
         )
 
-    board = div' ([class' "roue-board" true] <> trackPointer lens _dragged true) [
+    board = div' ([class' "roue-board" true] <> trackPointer lens) [
         div' [class' "roue-buttons" true] $
             [button [
                 class' "ui-button ui-button-primary roue-button" true,

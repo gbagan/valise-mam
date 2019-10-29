@@ -16,7 +16,7 @@ import Game.Solitaire.Model (SolitaireState, Board(..), _board, _holes, _dragged
 import UI.Dialog (card)
 import UI.Icon (icongroup, Icon(..))
 import UI.Icons (iconSelect, iundo, iredo, ireset, irules)
-import UI.Template (template, gridStyle, incDecGrid, setPointerPositionA, svgCursorStyle, trackPointer, dndItemProps)
+import UI.Template (template, gridStyle, incDecGrid, setPointerPositionA, svgCursorStyle, dndBoardProps, dndItemProps)
 
 tricolor :: Int -> Int -> Int -> String
 tricolor i columns help = 
@@ -59,7 +59,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
     grid = div' ([
         pointermove $ lens 🎲 setPointerPositionA,
         class' "ui-board" true
-    ] <> trackPointer lens _dragged true <> (if isCircleBoard then [style "width" "100%", style "height" "100%"]  else gridStyle rows columns)) [
+    ] <> dndBoardProps lens _dragged <> (if isCircleBoard then [style "width" "100%", style "height" "100%"]  else gridStyle rows columns)) [
         svg [width "100%", height "100%",
             viewBox $ if isCircleBoard then "0 0 250 250" else "0 0 " <> show (50 * columns) <> " " <> show (50 * rows)
         ] $

@@ -3,20 +3,20 @@ import Prelude
 import Data.Lens (Lens', (^.))
 import Data.Tuple (Tuple (..))
 import Data.Array (concat, elem, last, mapWithIndex, null)
-import Data.Maybe (Maybe(..), maybe)
+import Data.Maybe (Maybe(..), maybe, isNothing)
 import Data.Int (toNumber, even)
 import Data.String (joinWith)
 import Lib.Core (coords, tabulate)
 import Pha.Class (VDom, Prop)
-import Game.Core (_nbRows, _nbColumns, _position, _help)
-import Game.Paths.Model (PathsState, _exit, selectVertexA)
+import Game.Core (_nbRows, _nbColumns, _position, _help, _pointerPosition)
+import Game.Paths.Model (PathsState, Mode(..), _exit, _mode, selectVertexA, selectModeA)
 import Pha (emptyNode, text)
 import Pha.Action ((🎲))
-import Pha.Html (div', p, br, g, svg, use, path, key, class', click, style, width, height, viewBox)
+import Pha.Html (div', p, br, g, svg, use, path, key, class', attr, click, style, width, height, viewBox)
 import UI.Dialog (card)
-import UI.Icon (icongroup)
-import UI.Icons (iconSizesGroup, ihelp, iundo, iredo, ireset, irules)
-import UI.Template (template, incDecGrid, gridStyle)
+import UI.Icon (icongroup, Icon(..))
+import UI.Icons (iconSizesGroup, iconSelect, ihelp, iundo, iredo, ireset, irules)
+import UI.Template (template, incDecGrid, gridStyle, svgCursorStyle, trackPointer)
 
 square :: forall a. Boolean -> Boolean -> Boolean -> Number -> Number -> Array (Prop a) -> VDom a
 square darken trap  door x y props =
@@ -33,16 +33,10 @@ view lens state = template lens {config, board, rules, winTitle} state where
     columns = state^._nbColumns
     
     config = card "Chemins" [
-           {- I.Group({
-                title: 'Mode de jeu',
-                list: [0, 1],
-                symbol: 'paths-mode',
-                select: state.mode,
-                tooltip: ['Mode 1', 'Mode 2'],
-                onclick: actions.selectMode
-            }),
-            -}
-
+        icongroup "Mode de jeu" [
+            iconSelect lens state (state^._mode) selectModeA Mode1 (_{icon = IconSymbol "#paths-mode0", tooltip = Just "Mode 1"}),
+            iconSelect lens state (state^._mode) selectModeA Mode2 (_{icon = IconSymbol "#paths-mode1", tooltip = Just "Mode 2"})
+        ],
         iconSizesGroup lens state [Tuple 4 6, Tuple 5 5, Tuple 3 8] true, -- custom
         icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x lens state
     ]
@@ -57,36 +51,23 @@ view lens state = template lens {config, board, rules, winTitle} state where
                                     <> show ((toNumber row * 100.0 + 10.0) / toNumber rows) <> "%)"
             ]
 
-    {-
-    doorCursor = () =>
-        use({
-            href: '#paths-door',
-            x: -50,
-            y: -50,
-            width: 100,
-            height: 100,
-            opacity: 0.6,
-            'pointer-events': 'none',
-            style: svgCursorStyle(state.pointerPosition)
-        });
+    doorCursor pp = use (-50.0) (-50.0) 100.0 100.0 " #paths-door" $ [
+        key "cdoor",
+        attr "opacity" "0.6",
+        attr "pointer-events" "none"
+    ] <> svgCursorStyle pp
+        
 
-    const HeroCursor = () =>
-        use({
-            href: '#meeplehat',
-            x: -40,
-            y: -40,
-            width: 80,
-            height: 80,
-            opacity: 0.6,
-            'pointer-events': 'none',
-            style: svgCursorStyle(state.pointerPosition)
-        });
-    -}
+    heroCursor pp = use (-40.0) (-40.0) 80.0 80.0 " #meeplehat" $ [
+        key "chero",
+        attr "opacity" "0.6",
+        attr "pointer-events" "none"
+    ] <> svgCursorStyle pp
 
     pathdec = joinWith " " $ concat $ position # mapWithIndex \i v ->
         let {row, col} = coords columns v in [if i == 0 then "M" else "L", show $ 100 * col + 50, show $ 100 * row + 50]
     
-    grid = div' (gridStyle rows columns)  [
+    grid = div' (gridStyle rows columns <> trackPointer lens) [  ---- todo changer trackPointer
         -- trackPointer: true,
         svg [width "100%", height "100%", viewBox $ "0 0 " <> show (100 * columns) <> " " <> show (100 * rows)] $
             (tabulate (rows * columns) \index ->
@@ -102,14 +83,15 @@ view lens state = template lens {config, board, rules, winTitle} state where
                 ]
             ) <> [
                 path pathdec [class' "paths-path" true],
-                hero
-                {-
-                if null position then
-                    state.pointerPosition && heroCursor [key "chero"]
-                else if isNothing state.exit then
-                    state.pointerPosition && doorCursor [key "cdoor"]
-                else emptyNode
-                -}
+                hero,
+                state^._pointerPosition # maybe emptyNode (\pp ->
+                    if null position then
+                        heroCursor pp
+                    else if isNothing $ state^._exit then
+                        doorCursor pp
+                    else
+                        emptyNode
+                )
             ]
     ]
 

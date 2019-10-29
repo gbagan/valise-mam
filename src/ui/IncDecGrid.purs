@@ -38,8 +38,8 @@ incDecGrid {nbRows, nbColumns, customSize, showRowButtons, showColButtons, onRes
         else
             div' [class' "ui-flex-center ui-incdecgrid-cols" true] [ 
                 iconbutton
-                        (\x -> x{round = true, icon = IconSymbol "#minus", hidden = not customSize})
-                        [click $ onResize nbRows (nbColumns - 1)],
+                    (\x -> x{round = true, icon = IconSymbol "#minus", hidden = not customSize})
+                    [click $ onResize nbRows (nbColumns - 1)],
                 div' [class' "ui-incdecgrid-text" true] [ span [] [ text $ show nbColumns ] ],
                 iconbutton
                     (\x -> x{round = true, icon = IconSymbol "#plus", hidden = not customSize})

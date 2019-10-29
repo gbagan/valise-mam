@@ -6,10 +6,10 @@ import Data.Tuple (Tuple(..))
 import Data.Lens (Lens', (^.), (.~))
 import Pha.Class (VDom, Prop, Action)
 import Pha.Action (action, (🎲))
-import Pha.Html (click, style)
+import Pha.Html (click)
 import Game.Core (State, class Game, Dialog(Rules), Mode(..),
                 undoA, redoA, resetA, toggleHelpA, setModeA, computerStartsA, setGridSizeA,
-                _help, _dialog, _history, _redoHistory, _mode, _nbRows, _nbColumns, _locked)
+                _help, _dialog, _history, _redoHistory, _mode, _nbRows, _nbColumns, _locked, _customSize)
 import UI.Icon (iconbutton, icongroup, Options, Icon(..)) as I
 
 iconbutton :: forall a b d.
@@ -37,8 +37,11 @@ iredo :: forall a b d. Lens' d (State a b) -> State a b -> VDom d
 iredo lens state =
     iconbutton
         state
-        (_{icon = I.IconSymbol "#undo", tooltip = Just "Rejoue le coup annulé", disabled = null $ state^._redoHistory})
-        [click $ lens 🎲 redoA, style "transform" "scaleX(-1)"]
+        (_{icon = I.IconSymbol "#undo",
+            tooltip = Just "Rejoue le coup annulé",
+            disabled = null $ state^._redoHistory,
+            style = [Tuple "transform" "scaleX(-1)"]})
+        [click $ lens 🎲 redoA]
 
 ireset :: forall a b d. Lens' d (State a b) -> State a b -> VDom d
 ireset lens state =
@@ -89,13 +92,18 @@ iconSizesGroup :: forall a pos ext mov. Game pos ext mov =>
     Lens' a (State pos ext) -> State pos ext -> Array (Tuple Int Int) -> Boolean -> VDom a
 iconSizesGroup lens state sizeList customSize =
     I.icongroup "Dimensions de la grille" $
-        sizeList <#> \(Tuple rows cols) ->
+        (sizeList <#> \(Tuple rows cols) ->
             iconbutton state (_{
                 icon = I.IconText $ show rows <> "x" <> show cols,
-                selected = rows == crows && cols == ccols
-            }) [click $ lens 🎲 setGridSizeA rows cols] where
+                selected = rows == crows && cols == ccols && not csize
+            }) [click $ lens 🎲 setGridSizeA rows cols false]
+        ) <> (if customSize then [
+            iconbutton state (_{icon = I.IconText "NxM", selected = csize}) [click $ lens 🎲 action (_customSize .~ true)]
+        ] else [])
+    where
     crows = state^._nbRows
     ccols = state^._nbColumns
+    csize = state^._customSize
 
 icons2Players :: forall a pos ext mov. Game pos ext mov => Lens' a (State pos ext) -> State pos ext -> VDom a
 icons2Players lens state =

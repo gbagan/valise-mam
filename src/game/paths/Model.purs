@@ -19,7 +19,7 @@ newtype Ext = Ext Ext'
 type PathsState = State Position Ext
 
 pathsState :: PathsState
-pathsState = genState [] (_{nbRows = 6, nbColumns = 6}) (Ext { exit: Nothing, mode': Mode1 })
+pathsState = genState [] (_{nbRows = 4, nbColumns = 6}) (Ext { exit: Nothing, mode': Mode1 })
 
 _ext :: Lens' PathsState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))

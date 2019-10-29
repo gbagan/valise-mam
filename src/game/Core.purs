@@ -30,6 +30,7 @@ type CoreState pos ext = {
     turn :: Int,
     nbRows :: Int,
     nbColumns :: Int,
+    customSize :: Boolean,
     mode :: Mode,
     help :: Boolean,
     locked :: Boolean,
@@ -49,6 +50,7 @@ defaultCoreState p = {
     turn: 0,
     nbRows: 0,
     nbColumns: 0,
+    customSize: false,
     help: false,
     mode: SoloMode,
     locked: false,
@@ -88,6 +90,9 @@ _nbRows = _core <<< lens (_.nbRows) (_{nbRows = _})
 
 _nbColumns :: forall pos ext. Lens' (State pos ext) Int
 _nbColumns = _core <<< lens (_.nbColumns) (_{nbColumns = _})
+
+_customSize :: forall pos ext. Lens' (State pos ext) Boolean
+_customSize = _core <<< lens (_.customSize) (_{customSize = _})
 
 _levelFinished :: forall pos ext. Lens' (State pos ext) Boolean
 _levelFinished = _core <<< lens (_.levelFinished) (_{levelFinished = _})
@@ -235,9 +240,9 @@ init = newGameAux identity
 setModeA :: forall pos ext mov. Game pos ext mov => Mode -> Action (State pos ext)
 setModeA = newGame' (set _mode)
 
-setGridSizeA :: forall pos ext mov. Game pos ext mov => Int -> Int -> Action (State pos ext)
-setGridSizeA nbRows nbColumns = newGame $ setCustomSize' where
-    setCustomSize' state =
+setGridSizeA :: forall pos ext mov. Game pos ext mov => Int -> Int -> Boolean -> Action (State pos ext)
+setGridSizeA nbRows nbColumns customSize = newGame $ setSize' <<< (_customSize .~ customSize) where
+    setSize' state =
         if nbRows >= minrows && nbRows <= maxrows && nbColumns >= mincols && nbColumns <= maxcols then
             state # _nbRows .~ nbRows # _nbColumns .~ nbColumns
         else

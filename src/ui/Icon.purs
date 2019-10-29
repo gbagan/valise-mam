@@ -2,9 +2,10 @@ module UI.Icon where
 
 import Prelude
 import Data.Maybe (Maybe (Nothing), maybe)
+import Data.Tuple (Tuple(..))
 import Pha (text, emptyNode)
 import Pha.Class (VDom, Prop) 
-import Pha.Html (button, div', span, svguse, class', h2, disabled)
+import Pha.Html (button, div', span, svguse, class', h2, style, disabled)
 
 data Icon = IconText String | IconSymbol String | IconNone
 
@@ -15,7 +16,8 @@ type Options = {
     round :: Boolean,
     large :: Boolean,
     hidden :: Boolean,
-    disabled :: Boolean
+    disabled :: Boolean,
+    style :: Array (Tuple String String)
 }
 
 defaultOptions :: Options
@@ -26,12 +28,13 @@ defaultOptions = {
     round: false,
     large: false,
     hidden: false,
-    disabled: false
+    disabled: false,
+    style: []
 }
 
 iconbutton :: forall a. (Options -> Options) -> Array (Prop a) -> VDom a
 iconbutton optionFn props =
-    let {icon, selected, tooltip, round, large, hidden, disabled: d} = optionFn defaultOptions in
+    let {icon, selected, tooltip, round, large, hidden, disabled: d, style: st} = optionFn defaultOptions in
     button ([
         class' "ui-icon" true,
         class' "selected" selected,
@@ -40,7 +43,7 @@ iconbutton optionFn props =
         disabled d
     ] <> props) [
         case icon of
-            IconSymbol symbol -> svguse symbol [class' "ui-icon-symbol" true]
+            IconSymbol symbol -> svguse symbol $ [class' "ui-icon-symbol" true] <> (st <#> \(Tuple k v) -> style k v)
             IconText t -> span [class' "ui-icon-text" true] [text t]
             IconNone -> emptyNode,
         tooltip # maybe emptyNode (\t -> span [class' "ui-icon-tooltip" true] [text t])

@@ -10,7 +10,7 @@ import Pha (text, emptyNode)
 import Pha.Action (action, noAction, (🎲))
 import Pha.Html (div', class', attr, style, pointerup, pointerdown, pointerleave, pointermove)
 import Game.Core (class Game, State, Mode(..), PointerPosition, SizeLimit(..), Dialog(..),
-         _dialog, _nbColumns, _nbRows, _mode, _turn, _showWin, _pointerPosition, canPlay, sizeLimit,
+         _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointerPosition, canPlay, sizeLimit,
          setGridSizeA, confirmNewGameA, dropA)
 import UI.Dialog (dialog)
 import UI.IncDecGrid (incDecGrid) as U
@@ -34,8 +34,8 @@ incDecGrid lens state = U.incDecGrid {
     nbColumns: state^._nbColumns,
     showRowButtons: minRows < maxRows,
     showColButtons: minCols < maxCols,
-    customSize: true,
-    onResize: \x y -> lens 🎲 setGridSizeA x y
+    customSize: state^._customSize,
+    onResize: \x y -> lens 🎲 setGridSizeA x y true
 } where
     SizeLimit minRows minCols maxRows maxCols = sizeLimit state 
     

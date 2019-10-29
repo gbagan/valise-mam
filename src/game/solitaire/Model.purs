@@ -7,9 +7,9 @@ import Data.Array ((!!), replicate, all, mapWithIndex, updateAtIndices)
 import Data.Lens (Lens', lens, view, (^.), (.~))
 import Data.Lens.Index (ix)
 import Pha.Class (Action)
-import Lib.Random (Random, randomBool)
+import Lib.Random (Random, randomInt, randomBool)
 import Lib.Core (tabulate, tabulate2, dCoords)
-import Game.Core (class Game, State(..), SizeLimit(..), genState, canPlay, _nbColumns, _nbRows, _position, newGame)
+import Game.Core (class Game, State(..), SizeLimit(..), genState, canPlay, _nbColumns, _nbRows, _customSize, _position, newGame)
 
 type Move = {from :: Int, to :: Int}
 
@@ -60,8 +60,10 @@ betweenMove2 state move@{from, to} =
     else
         betweenMove state move
 
-generateBoard :: Int -> Int -> Int -> ({row :: Int, col :: Int} -> Boolean) -> {holes :: Array Boolean, position :: Random (Array Boolean)}
-generateBoard rows columns startingHole holeFilter = {holes, position} where
+-- fonction auxilaire pour onNewGame
+generateBoard :: Int -> Int -> Int -> ({row :: Int, col :: Int} -> Boolean) ->
+    {holes :: Array Boolean, position :: Random (Array Boolean), customSize :: Boolean}
+generateBoard rows columns startingHole holeFilter = {holes, position, customSize: false} where
     holes = tabulate2 rows columns holeFilter
     position = pure $ holes # ix startingHole .~ false
 
@@ -87,23 +89,35 @@ instance solitaireGame :: Game (Array Boolean) ExtState {from :: Int, to :: Int}
                 not canPlay state { from: i, to: i + d }
             )
 
-    onNewGame state = position <#> \p -> state # _holes .~ holes # _position .~ p where
+    onNewGame state = position <#> \p -> state # _holes .~ holes # _position .~ p # _customSize .~ customSize where
         columns = state^._nbColumns
-        {holes, position} =
+        rows = state^._nbRows
+        {holes, position, customSize} =
             case state^._board of
                 EnglishBoard -> generateBoard 7 7 24 \{row, col} -> min row (6 - row) >= 2 || min col (6 - col) >= 2
                 FrenchBoard -> generateBoard 7 7 24 \{row, col} -> min row (6 - row) + min col (6 - col) >= 2
-                CircleBoard -> generateBoard (state^._nbRows) 1 0 \_ -> true
+                CircleBoard -> {
+                    holes: replicate rows true,
+                    position: randomInt rows <#> \x -> tabulate rows (notEq x),
+                    customSize: true
+
+                }
                 Grid3Board -> {
                     holes: replicate (3 * state^._nbColumns) true,
-                    position: pure $ tabulate (3 * state^._nbColumns) (_ < 2 * columns)
+                    position: pure $ tabulate (3 * state^._nbColumns) (_ < 2 * columns),
+                    customSize: true
                 }
                 RandomBoard -> {
                     holes: replicate (3 * state^._nbColumns) true,
-                    position: (sequence $ replicate columns randomBool) <#> \bools -> bools <> replicate columns true <> (bools <#> not)
+                    position: (sequence $ replicate columns randomBool) <#> \bools -> bools <> replicate columns true <> (bools <#> not),
+                    customSize: true
                 }
 
-    sizeLimit state = if state^._board == CircleBoard then SizeLimit 3 1 12 1 else SizeLimit 3 1 3 9
+    sizeLimit state = case state^._board of
+        CircleBoard -> SizeLimit   3 1 12 1
+        Grid3Board -> SizeLimit 3 1 3 9
+        RandomBoard -> SizeLimit 3 1 3 9
+        _ -> SizeLimit 7 7 7 7
 
     computerMove _ = Nothing
 

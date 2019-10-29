@@ -28,6 +28,9 @@ pointerup = Event "pointerup"
 pointerdown :: forall a. Action a -> Prop a
 pointerdown = Event "pointerdown"
 
+pointerenter :: forall a. Action a -> Prop a
+pointerenter = Event "pointerenter"
+
 pointerleave :: forall a. Action a -> Prop a
 pointerleave = Event "pointerleave"
 

@@ -10,7 +10,7 @@ import Pha (emptyNode, text)
 import Pha.Action ((🎲))
 import Pha.Html (div', svg, g, rect, use, class', key, style,
             click, width, height, stroke, fill, viewBox, translate)
-import Lib.Core (map2)
+import Lib.Util (map2)
 import Game.Core (canPlay, playA, isLevelFinished, _position)
 import Game.Baseball.Model (BaseballState, setNbBases, _nbBases)
 import UI.Template (template)

@@ -9,7 +9,7 @@ import Pha (text)
 import Pha.Action ((🎲))
 import Pha.Html (div', span, br, svg, rect, use, class', key, style,
             click, width, height, fill, viewBox, translate)
-import Lib.Core (tabulate)
+import Lib.Util (tabulate)
 import Game.Core (canPlay, playA, isLevelFinished, _position, _turn)
 import Game.Nim.Model (NimState, Move(..), _nbPiles, _length, setLengthA, setNbPilesA)
 import UI.Template (template)

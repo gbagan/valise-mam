@@ -4,7 +4,7 @@ import Prelude
 import Data.Array ((!!), elem, mapWithIndex, all, (..))
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Lens (lens, Lens', set, (^.))
-import Lib.Core (swap)
+import Lib.Util (swap)
 import Lib.Random (shuffle)
 import Pha.Class (Action)
 import Game.Core (class Game, State(..), genState, newGame', _position, defaultSizeLimit, defaultOnNewGame)

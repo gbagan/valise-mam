@@ -4,11 +4,12 @@ import Data.Tuple (Tuple(..))
 import Data.Maybe (Maybe(..), maybe, fromMaybe)
 import Data.Traversable (sequence)
 import Data.Array ((!!), replicate, all, mapWithIndex, updateAtIndices)
-import Data.Lens (Lens', lens, view, (^.), (.~))
+import Data.Lens (Lens', lens, view, (^.), (.~), (%~))
 import Data.Lens.Index (ix)
 import Pha.Class (Action)
+import Pha.Action (action)
 import Lib.Random (Random, randomInt, randomBool)
-import Lib.Core (tabulate, tabulate2, dCoords)
+import Lib.Util (tabulate, tabulate2, dCoords)
 import Game.Core (class Game, State(..), SizeLimit(..), genState, canPlay, _nbColumns, _nbRows, _customSize, _position, newGame)
 
 type Move = {from :: Int, to :: Int}
@@ -17,14 +18,17 @@ data Board = FrenchBoard | EnglishBoard | CircleBoard | Grid3Board | RandomBoard
 derive instance boardMode :: Eq Board
 
 type Ext' = {
-    board :: Board, holes :: Array Boolean, dragged :: Maybe Int
+    board :: Board,
+    holes :: Array Boolean,
+    dragged :: Maybe Int,
+    help' :: Int -- 0 -> pas d'aide, 1 -> première tricoloration, 2 -> deuxème tricoloration
 }
 
 newtype ExtState = Ext Ext'
 type SolitaireState = State (Array Boolean) ExtState
 
 solitaireState :: SolitaireState
-solitaireState = genState [] (_{nbRows = 5, nbColumns = 1}) (Ext { board: CircleBoard, holes: [], dragged: Nothing })
+solitaireState = genState [] (_{nbRows = 5, nbColumns = 1}) (Ext { board: CircleBoard, holes: [], dragged: Nothing, help': 0 })
 
 _ext :: Lens' SolitaireState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
@@ -34,6 +38,8 @@ _holes :: Lens' SolitaireState (Array Boolean)
 _holes = _ext <<< lens (_.holes) (_{holes = _})
 _dragged :: Lens' SolitaireState (Maybe Int)
 _dragged = _ext <<< lens (_.dragged) (_{dragged = _})
+_help :: Lens' SolitaireState Int
+_help = _ext <<< lens (_.help') (_{help' = _})
 
 betweenMove :: SolitaireState -> Move -> Maybe Int
 betweenMove state { from, to } = 
@@ -129,3 +135,6 @@ setBoardA board = newGame \state ->
         Grid3Board -> st2 # _nbRows .~ 3 # _nbColumns .~ 5
         RandomBoard -> st2 # _nbRows .~ 3 # _nbColumns .~ 5
         _ -> st2 # _nbRows .~ 7 # _nbColumns .~ 7
+
+toggleHelpA :: Action SolitaireState
+toggleHelpA = action $ _help %~ \x -> (x + 1) `mod` 3

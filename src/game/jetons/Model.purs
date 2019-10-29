@@ -4,7 +4,7 @@ import Prelude
 import Data.Array (length, replicate, (!!), (..), updateAt, modifyAt, all)
 import Data.Maybe (Maybe (..), fromMaybe)
 import Data.Lens (Lens', lens, (^.))
-import Lib.Core (dCoords)
+import Lib.Util (dCoords)
 import Game.Core (class Game, State(..), SizeLimit (..), genState, _position, _nbColumns, _nbRows, defaultOnNewGame)
 
 type Position = Array Int

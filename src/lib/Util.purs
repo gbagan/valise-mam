@@ -1,4 +1,4 @@
-module Lib.Core where
+module Lib.Util where
 
 import Prelude
 import Data.Maybe (fromMaybe)
@@ -17,6 +17,10 @@ tabulate2 n m f = tabulate (n * m) $ \i -> f { row: i / m, col : i `mod` m }
 map2 :: forall a b c. Array a -> Array b -> (Int -> a -> b -> c) -> Array c
 map2 t1 t2 fn = unsafePartial $ tabulate n \i -> fn i (unsafeIndex t1 i) (unsafeIndex t2 i)
     where n = min (t1 # length) (t2 # length)
+
+map3 :: forall a b c d. Array a -> Array b -> Array c -> (Int -> a -> b -> c -> d) -> Array d
+map3 t1 t2 t3 fn = unsafePartial $ tabulate n \i -> fn i (unsafeIndex t1 i) (unsafeIndex t2 i) (unsafeIndex t3 i)
+    where n = min (t1 # length) $ min (t2 # length) (t3 # length)
 
 range :: Int -> Int -> Int -> Array Int
 range begin end step = tabulate (max 0 (1 + (end - begin) `div` step)) \i -> begin + i * step

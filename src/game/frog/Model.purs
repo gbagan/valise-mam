@@ -6,7 +6,7 @@ import Data.Lazy (defer, force)
 import Data.Maybe (maybe, fromMaybe)
 import Data.Lens (Lens', lens, (^.), (.~), (%~), over)
 import Data.Lens.Index (ix)
-import Lib.Core (tabulate)
+import Lib.Util (tabulate)
 import Pha.Class (Action)
 import Pha.Action (action)
 import Game.Core (class Game, canPlay, class TwoPlayersGame, Mode(..), State(..), SizeLimit(..),

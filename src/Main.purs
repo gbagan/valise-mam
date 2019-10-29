@@ -22,6 +22,8 @@ import Game.Noirblanc.Model (NoirblancState, noirblancState)
 import Game.Noirblanc.View (view) as NoirblancView
 import Game.Paths.Model (PathsState, pathsState)
 import Game.Paths.View (view) as PathsView
+import Game.Queens.Model (QueensState, queensState)
+import Game.Queens.View (view) as QueensView
 import Game.Roue.Model (RoueState, roueState)
 import Game.Roue.View (view) as RoueView
 import Game.Solitaire.Model (SolitaireState, solitaireState)
@@ -39,6 +41,7 @@ type RootState = {
     nim :: NimState,
     noirblanc :: NoirblancState,
     paths :: PathsState,
+    queens :: QueensState,
     roue :: RoueState,
     solitaire :: SolitaireState,
     location :: String
@@ -61,6 +64,9 @@ _noirblanc = lens (_.noirblanc) (_{noirblanc = _})
 
 _paths :: Lens' RootState PathsState
 _paths = lens (_.paths) (_{paths = _})
+
+_queens :: Lens' RootState QueensState
+_queens = lens (_.queens) (_{queens = _})
 
 _roue :: Lens' RootState RoueState
 _roue = lens (_.roue) (_{roue = _})
@@ -88,6 +94,7 @@ view state = case state.location of
     "noirblanc" -> NoirblancView.view _noirblanc state.noirblanc
     "paths" -> PathsView.view _paths state.paths
     "roue" -> RoueView.view _roue state.roue
+    "queens" -> QueensView.view _queens state.queens
     "solitaire" -> SolitaireView.view _solitaire state.solitaire
     "jetons" -> JetonsView.view _jetons state.jetons
     _ -> NimView.view _nim state.nim
@@ -102,6 +109,7 @@ main = do
     jetonsState' <- runRnd $ init jetonsState
     noirblancState' <- runRnd $ init noirblancState
     pathState' <- runRnd $ init pathsState
+    queensState' <- runRnd $ init queensState
     roueState' <- runRnd $ init roueState
     solitaireState' <- runRnd $ init solitaireState
     let state = {
@@ -111,6 +119,7 @@ main = do
         jetons: jetonsState',
         noirblanc: noirblancState',
         paths: pathState',
+        queens: queensState',
         roue: roueState',
         solitaire: solitaireState',
         location: location

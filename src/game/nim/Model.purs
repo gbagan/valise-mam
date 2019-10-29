@@ -8,7 +8,7 @@ import Data.Array ((!!), filter, sortWith, all, replicate, foldr)
 import Data.Int.Bits (xor)
 import Data.Lens (lens, Lens', view, set, (^.), (%~))
 import Data.Lens.Index (ix)
-import Lib.Core (tabulate2)
+import Lib.Util (tabulate2)
 import Pha.Class (Action)
 import Lib.Random (randomInt)
 import Game.Core (class Game, class TwoPlayersGame, State (..), Mode(..),

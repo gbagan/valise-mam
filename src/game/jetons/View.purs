@@ -12,7 +12,7 @@ import Pha.Class (VDom)
 import Pha.Html (div', span, br, key, class', style, rgbColor)
 import Game.Core (_position, _nbColumns, _nbRows, _pointerPosition)
 import Game.Jetons.Model (JetonsState, _dragged)
-import Lib.Core (coords)
+import Lib.Util (coords)
 import UI.Dialog (card)
 import UI.Template (template, incDecGrid, gridStyle, dndBoardProps, dndItemProps, cursorStyle)
 import UI.Icon (icongroup)
@@ -32,8 +32,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
     
     ]
 
-    cursor = state^._pointerPosition # maybe emptyNode \pp ->  
-        div' ([class' "ui-cursor jetons-cursor" true] <> cursorStyle pp rows columns 60.0) []
+    cursor pp = div' ([class' "ui-cursor jetons-cursor" true] <> cursorStyle pp rows columns 60.0) []
 
     piece i val props =
         let {row, col} = coords columns i in
@@ -70,7 +69,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
         div' ([class' "ui-board" true] <> dndBoardProps lens _dragged <> gridStyle rows columns) $ -- todo  3 -- dnd
             (position # mapWithIndex \i val -> if val == 0 then emptyNode else
                 piece i val ([key $ show i] <> dndItemProps lens _dragged true true i state)
-            ) <> (if isJust $ state^._dragged then  [cursor] else [])
+            ) <> (if isJust $ state^._dragged then state^._pointerPosition # maybe [] (pure <<< cursor) else [])
     ]
 
     rules = [

@@ -5,7 +5,7 @@ import Data.Array (length, nub, elem, null, head, last)
 import Data.Array.NonEmpty (fromArray, head, last, init, tail) as N
 import Data.Lens (Lens', lens, view, set, (^.), (.~))
 import Lib.Random (randomInt)
-import Lib.Core (dCoords, range)
+import Lib.Util (dCoords, range)
 import Game.Core (State(..), class Game, SizeLimit(..), newGame', genState, _nbRows, _nbColumns, _position, playA)
 import Pha.Class (Action)
 import Pha.Action (action, ifThenElseA)

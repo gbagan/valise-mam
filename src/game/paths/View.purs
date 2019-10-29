@@ -1,21 +1,39 @@
 module Game.Paths.View where
 import Prelude
+import Data.Lens (Lens', (^.))
+import Data.Tuple (Tuple (..))
+import Data.Array (concat, elem, last, mapWithIndex, null)
+import Data.Maybe (Maybe(..), maybe)
+import Data.Int (toNumber, even)
+import Data.String (joinWith)
+import Lib.Core (coords, tabulate)
 import Pha.Class (VDom, Prop)
-import Pha (emptyNode)
-import Pha.Html (g, use, class')
+import Game.Core (_nbRows, _nbColumns, _position, _help)
+import Game.Paths.Model (PathsState, _exit, selectVertexA)
+import Pha (emptyNode, text)
+import Pha.Action ((🎲))
+import Pha.Html (div', p, br, g, svg, use, path, key, class', click, style, width, height, viewBox)
+import UI.Dialog (card)
+import UI.Icon (icongroup)
+import UI.Icons (iconSizesGroup, ihelp, iundo, iredo, ireset, irules)
+import UI.Template (template, incDecGrid, gridStyle)
 
 square :: forall a. Boolean -> Boolean -> Boolean -> Number -> Number -> Array (Prop a) -> VDom a
-square trap darken door x y props =
+square darken trap  door x y props =
     g ([class' "paths-darken" darken] <> props) [
         use x y 100.0 100.0 "#paths-background" [],
         if door then use x y 100.0 100.0 "#paths-door" [] else emptyNode,
         use x y 100.0 100.0 "#paths-trap" [class' "paths-trap" true, class' "visible" $ trap && not door]
     ]
-{-
-export default state => template(state, actions, C => {
-    const Config = () => iconfactory(state, actions)(I =>
-        Card({ title: 'Chemins' },
-            I.Group({
+
+view :: forall a. Lens' a PathsState -> PathsState -> VDom a
+view lens state = template lens {config, board, rules, winTitle} state where
+    position = state^._position
+    rows = state^._nbRows
+    columns = state^._nbColumns
+    
+    config = card "Chemins" [
+           {- I.Group({
                 title: 'Mode de jeu',
                 list: [0, 1],
                 symbol: 'paths-mode',
@@ -23,30 +41,24 @@ export default state => template(state, actions, C => {
                 tooltip: ['Mode 1', 'Mode 2'],
                 onclick: actions.selectMode
             }),
+            -}
 
-            I.Sizes({
-                sizes: [[4, 6], [5, 5], [3, 8], 'custom']
-            }),
+        iconSizesGroup lens state [Tuple 4 6, Tuple 5 5, Tuple 3 8] true, -- custom
+        icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x lens state
+    ]
 
-            I.Group({ title: 'Options' },
-                I.Help(), I.Undo(), I.Redo(), I.Reset(), I.Rules()
-            )
-        )
-    );
+    hero = 
+        last position # maybe emptyNode \h ->
+            let {row, col} = coords columns h in
+            use 0.0 0.0 80.0 80.0 "#meeplehat" [
+                key "hero",
+                class' "paths-hero" true,
+                style "transform" $ "translate(" <> show ((toNumber col * 100.0 + 10.0) / toNumber columns) <> "%,"
+                                    <> show ((toNumber row * 100.0 + 10.0) / toNumber rows) <> "%)"
+            ]
 
-    const Hero = () => state.position |> last |> coords(state.columns) |> (([row, col]) =>
-        use({
-            href: '#meeplehat',
-            width: 80,
-            height: 80,
-            class: 'paths-hero',
-            style: {
-                transform: `translate(${(col * 100 + 10) / state.columns}%, ${(row * 100 + 10) / state.rows}%)`
-            }
-        })
-    );
-
-    const DoorCursor = () =>
+    {-
+    doorCursor = () =>
         use({
             href: '#paths-door',
             x: -50,
@@ -69,59 +81,58 @@ export default state => template(state, actions, C => {
             'pointer-events': 'none',
             style: svgCursorStyle(state.pointerPosition)
         });
+    -}
 
-    const pathdec = state.position.flatMap((v, i) =>
-        [i === 0 ? 'M' : 'L', 100 * (v % state.columns) + 50, 100 * (v / state.columns | 0) + 50]
-    ).join(' ');
+    pathdec = joinWith " " $ concat $ position # mapWithIndex \i v ->
+        let {row, col} = coords columns v in [if i == 0 then "M" else "L", show $ 100 * col + 50, show $ 100 * row + 50]
+    
+    grid = div' (gridStyle rows columns)  [
+        -- trackPointer: true,
+        svg [width "100%", height "100%", viewBox $ "0 0 " <> show (100 * columns) <> " " <> show (100 * rows)] $
+            (tabulate (rows * columns) \index ->
+                let {row, col} = coords columns index in
+                square
+                    (state^._help && even (row + col))  -- darken
+                    (elem index position && Just index /= last position)  -- trap
+                    (state^._exit == Just index)     --- door
+                    (toNumber $ 100 * col)
+                    (toNumber $ 100 * row) [
+                    key $ show index,
+                    click $ lens 🎲 selectVertexA index
+                ]
+            ) <> [
+                path pathdec [class' "paths-path" true],
+                hero
+                {-
+                if null position then
+                    state.pointerPosition && heroCursor [key "chero"]
+                else if isNothing state.exit then
+                    state.pointerPosition && doorCursor [key "cdoor"]
+                else emptyNode
+                -}
+            ]
+    ]
 
-    const Grid = () =>
-        C.Board({
-            trackPointer: true,
-            style: gridStyle(state.rows, state.columns)
-        },
-            svg({ width: '100%', height: '100%', viewBox: `0 0 ${100 * state.columns} ${100 * state.rows}` },
-                repeat2(state.rows, state.columns, (row, col, index) =>
-                    Square({
-                        key: index,
-                        x: 100 * col,
-                        y: 100 * row,
-                        darken: state.help && (row + col) % 2 === 0,
-                        trap: init(state.position).includes(index),
-                        door: state.exit === index,
-                        onclick: [actions.selectVertex, index]
-                    })
-                ),
-                path({
-                    d: pathdec,
-                    class: 'paths-path'
-                }),
-                state.position.length > 0 && Hero({ key: 'hero' }),
-                state.pointerPosition && state.position.length === 0 && HeroCursor({ key: 'chero' }),
-                state.pointerPosition && state.position.length > 0 && state.exit === null && DoorCursor({ key: 'cdoor' })
-            )
-        );
+    board = incDecGrid lens state [grid]
 
-    const Board = () => C.IncDecGrid(Grid());
+    rules = [
+        p [] [
+            text "Après de moultes péripéties dans le temple maudit de Berge, le professeur Hamilton Jones se retrouve dans la dernière salle", br,
+            text "Pour sortir de celle-ci, il doit s\'enfuir par une porte au dessous de lui.", br,
+            text "Celle ci ne peut être ouverte qu\'en marchant sur chacune des dalles dans la salle."
+        ],
+        p [] [
+            text "Malheusement, ces dalles sont piégées, le piège se déclenchant peu de temps après avoir marché dessus.", br,
+            text "Donc, Hamilton ne peut pas remarcher sur une dalle sur laquelle il a déjà été.", br,
+            text "N'ayant plus l'aisance de sa jeunesse, Hamilton ne peut se déplacer que d'une dalle à la fois et ne peut le faire en diagonale."
+        ],
+        p [] [text "Trouve un parcours pour résoudre l\'énigme. Ca semble facile? Mais, cela est-il possible pour toutes les tailles de grille"],
+        
+        p [] [
+            text "Dans le deuxième mode de jeu, tu peux choisir la position de départ d\'Hamilton ainsi que celle de la porte.", br,
+            text "Tu remarqueras qu\'il n\'y a pas toujours de solution.", br,
+            text "Trouve des critères sur les positions d\'Hamilton et de la porte pour qu\'une solution soit possible."
+        ]
+    ]
 
-    const HelpDialog = () =>
-        C.HelpDialog(
-            p(
-                'Après de moultes péripéties dans le temple maudit de Berge, le professeur Hamilton Jones se retrouve dans la dernière salle', br,
-                'Pour sortir de celle-ci, il doit s\'enfuir par une porte au dessous de lui.', br,
-                'Celle ci ne peut être ouverte qu\'en marchant sur chacune des dalles dans la salle.'
-            ),
-            p(
-                'Malheusement, ces dalles sont piégées, le piège se déclenchant peu de temps après avoir marché dessus.', br,
-                'Donc, Hamilton ne peut pas remarcher sur une dalle sur laquelle il a déjà été.', br,
-                'N\'ayant plus l\'aisance de sa jeunesse, Hamilton ne peut se déplacer que d\'une dalle à la fois et ne peut le faire en diagonale.'
-            ),
-            p('Trouve un parcours pour résoudre l\'énigme. Ca semble facile? Mais, cela est-il possible pour toutes les tailles de grille.'),
-            p(
-                'Dans le deuxième mode de jeu, tu peux choisir la position de départ d\'Hamilton ainsi que celle de la porte.', br,
-                'Tu remarqueras qu\'il n\'y a pas toujours de solution.', br,
-                'Trouve des critères sur les positions d\'Hamilton et de la porte pour qu\'une solution soit possible.'
-            )
-        );
-
-    return { Board, HelpDialog, Config };
-});
+    winTitle = "GAGNÉ"

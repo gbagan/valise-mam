@@ -49,6 +49,9 @@ span = h "span"
 h2 :: forall a. Array (Prop a) -> Array (VDom a) -> VDom a
 h2 = h "h2"
 
+p :: forall a. Array (Prop a) -> Array (VDom a) -> VDom a
+p = h "p"
+
 -- attributes
 
 disabled :: forall a. Boolean -> Prop a

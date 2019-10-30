@@ -43,7 +43,7 @@ iconbutton optionFn props =
         disabled d
     ] <> props) $ [
         case icon of
-            IconSymbol symbol -> svguse symbol $ [class' "ui-icon-symbol" true] <> (st <#> uncurry style) -- todo uncurry
+            IconSymbol symbol -> svguse symbol $ [class' "ui-icon-symbol" true] <> (st <#> uncurry style)
             IconText t -> span [class' "ui-icon-text" true] [text t]
             IconNone -> emptyNode,
         maybeN $ tooltip <#> \t -> span [class' "ui-icon-tooltip" true] [text t]

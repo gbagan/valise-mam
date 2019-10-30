@@ -7,10 +7,9 @@ import Data.Lens.Index (ix)
 import Data.Maybe (Maybe(..), maybe, isJust)
 import Data.Time.Duration (Milliseconds(..))
 import Effect.Aff (delay)
-import Effect.Class (liftEffect)
 import Lib.Util (swap)
 import Game.Core (class Game, State(..), genState, newGame', lockAction, _position, _showWin, defaultSizeLimit)
-import Pha.Action (Action(..), action)
+import Pha.Action (Action, action, asyncAction)
 
 type Position = Array (Maybe Int)
 
@@ -58,19 +57,23 @@ rotateA i = action $ rotate i
 setSizeA :: Int -> Action RoueState
 setSizeA = newGame' (set _size)
 
+
 checkA :: Action RoueState
-checkA = lockAction $ Action \setState ev state -> aux setState (state^._size) state where
-    aux setS 0 st2 = do
-        _ <- liftEffect $ setS $ st2 # _showWin .~ true
+checkA = lockAction $ asyncAction \h ->
+    h.getState >>= \state -> aux h (state^._size) where
+    aux h 0 = do
+        _ <- h.updateState (_showWin .~ true)
         delay $ Milliseconds 1000.0
-        liftEffect $ setS $ st2
-    aux setS i st2 =
+        _ <- h.updateState (_showWin .~ false)
+        pure unit
+    aux h i = do
+        st2 <- h.getState
         if not (validRotation st2) then
-            pure st2
+            pure unit
         else do
-            st3 <- liftEffect $ setS $ rotate 1 st2
+            _ <- h.updateState (rotate 1)
             delay $ Milliseconds 600.0
-            aux setS (i-1) st3
+            aux h (i-1)
 
 
 instance roueGame :: Game (Array (Maybe Int)) Ext {from :: Ball, to :: Ball} where
@@ -94,10 +97,3 @@ instance roueGame :: Game (Array (Maybe Int)) Ext {from :: Ball, to :: Ball} whe
 
     computerMove _ = Nothing
     sizeLimit = defaultSizeLimit
-
-
---    computed: state => ({
---        aligned: aligned(state),
---        validRotation: validRotation(state),
---    })
--- });

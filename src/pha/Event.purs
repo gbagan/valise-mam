@@ -23,4 +23,4 @@ key = unsafeToMaybe <<< unsafeKey
 foreign import preventDefault :: Event -> Effect Unit
 
 preventDefaultA :: forall a. Action a
-preventDefaultA = Action \_ e st -> liftEffect (preventDefault e) <#> const st
+preventDefaultA = Action \_ e -> liftEffect (preventDefault e)

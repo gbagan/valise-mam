@@ -4,10 +4,9 @@ import Data.Int (toNumber)
 import Data.Maybe (Maybe(..), maybe)
 import Data.Lens (Lens', (^.), (.~))
 import Effect (Effect)
-import Effect.Class (liftEffect)
 import Pha.Class (VDom, Prop)
 import Pha (text, emptyNode)
-import Pha.Action (Event, Action(..), action, noAction, (🎲))
+import Pha.Action (Event, Action, action, noAction, withPayload', (🎲))
 import Pha.Html (div', class', attr, style, pointerup, pointerdown, pointerleave, pointermove)
 import Game.Core (class Game, State, Mode(..), PointerPosition, SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointerPosition, canPlay, sizeLimit,
@@ -80,10 +79,9 @@ foreign import relativePointerPositionAux :: Maybe PointerPosition -> (PointerPo
 relativePointerPosition :: Event -> Effect (Maybe PointerPosition)
 relativePointerPosition = relativePointerPositionAux Nothing Just
 
-setPointerPositionA :: forall pos ext. Action (State pos ext)
-setPointerPositionA = Action \setState ev state -> liftEffect $ do
-    pos <- relativePointerPosition ev
-    setState $ state # _pointerPosition .~ pos
+
+setPointerPositionA :: forall pos ext. (Maybe PointerPosition) -> Action (State pos ext)
+setPointerPositionA a = action $ _pointerPosition .~ a
 
 cursorStyle :: forall a. PointerPosition -> Int -> Int -> Number -> Array (Prop a)    
 cursorStyle {left, top} rows columns size = [
@@ -107,10 +105,9 @@ trackPointer lens = [
     pointerdown $ lens 🎲 move --  todo tester
 ] where
     move :: Action (State pos ext)
-    move =  setPointerPositionA -- whenA  todo
+    move =  setPointerPositionA  `withPayload'` relativePointerPosition
         -- (\_ e -> pointerType e == Just "mouse")
         -- combine(
-        -- setPointerPosition -- `withPayload` relativePointerPosition
         --    whenA (\s -> s.pointerPosition == Nothing) (actions.drop NoDrop)
         --)
     leave = -- combine(
@@ -132,7 +129,9 @@ dndBoardProps lens dragLens = [
     pointerdown $ lens 🎲 move --  todo tester
 ] where
     move :: Action (State pos ext)
-    move =  setPointerPositionA -- whenA
+    move = setPointerPositionA `withPayload'` relativePointerPosition
+        
+        -- whenA
         -- (\_ e -> pointerType e == Just "mouse")
         -- combine(
         -- setPointerPosition -- `withPayload` relativePointerPosition

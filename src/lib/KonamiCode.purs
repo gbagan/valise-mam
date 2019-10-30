@@ -1,19 +1,19 @@
 module Lib.KonamiCode where
 import Prelude
 import Data.Array (snoc, takeEnd)
-import Effect.Class (liftEffect)
 import Data.Lens (Lens', (^.), (.~))
 import Data.String (joinWith)
-import Pha.Action (Action(..))
+import Pha.Action (Action, asyncAction)
 
 codeSequence :: String
 codeSequence = "ArrowUp ArrowUp ArrowDown ArrowDown ArrowLeft ArrowRight ArrowLeft ArrowRight b a"
 
-konamiCode :: forall a. Lens' a (Array String) -> Action a -> Action a
-konamiCode lens (Action onActivation) = Action \setState e state -> do
-    let seq = state ^. lens # flip snoc  "" {-(e.key)-} # takeEnd 10
-    st2 <- liftEffect $ setState (state # lens .~ seq)
+konamiCode :: forall a. Lens' a (Array String) -> Action a -> String -> Action a
+konamiCode lens onActivation key = asyncAction \{getState, updateState, dispatch} -> do
+    state <- getState
+    let seq = state ^. lens # flip snoc key # takeEnd 10
+    _ <- updateState (lens .~ seq)
     if joinWith " " seq == codeSequence then
-        onActivation setState e st2
+        dispatch onActivation
     else
-        pure st2
+        pure unit

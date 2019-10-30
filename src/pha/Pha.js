@@ -380,10 +380,10 @@ const appAux = props => () => {
   const subs = []
 
   const listener = function(event) {
-    launchAff(this.actions[event.type](setState)(event)(state))();
+    launchAff(this.actions[event.type](dispatch)(event))();
   }
 
-  const setState = newState => () => {
+  const setState = newState => {
     if (state !== newState) {
       state = newState
       if (subscriptions) {
@@ -393,6 +393,8 @@ const appAux = props => () => {
     }
     return state
   }
+
+  const dispatch = fn => () => setState(fn(state));
 
   const render = () => {
     lock = false
@@ -405,7 +407,7 @@ const appAux = props => () => {
     )
   }
 
-  setState(init)()
+  setState(init)
 }
 
 const h = isStyle => name => ps => children => {

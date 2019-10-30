@@ -5,13 +5,12 @@ import Data.Maybe (Maybe(..), maybe)
 import Data.Array (snoc, null, find)
 import Data.Array.NonEmpty (fromArray, head, init, last, toArray) as N
 import Data.Time.Duration (Milliseconds(..))
-import Effect (Effect)
-import Effect.Aff (Aff, delay)
+import Effect.Aff (delay)
 import Effect.Class (liftEffect)
 import Control.Alt ((<|>))
 import Data.Lens (lens, Lens', set, (^.), (.~), (%~))
 import Lib.Random (Random, runRnd, randomPick)
-import Pha.Action (Action(..), unwrapA, action, randomAction)
+import Pha.Action (Action, action, randomAction, asyncAction)
 
 data Dialog a = Rules | NoDialog | ConfirmNewGame a
 data Mode = SoloMode | RandomMode | ExpertMode | DuelMode
@@ -166,42 +165,46 @@ _play move state =
 pushToHistory :: forall pos ext. State pos ext -> State pos ext
 pushToHistory state = state # _history %~ flip snoc (state^._position) # _redoHistory .~ []
 
-showVictory :: forall pos ext. (State pos ext -> Effect (State pos ext)) -> State pos ext -> Aff (State pos ext)
-showVictory setState state = do
-    _ <- liftEffect $ setState $ _showWin .~ true $ state
+showVictory :: forall pos ext. Action (State pos ext)
+showVictory = asyncAction \{updateState} -> do
+    _ <- updateState $ _showWin .~ true
     delay $ Milliseconds 1000.0
-    liftEffect $ setState $ state
+    _ <- updateState $ _showWin .~ false
+    pure unit
 
-computerPlay :: forall pos ext mov. Game pos ext mov => (State pos ext -> Effect (State pos ext)) -> (State pos ext) -> Aff (State pos ext)
-computerPlay setState state = flip (maybe $ pure state) (computerMove state) \rndmove -> do
-    move2 <- liftEffect $ runRnd rndmove
-    st2 <- liftEffect $ setState $ _play move2 state
-    if isLevelFinished st2 then
-        showVictory setState st2
-    else
-        pure st2
+computerPlay :: forall pos ext mov. Game pos ext mov => Action (State pos ext)
+computerPlay = asyncAction \{getState, updateState, dispatch} -> do
+    state <- getState 
+    computerMove state # maybe (pure unit) \rndmove -> do
+        move2 <- liftEffect $ runRnd rndmove
+        st2 <- updateState (_play move2)
+        if isLevelFinished st2 then
+            dispatch showVictory
+        else
+            pure unit
 
 computerStartsA :: forall pos ext mov. Game pos ext mov => Action (State pos ext)
-computerStartsA = Action \setState _ state -> computerPlay setState (pushToHistory state)
+computerStartsA = action pushToHistory <> computerPlay
 
 type PlayOption = {
     showWin :: Boolean
 }
 
 playA' :: forall pos ext mov. Game pos ext mov => (PlayOption -> PlayOption) -> mov -> Action (State pos ext)
-playA' optionFn move = lockAction $ Action \setState _ state ->
-    let {showWin} = optionFn {showWin: true} in
+playA' optionFn move = lockAction $ asyncAction \{getState, updateState, dispatch} -> do
+    let {showWin} = optionFn {showWin: true}
+    state <- getState
     if not $ canPlay state move then
-        pure state
+        pure unit
     else do
-        st2 <- liftEffect $ setState (_play move $ pushToHistory $ state)
+        st2 <- updateState (_play move >>> pushToHistory)
         if showWin && isLevelFinished st2 then
-            showVictory setState st2
+            dispatch(showVictory)
         else if state^._mode == ExpertMode || state^._mode == RandomMode then do
             delay $ Milliseconds 1000.0
-            computerPlay setState st2
+            dispatch(computerPlay)
         else 
-            pure st2
+            pure unit
 
 playA :: forall pos ext mov. Game pos ext mov => mov -> Action (State pos ext)
 playA = playA' identity
@@ -209,13 +212,15 @@ playA = playA' identity
 -- affecte à true l'attribut locked avant le début de l'action act et l'affecte à false à la fin de l'action
 -- fonctionne sur toute la durée d'une action asynchrone
 lockAction :: forall pos ext. Action (State pos ext) -> Action (State pos ext)
-lockAction (Action act) = Action \setState ev state -> 
+lockAction act = asyncAction \{getState, dispatch, updateState} -> do
+    state <- getState
     if state^._locked then
-        pure state
+        pure unit
     else do
-        st1 <- liftEffect $ setState $ state # _locked .~ true
-        st2 <- act setState ev st1
-        liftEffect $ setState $ st2 # _locked .~ false
+        _ <- updateState $ _locked .~ true
+        dispatch act
+        _ <- updateState $ _locked .~ false
+        pure unit
 
 newGameAux :: forall pos ext mov. Game pos ext mov =>
     (State pos ext -> State pos ext) -> (State pos ext) -> Random (State pos ext)
@@ -279,9 +284,10 @@ computerMove' state =
                     (bestMove <#> pure) <|> Just (randomPick moves)
 
 dropA :: forall pos ext dnd. Eq dnd =>  Game pos ext {from :: dnd, to :: dnd} => Lens' (State pos ext) (Maybe dnd) -> dnd -> Action (State pos ext)
-dropA dragLens to = Action \setState ev state ->
-    let state2 = state # dragLens .~ Nothing in
+dropA dragLens to = asyncAction \{dispatch, getState, updateState} -> do
+    state <- getState
     case state ^. dragLens of
-        Nothing -> pure state
-        Just drag -> if drag /= to then (unwrapA $ playA { from: drag, to }) setState ev state2
-                    else pure $ state2
+        Nothing -> pure unit
+        Just drag -> do
+            _ <- updateState (dragLens .~ Nothing)
+            if drag /= to then dispatch (playA { from: drag, to }) else pure unit

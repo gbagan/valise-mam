@@ -5,9 +5,8 @@ import Data.Lens (Lens', lens)
 import Data.String (drop, indexOf)
 import Data.String.Pattern (Pattern (..))
 import Effect (Effect)
-import Effect.Class (liftEffect)
 import Pha.Class (VDom)
-import Pha.Action (Action(..)) 
+import Pha.Action (Action, action, withPayload') 
 import Pha (app)
 import Game.Core (init)
 import Lib.Random (runRnd)
@@ -84,10 +83,7 @@ _tiling = lens (_.tiling) (_{tiling = _})
 foreign import getLocationHref :: Effect String
 
 hashChange :: Action RootState
-hashChange = Action \setState event state -> liftEffect $ do
-    locationHref <- getLocationHref
-    let location = extractLocation locationHref "valise"
-    setState $ state{location = location}
+hashChange = (\x -> action _{location = x}) `withPayload'` \e -> getLocationHref
     --    } |> combine(
     --        enter(location2),
     --        state.location !== location && asyncToggle('anim', 50)

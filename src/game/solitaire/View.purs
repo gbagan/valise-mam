@@ -10,12 +10,12 @@ import Lib.Util (coords)
 import Pha.Class (VDom)
 import Pha (text, whenN, maybeN)
 import Pha.Action ((🎲))
-import Pha.Html (div', br, svg, rect, circle, key, attr, class', style,click, width, height, viewBox, fill, stroke, strokeWidth, pointermove, translate)
+import Pha.Html (div', br, svg, rect, circle, key, attr, class', style,click, width, height, viewBox, fill, stroke, strokeWidth, translate)
 import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointerPosition)
 import Game.Solitaire.Model (SolitaireState, Board(..), _board, _holes, _dragged, _help, setBoardA, toggleHelpA)
 import UI.Icon (Icon(..))
 import UI.Icons (iconbutton, icongroup, iconSelect, iundo, iredo, ireset, irules)
-import UI.Template (template, card, gridStyle, incDecGrid, setPointerPositionA, svgCursorStyle, dndBoardProps, dndItemProps)
+import UI.Template (template, card, gridStyle, incDecGrid, trackPointer, svgCursorStyle, dndBoardProps, dndItemProps)
 
 tricolor :: Int -> Int -> Int -> String
 tricolor i columns help = 
@@ -59,16 +59,15 @@ view lens state = template lens {config, board, rules, winTitle} state where
         ] 
 
     grid = div' ([
-        pointermove $ lens 🎲 setPointerPositionA,
         class' "ui-board" true
-    ] <> dndBoardProps lens _dragged <> (if isCircleBoard then [style "width" "100%", style "height" "100%"]  else gridStyle rows columns 5)) [
+    ] <> dndBoardProps lens _dragged <> trackPointer lens <> (if isCircleBoard then [style "width" "100%", style "height" "100%"]  else gridStyle rows columns 5)) [
         svg [width "100%", height "100%",
             viewBox $ if isCircleBoard then "0 0 250 250" else "0 0 " <> show (50 * columns) <> " " <> show (50 * rows)
         ] $
             [whenN isCircleBoard \_ ->
                 circle 125.0 125.0 90.0 [stroke "grey", fill "transparent", strokeWidth "5"]
             ] <> (concat $ state^._holes # mapWithIndex \i val -> if not val then [] else [
-                whenN (state^._help == 0 || isCircleBoard) \_ ->
+                whenN (state^._help > 0 && not isCircleBoard) \_ ->
                     rect (-25.0) (-25.0) 50.0 50.0 [
                         key $ "rect" <> show i,
                         fill $ tricolor i columns (state^._help),

@@ -8,7 +8,7 @@ import Data.Lens (Lens', lens, (^.), (.~), set)
 import Lib.Random (Random, randomInt)
 import Lib.Util (dCoords)
 import Pha.Action (Action)
-import Game.Core (class Game, State (..), SizeLimit(..), _position, _nbColumns, _nbRows, newGame', genState)
+import Game.Core (class Game, State (..), SizeLimit(..), _position, _nbColumns, _nbRows, newGame, newGame', genState)
 
 type Position = { light :: Array Boolean, played :: Array Boolean }
 type Ext' = { mode2 :: Int, level :: Int }
@@ -67,7 +67,7 @@ sizes :: Array (Tuple Int Int)
 sizes = [ Tuple 3 3, Tuple 4 4, Tuple 2 10, Tuple 3 10, Tuple 5 5, Tuple 8 8, Tuple 8 8]
 
 selectModeA :: Int -> Action NoirblancState
-selectModeA = newGame' \mode -> (_mode2 .~ mode) >>> (_level .~ 0)
+selectModeA mode = newGame $ (_mode2 .~ mode) >>> (_level .~ 0)
 selectLevelA :: Int -> Action NoirblancState
 selectLevelA = newGame' (set _level)
 

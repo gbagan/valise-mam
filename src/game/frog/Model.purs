@@ -54,6 +54,7 @@ instance frogGame2 :: TwoPlayersGame Int ExtState Int where
     possibleMoves state = filter (canPlay state) (0 .. (state^._nbRows))
     isLosingPosition state = fromMaybe true $ state^._winning !! (state^._position)
 
+-- ajoute ou enlève un mouvemet dans la liste des mouvements permis
 selectMoveA :: Int -> Action FrogState
 selectMoveA = newGame' $ over _moves <<< _selectMove where
     _selectMove move moves =
@@ -75,8 +76,3 @@ markA i = action $ (_marked <<< ix i) %~ not
 
 --        keyDown: konamiCode(state => ({...state, marked: state.winning})),
 --    }),
-
---   computed: state => ({
---     
---    }),
---});

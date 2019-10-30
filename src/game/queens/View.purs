@@ -84,7 +84,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
         ]
     ]
 
-    grid = div' ([class' "ui-board" true] <> gridStyle rows columns <> trackPointer lens) $ -- todo ui-board? (dnd)     
+    grid = div' ([class' "ui-board" true] <> gridStyle rows columns 5 <> trackPointer lens) $   
         (map3 position (attackedBySelected state) (capturableSquares state) \index piece attacked capturable ->
             square {piece,
                 selected: attacked || state^._selectedSquare == Just index,

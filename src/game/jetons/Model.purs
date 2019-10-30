@@ -30,10 +30,9 @@ instance jetonsGame :: Game (Array Int) Ext { from :: Int, to :: Int } where
     canPlay state {from, to} =
         let position = state^._position
             {row, col} = dCoords (state^._nbColumns) from to in
-        fromMaybe false $ do
-            pfrom <- position !! from
-            pto <- position !! to
-            pure $ pfrom > 0 && pfrom <= pto && row * row + col * col == 1
+        fromMaybe false $
+            (\pfrom pto -> pfrom > 0 && pfrom <= pto && row * row + col * col == 1)
+            <$> position !! from <*> position !! to
     
     initialPosition state = pure $ replicate (state^._nbRows * state^._nbColumns) 1
 

@@ -45,7 +45,7 @@ openValiseA :: Action ValiseState
 openValiseA = action $ _{isOpen = true}
 
 showHelpA :: String -> Action ValiseState
-showHelpA help = action $ (_help %~ if help == "" then identity else \_ -> help) <<< (_helpVisible .~ (help /= ""))
+showHelpA help = action $ (_help %~ if help == "" then identity else const help) <<< (_helpVisible .~ (help /= ""))
 
 toggleSwitchA :: Action ValiseState
 toggleSwitchA = action $ _isSwitchOn %~ not

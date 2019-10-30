@@ -2,11 +2,12 @@ module Game.Baseball.View where
 
 import Prelude
 import Data.Int (toNumber)
-import Data.Array (take, mapWithIndex, concatMap)
+import Data.Array (catMaybes, take, mapWithIndex, concatMap)
 import Math (cos, sin, pi)
+import Data.Maybe (Maybe(..)) 
 import Data.Lens (Lens', (^.))
+import Pha (text)
 import Pha.Class (VDom)
-import Pha (emptyNode, text)
 import Pha.Action ((🎲))
 import Pha.Html (div', svg, g, rect, use, class', key, style,
             click, width, height, stroke, fill, viewBox, translate)
@@ -38,7 +39,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
     levelFinished = isLevelFinished state
     config =
         card "Baseball multicolore" [
-            iconSelectGroup lens state "Nombres de bases" [4, 5, 6, 7, 8] (\_ -> identity) nbBases setNbBases,
+            iconSelectGroup lens state "Nombres de bases" [4, 5, 6, 7, 8] (const identity) nbBases setNbBases,
             icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> \x -> x lens state
         ]
 
@@ -52,11 +53,11 @@ view lens state = template lens {config, board, rules, winTitle} state where
                         stroke $ color,
                         style "transform" $ transformBase i nbBases
                     ]
-                ) <> (map2 (state^._position) dupColors \peg pos color ->
+                ) <> (catMaybes $ map2 (state^._position) dupColors \peg pos color ->
                     if peg == 0 then
-                        emptyNode
+                        Nothing
                     else
-                        g [
+                        Just $ g [
                             class' "baseball-player" true,
                             style "transform" $ translatePeg pos nbBases,
                             key $ "p" <> show peg

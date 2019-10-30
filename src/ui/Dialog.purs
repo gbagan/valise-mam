@@ -1,8 +1,9 @@
 module UI.Dialog where
 import Prelude
-import Data.Maybe (Maybe, maybe)
+import Data.Maybe (Maybe)
+import Data.Array (catMaybes)
 import Pha.Class (VDom, Action) 
-import Pha (text, emptyNode)
+import Pha (text)
 import Pha.Html (div', button, class', click)
 
 type DialogOptions a = {
@@ -19,19 +20,17 @@ dialog {title, onOk, onCancel} children =
                 div' [class' "ui-dialog-title" true] [text title]
             ],
             div' [class' "ui-dialog-body" true] children,
-            div' [class' "ui-dialog-buttons" true] [
-                onCancel # maybe emptyNode (\action ->
+            div' [class' "ui-dialog-buttons" true] $ catMaybes [
+                onCancel <#> \action ->
                     button [
                         class' "ui-button ui-button-primary" true, 
                         click action
-                    ] [text "Annuler"]
-                ),
-                onOk # maybe emptyNode (\action ->
+                    ] [text "Annuler"],
+                onOk <#> \action ->
                     button [
                         class' "ui-button ui-button-primary" true,
                         click action
                     ] [text "Ok"]
-                )
             ]
         ]
     ]

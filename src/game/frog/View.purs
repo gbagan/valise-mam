@@ -2,15 +2,15 @@ module Game.Frog.View where
 
 import Prelude
 import Math (cos, sin, pi, sqrt)
-import Data.Array ((!!), concat, mapWithIndex, reverse)
-import Data.Maybe (fromMaybe)
+import Data.Array ((!!), catMaybes, concat, mapWithIndex, reverse)
+import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Tuple (Tuple(..))
 import Data.String (joinWith)
 import Data.Int (toNumber)
 import Data.Lens (Lens', (^.))
 import Lib.Util (map2, tabulate, pairwise, floatRange)
 import Pha.Class (VDom) 
-import Pha (emptyNode, text)
+import Pha (text)
 import Pha.Action ((🎲), ifThenElseA)
 import Pha.Html (div', span, br, svg, viewBox, g, use, line, path, text',
                 class', key, click, style,
@@ -84,7 +84,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
     spoints = spiralPoints (state^._nbRows)
     pointsPolar = spiralPointsPolar $ state^._nbRows
     config = card "La grenouille" [
-        iconSelectGroupM lens state "Déplacements autorisés" [1, 2, 3, 4, 5]  (\_ -> identity) (state^._moves) selectMoveA,
+        iconSelectGroupM lens state "Déplacements autorisés" [1, 2, 3, 4, 5] (const identity) (state^._moves) selectMoveA,
         icons2Players lens state,
         icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x lens state
     ]
@@ -99,20 +99,20 @@ view lens state = template lens {config, board, rules, winTitle} state where
                 ] <> (map2 spoints reachable \i {x, y} reach ->
                     g [
                         key $ "lily" <> show i,
-                        click $ lens 🎲 ifThenElseA (\_ -> shiftKey) (markA i) (playA i)
+                        click $ lens 🎲 ifThenElseA (const shiftKey) (markA i) (playA i)
                     ] [
                         lily i x y false false,
                         lily i x y true (not reach), --  || state.hideReachable),
                         text' x y (if state^._help then show $ (state^._nbRows) - i else "") [class' "frog-index" true]
                     ]
-                ) <> (map2 (state^._marked) spoints \i mark {x, y} ->
+                ) <> (catMaybes $ map2 (state^._marked) spoints \i mark {x, y} ->
                     if mark && i /= position then
-                        use (x - 20.0) (y - 20.0) 32.0 32.0 "#frog" [
+                        Just $ use (x - 20.0) (y - 20.0) 32.0 32.0 "#frog" [
                             key $ "reach" <> show i,
                             class' "frog-frog marked" true
                         ]
                     else
-                        emptyNode
+                        Nothing
                 ) <> [ let {radius, theta} = fromMaybe {radius: 0.0, theta: 0.0} (pointsPolar !! position) in
                     g [
                     key "frog",

@@ -44,7 +44,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
     rows = state^._nbRows
     columns = state^._nbColumns
     position = state^._position
-    grid = div' ([class' "ui-board" true] <> gridStyle rows columns) $
+    grid = div' ([class' "ui-board" true] <> gridStyle rows columns 5) $
         map2 position.light position.played \index light played ->
             let {row, col} = coords columns index in
             square 

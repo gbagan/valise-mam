@@ -32,10 +32,10 @@ card title children =
         div' [class' "ui-card-body" true] children
     ]
 
-gridStyle :: forall a. Int -> Int -> Array (Prop a)
-gridStyle rows columns = [style "height" $ show (toNumber rows / m * 100.0) <> "%",
+gridStyle :: forall a. Int -> Int -> Int -> Array (Prop a)
+gridStyle rows columns limit = [style "height" $ show (toNumber rows / m * 100.0) <> "%",
                                 style "width" $ show (toNumber columns / m * 100.0) <> "%"]
-    where m = toNumber $ max 5 $ max rows columns
+    where m = toNumber $ max limit $ max rows columns
 
 incDecGrid :: forall pos ext mov d. Game pos ext mov => Lens' d (State pos ext) -> State pos ext -> Array (VDom d) -> VDom d
 incDecGrid lens state = U.incDecGrid {
@@ -63,7 +63,6 @@ template lens {board, config, rules, winTitle} state =
             div' [] [board, winPanel winTitle state],
             config
         ],
-    
         dialog' (state^._dialog)
     ]
     where
@@ -108,7 +107,7 @@ trackPointer lens = [
     pointerdown $ lens 🎲 move --  todo tester
 ] where
     move :: Action (State pos ext)
-    move =  setPointerPositionA -- whenA
+    move =  setPointerPositionA -- whenA  todo
         -- (\_ e -> pointerType e == Just "mouse")
         -- combine(
         -- setPointerPosition -- `withPayload` relativePointerPosition
@@ -148,7 +147,7 @@ dndItemProps lens dragLens draggable droppable id state = [
     class' "dragged" dragged,
     class' "candrop" candrop,
     pointerdown $ if draggable then lens 🎲 action (dragLens .~ Just id) else noAction,  -- releasePointerCapture),
-    pointerup $ lens 🎲 (if candrop then  dropA dragLens id else action (dragLens .~ Nothing))  -- stopPropagation
+    pointerup $ lens 🎲 (if candrop then dropA dragLens id else action (dragLens .~ Nothing))  -- stopPropagation
 ] where
     draggedItem = state ^. dragLens
     candrop = droppable && (draggedItem # maybe false (\x -> canPlay state { from: x, to: id }))

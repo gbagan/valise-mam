@@ -191,12 +191,12 @@ type PlayOption = {
 
 playA' :: forall pos ext mov. Game pos ext mov => (PlayOption -> PlayOption) -> mov -> Action (State pos ext)
 playA' optionFn move = lockAction $ Action \setState _ state ->
-    let {showWin} = optionFn {showWin: false} in
+    let {showWin} = optionFn {showWin: true} in
     if not $ canPlay state move then
         pure state
     else do
         st2 <- liftEffect $ setState (_play move $ pushToHistory $ state)
-        if showWin && isLevelFinished st2 then do
+        if showWin && isLevelFinished st2 then
             showVictory setState st2
         else if state^._mode == ExpertMode || state^._mode == RandomMode then do
             delay $ Milliseconds 1000.0
@@ -278,8 +278,6 @@ computerMove' state =
                         moves # N.toArray # find (isLosingPosition <<< flip _play state)
                 ) in
                     (bestMove <#> pure) <|> Just (randomPick moves)
-
---- todo
 
 dropA :: forall pos ext dnd. Eq dnd =>  Game pos ext {from :: dnd, to :: dnd} => Lens' (State pos ext) (Maybe dnd) -> dnd -> Action (State pos ext)
 dropA dragLens to = Action \setState ev state ->

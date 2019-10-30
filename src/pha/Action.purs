@@ -21,7 +21,7 @@ randomAction fn = Action $ \setState ev st -> do
 
 lensAction :: forall a b. Lens' a b -> Action b -> Action a
 lensAction lens (Action act) = Action \setState ev st -> do
-    st2 <- act (\st' -> (setState $ set lens st' st) >>= \_ -> pure st') ev (st^.lens)
+    st2 <- act (\st' -> (setState $ set lens st' st) >>= const (pure st')) ev (st^.lens)
     pure $ st # lens .~ st2
 
 infixl 3  lensAction as 🎲

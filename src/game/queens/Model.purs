@@ -8,7 +8,7 @@ import Data.Maybe (Maybe(..), maybe, fromMaybe)
 import Data.Tuple (Tuple(..))
 import Lib.Util (tabulate, dCoords, map2)
 import Game.Core (State(..), class Game, SizeLimit(..), genState, newGame, _position, _nbRows, _nbColumns, playA')
-import Pha.Class (Action(..))
+import Pha.Class (Action)
 import Pha.Action (action)
 
 piecesList :: Array Piece
@@ -115,7 +115,7 @@ instance pathGame :: Game (Array Piece) Ext Int where
     
     sizeLimit _ = SizeLimit 3 3 9 9
 
-    computerMove _ = Nothing
+    computerMove = const Nothing
 
     {-
       score: {

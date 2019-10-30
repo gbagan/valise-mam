@@ -34,7 +34,7 @@ instance baseballGame :: Game (Array Int) ExtState Int where
 
     initialPosition state = shuffle $ 0 .. (2 * state^._nbBases - 1)
     isLevelFinished state = state^._position # mapWithIndex (\i j -> i / 2 == j / 2) # all identity
-    computerMove state = Nothing
+    computerMove = const Nothing
     sizeLimit = defaultSizeLimit
     onNewGame = defaultOnNewGame
 

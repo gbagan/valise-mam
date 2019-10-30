@@ -2,27 +2,27 @@ module Game.Paths.View where
 import Prelude
 import Data.Lens (Lens', (^.))
 import Data.Tuple (Tuple (..))
-import Data.Array (concat, elem, last, mapWithIndex, null)
-import Data.Maybe (Maybe(..), maybe, isNothing)
+import Data.Array (catMaybes, concat, elem, last, mapWithIndex, null)
+import Data.Maybe (Maybe(..), isNothing)
 import Data.Int (toNumber, even)
 import Data.String (joinWith)
 import Lib.Util (coords, tabulate)
 import Pha.Class (VDom, Prop)
 import Game.Core (_nbRows, _nbColumns, _position, _help, _pointerPosition)
 import Game.Paths.Model (PathsState, Mode(..), _exit, _mode, selectVertexA, selectModeA)
-import Pha (emptyNode, text)
+import Pha (text)
 import Pha.Action ((🎲))
 import Pha.Html (div', p, br, g, svg, use, path, key, class', attr, click, style, width, height, viewBox)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, iconSelect, ihelp, iundo, iredo, ireset, irules)
 import UI.Template (template, card, incDecGrid, gridStyle, svgCursorStyle, trackPointer)
 
-square :: forall a. Boolean -> Boolean -> Boolean -> Number -> Number -> Array (Prop a) -> VDom a
-square darken trap  door x y props =
-    g ([class' "paths-darken" darken] <> props) [
-        use x y 100.0 100.0 "#paths-background" [],
-        if door then use x y 100.0 100.0 "#paths-door" [] else emptyNode,
-        use x y 100.0 100.0 "#paths-trap" [class' "paths-trap" true, class' "visible" $ trap && not door]
+square :: forall a. {darken :: Boolean, trap :: Boolean, door :: Boolean, x :: Number, y :: Number} -> Array (Prop a) -> VDom a
+square {darken, trap, door, x, y} props =
+    g ([class' "paths-darken" darken] <> props) $ catMaybes [
+        Just $ use x y 100.0 100.0 "#paths-background" [],
+        if door then Just $ use x y 100.0 100.0 "#paths-door" [] else Nothing,
+        Just $ use x y 100.0 100.0 "#paths-trap" [class' "paths-trap" true, class' "visible" $ trap && not door]
     ]
 
 view :: forall a. Lens' a PathsState -> PathsState -> VDom a
@@ -36,12 +36,12 @@ view lens state = template lens {config, board, rules, winTitle} state where
             iconSelect lens state (state^._mode) selectModeA Mode1 (_{icon = IconSymbol "#paths-mode0", tooltip = Just "Mode 1"}),
             iconSelect lens state (state^._mode) selectModeA Mode2 (_{icon = IconSymbol "#paths-mode1", tooltip = Just "Mode 2"})
         ],
-        iconSizesGroup lens state [Tuple 4 6, Tuple 5 5, Tuple 3 8] true, -- custom
+        iconSizesGroup lens state [Tuple 4 6, Tuple 5 5, Tuple 3 8] true,
         icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x lens state
     ]
 
     hero = 
-        last position # maybe emptyNode \h ->
+        last position <#> \h ->
             let {row, col} = coords columns h in
             use 0.0 0.0 80.0 80.0 "#meeplehat" [
                 key "hero",
@@ -66,31 +66,30 @@ view lens state = template lens {config, board, rules, winTitle} state where
     pathdec = joinWith " " $ concat $ position # mapWithIndex \i v ->
         let {row, col} = coords columns v in [if i == 0 then "M" else "L", show $ 100 * col + 50, show $ 100 * row + 50]
     
-    grid = div' (gridStyle rows columns <> trackPointer lens) [  ---- todo changer trackPointer
-        -- trackPointer: true,
+    grid = div' (gridStyle rows columns 5 <> trackPointer lens) [
         svg [width "100%", height "100%", viewBox $ "0 0 " <> show (100 * columns) <> " " <> show (100 * rows)] $
             (tabulate (rows * columns) \index ->
                 let {row, col} = coords columns index in
-                square
-                    (state^._help && even (row + col))  -- darken
-                    (elem index position && Just index /= last position)  -- trap
-                    (state^._exit == Just index)     --- door
-                    (toNumber $ 100 * col)
-                    (toNumber $ 100 * row) [
+                square {
+                    darken: state^._help && even (row + col),
+                    trap: elem index position && Just index /= last position,
+                    door: state^._exit == Just index,     --- door
+                    x: toNumber (100 * col),
+                    y: toNumber (100 * row)
+                } [
                     key $ show index,
                     click $ lens 🎲 selectVertexA index
                 ]
-            ) <> [
-                path pathdec [class' "paths-path" true],
+            ) <> catMaybes [
+                Just $ path pathdec [class' "paths-path" true],
                 hero,
-                state^._pointerPosition # maybe emptyNode (\pp ->
+                state^._pointerPosition >>= \pp ->
                     if null position then
-                        heroCursor pp
+                        Just $ heroCursor pp
                     else if isNothing $ state^._exit then
-                        doorCursor pp
+                        Just $ doorCursor pp
                     else
-                        emptyNode
-                )
+                        Nothing
             ]
     ]
 

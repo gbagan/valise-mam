@@ -4,10 +4,10 @@ import Prelude
 import Data.Tuple (Tuple(..))
 import Data.Lens (Lens', (^.))
 import Data.Int (floor, toNumber)
-import Data.Maybe (maybe, isJust)
-import Data.Array (filter, length, mapWithIndex)
+import Data.Maybe (Maybe(..), maybe, isJust)
+import Data.Array (catMaybes, filter, length, mapWithIndex)
 import Math (sqrt)
-import Pha (text, emptyNode)
+import Pha (text)
 import Pha.Class (VDom)
 import Pha.Html (div', span, br, key, class', style, rgbColor)
 import Game.Core (_position, _nbColumns, _nbRows, _pointerPosition)
@@ -64,10 +64,10 @@ view lens state = template lens {config, board, rules, winTitle} state where
         ); -}
 
     board = incDecGrid lens state [
-        div' ([class' "ui-board" true] <> dndBoardProps lens _dragged <> gridStyle rows columns) $ -- todo  3 -- dnd
-            (position # mapWithIndex \i val -> if val == 0 then emptyNode else
-                piece i val ([key $ show i] <> dndItemProps lens _dragged true true i state)
-            ) <> (if isJust $ state^._dragged then state^._pointerPosition # maybe [] (pure <<< cursor) else [])
+        div' ([class' "ui-board" true] <> dndBoardProps lens _dragged <> gridStyle rows columns 3) $
+            (catMaybes $ position # mapWithIndex \i val -> if val == 0 then Nothing else
+                Just $ piece i val ([key $ show i] <> dndItemProps lens _dragged true true i state)
+            ) <> (if isJust (state^._dragged) then state^._pointerPosition # maybe [] (pure <<< cursor) else [])
     ]
 
     rules = [

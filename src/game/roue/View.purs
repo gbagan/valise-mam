@@ -1,16 +1,16 @@
 module Game.Roue.View where
 
 import Prelude
-import Data.Maybe (Maybe(..), maybe, fromMaybe, isJust)
+import Data.Maybe (Maybe(..), fromMaybe, isJust)
 import Data.String (joinWith)
 import Data.Int (toNumber)
-import Data.Array (take, elem, mapWithIndex, (!!))
+import Data.Array (catMaybes, take, elem, mapWithIndex, (!!))
 import Data.Lens (Lens', (^.))
 import Math (cos, sin, pi)
 import Lib.Util (map2)
 import Game.Core (_position, _pointerPosition, _locked)
 import Game.Roue.Model (RoueState, Ball(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, aligned, validRotation, validRotation')
-import Pha (text, emptyNode)
+import Pha (text)
 import Pha.Class (VDom)
 import Pha.Action ((🎲))
 import Pha.Html (div', button, span, svg, path, key, class', click, style, disabled, viewBox, fill, stroke)
@@ -55,7 +55,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
     valid = validRotation state
 
     config = card "Roue des couleurs" [
-        iconSelectGroup lens state "Nombre de couleurs" [4, 5, 6, 7, 8] (\_ -> identity) size setSizeA,        
+        iconSelectGroup lens state "Nombre de couleurs" [4, 5, 6, 7, 8] (const identity) size setSizeA,        
         icongroup "Options" $ [ireset, irules] <#> \x -> x lens state
     ]
 
@@ -70,7 +70,8 @@ view lens state = template lens {config, board, rules, winTitle} state where
                             _ -> -1
         in colors !! colorIndex
 
-    cursor = fromMaybe emptyNode $ do
+    cursor :: Maybe (VDom a)
+    cursor = do
         {left, top} <- state^._pointerPosition
         color <- draggedColor
         pure $ div' [
@@ -89,7 +90,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                 class' "roue-wheel-part" true,
                 fill $ if not align then  "#F0B27A" else if validRotation' state then "lightgreen" else "#F5B7B1"
             ] <> dndItemProps lens _dragged (isJust pos) true (Wheel i) state)
-        ] <> (position # mapWithIndex \index c -> c # maybe emptyNode \color -> 
+        ] <> (catMaybes $ position # mapWithIndex \index c -> c <#> \color -> 
             div' [
                 class' "roue-outer-piece" true,
                 key $ show index,
@@ -99,7 +100,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
             ] []
         )
 
-    board = div' ([class' "roue-board" true] <> trackPointer lens) [
+    board = div' ([class' "roue-board" true] <> trackPointer lens) $ [
         div' [class' "roue-buttons" true] $
             [button [
                 class' "ui-button ui-button-primary roue-button" true,
@@ -129,8 +130,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
             div' [class' "roue-valid-rotation" true] [
                 if valid then span [class' "valid" true] [text "✓"] else span [class' "invalid" true] [text "✗"]
             ]
-        ],
-        cursor
-    ]
+        ]
+    ] <> catMaybes [cursor]
 
     winTitle = "GAGNÉ"

@@ -2,9 +2,8 @@ module UI.Icon where
 
 import Prelude
 import Data.Maybe (Maybe (..))
-import Data.Array (catMaybes)
 import Data.Tuple (Tuple, uncurry)
-import Pha (text)
+import Pha (text, emptyNode, maybeN)
 import Pha.Class (VDom, Prop) 
 import Pha.Html (button, span, svguse, class', style, disabled)
 
@@ -42,10 +41,10 @@ iconbutton optionFn props =
         class' "round" large,
         class' "hidden" hidden,
         disabled d
-    ] <> props) $ catMaybes [
+    ] <> props) $ [
         case icon of
-            IconSymbol symbol -> Just $ svguse symbol $ [class' "ui-icon-symbol" true] <> (st <#> uncurry style) -- todo uncurry
-            IconText t -> Just $ span [class' "ui-icon-text" true] [text t]
-            IconNone -> Nothing,
-        tooltip <#> \t -> span [class' "ui-icon-tooltip" true] [text t]
+            IconSymbol symbol -> svguse symbol $ [class' "ui-icon-symbol" true] <> (st <#> uncurry style) -- todo uncurry
+            IconText t -> span [class' "ui-icon-text" true] [text t]
+            IconNone -> emptyNode,
+        maybeN $ tooltip <#> \t -> span [class' "ui-icon-tooltip" true] [text t]
     ]

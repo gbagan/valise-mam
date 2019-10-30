@@ -2,11 +2,10 @@ module Game.Baseball.View where
 
 import Prelude
 import Data.Int (toNumber)
-import Data.Array (catMaybes, take, mapWithIndex, concatMap)
-import Math (cos, sin, pi)
-import Data.Maybe (Maybe(..)) 
+import Data.Array (take, mapWithIndex, concatMap)
+import Math (cos, sin, pi) 
 import Data.Lens (Lens', (^.))
-import Pha (text)
+import Pha (text, whenN)
 import Pha.Class (VDom)
 import Pha.Action ((🎲))
 import Pha.Html (div', svg, g, rect, use, class', key, style,
@@ -53,11 +52,9 @@ view lens state = template lens {config, board, rules, winTitle} state where
                         stroke $ color,
                         style "transform" $ transformBase i nbBases
                     ]
-                ) <> (catMaybes $ map2 (state^._position) dupColors \peg pos color ->
-                    if peg == 0 then
-                        Nothing
-                    else
-                        Just $ g [
+                ) <> (map2 (state^._position) dupColors \peg pos color ->
+                    whenN (peg > 0) \_ ->
+                        g [
                             class' "baseball-player" true,
                             style "transform" $ translatePeg pos nbBases,
                             key $ "p" <> show peg

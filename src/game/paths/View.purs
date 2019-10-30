@@ -2,15 +2,15 @@ module Game.Paths.View where
 import Prelude
 import Data.Lens (Lens', (^.))
 import Data.Tuple (Tuple (..))
-import Data.Array (catMaybes, concat, elem, last, mapWithIndex, null)
+import Data.Array (concat, elem, last, mapWithIndex, null)
 import Data.Maybe (Maybe(..), isNothing)
 import Data.Int (toNumber, even)
 import Data.String (joinWith)
 import Lib.Util (coords, tabulate)
-import Pha.Class (VDom, Prop)
 import Game.Core (_nbRows, _nbColumns, _position, _help, _pointerPosition)
 import Game.Paths.Model (PathsState, Mode(..), _exit, _mode, selectVertexA, selectModeA)
-import Pha (text)
+import Pha.Class (VDom, Prop)
+import Pha (text, emptyNode, maybeN, whenN)
 import Pha.Action ((🎲))
 import Pha.Html (div', p, br, g, svg, use, path, key, class', attr, click, style, width, height, viewBox)
 import UI.Icon (Icon(..))
@@ -19,10 +19,11 @@ import UI.Template (template, card, incDecGrid, gridStyle, svgCursorStyle, track
 
 square :: forall a. {darken :: Boolean, trap :: Boolean, door :: Boolean, x :: Number, y :: Number} -> Array (Prop a) -> VDom a
 square {darken, trap, door, x, y} props =
-    g ([class' "paths-darken" darken] <> props) $ catMaybes [
-        Just $ use x y 100.0 100.0 "#paths-background" [],
-        if door then Just $ use x y 100.0 100.0 "#paths-door" [] else Nothing,
-        Just $ use x y 100.0 100.0 "#paths-trap" [class' "paths-trap" true, class' "visible" $ trap && not door]
+    g ([class' "paths-darken" darken] <> props) [
+        use x y 100.0 100.0 "#paths-background" [],
+        whenN door \_ ->
+            use x y 100.0 100.0 "#paths-door" [],
+        use x y 100.0 100.0 "#paths-trap" [class' "paths-trap" true, class' "visible" $ trap && not door]
     ]
 
 view :: forall a. Lens' a PathsState -> PathsState -> VDom a
@@ -80,16 +81,16 @@ view lens state = template lens {config, board, rules, winTitle} state where
                     key $ show index,
                     click $ lens 🎲 selectVertexA index
                 ]
-            ) <> catMaybes [
-                Just $ path pathdec [class' "paths-path" true],
-                hero,
-                state^._pointerPosition >>= \pp ->
+            ) <> [
+                path pathdec [class' "paths-path" true],
+                maybeN hero,
+                maybeN $ state^._pointerPosition <#> \pp ->
                     if null position then
-                        Just $ heroCursor pp
+                        heroCursor pp
                     else if isNothing $ state^._exit then
-                        Just $ doorCursor pp
+                        doorCursor pp
                     else
-                        Nothing
+                        emptyNode
             ]
     ]
 

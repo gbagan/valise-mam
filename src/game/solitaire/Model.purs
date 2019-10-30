@@ -67,7 +67,7 @@ betweenMove2 state move@{from, to} =
         betweenMove state move
 
 -- fonction auxilaire pour onNewGame
-generateBoard :: Int -> Int -> Int -> ({row :: Int, col :: Int} -> Boolean) ->
+generateBoard :: Int -> Int -> Int -> (Int -> Int -> Boolean) ->
     {holes :: Array Boolean, position :: Random (Array Boolean), customSize :: Boolean}
 generateBoard rows columns startingHole holeFilter = {holes, position, customSize: false} where
     holes = tabulate2 rows columns holeFilter
@@ -100,8 +100,8 @@ instance solitaireGame :: Game (Array Boolean) ExtState {from :: Int, to :: Int}
         rows = state^._nbRows
         {holes, position, customSize} =
             case state^._board of
-                EnglishBoard -> generateBoard 7 7 24 \{row, col} -> min row (6 - row) >= 2 || min col (6 - col) >= 2
-                FrenchBoard -> generateBoard 7 7 24 \{row, col} -> min row (6 - row) + min col (6 - col) >= 2
+                EnglishBoard -> generateBoard 7 7 24 \row col -> min row (6 - row) >= 2 || min col (6 - col) >= 2
+                FrenchBoard -> generateBoard 7 7 24 \row col -> min row (6 - row) + min col (6 - col) >= 2
                 CircleBoard -> {
                     holes: replicate rows true,
                     position: randomInt rows <#> \x -> tabulate rows (notEq x),

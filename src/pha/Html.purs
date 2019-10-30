@@ -19,6 +19,9 @@ style = Style
 click :: forall a. Action a -> Prop a
 click = Event "click"
 
+contextmenu :: forall a. Action a -> Prop a
+contextmenu = Event "contextmenu"
+
 pointermove :: forall a. Action a -> Prop a
 pointermove = Event "pointermove"
 

@@ -2,6 +2,7 @@ module Pha.Event where
 import Prelude
 import Pha.Class (Event)
 import Data.Maybe (Maybe(..))
+import Effect (Effect)
 
 foreign import unsafeToMaybeAux :: forall a. Maybe a -> (a -> Maybe a) -> a -> Maybe a
 unsafeToMaybe :: forall a. a -> Maybe a
@@ -16,3 +17,6 @@ pointerType = unsafeToMaybe <<< unsafePointerType
 foreign import unsafeKey :: Event -> String
 key :: Event -> Maybe String
 key = unsafeToMaybe <<< unsafeKey
+
+
+foreign import preventDefault :: Event -> Effect Unit

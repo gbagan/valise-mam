@@ -55,7 +55,7 @@ instance nimGame :: Game (Array (Tuple Int Int)) ExtState Move where
 
 instance nimGame2 :: TwoPlayersGame (Array (Tuple Int Int)) ExtState Move where
     possibleMoves state =
-        tabulate2 (state^._nbPiles) (state^._length) (\{row, col} -> Move row col)
+        tabulate2 (state^._nbPiles) (state^._length) Move
         # filter (canPlay state)
         # sortWith \(Move pile pos) -> state^._position !! pile # maybe 0
             \x -> if state^._turn == 0 then fst x - pos else pos - snd x

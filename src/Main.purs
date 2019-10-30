@@ -28,6 +28,8 @@ import Game.Roue.Model (RoueState, roueState)
 import Game.Roue.View (view) as RoueView
 import Game.Solitaire.Model (SolitaireState, solitaireState)
 import Game.Solitaire.View (view) as SolitaireView
+import Game.Tiling.Model (TilingState, tilingState)
+import Game.Tiling.View (view) as TilingView
 
 extractLocation :: String -> String -> String
 extractLocation url defaultValue =
@@ -44,6 +46,7 @@ type RootState = {
     queens :: QueensState,
     roue :: RoueState,
     solitaire :: SolitaireState,
+    tiling :: TilingState,
     location :: String
 }
 
@@ -74,6 +77,9 @@ _roue = lens (_.roue) (_{roue = _})
 _solitaire :: Lens' RootState SolitaireState
 _solitaire = lens (_.solitaire) (_{solitaire = _})
 
+_tiling :: Lens' RootState TilingState
+_tiling = lens (_.tiling) (_{tiling = _})
+
 foreign import getLocationHref :: Effect String
 
 hashChange :: Action RootState
@@ -91,12 +97,13 @@ view :: RootState -> VDom RootState
 view state = case state.location of
     "baseball" -> BaseballView.view _baseball state.baseball
     "frog" -> FrogView.view _frog state.frog
+    "jetons" -> JetonsView.view _jetons state.jetons
     "noirblanc" -> NoirblancView.view _noirblanc state.noirblanc
     "paths" -> PathsView.view _paths state.paths
     "roue" -> RoueView.view _roue state.roue
     "queens" -> QueensView.view _queens state.queens
     "solitaire" -> SolitaireView.view _solitaire state.solitaire
-    "jetons" -> JetonsView.view _jetons state.jetons
+    "tiling" -> TilingView.view _tiling state.tiling
     _ -> NimView.view _nim state.nim
 
 main :: Effect Unit
@@ -112,6 +119,7 @@ main = do
     queensState' <- runRnd $ init queensState
     roueState' <- runRnd $ init roueState
     solitaireState' <- runRnd $ init solitaireState
+    tilingState' <- runRnd $ init tilingState
     let state = {
         baseball: baseballState',
         nim: nimState',
@@ -122,6 +130,7 @@ main = do
         queens: queensState',
         roue: roueState',
         solitaire: solitaireState',
+        tiling: tilingState',
         location: location
     }
     app {

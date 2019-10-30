@@ -2,15 +2,15 @@ module Game.Frog.View where
 
 import Prelude
 import Math (cos, sin, pi, sqrt)
-import Data.Array ((!!), catMaybes, concat, mapWithIndex, reverse)
-import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Array ((!!), concat, mapWithIndex, reverse)
+import Data.Maybe (fromMaybe)
 import Data.Tuple (Tuple(..))
 import Data.String (joinWith)
 import Data.Int (toNumber)
 import Data.Lens (Lens', (^.))
 import Lib.Util (map2, tabulate, pairwise, floatRange)
 import Pha.Class (VDom) 
-import Pha (text)
+import Pha (text, whenN)
 import Pha.Action ((🎲), ifThenElseA)
 import Pha.Html (div', span, br, svg, viewBox, g, use, line, path, text',
                 class', key, click, style,
@@ -105,14 +105,12 @@ view lens state = template lens {config, board, rules, winTitle} state where
                         lily i x y true (not reach), --  || state.hideReachable),
                         text' x y (if state^._help then show $ (state^._nbRows) - i else "") [class' "frog-index" true]
                     ]
-                ) <> (catMaybes $ map2 (state^._marked) spoints \i mark {x, y} ->
-                    if mark && i /= position then
-                        Just $ use (x - 20.0) (y - 20.0) 32.0 32.0 "#frog" [
+                ) <> (map2 (state^._marked) spoints \i mark {x, y} ->
+                    whenN (mark && i /= position) \_ ->
+                        use (x - 20.0) (y - 20.0) 32.0 32.0 "#frog" [
                             key $ "reach" <> show i,
                             class' "frog-frog marked" true
                         ]
-                    else
-                        Nothing
                 ) <> [ let {radius, theta} = fromMaybe {radius: 0.0, theta: 0.0} (pointsPolar !! position) in
                     g [
                     key "frog",

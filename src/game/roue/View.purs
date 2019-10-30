@@ -10,7 +10,7 @@ import Math (cos, sin, pi)
 import Lib.Util (map2)
 import Game.Core (_position, _pointerPosition, _locked)
 import Game.Roue.Model (RoueState, Ball(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, aligned, validRotation, validRotation')
-import Pha (text)
+import Pha (text, maybeN)
 import Pha.Class (VDom)
 import Pha.Action ((🎲))
 import Pha.Html (div', button, span, svg, path, key, class', click, style, disabled, viewBox, fill, stroke)
@@ -46,7 +46,14 @@ innerWheel size = div' [class' "roue-inner" true] [
         ]
 ]
 
---const lock = action => actions.unless(s => s.locked, action);
+cursor :: forall a b. {left :: Number, top :: Number | b} -> String -> VDom a
+cursor {left, top} color = div' [
+    class' "ui-cursor roue-select-color roue-cursor" true,
+    style "left" $ show left <> "px",
+    style "top" $ show top <> "px",
+    style "background-color" color
+] []
+
 
 view :: forall a. Lens' a RoueState -> RoueState -> VDom a
 view lens state = template lens {config, board, rules, winTitle} state where
@@ -69,17 +76,6 @@ view lens state = template lens {config, board, rules, winTitle} state where
                             Wheel i -> fromMaybe (-1) $ (position !! i) >>= identity
                             _ -> -1
         in colors !! colorIndex
-
-    cursor :: Maybe (VDom a)
-    cursor = do
-        {left, top} <- state^._pointerPosition
-        color <- draggedColor
-        pure $ div' [
-            class' "ui-cursor roue-select-color roue-cursor" true,
-            style "left" $ show left <> "px",
-            style "top" $ show top <> "px",
-            style "background-color" color
-        ] []
 
     outerWheel = div' [
         class' "roue-outer" true,
@@ -130,7 +126,8 @@ view lens state = template lens {config, board, rules, winTitle} state where
             div' [class' "roue-valid-rotation" true] [
                 if valid then span [class' "valid" true] [text "✓"] else span [class' "invalid" true] [text "✗"]
             ]
-        ]
-    ] <> catMaybes [cursor]
+        ],
+        maybeN $ cursor <$> state^._pointerPosition <*> draggedColor
+    ]
 
     winTitle = "GAGNÉ"

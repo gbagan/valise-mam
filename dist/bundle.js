@@ -252,7 +252,8 @@ var PS = {};
   $PS["Control.Bind"] = $PS["Control.Bind"] || {};
   var exports = $PS["Control.Bind"];
   var $foreign = $PS["Control.Bind"];
-  var Control_Apply = $PS["Control.Apply"];                
+  var Control_Apply = $PS["Control.Apply"];
+  var Data_Function = $PS["Data.Function"];                
   var Discard = function (discard) {
       this.discard = discard;
   };
@@ -269,11 +270,15 @@ var PS = {};
   var bind = function (dict) {
       return dict.bind;
   };
+  var bindFlipped = function (dictBind) {
+      return Data_Function.flip(bind(dictBind));
+  };
   var discardUnit = new Discard(function (dictBind) {
       return bind(dictBind);
   });
   exports["Bind"] = Bind;
   exports["bind"] = bind;
+  exports["bindFlipped"] = bindFlipped;
   exports["discard"] = discard;
   exports["bindArray"] = bindArray;
   exports["discardUnit"] = discardUnit;
@@ -2852,7 +2857,7 @@ var PS = {};
       return applyEffect;
   }, $foreign.pureE);
   var functorEffect = new Data_Functor.Functor(Control_Applicative.liftA1(applicativeEffect));
-  exports["applicativeEffect"] = applicativeEffect;
+  exports["functorEffect"] = functorEffect;
   exports["bindEffect"] = bindEffect;
 })(PS);
 (function(exports) {
@@ -4409,6 +4414,7 @@ var PS = {};
   var Control_Applicative = $PS["Control.Applicative"];
   var Control_Bind = $PS["Control.Bind"];
   var Data_Function = $PS["Data.Function"];
+  var Data_Functor = $PS["Data.Functor"];
   var Data_Lens_Getter = $PS["Data.Lens.Getter"];
   var Data_Lens_Internal_Forget = $PS["Data.Lens.Internal.Forget"];
   var Data_Lens_Setter = $PS["Data.Lens.Setter"];
@@ -4425,9 +4431,7 @@ var PS = {};
       return Pha_Class.Action(function (setState) {
           return function (ev) {
               return function (st) {
-                  return Control_Bind.bind(Effect_Aff.bindAff)(Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(Lib_Random.runRnd(fn(st))))(function (v) {
-                      return Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(setState(v));
-                  });
+                  return Effect_Class.liftEffect(Effect_Aff.monadEffectAff)(Control_Bind.bindFlipped(Effect.bindEffect)(setState)(Lib_Random.runRnd(fn(st))));
               };
           };
       });
@@ -4445,7 +4449,7 @@ var PS = {};
               return function (ev) {
                   return function (st) {
                       return Control_Bind.bind(Effect_Aff.bindAff)(v(function (st$prime) {
-                          return Control_Bind.bind(Effect.bindEffect)(setState(Data_Lens_Setter.set(lens(Data_Profunctor_Strong.strongFn))(st$prime)(st)))(Data_Function["const"](Control_Applicative.pure(Effect.applicativeEffect)(st$prime)));
+                          return Data_Functor.mapFlipped(Effect.functorEffect)(setState(Data_Lens_Setter.set(lens(Data_Profunctor_Strong.strongFn))(st$prime)(st)))(Data_Function["const"](st$prime));
                       })(ev)(Data_Lens_Getter.viewOn(st)(lens(Data_Lens_Internal_Forget.strongForget))))(function (v1) {
                           return Control_Applicative.pure(Effect_Aff.applicativeAff)(Data_Lens_Setter.set(lens(Data_Profunctor_Strong.strongFn))(v1)(st));
                       });
@@ -4461,8 +4465,8 @@ var PS = {};
                   return function (ev) {
                       return function (st) {
                           return (function () {
-                              var $14 = cond(st)(ev);
-                              if ($14) {
+                              var $12 = cond(st)(ev);
+                              if ($12) {
                                   return v;
                               };
                               return v1;

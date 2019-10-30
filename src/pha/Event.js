@@ -1,3 +1,4 @@
 exports.shiftKey = e => !!e.shiftKey;
-
-exports.pointerTypeAux = nothing => just => e => e && e.pointerType ? just(e.pointerType) : nothing
+exports.unsafeToMaybeAux = nothing => just => x => x === null || x === undefined ? nothing :  just(x);
+exports.unsafePointerType = e && e.pointerType;
+exports.unsafeKey = e && e.key;

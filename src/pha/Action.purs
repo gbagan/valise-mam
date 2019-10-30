@@ -15,13 +15,11 @@ action :: forall a. (a -> a) -> Action a
 action fn = Action $ \setState ev st -> liftEffect $ setState $ fn st
 
 randomAction :: forall a. (a -> Random a) -> Action a
-randomAction fn = Action $ \setState ev st -> do
-    st' <- liftEffect $ runRnd (fn st)
-    liftEffect $ setState st'
+randomAction fn = Action $ \setState ev st -> liftEffect $ setState =<< runRnd (fn st)
 
 lensAction :: forall a b. Lens' a b -> Action b -> Action a
 lensAction lens (Action act) = Action \setState ev st -> do
-    st2 <- act (\st' -> (setState $ set lens st' st) >>= const (pure st')) ev (st^.lens)
+    st2 <- act (\st' -> (setState $ set lens st' st) <#> const st') ev (st^.lens)
     pure $ st # lens .~ st2
 
 infixl 3  lensAction as 🎲

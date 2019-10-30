@@ -5,8 +5,8 @@ import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
 import Data.Lens (Lens', (^.), (.~))
 import Pha (text)
-import Pha.Class (VDom, Prop, Action)
-import Pha.Action (action, (🎲))
+import Pha.Class (VDom, Prop)
+import Pha.Action (Action, action, (🎲))
 import Pha.Html (div', h2, class', click)
 import Game.Core (State, class Game, Dialog(Rules), Mode(..),
                 undoA, redoA, resetA, toggleHelpA, setModeA, computerStartsA, setGridSizeA,

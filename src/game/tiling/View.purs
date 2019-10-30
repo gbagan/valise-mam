@@ -3,16 +3,20 @@ import Prelude
 import Data.Tuple (Tuple(..))
 import Data.Lens (Lens', (^.))
 import Data.Int (toNumber, even)
-import Data.Array (length, mapWithIndex)
-import Lib.Util (tabulate, coords)
+import Data.Array ((!!), length, mapWithIndex)
+import Lib.Util (coords)
 import Pha.Class (VDom, Prop)
 import Pha (text, whenN, maybeN)
 import Pha.Action ((🎲))
-import Pha.Html (div', g, rect, use, key, attr, style, svg, class', click, contextmenu, width, height, viewBox, fill, transform)
-import Game.Core (_position, _nbRows, _nbColumns, _pointerPosition)
+import Pha.Event (preventDefaultA)
+import Pha.Html (div', g, rect, line, use, key, attr, style, svg, class', click, contextmenu,
+                 width, height, viewBox, fill, stroke, strokeWidth, transform)
+import Game.Core (_position, _nbRows, _nbColumns, _pointerPosition, _help)
 import Game.Tiling.Model (TilingState, _nbSinks, _rotation, _tile, sinks, setNbSinksA, clickOnCellA, rotateA)
 import UI.Template (template, card, incDecGrid, gridStyle, svgCursorStyle, trackPointer)
 import UI.Icons (icongroup, iconSizesGroup, iconSelectGroup, ihelp, ireset, irules)
+
+type Borders = {top :: Boolean, left :: Boolean, bottom :: Boolean, right :: Boolean}
 
 square :: forall a. {isBlack :: Boolean, hasBlock :: Boolean, hasSink :: Boolean, row :: Int, col :: Int} -> Array (Prop a) -> VDom a 
 square {isBlack, hasBlock, hasSink, row, col} props =
@@ -29,8 +33,12 @@ square {isBlack, hasBlock, hasSink, row, col} props =
     
 view :: forall a. Lens' a TilingState -> TilingState -> VDom a
 view lens state = template lens {config, board, rules, winTitle} state where
+    position = state^._position
     rows = state^._nbRows
     columns = state^._nbColumns
+
+    border i di = position !! i /= position !! (i + di)
+
 
     config = card "Carrelage" [
         iconSizesGroup lens state [Tuple 4 5, Tuple 5 5, Tuple 5 6, Tuple 7 7] true,
@@ -66,13 +74,13 @@ view lens state = template lens {config, board, rules, winTitle} state where
 
     grid = div' (gridStyle rows columns 5 <> trackPointer lens <> [
         class' "ui-board" true,
-        contextmenu $ lens 🎲 rotateA  -- combine(actions.rotate, preventDefault),
+        contextmenu $ lens 🎲 (preventDefaultA <> rotateA)
     ]) [
         svg [width "100%", height "100%", viewBox $ "0 0 " <> show (50 * columns) <> " " <> show (50 * rows)] $
-            (state^._position # mapWithIndex \index pos ->
+            (position # mapWithIndex \index pos ->
                 let {row, col} = coords columns index in
                 square {
-                    isBlack: false, --state.coloringVisible && even (row + col),
+                    isBlack: state^._help && even (row + col),
                     hasBlock: pos > 0,
                     hasSink: pos == -1,
                     row, col
@@ -84,19 +92,22 @@ view lens state = template lens {config, board, rules, winTitle} state where
                     -- 
                     --    onpointerenter: [actions.setHoverSquare, index],
                     --    onpointerleave: [actions.setHoverSquare, null]
-                ])
-            {- repeat2(state.rows, state.columns, (row, col, index) =>
-                    g({
-                        transform: `translate(${50 * col}, ${50 * row})`
-                    },
-                        border(index, - 1) && line({ x1: 0, y1: 0, x2: 0, y2: 50, stroke: '#000', 'stroke-width': 2 }),
-                        border(index, 1) && line({ x1: 50, y1: 0, x2: 50, y2: 50, stroke: '#000', 'stroke-width': 2 }),
-                        border(index, -state.columns) && line({ x1: 0, y1: 0, x2: 50, y2: 0, stroke: '#000', 'stroke-width': 2 }),
-                        border(index, state.columns) && line({ x1: 0, y1: 50, x2: 50, y2: 50, stroke: '#000', 'stroke-width': 2 }),
-                    )
-                ),
-            -}
-            <> [maybeN $ (if length (sinks state) < state^._nbSinks then sinkCursor else tileCursor) <$> state^._pointerPosition]
+                ]
+            ) <> (position # mapWithIndex \index pos ->
+                let {row, col} = coords columns index in
+                g [
+                    transform $ "translate(" <> show (50 * col) <> "," <> show (50 * row) <> ")"
+                ] [
+                    whenN (pos > 0 && border index (-1)) \_ ->
+                        line 0.0 0.0 0.0 50.0 [stroke "#000", strokeWidth "2"],
+                    whenN (pos > 0 && border index 1) \_ ->
+                        line 50.0 0.0 50.0 50.0 [stroke "#000", strokeWidth "2"],
+                    whenN (pos > 0 && border index (-columns)) \_ ->
+                        line 0.0 0.0 50.0 0.0 [stroke "#000", strokeWidth "2"],
+                    whenN (pos > 0 && border index columns) \_ ->
+                        line 0.0 50.0 50.0 50.0 [stroke "#000", strokeWidth "2"]    
+                ]
+            ) <> [maybeN $ (if length (sinks state) < state^._nbSinks then sinkCursor else tileCursor) <$> state^._pointerPosition]
     ]
 
     board = incDecGrid lens state [grid]

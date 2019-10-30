@@ -1,11 +1,10 @@
 module Pha.Class where
-  
+
 import Effect (Effect)
 import Effect.Aff (Aff)
+import Pha.Action (Action)
 
 foreign import data VDom :: Type -> Type
-foreign import data Event :: Type
-newtype Action a = Action ((a -> Effect a) -> Event -> a -> Aff a)
 
 data Prop a =
     Key String

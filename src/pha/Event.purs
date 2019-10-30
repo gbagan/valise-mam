@@ -1,8 +1,9 @@
 module Pha.Event where
 import Prelude
-import Pha.Class (Event)
+import Pha.Action (Action(..), Event)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
+import Effect.Class (liftEffect)
 
 foreign import unsafeToMaybeAux :: forall a. Maybe a -> (a -> Maybe a) -> a -> Maybe a
 unsafeToMaybe :: forall a. a -> Maybe a
@@ -20,3 +21,6 @@ key = unsafeToMaybe <<< unsafeKey
 
 
 foreign import preventDefault :: Event -> Effect Unit
+
+preventDefaultA :: forall a. Action a
+preventDefaultA = Action \_ e st -> liftEffect (preventDefault e) <#> const st

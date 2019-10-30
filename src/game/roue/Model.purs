@@ -10,8 +10,7 @@ import Effect.Aff (delay)
 import Effect.Class (liftEffect)
 import Lib.Util (swap)
 import Game.Core (class Game, State(..), genState, newGame', lockAction, _position, _showWin, defaultSizeLimit)
-import Pha.Class (Action(..))
-import Pha.Action (action)
+import Pha.Action (Action(..), action)
 
 type Position = Array (Maybe Int)
 

@@ -9,7 +9,7 @@ import Data.Int.Bits (xor)
 import Data.Lens (lens, Lens', view, set, (^.), (%~))
 import Data.Lens.Index (ix)
 import Lib.Util (tabulate2)
-import Pha.Class (Action)
+import Pha.Action (Action)
 import Lib.Random (randomInt)
 import Game.Core (class Game, class TwoPlayersGame, State (..), Mode(..),
                 genState, newGame', canPlay, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)

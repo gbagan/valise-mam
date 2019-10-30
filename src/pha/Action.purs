@@ -5,8 +5,15 @@ import Effect (Effect)
 import Effect.Class (liftEffect)
 import Effect.Aff (Aff)
 import Lib.Random (Random, runRnd)
-import Pha.Class (Action(..), Event)
 import Data.Lens (Lens', set, (^.), (.~))
+
+foreign import data Event :: Type
+newtype Action a = Action ((a -> Effect a) -> Event -> a -> Aff a)
+
+instance semigroupAction :: Semigroup (Action a) where
+    append (Action f) (Action g) = Action \setState e state -> do
+        st2 <- f setState e state
+        g setState e st2
 
 unwrapA :: forall a. Action a -> ((a -> Effect a) -> Event -> a -> Aff a)
 unwrapA (Action a) = a

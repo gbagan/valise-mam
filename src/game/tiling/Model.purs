@@ -7,8 +7,7 @@ import Data.Maybe (Maybe(..), maybe)
 import Data.Array ((!!), all, catMaybes, elem, foldl, length, mapWithIndex, replicate)
 import Lib.Util (coords)
 import Game.Core (State(..), class Game, SizeLimit(..), genState, newGame', playA, _position, _nbColumns, _nbRows)
-import Pha.Class (Action)
-import Pha.Action (action, ifThenElseA)
+import Pha.Action (Action, action, ifThenElseA)
 
 type Coord = {row :: Int, col :: Int}
 type Tile = Array Coord
@@ -124,7 +123,7 @@ const updateSuccess = state => state |> set(
     ['succeeded', configHash(state)],
     v => (v || repeat(state.rows * state.columns, false)) |> set(sinks(state)[0], true)
 );
-    
+     todo todo
         newGame: state => ({
             tile: state.tileIndex === 'custom' ? fromCustomTile(state.customTile) : tiles[state.tileIndex],
             rotation: 0,

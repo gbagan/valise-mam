@@ -1,7 +1,8 @@
 module Pha.Html where
 
 import Prelude
-import Pha.Class (Action, VDom, Prop(..))
+import Pha.Action (Action)
+import Pha.Class (VDom, Prop(..))
 import Pha (h, text)
 
 key :: forall a. String -> Prop a

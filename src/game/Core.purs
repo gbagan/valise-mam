@@ -11,8 +11,7 @@ import Effect.Class (liftEffect)
 import Control.Alt ((<|>))
 import Data.Lens (lens, Lens', set, (^.), (.~), (%~))
 import Lib.Random (Random, runRnd, randomPick)
-import Pha.Class (Action(..))
-import Pha.Action (unwrapA, action, randomAction)
+import Pha.Action (Action(..), unwrapA, action, randomAction)
 
 data Dialog a = Rules | NoDialog | ConfirmNewGame a
 data Mode = SoloMode | RandomMode | ExpertMode | DuelMode

@@ -1,7 +1,8 @@
 module UI.IncDecGrid where 
 
 import Prelude
-import Pha.Class (VDom, Action)
+import Pha.Class (VDom)
+import Pha.Action (Action)
 import Pha (text, whenN)
 import Pha.Html (div', span, class', click)
 import UI.Icon (iconbutton, Icon(..))

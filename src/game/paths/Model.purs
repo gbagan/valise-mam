@@ -7,8 +7,7 @@ import Data.Lens (Lens', lens, view, set, (^.), (.~))
 import Lib.Random (randomInt)
 import Lib.Util (dCoords, range)
 import Game.Core (State(..), class Game, SizeLimit(..), newGame', genState, _nbRows, _nbColumns, _position, playA)
-import Pha.Class (Action)
-import Pha.Action (action, ifThenElseA)
+import Pha.Action (Action, action, ifThenElseA)
 
 data Mode = Mode1 | Mode2
 derive instance eqMode :: Eq Mode

@@ -4,7 +4,7 @@ import Data.Array (snoc, takeEnd)
 import Effect.Class (liftEffect)
 import Data.Lens (Lens', (^.), (.~))
 import Data.String (joinWith)
-import Pha.Class (Action(..))
+import Pha.Action (Action(..))
 
 codeSequence :: String
 codeSequence = "ArrowUp ArrowUp ArrowDown ArrowDown ArrowLeft ArrowRight ArrowLeft ArrowRight b a"

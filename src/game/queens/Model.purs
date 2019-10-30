@@ -8,8 +8,7 @@ import Data.Maybe (Maybe(..), maybe, fromMaybe)
 import Data.Tuple (Tuple(..))
 import Lib.Util (tabulate, dCoords, map2)
 import Game.Core (State(..), class Game, SizeLimit(..), genState, newGame, _position, _nbRows, _nbColumns, playA')
-import Pha.Class (Action)
-import Pha.Action (action)
+import Pha.Action (Action, action)
 
 piecesList :: Array Piece
 piecesList = [Rook, Bishop, King, Knight, Queen]

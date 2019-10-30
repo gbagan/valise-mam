@@ -2,7 +2,8 @@ module UI.Dialog where
 import Prelude
 import Data.Maybe (Maybe)
 import Data.Array (catMaybes)
-import Pha.Class (VDom, Action) 
+import Pha.Action (Action)
+import Pha.Class (VDom) 
 import Pha (text)
 import Pha.Html (div', button, class', click)
 

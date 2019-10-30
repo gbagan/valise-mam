@@ -2,8 +2,7 @@ module Game.Valise.Model where
 import Prelude
 
 import Data.Lens (Lens', lens, (.~), (%~))
-import Pha.Class (Action)
-import Pha.Action (action)
+import Pha.Action (Action, action)
 
 type ValiseState = {
     isOpen :: Boolean,

@@ -7,7 +7,7 @@ import Data.Array ((!!), replicate, mapWithIndex, all, foldr, modifyAtIndices)
 import Data.Lens (Lens', lens, (^.), (.~), set)
 import Lib.Random (Random, randomInt)
 import Lib.Util (dCoords)
-import Pha.Class (Action)
+import Pha.Action (Action)
 import Game.Core (class Game, State (..), SizeLimit(..), _position, _nbColumns, _nbRows, newGame', genState)
 
 type Position = { light :: Array Boolean, played :: Array Boolean }

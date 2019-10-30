@@ -5,9 +5,9 @@ import Data.Maybe (Maybe(..), maybe)
 import Data.Lens (Lens', (^.), (.~))
 import Effect (Effect)
 import Effect.Class (liftEffect)
-import Pha.Class (VDom, Prop, Event, Action(..))
+import Pha.Class (VDom, Prop)
 import Pha (text, emptyNode)
-import Pha.Action (action, noAction, (🎲))
+import Pha.Action (Event, Action(..), action, noAction, (🎲))
 import Pha.Html (div', class', attr, style, pointerup, pointerdown, pointerleave, pointermove)
 import Game.Core (class Game, State, Mode(..), PointerPosition, SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointerPosition, canPlay, sizeLimit,

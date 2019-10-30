@@ -6,7 +6,7 @@ import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Lens (lens, Lens', set, (^.))
 import Lib.Util (swap)
 import Lib.Random (shuffle)
-import Pha.Class (Action)
+import Pha.Action (Action)
 import Game.Core (class Game, State(..), genState, newGame', _position, defaultSizeLimit, defaultOnNewGame)
 
 type Position = Array Int

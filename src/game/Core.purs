@@ -23,7 +23,6 @@ type CoreState pos ext = {
     position :: pos,
     history :: Array pos,
     redoHistory :: Array pos,
-    levelFinished :: Boolean,
     dialog :: Dialog (State pos ext),
     turn :: Int,
     nbRows :: Int,
@@ -43,7 +42,6 @@ defaultCoreState p = {
     position: p,
     history: [],
     redoHistory: [],
-    levelFinished: false,
     dialog: Rules,
     turn: 0,
     nbRows: 0,
@@ -91,9 +89,6 @@ _nbColumns = _core <<< lens (_.nbColumns) (_{nbColumns = _})
 
 _customSize :: forall pos ext. Lens' (State pos ext) Boolean
 _customSize = _core <<< lens (_.customSize) (_{customSize = _})
-
-_levelFinished :: forall pos ext. Lens' (State pos ext) Boolean
-_levelFinished = _core <<< lens (_.levelFinished) (_{levelFinished = _})
 
 _locked :: forall pos ext. Lens' (State pos ext) Boolean
 _locked = _core <<< lens (_.locked) (_{locked = _})
@@ -151,14 +146,12 @@ resetA = action \state -> N.fromArray (state^._history) # maybe state \hs ->
 toggleHelpA :: forall pos ext. Action (State pos ext)
 toggleHelpA = action $ _help %~ not
 
-_play :: forall pos ext mov. Game pos ext mov => mov -> State pos ext -> State pos ext
-_play move state =
+playAux :: forall pos ext mov. Game pos ext mov => mov -> State pos ext -> State pos ext
+playAux move state =
     if canPlay state move then
-        let position = state^._position
-            state2 = state
-                    # _position .~ play state move
-                    # _turn %~ (1 - _) in
-        state2 # _levelFinished .~ isLevelFinished state2
+        let position = state^._position in
+        state # _position .~ play state move
+              # _turn %~ (1 - _)
     else
         state
 
@@ -177,7 +170,7 @@ computerPlay = asyncAction \{getState, updateState, dispatch} -> do
     state <- getState 
     computerMove state # maybe (pure unit) \rndmove -> do
         move2 <- liftEffect $ runRnd rndmove
-        st2 <- updateState (_play move2)
+        st2 <- updateState (playAux move2)
         if isLevelFinished st2 then
             dispatch showVictory
         else
@@ -197,7 +190,7 @@ playA' optionFn move = lockAction $ asyncAction \{getState, updateState, dispatc
     if not $ canPlay state move then
         pure unit
     else do
-        st2 <- updateState (_play move >>> pushToHistory)
+        st2 <- updateState (pushToHistory >>> playAux move)
         if showWin && isLevelFinished st2 then
             dispatch(showVictory)
         else if state^._mode == ExpertMode || state^._mode == RandomMode then do
@@ -232,6 +225,7 @@ newGameAux f = \state ->
                     # _position .~ position
                     # _history .~ []
                     # _redoHistory .~ []
+                    # _help .~ false
         
         if null $ state2 ^. _history then
             pure state4
@@ -279,7 +273,7 @@ computerMove' state =
                     if state^._mode == RandomMode then
                         Nothing
                     else
-                        moves # N.toArray # find (isLosingPosition <<< flip _play state)
+                        moves # N.toArray # find (isLosingPosition <<< flip playAux state)
                 ) in
                     (bestMove <#> pure) <|> Just (randomPick moves)
 

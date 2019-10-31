@@ -4,8 +4,7 @@ import Data.Array (null, elem)
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..))
 import Data.Lens (Lens', (^.), (.~))
-import Pha (text)
-import Pha.Class (VDom, Prop)
+import Pha (VDom, Prop, text)
 import Pha.Action (Action, action, (🎲))
 import Pha.Html (div', h2, class', click)
 import Game.Core (State, class Game, Dialog(Rules), Mode(..),
@@ -106,7 +105,8 @@ iconSizesGroup lens state sizeList customSize =
                 selected = rows == crows && cols == ccols && not csize
             }) [click $ lens 🎲 setGridSizeA rows cols false]
         ) <> (if customSize then [
-            iconbutton state (_{icon = I.IconText "NxM", selected = csize}) [click $ lens 🎲 action (_customSize .~ true)]
+            iconbutton state (_{icon = I.IconText "NxM", tooltip = Just "Taille personnalisée", selected = csize})
+                            [click $ lens 🎲 action (_customSize .~ true)]
         ] else [])
     where
     crows = state^._nbRows

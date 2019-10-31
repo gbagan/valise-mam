@@ -1,4 +1,4 @@
-module Game.Paths.View where
+module Game.Paths.View (view) where
 import Prelude
 import Data.Lens (Lens', (^.))
 import Data.Tuple (Tuple (..))
@@ -7,10 +7,9 @@ import Data.Maybe (Maybe(..), isNothing)
 import Data.Int (toNumber, even)
 import Data.String (joinWith)
 import Lib.Util (coords, tabulate)
-import Game.Core (_nbRows, _nbColumns, _position, _help, _pointerPosition)
+import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _pointerPosition)
 import Game.Paths.Model (PathsState, Mode(..), _exit, _mode, selectVertexA, selectModeA)
-import Pha.Class (VDom, Prop)
-import Pha (text, emptyNode, maybeN, whenN)
+import Pha (VDom, Prop, text, emptyNode, maybeN, whenN)
 import Pha.Action ((🎲))
 import Pha.Html (div', p, br, g, svg, use, path, key, class', attr, click, style, width, height, viewBox)
 import UI.Icon (Icon(..))
@@ -25,6 +24,22 @@ square {darken, trap, door, x, y} props =
             use x y 100.0 100.0 "#paths-door" [],
         use x y 100.0 100.0 "#paths-trap" [class' "paths-trap" true, class' "visible" $ trap && not door]
     ]
+
+doorCursor :: forall a. PointerPosition -> VDom a
+doorCursor pp =
+    use (-50.0) (-50.0) 100.0 100.0 " #paths-door" $ [
+        key "cdoor",
+        attr "opacity" "0.6",
+        attr "pointer-events" "none"
+    ] <> svgCursorStyle pp
+        
+heroCursor :: forall a. PointerPosition -> VDom a
+heroCursor pp =
+    use (-40.0) (-40.0) 80.0 80.0 " #meeplehat" $ [
+        key "chero",
+        attr "opacity" "0.6",
+        attr "pointer-events" "none"
+    ] <> svgCursorStyle pp
 
 view :: forall a. Lens' a PathsState -> PathsState -> VDom a
 view lens state = template lens {config, board, rules, winTitle} state where
@@ -50,19 +65,6 @@ view lens state = template lens {config, board, rules, winTitle} state where
                 style "transform" $ "translate(" <> show ((toNumber col * 100.0 + 10.0) / toNumber columns) <> "%,"
                                     <> show ((toNumber row * 100.0 + 10.0) / toNumber rows) <> "%)"
             ]
-
-    doorCursor pp = use (-50.0) (-50.0) 100.0 100.0 " #paths-door" $ [
-        key "cdoor",
-        attr "opacity" "0.6",
-        attr "pointer-events" "none"
-    ] <> svgCursorStyle pp
-        
-
-    heroCursor pp = use (-40.0) (-40.0) 80.0 80.0 " #meeplehat" $ [
-        key "chero",
-        attr "opacity" "0.6",
-        attr "pointer-events" "none"
-    ] <> svgCursorStyle pp
 
     pathdec = joinWith " " $ concat $ position # mapWithIndex \i v ->
         let {row, col} = coords columns v in [if i == 0 then "M" else "L", show $ 100 * col + 50, show $ 100 * row + 50]

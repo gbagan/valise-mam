@@ -9,17 +9,18 @@ import Data.Lens.Index (ix)
 import Lib.Util (tabulate)
 import Pha.Action (Action, action)
 import Game.Core (class Game, canPlay, class TwoPlayersGame, Mode(..), State(..), SizeLimit(..),
-                newGame', computerMove', genState, _position, _help, _nbRows)
+                newGame', computerMove', genState, _position, _nbRows)
 
 type Ext' = {
-    moves :: Array Int,  -- la liste des mouvements autorisées (en nombre de case)
+    moves :: Array Int,  -- la liste des mouvements autorisées (en nombre de cases)
     winning :: Array Boolean, --- la liste des positions gagnantes
-    marked :: Array Boolean  -- la liste des posiions cochées par l'utilisateur 
+    marked :: Array Boolean  -- la liste des posiions marquées par l'utilisateur 
 }
 newtype ExtState = Ext Ext'
 
 type FrogState = State Int ExtState
 
+-- lenses
 _ext :: Lens' FrogState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _moves :: Lens' FrogState (Array Int)
@@ -43,8 +44,6 @@ instance frogGame :: Game Int ExtState Int where
     onNewGame state = pure $ state
                         # _winning .~ winningPositions (state^._nbRows + 1) (state^._moves)
                         # _marked .~ replicate (state^._nbRows + 1) false
-                        # _help .~ false ---- todo utile?
-        --            hideReachable: false, todo
     isLevelFinished state = state^._position == 0
     computerMove = computerMove'
     sizeLimit _ = SizeLimit 5 0 30 0
@@ -53,13 +52,14 @@ instance frogGame2 :: TwoPlayersGame Int ExtState Int where
     possibleMoves state = filter (canPlay state) (0 .. (state^._nbRows))
     isLosingPosition state = fromMaybe true $ state^._winning !! (state^._position)
 
--- ajoute ou enlève un mouvemet dans la liste des mouvements permis
+-- ajoute ou enlève un mouvement dans la liste des mouvements permis
 selectMoveA :: Int -> Action FrogState
 selectMoveA = newGame' $ over _moves <<< _selectMove where
     _selectMove move moves =
         let moves2 = filter (\m -> (m == move) /= elem m moves) (1 .. 5) in
         if null moves2 then moves else moves2
 
+-- calcule l'ensemble des positions gagnantes pour une taille et un ensemble de mouvements donnés
 winningPositions :: Int -> Array Int -> Array Boolean
 winningPositions size moves =
     let t = tabulate size \i -> defer
@@ -70,6 +70,7 @@ winningPositions size moves =
 reachableArray :: FrogState -> Array Boolean
 reachableArray state = tabulate (state^._nbRows + 1) (canPlay state)
 
+-- place/retire une marque à la position i
 markA :: Int -> Action FrogState
 markA i = action $ (_marked <<< ix i) %~ not
 

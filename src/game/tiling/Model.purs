@@ -6,21 +6,23 @@ import Data.Lens.Index (ix)
 import Data.Maybe (Maybe(..), maybe)
 import Data.Array ((!!), all, catMaybes, elem, foldl, length, mapWithIndex, replicate)
 import Lib.Util (coords)
-import Game.Core (State(..), class Game, SizeLimit(..), genState, newGame', playA, _position, _nbColumns, _nbRows)
+import Game.Core (State(..), class Game, SizeLimit(..), canPlay, genState, newGame', playA, _position, _nbColumns, _nbRows)
 import Pha.Action (Action, action, ifThenElseA)
 
 type Coord = {row :: Int, col :: Int}
 type Tile = Array Coord
 
-tile1 :: Tile
-tile1 = [{row: 0, col: 0}, {row: 0, col: 1}]
+data TileType = Type1 | Type2 | Type3
+derive instance eqTileType :: Eq TileType
+instance showTileType :: Show TileType where
+    show Type1 = "beast1"
+    show Type2 = "beast2"
+    show Type3 = "beast3"
 
-tiles :: Array Tile
-tiles = [
-    tile1,
-    [{row: 0, col: 0}, {row: 0, col: 1}, {row: 0, col: -1}],
-    [{row: 0, col: 0}, {row: 0, col: 1}, {row: 1, col: 1}]
-]
+getTile :: TileType -> Tile
+getTile Type1 = [{row: 0, col: 0}, {row: 0, col: 1}]
+getTile Type2 = [{row: 0, col: 0}, {row: 0, col: 1}, {row: 0, col: -1}]
+getTile Type3 = [{row: 0, col: 0}, {row: 0, col: 1}, {row: 1, col: 0}]
 
 --const fromCustomTile = customTile =>
 --    repeat2(5, 5, (row, col, i) => customTile[i] ? [row - 2, col - 2] : null)
@@ -36,18 +38,19 @@ rotate i t = rotate (i-1) (rotate90 t)
 translate :: Coord -> Tile -> Tile
 translate {row: drow, col: dcol} = map \{row, col} -> {row: row + drow, col: col + dcol}
 
-
 type Ext' = {
     rotation :: Int,
+    tileType :: TileType,
     tile :: Tile,
-    nbSinks :: Int
+    nbSinks :: Int,
+    hoverSquare :: Maybe Int
 }
 
 newtype ExtState = Ext Ext'
 type TilingState = State (Array Int) ExtState
 
 tilingState :: TilingState
-tilingState = genState [] (_{nbRows = 5, nbColumns = 5}) (Ext { rotation: 0, tile: tile1, nbSinks: 2 })
+tilingState = genState [] (_{nbRows = 5, nbColumns = 5}) (Ext { rotation: 0, tileType: Type1, tile: [], nbSinks: 0, hoverSquare: Nothing })
 
 _ext :: Lens' TilingState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
@@ -55,8 +58,12 @@ _rotation :: Lens' TilingState Int
 _rotation = _ext <<< lens (_.rotation) (_{rotation = _})
 _tile :: Lens' TilingState Tile
 _tile = _ext <<< lens (_.tile) (_{tile = _})
+_tileType :: Lens' TilingState TileType
+_tileType = _ext <<< lens (_.tileType) (_{tileType = _})
 _nbSinks :: Lens' TilingState Int
 _nbSinks = _ext <<< lens (_.nbSinks) (_{nbSinks = _})
+_hoverSquare :: Lens' TilingState (Maybe Int)
+_hoverSquare = _ext <<< lens (_.hoverSquare) (_{hoverSquare = _})
 
 -- renvoie la liste des positions où devra être posée une tuile,  -1 est une position invalide
 placeTile :: TilingState -> Int -> Array Int
@@ -92,18 +99,22 @@ instance tilingGame :: Game (Array Int) ExtState Int where
 
     initialPosition state = pure $ replicate (state^._nbRows * state^._nbColumns) 0
 
-    sizeLimit _ = SizeLimit 3 3 10 10
+    sizeLimit = const (SizeLimit 3 3 10 10)
 
-    onNewGame = pure
+    onNewGame state = pure $ state # _tile .~ getTile (state^._tileType) # _rotation .~ 0
+--        coloringVisible: false,
+--      hoverSquare: null,
     computerMove _ = Nothing
   
 
 putSinkA :: Int -> Action TilingState
 putSinkA i = action $ (_position <<< ix i) .~ (-1)
 
-
 setNbSinksA :: Int -> Action TilingState
 setNbSinksA = newGame' (set _nbSinks)
+
+setTileA :: TileType -> Action TilingState
+setTileA = newGame' (set _tileType)
 
 clickOnCellA :: Int -> Action TilingState
 clickOnCellA a = ifThenElseA (\s e -> length (sinks s) < s^._nbSinks) (putSinkA a) (playA a)
@@ -111,9 +122,14 @@ clickOnCellA a = ifThenElseA (\s e -> length (sinks s) < s^._nbSinks) (putSinkA 
 rotateA :: Action TilingState
 rotateA = action $ _rotation %~ (add 1)
 
+setHoverSquareA :: Maybe Int -> Action TilingState
+setHoverSquareA a = action $ _hoverSquare .~ a
+
+inConflict :: TilingState -> Boolean
+inConflict state = state^._hoverSquare # maybe false \sqr -> state^._position !! sqr /= Just 0 || not canPlay state sqr
+
 {-            
 const configHash = state => `${state.rows}-${state.columns}-${state.tileIndex}-${state.nbSinks}`
-
 
 const toggleColoringVisible = set('coloringVisible', not);
 
@@ -124,12 +140,7 @@ const updateSuccess = state => state |> set(
     v => (v || repeat(state.rows * state.columns, false)) |> set(sinks(state)[0], true)
 );
      todo todo
-        newGame: state => ({
-            tile: state.tileIndex === 'custom' ? fromCustomTile(state.customTile) : tiles[state.tileIndex],
-            rotation: 0,
-            coloringVisible: false,
-            hoverSquare: null,
-        }),
+
     },
 
     state: {
@@ -143,9 +154,6 @@ const updateSuccess = state => state |> set(
     
     actions: $ => ({
         setTile: $.newGame(tileIndex => ({ tileIndex, dialog: tileIndex === 'custom' ? 'customtile' : null })),
-        setSinks: $.newGame('nbSinks'),
-        toggleColoringVisible,
-        setHoverSquare: update('hoverSquare'),
         flipTile: $.newGame(index => set(['customTile', index], not)),
 
         ////// todo concat if
@@ -154,12 +162,5 @@ const updateSuccess = state => state |> set(
         keyDown: keyEvents({
             ' ': rotateA,
             b: toggleColoringVisible
-        })
-    }),
 
-    computed: state => ({
-        inConflict: state.position[state.hoverSquare] !== 0 || !canPlay(state, state.hoverSquare),
         successForThisConf: state.succeeded[configHash(state)] || repeat(state.columns * state.rows, false),
-        sinks: sinks(state)
-    })
-});

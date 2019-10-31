@@ -8,10 +8,9 @@ import Data.Array (catMaybes, take, elem, mapWithIndex, (!!))
 import Data.Lens (Lens', (^.))
 import Math (cos, sin, pi)
 import Lib.Util (map2)
-import Game.Core (_position, _pointerPosition, _locked)
+import Game.Core (PointerPosition, _position, _pointerPosition, _locked)
 import Game.Roue.Model (RoueState, Ball(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, aligned, validRotation, validRotation')
-import Pha (text, maybeN)
-import Pha.Class (VDom)
+import Pha (VDom, text, maybeN)
 import Pha.Action ((🎲))
 import Pha.Html (div', button, span, svg, path, key, class', click, style, disabled, viewBox, fill, stroke)
 import UI.Template (template, card, trackPointer, dndItemProps)
@@ -46,7 +45,7 @@ innerWheel size = div' [class' "roue-inner" true] [
         ]
 ]
 
-cursor :: forall a b. {left :: Number, top :: Number | b} -> String -> VDom a
+cursor :: forall a. PointerPosition -> String -> VDom a
 cursor {left, top} color = div' [
     class' "ui-cursor roue-select-color roue-cursor" true,
     style "left" $ show left <> "px",
@@ -68,10 +67,8 @@ view lens state = template lens {config, board, rules, winTitle} state where
 
     rules = [text "blah blah"]
 
-    --- TODO todo :réécrire de manière plus élégante
     draggedColor = state^._dragged >>= \d ->
-        let colorIndex =
-                        case d of
+        let colorIndex = case d of
                             Panel i -> i
                             Wheel i -> fromMaybe (-1) $ (position !! i) >>= identity
                             _ -> -1

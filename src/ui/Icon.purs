@@ -3,8 +3,7 @@ module UI.Icon where
 import Prelude
 import Data.Maybe (Maybe (..))
 import Data.Tuple (Tuple, uncurry)
-import Pha (text, emptyNode, maybeN)
-import Pha.Class (VDom, Prop) 
+import Pha (VDom, Prop, text, emptyNode, maybeN)
 import Pha.Html (button, span, svguse, class', style, disabled)
 
 data Icon = IconText String | IconSymbol String | IconNone

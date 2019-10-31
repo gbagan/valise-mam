@@ -3,8 +3,7 @@ import Prelude
 import Data.Maybe (Maybe)
 import Data.Array (catMaybes)
 import Pha.Action (Action)
-import Pha.Class (VDom) 
-import Pha (text)
+import Pha (VDom, text)
 import Pha.Html (div', button, class', click)
 
 type DialogOptions a = {

@@ -1,19 +1,21 @@
-module Game.Tiling.View where
+module Game.Tiling.View (view) where
 import Prelude
 import Data.Tuple (Tuple(..))
+import Data.Maybe (Maybe(..))
 import Data.Lens (Lens', (^.))
 import Data.Int (toNumber, even)
 import Data.Array ((!!), length, mapWithIndex)
 import Lib.Util (coords)
-import Pha.Class (VDom, Prop)
-import Pha (text, whenN, maybeN)
+import Pha (VDom, Prop, text, whenN, maybeN)
 import Pha.Action ((🎲))
 import Pha.Event (preventDefaultA)
-import Pha.Html (div', g, rect, line, use, key, attr, style, svg, class', click, contextmenu,
+import Pha.Html (div', g, rect, line, use, key, attr, style, svg, class', click, contextmenu, pointerenter, pointerleave,
                  width, height, viewBox, fill, stroke, strokeWidth, transform)
 import Game.Core (_position, _nbRows, _nbColumns, _pointerPosition, _help)
-import Game.Tiling.Model (TilingState, _nbSinks, _rotation, _tile, sinks, setNbSinksA, clickOnCellA, rotateA)
+import Game.Tiling.Model (TilingState, TileType(..), _nbSinks, _rotation, _tile, _tileType,
+                          sinks, inConflict, setNbSinksA, setTileA, clickOnCellA, rotateA, setHoverSquareA)
 import UI.Template (template, card, incDecGrid, gridStyle, svgCursorStyle, trackPointer)
+import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, iconSelectGroup, ihelp, ireset, irules)
 
 type Borders = {top :: Boolean, left :: Boolean, bottom :: Boolean, right :: Boolean}
@@ -42,14 +44,9 @@ view lens state = template lens {config, board, rules, winTitle} state where
 
     config = card "Carrelage" [
         iconSizesGroup lens state [Tuple 4 5, Tuple 5 5, Tuple 5 6, Tuple 7 7] true,
-        {-     I.Group({
-                title: 'Motif du pavé',
-                list: [0, 1, 2, 'custom'],
-                symbol: ['beast1', 'beast2', 'beast3', 'customize'],
-                select: state.tileIndex,
-                onclick: actions.setTile
-            }),
-        -}
+        iconSelectGroup lens state "Motif du pavé" [Type1, Type2, Type3]
+            (\t -> _{icon = IconSymbol ("#" <> show t)})
+            (state^._tileType) setTileA,  --- custom
         iconSelectGroup lens state "Nombre d'éviers" [0, 1, 2] (const identity) (state^._nbSinks) setNbSinksA,
         icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state
     ]
@@ -62,10 +59,9 @@ view lens state = template lens {config, board, rules, winTitle} state where
             ] $ state^._tile <#> \{row, col} ->
                 use (50.0 * toNumber col - 25.0) (50.0 * toNumber row - 25.0) 50.0 50.0 "#tile2" [
                     attr "pointer-events" "none",
-                    attr "opacity" "0.7" -- $ if state.inConflict ? 0.3 : 0.7
+                    attr "opacity" (if inConflict state then "0.3" else "0.8")
                 ]
         ]
-
         
     sinkCursor pp =
         use (-25.0) (-25.0) (50.0) (50.0) "#sink" ([
@@ -85,13 +81,9 @@ view lens state = template lens {config, board, rules, winTitle} state where
                     hasSink: pos == -1,
                     row, col
                 } [
-                    click $ lens 🎲 clickOnCellA index
-                --        borders: [-1, 1, -state.columns, state.columns].map(i =>
-                --            state.position[index] > 0 && state.position[index] !== state.position[index + i]
-                --        ),
-                    -- 
-                    --    onpointerenter: [actions.setHoverSquare, index],
-                    --    onpointerleave: [actions.setHoverSquare, null]
+                    click $ lens 🎲 clickOnCellA index,
+                    pointerenter $ lens 🎲 setHoverSquareA (Just index),
+                    pointerleave $ lens 🎲 setHoverSquareA Nothing
                 ]
             ) <> (position # mapWithIndex \index pos ->
                 let {row, col} = coords columns index in

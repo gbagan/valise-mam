@@ -3,8 +3,17 @@ module Pha where
 import Prelude
 import Effect (Effect)
 import Effect.Aff (Aff, Fiber, launchAff)
-import Pha.Class (VDom, Prop(..))
+import Pha.Action (Action)
 import Data.Maybe (Maybe, fromMaybe)
+
+foreign import data VDom :: Type -> Type
+
+data Prop a =
+    Key String
+  | Attr String String
+  | Class String Boolean
+  | Style String String
+  | Event String (Action a)
 
 isStyle :: forall a. Prop a -> Boolean
 isStyle (Style _ _) = true

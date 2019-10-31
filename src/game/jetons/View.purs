@@ -6,8 +6,7 @@ import Data.Lens (Lens', (^.))
 import Data.Int (floor, toNumber)
 import Data.Array (filter, length, mapWithIndex)
 import Math (sqrt)
-import Pha (text, whenN, maybeN)
-import Pha.Class (VDom)
+import Pha (VDom, text, whenN, maybeN)
 import Pha.Html (div', span, br, key, class', style, rgbColor)
 import Game.Core (_position, _nbColumns, _nbRows, _pointerPosition)
 import Game.Jetons.Model (JetonsState, _dragged)
@@ -67,7 +66,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
             (position # mapWithIndex \i val ->
                 whenN (val == 0) \_ ->
                     piece i val ([key $ show i] <> dndItemProps lens _dragged true true i state)
-            ) <> [maybeN $ cursor <$> state^._pointerPosition <*> state^._dragged] -- todo
+            ) <> [maybeN $ cursor <$> state^._pointerPosition <*> state^._dragged]
     ]
 
     rules = [

@@ -1,15 +1,17 @@
 module Main where
 import Prelude
-import Data.Maybe (maybe)
 import Data.Lens (Lens', lens)
+import Data.Tuple (Tuple(..))
+import Data.Maybe (Maybe(..), maybe)
 import Data.String (drop, indexOf)
 import Data.String.Pattern (Pattern (..))
 import Effect (Effect)
 import Pha (VDom, app)
-import Pha.Action (Action, action, withPayload')
+import Pha.Action (Action, (🎲), action, asyncAction, withPayload, withPayload')
+import Pha.Event (key) as E
 import Game.Core (init)
 import Lib.Random (runRnd)
-import Game.Baseball.Model (BaseballState, baseballState)
+import Game.Baseball.Model (BaseballState, baseballState) 
 import Game.Baseball.View (view) as BaseballView
 import Game.Nim.Model (NimState, nimState)
 import Game.Nim.View (view) as NimView
@@ -29,6 +31,8 @@ import Game.Solitaire.Model (SolitaireState, solitaireState)
 import Game.Solitaire.View (view) as SolitaireView
 import Game.Tiling.Model (TilingState, tilingState)
 import Game.Tiling.View (view) as TilingView
+
+import Game.Tiling.Model (onKeyPress) as Tiling
 
 extractLocation :: String -> String -> String
 extractLocation url defaultValue =
@@ -89,6 +93,19 @@ hashChange = (\x -> action _{location = x}) `withPayload'` \e -> getLocationHref
     --    );
     -- };
 
+init2 :: ((RootState -> RootState) -> Effect RootState) -> Effect Unit
+init2 dispatch = pure unit
+
+onKeyPress :: (Maybe String) -> Action RootState
+onKeyPress maybek = asyncAction \{dispatch, getState} ->
+    case maybek of
+        Nothing -> pure unit
+        Just k -> do
+            state <- getState
+            case state.location of
+                "tiling" -> dispatch (_tiling 🎲 Tiling.onKeyPress k)
+                _ -> pure unit
+
 view :: RootState -> VDom RootState
 view state = case state.location of
     "baseball" -> BaseballView.view _baseball state.baseball
@@ -130,7 +147,8 @@ main = do
         location: location
     }
     app {
-        init: state,
+        state,
         view,
-        node: "root"
+        node: "root",
+        events: [Tuple "keypress" (onKeyPress `withPayload` E.key)]
     }

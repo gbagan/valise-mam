@@ -227,7 +227,7 @@ newGameAux f = \state ->
                     # _redoHistory .~ []
                     # _help .~ false
         
-        if null $ state2 ^. _history then
+        if null (state2^._history) || isLevelFinished state then
             pure state4
         else
             pure $ _dialog .~ ConfirmNewGame state4 $ state

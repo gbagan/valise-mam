@@ -61,6 +61,11 @@ ifThenElseA cond (Action action1) (Action action2) = Action $ \dispatch ev -> do
 whenA :: forall a. (a -> Event -> Boolean) -> Action a -> Action a
 whenA cond act = ifThenElseA cond act noAction
 
+withPayload :: forall a b. (b -> Action a) -> (Event -> b) -> Action a
+withPayload act payloadFn = Action \dispatch e -> do
+    let (Action a) = act (payloadFn e)
+    a dispatch e
+
 withPayload' :: forall a b. (b -> Action a) -> (Event -> Effect b) -> Action a
 withPayload' act payloadFn = Action \dispatch e -> do
     payload <- liftEffect $ payloadFn e

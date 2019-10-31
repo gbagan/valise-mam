@@ -4,19 +4,20 @@ import Data.Tuple (Tuple (Tuple))
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Traversable (sequence)
 import Data.Array ((!!), replicate, mapWithIndex, all, foldr, modifyAtIndices)
-import Data.Lens (Lens', lens, (^.), (.~), set)
+import Data.Lens (Lens', lens, (^.), (.~), (%~), set)
+import Data.Lens.Index (ix)
 import Lib.Random (Random, randomInt)
 import Lib.Util (dCoords)
-import Pha.Action (Action)
-import Game.Core (class Game, State (..), SizeLimit(..), _position, _nbColumns, _nbRows, newGame, newGame', genState)
+import Pha.Action (Action, asyncAction)
+import Game.Core (class Game, State (..), SizeLimit(..), playA, isLevelFinished, _position, _nbColumns, _nbRows, newGame, newGame', genState)
 
 type Position = { light :: Array Boolean, played :: Array Boolean }
-type Ext' = { mode2 :: Int, level :: Int }
+type Ext' = { mode2 :: Int, level :: Int, maxLevels :: Array Int }
 newtype ExtState = Ext Ext'
 type NoirblancState = State Position ExtState
 
 noirblancState :: NoirblancState
-noirblancState = genState {light: [], played: []} identity (Ext { level: 0, mode2: 0 })
+noirblancState = genState {light: [], played: []} identity (Ext { level: 0, mode2: 0, maxLevels: [0, 1, 1, 0] })
 
 _ext :: Lens' NoirblancState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
@@ -24,6 +25,8 @@ _mode2 :: Lens' NoirblancState Int
 _mode2 = _ext <<< lens (_.mode2) (_{mode2 = _})
 _level :: Lens' NoirblancState Int
 _level = _ext <<< lens (_.level) (_{level = _})
+_maxLevels :: Lens' NoirblancState (Array Int)
+_maxLevels = _ext <<< lens (_.maxLevels) (_{maxLevels = _})
 
 neighbor :: NoirblancState -> Int -> Int -> Boolean
 neighbor state index1 index2 =
@@ -71,33 +74,21 @@ selectModeA mode = newGame $ (_mode2 .~ mode) >>> (_level .~ 0)
 selectLevelA :: Int -> Action NoirblancState
 selectLevelA = newGame' (set _level)
 
-{-
-    state: {
-        mode: 0, // [0, 1, 2, 3]
-        level: 0,
-        maxLevels: [0, 1, 1, 0],
-        help: false,
-        keysequence: [],
-    },
-
-    actions: $ => ({
+afterPlay :: Action NoirblancState
+afterPlay = asyncAction \{getState, updateState, dispatch} -> do
+    state <- getState
+    let mode = state^._mode2
+    if isLevelFinished state then do
+        let nextLevel = if state^._level >= 4 then
+                        6
+                    else
+                        state^._level + (if mode == 0 || mode == 3 then 1 else 2)
+        _ <- updateState (_maxLevels <<< ix mode .~ nextLevel)
+        dispatch $ newGame (_level %~ \lvl -> min (lvl + 1) 6)
         
-        
-        whenLevelFinished: state =>
-            max(
-                state.level >= 4 ?
-                    6
-                :
-                    state.level + ([0, 3].includes(state.mode) ? 1 : 2)
-            )
-            |> (nextLevel =>
-                state
-                |> set(['maxLevels', state.mode], nextLevel)
-                |> $.newGame({level: lvl => Math.min(lvl + 1, 6)}, {noDialog: true})
-            ),
-        keyDown: konamiCode(set('maxLevels', [6, 6, 6, 6])),
-    }),
+    else
+        pure unit
+--   todo    keyDown: konamiCode(set('maxLevels', [6, 6, 6, 6])),
 
-    computed: state => ({ customSize: state.level >= 5 })
-});
--}
+play2A :: Int -> Action NoirblancState
+play2A i = playA i <> afterPlay

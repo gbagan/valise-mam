@@ -4,7 +4,6 @@ const TEXT_NODE = 3
 const EMPTY_OBJ = {}
 const EMPTY_ARR = []
 const map = EMPTY_ARR.map
-const isArray = Array.isArray
 const defer = requestAnimationFrame || setTimeout
 
 const merge = function(a, b) {
@@ -14,55 +13,6 @@ const merge = function(a, b) {
   for (var k in b) out[k] = b[k]
 
   return out
-}
-
-const batch = list =>
-  list.reduce((out, item) =>
-    out.concat(
-      !item || item === true
-        ? 0
-        : typeof item[0] === "function"
-        ? [item]
-        : batch(item)
-    )
-  , EMPTY_ARR)
-
-const isSameAction = (a, b) =>
-  isArray(a) && isArray(b) && a[0] === b[0] && typeof a[0] === "function"
-
-const shouldRestart = function(a, b) {
-  if (a !== b) {
-    for (var k in merge(a, b)) {
-      if (a[k] !== b[k] && !isSameAction(a[k], b[k])) return true
-      b[k] = a[k]
-    }
-  }
-} 
-
-const patchSubs = function(oldSubs, newSubs, dispatch) {
-  for (
-    var i = 0, oldSub, newSub, subs = [];
-    i < oldSubs.length || i < newSubs.length;
-    i++
-  ) {
-    oldSub = oldSubs[i]
-    newSub = newSubs[i]
-    subs.push(
-      newSub
-        ? !oldSub ||
-          newSub[0] !== oldSub[0] ||
-          shouldRestart(newSub[1], oldSub[1])
-          ? [
-              newSub[0],
-              newSub[1],
-              newSub[0](dispatch, newSub[1]),
-              oldSub && oldSub[2]()
-            ]
-          : oldSub
-        : oldSub && oldSub[2]()
-    )
-  }
-  return subs
 }
 
 const patchProperty = function(node, key, oldValue, newValue, listener, isSvg) {
@@ -125,9 +75,7 @@ const createNode = function(vnode, listener, isSvg) {
   return (vnode.node = node)
 }
 
-const getKey = function(vnode) {
-  return vnode == null ? null : vnode.key
-}
+const getKey = vnode => vnode == null ? null : vnode.key;
 
 const patch = function(parent, node, oldVNode, newVNode, listener, isSvg) {
   if (oldVNode === newVNode) {
@@ -363,21 +311,12 @@ const recycleNode = node =>
         RECYCLED_NODE
       )
 
-const Lazy = function(props) {
-  return {
-    lazy: props,
-    type: LAZY_NODE
-  }
-}
-
 const appAux = props => () => {
-  const {init, view, launchAff} = props
-  let state = {}
+  const {view, launchAff, events} = props
+  let state = {};
   let lock = false
   let node = document.getElementById(props.node);
-  const subscriptions = props.subscriptions;
-  let vdom = node && recycleNode(node)
-  const subs = []
+  let vdom = node && recycleNode(node);
 
   const listener = function(event) {
     launchAff(this.actions[event.type](dispatch)(event))();
@@ -386,15 +325,18 @@ const appAux = props => () => {
   const setState = newState => {
     if (state !== newState) {
       state = newState
-      if (subscriptions) {
-        subs = patchSubs(subs, batch([subscriptions(state)]), dispatch)
-      }
       if (!lock) defer(render, (lock = true))
     }
     return state
   }
 
   const dispatch = fn => () => setState(fn(state));
+
+  const rawEvent = (name, action) => {
+     const listener = event => launchAff(action(dispatch)(event))();
+     addEventListener (name, listener);
+   }
+
 
   const render = () => {
     lock = false
@@ -406,14 +348,16 @@ const appAux = props => () => {
       listener
     )
   }
-
-  setState(init)
+  setState(props.state);
+  for (let i = 0; i < events.length; i++) {
+     rawEvent(events[i].value0, events[i].value1);
+  }
 }
 
 const h = isStyle => name => ps => children => {
     const style = {};
-    const props = {style: style};
-    const vdom = { name: name, children: children.filter(x => x), props: props, node: null };
+    const props = {style};
+    const vdom = { name, children: children.filter(x => x), props, node: null };
     const n = ps.length;
     for (let i = 0; i < n; i++) {
         const obj = ps[i];

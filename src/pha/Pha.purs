@@ -5,6 +5,7 @@ import Effect (Effect)
 import Effect.Aff (Aff, Fiber, launchAff)
 import Pha.Action (Action)
 import Data.Maybe (Maybe, fromMaybe)
+import Data.Tuple (Tuple)
 
 foreign import data VDom :: Type -> Type
 
@@ -33,16 +34,19 @@ whenN cond vdom = if cond then vdom unit else emptyNode
 maybeN :: forall a. Maybe (VDom a) -> VDom a
 maybeN = fromMaybe emptyNode
 
+
 foreign import appAux :: forall a. {
-    init :: a,
+    state :: a,
     view :: a -> VDom a,
     node :: String,
-    launchAff :: Aff a -> Effect (Fiber a)
+    launchAff :: Aff a -> Effect (Fiber a),
+    events :: Array (Tuple String (Action a))
 } -> Effect Unit
 
 app :: forall a. {
-    init :: a,
+    state :: a,
     view :: a -> VDom a,
-    node :: String
+    node :: String,
+    events :: Array (Tuple String (Action a))
 } -> Effect Unit
-app {init, view, node} = appAux {init, view, node, launchAff}
+app {view, node, state, events} = appAux {view, node, state, events, launchAff}

@@ -7,7 +7,7 @@ import Data.Maybe (Maybe(..), maybe)
 import Data.Array ((!!), all, catMaybes, elem, foldl, length, mapWithIndex, replicate)
 import Lib.Util (coords)
 import Game.Core (State(..), class Game, SizeLimit(..), canPlay, genState, newGame', playA, _position, _nbColumns, _nbRows)
-import Pha.Action (Action, action, ifThenElseA)
+import Pha.Action (Action, action, noAction, ifThenElseA)
 
 type Coord = {row :: Int, col :: Int}
 type Tile = Array Coord
@@ -128,6 +128,11 @@ setHoverSquareA a = action $ _hoverSquare .~ a
 inConflict :: TilingState -> Boolean
 inConflict state = state^._hoverSquare # maybe false \sqr -> state^._position !! sqr /= Just 0 || not canPlay state sqr
 
+onKeyPress :: String -> Action TilingState
+onKeyPress " " = rotateA
+-- key
+onKeyPress _ = noAction
+
 {-            
 const configHash = state => `${state.rows}-${state.columns}-${state.tileIndex}-${state.nbSinks}`
 
@@ -158,9 +163,5 @@ const updateSuccess = state => state |> set(
 
         ////// todo concat if
         whenLevelFinished: state => state |> updateSuccess |> $.newGame(null, {noDialog: true}),
-
-        keyDown: keyEvents({
-            ' ': rotateA,
-            b: toggleColoringVisible
 
         successForThisConf: state.succeeded[configHash(state)] || repeat(state.columns * state.rows, false),

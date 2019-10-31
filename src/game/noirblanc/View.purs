@@ -3,13 +3,14 @@ module Game.Noirblanc.View where
 import Prelude
 import Data.Int (toNumber)
 import Data.Maybe (Maybe(..))
+import Data.Array ((!!))
 import Data.Lens (Lens', (^.))
 import Pha (Prop, VDom, text)
 import Pha.Action ((🎲))
 import Pha.Html (div', svguse, class', key, style, click)
 import Lib.Util (coords, map2)
-import Game.Core (_position, _nbRows, _nbColumns, _help, playA)
-import Game.Noirblanc.Model (NoirblancState, _mode2, selectLevelA, selectModeA)
+import Game.Core (_position, _nbRows, _nbColumns, _help)
+import Game.Noirblanc.Model (NoirblancState, _level, _mode2, _maxLevels, play2A, selectLevelA, selectModeA)
 import UI.Icon (Icon(..), Options)
 import UI.Icons (icongroup, ihelp, ireset, irules, iconSelectGroup)
 import UI.Template (template, card, incDecGrid, gridStyle)
@@ -54,7 +55,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                 style "width" $ show (86.0 / toNumber columns) <> "%",
                 style "left" $ show ((100.0 * toNumber col + 7.0) / toNumber columns) <> "%",
                 style "top" $ show ((100.0 * toNumber row + 7.0) / toNumber rows) <> "%",
-                click $ lens 🎲 playA index
+                click $ lens 🎲 play2A index
             ]
 
     board = incDecGrid lens state [grid]
@@ -62,8 +63,8 @@ view lens state = template lens {config, board, rules, winTitle} state where
     config = card "Tout noir tout blanc" [
         let fn i = _{icon = IconSymbol $ "#lo-mode" <> show (i + 1)} in
         iconSelectGroup lens state "Mode jeu" [0, 1, 2, 3] fn (state^._mode2) selectModeA,
-        let fn i opt = levels i opt in
-        iconSelectGroup lens state "Difficulté" [0, 1, 2, 3, 4, 5, 6] fn (state^._mode2) selectLevelA,
+        let fn i opt = (levels i opt){disabled = Just i > (state^._maxLevels) !! (state^._mode2)  }  in
+        iconSelectGroup lens state "Difficulté" [0, 1, 2, 3, 4, 5, 6] fn (state^._level) selectLevelA,
         icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state
     ]
     rules = [text "blablahblah"]

@@ -73,6 +73,10 @@ href :: forall a. String -> Prop a
 href = attr "href"
 
     -- svg
+x :: forall a. String -> Prop a
+x = attr "x"
+y :: forall a. String -> Prop a
+y = attr "y" 
 stroke :: forall a. String -> Prop a
 stroke = attr "stroke"
 fill :: forall a. String -> Prop a

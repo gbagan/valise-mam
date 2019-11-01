@@ -1,5 +1,4 @@
 .valise-object {
-    position: absolute;
     &.draggable {
         cursor: -webkit-grab;
         cursor: grab;
@@ -7,7 +6,6 @@
 }
 
 .valise-object-area {
-    position: absolute;
     left: 0;
     top: 0;
     width: 100%;
@@ -15,10 +13,8 @@
 }
 
 .valise-object-link {
-    position: absolute;
     left: 0;
     top: 0;
-    display: block;
     width: 100%;
     height: 100%;
     cursor: pointer;

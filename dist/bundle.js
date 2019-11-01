@@ -5938,9 +5938,9 @@ var PS = {};
   var Data_Semigroup = $PS["Data.Semigroup"];
   var Data_Show = $PS["Data.Show"];
   var Pha = $PS["Pha"];                
-  var translate = function (x) {
-      return function (y) {
-          return "translate(" + (Data_Show.show(Data_Show.showNumber)(x) + ("px," + (Data_Show.show(Data_Show.showNumber)(y) + "px)")));
+  var translate = function (x1) {
+      return function (y1) {
+          return "translate(" + (Data_Show.show(Data_Show.showNumber)(x1) + ("px," + (Data_Show.show(Data_Show.showNumber)(y1) + "px)")));
       };
   };
   var svg = Pha.h("svg");
@@ -6005,12 +6005,12 @@ var PS = {};
           return Pha.h("path")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ attr("d")(d) ])(props))([  ]);
       };
   };
-  var rect = function (x) {
-      return function (y) {
+  var rect = function (x1) {
+      return function (y1) {
           return function (w) {
               return function (h$prime) {
                   return function (props) {
-                      return Pha.h("rect")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ attr("x")(Data_Show.show(Data_Show.showNumber)(x)), attr("y")(Data_Show.show(Data_Show.showNumber)(y)), attr("width")(Data_Show.show(Data_Show.showNumber)(w)), attr("height")(Data_Show.show(Data_Show.showNumber)(h$prime)) ])(props))([  ]);
+                      return Pha.h("rect")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ attr("x")(Data_Show.show(Data_Show.showNumber)(x1)), attr("y")(Data_Show.show(Data_Show.showNumber)(y1)), attr("width")(Data_Show.show(Data_Show.showNumber)(w)), attr("height")(Data_Show.show(Data_Show.showNumber)(h$prime)) ])(props))([  ]);
                   };
               };
           };
@@ -6019,23 +6019,23 @@ var PS = {};
   var stroke = attr("stroke");
   var strokeDasharray = attr("stroke-dasharray");
   var strokeWidth = attr("stroke-width");
-  var text$prime = function (x) {
-      return function (y) {
+  var text$prime = function (x1) {
+      return function (y1) {
           return function (t) {
               return function (props) {
-                  return Pha.h("text")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ attr("x")(Data_Show.show(Data_Show.showNumber)(x)), attr("y")(Data_Show.show(Data_Show.showNumber)(y)) ])(props))([ Pha.text(t) ]);
+                  return Pha.h("text")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ attr("x")(Data_Show.show(Data_Show.showNumber)(x1)), attr("y")(Data_Show.show(Data_Show.showNumber)(y1)) ])(props))([ Pha.text(t) ]);
               };
           };
       };
   };
   var transform = attr("transform");
-  var use = function (x) {
-      return function (y) {
+  var use = function (x1) {
+      return function (y1) {
           return function (w) {
               return function (h$prime) {
                   return function (href$prime) {
                       return function (props) {
-                          return Pha.h("use")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ attr("x")(Data_Show.show(Data_Show.showNumber)(x)), attr("y")(Data_Show.show(Data_Show.showNumber)(y)), attr("width")(Data_Show.show(Data_Show.showNumber)(w)), attr("height")(Data_Show.show(Data_Show.showNumber)(h$prime)), attr("href")(href$prime) ])(props))([  ]);
+                          return Pha.h("use")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ attr("x")(Data_Show.show(Data_Show.showNumber)(x1)), attr("y")(Data_Show.show(Data_Show.showNumber)(y1)), attr("width")(Data_Show.show(Data_Show.showNumber)(w)), attr("height")(Data_Show.show(Data_Show.showNumber)(h$prime)), attr("href")(href$prime) ])(props))([  ]);
                       };
                   };
               };
@@ -6048,7 +6048,7 @@ var PS = {};
       return function (props) {
           return svg(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ width("100%"), height("100%") ])(props))([ Pha.h("use")([ attr("href")(symbol) ])([  ]) ]);
       };
-  };
+  };                
   var a = Pha.h("a");
   exports["key"] = key;
   exports["attr"] = attr;
@@ -10773,6 +10773,11 @@ var PS = {};
   var exports = $PS["Game.Valise.Model"];
   var Control_Applicative = $PS["Control.Applicative"];
   var Control_Bind = $PS["Control.Bind"];
+  var Control_Category = $PS["Control.Category"];
+  var Data_Function = $PS["Data.Function"];
+  var Data_Lens_Lens = $PS["Data.Lens.Lens"];
+  var Data_Lens_Setter = $PS["Data.Lens.Setter"];
+  var Data_Profunctor_Strong = $PS["Data.Profunctor.Strong"];
   var Data_Unit = $PS["Data.Unit"];
   var Effect_Aff = $PS["Effect.Aff"];
   var Pha_Action = $PS["Pha.Action"];                
@@ -10807,8 +10812,54 @@ var PS = {};
               });
           });
       });
-  });
+  });                                                                                                                                                                            
+  var _helpVisible = function (dictStrong) {
+      return Data_Lens_Lens.lens(function (v) {
+          return v.helpVisible;
+      })(function (v) {
+          return function (v1) {
+              return {
+                  helpVisible: v1,
+                  help: v.help,
+                  isOpen: v.isOpen,
+                  isSwitchOn: v.isSwitchOn,
+                  pawPassings: v.pawPassings
+              };
+          };
+      })(dictStrong);
+  };
+  var _help = function (dictStrong) {
+      return Data_Lens_Lens.lens(function (v) {
+          return v.help;
+      })(function (v) {
+          return function (v1) {
+              return {
+                  help: v1,
+                  helpVisible: v.helpVisible,
+                  isOpen: v.isOpen,
+                  isSwitchOn: v.isSwitchOn,
+                  pawPassings: v.pawPassings
+              };
+          };
+      })(dictStrong);
+  };
+  var showHelpA = function (help) {
+      return Pha_Action.action((function () {
+          var $25 = Data_Lens_Setter.over(_help(Data_Profunctor_Strong.strongFn))((function () {
+              var $24 = help === "";
+              if ($24) {
+                  return Control_Category.identity(Control_Category.categoryFn);
+              };
+              return Data_Function["const"](help);
+          })());
+          var $26 = Data_Lens_Setter.set(_helpVisible(Data_Profunctor_Strong.strongFn))(help !== "");
+          return function ($27) {
+              return $25($26($27));
+          };
+      })());
+  };
   exports["valiseState"] = valiseState;
+  exports["showHelpA"] = showHelpA;
   exports["enterA"] = enterA;
 })(PS);
 (function($PS) {
@@ -10819,28 +10870,107 @@ var PS = {};
   var Data_Functor = $PS["Data.Functor"];
   var Data_Maybe = $PS["Data.Maybe"];
   var Data_Semigroup = $PS["Data.Semigroup"];
+  var Data_Show = $PS["Data.Show"];
+  var Game_Valise_Model = $PS["Game.Valise.Model"];
   var Pha = $PS["Pha"];
+  var Pha_Action = $PS["Pha.Action"];
   var Pha_Html = $PS["Pha.Html"];                
-  var object = function (v) {
-      return function (props) {
-          return function (children) {
-              return Pha_Html["div'"](Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html["class'"]("valise-object ui-touch-action-none")(true), Pha_Html["class'"]("draggable")(v.drag) ])(props))([ Pha_Html.svg([ Pha_Html.width("100%"), Pha_Html.height("100%") ])([ Pha.h("use")([ Pha_Html.href("#" + v.symbol), Pha_Html["class'"]("valise-symbol")(true) ])([  ]) ]), Pha_Html["div'"]([ Pha_Html["class'"]("valise-object-area")(true) ])(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.maybeN(Data_Functor.mapFlipped(Data_Maybe.functorMaybe)(v.link)(function (l) {
-                  return Pha_Html.a([ Pha_Html.href("#" + l), Pha_Html["class'"]("valise-object-link")(true) ])([  ]);
-              })) ])(children)) ]);
+  var valise = function (lens) {
+      return function (state) {
+          var object = function (v) {
+              return function (x$prime) {
+                  return function (y$prime) {
+                      return function (w$prime) {
+                          return function (h$prime) {
+                              return function (props) {
+                                  return function (children) {
+                                      return Pha_Html.g([ Pha_Html.transform("translate(" + (Data_Show.show(Data_Show.showInt)(x$prime) + (" " + (Data_Show.show(Data_Show.showInt)(y$prime) + ")")))) ])([ Pha_Html.g(props)([ Pha_Html.svg([ Pha_Html["class'"]("valise-object ui-touch-action-none")(true), Pha_Html["class'"]("draggable")(v.drag), Pha_Html.width(Data_Show.show(Data_Show.showInt)(w$prime)), Pha_Html.height(Data_Show.show(Data_Show.showInt)(h$prime)), Pha_Html.pointerenter(Pha_Action.lensAction(function (dictStrong) {
+                                          return lens(dictStrong);
+                                      })(Game_Valise_Model.showHelpA(v.help))), Pha_Html.pointerleave(Pha_Action.lensAction(function (dictStrong) {
+                                          return lens(dictStrong);
+                                      })(Game_Valise_Model.showHelpA(""))) ])([ Pha.h("use")([ Pha_Html.href(" #" + v.symbol), Pha_Html["class'"]("valise-symbol")(true) ])([  ]), Pha.maybeN(Data_Functor.mapFlipped(Data_Maybe.functorMaybe)(v.link)(function (l) {
+                                          return Pha_Html.a([ Pha_Html.href("#" + l) ])([ Pha.h("rect")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html["class'"]("valise-object-link")(true), Pha_Html.fill("transparent") ])(children))([  ]) ]);
+                                      })) ]) ]) ]);
+                                  };
+                              };
+                          };
+                      };
+                  };
+              };
           };
+          return Pha_Html.svg([ Pha_Html.viewBox("0 0 825 690") ])([ Pha.h("use")([ Pha_Html.href("#valise"), Pha_Html["class'"]("valise-close")(true), Pha_Html.width("100%"), Pha_Html.height("100%") ])([  ]), Pha_Html.g([ Pha_Html["class'"]("valise-open")(true) ])([ Pha.h("use")([ Pha_Html.href("#openvalise") ])([  ]), object({
+              symbol: "switch",
+              link: Data_Maybe.Nothing.value,
+              help: "",
+              drag: false
+          })(300)(460)(42)(60)([  ])([  ]), object({
+              symbol: "bulbon",
+              link: new Data_Maybe.Just("noirblanc"),
+              help: "Jeu: tour noir, tout blanc",
+              drag: false
+          })(477)(280)(48)(48)([  ])([  ]), object({
+              symbol: "frog",
+              link: new Data_Maybe.Just("frog"),
+              help: "Jeu: la grenouille",
+              drag: false
+          })(549)(320)(35)(34)([ Pha_Html.fill("#bcd35f") ])([  ]), object({
+              symbol: "hanoibot",
+              link: new Data_Maybe.Just("solitaire"),
+              help: "Jeu: solitaire",
+              drag: false
+          })(500)(430)(75)(51)([  ])([  ]), object({
+              symbol: "knight",
+              link: new Data_Maybe.Just("queens"),
+              help: "Jeu: les 8 reines",
+              drag: false
+          })(461)(380)(24)(48)([ Pha_Html.transform("rotate(40)") ])([  ]), object({
+              symbol: "pen",
+              link: Data_Maybe.Nothing.value,
+              help: "Jeu: dessin (non impl\xe9ment\xe9)",
+              drag: false
+          })(610)(400)(60)(60)([  ])([  ]), object({
+              symbol: "stack",
+              link: new Data_Maybe.Just("jetons"),
+              help: "Jeu: jetons",
+              drag: false
+          })(350)(500)(50)(50)([  ])([  ]), object({
+              symbol: "wheel",
+              link: new Data_Maybe.Just("roue"),
+              help: "Jeu: roue des couleurs",
+              drag: false
+          })(400)(205)(50)(50)([ Pha_Html.transform("scale(1,0.8)") ])([  ]), object({
+              symbol: "card",
+              link: new Data_Maybe.Just("nim"),
+              help: "Jeu: Poker Nim",
+              drag: false
+          })(450)(130)(40)(50)([ Pha_Html.transform("rotate(30)") ])([  ]), object({
+              symbol: "tile",
+              link: new Data_Maybe.Just("tiling"),
+              help: "Jeu: carrelage",
+              drag: false
+          })(280)(400)(120)(60)([  ])([  ]), object({
+              symbol: "tricolor",
+              link: new Data_Maybe.Just("baseball"),
+              help: "Jeu: baseball multicolore",
+              drag: false
+          })(350)(330)(90)(60)([  ])([  ]), object({
+              symbol: "race",
+              link: new Data_Maybe.Just("paths"),
+              help: "Jeu: chemins",
+              drag: false
+          })(450)(445)(64)(64)([ Pha_Html.transform("rotate(40)") ])([  ]), object({
+              symbol: "chocolate",
+              link: Data_Maybe.Nothing.value,
+              help: "Jeu: chocolat (non impl\xe9ment\xe9)",
+              drag: false
+          })(200)(200)(60)(60)([ Pha_Html.transform("rotate(40)") ])([  ]) ]) ]);
       };
-  };
-  var valise = function (state) {
-      return Pha_Html["div'"]([ Pha_Html["class'"]("valise-image valise-open image-openvalise")(true) ])([ Pha_Html["div'"]([ Pha_Html["class'"]("valise-objects")(true) ])([ Pha_Html["div'"]([ Pha_Html["class'"]("valise-help")(true), Pha_Html["class'"]("visible")(state.helpVisible && state.help !== "") ])([ Pha.text(state.help) ]), object({
-          symbol: "switch",
-          link: Data_Maybe.Nothing.value,
-          help: "",
-          drag: false
-      })([ Pha_Html["class'"]("valise-switch")(true), Pha_Html["class'"]("on")(state.isSwitchOn) ])([  ]) ]) ]);
   };
   var view = function (lens) {
       return function (state) {
-          return Pha_Html["div'"]([ Pha_Html["class'"]("ui-flex-center valise-main-container")(true), Pha_Html["class'"]("open")(state.isOpen) ])([ Pha_Html["div'"]([  ])([ Pha_Html["div'"]([ Pha_Html["class'"]("valise-logo")(true) ])([ Pha_Html.svguse("#logo")([  ]) ]), Pha_Html["div'"]([ Pha_Html["class'"]("valise-container")(true) ])([ Pha_Html["div'"]([ Pha_Html["class'"]("valise-close valise-image image-valise")(true) ])([  ]), valise(state) ]) ]) ]);
+          return Pha_Html["div'"]([ Pha_Html["class'"]("ui-flex-center valise-main-container")(true), Pha_Html["class'"]("open")(state.isOpen) ])([ Pha_Html["div'"]([  ])([ Pha_Html["div'"]([ Pha_Html["class'"]("valise-logo")(true) ])([ Pha_Html.svguse("#logo")([  ]) ]), Pha_Html["div'"]([ Pha_Html["class'"]("valise-container")(true) ])([ valise(function (dictStrong) {
+              return lens(dictStrong);
+          })(state), Pha_Html["div'"]([ Pha_Html["class'"]("valise-help")(true), Pha_Html["class'"]("visible")(state.helpVisible && state.help !== "") ])([ Pha.text(state.help) ]) ]) ]) ]);
       };
   };
   exports["view"] = view;
@@ -10860,7 +10990,6 @@ var PS = {};
   var Control_Bind = $PS["Control.Bind"];
   var Data_Lens_Lens = $PS["Data.Lens.Lens"];
   var Data_Maybe = $PS["Data.Maybe"];
-  var Data_Semiring = $PS["Data.Semiring"];
   var Data_String_CodePoints = $PS["Data.String.CodePoints"];
   var Data_Tuple = $PS["Data.Tuple"];
   var Data_Unit = $PS["Data.Unit"];
@@ -10894,8 +11023,9 @@ var PS = {};
   var Pha_Event = $PS["Pha.Event"];                
   var extractLocation = function (url) {
       return function (defaultValue) {
-          var i = Data_Maybe.maybe(0)(Data_Semiring.add(Data_Semiring.semiringInt)(1))(Data_String_CodePoints.indexOf("#")(url));
-          return Data_String_CodePoints.drop(i)(url);
+          return Data_Maybe.maybe(defaultValue)(function (i) {
+              return Data_String_CodePoints.drop(i + 1 | 0)(url);
+          })(Data_String_CodePoints.indexOf("#")(url));
       };
   };
   var _valise = function (dictStrong) {

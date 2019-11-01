@@ -7,7 +7,7 @@ import Data.String (drop, indexOf)
 import Data.String.Pattern (Pattern (..))
 import Effect (Effect)
 import Pha (VDom, app)
-import Pha.Action (Action, (🎲), action, asyncAction, withPayload, withPayload')
+import Pha.Action (Action, (🎲), asyncAction, withPayload, withPayload')
 import Pha.Event (key) as E
 import Lib.Random (runRnd)
 import Game.Core (init)
@@ -41,7 +41,7 @@ import Game.Valise.Model (enterA) as Valise
 
 extractLocation :: String -> String -> String
 extractLocation url defaultValue =
-    let i = maybe 0 (add 1) $ indexOf (Pattern "#") url in drop i url
+    indexOf (Pattern "#") url # maybe defaultValue \i -> drop (i + 1) url 
 
 
 type RootState = {

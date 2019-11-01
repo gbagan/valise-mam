@@ -26,6 +26,17 @@
     transition: opacity 1s ease-in;
 }
 
+.valise-object {
+    &.draggable {
+        cursor: -webkit-grab;
+        cursor: grab;
+    }
+}
+
+.valise-object-link {
+    cursor: pointer;
+}
+
 .valise-main-container.open  {
     & .valise-open, & .valise-logo {
         opacity: 1;

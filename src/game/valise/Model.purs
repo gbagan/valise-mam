@@ -1,12 +1,13 @@
 module Game.Valise.Model where
 import Prelude
-
+import Effect.Aff (delay)
 import Data.Lens (Lens', lens, (.~), (%~))
-import Pha.Action (Action, action)
+import Pha.Action (Action, action, asyncAction)
+import Data.Time.Duration (Milliseconds(..))
 
 type ValiseState = {
     isOpen :: Boolean,
-    linksAreActive :: Boolean, -- utile?
+    -- linksAreActive :: Boolean, -- utile?
     help :: String, --- Maybe?
     helpVisible :: Boolean,
     -- drag: null,
@@ -18,7 +19,7 @@ type ValiseState = {
 valiseState :: ValiseState
 valiseState = {
     isOpen: false,
-    linksAreActive: false,
+    -- linksAreActive: false,
     help: "",
     helpVisible: false,
     -- drag: null,
@@ -40,25 +41,27 @@ _isSwitchOn = lens (_.isSwitchOn) (_{isSwitchOn = _})
 incPawPassingsA :: Action ValiseState
 incPawPassingsA = action $ _pawPassings %~ \x -> min 4 (x + 1)
 
-openValiseA :: Action ValiseState
-openValiseA = action $ _{isOpen = true}
-
 showHelpA :: String -> Action ValiseState
 showHelpA help = action $ (_help %~ if help == "" then identity else const help) <<< (_helpVisible .~ (help /= ""))
 
 toggleSwitchA :: Action ValiseState
 toggleSwitchA = action $ _isSwitchOn %~ not
 
+enterA :: Action ValiseState
+enterA = asyncAction \{updateState, dispatch} -> do
+    _ <- updateState (\st -> st{
+          isOpen = false,
+         -- drag: null,
+--        help: null,
+--        position: {},
+          helpVisible = false })
+    delay $ Milliseconds 1500.0
+    _ <- updateState (_{isOpen = true})
+    pure unit
+
 {-
 --const actions = {
---    enter: state => [{
---        ...state,
---        isOpen: false,
---        drag: null,
---        help: null,
---        helpVisible: false,
---        position: {},
---   }, timeout(openValise, 1500)
+
 --    ],
  
 incPawPassings = action $ _pawPassings %~ \x -> min 4 (x + 1),

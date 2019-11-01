@@ -17,7 +17,7 @@ import UI.Template (template, card, incDecGrid, gridStyle)
 
 levels :: Int -> Options -> Options
 levels i opt = case i of
-    0 -> opt { icon = IconText "4x4" }
+    0 -> opt { icon = IconText "3x3" }
     1 -> opt { icon = IconText "4x4" }
     2 -> opt { icon = IconText "2x10" }
     3 -> opt { icon = IconText "3x10" }
@@ -44,7 +44,16 @@ view lens state = template lens {config, board, rules, winTitle} state where
     rows = state^._nbRows
     columns = state^._nbColumns
     position = state^._position
-    grid = div' ([class' "ui-board" true] <> gridStyle rows columns 5) $
+
+    config = card "Tout noir tout blanc" [
+        let fn i = _{icon = IconSymbol $ "#lo-mode" <> show (i + 1)} in
+        iconSelectGroup lens state "Mode jeu" [0, 1, 2, 3] fn (state^._mode2) selectModeA,
+        let fn i opt = (levels i opt){disabled = Just i > (state^._maxLevels) !! (state^._mode2)  }  in
+        iconSelectGroup lens state "Difficulté" [0, 1, 2, 3, 4, 5, 6] fn (state^._level) selectLevelA,
+        icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state
+    ]
+
+    grid = div' ([class' "ui-board" true] <> gridStyle rows columns 4) $
         map2 position.light position.played \index light played ->
             let {row, col} = coords columns index in
             square 
@@ -60,13 +69,6 @@ view lens state = template lens {config, board, rules, winTitle} state where
 
     board = incDecGrid lens state [grid]
 
-    config = card "Tout noir tout blanc" [
-        let fn i = _{icon = IconSymbol $ "#lo-mode" <> show (i + 1)} in
-        iconSelectGroup lens state "Mode jeu" [0, 1, 2, 3] fn (state^._mode2) selectModeA,
-        let fn i opt = (levels i opt){disabled = Just i > (state^._maxLevels) !! (state^._mode2)  }  in
-        iconSelectGroup lens state "Difficulté" [0, 1, 2, 3, 4, 5, 6] fn (state^._level) selectLevelA,
-        icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state
-    ]
     rules = [text "blablahblah"]
 
     winTitle = "GAGNÉ"

@@ -40,13 +40,15 @@ foreign import appAux :: forall a. {
     view :: a -> VDom a,
     node :: String,
     launchAff :: Aff a -> Effect (Fiber a),
-    events :: Array (Tuple String (Action a))
+    events :: Array (Tuple String (Action a)),
+    init :: Action a
 } -> Effect Unit
 
 app :: forall a. {
     state :: a,
     view :: a -> VDom a,
     node :: String,
-    events :: Array (Tuple String (Action a))
+    events :: Array (Tuple String (Action a)),
+    init :: Action a
 } -> Effect Unit
-app {view, node, state, events} = appAux {view, node, state, events, launchAff}
+app {view, node, state, events, init} = appAux {view, node, state, events, init, launchAff}

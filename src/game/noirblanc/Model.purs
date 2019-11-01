@@ -8,16 +8,22 @@ import Data.Lens (Lens', lens, (^.), (.~), (%~), set)
 import Data.Lens.Index (ix)
 import Lib.Random (Random, randomInt)
 import Lib.Util (dCoords)
-import Pha.Action (Action, asyncAction)
+import Lib.KonamiCode (konamiCode)
+import Pha.Action (Action, action, asyncAction)
 import Game.Core (class Game, State (..), SizeLimit(..), playA, isLevelFinished, _position, _nbColumns, _nbRows, newGame, newGame', genState)
 
 type Position = { light :: Array Boolean, played :: Array Boolean }
-type Ext' = { mode2 :: Int, level :: Int, maxLevels :: Array Int }
+type Ext' = {
+    mode2 :: Int,
+    level :: Int,
+    maxLevels :: Array Int,
+    keySequence :: Array String
+}
 newtype ExtState = Ext Ext'
 type NoirblancState = State Position ExtState
 
 noirblancState :: NoirblancState
-noirblancState = genState {light: [], played: []} identity (Ext { level: 0, mode2: 0, maxLevels: [0, 1, 1, 0] })
+noirblancState = genState {light: [], played: []} identity (Ext { level: 0, mode2: 0, maxLevels: [0, 1, 1, 0], keySequence: [] })
 
 _ext :: Lens' NoirblancState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
@@ -27,6 +33,8 @@ _level :: Lens' NoirblancState Int
 _level = _ext <<< lens (_.level) (_{level = _})
 _maxLevels :: Lens' NoirblancState (Array Int)
 _maxLevels = _ext <<< lens (_.maxLevels) (_{maxLevels = _})
+_keySequence :: Lens' NoirblancState (Array String)
+_keySequence = _ext <<< lens (_.keySequence) (_{keySequence = _})
 
 neighbor :: NoirblancState -> Int -> Int -> Boolean
 neighbor state index1 index2 =
@@ -88,7 +96,9 @@ afterPlay = asyncAction \{getState, updateState, dispatch} -> do
         
     else
         pure unit
---   todo    keyDown: konamiCode(set('maxLevels', [6, 6, 6, 6])),
+
+onKeyDown :: String -> Action NoirblancState
+onKeyDown = konamiCode _keySequence (action $ _maxLevels .~ [6, 6, 6, 6])
 
 play2A :: Int -> Action NoirblancState
 play2A i = playA i <> afterPlay

@@ -9,8 +9,8 @@ import Effect (Effect)
 import Pha (VDom, app)
 import Pha.Action (Action, (🎲), action, asyncAction, withPayload, withPayload')
 import Pha.Event (key) as E
-import Game.Core (init)
 import Lib.Random (runRnd)
+import Game.Core (init)
 import Game.Baseball.Model (BaseballState, baseballState) 
 import Game.Baseball.View (view) as BaseballView
 import Game.Nim.Model (NimState, nimState)
@@ -31,8 +31,13 @@ import Game.Solitaire.Model (SolitaireState, solitaireState)
 import Game.Solitaire.View (view) as SolitaireView
 import Game.Tiling.Model (TilingState, tilingState)
 import Game.Tiling.View (view) as TilingView
+import Game.Valise.Model (ValiseState, valiseState)
+import Game.Valise.View (view) as ValiseView
 
-import Game.Tiling.Model (onKeyPress) as Tiling
+import Game.Frog.Model (onKeyDown) as Frog
+import Game.Noirblanc.Model (onKeyDown) as Noirblanc
+import Game.Tiling.Model (onKeyDown) as Tiling
+import Game.Valise.Model (enterA) as Valise
 
 extractLocation :: String -> String -> String
 extractLocation url defaultValue =
@@ -50,8 +55,13 @@ type RootState = {
     roue :: RoueState,
     solitaire :: SolitaireState,
     tiling :: TilingState,
+    valise :: ValiseState,
     location :: String
 }
+
+-- class Game pos ext mov <= GameLens pos ext mov | ext -> pos mov where
+--    gamelens :: Lens' RootState (State pos ext)
+-- instance baseballLens :: GameLens 
 
 _baseball :: Lens' RootState BaseballState
 _baseball = lens (_.baseball) (_{baseball = _})
@@ -83,27 +93,39 @@ _solitaire = lens (_.solitaire) (_{solitaire = _})
 _tiling :: Lens' RootState TilingState
 _tiling = lens (_.tiling) (_{tiling = _})
 
+_valise :: Lens' RootState ValiseState
+_valise = lens (_.valise) (_{valise = _})
+
 foreign import getLocationHref :: Effect String
 
-hashChange :: Action RootState
-hashChange = (\x -> action _{location = x}) `withPayload'` \e -> getLocationHref
+hashChange :: String -> Action RootState
+hashChange hash = asyncAction \{updateState, dispatch} -> do
+    let location = extractLocation hash "valise"
+    _ <- updateState (_{location = location})
+    if location == "valise" || location == ""  then do
+        _ <- dispatch (_valise 🎲 Valise.enterA)
+        pure unit
+    else
+        pure unit
     --    } |> combine(
     --        enter(location2),
     --        state.location !== location && asyncToggle('anim', 50)
     --    );
     -- };
 
-init2 :: ((RootState -> RootState) -> Effect RootState) -> Effect Unit
-init2 dispatch = pure unit
+init2 :: Action RootState
+init2 = hashChange `withPayload'` \e -> getLocationHref
 
-onKeyPress :: (Maybe String) -> Action RootState
-onKeyPress maybek = asyncAction \{dispatch, getState} ->
+onKeyDown :: (Maybe String) -> Action RootState
+onKeyDown maybek = asyncAction \{dispatch, getState} ->
     case maybek of
         Nothing -> pure unit
         Just k -> do
             state <- getState
             case state.location of
-                "tiling" -> dispatch (_tiling 🎲 Tiling.onKeyPress k)
+                "tiling" -> dispatch (_tiling 🎲 Tiling.onKeyDown k)
+                "noirblanc" -> dispatch (_noirblanc 🎲 Noirblanc.onKeyDown k)
+                "frog" -> dispatch (_frog 🎲 Frog.onKeyDown k)
                 _ -> pure unit
 
 view :: RootState -> VDom RootState
@@ -117,7 +139,8 @@ view state = case state.location of
     "queens" -> QueensView.view _queens state.queens
     "solitaire" -> SolitaireView.view _solitaire state.solitaire
     "tiling" -> TilingView.view _tiling state.tiling
-    _ -> NimView.view _nim state.nim
+    "nim" -> NimView.view _nim state.nim
+    _ -> ValiseView.view _valise state.valise
 
 main :: Effect Unit
 main = do
@@ -144,11 +167,15 @@ main = do
         roue: roueState',
         solitaire: solitaireState',
         tiling: tilingState',
+        valise: valiseState,
         location: location
     }
     app {
         state,
         view,
         node: "root",
-        events: [Tuple "keypress" (onKeyPress `withPayload` E.key)]
+        events: [Tuple "keydown" (onKeyDown `withPayload` E.key),
+                Tuple "hashchange" (hashChange `withPayload'` \e -> getLocationHref)
+                ],
+        init: init2
     }

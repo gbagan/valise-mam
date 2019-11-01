@@ -128,10 +128,10 @@ setHoverSquareA a = action $ _hoverSquare .~ a
 inConflict :: TilingState -> Boolean
 inConflict state = state^._hoverSquare # maybe false \sqr -> state^._position !! sqr /= Just 0 || not canPlay state sqr
 
-onKeyPress :: String -> Action TilingState
-onKeyPress " " = rotateA
+onKeyDown :: String -> Action TilingState
+onKeyDown " " = rotateA
 -- key
-onKeyPress _ = noAction
+onKeyDown _ = noAction
 
 {-            
 const configHash = state => `${state.rows}-${state.columns}-${state.tileIndex}-${state.nbSinks}`

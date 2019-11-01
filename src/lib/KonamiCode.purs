@@ -1,4 +1,4 @@
-module Lib.KonamiCode where
+module Lib.KonamiCode (konamiCode) where
 import Prelude
 import Data.Array (snoc, takeEnd)
 import Data.Lens (Lens', (^.), (.~))

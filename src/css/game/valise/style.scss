@@ -1,0 +1,100 @@
+.valise-main-container {
+    height: 100vh;
+    width: 100vw;
+}
+
+.valise-container {
+    height: 69vmin * 1.1;
+    width: 82.5vmin * 1.1;
+    position: relative;
+}
+
+.valise-image {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+.valise-open {
+    opacity: 0;
+    transition: opacity 0.5s ease-in 0.5s;
+}
+
+.valise-close {
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+}
+
+.image-valise {
+    background-image: url(./valise.svg);
+}
+
+.image-openvalise {
+    background-image: url(./openvalise.svg);
+}
+
+.valise-logo {
+    height: 18vmin * 1.1;
+    width: 82.5vmin * 1.1;
+    opacity: 0;
+    transition: opacity 1s ease-in;
+}
+
+.valise-main-container.open  {
+    & .valise-open, & .valise-logo {
+        opacity: 1;
+    }
+
+    .valise-close {
+        opacity: 0;
+    }
+}
+
+/*
+
+.valise-anim-enter {
+    .valise-close {
+        animation: valise-closevalise-in 1s linear;
+    }
+
+    .valise-open {
+        animation: valise-openvalise-in 1s linear;   
+    }
+
+    .valise-logo {
+        animation: valise-logo-in 1s ease-in;
+    }
+
+}
+
+.valise-anim-enter-done {
+    .valise-close {
+        opacity: 0;
+    }
+    .valise-open {
+        opacity: 1;
+    }
+    .valise-logo {
+        opacity: 1;
+    }
+
+}
+
+@keyframes valise-closevalise-in {
+    0% {opacity: 1}
+    50% {opacity: 0}
+    100% {opacity: 0}
+}
+
+@keyframes valise-openvalise-in {
+    0% {opacity: 0; }
+    50% {opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes valise-logo-in {
+    0% {opacity: 0; }
+    100% { opacity: 1; }
+}
+
+*/

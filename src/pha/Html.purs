@@ -58,6 +58,9 @@ h2 = h "h2"
 p :: forall a. Array (Prop a) -> Array (VDom a) -> VDom a
 p = h "p"
 
+a :: forall a. Array (Prop a) -> Array (VDom a) -> VDom a
+a = h "a"
+
 -- attributes
 
 disabled :: forall a. Boolean -> Prop a

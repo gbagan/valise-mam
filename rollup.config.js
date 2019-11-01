@@ -19,10 +19,10 @@ export default {
             minimize: true
         })
     ],
-};  
+};
+
 
 /*
-
 export default {
     input: "./index.js",
     output: {

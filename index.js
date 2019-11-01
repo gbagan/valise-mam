@@ -1,5 +1,6 @@
-import "./src/css/main.scss";
+// import  {main} from "./output/Main/index.js";
 
+import "./src/css/main.scss";
 import "./src/css/ui/global.scss";
 import "./src/css/ui/button.scss";
 import "./src/css/ui/card.scss";
@@ -22,3 +23,7 @@ import './src/css/game/roue.scss';
 import './src/css/game/sansmot.scss';
 import './src/css/game/solitaire.scss';
 import './src/css/game/tiling.scss';
+import './src/css/game/valise/valise.scss';
+import './src/css/game/valise/style.scss';
+import './src/css/game/valise/object.scss';
+

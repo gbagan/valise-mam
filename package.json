@@ -8,6 +8,8 @@
     "spago": "^0.10.0"
   },
   "scripts": {
-    "build": "rollup --config"
+    "build": "rollup --config",
+    "deploy:test": "scp -r dist/* gbagan@connect.liris.cnrs.fr:~/valisetest/"
   }
 }
+

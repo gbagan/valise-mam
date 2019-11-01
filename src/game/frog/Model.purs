@@ -7,6 +7,7 @@ import Data.Maybe (maybe, fromMaybe)
 import Data.Lens (Lens', lens, (^.), (.~), (%~), over)
 import Data.Lens.Index (ix)
 import Lib.Util (tabulate)
+import Lib.KonamiCode (konamiCode)
 import Pha.Action (Action, action)
 import Game.Core (class Game, canPlay, class TwoPlayersGame, Mode(..), State(..), SizeLimit(..),
                 newGame', computerMove', genState, _position, _nbRows)
@@ -14,7 +15,8 @@ import Game.Core (class Game, canPlay, class TwoPlayersGame, Mode(..), State(..)
 type Ext' = {
     moves :: Array Int,  -- la liste des mouvements autorisées (en nombre de cases)
     winning :: Array Boolean, --- la liste des positions gagnantes
-    marked :: Array Boolean  -- la liste des posiions marquées par l'utilisateur 
+    marked :: Array Boolean,  -- la liste des posiions marquées par l'utilisateur
+    keySequence :: Array String    --- pour le konami code
 }
 newtype ExtState = Ext Ext'
 
@@ -29,9 +31,11 @@ _winning :: Lens' FrogState (Array Boolean)
 _winning = _ext <<< lens (_.winning) (_{winning = _})
 _marked :: Lens' FrogState (Array Boolean)
 _marked = _ext <<< lens (_.marked) (_{marked = _})
+_keySequence :: Lens' FrogState (Array String)
+_keySequence = _ext <<< lens (_.keySequence) (_{keySequence = _})
 
 frogState :: FrogState
-frogState = genState 20 (_{nbRows = 20, mode = ExpertMode}) (Ext { moves: [1, 2, 3], winning: [], marked: [] })
+frogState = genState 20 (_{nbRows = 20, mode = ExpertMode}) (Ext { moves: [1, 2, 3], winning: [], marked: [], keySequence: [] })
 
 instance frogGame :: Game Int ExtState Int where
     play state v = v
@@ -74,5 +78,6 @@ reachableArray state = tabulate (state^._nbRows + 1) (canPlay state)
 markA :: Int -> Action FrogState
 markA i = action $ (_marked <<< ix i) %~ not
 
---        keyDown: konamiCode(state => ({...state, marked: state.winning})),
---    }),
+onKeyDown :: String -> Action FrogState
+onKeyDown = konamiCode _keySequence (action \st -> st # _marked .~ st^._winning)
+

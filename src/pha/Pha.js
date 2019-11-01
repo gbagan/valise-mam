@@ -312,7 +312,7 @@ const recycleNode = node =>
       )
 
 const appAux = props => () => {
-  const {view, launchAff, events} = props
+  const {view, launchAff, events, init} = props
   let state = {};
   let lock = false
   let node = document.getElementById(props.node);
@@ -352,6 +352,7 @@ const appAux = props => () => {
   for (let i = 0; i < events.length; i++) {
      rawEvent(events[i].value0, events[i].value1);
   }
+  launchAff(init(dispatch)(undefined))();
 }
 
 const h = isStyle => name => ps => children => {

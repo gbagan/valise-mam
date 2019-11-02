@@ -4,7 +4,7 @@ import Data.Lens (Lens', lens, set, view, (^.))
 import Data.Int.Bits ((.^.))
 import Lib.Util ((..))
 import Pha.Action (Action)
-import Game.Core (class Game, class TwoPlayersGame, SizeLimit(..), State(..), Mode(..),
+import Game.Core (class Game, class TwoPlayersGame, SizeLimit(..), GState(..), Mode(..),
                    genState, newGame', computerMove', _position, _nbRows, _nbColumns)
 infixr 9 compose as ∘
 
@@ -20,24 +20,24 @@ type Ext' = {
     soapMode :: SoapMode
 }
 newtype ExtState = Ext Ext'
-type ChocolatState = State Position ExtState
+type State = GState Position ExtState
 
-_ext :: Lens' ChocolatState Ext'
+_ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 
-_soap :: Lens' ChocolatState {row :: Int, col :: Int}
+_soap :: Lens' State {row :: Int, col :: Int}
 _soap = _ext ∘ lens (_.soap) (_{soap = _})
 
-_soapMode :: Lens' ChocolatState SoapMode
+_soapMode :: Lens' State SoapMode
 _soapMode = _ext ∘ lens (_.soapMode) (_{soapMode = _})
 
-chocolatState :: ChocolatState
-chocolatState = genState {left: 0, top: 0, right: 0, bottom: 0} (_{nbRows = 6, nbColumns = 7, mode = ExpertMode})
+state :: State
+state = genState {left: 0, top: 0, right: 0, bottom: 0} (_{nbRows = 6, nbColumns = 7, mode = ExpertMode})
         (Ext { soap: {row: 0, col: 0}, soapMode: CornerMode})
 
 instance chocolatGame :: Game {left :: Int, top :: Int, right :: Int, bottom :: Int} ExtState Move where
-    play state move =
-        let p = state^._position in
+    play st move =
+        let p = st^._position in
         case move of
             FromLeft x -> p{left = x}
             FromTop x -> p{top = x}
@@ -49,26 +49,26 @@ instance chocolatGame :: Game {left :: Int, top :: Int, right :: Int, bottom :: 
 
     isLevelFinished = view _position >>> \{left, right, top, bottom} -> left == right - 1 && top == bottom - 1
 
-    initialPosition state = pure { left: 0, right: state^._nbColumns, top: 0, bottom: state^._nbRows }
+    initialPosition st = pure { left: 0, right: st^._nbColumns, top: 0, bottom: st^._nbRows }
 
     sizeLimit = const (SizeLimit 4 4 10 10)
     onNewGame x = pure x
     computerMove = computerMove'
 
 instance chocolat2Game :: TwoPlayersGame {left :: Int, top :: Int, right :: Int, bottom :: Int} ExtState Move where
-    isLosingPosition state =
-        let {left, right, top, bottom} = state^._position
-            {row, col} = state^._soap
+    isLosingPosition st =
+        let {left, right, top, bottom} = st^._position
+            {row, col} = st^._soap
         in (col - left) .^. (right - col - 1) .^. (row - top) .^. (bottom - row - 1) == 0
 
-    possibleMoves state =
-        let {left, right, top, bottom} = state^._position
-            {row, col} = state^._soap
+    possibleMoves st =
+        let {left, right, top, bottom} = st^._position
+            {row, col} = st^._soap
         in
         ((left + 1) .. col <#> FromLeft) <> ((col + 1) .. (right - 1) <#> FromRight)
         <> ((top + 1) .. row <#> FromTop) <> ((row + 1) .. (bottom - 1) <#> FromRight) 
 
-setSoapModeA :: SoapMode -> Action ChocolatState
+setSoapModeA :: SoapMode -> Action State
 setSoapModeA = newGame' (set _soapMode)
 
 {-

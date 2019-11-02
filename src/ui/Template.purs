@@ -7,14 +7,14 @@ import Effect (Effect)
 import Pha (VDom, Prop, text, emptyNode)
 import Pha.Action (Event, Action, action, noAction, withPayload', (🎲))
 import Pha.Html (div', class', attr, style, pointerup, pointerdown, pointerleave, pointermove)
-import Game.Core (class Game, State, Mode(..), PointerPosition, SizeLimit(..), Dialog(..),
+import Game.Core (class Game, GState, Mode(..), PointerPosition, SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointerPosition, canPlay, sizeLimit,
          setGridSizeA, confirmNewGameA, dropA)
 import UI.Dialog (dialog)
 import UI.IncDecGrid (incDecGrid) as U
 infixr 9 compose as ∘
 
-winPanel :: forall a b d. String -> State a b -> VDom d
+winPanel :: forall a b d. String -> GState a b -> VDom d
 winPanel title state =
     div' [class' "ui-flex-center ui-absolute component-win-container" true] [
         div' [class' "component-win" true, class' "visible" $ state^._showWin] [
@@ -36,7 +36,7 @@ gridStyle rows columns limit = [style "height" $ show (toNumber rows / m * 100.0
                                 style "width" $ show (toNumber columns / m * 100.0) <> "%"]
     where m = toNumber $ max limit $ max rows columns
 
-incDecGrid :: forall pos ext mov d. Game pos ext mov => Lens' d (State pos ext) -> State pos ext -> Array (VDom d) -> VDom d
+incDecGrid :: forall pos ext mov d. Game pos ext mov => Lens' d (GState pos ext) -> GState pos ext -> Array (VDom d) -> VDom d
 incDecGrid lens state = U.incDecGrid {
     nbRows: state^._nbRows,
     nbColumns: state^._nbColumns,
@@ -55,7 +55,8 @@ type Elements a b = {
     winTitle :: String
 }
 
-template :: forall a pos aux mov. Game pos aux mov => Lens' a (State pos aux) -> Elements (State pos aux) a -> State pos aux  -> VDom a
+template :: forall a pos aux mov. Game pos aux mov =>
+                Lens' a (GState pos aux) -> Elements (GState pos aux) a -> GState pos aux  -> VDom a
 template lens {board, config, rules, winTitle} state = 
     div' [] [
         div' [class' "main-container" true] [
@@ -74,13 +75,14 @@ template lens {board, config, rules, winTitle} state =
         dialog' _ = emptyNode
 
 
-foreign import relativePointerPositionAux :: Maybe PointerPosition -> (PointerPosition -> Maybe PointerPosition) -> Event -> Effect (Maybe PointerPosition)
+foreign import relativePointerPositionAux :: Maybe PointerPosition -> (PointerPosition -> Maybe PointerPosition) 
+                                            -> Event -> Effect (Maybe PointerPosition)
 
 relativePointerPosition :: Event -> Effect (Maybe PointerPosition)
 relativePointerPosition = relativePointerPositionAux Nothing Just
 
 
-setPointerPositionA :: forall pos ext. (Maybe PointerPosition) -> Action (State pos ext)
+setPointerPositionA :: forall pos ext. (Maybe PointerPosition) -> Action (GState pos ext)
 setPointerPositionA a = action $ _pointerPosition .~ a
 
 cursorStyle :: forall a. PointerPosition -> Int -> Int -> Number -> Array (Prop a)    
@@ -96,7 +98,7 @@ svgCursorStyle {left, top, width, height} = [
     style "transform" $ "translate(" <> show (100.0 * left / width) <> "%," <> show (100.0 * top / height) <> "%"
 ]
 
-trackPointer :: forall pos ext a. Lens' a (State pos ext) -> Array (Prop a)
+trackPointer :: forall pos ext a. Lens' a (GState pos ext) -> Array (Prop a)
 trackPointer lens = [
     attr "touch-action" "none", 
     class' "ui-touch-action-none" true,
@@ -104,7 +106,7 @@ trackPointer lens = [
     pointerleave $ lens 🎲  action (_pointerPosition .~ Nothing),
     pointerdown $ lens 🎲 move --  todo tester
 ] where
-    move :: Action (State pos ext)
+    move :: Action (GState pos ext)
     move =  setPointerPositionA  `withPayload'` relativePointerPosition
         -- (\_ e -> pointerType e == Just "mouse")
         -- combine(
@@ -119,7 +121,7 @@ trackPointer lens = [
 
 
 dndBoardProps :: forall pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>
-    Lens' a (State pos ext) -> Lens' (State pos ext) (Maybe dnd) -> Array (Prop a)
+    Lens' a (GState pos ext) -> Lens' (GState pos ext) (Maybe dnd) -> Array (Prop a)
 dndBoardProps lens dragLens = [
     attr "touch-action" "none", 
     class' "ui-touch-action-none" true,
@@ -128,7 +130,7 @@ dndBoardProps lens dragLens = [
     pointerleave $ lens 🎲 leave,
     pointerdown $ lens 🎲 move --  todo tester
 ] where
-    move :: Action (State pos ext)
+    move :: Action (GState pos ext)
     move = setPointerPositionA `withPayload'` relativePointerPosition
         
         -- whenA
@@ -141,7 +143,7 @@ dndBoardProps lens dragLens = [
             -- hasDnD && drop NoDrop
 
 dndItemProps :: forall pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>
-    Lens' a (State pos ext) -> Lens' (State pos ext) (Maybe dnd) -> Boolean -> Boolean -> dnd -> (State pos ext) -> Array (Prop a)
+    Lens' a (GState pos ext) -> Lens' (GState pos ext) (Maybe dnd) -> Boolean -> Boolean -> dnd -> (GState pos ext) -> Array (Prop a)
 dndItemProps lens dragLens draggable droppable id state = [
     class' "dragged" dragged,
     class' "candrop" candrop,
@@ -153,7 +155,7 @@ dndItemProps lens dragLens draggable droppable id state = [
     dragged = draggable && draggedItem == Just id
 
 
-winTitleFor2Players :: forall pos ext. State pos ext -> String
+winTitleFor2Players :: forall pos ext. GState pos ext -> String
 winTitleFor2Players state =
     if state^._mode == DuelMode then
         "Le " <> (if state^._turn == 1 then "premier" else "second") <> " joueur gagne"

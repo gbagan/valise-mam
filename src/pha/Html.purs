@@ -37,6 +37,8 @@ pointerenter = Event "pointerenter"
 pointerleave :: forall a. Action a -> Prop a
 pointerleave = Event "pointerleave"
 
+keydown :: forall a. Action a -> Prop a
+keydown = Event "keydown"
 
 -- elements
 

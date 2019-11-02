@@ -9,12 +9,12 @@ import Math (sqrt)
 import Pha (VDom, text, whenN, maybeN)
 import Pha.Html (div', span, br, key, class', style, rgbColor)
 import Game.Core (_position, _nbColumns, _nbRows, _pointerPosition)
-import Game.Jetons.Model (JetonsState, _dragged)
+import Game.Jetons.Model (State, _dragged)
 import Lib.Util (coords)
 import UI.Template (template, card, incDecGrid, gridStyle, dndBoardProps, dndItemProps, cursorStyle)
 import UI.Icons (icongroup, iconSizesGroup, iundo, iredo, ireset, irules)
 
-view :: forall a. Lens' a JetonsState -> JetonsState -> VDom a
+view :: forall a. Lens' a State -> State -> VDom a
 view lens state = template lens {config, board, rules, winTitle} state where
     position = state^._position
     columns = state^._nbColumns

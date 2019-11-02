@@ -7,7 +7,7 @@ import Data.Lens.Index (ix)
 import Data.Maybe (Maybe(..), maybe, fromMaybe)
 import Data.Tuple (Tuple(..))
 import Lib.Util (tabulate, dCoords, map2)
-import Game.Core (State(..), class Game, SizeLimit(..), genState, newGame, _position, _nbRows, _nbColumns, playA')
+import Game.Core (GState(..), class Game, SizeLimit(..), genState, newGame, _position, _nbRows, _nbColumns, playA')
 import Pha.Action (Action, action)
 infixr 9 compose as ∘
 
@@ -32,22 +32,22 @@ type Ext' = {
     multiPieces :: Boolean
 }
 newtype Ext = Ext Ext'
-type QueensState = State Position Ext
+type State = GState Position Ext
 
-queensState :: QueensState
-queensState = genState []
+state :: State
+state = genState []
     (_{nbRows = 8, nbColumns = 8})
     (Ext {selectedPiece: Queen, selectedSquare: Nothing, allowedPieces: [Queen], multiPieces: false})
 
-_ext :: Lens' QueensState Ext'
+_ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
-_selectedPiece :: Lens' QueensState Piece
+_selectedPiece :: Lens' State Piece
 _selectedPiece = _ext ∘ lens (_.selectedPiece) (_{selectedPiece = _})
-_selectedSquare :: Lens' QueensState (Maybe Int)
+_selectedSquare :: Lens' State (Maybe Int)
 _selectedSquare = _ext ∘ lens (_.selectedSquare) (_{selectedSquare = _})
-_allowedPieces :: Lens' QueensState (Array Piece)
+_allowedPieces :: Lens' State (Array Piece)
 _allowedPieces = _ext ∘ lens (_.allowedPieces) (_{allowedPieces = _})
-_multiPieces :: Lens' QueensState Boolean
+_multiPieces :: Lens' State Boolean
 _multiPieces = _ext ∘ lens (_.multiPieces) (_{multiPieces = _})
 
 -- const f9 = repeat(9, false);
@@ -64,7 +64,7 @@ legalMoves _ _ _ = false
 
 -- teste si la pièce de type "piece" à la position index1 peut attquer la pièce à la position index2
 -- suppose que la pièce est différent de Empty
-canCapture :: QueensState -> Piece -> Int -> Int -> Boolean
+canCapture :: State -> Piece -> Int -> Int -> Boolean
 canCapture state piece index1 index2 =
     let {row, col} = dCoords (state^._nbColumns) index1 index2 in
     if piece /= Custom then 
@@ -75,21 +75,21 @@ canCapture state piece index1 index2 =
             -- || dRow ** 2 + dCol ** 2 <= 8 && customMoves.local[5 * dRow + dCol + 12]
 
 -- renvoie l'ensemble des positions pouvant être attaqué par une pièce à la position index sous forme de tableau de booléens
-attackedBy :: QueensState -> Piece -> Int -> Array Boolean
+attackedBy :: State -> Piece -> Int -> Array Boolean
 attackedBy state piece index =
     tabulate (state^._nbRows * state^._nbColumns) (canCapture state piece index)
 
 ---arrayOr = zipWith t1 => t2 => t1.map((x, i) => x || t2[i]);
 
 -- renvoie l'ensemble des cases pouvant être attaquées par une pièce sur le plateau
-capturableSquares :: QueensState -> Array Boolean
+capturableSquares :: State -> Array Boolean
 capturableSquares state = state^._position # mapWithIndex Tuple
     # foldr
         (\(Tuple index piece) -> if piece == Empty then identity else zipWith disj (attackedBy state piece index))
         (replicate (state^._nbRows * state^._nbColumns) false)
         
 
-attackedBySelected :: QueensState -> Array Boolean
+attackedBySelected :: State -> Array Boolean
 attackedBySelected state =
      maybe (replicate (state^._nbRows * state^._nbColumns) false)
                             (attackedBy state $ state^._selectedPiece) 
@@ -155,7 +155,7 @@ instance pathGame :: Game (Array Piece) Ext Int where
 });
 -}
 
-playA :: Int -> Action QueensState
+playA :: Int -> Action State
 playA = playA' (_{showWin = false})
 
 toggleAllowedPiece :: Piece ->  Boolean -> Array Piece -> Array Piece
@@ -163,14 +163,14 @@ toggleAllowedPiece piece false pieces = [piece]
 toggleAllowedPiece piece true pieces = if null pieces2 then pieces else pieces2 where
     pieces2 = piecesList # filter \p2 -> (p2 == piece) /= elem p2 pieces
     
-selectPieceA :: Piece -> Action QueensState
+selectPieceA :: Piece -> Action State
 selectPieceA piece = action $ _selectedPiece .~ piece
 
-selectSquareA :: Maybe Int -> Action QueensState
+selectSquareA :: Maybe Int -> Action State
 selectSquareA a = action $ _selectedSquare .~ a
 
-selectAllowedPieceA :: Piece -> Action QueensState
+selectAllowedPieceA :: Piece -> Action State
 selectAllowedPieceA piece = newGame $ \state -> state # _allowedPieces %~ toggleAllowedPiece piece (state^._multiPieces)
 
-toggleMultiPiecesA :: Action QueensState
+toggleMultiPiecesA :: Action State
 toggleMultiPiecesA = action $ _multiPieces %~ not

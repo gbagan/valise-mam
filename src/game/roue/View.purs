@@ -9,7 +9,7 @@ import Data.Lens (Lens', (^.))
 import Math (cos, sin, pi)
 import Lib.Util (map2)
 import Game.Core (PointerPosition, _position, _pointerPosition, _locked)
-import Game.Roue.Model (RoueState, Ball(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, deleteDraggedA,
+import Game.Roue.Model (State, Ball(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, deleteDraggedA,
                         aligned, validRotation, validRotation')
 import Pha (VDom, text, maybeN)
 import Pha.Action ((🎲))
@@ -55,7 +55,7 @@ cursor {left, top} color = div' [
 ] []
 
 
-view :: forall a. Lens' a RoueState -> RoueState -> VDom a
+view :: forall a. Lens' a State -> State -> VDom a
 view lens state = template lens {config, board, rules, winTitle} state where
     size = state^._size
     position = state^._position

@@ -9,7 +9,7 @@ import Data.Lens.Index (ix)
 import Pha.Action (Action, action)
 import Lib.Random (Random, randomInt, randomBool)
 import Lib.Util (tabulate, tabulate2, dCoords)
-import Game.Core (class Game, State(..), SizeLimit(..), genState, canPlay, _nbColumns, _nbRows, _customSize, _position, newGame)
+import Game.Core (class Game, GState(..), SizeLimit(..), genState, canPlay, _nbColumns, _nbRows, _customSize, _position, newGame)
 infixr 9 compose as ∘
 
 type Move = {from :: Int, to :: Int}
@@ -25,23 +25,23 @@ type Ext' = {
 }
 
 newtype ExtState = Ext Ext'
-type SolitaireState = State (Array Boolean) ExtState
+type State = GState (Array Boolean) ExtState
 
-solitaireState :: SolitaireState
-solitaireState = genState [] (_{nbRows = 5, nbColumns = 1}) (Ext { board: CircleBoard, holes: [], dragged: Nothing, help': 0 })
+state :: State
+state = genState [] (_{nbRows = 5, nbColumns = 1}) (Ext { board: CircleBoard, holes: [], dragged: Nothing, help': 0 })
 
-_ext :: Lens' SolitaireState Ext'
+_ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
-_board :: Lens' SolitaireState Board
+_board :: Lens' State Board
 _board = _ext ∘ lens (_.board) (_{board = _})
-_holes :: Lens' SolitaireState (Array Boolean)
+_holes :: Lens' State (Array Boolean)
 _holes = _ext ∘ lens (_.holes) (_{holes = _})
-_dragged :: Lens' SolitaireState (Maybe Int)
+_dragged :: Lens' State (Maybe Int)
 _dragged = _ext ∘ lens (_.dragged) (_{dragged = _})
-_help :: Lens' SolitaireState Int
+_help :: Lens' State Int
 _help = _ext ∘ lens (_.help') (_{help' = _})
 
-betweenMove :: SolitaireState -> Move -> Maybe Int
+betweenMove :: State -> Move -> Maybe Int
 betweenMove state { from, to } = 
     let {row, col} = dCoords (state^._nbColumns) from to in
     if row * row + col * col == 4 then Just $ (from + to) / 2 else Nothing
@@ -57,7 +57,7 @@ betweenInCircle from to size =
     else
         Nothing
         
-betweenMove2 :: SolitaireState -> Move -> Maybe Int
+betweenMove2 :: State -> Move -> Maybe Int
 betweenMove2 state move@{from, to} =
     let rows = state ^._nbRows in
     if state^._board == CircleBoard then do
@@ -127,7 +127,7 @@ instance solitaireGame :: Game (Array Boolean) ExtState {from :: Int, to :: Int}
 
     computerMove _ = Nothing
 
-setBoardA :: Board -> Action SolitaireState
+setBoardA :: Board -> Action State
 setBoardA board = newGame \state ->
     let st2 = state # _board .~ board in 
     case board of
@@ -136,5 +136,5 @@ setBoardA board = newGame \state ->
         RandomBoard -> st2 # _nbRows .~ 3 # _nbColumns .~ 5
         _ -> st2 # _nbRows .~ 7 # _nbColumns .~ 7
 
-toggleHelpA :: Action SolitaireState
+toggleHelpA :: Action State
 toggleHelpA = action $ _help %~ \x -> (x + 1) `mod` 3

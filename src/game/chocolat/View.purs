@@ -4,11 +4,12 @@ import Prelude
 import Data.Lens (Lens', (^.))
 import Data.Tuple (Tuple(..))
 import Data.Maybe (Maybe(..))
-import Game.Chocolat.Model (ChocolatState, SoapMode(..), _soap, _soapMode, setSoapModeA) 
+import Game.Chocolat.Model (State, SoapMode(..), _soap, _soapMode, setSoapModeA) 
 import Pha (VDom, text, emptyNode)
 import Pha.Html (div', br)
 import UI.Template (template, card)
-import UI.Icons (iconSizesGroup, iconSelectGroup)
+import UI.Icon (Icon(..))
+import UI.Icons (icongroup, iconSizesGroup, icons2Players, iconSelectGroup, iundo, iredo, ireset, irules)
 
 {-
 const inside = ({position}, row, col) =>
@@ -22,18 +23,17 @@ const inside2 = ({position}, row, col) =>
     !== [position.top, position.bottom].includes(row);    
 -}
 
-view :: forall a. Lens' a ChocolatState -> ChocolatState -> VDom a
+view :: forall a. Lens' a State -> State -> VDom a
 view lens state = template lens {config, board, rules, winTitle} state where
     config = card "Barre de chocolat" [
         iconSizesGroup lens state [Tuple 6 7] true,
         iconSelectGroup lens state "Emplacement du savon" [CornerMode, BorderMode, StandardMode] 
             (state^._soapMode) setSoapModeA \mode opt -> case mode of
-                CornerMode -> opt{tooltip = Just "Dans le coin"}
-                BorderMode -> opt{tooltip = Just "Sur un bord"}
-                StandardMode -> opt{tooltip = Just "N'importe où"}
-        --    I.For2Players(),
-        --    I.Group({ title: 'Options' },
-         --       I.Undo(), I.Redo(), I.Reset(), I.Rules()
+                CornerMode -> opt{icon = IconSymbol "#choc-mode0", tooltip = Just "Dans le coin"}
+                BorderMode -> opt{icon = IconSymbol "#choc-mode1", tooltip = Just "Sur un bord"}
+                StandardMode -> opt{icon = IconSymbol "#choc-mode2", tooltip = Just "N'importe où"},
+        icons2Players lens state,
+        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x lens state
     ]
     {-
     grid = div' [] [

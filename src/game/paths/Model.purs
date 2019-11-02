@@ -6,7 +6,7 @@ import Data.Array.NonEmpty (fromArray, head, last, init, tail) as N
 import Data.Lens (Lens', lens, view, set, (^.), (.~))
 import Lib.Random (randomInt)
 import Lib.Util (dCoords, rangeStep)
-import Game.Core (State(..), class Game, SizeLimit(..), newGame', genState, _nbRows, _nbColumns, _position, playA)
+import Game.Core (GState(..), class Game, SizeLimit(..), newGame', genState, _nbRows, _nbColumns, _position, playA)
 import Pha.Action (Action, action, ifThenElseA)
 infixr 9 compose as ∘
 
@@ -16,16 +16,16 @@ derive instance eqMode :: Eq Mode
 type Position = Array Int
 type Ext' = { exit :: Maybe Int, mode' :: Mode }
 newtype Ext = Ext Ext'
-type PathsState = State Position Ext
+type State = GState Position Ext
 
-pathsState :: PathsState
-pathsState = genState [] (_{nbRows = 4, nbColumns = 6}) (Ext { exit: Nothing, mode': Mode1 })
+state :: State
+state = genState [] (_{nbRows = 4, nbColumns = 6}) (Ext { exit: Nothing, mode': Mode1 })
 
-_ext :: Lens' PathsState Ext'
+_ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
-_exit :: Lens' PathsState (Maybe Int)
+_exit :: Lens' State (Maybe Int)
 _exit = _ext ∘ lens (_.exit) (_{exit = _})
-_mode :: Lens' PathsState Mode
+_mode :: Lens' State Mode
 _mode = _ext ∘ lens (_.mode') (_{mode' = _})
 
 -- renvoie un chemin horizontal ou vertical entre u et v si celui ci existe (u exclus)
@@ -41,7 +41,7 @@ pathBetween columns u v =
 
 -- teste si un chemin est valide (sans répétition de sommets sauf les extrémités si cela créé un cycle hamiltonien)
 -- on ne peut pas passer par le sommet de sortie sauf si c'est le sommet final
-isValidPath :: PathsState -> Array Int -> Boolean
+isValidPath :: State -> Array Int -> Boolean
 isValidPath state path = fromMaybe true $ do
     exit <- state^._exit
     path' <- N.fromArray path
@@ -86,7 +86,7 @@ instance pathGame :: Game (Array Int) Ext Int where
     computerMove _ = Nothing
     sizeLimit _ = SizeLimit 2 2 9 9
 
-selectVertexA :: Int -> Action PathsState
+selectVertexA :: Int -> Action State
 selectVertexA v =
     ifThenElseA (\state _ -> null $ state^._position)
         (action $ _position .~ [v])
@@ -96,5 +96,5 @@ selectVertexA v =
             (playA v)
 
 
-selectModeA :: Mode -> Action PathsState
+selectModeA :: Mode -> Action State
 selectModeA = newGame' $ (set _mode)

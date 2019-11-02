@@ -11,25 +11,25 @@ import Data.Lens.Index (ix)
 import Lib.Util (tabulate2)
 import Pha.Action (Action)
 import Lib.Random (randomInt)
-import Game.Core (class Game, class TwoPlayersGame, State (..), Mode(..),
+import Game.Core (class Game, class TwoPlayersGame, GState(..), Mode(..),
                 genState, newGame', canPlay, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
 infixr 9 compose as ∘
 
 data Move = Move Int Int
 type Ext' = { nbPiles :: Int, length :: Int }
 newtype ExtState = Ext Ext'
-type NimState = State (Array (Tuple Int Int)) ExtState
+type State = GState (Array (Tuple Int Int)) ExtState
 
-nimState :: NimState
-nimState = genState [] (_{mode = ExpertMode }) (Ext { length: 10, nbPiles: 4 })
+state :: State
+state = genState [] (_{mode = ExpertMode }) (Ext { length: 10, nbPiles: 4 })
 
-_ext :: Lens' NimState Ext'
+_ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 
-_length :: Lens' NimState Int
+_length :: Lens' State Int
 _length = _ext ∘ lens (_.length) (_{length = _})
 
-_nbPiles :: Lens' NimState Int
+_nbPiles :: Lens' State Int
 _nbPiles = _ext ∘ lens (_.nbPiles) (_{nbPiles = _})
 
 instance nimGame :: Game (Array (Tuple Int Int)) ExtState Move where
@@ -66,8 +66,8 @@ instance nimGame2 :: TwoPlayersGame (Array (Tuple Int Int)) ExtState Move where
 
     isLosingPosition = eq 0 ∘ foldr (\t -> xor (snd t - fst t - 1)) 0 ∘ view _position
 
-setNbPilesA :: Int -> Action NimState
+setNbPilesA :: Int -> Action State
 setNbPilesA = newGame' (set _nbPiles)
 
-setLengthA :: Int -> Action NimState
+setLengthA :: Int -> Action State
 setLengthA = newGame'(set _length)

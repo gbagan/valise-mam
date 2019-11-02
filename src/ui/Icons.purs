@@ -7,14 +7,14 @@ import Data.Lens (Lens', (^.), (.~))
 import Pha (VDom, Prop, text)
 import Pha.Action (Action, action, (🎲))
 import Pha.Html (div', h2, class', click)
-import Game.Core (State, class Game, Dialog(Rules), Mode(..),
+import Game.Core (GState, class Game, Dialog(Rules), Mode(..),
                 undoA, redoA, resetA, toggleHelpA, setModeA, computerStartsA, setGridSizeA,
                 _help, _dialog, _history, _redoHistory, _mode, _nbRows, _nbColumns, _locked, _customSize)
 import UI.Icon (iconbutton, Options, Icon(..)) as I
 infixr 9 compose as ∘
 
 iconbutton :: forall a b d.
-    State a b
+    GState a b
     -> (I.Options -> I.Options)
     -> Array (Prop d)
     -> VDom d
@@ -29,19 +29,19 @@ icongroup title children =
     ]
 
 iconSelect :: forall a pos ext sel. Eq sel =>
-    Lens' a (State pos ext) -> State pos ext -> sel -> (sel -> Action (State pos ext)) -> sel
+    Lens' a (GState pos ext) -> GState pos ext -> sel -> (sel -> Action (GState pos ext)) -> sel
   -> (I.Options -> I.Options) -> VDom a
 iconSelect lens state selection action value optionFn =
     iconbutton state (\opt -> optionFn $ opt{selected = value == selection}) [click $ lens 🎲 action value]
 
-iundo :: forall a b d. Lens' d (State a b) -> State a b -> VDom d
+iundo :: forall a b d. Lens' d (GState a b) -> GState a b -> VDom d
 iundo lens state =
     iconbutton
         state
         (_{icon = I.IconSymbol "#undo", tooltip = Just "Annule le dernier coup effectué", disabled = null $ state^._history})
         [click $ lens 🎲 undoA]
 
-iredo :: forall a b d. Lens' d (State a b) -> State a b -> VDom d
+iredo :: forall a b d. Lens' d (GState a b) -> GState a b -> VDom d
 iredo lens state =
     iconbutton
         state
@@ -51,21 +51,21 @@ iredo lens state =
             style = [Tuple "transform" "scaleX(-1)"]})
         [click $ lens 🎲 redoA]
 
-ireset :: forall a b d. Lens' d (State a b) -> State a b -> VDom d
+ireset :: forall a b d. Lens' d (GState a b) -> GState a b -> VDom d
 ireset lens state =
     iconbutton
         state
         (_{icon = I.IconSymbol "#reset", tooltip = Just "Recommence la partie", disabled = null $ state^._history})
         [click $ lens 🎲 resetA]
 
-ihelp ::forall a b d. Lens' d (State a b) -> State a b -> VDom d
+ihelp ::forall a b d. Lens' d (GState a b) -> GState a b -> VDom d
 ihelp lens state =
     iconbutton
         state
         (_{icon = I.IconSymbol "#help", tooltip = Just "Aide", selected = state^._help})
         [click $ lens 🎲 toggleHelpA]
 
-irules :: forall a b d. Lens' d (State a b) -> State a b -> VDom d
+irules :: forall a b d. Lens' d (GState a b) -> GState a b -> VDom d
 irules lens state =
     iconbutton
         state
@@ -78,7 +78,7 @@ irules lens state =
 
 iconSelectGroup :: forall a pos ext d.
     Show a => Eq a =>
-    Lens' d (State pos ext) -> State pos ext -> String -> Array a -> a -> (a -> Action (State pos ext)) 
+    Lens' d (GState pos ext) -> GState pos ext -> String -> Array a -> a -> (a -> Action (GState pos ext)) 
     -> (a -> I.Options -> I.Options) -> VDom d
 iconSelectGroup lens state title values selected action optionFn =
     icongroup title $ values <#> \val ->
@@ -89,7 +89,7 @@ iconSelectGroup lens state title values selected action optionFn =
 
 iconSelectGroupM :: forall a pos ext d.
     Show a => Eq a =>
-    Lens' d (State pos ext) -> State pos ext -> String -> Array a -> Array a -> (a -> Action (State pos ext))
+    Lens' d (GState pos ext) -> GState pos ext -> String -> Array a -> Array a -> (a -> Action (GState pos ext))
     -> (a -> I.Options -> I.Options) -> VDom d
 iconSelectGroupM lens state title values selected action optionFn =
     icongroup title $ values <#> \val ->
@@ -99,7 +99,7 @@ iconSelectGroupM lens state title values selected action optionFn =
         })) [click $ lens 🎲 action val]
 
 iconSizesGroup :: forall a pos ext mov. Game pos ext mov =>
-    Lens' a (State pos ext) -> State pos ext -> Array (Tuple Int Int) -> Boolean -> VDom a
+    Lens' a (GState pos ext) -> GState pos ext -> Array (Tuple Int Int) -> Boolean -> VDom a
 iconSizesGroup lens state sizeList customSize =
     icongroup "Dimensions de la grille" $
         (sizeList <#> \(Tuple rows cols) ->
@@ -116,7 +116,7 @@ iconSizesGroup lens state sizeList customSize =
     ccols = state^._nbColumns
     csize = state^._customSize
 
-icons2Players :: forall a pos ext mov. Game pos ext mov => Lens' a (State pos ext) -> State pos ext -> VDom a
+icons2Players :: forall a pos ext mov. Game pos ext mov => Lens' a (GState pos ext) -> GState pos ext -> VDom a
 icons2Players lens state =
     icongroup "Mode de jeu" [
         iconbutton

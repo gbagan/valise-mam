@@ -10,7 +10,7 @@ import Pha.Action ((🎲))
 import Pha.Html (div', svguse, class', key, style, click)
 import Lib.Util (coords, map2)
 import Game.Core (_position, _nbRows, _nbColumns, _help)
-import Game.Noirblanc.Model (NoirblancState, _level, _mode2, _maxLevels, play2A, selectLevelA, selectModeA)
+import Game.Noirblanc.Model (State, _level, _mode2, _maxLevels, play2A, selectLevelA, selectModeA)
 import UI.Icon (Icon(..), Options)
 import UI.Icons (icongroup, ihelp, ireset, irules, iconSelectGroup)
 import UI.Template (template, card, incDecGrid, gridStyle)
@@ -39,7 +39,7 @@ square light cross props =
         ]
     ]
 
-view :: forall a. Lens' a NoirblancState -> NoirblancState -> VDom a
+view :: forall a. Lens' a State -> State -> VDom a
 view lens state = template lens {config, board, rules, winTitle} state where
     rows = state^._nbRows
     columns = state^._nbColumns

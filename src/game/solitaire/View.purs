@@ -11,7 +11,7 @@ import Pha (VDom, text, whenN, maybeN)
 import Pha.Action ((🎲))
 import Pha.Html (div', br, svg, rect, circle, key, attr, class', style,click, width, height, viewBox, fill, stroke, strokeWidth, translate)
 import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointerPosition)
-import Game.Solitaire.Model (SolitaireState, Board(..), _board, _holes, _dragged, _help, setBoardA, toggleHelpA)
+import Game.Solitaire.Model (State, Board(..), _board, _holes, _dragged, _help, setBoardA, toggleHelpA)
 import UI.Icon (Icon(..))
 import UI.Icons (iconbutton, icongroup, iconSelect, iundo, iredo, ireset, irules)
 import UI.Template (template, card, gridStyle, incDecGrid, svgCursorStyle, dndBoardProps, dndItemProps)
@@ -26,7 +26,7 @@ tricolor i columns help =
 cursor :: forall a b. PointerPosition -> b -> VDom a
 cursor pp _ = circle 0.0 0.0 20.0 ([attr "pointer-events" "none", fill "url(#soli-peg)"] <> svgCursorStyle pp)
 
-view :: forall a. Lens' a SolitaireState -> SolitaireState -> VDom a
+view :: forall a. Lens' a State -> State -> VDom a
 view lens state = template lens {config, board, rules, winTitle} state where
     columns = state^._nbColumns
     rows = state^._nbRows

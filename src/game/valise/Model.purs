@@ -6,7 +6,7 @@ import Pha.Action (Action, action, asyncAction)
 import Data.Time.Duration (Milliseconds(..))
 infixr 9 compose as ∘
 
-type ValiseState = {
+type State = {
     isOpen :: Boolean,
     -- linksAreActive :: Boolean, -- utile?
     help :: String, --- Maybe?
@@ -17,8 +17,8 @@ type ValiseState = {
     pawPassings :: Int
 }
 
-valiseState :: ValiseState
-valiseState = {
+state :: State
+state = {
     isOpen: false,
     -- linksAreActive: false,
     help: "",
@@ -29,26 +29,26 @@ valiseState = {
     pawPassings: 0
 }
 
-_help :: Lens' ValiseState String
+_help :: Lens' State String
 _help = lens (_.help) (_{help = _})
-_helpVisible :: Lens' ValiseState Boolean
+_helpVisible :: Lens' State Boolean
 _helpVisible = lens (_.helpVisible) (_{helpVisible = _})
-_pawPassings :: Lens' ValiseState Int
+_pawPassings :: Lens' State Int
 _pawPassings = lens (_.pawPassings) (_{pawPassings = _})
-_isSwitchOn :: Lens' ValiseState Boolean
+_isSwitchOn :: Lens' State Boolean
 _isSwitchOn = lens (_.isSwitchOn) (_{isSwitchOn = _})
 
 
-incPawPassingsA :: Action ValiseState
+incPawPassingsA :: Action State
 incPawPassingsA = action $ _pawPassings %~ \x -> min 4 (x + 1)
 
-showHelpA :: String -> Action ValiseState
+showHelpA :: String -> Action State
 showHelpA help = action $ (_help %~ if help == "" then identity else const help) ∘ (_helpVisible .~ (help /= ""))
 
-toggleSwitchA :: Action ValiseState
+toggleSwitchA :: Action State
 toggleSwitchA = action $ _isSwitchOn %~ not
 
-enterA :: Action ValiseState
+enterA :: Action State
 enterA = asyncAction \{updateState, dispatch} _ -> do
     _ <- updateState (\st -> st{
           isOpen = false,

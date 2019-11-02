@@ -5,20 +5,20 @@ import Data.Array (length, replicate, (!!), (..), updateAt, modifyAt, all)
 import Data.Maybe (Maybe (..), fromMaybe)
 import Data.Lens (Lens', lens, (^.))
 import Lib.Util (dCoords)
-import Game.Core (class Game, State(..), SizeLimit (..), genState, _position, _nbColumns, _nbRows, defaultOnNewGame)
+import Game.Core (class Game, GState(..), SizeLimit (..), genState, _position, _nbColumns, _nbRows, defaultOnNewGame)
 infixr 9 compose as ∘
 
 type Position = Array Int
 type Ext' = { dragged :: Maybe Int }
 newtype Ext = Ext Ext'
-type JetonsState = State Position Ext
+type State = GState Position Ext
 
-jetonsState :: JetonsState
-jetonsState = genState [] (_{nbRows = 4, nbColumns = 4}) (Ext { dragged: Nothing })
+state :: State
+state = genState [] (_{nbRows = 4, nbColumns = 4}) (Ext { dragged: Nothing })
 
-_ext :: Lens' JetonsState Ext'
+_ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
-_dragged :: Lens' JetonsState (Maybe Int)
+_dragged :: Lens' State (Maybe Int)
 _dragged = _ext ∘ lens (_.dragged) (_{dragged = _})
 
 instance jetonsGame :: Game (Array Int) Ext { from :: Int, to :: Int } where

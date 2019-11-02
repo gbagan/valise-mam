@@ -11,7 +11,7 @@ import Pha (VDom, Prop, h, text)
 import Pha.Action ((🎲))
 import Pha.Html (div', br, class', attr, svg, key, style, width, height, href, click, pointerenter, pointerleave)
 import Game.Core (_position, _nbRows, _nbColumns, _help, _pointerPosition)
-import Game.Queens.Model (QueensState, Piece(..), _selectedPiece, _selectedSquare, _allowedPieces, _multiPieces,
+import Game.Queens.Model (State, Piece(..), _selectedPiece, _selectedSquare, _allowedPieces, _multiPieces,
                            piecesList, capturableSquares, attackedBySelected,
                            playA, selectSquareA, selectPieceA, selectAllowedPieceA, toggleMultiPiecesA)
 import UI.Template (template, card, incDecGrid, gridStyle, trackPointer, cursorStyle)
@@ -41,7 +41,7 @@ square { piece, capturable, selected, nonavailable} props =
         ]
     ]
 
-view :: forall a. Lens' a QueensState -> QueensState -> VDom a
+view :: forall a. Lens' a State -> State -> VDom a
 view lens state = template lens {config, board, rules, winTitle} state where
     position = state^._position
     rows = state^._nbRows

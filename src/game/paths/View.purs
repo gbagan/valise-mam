@@ -8,7 +8,7 @@ import Data.Int (toNumber, even)
 import Data.String (joinWith)
 import Lib.Util (coords, tabulate)
 import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _pointerPosition)
-import Game.Paths.Model (PathsState, Mode(..), _exit, _mode, selectVertexA, selectModeA)
+import Game.Paths.Model (State, Mode(..), _exit, _mode, selectVertexA, selectModeA)
 import Pha (VDom, Prop, text, emptyNode, maybeN, whenN)
 import Pha.Action ((🎲))
 import Pha.Html (div', p, br, g, svg, use, path, key, class', attr, click, style, width, height, viewBox)
@@ -41,7 +41,7 @@ heroCursor pp =
         attr "pointer-events" "none"
     ] <> svgCursorStyle pp
 
-view :: forall a. Lens' a PathsState -> PathsState -> VDom a
+view :: forall a. Lens' a State -> State -> VDom a
 view lens state = template lens {config, board, rules, winTitle} state where
     position = state^._position
     rows = state^._nbRows

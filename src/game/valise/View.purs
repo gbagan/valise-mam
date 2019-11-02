@@ -2,7 +2,7 @@ module Game.Valise.View where
 import Prelude
 import Data.Maybe (Maybe(..))
 import Data.Lens (Lens')
-import Game.Valise.Model (ValiseState, showHelpA)
+import Game.Valise.Model (State, showHelpA)
 import Pha (VDom, Prop, h, text, whenN, maybeN)
 import Pha.Action ((🎲))
 import Pha.Html (div', a, svg, g, class', svguse, href, width, height, viewBox, fill, attr, transform, style, x, y,
@@ -18,7 +18,7 @@ pos x' y' w h = [
 
 
 
-valise :: forall a.  Lens' a ValiseState -> ValiseState -> VDom a
+valise :: forall a. Lens' a State -> State -> VDom a
 valise lens state = svg [viewBox "0 0 825 690"] [
     h "use" [href "#valise", class' "valise-close" true, width "100%", height "100%"] [], 
     
@@ -143,7 +143,7 @@ valise lens state = svg [viewBox "0 0 825 690"] [
                 ]
             ]
 
-view :: forall a. Lens' a ValiseState -> ValiseState -> VDom a 
+view :: forall a. Lens' a State -> State -> VDom a 
 view lens state = div' [
     class' "ui-flex-center valise-main-container" true,
     class' "open" state.isOpen

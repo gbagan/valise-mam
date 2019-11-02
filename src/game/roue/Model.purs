@@ -8,7 +8,7 @@ import Data.Maybe (Maybe(..), maybe, isJust)
 import Data.Time.Duration (Milliseconds(..))
 import Effect.Aff (delay)
 import Lib.Util (swap)
-import Game.Core (class Game, State(..), genState, newGame', lockAction, _position, _showWin, defaultSizeLimit)
+import Game.Core (class Game, GState(..), genState, newGame', lockAction, _position, _showWin, defaultSizeLimit)
 import Pha.Action (Action, action, asyncAction)
 infixr 9 compose as ∘
 
@@ -19,47 +19,47 @@ derive instance eqBall :: Eq Ball
 
 type Ext' = {size :: Int, rotation :: Int, dragged :: Maybe Ball}
 newtype Ext = Ext Ext'
-type RoueState = State Position Ext
+type State = GState Position Ext
 
-roueState :: RoueState
-roueState = genState [] identity (Ext {rotation: 0, size: 5, dragged: Nothing})
+state :: State
+state = genState [] identity (Ext {rotation: 0, size: 5, dragged: Nothing})
 
-_ext :: Lens' RoueState Ext'
+_ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
-_rotation :: Lens' RoueState Int
+_rotation :: Lens' State Int
 _rotation = _ext ∘ lens (_.rotation) (_{rotation = _})
-_size :: Lens' RoueState Int
+_size :: Lens' State Int
 _size = _ext ∘ lens (_.size) (_{size = _})
-_dragged :: Lens' RoueState (Maybe Ball)
+_dragged :: Lens' State (Maybe Ball)
 _dragged = _ext ∘ lens (_.dragged) (_{dragged = _})
 
 -- renvoie un tableau indiquant quelles sont les balles alignées avec leur couleur
-aligned :: RoueState -> Array Boolean
+aligned :: State -> Array Boolean
 aligned state =
     state^._position # mapWithIndex (\index -> maybe false $ \c -> c == (index + rot) `mod` n)
     where
         n = length $ state^._position
         rot = state^._rotation
 
-validRotation' :: RoueState -> Boolean
+validRotation' :: State -> Boolean
 validRotation' state = (length $ filter identity $ aligned state) == 1
 
 -- une rotation est valide si exactement une couleur est alignée et il y a une balle pour chque couleur         
-validRotation :: RoueState -> Boolean
+validRotation :: State -> Boolean
 validRotation state = validRotation' state && (all isJust $ state^._position )
 
 -- tourne la roue de i crans
-rotate :: Int -> RoueState -> RoueState
+rotate :: Int -> State -> State
 rotate i = _rotation %~ add i
 
-rotateA :: Int -> Action RoueState
+rotateA :: Int -> Action State
 rotateA i = action $ rotate i
 
-setSizeA :: Int -> Action RoueState
+setSizeA :: Int -> Action State
 setSizeA = newGame' (set _size)
 
 
-checkA :: Action RoueState
+checkA :: Action State
 checkA = lockAction $ asyncAction \h state ->
     aux h (state^._size) where
     aux h 0 = do
@@ -75,7 +75,7 @@ checkA = lockAction $ asyncAction \h state ->
             delay $ Milliseconds 600.0
             aux h (i-1)
 
-deleteDraggedA :: Action RoueState
+deleteDraggedA :: Action State
 deleteDraggedA = action \state ->
     let state2 = state # _dragged .~ Nothing in
     state^._dragged # maybe state2 \dragged -> 

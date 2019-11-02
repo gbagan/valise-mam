@@ -6,7 +6,7 @@ import Data.Lens.Index (ix)
 import Data.Maybe (Maybe(..), maybe)
 import Data.Array ((!!), all, catMaybes, elem, foldl, length, mapWithIndex, replicate)
 import Lib.Util (coords)
-import Game.Core (State(..), class Game, SizeLimit(..), canPlay, genState, newGame', playA, _position, _nbColumns, _nbRows)
+import Game.Core (GState(..), class Game, SizeLimit(..), canPlay, genState, newGame', playA, _position, _nbColumns, _nbRows)
 import Pha.Action (Action, action, noAction, ifThenElseA)
 infixr 9 compose as ∘
 
@@ -48,26 +48,26 @@ type Ext' = {
 }
 
 newtype ExtState = Ext Ext'
-type TilingState = State (Array Int) ExtState
+type State = GState (Array Int) ExtState
 
-tilingState :: TilingState
-tilingState = genState [] (_{nbRows = 5, nbColumns = 5}) (Ext { rotation: 0, tileType: Type1, tile: [], nbSinks: 0, hoverSquare: Nothing })
+state :: State
+state = genState [] (_{nbRows = 5, nbColumns = 5}) (Ext { rotation: 0, tileType: Type1, tile: [], nbSinks: 0, hoverSquare: Nothing })
 
-_ext :: Lens' TilingState Ext'
+_ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
-_rotation :: Lens' TilingState Int
+_rotation :: Lens' State Int
 _rotation = _ext ∘ lens (_.rotation) (_{rotation = _})
-_tile :: Lens' TilingState Tile
+_tile :: Lens' State Tile
 _tile = _ext ∘ lens (_.tile) (_{tile = _})
-_tileType :: Lens' TilingState TileType
+_tileType :: Lens' State TileType
 _tileType = _ext ∘ lens (_.tileType) (_{tileType = _})
-_nbSinks :: Lens' TilingState Int
+_nbSinks :: Lens' State Int
 _nbSinks = _ext ∘ lens (_.nbSinks) (_{nbSinks = _})
-_hoverSquare :: Lens' TilingState (Maybe Int)
+_hoverSquare :: Lens' State (Maybe Int)
 _hoverSquare = _ext ∘ lens (_.hoverSquare) (_{hoverSquare = _})
 
 -- renvoie la liste des positions où devra être posée une tuile,  -1 est une position invalide
-placeTile :: TilingState -> Int -> Array Int
+placeTile :: State -> Int -> Array Int
 placeTile state index = 
     state^._tile
     # rotate ((state^._rotation) `mod` 4)
@@ -76,11 +76,11 @@ placeTile state index =
     where columns = state^._nbColumns
 
 -- teste si une tuile peut être posée à partir de la liste des positions otenues par placeTile
-canPutTile :: TilingState -> Array Int -> Boolean
+canPutTile :: State -> Array Int -> Boolean
 canPutTile state = all \index -> maybe false (eq 0) (state^._position !! index)
 
 -- renvoie la liste des positions des éviers
-sinks :: TilingState -> Array Int
+sinks :: State -> Array Int
 sinks state = state^._position # mapWithIndex (\i v -> if v == -1 then Just i else Nothing) # catMaybes
 
 instance tilingGame :: Game (Array Int) ExtState Int where
@@ -108,30 +108,29 @@ instance tilingGame :: Game (Array Int) ExtState Int where
     computerMove _ = Nothing
   
 
-putSinkA :: Int -> Action TilingState
+putSinkA :: Int -> Action State
 putSinkA i = action $ (_position ∘ ix i) .~ (-1)
 
-setNbSinksA :: Int -> Action TilingState
+setNbSinksA :: Int -> Action State
 setNbSinksA = newGame' (set _nbSinks)
 
-setTileA :: TileType -> Action TilingState
+setTileA :: TileType -> Action State
 setTileA = newGame' (set _tileType)
 
-clickOnCellA :: Int -> Action TilingState
+clickOnCellA :: Int -> Action State
 clickOnCellA a = ifThenElseA (\s e -> length (sinks s) < s^._nbSinks) (putSinkA a) (playA a)
 
-rotateA :: Action TilingState
+rotateA :: Action State
 rotateA = action $ _rotation %~ (add 1)
 
-setHoverSquareA :: Maybe Int -> Action TilingState
+setHoverSquareA :: Maybe Int -> Action State
 setHoverSquareA a = action $ _hoverSquare .~ a
 
-inConflict :: TilingState -> Boolean
+inConflict :: State -> Boolean
 inConflict state = state^._hoverSquare # maybe false \sqr -> state^._position !! sqr /= Just 0 || not canPlay state sqr
 
-onKeyDown :: String -> Action TilingState
+onKeyDown :: String -> Action State
 onKeyDown " " = rotateA
--- key
 onKeyDown _ = noAction
 
 {-            

@@ -18,7 +18,7 @@ import Pha.Event (shiftKey)
 import UI.Template (template, card, incDecGrid, winTitleFor2Players)
 import UI.Icons (icongroup, iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
 import Game.Core (Mode(..), _nbRows, _position, _turn, _mode, _help, playA)
-import Game.Frog.Model (FrogState, _moves, _marked, selectMoveA, reachableArray, markA)
+import Game.Frog.Model (State, _moves, _marked, selectMoveA, reachableArray, markA)
 
 type Cartesian = { x :: Number, y :: Number}
 type Polar = { radius :: Number, theta :: Number }
@@ -76,7 +76,7 @@ lily i x y reachable hidden =
         class' "hidden" hidden
     ]
 
-view :: forall a. Lens' a FrogState -> FrogState -> VDom a
+view :: forall a. Lens' a State -> State -> VDom a
 view lens state = template lens {config, board, rules, winTitle} state where
     position = state^._position
     reachable = reachableArray state

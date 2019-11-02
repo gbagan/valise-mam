@@ -46,10 +46,10 @@ view lens state = template lens {config, board, rules, winTitle} state where
     position = state^._position
 
     config = card "Tout noir tout blanc" [
-        let fn i = _{icon = IconSymbol $ "#lo-mode" <> show (i + 1)} in
-        iconSelectGroup lens state "Mode jeu" [0, 1, 2, 3] fn (state^._mode2) selectModeA,
-        let fn i opt = (levels i opt){disabled = Just i > (state^._maxLevels) !! (state^._mode2)  }  in
-        iconSelectGroup lens state "Difficulté" [0, 1, 2, 3, 4, 5, 6] fn (state^._level) selectLevelA,
+        iconSelectGroup lens state "Mode jeu" [0, 1, 2, 3] (state^._mode2) selectModeA \i opt ->
+            opt{icon = IconSymbol $ "#lo-mode" <> show (i + 1)},
+        iconSelectGroup lens state "Difficulté" [0, 1, 2, 3, 4, 5, 6] (state^._level) selectLevelA \i opt ->
+            (levels i opt){disabled = Just i > (state^._maxLevels) !! (state^._mode2)},
         icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state
     ]
 

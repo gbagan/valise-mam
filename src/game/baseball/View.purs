@@ -11,7 +11,7 @@ import Pha.Html (div', svg, g, rect, use, class', key, style,
             click, width, height, stroke, fill, viewBox, translate)
 import Lib.Util (map2)
 import Game.Core (canPlay, playA, isLevelFinished, _position)
-import Game.Baseball.Model (BaseballState, setNbBases, _nbBases)
+import Game.Baseball.Model (BaseballState, setNbBases, _nbBases, _missingPeg)
 import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 
@@ -37,7 +37,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
     levelFinished = isLevelFinished state
     config =
         card "Baseball multicolore" [
-            iconSelectGroup lens state "Nombres de bases" [4, 5, 6, 7, 8] (const identity) nbBases setNbBases,
+            iconSelectGroup lens state "Nombres de bases" [4, 5, 6, 7, 8] nbBases setNbBases (const identity),
             icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> \x -> x lens state
         ]
 
@@ -52,7 +52,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                         style "transform" $ transformBase i nbBases
                     ]
                 ) <> (map2 (state^._position) dupColors \peg pos color ->
-                    whenN (peg > 0) \_ ->
+                    whenN (peg /= state^._missingPeg) \_ ->
                         g [
                             class' "baseball-player" true,
                             style "transform" $ translatePeg pos nbBases,

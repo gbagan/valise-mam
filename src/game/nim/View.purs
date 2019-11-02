@@ -20,8 +20,8 @@ view lens state = template lens {config, board, rules, winTitle} state where
     length = state^._length
 
     config = card "Poker Nim" [
-        iconSelectGroup lens state "Nombre de rangées" [1, 2, 3, 4, 5] (const identity) nbPiles setNbPilesA,
-        iconSelectGroup lens state "Taille des rangées" [10, 5] (const identity) length setLengthA,
+        iconSelectGroup lens state "Nombre de rangées" [1, 2, 3, 4, 5] nbPiles setNbPilesA (const identity),
+        iconSelectGroup lens state "Taille des rangées" [10, 5] length setLengthA (const identity),
         icons2Players lens state,
         icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x lens state
     ]

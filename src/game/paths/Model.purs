@@ -5,7 +5,7 @@ import Data.Array (length, nub, elem, null, head, last)
 import Data.Array.NonEmpty (fromArray, head, last, init, tail) as N
 import Data.Lens (Lens', lens, view, set, (^.), (.~))
 import Lib.Random (randomInt)
-import Lib.Util (dCoords, range)
+import Lib.Util (dCoords, rangeStep)
 import Game.Core (State(..), class Game, SizeLimit(..), newGame', genState, _nbRows, _nbColumns, _position, playA)
 import Pha.Action (Action, action, ifThenElseA)
 infixr 9 compose as ∘
@@ -33,9 +33,9 @@ pathBetween :: Int -> Int -> Int -> Maybe (Array Int)
 pathBetween columns u v =
     let {row, col} = dCoords columns u v in
     if row == 0 then
-        Just (if u < v then range (u + 1) v 1 else range (u - 1) v (-1))
+        Just (if u < v then rangeStep (u + 1) v 1 else rangeStep (u - 1) v (-1))
     else if col == 0 then
-        Just (if u < v then range (u + columns) v columns else range (u - columns) v (-columns))
+        Just (if u < v then rangeStep (u + columns) v columns else rangeStep (u - columns) v (-columns))
     else
         Nothing
 

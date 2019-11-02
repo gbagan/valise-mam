@@ -44,10 +44,9 @@ view lens state = template lens {config, board, rules, winTitle} state where
 
     config = card "Carrelage" [
         iconSizesGroup lens state [Tuple 4 5, Tuple 5 5, Tuple 5 6, Tuple 7 7] true,
-        iconSelectGroup lens state "Motif du pavé" [Type1, Type2, Type3]
-            (\t -> _{icon = IconSymbol ("#" <> show t)})
-            (state^._tileType) setTileA,  --- custom
-        iconSelectGroup lens state "Nombre d'éviers" [0, 1, 2] (const identity) (state^._nbSinks) setNbSinksA,
+        iconSelectGroup lens state "Motif du pavé" [Type1, Type2, Type3] (state^._tileType) setTileA \t ->
+            _{icon = IconSymbol ("#" <> show t)},  --- custom
+        iconSelectGroup lens state "Nombre d'éviers" [0, 1, 2] (state^._nbSinks) setNbSinksA (const identity),
         icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state
     ]
 

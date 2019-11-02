@@ -75,6 +75,7 @@ checkA = lockAction $ asyncAction \h state ->
             delay $ Milliseconds 600.0
             aux h (i-1)
 
+deleteDraggedA :: Action RoueState
 deleteDraggedA = action \state ->
     let state2 = state # _dragged .~ Nothing in
     state^._dragged # maybe state2 \dragged -> 

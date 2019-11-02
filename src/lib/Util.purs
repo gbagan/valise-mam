@@ -3,8 +3,12 @@ module Lib.Util where
 import Prelude
 import Data.Maybe (fromMaybe, maybe)
 import Data.Tuple (Tuple)
-import Data.Array ((..), (!!), mapWithIndex, updateAt, tail, zip, zipWith)
+import Data.Array (range, (!!), mapWithIndex, updateAt, tail, zip, zipWith)
 import Data.Int (toNumber, floor)
+
+range' :: Int -> Int -> Array Int
+range' n m = if n > m then [] else range n m
+infix 8 range' as ..
 
 tabulate :: forall a. Int -> (Int -> a) -> Array a
 tabulate 0 _ = []
@@ -19,8 +23,8 @@ map2 t1 t2 fn = zipWith ($) (mapWithIndex fn t1) t2
 map3 :: forall a b c d. Array a -> Array b -> Array c -> (Int -> a -> b -> c -> d) -> Array d
 map3 t1 t2 t3 fn = zipWith ($) (zipWith ($) (mapWithIndex fn t1) t2) t3
 
-range :: Int -> Int -> Int -> Array Int
-range begin end step = tabulate (max 0 (1 + (end - begin) `div` step)) \i -> begin + i * step
+rangeStep :: Int -> Int -> Int -> Array Int
+rangeStep begin end step = tabulate (max 0 (1 + (end - begin) `div` step)) \i -> begin + i * step
 
 floatRange :: Number -> Number -> Number -> Array Number
 floatRange begin end step = tabulate (max 0 (floor $ 1.0 + (end - begin) / step)) \i -> begin + toNumber i * step

@@ -49,9 +49,8 @@ view lens state = template lens {config, board, rules, winTitle} state where
         
     config = card "Les reines" [
         iconSizesGroup lens state [Tuple 4 4, Tuple 5 5, Tuple 7 7, Tuple 8 8] true,
-        iconSelectGroupM lens state "Pièces disponibles" piecesList 
-                (\piece -> _{icon = IconSymbol $ "#piece-" <> show piece, tooltip = Just $ tooltip piece}) 
-                (state^._allowedPieces) selectAllowedPieceA,
+        iconSelectGroupM lens state "Pièces disponibles" piecesList (state^._allowedPieces) selectAllowedPieceA \piece opt ->
+            opt{icon = IconSymbol $ "#piece-" <> show piece, tooltip = Just $ tooltip piece},
         icongroup "Options" $ [
             iconbutton state (_{icon = IconSymbol "#customize",
                               selected = head (state^._allowedPieces) == Just Custom,

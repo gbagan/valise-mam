@@ -62,7 +62,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
     valid = validRotation state
 
     config = card "Roue des couleurs" [
-        iconSelectGroup lens state "Nombre de couleurs" [4, 5, 6, 7, 8] (const identity) size setSizeA,        
+        iconSelectGroup lens state "Nombre de couleurs" [4, 5, 6, 7, 8] size setSizeA (const identity),        
         icongroup "Options" $ [ireset, irules] <#> \x -> x lens state
     ]
 

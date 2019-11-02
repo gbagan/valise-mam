@@ -78,8 +78,9 @@ irules lens state =
 
 iconSelectGroup :: forall a pos ext d.
     Show a => Eq a =>
-    Lens' d (State pos ext) -> State pos ext -> String -> Array a -> (a -> I.Options -> I.Options) -> a -> (a -> Action (State pos ext)) -> VDom d
-iconSelectGroup lens state title values optionFn selected action =
+    Lens' d (State pos ext) -> State pos ext -> String -> Array a -> a -> (a -> Action (State pos ext)) 
+    -> (a -> I.Options -> I.Options) -> VDom d
+iconSelectGroup lens state title values selected action optionFn =
     icongroup title $ values <#> \val ->
         iconbutton state (optionFn val ∘ (_{
             icon = I.IconText $ show val,
@@ -88,8 +89,9 @@ iconSelectGroup lens state title values optionFn selected action =
 
 iconSelectGroupM :: forall a pos ext d.
     Show a => Eq a =>
-    Lens' d (State pos ext) -> State pos ext -> String -> Array a -> (a -> I.Options -> I.Options) -> Array a -> (a -> Action (State pos ext)) -> VDom d
-iconSelectGroupM lens state title values optionFn selected action =
+    Lens' d (State pos ext) -> State pos ext -> String -> Array a -> Array a -> (a -> Action (State pos ext))
+    -> (a -> I.Options -> I.Options) -> VDom d
+iconSelectGroupM lens state title values selected action optionFn =
     icongroup title $ values <#> \val ->
         iconbutton state (optionFn val ∘ (_{
             icon = I.IconText $ show val,

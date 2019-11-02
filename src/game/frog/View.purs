@@ -83,7 +83,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
     spoints = spiralPoints (state^._nbRows)
     pointsPolar = spiralPointsPolar $ state^._nbRows
     config = card "La grenouille" [
-        iconSelectGroupM lens state "Déplacements autorisés" [1, 2, 3, 4, 5] (const identity) (state^._moves) selectMoveA,
+        iconSelectGroupM lens state "Déplacements autorisés" [1, 2, 3, 4, 5] (state^._moves) selectMoveA (const identity) ,
         icons2Players lens state,
         icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x lens state
     ]

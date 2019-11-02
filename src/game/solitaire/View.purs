@@ -14,7 +14,7 @@ import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointerPosit
 import Game.Solitaire.Model (SolitaireState, Board(..), _board, _holes, _dragged, _help, setBoardA, toggleHelpA)
 import UI.Icon (Icon(..))
 import UI.Icons (iconbutton, icongroup, iconSelect, iundo, iredo, ireset, irules)
-import UI.Template (template, card, gridStyle, incDecGrid, trackPointer, svgCursorStyle, dndBoardProps, dndItemProps)
+import UI.Template (template, card, gridStyle, incDecGrid, svgCursorStyle, dndBoardProps, dndItemProps)
 
 tricolor :: Int -> Int -> Int -> String
 tricolor i columns help = 

@@ -5,9 +5,12 @@ import Data.Tuple (Tuple(..))
 import Data.Maybe (Maybe(..), maybe)
 import Data.String (drop, indexOf)
 import Data.String.Pattern (Pattern (..))
+import Data.Time.Duration (Milliseconds(..))
 import Effect (Effect)
-import Pha (VDom, app)
+import Effect.Aff (delay, forkAff)
+import Pha (VDom, app, whenN)
 import Pha.Action (Action, (🎲), asyncAction, withPayload, withPayload')
+import Pha.Html (div', a, svguse, key, class', href)
 import Pha.Event (key) as E
 import Lib.Random (runRnd)
 import Game.Core (init)
@@ -56,7 +59,8 @@ type RootState = {
     solitaire :: SolitaireState,
     tiling :: TilingState,
     valise :: ValiseState,
-    location :: String
+    location :: String,
+    anim :: Boolean
 }
 
 -- class Game pos ext mov <= GameLens pos ext mov | ext -> pos mov where
@@ -99,18 +103,16 @@ _valise = lens (_.valise) (_{valise = _})
 foreign import getLocationHref :: Effect String
 
 hashChange :: String -> Action RootState
-hashChange hash = asyncAction \{updateState, dispatch} _ -> do
+hashChange hash = asyncAction \{getState, updateState, dispatch} _ -> do
     let location = extractLocation hash "valise"
-    st <- updateState (_{location = location})
+    _ <- updateState (_{location = location, anim = true})
+    _ <- forkAff $ do
+        delay $ Milliseconds 100.0
+        updateState (_{location = location, anim = false})
     if location == "valise" || location == "" then do
         dispatch (_valise 🎲 Valise.enterA)
     else
-        pure st
-    --    } |> combine(
-    --        enter(location2),
-    --        state.location !== location && asyncToggle('anim', 50)
-    --    );
-    -- };
+        getState
 
 init2 :: Action RootState
 init2 = hashChange `withPayload'` \e -> getLocationHref
@@ -127,7 +129,22 @@ onKeyDown maybek = asyncAction \{dispatch, getState} state ->
                 _ -> pure state
 
 view :: RootState -> VDom RootState
-view state = case state.location of
+view state = div' [
+    key state.location,
+    class' "main-main-container" true,
+    class' "valise" $ state.location == "valise",
+    class' "appear" state.anim
+] [
+    whenN (state.location /= "valise") \_ ->
+        a [
+            class' "main-minivalise-link" true,
+            href "#valise"
+        ] [svguse "#valise" []],
+    viewGame state
+]
+
+viewGame :: RootState -> VDom RootState
+viewGame state = case state.location of
     "baseball" -> BaseballView.view _baseball state.baseball
     "frog" -> FrogView.view _frog state.frog
     "jetons" -> JetonsView.view _jetons state.jetons
@@ -166,7 +183,8 @@ main = do
         solitaire: solitaireState',
         tiling: tilingState',
         valise: valiseState,
-        location: location
+        location: location,
+        anim: false
     }
     app {
         state,

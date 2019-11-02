@@ -45,10 +45,13 @@ instance nimGame :: Game (Array (Tuple Int Int)) ExtState Move where
         \(Tuple p1 p2) -> p2 - p1 == 1 && p1 == (if state^._turn == 1 then state^._length - 2 else 0)
 
     initialPosition state = 
-        sequence $ replicate (state^._nbPiles) $ do
-            x <- randomInt 5
-            y <- randomInt 5
-            pure $ Tuple x (y + 5)
+        sequence $ replicate (state^._nbPiles) $
+            if state^._length == 5 then
+                pure $ Tuple 0 4
+            else do 
+                x <- randomInt 5
+                y <- randomInt 5
+                pure $ Tuple x (y + 5)
 
     computerMove = computerMove'
     sizeLimit = defaultSizeLimit

@@ -1,17 +1,23 @@
 module Game.Chocolat.Model where
 import Prelude
-import Data.Lens (Lens', lens, view, (^.))
+import Data.Lens (Lens', lens, set, view, (^.))
 import Data.Int.Bits ((.^.))
 import Lib.Util ((..))
-import Game.Core (class Game, class TwoPlayersGame, SizeLimit(..), State(..), computerMove', _position, _nbRows, _nbColumns)
+import Pha.Action (Action)
+import Game.Core (class Game, class TwoPlayersGame, SizeLimit(..), State(..), Mode(..),
+                   genState, newGame', computerMove', _position, _nbRows, _nbColumns)
 infixr 9 compose as ∘
 
 data Move = FromLeft Int | FromRight Int | FromTop Int | FromBottom Int
+data SoapMode = CornerMode | BorderMode | StandardMode
+derive instance eqSoapMode :: Eq SoapMode
+instance showSoapMode :: Show SoapMode where show _ = ""
 
 type Position = {left :: Int, top :: Int, right :: Int, bottom :: Int}
 
 type Ext' = {
-    soap :: {row :: Int, col :: Int}
+    soap :: {row :: Int, col :: Int},
+    soapMode :: SoapMode
 }
 newtype ExtState = Ext Ext'
 type ChocolatState = State Position ExtState
@@ -21,6 +27,13 @@ _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 
 _soap :: Lens' ChocolatState {row :: Int, col :: Int}
 _soap = _ext ∘ lens (_.soap) (_{soap = _})
+
+_soapMode :: Lens' ChocolatState SoapMode
+_soapMode = _ext ∘ lens (_.soapMode) (_{soapMode = _})
+
+chocolatState :: ChocolatState
+chocolatState = genState {left: 0, top: 0, right: 0, bottom: 0} (_{nbRows = 6, nbColumns = 7, mode = ExpertMode})
+        (Ext { soap: {row: 0, col: 0}, soapMode: CornerMode})
 
 instance chocolatGame :: Game {left :: Int, top :: Int, right :: Int, bottom :: Int} ExtState Move where
     play state move =
@@ -55,6 +68,9 @@ instance chocolat2Game :: TwoPlayersGame {left :: Int, top :: Int, right :: Int,
         ((left + 1) .. col <#> FromLeft) <> ((col + 1) .. (right - 1) <#> FromRight)
         <> ((top + 1) .. row <#> FromTop) <> ((row + 1) .. (bottom - 1) <#> FromRight) 
 
+setSoapModeA :: SoapMode -> Action ChocolatState
+setSoapModeA = newGame' (set _soapMode)
+
 {-
 export default template({
     state: {
@@ -72,7 +88,7 @@ export default template({
             ]) |> rlift (soap => ({...state, soap})),
     actions: $ => ({
         showCutter: update('cutter'),
-        setSoapMode: $.newGame('soapMode')
+       
     }),
 
     computed: ({ cutter, position }) => ({

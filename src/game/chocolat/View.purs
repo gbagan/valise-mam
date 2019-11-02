@@ -1,3 +1,15 @@
+module Game.Chocolat.View where
+  
+import Prelude
+import Data.Lens (Lens', (^.))
+import Data.Tuple (Tuple(..))
+import Data.Maybe (Maybe(..))
+import Game.Chocolat.Model (ChocolatState, SoapMode(..), _soap, _soapMode, setSoapModeA) 
+import Pha (VDom, text, emptyNode)
+import Pha.Html (div', br)
+import UI.Template (template, card)
+import UI.Icons (iconSizesGroup, iconSelectGroup)
+
 {-
 const inside = ({position}, row, col) =>
     col >= position.left && col <= position.right - 1 &&
@@ -10,19 +22,20 @@ const inside2 = ({position}, row, col) =>
     !== [position.top, position.bottom].includes(row);    
 -}
 
-view :: forall a. Lens' a BaseballState -> BaseballState -> VDom a
+view :: forall a. Lens' a ChocolatState -> ChocolatState -> VDom a
 view lens state = template lens {config, board, rules, winTitle} state where
     config = card "Barre de chocolat" [
         iconSizesGroup lens state [Tuple 6 7] true,
-        iconSelectGroup lens state "Emplacement du savon" [0, 1, 2] state^._soapMode setSoapModeA \mode opt -> case mode of
-            SoapCorner -> opt{tooltip = Just "Dans le coin"}
-            SoapBorder -> opt{tooltip = Just "Sur un bord"}
-            _ -> opt{tooptip = Just "N'importe où"}
+        iconSelectGroup lens state "Emplacement du savon" [CornerMode, BorderMode, StandardMode] 
+            (state^._soapMode) setSoapModeA \mode opt -> case mode of
+                CornerMode -> opt{tooltip = Just "Dans le coin"}
+                BorderMode -> opt{tooltip = Just "Sur un bord"}
+                StandardMode -> opt{tooltip = Just "N'importe où"}
         --    I.For2Players(),
         --    I.Group({ title: 'Options' },
          --       I.Undo(), I.Redo(), I.Reset(), I.Rules()
     ]
-
+    {-
     grid = div' [] [
                 -- hasDnD: true,
                 -- class: 'ui-board',
@@ -38,7 +51,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
             use (50.0 * toNumber soap.col + 12.0) (50.0 * toNumber state.soap.row + 12.0) 26.0 26.0 "#skull" [
                 key "skull",
                 fill "#20AF20"
-            ] {-
+            ] 
                     repeat2(state.rows+1, state.columns+1, (row, col, i) =>
                         inside2(state, row, col) && circle({
                             key: 'c' + i,
@@ -59,18 +72,13 @@ view lens state = template lens {config, board, rules, winTitle} state where
                         x2: 50 * state.cutter2.col,
                         y2: 50 * state.cutter2.row
                     })
-                    -}
         ]
     ]
+    -}
+    board = emptyNode
             
     rules = [text "A chaque tour de ce jeu, tu peux déplacer une pile de jetons vers une case adjacente", br,
             text "qui contient au moins autant de jetons", br,
             text "Le but est de finir la partie avec le moins de cases contenant des piles de jetons."
     ]
-
-    return {
-        canPlay: core.canPlay,
-        winTitle: winTitleFor2Players(state),
-        Config, Board, HelpDialog,
-    };
-});
+    winTitle = "todo" -- winTitleFor2Players(state),

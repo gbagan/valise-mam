@@ -9,11 +9,12 @@ import Data.Lens (Lens', (^.))
 import Math (cos, sin, pi)
 import Lib.Util (map2)
 import Game.Core (PointerPosition, _position, _pointerPosition, _locked)
-import Game.Roue.Model (RoueState, Ball(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, aligned, validRotation, validRotation')
+import Game.Roue.Model (RoueState, Ball(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, deleteDraggedA,
+                        aligned, validRotation, validRotation')
 import Pha (VDom, text, maybeN)
 import Pha.Action ((🎲))
-import Pha.Html (div', button, span, svg, path, key, class', click, style, disabled, viewBox, fill, stroke)
-import UI.Template (template, card, trackPointer, dndItemProps)
+import Pha.Html (div', button, span, svg, path, key, class', click, pointerup, style, disabled, viewBox, fill, stroke)
+import UI.Template (template, card, dndBoardProps, dndItemProps)
 import UI.Icons (icongroup, iconSelectGroup, ireset, irules)
 
 colors :: Array String
@@ -70,7 +71,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
     draggedColor = state^._dragged >>= \d ->
         let colorIndex = case d of
                             Panel i -> i
-                            Wheel i -> fromMaybe (-1) $ (position !! i) >>= identity
+                            Wheel i -> fromMaybe (-1) $ join (position !! i)
                             _ -> -1
         in colors !! colorIndex
 
@@ -93,7 +94,10 @@ view lens state = template lens {config, board, rules, winTitle} state where
             ] []
         )
 
-    board = div' ([class' "roue-board" true] <> trackPointer lens) $ [
+    board = div' (dndBoardProps lens _dragged <> [
+        class' "roue-board" true,
+        pointerup $ lens 🎲 deleteDraggedA
+    ]) [
         div' [class' "roue-buttons" true] $
             [button [
                 class' "ui-button ui-button-primary roue-button" true,

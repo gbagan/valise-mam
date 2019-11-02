@@ -8,6 +8,7 @@ import Lib.Random (randomInt)
 import Lib.Util (dCoords, range)
 import Game.Core (State(..), class Game, SizeLimit(..), newGame', genState, _nbRows, _nbColumns, _position, playA)
 import Pha.Action (Action, action, ifThenElseA)
+infixr 9 compose as ∘
 
 data Mode = Mode1 | Mode2
 derive instance eqMode :: Eq Mode
@@ -23,9 +24,9 @@ pathsState = genState [] (_{nbRows = 4, nbColumns = 6}) (Ext { exit: Nothing, mo
 _ext :: Lens' PathsState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _exit :: Lens' PathsState (Maybe Int)
-_exit = _ext <<< lens (_.exit) (_{exit = _})
+_exit = _ext ∘ lens (_.exit) (_{exit = _})
 _mode :: Lens' PathsState Mode
-_mode = _ext <<< lens (_.mode') (_{mode' = _})
+_mode = _ext ∘ lens (_.mode') (_{mode' = _})
 
 -- renvoie un chemin horizontal ou vertical entre u et v si celui ci existe (u exclus)
 pathBetween :: Int -> Int -> Int -> Maybe (Array Int)
@@ -73,7 +74,7 @@ instance pathGame :: Game (Array Int) Ext Int where
     isLevelFinished state =
         length (state^._position) == state^._nbColumns * state^._nbRows + (if state^._exit == head (state^._position) then 1 else 0)
 
-    initialPosition = pure <<< view _position 
+    initialPosition = pure ∘ view _position 
 
     onNewGame state =
         if state^._mode == Mode1 then

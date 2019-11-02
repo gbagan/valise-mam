@@ -64,7 +64,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
     board = incDecGrid lens state [
         div' ([class' "ui-board" true] <> dndBoardProps lens _dragged <> gridStyle rows columns 3) $
             (position # mapWithIndex \i val ->
-                whenN (val == 0) \_ ->
+                whenN (val /= 0) \_ ->
                     piece i val ([key $ show i] <> dndItemProps lens _dragged true true i state)
             ) <> [maybeN $ cursor <$> state^._pointerPosition <*> state^._dragged]
     ]

@@ -11,6 +11,7 @@ import Lib.KonamiCode (konamiCode)
 import Pha.Action (Action, action)
 import Game.Core (class Game, canPlay, class TwoPlayersGame, Mode(..), State(..), SizeLimit(..),
                 newGame', computerMove', genState, _position, _nbRows)
+infixr 9 compose as ∘
 
 type Ext' = {
     moves :: Array Int,  -- la liste des mouvements autorisées (en nombre de cases)
@@ -26,13 +27,13 @@ type FrogState = State Int ExtState
 _ext :: Lens' FrogState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _moves :: Lens' FrogState (Array Int)
-_moves = _ext <<< lens (_.moves) (_{moves = _})
+_moves = _ext ∘ lens (_.moves) (_{moves = _})
 _winning :: Lens' FrogState (Array Boolean)
-_winning = _ext <<< lens (_.winning) (_{winning = _})
+_winning = _ext ∘ lens (_.winning) (_{winning = _})
 _marked :: Lens' FrogState (Array Boolean)
-_marked = _ext <<< lens (_.marked) (_{marked = _})
+_marked = _ext ∘ lens (_.marked) (_{marked = _})
 _keySequence :: Lens' FrogState (Array String)
-_keySequence = _ext <<< lens (_.keySequence) (_{keySequence = _})
+_keySequence = _ext ∘ lens (_.keySequence) (_{keySequence = _})
 
 frogState :: FrogState
 frogState = genState 20 (_{nbRows = 20, mode = ExpertMode}) (Ext { moves: [1, 2, 3], winning: [], marked: [], keySequence: [] })
@@ -58,7 +59,7 @@ instance frogGame2 :: TwoPlayersGame Int ExtState Int where
 
 -- ajoute ou enlève un mouvement dans la liste des mouvements permis
 selectMoveA :: Int -> Action FrogState
-selectMoveA = newGame' $ over _moves <<< _selectMove where
+selectMoveA = newGame' $ over _moves ∘ _selectMove where
     _selectMove move moves =
         let moves2 = filter (\m -> (m == move) /= elem m moves) (1 .. 5) in
         if null moves2 then moves else moves2
@@ -67,7 +68,7 @@ selectMoveA = newGame' $ over _moves <<< _selectMove where
 winningPositions :: Int -> Array Int -> Array Boolean
 winningPositions size moves =
     let t = tabulate size \i -> defer
-            \_ -> i == 0 || (moves # all \m -> maybe false (not <<< force) (t !! (i - m))) in
+            \_ -> i == 0 || (moves # all \m -> maybe false (not ∘ force) (t !! (i - m))) in
     t <#> force
 
 --- calcule les positions accessibles depluis la position courante
@@ -76,7 +77,7 @@ reachableArray state = tabulate (state^._nbRows + 1) (canPlay state)
 
 -- place/retire une marque à la position i
 markA :: Int -> Action FrogState
-markA i = action $ (_marked <<< ix i) %~ not
+markA i = action $ (_marked ∘ ix i) %~ not
 
 onKeyDown :: String -> Action FrogState
 onKeyDown = konamiCode _keySequence (action \st -> st # _marked .~ st^._winning)

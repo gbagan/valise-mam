@@ -8,6 +8,7 @@ import Lib.Util (swap)
 import Lib.Random (shuffle)
 import Pha.Action (Action)
 import Game.Core (class Game, State(..), genState, newGame', _position, defaultSizeLimit, defaultOnNewGame)
+infixr 9 compose as ∘
 
 type Position = Array Int
 type Ext' = { nbBases :: Int }
@@ -17,7 +18,7 @@ type BaseballState = State Position ExtState
 _ext :: Lens' BaseballState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _nbBases :: Lens' BaseballState Int
-_nbBases = _ext <<< lens (_.nbBases) (_{nbBases = _})
+_nbBases = _ext ∘ lens (_.nbBases) (_{nbBases = _})
 
 baseballState :: BaseballState
 baseballState = genState [] identity (Ext { nbBases: 5 })

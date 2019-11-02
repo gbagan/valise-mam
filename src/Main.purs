@@ -99,14 +99,13 @@ _valise = lens (_.valise) (_{valise = _})
 foreign import getLocationHref :: Effect String
 
 hashChange :: String -> Action RootState
-hashChange hash = asyncAction \{updateState, dispatch} -> do
+hashChange hash = asyncAction \{updateState, dispatch} _ -> do
     let location = extractLocation hash "valise"
-    _ <- updateState (_{location = location})
-    if location == "valise" || location == ""  then do
-        _ <- dispatch (_valise 🎲 Valise.enterA)
-        pure unit
+    st <- updateState (_{location = location})
+    if location == "valise" || location == "" then do
+        dispatch (_valise 🎲 Valise.enterA)
     else
-        pure unit
+        pure st
     --    } |> combine(
     --        enter(location2),
     --        state.location !== location && asyncToggle('anim', 50)
@@ -117,16 +116,15 @@ init2 :: Action RootState
 init2 = hashChange `withPayload'` \e -> getLocationHref
 
 onKeyDown :: (Maybe String) -> Action RootState
-onKeyDown maybek = asyncAction \{dispatch, getState} ->
+onKeyDown maybek = asyncAction \{dispatch, getState} state ->
     case maybek of
-        Nothing -> pure unit
-        Just k -> do
-            state <- getState
+        Nothing -> pure state
+        Just k ->
             case state.location of
                 "tiling" -> dispatch (_tiling 🎲 Tiling.onKeyDown k)
                 "noirblanc" -> dispatch (_noirblanc 🎲 Noirblanc.onKeyDown k)
                 "frog" -> dispatch (_frog 🎲 Frog.onKeyDown k)
-                _ -> pure unit
+                _ -> pure state
 
 view :: RootState -> VDom RootState
 view state = case state.location of

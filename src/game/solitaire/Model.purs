@@ -10,6 +10,7 @@ import Pha.Action (Action, action)
 import Lib.Random (Random, randomInt, randomBool)
 import Lib.Util (tabulate, tabulate2, dCoords)
 import Game.Core (class Game, State(..), SizeLimit(..), genState, canPlay, _nbColumns, _nbRows, _customSize, _position, newGame)
+infixr 9 compose as ∘
 
 type Move = {from :: Int, to :: Int}
 
@@ -32,13 +33,13 @@ solitaireState = genState [] (_{nbRows = 5, nbColumns = 1}) (Ext { board: Circle
 _ext :: Lens' SolitaireState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _board :: Lens' SolitaireState Board
-_board = _ext <<< lens (_.board) (_{board = _})
+_board = _ext ∘ lens (_.board) (_{board = _})
 _holes :: Lens' SolitaireState (Array Boolean)
-_holes = _ext <<< lens (_.holes) (_{holes = _})
+_holes = _ext ∘ lens (_.holes) (_{holes = _})
 _dragged :: Lens' SolitaireState (Maybe Int)
-_dragged = _ext <<< lens (_.dragged) (_{dragged = _})
+_dragged = _ext ∘ lens (_.dragged) (_{dragged = _})
 _help :: Lens' SolitaireState Int
-_help = _ext <<< lens (_.help') (_{help' = _})
+_help = _ext ∘ lens (_.help') (_{help' = _})
 
 betweenMove :: SolitaireState -> Move -> Maybe Int
 betweenMove state { from, to } = 
@@ -86,7 +87,7 @@ instance solitaireGame :: Game (Array Boolean) ExtState {from :: Int, to :: Int}
         (\between -> state^._position # updateAtIndices [Tuple from false, Tuple between false, Tuple to true])
         (betweenMove2 state move)
 
-    initialPosition = pure <<< view _position
+    initialPosition = pure ∘ view _position
 
     isLevelFinished state =
         all identity $ state^._position # mapWithIndex \i val ->

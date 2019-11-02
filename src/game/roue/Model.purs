@@ -10,6 +10,7 @@ import Effect.Aff (delay)
 import Lib.Util (swap)
 import Game.Core (class Game, State(..), genState, newGame', lockAction, _position, _showWin, defaultSizeLimit)
 import Pha.Action (Action, action, asyncAction)
+infixr 9 compose as ∘
 
 type Position = Array (Maybe Int)
 
@@ -26,11 +27,11 @@ roueState = genState [] identity (Ext {rotation: 0, size: 5, dragged: Nothing})
 _ext :: Lens' RoueState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _rotation :: Lens' RoueState Int
-_rotation = _ext <<< lens (_.rotation) (_{rotation = _})
+_rotation = _ext ∘ lens (_.rotation) (_{rotation = _})
 _size :: Lens' RoueState Int
-_size = _ext <<< lens (_.size) (_{size = _})
+_size = _ext ∘ lens (_.size) (_{size = _})
 _dragged :: Lens' RoueState (Maybe Ball)
-_dragged = _ext <<< lens (_.dragged) (_{dragged = _})
+_dragged = _ext ∘ lens (_.dragged) (_{dragged = _})
 
 -- renvoie un tableau indiquant quelles sont les balles alignées avec leur couleur
 aligned :: RoueState -> Array Boolean
@@ -59,22 +60,27 @@ setSizeA = newGame' (set _size)
 
 
 checkA :: Action RoueState
-checkA = lockAction $ asyncAction \h ->
-    h.getState >>= \state -> aux h (state^._size) where
+checkA = lockAction $ asyncAction \h state ->
+    aux h (state^._size) where
     aux h 0 = do
         _ <- h.updateState (_showWin .~ true)
         delay $ Milliseconds 1000.0
-        _ <- h.updateState (_showWin .~ false)
-        pure unit
+        h.updateState (_showWin .~ false)
     aux h i = do
         st2 <- h.getState
         if not (validRotation st2) then
-            pure unit
+            pure st2
         else do
             _ <- h.updateState (rotate 1)
             delay $ Milliseconds 600.0
             aux h (i-1)
 
+deleteDraggedA = action \state ->
+    let state2 = state # _dragged .~ Nothing in
+    state^._dragged # maybe state2 \dragged -> 
+        case dragged of
+            Wheel i -> state2 # (_position ∘ ix i) .~ Nothing
+            _ -> state2
 
 instance roueGame :: Game (Array (Maybe Int)) Ext {from :: Ball, to :: Ball} where
     play state move = act $ state^._position where
@@ -93,7 +99,7 @@ instance roueGame :: Game (Array (Maybe Int)) Ext {from :: Ball, to :: Ball} whe
 
     isLevelFinished _ = false
     
-    onNewGame = pure <<< (_rotation .~ 0)
+    onNewGame = pure ∘ (_rotation .~ 0)
 
     computerMove _ = Nothing
     sizeLimit = defaultSizeLimit

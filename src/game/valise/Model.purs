@@ -4,6 +4,7 @@ import Effect.Aff (delay)
 import Data.Lens (Lens', lens, (.~), (%~))
 import Pha.Action (Action, action, asyncAction)
 import Data.Time.Duration (Milliseconds(..))
+infixr 9 compose as ∘
 
 type ValiseState = {
     isOpen :: Boolean,
@@ -42,13 +43,13 @@ incPawPassingsA :: Action ValiseState
 incPawPassingsA = action $ _pawPassings %~ \x -> min 4 (x + 1)
 
 showHelpA :: String -> Action ValiseState
-showHelpA help = action $ (_help %~ if help == "" then identity else const help) <<< (_helpVisible .~ (help /= ""))
+showHelpA help = action $ (_help %~ if help == "" then identity else const help) ∘ (_helpVisible .~ (help /= ""))
 
 toggleSwitchA :: Action ValiseState
 toggleSwitchA = action $ _isSwitchOn %~ not
 
 enterA :: Action ValiseState
-enterA = asyncAction \{updateState, dispatch} -> do
+enterA = asyncAction \{updateState, dispatch} _ -> do
     _ <- updateState (\st -> st{
           isOpen = false,
          -- drag: null,
@@ -56,8 +57,7 @@ enterA = asyncAction \{updateState, dispatch} -> do
 --        position: {},
           helpVisible = false })
     delay $ Milliseconds 1500.0
-    _ <- updateState (_{isOpen = true})
-    pure unit
+    updateState (_{isOpen = true})
 
 {-
 --const actions = {

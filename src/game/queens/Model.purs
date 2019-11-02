@@ -9,6 +9,7 @@ import Data.Tuple (Tuple(..))
 import Lib.Util (tabulate, dCoords, map2)
 import Game.Core (State(..), class Game, SizeLimit(..), genState, newGame, _position, _nbRows, _nbColumns, playA')
 import Pha.Action (Action, action)
+infixr 9 compose as ∘
 
 piecesList :: Array Piece
 piecesList = [Rook, Bishop, King, Knight, Queen]
@@ -41,13 +42,13 @@ queensState = genState []
 _ext :: Lens' QueensState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _selectedPiece :: Lens' QueensState Piece
-_selectedPiece = _ext <<< lens (_.selectedPiece) (_{selectedPiece = _})
+_selectedPiece = _ext ∘ lens (_.selectedPiece) (_{selectedPiece = _})
 _selectedSquare :: Lens' QueensState (Maybe Int)
-_selectedSquare = _ext <<< lens (_.selectedSquare) (_{selectedSquare = _})
+_selectedSquare = _ext ∘ lens (_.selectedSquare) (_{selectedSquare = _})
 _allowedPieces :: Lens' QueensState (Array Piece)
-_allowedPieces = _ext <<< lens (_.allowedPieces) (_{allowedPieces = _})
+_allowedPieces = _ext ∘ lens (_.allowedPieces) (_{allowedPieces = _})
 _multiPieces :: Lens' QueensState Boolean
-_multiPieces = _ext <<< lens (_.multiPieces) (_{multiPieces = _})
+_multiPieces = _ext ∘ lens (_.multiPieces) (_{multiPieces = _})
 
 -- const f9 = repeat(9, false);
 -- const f25 = repeat(25, false);

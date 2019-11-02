@@ -11,6 +11,7 @@ import Control.Alt ((<|>))
 import Data.Lens (lens, Lens', set, (^.), (.~), (%~))
 import Lib.Random (Random, runRnd, randomPick)
 import Pha.Action (Action, action, randomAction, asyncAction)
+infixr 9 compose as ∘
 
 data Dialog a = Rules | NoDialog | ConfirmNewGame a
 data Mode = SoloMode | RandomMode | ExpertMode | DuelMode
@@ -61,43 +62,43 @@ _core :: forall pos ext. Lens' (State pos ext) (CoreState pos ext)
 _core = lens (\(State c e) -> c) \(State _ ext) x -> State x ext
 
 _position :: forall pos ext. Lens' (State pos ext) pos
-_position = _core <<< lens (_.position) (_{position = _})
+_position = _core ∘ lens (_.position) (_{position = _})
 
 _history :: forall pos ext. Lens' (State pos ext) (Array pos)
-_history = _core <<< lens (_.history) (_{history = _})
+_history = _core ∘ lens (_.history) (_{history = _})
 
 _redoHistory :: forall pos ext. Lens' (State pos ext) (Array pos)
-_redoHistory = _core <<< lens (_.redoHistory) (_{redoHistory = _})
+_redoHistory = _core ∘ lens (_.redoHistory) (_{redoHistory = _})
 
 _mode :: forall pos ext. Lens' (State pos ext) Mode
-_mode = _core <<< lens (_.mode) (_{mode = _})
+_mode = _core ∘ lens (_.mode) (_{mode = _})
 
 _help :: forall pos ext. Lens' (State pos ext) Boolean
-_help = _core <<< lens (_.help) (_{help = _})
+_help = _core ∘ lens (_.help) (_{help = _})
 
 _turn :: forall pos ext. Lens' (State pos ext) Int
-_turn = _core <<< lens (_.turn) (_{turn = _})
+_turn = _core ∘ lens (_.turn) (_{turn = _})
 
 _dialog :: forall pos ext. Lens' (State pos ext) (Dialog (State pos ext))
-_dialog = _core <<< lens (_.dialog) (_{dialog = _})
+_dialog = _core ∘ lens (_.dialog) (_{dialog = _})
 
 _nbRows :: forall pos ext. Lens' (State pos ext) Int
-_nbRows = _core <<< lens (_.nbRows) (_{nbRows = _})
+_nbRows = _core ∘ lens (_.nbRows) (_{nbRows = _})
 
 _nbColumns :: forall pos ext. Lens' (State pos ext) Int
-_nbColumns = _core <<< lens (_.nbColumns) (_{nbColumns = _})
+_nbColumns = _core ∘ lens (_.nbColumns) (_{nbColumns = _})
 
 _customSize :: forall pos ext. Lens' (State pos ext) Boolean
-_customSize = _core <<< lens (_.customSize) (_{customSize = _})
+_customSize = _core ∘ lens (_.customSize) (_{customSize = _})
 
 _locked :: forall pos ext. Lens' (State pos ext) Boolean
-_locked = _core <<< lens (_.locked) (_{locked = _})
+_locked = _core ∘ lens (_.locked) (_{locked = _})
 
 _showWin :: forall pos ext. Lens' (State pos ext) Boolean
-_showWin = _core <<< lens (_.showWin) (_{showWin = _})
+_showWin = _core ∘ lens (_.showWin) (_{showWin = _})
 
 _pointerPosition :: forall pos ext. Lens' (State pos ext) (Maybe PointerPosition)
-_pointerPosition = _core <<< lens (_.pointerPosition) (_{pointerPosition = _})
+_pointerPosition = _core ∘ lens (_.pointerPosition) (_{pointerPosition = _})
 
 data SizeLimit = SizeLimit Int Int Int Int
 
@@ -159,22 +160,20 @@ pushToHistory :: forall pos ext. State pos ext -> State pos ext
 pushToHistory state = state # _history %~ flip snoc (state^._position) # _redoHistory .~ []
 
 showVictory :: forall pos ext. Action (State pos ext)
-showVictory = asyncAction \{updateState} -> do
+showVictory = asyncAction \{updateState} _ -> do
     _ <- updateState $ _showWin .~ true
     delay $ Milliseconds 1000.0
-    _ <- updateState $ _showWin .~ false
-    pure unit
+    updateState $ _showWin .~ false
 
 computerPlay :: forall pos ext mov. Game pos ext mov => Action (State pos ext)
-computerPlay = asyncAction \{getState, updateState, dispatch} -> do
-    state <- getState 
-    computerMove state # maybe (pure unit) \rndmove -> do
+computerPlay = asyncAction \{getState, updateState, dispatch} state -> do 
+    computerMove state # maybe (pure state) \rndmove -> do
         move2 <- liftEffect $ runRnd rndmove
         st2 <- updateState (playAux move2)
         if isLevelFinished st2 then
             dispatch showVictory
         else
-            pure unit
+            pure st2
 
 computerStartsA :: forall pos ext mov. Game pos ext mov => Action (State pos ext)
 computerStartsA = action pushToHistory <> computerPlay
@@ -184,20 +183,19 @@ type PlayOption = {
 }
 
 playA' :: forall pos ext mov. Game pos ext mov => (PlayOption -> PlayOption) -> mov -> Action (State pos ext)
-playA' optionFn move = lockAction $ asyncAction \{getState, updateState, dispatch} -> do
+playA' optionFn move = lockAction $ asyncAction \{getState, updateState, dispatch} state -> do
     let {showWin} = optionFn {showWin: true}
-    state <- getState
     if not $ canPlay state move then
-        pure unit
+        pure state
     else do
-        st2 <- updateState (pushToHistory >>> playAux move)
+        st2 <- updateState (playAux move ∘ pushToHistory)
         if showWin && isLevelFinished st2 then
             dispatch(showVictory)
         else if state^._mode == ExpertMode || state^._mode == RandomMode then do
             delay $ Milliseconds 1000.0
             dispatch(computerPlay)
         else 
-            pure unit
+            pure st2
 
 playA :: forall pos ext mov. Game pos ext mov => mov -> Action (State pos ext)
 playA = playA' identity
@@ -205,15 +203,13 @@ playA = playA' identity
 -- affecte à true l'attribut locked avant le début de l'action act et l'affecte à false à la fin de l'action
 -- fonctionne sur toute la durée d'une action asynchrone
 lockAction :: forall pos ext. Action (State pos ext) -> Action (State pos ext)
-lockAction act = asyncAction \{getState, dispatch, updateState} -> do
-    state <- getState
+lockAction act = asyncAction \{getState, dispatch, updateState} state -> do
     if state^._locked then
-        pure unit
+        pure state
     else do
         _ <- updateState $ _locked .~ true
-        dispatch act
-        _ <- updateState $ _locked .~ false
-        pure unit
+        _ <- dispatch act
+        updateState $ _locked .~ false
 
 newGameAux :: forall pos ext mov. Game pos ext mov =>
     (State pos ext -> State pos ext) -> (State pos ext) -> Random (State pos ext)
@@ -247,7 +243,7 @@ setModeA :: forall pos ext mov. Game pos ext mov => Mode -> Action (State pos ex
 setModeA = newGame' (set _mode)
 
 setGridSizeA :: forall pos ext mov. Game pos ext mov => Int -> Int -> Boolean -> Action (State pos ext)
-setGridSizeA nbRows nbColumns customSize = newGame $ setSize' <<< (_customSize .~ customSize) where
+setGridSizeA nbRows nbColumns customSize = newGame $ setSize' ∘ (_customSize .~ customSize) where
     setSize' state =
         if nbRows >= minrows && nbRows <= maxrows && nbColumns >= mincols && nbColumns <= maxcols then
             state # _nbRows .~ nbRows # _nbColumns .~ nbColumns
@@ -273,15 +269,14 @@ computerMove' state =
                     if state^._mode == RandomMode then
                         Nothing
                     else
-                        moves # N.toArray # find (isLosingPosition <<< flip playAux state)
+                        moves # N.toArray # find (isLosingPosition ∘ flip playAux state)
                 ) in
                     (bestMove <#> pure) <|> Just (randomPick moves)
 
 dropA :: forall pos ext dnd. Eq dnd =>  Game pos ext {from :: dnd, to :: dnd} => Lens' (State pos ext) (Maybe dnd) -> dnd -> Action (State pos ext)
-dropA dragLens to = asyncAction \{dispatch, getState, updateState} -> do
-    state <- getState
+dropA dragLens to = asyncAction \{dispatch, getState, updateState} state -> do
     case state ^. dragLens of
-        Nothing -> pure unit
+        Nothing -> pure state
         Just drag -> do
             _ <- updateState (dragLens .~ Nothing)
-            if drag /= to then dispatch (playA { from: drag, to }) else pure unit
+            if drag /= to then dispatch (playA { from: drag, to }) else pure state

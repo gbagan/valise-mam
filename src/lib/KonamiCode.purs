@@ -9,11 +9,10 @@ codeSequence :: String
 codeSequence = "ArrowUp ArrowUp ArrowDown ArrowDown ArrowLeft ArrowRight ArrowLeft ArrowRight b a"
 
 konamiCode :: forall a. Lens' a (Array String) -> Action a -> String -> Action a
-konamiCode lens onActivation key = asyncAction \{getState, updateState, dispatch} -> do
-    state <- getState
+konamiCode lens onActivation key = asyncAction \{getState, updateState, dispatch} state-> do
     let seq = state ^. lens # flip snoc key # takeEnd 10
-    _ <- updateState (lens .~ seq)
+    st2 <- updateState (lens .~ seq)
     if joinWith " " seq == codeSequence then
         dispatch onActivation
     else
-        pure unit
+        pure st2

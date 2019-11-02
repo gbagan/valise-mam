@@ -12,6 +12,7 @@ import Game.Core (class Game, State, Mode(..), PointerPosition, SizeLimit(..), D
          setGridSizeA, confirmNewGameA, dropA)
 import UI.Dialog (dialog)
 import UI.IncDecGrid (incDecGrid) as U
+infixr 9 compose as ∘
 
 winPanel :: forall a b d. String -> State a b -> VDom d
 winPanel title state =
@@ -123,7 +124,7 @@ dndBoardProps lens dragLens = [
     attr "touch-action" "none", 
     class' "ui-touch-action-none" true,
     pointermove $ lens 🎲 move,
-    pointerup $ lens 🎲 action (dragLens .~ Nothing), ---  (if droppable then "BOARD" else null),
+    pointerup $ lens 🎲 action (dragLens .~ Nothing),
     pointerleave $ lens 🎲 leave,
     pointerdown $ lens 🎲 move --  todo tester
 ] where
@@ -136,7 +137,7 @@ dndBoardProps lens dragLens = [
         -- setPointerPosition -- `withPayload` relativePointerPosition
         --    whenA (\s -> s.pointerPosition == Nothing) (actions.drop NoDrop)
         --)
-    leave = action (_pointerPosition .~ Nothing)
+    leave = action $ (_pointerPosition .~ Nothing) ∘ (dragLens .~ Nothing)
             -- hasDnD && drop NoDrop
 
 dndItemProps :: forall pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>

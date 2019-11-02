@@ -13,6 +13,7 @@ import Pha.Action (Action)
 import Lib.Random (randomInt)
 import Game.Core (class Game, class TwoPlayersGame, State (..), Mode(..),
                 genState, newGame', canPlay, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
+infixr 9 compose as ∘
 
 data Move = Move Int Int
 type Ext' = { nbPiles :: Int, length :: Int }
@@ -26,10 +27,10 @@ _ext :: Lens' NimState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 
 _length :: Lens' NimState Int
-_length = _ext <<< lens (_.length) (_{length = _})
+_length = _ext ∘ lens (_.length) (_{length = _})
 
 _nbPiles :: Lens' NimState Int
-_nbPiles = _ext <<< lens (_.nbPiles) (_{nbPiles = _})
+_nbPiles = _ext ∘ lens (_.nbPiles) (_{nbPiles = _})
 
 instance nimGame :: Game (Array (Tuple Int Int)) ExtState Move where
     canPlay state (Move pile pos) =
@@ -60,7 +61,7 @@ instance nimGame2 :: TwoPlayersGame (Array (Tuple Int Int)) ExtState Move where
         # sortWith \(Move pile pos) -> state^._position !! pile # maybe 0
             \x -> if state^._turn == 0 then fst x - pos else pos - snd x
 
-    isLosingPosition = view _position >>> foldr (\t -> xor (snd t - fst t - 1)) 0 >>> eq 0
+    isLosingPosition = eq 0 ∘ foldr (\t -> xor (snd t - fst t - 1)) 0 ∘ view _position
 
 setNbPilesA :: Int -> Action NimState
 setNbPilesA = newGame' (set _nbPiles)

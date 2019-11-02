@@ -8,6 +8,7 @@ import Data.Array ((!!), all, catMaybes, elem, foldl, length, mapWithIndex, repl
 import Lib.Util (coords)
 import Game.Core (State(..), class Game, SizeLimit(..), canPlay, genState, newGame', playA, _position, _nbColumns, _nbRows)
 import Pha.Action (Action, action, noAction, ifThenElseA)
+infixr 9 compose as ∘
 
 type Coord = {row :: Int, col :: Int}
 type Tile = Array Coord
@@ -55,15 +56,15 @@ tilingState = genState [] (_{nbRows = 5, nbColumns = 5}) (Ext { rotation: 0, til
 _ext :: Lens' TilingState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _rotation :: Lens' TilingState Int
-_rotation = _ext <<< lens (_.rotation) (_{rotation = _})
+_rotation = _ext ∘ lens (_.rotation) (_{rotation = _})
 _tile :: Lens' TilingState Tile
-_tile = _ext <<< lens (_.tile) (_{tile = _})
+_tile = _ext ∘ lens (_.tile) (_{tile = _})
 _tileType :: Lens' TilingState TileType
-_tileType = _ext <<< lens (_.tileType) (_{tileType = _})
+_tileType = _ext ∘ lens (_.tileType) (_{tileType = _})
 _nbSinks :: Lens' TilingState Int
-_nbSinks = _ext <<< lens (_.nbSinks) (_{nbSinks = _})
+_nbSinks = _ext ∘ lens (_.nbSinks) (_{nbSinks = _})
 _hoverSquare :: Lens' TilingState (Maybe Int)
-_hoverSquare = _ext <<< lens (_.hoverSquare) (_{hoverSquare = _})
+_hoverSquare = _ext ∘ lens (_.hoverSquare) (_{hoverSquare = _})
 
 -- renvoie la liste des positions où devra être posée une tuile,  -1 est une position invalide
 placeTile :: TilingState -> Int -> Array Int
@@ -95,7 +96,7 @@ instance tilingGame :: Game (Array Int) ExtState Int where
         else
             pos <#> \x -> if Just x == pos !! index then 0 else x
 
-    isLevelFinished = view _position >>> all (notEq 0)
+    isLevelFinished = all (notEq 0) ∘ view _position
 
     initialPosition state = pure $ replicate (state^._nbRows * state^._nbColumns) 0
 
@@ -108,7 +109,7 @@ instance tilingGame :: Game (Array Int) ExtState Int where
   
 
 putSinkA :: Int -> Action TilingState
-putSinkA i = action $ (_position <<< ix i) .~ (-1)
+putSinkA i = action $ (_position ∘ ix i) .~ (-1)
 
 setNbSinksA :: Int -> Action TilingState
 setNbSinksA = newGame' (set _nbSinks)

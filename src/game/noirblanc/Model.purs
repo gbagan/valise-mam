@@ -11,6 +11,7 @@ import Lib.Util (dCoords)
 import Lib.KonamiCode (konamiCode)
 import Pha.Action (Action, action, asyncAction)
 import Game.Core (class Game, State (..), SizeLimit(..), playA, isLevelFinished, _position, _nbColumns, _nbRows, newGame, newGame', genState)
+infixr 9 compose as ∘
 
 type Position = { light :: Array Boolean, played :: Array Boolean }
 type Ext' = {
@@ -28,13 +29,13 @@ noirblancState = genState {light: [], played: []} identity (Ext { level: 0, mode
 _ext :: Lens' NoirblancState Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _mode2 :: Lens' NoirblancState Int
-_mode2 = _ext <<< lens (_.mode2) (_{mode2 = _})
+_mode2 = _ext ∘ lens (_.mode2) (_{mode2 = _})
 _level :: Lens' NoirblancState Int
-_level = _ext <<< lens (_.level) (_{level = _})
+_level = _ext ∘ lens (_.level) (_{level = _})
 _maxLevels :: Lens' NoirblancState (Array Int)
-_maxLevels = _ext <<< lens (_.maxLevels) (_{maxLevels = _})
+_maxLevels = _ext ∘ lens (_.maxLevels) (_{maxLevels = _})
 _keySequence :: Lens' NoirblancState (Array String)
-_keySequence = _ext <<< lens (_.keySequence) (_{keySequence = _})
+_keySequence = _ext ∘ lens (_.keySequence) (_{keySequence = _})
 
 neighbor :: NoirblancState -> Int -> Int -> Boolean
 neighbor state index1 index2 =
@@ -78,24 +79,22 @@ sizes :: Array (Tuple Int Int)
 sizes = [ Tuple 3 3, Tuple 4 4, Tuple 2 10, Tuple 3 10, Tuple 5 5, Tuple 8 8, Tuple 8 8]
 
 selectModeA :: Int -> Action NoirblancState
-selectModeA mode = newGame $ (_mode2 .~ mode) >>> (_level .~ 0)
+selectModeA mode = newGame $ (_mode2 .~ mode) ∘ (_level .~ 0)
 selectLevelA :: Int -> Action NoirblancState
 selectLevelA = newGame' (set _level)
 
 afterPlay :: Action NoirblancState
-afterPlay = asyncAction \{getState, updateState, dispatch} -> do
-    state <- getState
-    let mode = state^._mode2
+afterPlay = asyncAction \{getState, updateState, dispatch} state ->
+    let mode = state^._mode2 in
     if isLevelFinished state then do
         let nextLevel = if state^._level >= 4 then
                         6
                     else
                         state^._level + (if mode == 0 || mode == 3 then 1 else 2)
-        _ <- updateState (_maxLevels <<< ix mode .~ nextLevel)
+        _ <- updateState (_maxLevels ∘ ix mode .~ nextLevel)
         dispatch $ newGame (_level %~ \lvl -> min (lvl + 1) 6)
-        
     else
-        pure unit
+        pure state
 
 onKeyDown :: String -> Action NoirblancState
 onKeyDown = konamiCode _keySequence (action $ _maxLevels .~ [6, 6, 6, 6])

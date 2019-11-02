@@ -11,6 +11,7 @@ import Game.Core (State, class Game, Dialog(Rules), Mode(..),
                 undoA, redoA, resetA, toggleHelpA, setModeA, computerStartsA, setGridSizeA,
                 _help, _dialog, _history, _redoHistory, _mode, _nbRows, _nbColumns, _locked, _customSize)
 import UI.Icon (iconbutton, Options, Icon(..)) as I
+infixr 9 compose as ∘
 
 iconbutton :: forall a b d.
     State a b
@@ -80,7 +81,7 @@ iconSelectGroup :: forall a pos ext d.
     Lens' d (State pos ext) -> State pos ext -> String -> Array a -> (a -> I.Options -> I.Options) -> a -> (a -> Action (State pos ext)) -> VDom d
 iconSelectGroup lens state title values optionFn selected action =
     icongroup title $ values <#> \val ->
-        iconbutton state (optionFn val <<< (_{
+        iconbutton state (optionFn val ∘ (_{
             icon = I.IconText $ show val,
             selected = val == selected
         })) [click $ lens 🎲 action val]
@@ -90,7 +91,7 @@ iconSelectGroupM :: forall a pos ext d.
     Lens' d (State pos ext) -> State pos ext -> String -> Array a -> (a -> I.Options -> I.Options) -> Array a -> (a -> Action (State pos ext)) -> VDom d
 iconSelectGroupM lens state title values optionFn selected action =
     icongroup title $ values <#> \val ->
-        iconbutton state (optionFn val <<< (_{
+        iconbutton state (optionFn val ∘ (_{
             icon = I.IconText $ show val,
             selected = elem val selected
         })) [click $ lens 🎲 action val]

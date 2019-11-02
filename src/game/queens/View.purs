@@ -17,6 +17,7 @@ import Game.Queens.Model (QueensState, Piece(..), _selectedPiece, _selectedSquar
 import UI.Template (template, card, incDecGrid, gridStyle, trackPointer, cursorStyle)
 import UI.Icon (Icon(..))
 import UI.Icons (iconbutton, icongroup, iconSizesGroup, iconSelectGroupM, ihelp, irules, ireset)
+infixr 9 compose as ∘
 
 tooltip :: Piece -> String
 tooltip Queen = "Reine"
@@ -96,7 +97,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                 pointerenter $ lens 🎲 selectSquareA (Just index),
                 pointerleave $ lens 🎲 selectSquareA Nothing
             ]
-        ) <> (state^._pointerPosition # maybe [] (pure <<< cursor))
+        ) <> (state^._pointerPosition # maybe [] (pure ∘ cursor))
 
     board = div' [] [
         pieceSelector,

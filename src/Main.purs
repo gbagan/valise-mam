@@ -2,7 +2,7 @@ module Main where
 import Prelude
 import Data.Lens (Lens', lens, (^.))
 import Data.Tuple (Tuple(..))
-import Data.Maybe (Maybe(..), maybe)
+import Data.Maybe (Maybe, maybe)
 import Data.String (drop, indexOf)
 import Data.String.Pattern (Pattern (..))
 import Data.Time.Duration (Milliseconds(..))
@@ -27,17 +27,10 @@ import Game.Solitaire (State, state) as Solitaire
 import Game.Tiling (State, state) as Tiling
 import Game.Valise (State, state, is) as Valise
 import Game.Valise.Model (enterA) as ValiseM
-{-
-import Game.Frog.Model (onKeyDown) as Frog
-import Game.Noirblanc.Model (onKeyDown) as Noirblanc
-import Game.Tiling.Model (onKeyDown) as Tiling
-import Game.Valise.Model (enterA) as Valise
--}
 
 extractLocation :: String -> String -> String
 extractLocation url defaultValue =
     indexOf (Pattern "#") url # maybe defaultValue \i -> drop (i + 1) url 
-
 
 type RootState = {
     baseball :: Baseball.State,
@@ -55,10 +48,6 @@ type RootState = {
     location :: String,
     anim :: Boolean
 }
-
--- class Game pos ext mov <= GameLens pos ext mov | ext -> pos mov where
---    gamelens :: Lens' RootState (State pos ext)
--- instance baseballLens :: GameLens 
 
 _baseball :: Lens' RootState Baseball.State
 _baseball = lens (_.baseball) (_{baseball = _})
@@ -130,10 +119,8 @@ sliceFn state fn = case state.location of
     _ -> fn _valise
 
 onKeyDown :: (Maybe String) -> Action RootState
-onKeyDown maybek = asyncAction \{dispatch} state ->
-    case maybek of
-        Nothing -> pure state
-        Just k -> dispatch $ sliceFn state \lens -> lens 🎲 G.onKeyDown k
+onKeyDown k = asyncAction \{dispatch} state ->
+    k # maybe (pure state) \k' -> dispatch (sliceFn state \lens -> lens 🎲 G.onKeyDown k')
 
 
 view :: RootState -> VDom RootState

@@ -4,17 +4,23 @@ import Prelude
 import Data.Lens (Lens', (^.))
 import Data.Tuple (Tuple(..))
 import Data.Maybe (Maybe(..))
-import Game.Chocolat.Model (State, SoapMode(..), _soap, _soapMode, setSoapModeA) 
-import Pha (VDom, text, emptyNode)
-import Pha.Html (div', br)
-import UI.Template (template, card)
+import Data.Int (toNumber)
+import Data.Array (concat)
+import Lib.Util (tabulate2)
+import Game.Core (_position, _nbRows, _nbColumns, possibleMoves, playA)
+import Game.Chocolat.Model (State, Move(..), SoapMode(..), _soap, _soapMode, setSoapModeA) 
+import Pha (VDom, text)
+import Pha.Action ((🎲))
+import Pha.Html (div', svg, br, rect, circle, use, key, class', click, width, height, viewBox, fill)
+import UI.Template (template, card, gridStyle, incDecGrid)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, icons2Players, iconSelectGroup, iundo, iredo, ireset, irules)
 
+inside :: State -> Int -> Int -> Boolean
+inside state row col = col >= left && col <= right - 1 && row >= top && row <= bottom - 1
+    where {left, right, top, bottom} = state^._position
+    
 {-
-const inside = ({position}, row, col) =>
-    col >= position.left && col <= position.right - 1 &&
-    row >= position.top && row <= position.bottom - 1;
 
 const inside2 = ({position}, row, col) =>
     col >= position.left && col <= position.right &&
@@ -23,8 +29,15 @@ const inside2 = ({position}, row, col) =>
     !== [position.top, position.bottom].includes(row);    
 -}
 
+
+
 view :: forall a. Lens' a State -> State -> VDom a
 view lens state = template lens {config, board, rules, winTitle} state where
+    pos = state^._position
+    rows = state^._nbRows
+    columns = state^._nbColumns
+    {col: soapCol, row: soapRow} = state^._soap
+
     config = card "Barre de chocolat" [
         iconSizesGroup lens state [Tuple 6 7] true,
         iconSelectGroup lens state "Emplacement du savon" [CornerMode, BorderMode, StandardMode] 
@@ -35,35 +48,36 @@ view lens state = template lens {config, board, rules, winTitle} state where
         icons2Players lens state,
         icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x lens state
     ]
-    {-
-    grid = div' [] [
-                -- hasDnD: true,
-                -- class: 'ui-board',
-                --style: gridStyle(state.rows, state.columns, 3)
-        svg [width "100%", height "100%", viewBox "-7 -7 " <> show(50 * columns + 14) <> " " <> show(50 * rows + 14)][
-            tabulate2 rows columns (row, col, i) =>
-                rect (50.0 * toNumber col + 7) (50.0 * toNumber row + 7.0) 36.0 36.0 [
-                    key ("choc" <> show i),
-                    class' "chocolat-square" true,
-                    class' "soap" (row == state.soap.row && col == state.soap.col),
-                    class' "hidden" (not $ inside state row col))
-                ],
-            use (50.0 * toNumber soap.col + 12.0) (50.0 * toNumber state.soap.row + 12.0) 26.0 26.0 "#skull" [
-                key "skull",
-                fill "#20AF20"
-            ] 
-                    repeat2(state.rows+1, state.columns+1, (row, col, i) =>
-                        inside2(state, row, col) && circle({
-                            key: 'c' + i,
-                            cx: 50 * col,
-                            cy: 50 * row,
-                            r: 7,
-                            class: 'chocolat-cutter',
-                            onpointerenter: [actions.showCutter, {row, col}],
-                            onpointerleave: [actions.showCutter, null],
-                            onclick: combine([actions.showCutter, null], [actions.play, {row, col}])
-                        })
-                    ),
+
+    cutter row col move = circle (50.0 * toNumber col) (50.0 * toNumber row) 7.0 [
+        key $ "c" <> show (row * (columns + 1) + col), 
+        class' "chocolat-cutter" true,
+            --onpointerenter: [actions.showCutter, {row, col}],
+            --onpointerleave: [actions.showCutter, null],
+        click $ lens 🎲 playA move
+            --    combine([actions.showCutter, null], [actions.play, {row, col}])
+    ]
+
+    grid = div' (gridStyle rows columns 3 <> [class' "ui-board" true]) [
+        svg [width "100%", height "100%", viewBox $ "-7 -7 " <> show(50 * columns + 14) <> " " <> show(50 * rows + 14)] $
+            concat [
+                tabulate2 rows columns \row col ->
+                    rect (50.0 * toNumber col + 7.0) (50.0 * toNumber row + 7.0) 36.0 36.0 [
+                        key $ "choc" <> show (row * columns + col),
+                        class' "chocolat-square" true,
+                        class' "soap" (row == soapRow && col == soapCol),
+                        class' "hidden" $ not (inside state row col)
+                    ],
+                [use (50.0 * toNumber soapCol + 12.0) (50.0 * toNumber soapRow + 12.0) 26.0 26.0 "#skull" [
+                    key "skull",
+                    fill "#20AF20"
+                ]],
+                concat $ possibleMoves state <#> case _ of
+                    FromLeft i -> [cutter pos.top i (FromLeft i), cutter pos.bottom i (FromLeft i)]
+                    FromRight i -> [cutter pos.top i (FromRight i), cutter pos.bottom i (FromRight i)]
+                    FromTop i -> [cutter i pos.left (FromTop i), cutter i pos.right (FromTop i)]
+                    FromBottom i -> [cutter i pos.left (FromBottom i), cutter i pos.right (FromBottom i)]
+            ] {-
                     state.cutter !== null && inside2(state, state.cutter.row, state.cutter.col) && line({
                         class: 'chocolat-line-to-pointer',
                         key: 'line',
@@ -72,10 +86,10 @@ view lens state = template lens {config, board, rules, winTitle} state where
                         x2: 50 * state.cutter2.col,
                         y2: 50 * state.cutter2.row
                     })
-        ]
+                -}
     ]
-    -}
-    board = emptyNode
+
+    board = incDecGrid lens state [grid]
             
     rules = [text "A chaque tour de ce jeu, tu peux déplacer une pile de jetons vers une case adjacente", br,
             text "qui contient au moins autant de jetons", br,

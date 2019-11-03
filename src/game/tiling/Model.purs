@@ -7,7 +7,7 @@ import Data.Maybe (Maybe(..), maybe)
 import Data.Array ((!!), all, catMaybes, elem, foldl, length, mapWithIndex, replicate)
 import Lib.Util (coords)
 import Game.Core (GState(..), class Game, SizeLimit(..), canPlay, genState, newGame', playA, _position, _nbColumns, _nbRows)
-import Pha.Action (Action, action, noAction, ifThenElseA)
+import Pha.Action (Action, action, ifThenElseA)
 infixr 9 compose as ∘
 
 type Coord = {row :: Int, col :: Int}
@@ -50,8 +50,8 @@ type Ext' = {
 newtype ExtState = Ext Ext'
 type State = GState (Array Int) ExtState
 
-state :: State
-state = genState [] (_{nbRows = 5, nbColumns = 5}) (Ext { rotation: 0, tileType: Type1, tile: [], nbSinks: 0, hoverSquare: Nothing })
+istate :: State
+istate = genState [] (_{nbRows = 5, nbColumns = 5}) (Ext { rotation: 0, tileType: Type1, tile: [], nbSinks: 0, hoverSquare: Nothing })
 
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
@@ -131,14 +131,12 @@ inConflict state = state^._hoverSquare # maybe false \sqr -> state^._position !!
 
 onKeyDown :: String -> Action State
 onKeyDown " " = rotateA
-onKeyDown _ = noAction
+onKeyDown _ = mempty
 
 {-            
 const configHash = state => `${state.rows}-${state.columns}-${state.tileIndex}-${state.nbSinks}`
 
 const toggleColoringVisible = set('coloringVisible', not);
-
-const canPlay = 
 
 const updateSuccess = state => state |> set(
     ['succeeded', configHash(state)],
@@ -149,11 +147,6 @@ const updateSuccess = state => state |> set(
     },
 
     state: {
-        rows: 5,
-        columns : 6,
-        tileIndex: 0,
-        nbSinks: 0,
-        succeeded: {},
         customTile: repeat(25, false) |> set(12, true)
     },
     

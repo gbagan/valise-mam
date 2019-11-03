@@ -1,8 +1,9 @@
 module Game.Chocolat.Model where
 import Prelude
-import Data.Lens (Lens', lens, set, view, (^.))
+import Data.Lens (Lens', lens, set, view, (^.), (.~))
 import Data.Int.Bits ((.^.))
 import Lib.Util ((..))
+import Lib.Random (randomInt)
 import Pha.Action (Action)
 import Game.Core (class Game, class TwoPlayersGame, SizeLimit(..), GState(..), Mode(..),
                    genState, newGame', computerMove', _position, _nbRows, _nbColumns)
@@ -31,8 +32,8 @@ _soap = _ext ∘ lens (_.soap) (_{soap = _})
 _soapMode :: Lens' State SoapMode
 _soapMode = _ext ∘ lens (_.soapMode) (_{soapMode = _})
 
-state :: State
-state = genState {left: 0, top: 0, right: 0, bottom: 0} (_{nbRows = 6, nbColumns = 7, mode = ExpertMode})
+istate :: State
+istate = genState {left: 0, top: 0, right: 0, bottom: 0} (_{nbRows = 6, nbColumns = 7, mode = RandomMode})
         (Ext { soap: {row: 0, col: 0}, soapMode: CornerMode})
 
 instance chocolatGame :: Game {left :: Int, top :: Int, right :: Int, bottom :: Int} ExtState Move where
@@ -51,8 +52,12 @@ instance chocolatGame :: Game {left :: Int, top :: Int, right :: Int, bottom :: 
 
     initialPosition st = pure { left: 0, right: st^._nbColumns, top: 0, bottom: st^._nbRows }
 
+    onNewGame state = do
+        row <- if state^._soapMode == StandardMode then randomInt (state^._nbRows) else pure 0
+        col <- if state^._soapMode /= CornerMode then randomInt (state^._nbColumns) else pure 0
+        pure $ state # _soap .~ {row, col}
+
     sizeLimit = const (SizeLimit 4 4 10 10)
-    onNewGame x = pure x
     computerMove = computerMove'
 
 instance chocolat2Game :: TwoPlayersGame {left :: Int, top :: Int, right :: Int, bottom :: Int} ExtState Move where
@@ -66,37 +71,7 @@ instance chocolat2Game :: TwoPlayersGame {left :: Int, top :: Int, right :: Int,
             {row, col} = st^._soap
         in
         ((left + 1) .. col <#> FromLeft) <> ((col + 1) .. (right - 1) <#> FromRight)
-        <> ((top + 1) .. row <#> FromTop) <> ((row + 1) .. (bottom - 1) <#> FromRight) 
+        <> ((top + 1) .. row <#> FromTop) <> ((row + 1) .. (bottom - 1) <#> FromBottom) 
 
 setSoapModeA :: SoapMode -> Action State
 setSoapModeA = newGame' (set _soapMode)
-
-{-
-export default template({
-    state: {
-        rows: 6,
-        columns: 7,
-        mode: 'expert',
-        soapMode: 0,
-        cutter: null,
-    },
-
-    core: {
-        newGame: state => sequence([
-                state.soapMode <= 1 ? ralways(0) : rint(state.rows),
-                state.soapMode === 0 ? ralways(0) : rint(state.columns)
-            ]) |> rlift (soap => ({...state, soap})),
-    actions: $ => ({
-        showCutter: update('cutter'),
-       
-    }),
-
-    computed: ({ cutter, position }) => ({
-        cutter2: cutter && (
-            cutter.col === position.left && { col: position.right, row: cutter.row }
-            || cutter.col === position.right && { col: position.left, row: cutter.row }
-            || cutter.row === position.top && { col: cutter.col, row: position.bottom }
-            || { col: cutter.col, row: position.top }
-        )
-    })
-});

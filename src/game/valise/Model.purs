@@ -17,8 +17,8 @@ type State = {
     pawPassings :: Int
 }
 
-state :: State
-state = {
+istate :: State
+istate = {
     isOpen: false,
     -- linksAreActive: false,
     help: "",

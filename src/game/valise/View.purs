@@ -3,9 +3,9 @@ import Prelude
 import Data.Maybe (Maybe(..))
 import Data.Lens (Lens')
 import Game.Valise.Model (State, showHelpA)
-import Pha (VDom, Prop, h, text, whenN, maybeN)
+import Pha (VDom, Prop, h, text, maybeN)
 import Pha.Action ((🎲))
-import Pha.Html (div', a, svg, g, class', svguse, href, width, height, viewBox, fill, attr, transform, style, x, y,
+import Pha.Html (div', a, svg, g, class', svguse, href, width, height, viewBox, fill, transform, x, y,
     pointerenter, pointerleave)
 
 pos :: forall a. Int -> Int -> Int -> Int -> Array (Prop a)
@@ -15,8 +15,6 @@ pos x' y' w h = [
     x (show x'),
     y (show y')
 ]
-
-
 
 valise :: forall a. Lens' a State -> State -> VDom a
 valise lens state = svg [viewBox "0 0 825 690"] [

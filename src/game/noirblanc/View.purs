@@ -15,17 +15,16 @@ import UI.Icon (Icon(..), Options)
 import UI.Icons (icongroup, ihelp, ireset, irules, iconSelectGroup)
 import UI.Template (template, card, incDecGrid, gridStyle)
 
-levels :: Int -> Options -> Options
-levels i opt = case i of
-    0 -> opt { icon = IconText "3x3" }
-    1 -> opt { icon = IconText "4x4" }
-    2 -> opt { icon = IconText "2x10" }
-    3 -> opt { icon = IconText "3x10" }
-    4 -> opt { icon = IconText "5x5" }
-    5 -> opt { icon = IconText "NxM", tooltip = Just "Dimensions personnalisées" }
-    _ -> opt { icon = IconSymbol "#lo-rand", tooltip = Just "Grille aléatoire" }
-
--- const lockedLevel = { symbol: 'locked', tooltip: 'Difficulté non débloquée', disabled: true };
+levelOptions :: Int -> Boolean -> Options -> Options
+levelOptions _ true opt = opt{icon = IconSymbol "#locked", tooltip = Just "Difficulté non débloquée", disabled = true}
+levelOptions level _ opt = case level of
+    0 -> opt{ icon = IconText "3x3" }
+    1 -> opt{ icon = IconText "4x4" }
+    2 -> opt{ icon = IconText "2x10" }
+    3 -> opt{ icon = IconText "3x10" }
+    4 -> opt{ icon = IconText "5x5" }
+    5 -> opt{ icon = IconText "NxM", tooltip = Just "Dimensions personnalisées" }
+    _ -> opt{ icon = IconSymbol "#lo-rand", tooltip = Just "Grille aléatoire" }
 
 square :: forall a. Boolean -> Boolean -> Array (Prop a) -> VDom a
 square light cross props = 
@@ -48,8 +47,8 @@ view lens state = template lens {config, board, rules, winTitle} state where
     config = card "Tout noir tout blanc" [
         iconSelectGroup lens state "Mode jeu" [0, 1, 2, 3] (state^._mode2) selectModeA \i opt ->
             opt{icon = IconSymbol $ "#lo-mode" <> show (i + 1)},
-        iconSelectGroup lens state "Difficulté" [0, 1, 2, 3, 4, 5, 6] (state^._level) selectLevelA \i opt ->
-            (levels i opt){disabled = Just i > (state^._maxLevels) !! (state^._mode2)},
+        iconSelectGroup lens state "Difficulté" [0, 1, 2, 3, 4, 5, 6] (state^._level) selectLevelA \i ->
+            levelOptions i (Just i > (state^._maxLevels) !! (state^._mode2)),
         icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state
     ]
 

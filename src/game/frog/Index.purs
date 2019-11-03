@@ -5,7 +5,7 @@ import Lib.Random (runRnd)
 import Pha.Action ((🎲))
 import Game (class CGame)
 import Game.Core (init) as C
-import Game.Frog.Model (State, state, onKeyDown) as M
+import Game.Frog.Model (State, istate, onKeyDown) as M
 import Game.Frog.View (view) as V
 infixr 9 compose as ∘
 
@@ -19,4 +19,4 @@ instance cgame :: CGame State where
     onKeyDown a = is 🎲 M.onKeyDown a
 
 state :: State
-state = State M.state
+state = State M.istate

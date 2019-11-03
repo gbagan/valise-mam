@@ -15,6 +15,9 @@ instance semigroupAction :: Semigroup (Action a) where
         _ <- f dispatch e
         g dispatch e
 
+instance semigroupMonoid :: Monoid (Action a) where
+    mempty = Action (\dispatch ev -> liftEffect (dispatch identity))
+
 action :: forall a. (a -> a) -> Action a
 action fn = Action $ \dispatch e -> liftEffect $ dispatch fn
 
@@ -49,19 +52,13 @@ lensAction lens (Action act) = Action \dispatch ev -> do
 
 infixl 3  lensAction as 🎲
 
-noAction :: forall a. Action a
-noAction = Action (\dispatch ev -> liftEffect (dispatch identity))
-
---combineA :: forall a act1 act2. ClsAction a act1 => ClsAction a act2 =>
---    act1 -> act2 -> Action a
-
 ifThenElseA :: forall a. (a -> Event -> Boolean) -> Action a -> Action a -> Action a
 ifThenElseA cond (Action action1) (Action action2) = Action $ \dispatch ev -> do
     st <- liftEffect $ dispatch identity
     (if cond st ev then action1 else action2) dispatch ev
 
 whenA :: forall a. (a -> Event -> Boolean) -> Action a -> Action a
-whenA cond act = ifThenElseA cond act noAction
+whenA cond act = ifThenElseA cond act mempty
 
 withPayload :: forall a b. (b -> Action a) -> (Event -> b) -> Action a
 withPayload act payloadFn = Action \dispatch e -> do

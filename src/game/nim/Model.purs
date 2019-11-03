@@ -15,13 +15,16 @@ import Game.Core (class Game, class TwoPlayersGame, GState(..), Mode(..),
                 genState, newGame', canPlay, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
 infixr 9 compose as ∘
 
-data Move = Move Int Int
-type Ext' = { nbPiles :: Int, length :: Int }
+data Move = Move Int Int  --- pile et position dans la pile
+type Ext' = { 
+    nbPiles :: Int,
+    length :: Int   ---- longueur d'une rangée
+}
 newtype ExtState = Ext Ext'
 type State = GState (Array (Tuple Int Int)) ExtState
 
-state :: State
-state = genState [] (_{mode = ExpertMode }) (Ext { length: 10, nbPiles: 4 })
+istate :: State
+istate = genState [] (_{mode = ExpertMode }) (Ext { length: 10, nbPiles: 4 })
 
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))

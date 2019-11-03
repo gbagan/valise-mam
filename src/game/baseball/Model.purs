@@ -21,8 +21,8 @@ _nbBases = _ext ∘ lens (_.nbBases) (_{nbBases = _})
 _missingPeg :: Lens' State Int
 _missingPeg = _ext ∘ lens (_.missingPeg) (_{missingPeg = _})
 
-state :: State
-state = genState [] identity (Ext { nbBases: 5, missingPeg: 0 })
+istate :: State
+istate = genState [] identity (Ext { nbBases: 5, missingPeg: 0 })
 
 instance baseballGame :: Game (Array Int) ExtState Int where
     play state i = state^._position # swap (state^._missingPeg) i

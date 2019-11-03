@@ -5,7 +5,7 @@ import Data.Maybe (Maybe(..), maybe)
 import Data.Lens (Lens', (^.), (.~))
 import Effect (Effect)
 import Pha (VDom, Prop, text, emptyNode)
-import Pha.Action (Event, Action, action, noAction, withPayload', (🎲))
+import Pha.Action (Event, Action, action, withPayload', (🎲))
 import Pha.Html (div', class', attr, style, pointerup, pointerdown, pointerleave, pointermove)
 import Game.Core (class Game, GState, Mode(..), PointerPosition, SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointerPosition, canPlay, sizeLimit,
@@ -147,7 +147,7 @@ dndItemProps :: forall pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to ::
 dndItemProps lens dragLens draggable droppable id state = [
     class' "dragged" dragged,
     class' "candrop" candrop,
-    pointerdown $ if draggable then lens 🎲 action (dragLens .~ Just id) else noAction,  -- releasePointerCapture),
+    pointerdown $ if draggable then lens 🎲 action (dragLens .~ Just id) else mempty,  -- releasePointerCapture),
     pointerup $ lens 🎲 (if candrop then dropA dragLens id else action (dragLens .~ Nothing))  -- stopPropagation
 ] where
     draggedItem = state ^. dragLens

@@ -13,8 +13,8 @@ type Ext' = { dragged :: Maybe Int }
 newtype Ext = Ext Ext'
 type State = GState Position Ext
 
-state :: State
-state = genState [] (_{nbRows = 4, nbColumns = 4}) (Ext { dragged: Nothing })
+istate :: State
+istate = genState [] (_{nbRows = 4, nbColumns = 4}) (Ext { dragged: Nothing })
 
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))

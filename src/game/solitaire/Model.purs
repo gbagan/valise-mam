@@ -27,8 +27,8 @@ type Ext' = {
 newtype ExtState = Ext Ext'
 type State = GState (Array Boolean) ExtState
 
-state :: State
-state = genState [] (_{nbRows = 5, nbColumns = 1}) (Ext { board: CircleBoard, holes: [], dragged: Nothing, help': 0 })
+istate :: State
+istate = genState [] (_{nbRows = 5, nbColumns = 1}) (Ext { board: CircleBoard, holes: [], dragged: Nothing, help': 0 })
 
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))

@@ -23,8 +23,8 @@ type Ext' = {
 newtype ExtState = Ext Ext'
 type State = GState Position ExtState
 
-state :: State
-state = genState {light: [], played: []} identity (Ext { level: 0, mode2: 0, maxLevels: [0, 1, 1, 0], keySequence: [] })
+istate :: State
+istate = genState {light: [], played: []} identity (Ext { level: 0, mode2: 0, maxLevels: [0, 1, 1, 0], keySequence: [] })
 
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))

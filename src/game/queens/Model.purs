@@ -34,8 +34,8 @@ type Ext' = {
 newtype Ext = Ext Ext'
 type State = GState Position Ext
 
-state :: State
-state = genState []
+istate :: State
+istate = genState []
     (_{nbRows = 8, nbColumns = 8})
     (Ext {selectedPiece: Queen, selectedSquare: Nothing, allowedPieces: [Queen], multiPieces: false})
 

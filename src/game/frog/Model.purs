@@ -35,8 +35,8 @@ _marked = _ext ∘ lens (_.marked) (_{marked = _})
 _keySequence :: Lens' State (Array String)
 _keySequence = _ext ∘ lens (_.keySequence) (_{keySequence = _})
 
-state :: State
-state = genState 20 (_{nbRows = 20, mode = ExpertMode}) (Ext { moves: [1, 2, 3], winning: [], marked: [], keySequence: [] })
+istate :: State
+istate = genState 20 (_{nbRows = 20, mode = ExpertMode}) (Ext { moves: [1, 2, 3], winning: [], marked: [], keySequence: [] })
 
 instance frogGame :: Game Int ExtState Int where
     play state v = v

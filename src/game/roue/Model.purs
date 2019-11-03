@@ -17,12 +17,16 @@ type Position = Array (Maybe Int)
 data Ball = Panel Int | Wheel Int | Board
 derive instance eqBall :: Eq Ball
 
-type Ext' = {size :: Int, rotation :: Int, dragged :: Maybe Ball}
+type Ext' = {
+    size :: Int,
+    rotation :: Int,
+    dragged :: Maybe Ball
+}
 newtype Ext = Ext Ext'
 type State = GState Position Ext
 
-state :: State
-state = genState [] identity (Ext {rotation: 0, size: 5, dragged: Nothing})
+istate :: State
+istate = genState [] identity (Ext {rotation: 0, size: 5, dragged: Nothing})
 
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
@@ -78,13 +82,12 @@ checkA = lockAction $ asyncAction \h state ->
 deleteDraggedA :: Action State
 deleteDraggedA = action \state ->
     let state2 = state # _dragged .~ Nothing in
-    state^._dragged # maybe state2 \dragged -> 
-        case dragged of
+    state^._dragged # maybe state2 case _ of
             Wheel i -> state2 # (_position ∘ ix i) .~ Nothing
             _ -> state2
 
 instance roueGame :: Game (Array (Maybe Int)) Ext {from :: Ball, to :: Ball} where
-    play state move = act $ state^._position where
+    play state move = act (state^._position) where
         act = case move of 
             {from: Panel from, to: Wheel to} -> ix to .~ Just from
             {from: Wheel from, to: Wheel to } -> swap from to
@@ -92,9 +95,6 @@ instance roueGame :: Game (Array (Maybe Int)) Ext {from :: Ball, to :: Ball} whe
             _ -> identity
     
     canPlay _ _ = true
-    -- {from: Wheel _} = true
-    --canPlay _ {from: Move _ (Id _)) = true
-    --canPlay _ _ = false
     
     initialPosition state = pure $ replicate (state^._size) Nothing
 

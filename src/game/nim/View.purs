@@ -31,7 +31,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
             concat $ state^._position # mapWithIndex \i pile ->
                 [rect
                     (if length == 5 then 25.0 else 0.0)
-                    (toNumber $ 7 + 20 * i)
+                    (toNumber $ 10 + 19 * i)
                     (if length == 5 then 50.0 else 100.0)
                     10.0 [
                         key $ "pile" <> show i,
@@ -43,7 +43,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                         fill "gray",
                         click $ lens 🎲 playA (Move i j),
                         style "transform" $
-                            translate (toNumber $ (if length == 5 then 30 else 5) + 10 * j) (toNumber $ 12 + 20 * i) <>
+                            translate (toNumber $ (if length == 5 then 30 else 5) + 10 * j) (toNumber $ 15 + 19 * i) <>
                             " rotate(45deg)",
                         style "cursor" $ if canPlay state (Move i j) then "pointer" else "not-allowed"
                     ]
@@ -52,7 +52,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                         key $ "p-" <> show i <> "-" <> show j,
                         class' "nim-player" true,
                         fill $ if j == 0 then "blue" else "red",
-                        style "transform" $ translate (toNumber $ (if length == 5 then 26 else 1) + 10 * peg) (toNumber $ 8 + 20 * i)
+                        style "transform" $ translate (toNumber $ (if length == 5 then 26 else 1) + 10 * peg) (toNumber $ 11 + 19 * i)
                     ]
                 ),
         span [class' "nim-turn-message" true] [
@@ -61,7 +61,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
             else if state^._turn == 0 then
                 "Tour du joueur bleu"
             else
-                "Tour du second rouge"
+                "Tour du joueur rouge"
             )
         ]
     ]

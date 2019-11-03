@@ -8,7 +8,7 @@ import Pha (VDom, Prop, text, emptyNode)
 import Pha.Action (Event, Action, action, withPayload', onlyEffectAction, (🎲))
 import Pha.Html (div', class', attr, style, pointerup, pointerdown, pointerleave, pointermove)
 import Game.Core (class Game, GState, Mode(..), PointerPosition, SizeLimit(..), Dialog(..),
-         _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointerPosition, canPlay, sizeLimit,
+         _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointerPosition, canPlay, isLevelFinished, sizeLimit,
          setGridSizeA, confirmNewGameA, dropA)
 import UI.Dialog (dialog)
 import UI.IncDecGrid (incDecGrid) as U
@@ -160,6 +160,16 @@ dndItemProps lens dragLens draggable droppable id state = [
     candrop = droppable && (draggedItem # maybe false (\x -> canPlay state { from: x, to: id }))
     dragged = draggable && draggedItem == Just id
 
+turnMessage :: forall pos ext mov. Game pos ext mov => GState pos ext -> String
+turnMessage state =
+    if isLevelFinished state then
+        "Partie finie"
+    else if state^._turn == 0 then
+        "Tour du premier joueur"
+    else if state^._mode == DuelMode then
+        "Tour du second joueur"
+    else 
+        "Tour de l'IA"
 
 winTitleFor2Players :: forall pos ext. GState pos ext -> String
 winTitleFor2Players state =

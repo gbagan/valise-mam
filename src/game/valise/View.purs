@@ -135,7 +135,7 @@ valise lens state = svg [viewBox "0 0 825 690"] [
                             href $ "#" <> symbol, class' "valise-symbol" true
                         ] [],
                         maybeN $ link <#> \l -> a [ href $ "#" <> l] [
-                            h "rect" ([class' "valise-object-link" true, fill "transparent"] <> children) []
+                            h "rect" ([class' "valise-object-link" true, fill "transparent", width "100%", height "100%"] <> children) []
                         ]
                     ]
                 ]

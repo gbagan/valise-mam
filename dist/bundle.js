@@ -6758,18 +6758,18 @@ var PS = {};
   var UI_Dialog = $PS["UI.Dialog"];
   var UI_IncDecGrid = $PS["UI.IncDecGrid"];                
   var winTitleFor2Players = function (state) {
-      var $25 = Data_Eq.eq(Game_Core.eqMode)(Data_Lens_Getter.viewOn(state)(Game_Core["_mode"](Data_Lens_Internal_Forget.strongForget)))(Game_Core.DuelMode.value);
-      if ($25) {
+      var $26 = Data_Eq.eq(Game_Core.eqMode)(Data_Lens_Getter.viewOn(state)(Game_Core["_mode"](Data_Lens_Internal_Forget.strongForget)))(Game_Core.DuelMode.value);
+      if ($26) {
           return "Le " + ((function () {
-              var $26 = Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)) === 1;
-              if ($26) {
+              var $27 = Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)) === 1;
+              if ($27) {
                   return "premier";
               };
               return "second";
           })() + " joueur gagne");
       };
-      var $27 = Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)) === 1;
-      if ($27) {
+      var $28 = Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)) === 1;
+      if ($28) {
           return "Tu as gagn\xe9";
       };
       return "L'IA gagne";
@@ -6777,6 +6777,23 @@ var PS = {};
   var winPanel = function (title) {
       return function (state) {
           return Pha_Html["div'"]([ Pha_Html["class'"]("ui-flex-center ui-absolute component-win-container")(true) ])([ Pha_Html["div'"]([ Pha_Html["class'"]("component-win")(true), Pha_Html["class'"]("visible")(Data_Lens_Getter.viewOn(state)(Game_Core["_showWin"](Data_Lens_Internal_Forget.strongForget))) ])([ Pha.text(title) ]) ]);
+      };
+  };
+  var turnMessage = function (dictGame) {
+      return function (state) {
+          var $29 = Game_Core.isLevelFinished(dictGame)(state);
+          if ($29) {
+              return "Partie finie";
+          };
+          var $30 = Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)) === 0;
+          if ($30) {
+              return "Tour du premier joueur";
+          };
+          var $31 = Data_Eq.eq(Game_Core.eqMode)(Data_Lens_Getter.viewOn(state)(Game_Core["_mode"](Data_Lens_Internal_Forget.strongForget)))(Game_Core.DuelMode.value);
+          if ($31) {
+              return "Tour du second joueur";
+          };
+          return "Tour de l'IA";
       };
   };
   var template = function (dictGame) {
@@ -6906,10 +6923,10 @@ var PS = {};
               return function (dragLens) {
                   var move = Pha_Action["withPayload'"](setPointerPositionA)(relativePointerPosition);
                   var leave = Pha_Action.action((function () {
-                      var $55 = Data_Lens_Setter.set(Game_Core["_pointerPosition"](Data_Profunctor_Strong.strongFn))(Data_Maybe.Nothing.value);
-                      var $56 = Data_Lens_Setter.set(dragLens(Data_Profunctor_Strong.strongFn))(Data_Maybe.Nothing.value);
-                      return function ($57) {
-                          return $55($56($57));
+                      var $59 = Data_Lens_Setter.set(Game_Core["_pointerPosition"](Data_Profunctor_Strong.strongFn))(Data_Maybe.Nothing.value);
+                      var $60 = Data_Lens_Setter.set(dragLens(Data_Profunctor_Strong.strongFn))(Data_Maybe.Nothing.value);
+                      return function ($61) {
+                          return $59($60($61));
                       };
                   })());
                   return [ Pha_Html.attr("touch-action")("none"), Pha_Html["class'"]("ui-touch-action-none")(true), Pha_Html.pointermove(Pha_Action.lensAction(function (dictStrong) {
@@ -6948,6 +6965,7 @@ var PS = {};
   exports["trackPointer"] = trackPointer;
   exports["dndBoardProps"] = dndBoardProps;
   exports["dndItemProps"] = dndItemProps;
+  exports["turnMessage"] = turnMessage;
   exports["winTitleFor2Players"] = winTitleFor2Players;
 })(PS);
 (function($PS) {
@@ -7956,7 +7974,7 @@ var PS = {};
               return function (mark) {
                   return function (v) {
                       return Pha.whenN(mark && i !== position)(function (v1) {
-                          return Pha_Html.use(v.x - 20.0)(v.y - 20.0)(32.0)(32.0)("#frog")([ Pha_Html.key("reach" + Data_Show.show(Data_Show.showInt)(i)), Pha_Html["class'"]("frog-frog marked")(true) ]);
+                          return Pha_Html.use(v.x - 20.0)(v.y - 20.0)(32.0)(32.0)("#frog2")([ Pha_Html.key("reach" + Data_Show.show(Data_Show.showInt)(i)), Pha_Html["class'"]("frog-frog marked")(true) ]);
                       });
                   };
               };
@@ -7965,22 +7983,8 @@ var PS = {};
                   radius: 0.0,
                   theta: 0.0
               })(Data_Array.index(pointsPolar)(position));
-              return Pha_Html.g([ Pha_Html.key("frog"), Pha_Html["class'"]("frog-frog-container")(true), Pha_Html.style("transform")(Pha_Html.translate(v.radius)(0.0) + (" rotate(" + (Data_Show.show(Data_Show.showNumber)((v.theta * 180.0) / $$Math.pi) + "deg)"))), Pha_Html.style("transform-origin")(Data_Show.show(Data_Show.showNumber)(-v.radius) + "px 0") ])([ Pha_Html.g([ Pha_Html["class'"]("frog-frog-container")(true), Pha_Html.style("transform")("rotate(" + (Data_Show.show(Data_Show.showNumber)((-v.theta * 180.0) / $$Math.pi) + "deg)")) ])([ Pha_Html.use(-20.0)(-20.0)(40.0)(40.0)("#frog")([ Pha_Html["class'"]("frog-frog")(true), Pha_Html["class'"]("goal")(position === 0) ]) ]) ]);
-          })() ])))), Pha_Html.span([  ])([ Pha.text((function () {
-              var $35 = position === 0;
-              if ($35) {
-                  return "Partie finie";
-              };
-              var $36 = Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)) === 0;
-              if ($36) {
-                  return "Tour du premier joueur";
-              };
-              var $37 = Data_Eq.eq(Game_Core.eqMode)(Data_Lens_Getter.viewOn(state)(Game_Core["_mode"](Data_Lens_Internal_Forget.strongForget)))(Game_Core.DuelMode.value);
-              if ($37) {
-                  return "Tour du second joueur";
-              };
-              return "Tour de l'IA";
-          })()) ]) ]);
+              return Pha_Html.g([ Pha_Html.key("frog"), Pha_Html["class'"]("frog-frog-container")(true), Pha_Html.style("transform")(Pha_Html.translate(v.radius)(0.0) + (" rotate(" + (Data_Show.show(Data_Show.showNumber)((v.theta * 180.0) / $$Math.pi) + "deg)"))), Pha_Html.style("transform-origin")(Data_Show.show(Data_Show.showNumber)(-v.radius) + "px 0") ])([ Pha_Html.g([ Pha_Html["class'"]("frog-frog-container")(true), Pha_Html.style("transform")("rotate(" + (Data_Show.show(Data_Show.showNumber)((-v.theta * 180.0) / $$Math.pi) + "deg)")) ])([ Pha_Html.use(-20.0)(-20.0)(40.0)(40.0)("#frog2")([ Pha_Html["class'"]("frog-frog")(true), Pha_Html["class'"]("goal")(position === 0) ]) ]) ]);
+          })() ])))), Pha_Html.span([  ])([ Pha.text(UI_Template.turnMessage(Game_Frog_Model.frogGame)(state)) ]) ]);
           var config = UI_Template.card("La grenouille")([ UI_Icons.iconSelectGroupM(Data_Show.showInt)(Data_Eq.eqInt)(function (dictStrong) {
               return lens(dictStrong);
           })(state)("D\xe9placements autoris\xe9s")([ 1, 2, 3, 4, 5 ])(Data_Lens_Getter.viewOn(state)(Game_Frog_Model["_moves"](Data_Lens_Internal_Forget.strongForget)))(Game_Frog_Model.selectMoveA)(Data_Function["const"](Control_Category.identity(Control_Category.categoryFn))), UI_Icons.icons2Players(Game_Frog_Model.frogGame)(function (dictStrong) {
@@ -8518,7 +8522,7 @@ var PS = {};
                           return 25.0;
                       };
                       return 0.0;
-                  })())(Data_Int.toNumber(7 + (20 * i | 0) | 0))((function () {
+                  })())(Data_Int.toNumber(10 + (19 * i | 0) | 0))((function () {
                       var $8 = length === 5;
                       if ($8) {
                           return 50.0;
@@ -8533,7 +8537,7 @@ var PS = {};
                               return 30;
                           };
                           return 5;
-                      })() + (10 * j | 0) | 0))(Data_Int.toNumber(12 + (20 * i | 0) | 0)) + " rotate(45deg)"), Pha_Html.style("cursor")((function () {
+                      })() + (10 * j | 0) | 0))(Data_Int.toNumber(15 + (19 * i | 0) | 0)) + " rotate(45deg)"), Pha_Html.style("cursor")((function () {
                           var $10 = Game_Core.canPlay(Game_Nim_Model.nimGame)(state)(new Game_Nim_Model.Move(i, j));
                           if ($10) {
                               return "pointer";
@@ -8554,7 +8558,7 @@ var PS = {};
                                   return 26;
                               };
                               return 1;
-                          })() + (10 * peg | 0) | 0))(Data_Int.toNumber(8 + (20 * i | 0) | 0))) ]);
+                          })() + (10 * peg | 0) | 0))(Data_Int.toNumber(11 + (19 * i | 0) | 0))) ]);
                       };
                   })([ Data_Tuple.fst(pile), Data_Tuple.snd(pile) ])));
               };
@@ -8567,7 +8571,7 @@ var PS = {};
               if ($14) {
                   return "Tour du joueur bleu";
               };
-              return "Tour du second rouge";
+              return "Tour du joueur rouge";
           })()) ]) ]);
           return UI_Template.template(Game_Nim_Model.nimGame)(function (dictStrong) {
               return lens(dictStrong);
@@ -11880,7 +11884,7 @@ var PS = {};
                                       })(Game_Valise_Model.showHelpA(v.help))), Pha_Html.pointerleave(Pha_Action.lensAction(function (dictStrong) {
                                           return lens(dictStrong);
                                       })(Game_Valise_Model.showHelpA(""))) ])([ Pha.h("use")([ Pha_Html.href("#" + v.symbol), Pha_Html["class'"]("valise-symbol")(true) ])([  ]), Pha.maybeN(Data_Functor.mapFlipped(Data_Maybe.functorMaybe)(v.link)(function (l) {
-                                          return Pha_Html.a([ Pha_Html.href("#" + l) ])([ Pha.h("rect")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html["class'"]("valise-object-link")(true), Pha_Html.fill("transparent") ])(children))([  ]) ]);
+                                          return Pha_Html.a([ Pha_Html.href("#" + l) ])([ Pha.h("rect")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html["class'"]("valise-object-link")(true), Pha_Html.fill("transparent"), Pha_Html.width("100%"), Pha_Html.height("100%") ])(children))([  ]) ]);
                                       })) ]) ]) ]);
                                   };
                               };

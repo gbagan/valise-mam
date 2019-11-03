@@ -15,9 +15,9 @@ import Pha.Html (div', span, br, svg, viewBox, g, use, line, path, text',
                 class', key, click, style,
                 width, height, stroke, fill, strokeDasharray, strokeWidth, translate)
 import Pha.Event (shiftKey)
-import UI.Template (template, card, incDecGrid, winTitleFor2Players)
+import UI.Template (template, card, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icons (icongroup, iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
-import Game.Core (Mode(..), _nbRows, _position, _turn, _mode, _help, playA)
+import Game.Core (_nbRows, _position, _help, playA)
 import Game.Frog.Model (State, _moves, _marked, selectMoveA, reachableArray, markA)
 
 type Cartesian = { x :: Number, y :: Number}
@@ -106,7 +106,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                     ]
                 ) <> (map2 (state^._marked) spoints \i mark {x, y} ->
                     whenN (mark && i /= position) \_ ->
-                        use (x - 20.0) (y - 20.0) 32.0 32.0 "#frog" [
+                        use (x - 20.0) (y - 20.0) 32.0 32.0 "#frog2" [
                             key $ "reach" <> show i,
                             class' "frog-frog marked" true
                         ]
@@ -121,22 +121,13 @@ view lens state = template lens {config, board, rules, winTitle} state where
                         class' "frog-frog-container" true,
                         style "transform" $ "rotate(" <> show (-theta * 180.0 / pi) <> "deg)"
                     ] [
-                        use (-20.0) (-20.0) 40.0 40.0 "#frog" [
+                        use (-20.0) (-20.0) 40.0 40.0 "#frog2" [
                             class' "frog-frog" true,
                             class' "goal" $ position == 0
                         ]
                     ]
                 ]],
-            span [] [text $
-                if position == 0 then
-                    "Partie finie"
-                else if state^._turn == 0 then
-                    "Tour du premier joueur"
-                else if state^._mode == DuelMode then
-                    "Tour du second joueur"
-                else 
-                    "Tour de l'IA"
-            ]
+            span [] [text (turnMessage state)]
         ]
 
     board = incDecGrid lens state [grid]

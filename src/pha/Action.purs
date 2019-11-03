@@ -70,3 +70,8 @@ withPayload' act payloadFn = Action \dispatch e -> do
     payload <- liftEffect $ payloadFn e
     let (Action a) = act payload
     a dispatch e
+
+onlyEffectAction :: forall a. (Event -> Effect Unit) -> Action a
+onlyEffectAction eff = Action \dispatch e -> do
+    liftEffect (eff e)
+    liftEffect (dispatch identity)

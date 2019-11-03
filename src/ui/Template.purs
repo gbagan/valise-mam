@@ -5,7 +5,7 @@ import Data.Maybe (Maybe(..), maybe)
 import Data.Lens (Lens', (^.), (.~))
 import Effect (Effect)
 import Pha (VDom, Prop, text, emptyNode)
-import Pha.Action (Event, Action, action, withPayload', (🎲))
+import Pha.Action (Event, Action, action, withPayload', onlyEffectAction, (🎲))
 import Pha.Html (div', class', attr, style, pointerup, pointerdown, pointerleave, pointermove)
 import Game.Core (class Game, GState, Mode(..), PointerPosition, SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointerPosition, canPlay, sizeLimit,
@@ -74,12 +74,18 @@ template lens {board, config, rules, winTitle} state =
             ]
         dialog' _ = emptyNode
 
-
+-- todo
 foreign import relativePointerPositionAux :: Maybe PointerPosition -> (PointerPosition -> Maybe PointerPosition) 
                                             -> Event -> Effect (Maybe PointerPosition)
 
 relativePointerPosition :: Event -> Effect (Maybe PointerPosition)
 relativePointerPosition = relativePointerPositionAux Nothing Just
+
+foreign import releasePointerCapture :: Event -> Effect Unit
+
+releasePointerCaptureA :: forall a. Action a
+releasePointerCaptureA = onlyEffectAction releasePointerCapture
+
 
 
 setPointerPositionA :: forall pos ext. (Maybe PointerPosition) -> Action (GState pos ext)
@@ -147,7 +153,7 @@ dndItemProps :: forall pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to ::
 dndItemProps lens dragLens draggable droppable id state = [
     class' "dragged" dragged,
     class' "candrop" candrop,
-    pointerdown $ if draggable then lens 🎲 action (dragLens .~ Just id) else mempty,  -- releasePointerCapture),
+    pointerdown $ if draggable then lens 🎲 action (dragLens .~ Just id) <> releasePointerCaptureA else mempty,
     pointerup $ lens 🎲 (if candrop then dropA dragLens id else action (dragLens .~ Nothing))  -- stopPropagation
 ] where
     draggedItem = state ^. dragLens

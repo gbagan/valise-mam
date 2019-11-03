@@ -100,7 +100,7 @@ svg :: forall a. Array (Prop a) -> Array (VDom a) -> VDom a
 svg = h "svg"
 
 rect :: forall a. Number -> Number -> Number -> Number -> Array (Prop a) -> VDom a
-rect x y w h' props = h "rect" ([attr "x" $ show x, attr "y" $ show y, attr "width" $ show w, attr "height" $ show h'] <> props) []
+rect x' y' w h' props = h "rect" ([attr "x" $ show x', attr "y" $ show y', attr "width" $ show w, attr "height" $ show h'] <> props) []
 
 path :: forall a. String -> Array (Prop a) -> VDom a
 path d props = h "path" ([attr "d" d] <> props) []

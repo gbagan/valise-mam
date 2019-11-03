@@ -45,7 +45,7 @@ valise lens state = svg [viewBox "0 0 825 690"] [
                 help: 'Quelque chose se cache derrière ce pot'
             }),
         -}
-        object { symbol: "frog", link: Just "frog", help: "Jeu: la grenouille", drag: false}
+        object { symbol: "frog2", link: Just "frog", help: "Jeu: la grenouille", drag: false}
             549 320 35 34 [fill "#bcd35f"] [],
 
         object { symbol: "hanoibot", link: Just "solitaire", help: "Jeu: solitaire", drag: false}
@@ -107,7 +107,7 @@ valise lens state = svg [viewBox "0 0 825 690"] [
                 help: 'Jeu: Preuve sans mot'
             }),
         -}
-        object {symbol: "chocolate", link: Nothing, help: "Jeu: chocolat (non implémenté)", drag: false}
+        object {symbol: "chocolate", link: Just "chocolat", help: "Jeu: chocolat", drag: false}
             200 200 60 60 [transform "rotate(40)"] []
             --  ;
     ]
@@ -132,7 +132,7 @@ valise lens state = svg [viewBox "0 0 825 690"] [
                         -- pointerdown: drag && combine([actions.beginDrag, payloadCreator], preventDefault),
                     ] [
                         h "use" [
-                            href $ " #" <> symbol, class' "valise-symbol" true
+                            href $ "#" <> symbol, class' "valise-symbol" true
                         ] [],
                         maybeN $ link <#> \l -> a [ href $ "#" <> l] [
                             h "rect" ([class' "valise-object-link" true, fill "transparent"] <> children) []

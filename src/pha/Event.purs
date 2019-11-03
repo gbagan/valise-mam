@@ -1,9 +1,8 @@
 module Pha.Event where
 import Prelude
-import Pha.Action (Action(..), Event)
+import Pha.Action (Action, Event, onlyEffectAction)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Effect.Class (liftEffect)
 infixr 9 compose as ∘
 
 foreign import unsafeToMaybeAux :: forall a. Maybe a -> (a -> Maybe a) -> a -> Maybe a
@@ -24,6 +23,4 @@ key = unsafeToMaybe ∘ unsafeKey
 foreign import preventDefault :: Event -> Effect Unit
 
 preventDefaultA :: forall a. Action a
-preventDefaultA = Action \dispatch e -> do
-    liftEffect (preventDefault e)
-    liftEffect (dispatch identity)
+preventDefaultA = onlyEffectAction preventDefault

@@ -1,7 +1,5 @@
 module Game.Valise.View where
-import Prelude
-import Data.Maybe (Maybe(..))
-import Data.Lens (Lens')
+import MyPrelude
 import Game.Valise.Model (State, showHelpA)
 import Pha (VDom, Prop, h, text, maybeN)
 import Pha.Action ((🎲))
@@ -97,16 +95,10 @@ valise lens state = svg [viewBox "0 0 825 690"] [
                 onpointerleave: actions.incPawPassings,
                 link: state.pawPassings === 4 && 'labete'
             }),
-
-
-
-            Object({
-                symbol: 'quiet',
-                class: 'valise-quiet',
-                link: 'sansmot',
-                help: 'Jeu: Preuve sans mot'
-            }),
         -}
+        object {symbol: "quiet", link: Nothing, help: "Jeu: preuve sans mot", drag: false}
+            180 130 50 50 [] [],
+
         object {symbol: "chocolate", link: Just "chocolat", help: "Jeu: chocolat", drag: false}
             200 200 60 60 [transform "rotate(40)"] []
             --  ;

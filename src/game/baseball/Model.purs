@@ -1,14 +1,10 @@
 module Game.Baseball.Model where
 
-import Prelude
-import Data.Array ((!!), elem, mapWithIndex, all, (..))
-import Data.Maybe (Maybe(..), fromMaybe)
-import Data.Lens (lens, Lens', set, (^.), (.~))
-import Lib.Util (swap)
+import MyPrelude
+import Lib.Util (swap, (..))
 import Lib.Random (shuffle, randomInt)
 import Pha.Action (Action)
 import Game.Core (class Game, GState(..), genState, newGame', _position, defaultSizeLimit)
-infixr 9 compose as ∘
 
 type Ext' = { nbBases :: Int, missingPeg :: Int }
 newtype ExtState = Ext Ext'

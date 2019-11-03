@@ -1,7 +1,6 @@
 module Lib.KonamiCode (konamiCode) where
-import Prelude
-import Data.Array (snoc, takeEnd)
-import Data.Lens (Lens', (^.), (.~))
+import MyPrelude
+import Data.Array (takeEnd)
 import Data.String (joinWith)
 import Pha.Action (Action, asyncAction)
 

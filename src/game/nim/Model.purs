@@ -1,19 +1,14 @@
 module Game.Nim.Model where
 
-import Prelude
-import Data.Tuple (Tuple (Tuple), fst, snd)
-import Data.Maybe (maybe)
+import MyPrelude
 import Data.Traversable (sequence)
-import Data.Array ((!!), filter, sortWith, all, replicate, foldr)
 import Data.Int.Bits (xor)
-import Data.Lens (lens, Lens', view, set, (^.), (%~))
-import Data.Lens.Index (ix)
 import Lib.Util (tabulate2)
 import Pha.Action (Action)
 import Lib.Random (randomInt)
+
 import Game.Core (class Game, class TwoPlayersGame, GState(..), Mode(..),
                 genState, newGame', canPlay, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
-infixr 9 compose as ∘
 
 data Move = Move Int Int  --- pile et position dans la pile
 type Ext' = { 

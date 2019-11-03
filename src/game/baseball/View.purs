@@ -1,15 +1,11 @@
 module Game.Baseball.View where
 
-import Prelude
-import Data.Int (toNumber)
-import Data.Array (take, mapWithIndex, concatMap)
-import Math (cos, sin, pi) 
-import Data.Lens (Lens', (^.))
+import MyPrelude
+import Lib.Util (map2)
 import Pha (VDom, text, whenN)
 import Pha.Action ((🎲))
 import Pha.Html (div', svg, g, rect, use, class', key, style,
             click, width, height, stroke, fill, viewBox, translate)
-import Lib.Util (map2)
 import Game.Core (canPlay, playA, isLevelFinished, _position)
 import Game.Baseball.Model (State, setNbBases, _nbBases, _missingPeg)
 import UI.Template (template, card)
@@ -18,7 +14,7 @@ import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 colors :: Array String
 colors = ["blue", "red", "green", "magenta", "orange", "black", "cyan", "gray"]
 dupColors :: Array String
-dupColors = colors # concatMap \x -> [x, x]
+dupColors = colors >>= \x -> [x, x]
 
 translatePeg :: Int -> Int -> String
 translatePeg position nbBases = translate x y  where

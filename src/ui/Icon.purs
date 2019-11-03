@@ -1,8 +1,7 @@
 module UI.Icon where
 
-import Prelude
-import Data.Maybe (Maybe (..))
-import Data.Tuple (Tuple, uncurry)
+import MyPrelude
+import Data.Tuple (uncurry)
 import Pha (VDom, Prop, text, emptyNode, maybeN)
 import Pha.Html (button, span, svguse, class', style, disabled)
 

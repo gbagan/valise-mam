@@ -1,9 +1,5 @@
 module UI.Icons where
-import Prelude
-import Data.Array (null, elem)
-import Data.Maybe (Maybe(..))
-import Data.Tuple (Tuple(..))
-import Data.Lens (Lens', (^.), (.~))
+import MyPrelude
 import Pha (VDom, Prop, text)
 import Pha.Action (Action, action, (🎲))
 import Pha.Html (div', h2, class', click)
@@ -11,7 +7,6 @@ import Game.Core (GState, class Game, Dialog(Rules), Mode(..),
                 undoA, redoA, resetA, toggleHelpA, setModeA, computerStartsA, setGridSizeA,
                 _help, _dialog, _history, _redoHistory, _mode, _nbRows, _nbColumns, _locked, _customSize)
 import UI.Icon (iconbutton, Options, Icon(..)) as I
-infixr 9 compose as ∘
 
 iconbutton :: forall a b d.
     GState a b

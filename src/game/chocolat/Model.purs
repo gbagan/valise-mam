@@ -1,13 +1,11 @@
 module Game.Chocolat.Model where
-import Prelude
-import Data.Lens (Lens', lens, set, view, (^.), (.~))
+import MyPrelude
 import Data.Int.Bits ((.^.))
 import Lib.Util ((..))
 import Lib.Random (randomInt)
 import Pha.Action (Action)
 import Game.Core (class Game, class TwoPlayersGame, SizeLimit(..), GState(..), Mode(..),
                    genState, newGame', computerMove', _position, _nbRows, _nbColumns)
-infixr 9 compose as ∘
 
 data Move = FromLeft Int | FromRight Int | FromTop Int | FromBottom Int
 data SoapMode = CornerMode | BorderMode | StandardMode
@@ -37,13 +35,12 @@ istate = genState {left: 0, top: 0, right: 0, bottom: 0} (_{nbRows = 6, nbColumn
         (Ext { soap: {row: 0, col: 0}, soapMode: CornerMode})
 
 instance chocolatGame :: Game {left :: Int, top :: Int, right :: Int, bottom :: Int} ExtState Move where
-    play st move =
-        let p = st^._position in
-        case move of
+    play st = case _ of
             FromLeft x -> p{left = x}
             FromTop x -> p{top = x}
             FromRight x -> p{right = x}
             FromBottom x -> p{bottom = x}
+        where p = st^._position
 
     -- les coups proposées par la vue sont toujours valides
     canPlay _ _ = true

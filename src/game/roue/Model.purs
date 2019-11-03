@@ -1,16 +1,11 @@
 module Game.Roue.Model where
 
-import Prelude
-import Data.Array (replicate, mapWithIndex, all, filter, length)
-import Data.Lens (Lens', lens, set, (^.), (.~), (%~))
-import Data.Lens.Index (ix)
-import Data.Maybe (Maybe(..), maybe, isJust)
+import MyPrelude
 import Data.Time.Duration (Milliseconds(..))
 import Effect.Aff (delay)
 import Lib.Util (swap)
 import Game.Core (class Game, GState(..), genState, newGame', lockAction, _position, _showWin, defaultSizeLimit)
 import Pha.Action (Action, action, asyncAction)
-infixr 9 compose as ∘
 
 type Position = Array (Maybe Int)
 

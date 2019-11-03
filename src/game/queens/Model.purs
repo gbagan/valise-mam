@@ -1,15 +1,8 @@
 module Game.Queens.Model where
-
-import Prelude
-import Data.Array (all, elem, filter, foldr, head, mapWithIndex, null, replicate, zipWith)
-import Data.Lens (Lens', lens, (^.), (.~), (%~))
-import Data.Lens.Index (ix)
-import Data.Maybe (Maybe(..), maybe, fromMaybe)
-import Data.Tuple (Tuple(..))
+import MyPrelude
 import Lib.Util (tabulate, dCoords, map2)
 import Game.Core (GState(..), class Game, SizeLimit(..), genState, newGame, _position, _nbRows, _nbColumns, playA')
 import Pha.Action (Action, action)
-infixr 9 compose as ∘
 
 piecesList :: Array Piece
 piecesList = [Rook, Bishop, King, Knight, Queen]

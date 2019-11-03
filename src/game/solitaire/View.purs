@@ -1,11 +1,6 @@
 module Game.Solitaire.View where
 
-import Prelude
-import Data.Int (toNumber)
-import Data.Lens (Lens', (^.))
-import Data.Array (concat, mapWithIndex, filter, length)
-import Data.Maybe (Maybe(..))
-import Math (sin, cos, pi)
+import MyPrelude
 import Lib.Util (coords)
 import Pha (VDom, text, whenN, maybeN)
 import Pha.Action ((🎲))

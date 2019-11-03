@@ -1,17 +1,12 @@
 module Game.Noirblanc.Model where
-import Prelude
-import Data.Tuple (Tuple (Tuple))
-import Data.Maybe (Maybe(..), fromMaybe)
+import MyPrelude
 import Data.Traversable (sequence)
-import Data.Array ((!!), replicate, mapWithIndex, all, foldr, modifyAtIndices)
-import Data.Lens (Lens', lens, (^.), (.~), (%~), set)
-import Data.Lens.Index (ix)
+import Data.Array (modifyAtIndices)
 import Lib.Random (Random, randomInt)
 import Lib.Util (dCoords)
 import Lib.KonamiCode (konamiCode)
 import Pha.Action (Action, action, asyncAction)
 import Game.Core (class Game, GState(..), SizeLimit(..), playA, isLevelFinished, _position, _nbColumns, _nbRows, newGame, newGame', genState)
-infixr 9 compose as ∘
 
 type Position = { light :: Array Boolean, played :: Array Boolean }
 type Ext' = {

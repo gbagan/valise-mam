@@ -1,10 +1,6 @@
 module Game.Tiling.View (view) where
-import Prelude
-import Data.Tuple (Tuple(..))
-import Data.Maybe (Maybe(..))
-import Data.Lens (Lens', (^.))
-import Data.Int (toNumber, even)
-import Data.Array ((!!), length, mapWithIndex)
+import MyPrelude
+import Data.Int (even)
 import Lib.Util (coords)
 import Pha (VDom, Prop, text, whenN, maybeN)
 import Pha.Action ((🎲))

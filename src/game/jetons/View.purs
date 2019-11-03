@@ -1,10 +1,7 @@
 module Game.Jetons.View where
 
-import Prelude
-import Data.Tuple (Tuple(..))
-import Data.Lens (Lens', (^.))
-import Data.Int (floor, toNumber)
-import Data.Array (filter, length, mapWithIndex)
+import MyPrelude
+import Data.Int (floor)
 import Math (sqrt)
 import Pha (VDom, text, whenN, maybeN)
 import Pha.Html (div', span, br, key, class', style, rgbColor)

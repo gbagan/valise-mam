@@ -1,10 +1,6 @@
 module Game.Paths.View (view) where
-import Prelude
-import Data.Lens (Lens', (^.))
-import Data.Tuple (Tuple (..))
-import Data.Array (concat, elem, last, mapWithIndex, null)
-import Data.Maybe (Maybe(..), isNothing)
-import Data.Int (toNumber, even)
+import MyPrelude
+import Data.Int (even)
 import Data.String (joinWith)
 import Lib.Util (coords, tabulate)
 import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _pointerPosition)

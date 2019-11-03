@@ -1,14 +1,11 @@
 module Game.Paths.Model where
-import Prelude
-import Data.Maybe (Maybe(..), maybe, fromMaybe, isNothing)
-import Data.Array (length, nub, elem, null, head, last)
+import MyPrelude
+import Data.Array (nub)
 import Data.Array.NonEmpty (fromArray, head, last, init, tail) as N
-import Data.Lens (Lens', lens, view, set, (^.), (.~))
 import Lib.Random (randomInt)
 import Lib.Util (dCoords, rangeStep)
 import Game.Core (GState(..), class Game, SizeLimit(..), newGame', genState, _nbRows, _nbColumns, _position, playA)
 import Pha.Action (Action, action, ifThenElseA)
-infixr 9 compose as ∘
 
 data Mode = Mode1 | Mode2
 derive instance eqMode :: Eq Mode

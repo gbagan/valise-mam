@@ -1,11 +1,6 @@
 module Game.Chocolat.View where
   
-import Prelude
-import Data.Lens (Lens', (^.))
-import Data.Tuple (Tuple(..))
-import Data.Maybe (Maybe(..))
-import Data.Int (toNumber)
-import Data.Array (concat)
+import MyPrelude
 import Lib.Util (tabulate2)
 import Game.Core (_position, _nbRows, _nbColumns, possibleMoves, playA)
 import Game.Chocolat.Model (State, Move(..), SoapMode(..), _soap, _soapMode, setSoapModeA) 
@@ -20,17 +15,6 @@ inside :: State -> Int -> Int -> Boolean
 inside state row col = col >= left && col <= right - 1 && row >= top && row <= bottom - 1
     where {left, right, top, bottom} = state^._position
     
-{-
-
-const inside2 = ({position}, row, col) =>
-    col >= position.left && col <= position.right &&
-    row >= position.top && row <= position.bottom &&    
-    [position.left, position.right].includes(col)
-    !== [position.top, position.bottom].includes(row);    
--}
-
-
-
 view :: forall a. Lens' a State -> State -> VDom a
 view lens state = template lens {config, board, rules, winTitle} state where
     pos = state^._position
@@ -72,7 +56,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                     key "skull",
                     fill "#20AF20"
                 ]],
-                concat $ possibleMoves state <#> case _ of
+                possibleMoves state >>= case _ of
                     FromLeft i -> [cutter pos.top i (FromLeft i), cutter pos.bottom i (FromLeft i)]
                     FromRight i -> [cutter pos.top i (FromRight i), cutter pos.bottom i (FromRight i)]
                     FromTop i -> [cutter i pos.left (FromTop i), cutter i pos.right (FromTop i)]

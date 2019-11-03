@@ -1,12 +1,8 @@
 module Game.Roue.View where
 
-import Prelude
-import Data.Maybe (Maybe(..), fromMaybe, isJust)
+import MyPrelude
 import Data.String (joinWith)
-import Data.Int (toNumber)
-import Data.Array (catMaybes, take, elem, mapWithIndex, (!!))
-import Data.Lens (Lens', (^.))
-import Math (cos, sin, pi)
+import Data.Array (catMaybes)
 import Lib.Util (map2)
 import Game.Core (PointerPosition, _position, _pointerPosition, _locked)
 import Game.Roue.Model (State, Ball(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, deleteDraggedA,

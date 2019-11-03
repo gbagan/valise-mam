@@ -1,11 +1,6 @@
 module Game.Queens.View where
 
-import Prelude
-import Data.Int (toNumber)
-import Data.Maybe (Maybe(..), maybe)
-import Data.Lens (Lens', (^.))
-import Data.Tuple (Tuple(..))
-import Data.Array (head)
+import MyPrelude
 import Lib.Util (map3)
 import Pha (VDom, Prop, h, text)
 import Pha.Action ((🎲))
@@ -17,7 +12,6 @@ import Game.Queens.Model (State, Piece(..), _selectedPiece, _selectedSquare, _al
 import UI.Template (template, card, incDecGrid, gridStyle, trackPointer, cursorStyle)
 import UI.Icon (Icon(..))
 import UI.Icons (iconbutton, icongroup, iconSizesGroup, iconSelectGroupM, ihelp, irules, ireset)
-infixr 9 compose as ∘
 
 tooltip :: Piece -> String
 tooltip Queen = "Reine"

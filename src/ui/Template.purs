@@ -1,8 +1,5 @@
 module UI.Template where
-import Prelude
-import Data.Int (toNumber)
-import Data.Maybe (Maybe(..), maybe)
-import Data.Lens (Lens', (^.), (.~))
+import MyPrelude
 import Effect (Effect)
 import Pha (VDom, Prop, text, emptyNode)
 import Pha.Action (Event, Action, action, withPayload', onlyEffectAction, (🎲))
@@ -12,7 +9,6 @@ import Game.Core (class Game, GState, Mode(..), PointerPosition, SizeLimit(..), 
          setGridSizeA, confirmNewGameA, dropA)
 import UI.Dialog (dialog)
 import UI.IncDecGrid (incDecGrid) as U
-infixr 9 compose as ∘
 
 winPanel :: forall a b d. String -> GState a b -> VDom d
 winPanel title state =

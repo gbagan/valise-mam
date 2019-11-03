@@ -1607,7 +1607,6 @@ var PS = {};
   exports["updateAtIndices"] = updateAtIndices;
   exports["modifyAt"] = modifyAt;
   exports["modifyAtIndices"] = modifyAtIndices;
-  exports["concatMap"] = concatMap;
   exports["catMaybes"] = catMaybes;
   exports["mapWithIndex"] = mapWithIndex;
   exports["sortWith"] = sortWith;
@@ -5374,7 +5373,7 @@ var PS = {};
                                   return Control_Applicative.pure(Effect_Aff.applicativeAff)(state);
                               });
                           };
-                          throw new Error("Failed pattern match at Game.Core (line 279, column 5 - line 283, column 83): " + [ v1.constructor.name ]);
+                          throw new Error("Failed pattern match at Game.Core (line 275, column 5 - line 279, column 83): " + [ v1.constructor.name ]);
                       };
                   });
               };
@@ -5517,7 +5516,7 @@ var PS = {};
           })());
       };
   }, Data_Function["const"](Data_Maybe.Nothing.value), function (state) {
-      return Lib_Random.shuffle(Data_Array.range(0)((2 * Data_Lens_Getter.viewOn(state)(_nbBases(Data_Lens_Internal_Forget.strongForget)) | 0) - 1 | 0));
+      return Lib_Random.shuffle(Lib_Util["range'"](0)((2 * Data_Lens_Getter.viewOn(state)(_nbBases(Data_Lens_Internal_Forget.strongForget)) | 0) - 1 | 0));
   }, function (state) {
       return Data_Foldable.all(Data_Foldable.foldableArray)(Data_HeytingAlgebra.heytingAlgebraBoolean)(Control_Category.identity(Control_Category.categoryFn))(Data_Array.mapWithIndex(function (i) {
           return function (j) {
@@ -6255,7 +6254,7 @@ var PS = {};
               if (v.icon instanceof IconNone) {
                   return Pha.emptyNode;
               };
-              throw new Error("Failed pattern match at UI.Icon (line 44, column 9 - line 47, column 34): " + [ v.icon.constructor.name ]);
+              throw new Error("Failed pattern match at UI.Icon (line 43, column 9 - line 46, column 34): " + [ v.icon.constructor.name ]);
           })(), Pha.maybeN(Data_Functor.mapFlipped(Data_Maybe.functorMaybe)(v.tooltip)(function (t) {
               return Pha_Html.span([ Pha_Html["class'"]("ui-icon-tooltip")(true) ])([ Pha.text(t) ]);
           })) ]);
@@ -6973,6 +6972,7 @@ var PS = {};
   "use strict";
   $PS["Game.Baseball.View"] = $PS["Game.Baseball.View"] || {};
   var exports = $PS["Game.Baseball.View"];
+  var Control_Bind = $PS["Control.Bind"];
   var Control_Category = $PS["Control.Category"];
   var Data_Array = $PS["Data.Array"];
   var Data_Eq = $PS["Data.Eq"];
@@ -7009,9 +7009,9 @@ var PS = {};
       };
   };
   var colors = [ "blue", "red", "green", "magenta", "orange", "black", "cyan", "gray" ];
-  var dupColors = Data_Array.concatMap(function (x) {
+  var dupColors = Control_Bind.bind(Control_Bind.bindArray)(colors)(function (x) {
       return [ x, x ];
-  })(colors);
+  });
   var view = function (lens) {
       return function (state) {
           var rules = [ Pha.text("blah blah blah blah") ];
@@ -7236,8 +7236,8 @@ var PS = {};
       })(dictStrong);
   };
   var _soap = function (dictStrong) {
-      var $70 = _ext(dictStrong);
-      var $71 = Data_Lens_Lens.lens(function (v) {
+      var $71 = _ext(dictStrong);
+      var $72 = Data_Lens_Lens.lens(function (v) {
           return v.soap;
       })(function (v) {
           return function (v1) {
@@ -7247,13 +7247,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($72) {
-          return $70($71($72));
+      return function ($73) {
+          return $71($72($73));
       };
   };
   var _soapMode = function (dictStrong) {
-      var $73 = _ext(dictStrong);
-      var $74 = Data_Lens_Lens.lens(function (v) {
+      var $74 = _ext(dictStrong);
+      var $75 = Data_Lens_Lens.lens(function (v) {
           return v.soapMode;
       })(function (v) {
           return function (v1) {
@@ -7263,8 +7263,8 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($75) {
-          return $73($74($75));
+      return function ($76) {
+          return $74($75($76));
       };
   };
   var chocolat2Game = new Game_Core.TwoPlayersGame(function () {
@@ -7290,23 +7290,23 @@ var PS = {};
           bottom: Data_Lens_Getter.viewOn(st)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget))
       });
   }, (function () {
-      var $76 = Data_Lens_Getter.view(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
-      return function ($77) {
+      var $77 = Data_Lens_Getter.view(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
+      return function ($78) {
           return (function (v) {
               return v.left === (v.right - 1 | 0) && v.top === (v.bottom - 1 | 0);
-          })($76($77));
+          })($77($78));
       };
   })(), function (state) {
       return Control_Bind.bind(Lib_Random.bindRandom)((function () {
-          var $61 = Data_Eq.eq(eqSoapMode)(Data_Lens_Getter.viewOn(state)(_soapMode(Data_Lens_Internal_Forget.strongForget)))(StandardMode.value);
-          if ($61) {
+          var $62 = Data_Eq.eq(eqSoapMode)(Data_Lens_Getter.viewOn(state)(_soapMode(Data_Lens_Internal_Forget.strongForget)))(StandardMode.value);
+          if ($62) {
               return Lib_Random.randomInt(Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)));
           };
           return Control_Applicative.pure(Lib_Random.applicativeRandom)(0);
       })())(function (v) {
           return Control_Bind.bind(Lib_Random.bindRandom)((function () {
-              var $63 = Data_Eq.notEq(eqSoapMode)(Data_Lens_Getter.viewOn(state)(_soapMode(Data_Lens_Internal_Forget.strongForget)))(CornerMode.value);
-              if ($63) {
+              var $64 = Data_Eq.notEq(eqSoapMode)(Data_Lens_Getter.viewOn(state)(_soapMode(Data_Lens_Internal_Forget.strongForget)))(CornerMode.value);
+              if ($64) {
                   return Lib_Random.randomInt(Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget)));
               };
               return Control_Applicative.pure(Lib_Random.applicativeRandom)(0);
@@ -7318,41 +7318,41 @@ var PS = {};
           });
       });
   }, function (st) {
-      return function (move) {
-          var p = Data_Lens_Getter.viewOn(st)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
-          if (move instanceof FromLeft) {
+      var p = Data_Lens_Getter.viewOn(st)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
+      return function (v) {
+          if (v instanceof FromLeft) {
               return {
-                  left: move.value0,
+                  left: v.value0,
                   top: p.top,
                   right: p.right,
                   bottom: p.bottom
               };
           };
-          if (move instanceof FromTop) {
+          if (v instanceof FromTop) {
               return {
                   left: p.left,
-                  top: move.value0,
+                  top: v.value0,
                   right: p.right,
                   bottom: p.bottom
               };
           };
-          if (move instanceof FromRight) {
+          if (v instanceof FromRight) {
               return {
                   left: p.left,
                   top: p.top,
-                  right: move.value0,
+                  right: v.value0,
                   bottom: p.bottom
               };
           };
-          if (move instanceof FromBottom) {
+          if (v instanceof FromBottom) {
               return {
                   left: p.left,
                   top: p.top,
                   right: p.right,
-                  bottom: move.value0
+                  bottom: v.value0
               };
           };
-          throw new Error("Failed pattern match at Game.Chocolat.Model (line 42, column 9 - line 46, column 42): " + [ move.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Chocolat.Model (line 38, column 15 - line 42, column 42): " + [ v.constructor.name ]);
       };
   }, Data_Function["const"](new Game_Core.SizeLimit(4, 4, 10, 10)));
   var setSoapModeA = Game_Core["newGame'"](chocolatGame)(Data_Lens_Setter.set(_soapMode(Data_Profunctor_Strong.strongFn)));
@@ -7377,6 +7377,7 @@ var PS = {};
   "use strict";
   $PS["Game.Chocolat.View"] = $PS["Game.Chocolat.View"] || {};
   var exports = $PS["Game.Chocolat.View"];
+  var Control_Bind = $PS["Control.Bind"];
   var Data_Array = $PS["Data.Array"];
   var Data_Functor = $PS["Data.Functor"];
   var Data_Int = $PS["Data.Int"];
@@ -7423,7 +7424,7 @@ var PS = {};
               return function (col) {
                   return Pha_Html.rect(50.0 * Data_Int.toNumber(col) + 7.0)(50.0 * Data_Int.toNumber(row) + 7.0)(36.0)(36.0)([ Pha_Html.key("choc" + Data_Show.show(Data_Show.showInt)((row * columns | 0) + col | 0)), Pha_Html["class'"]("chocolat-square")(true), Pha_Html["class'"]("soap")(row === v.row && col === v.col), Pha_Html["class'"]("hidden")(!inside(state)(row)(col)) ]);
               };
-          }), [ Pha_Html.use(50.0 * Data_Int.toNumber(v.col) + 12.0)(50.0 * Data_Int.toNumber(v.row) + 12.0)(26.0)(26.0)("#skull")([ Pha_Html.key("skull"), Pha_Html.fill("#20AF20") ]) ], Data_Array.concat(Data_Functor.mapFlipped(Data_Functor.functorArray)(Game_Core.possibleMoves(Game_Chocolat_Model.chocolat2Game)(state))(function (v1) {
+          }), [ Pha_Html.use(50.0 * Data_Int.toNumber(v.col) + 12.0)(50.0 * Data_Int.toNumber(v.row) + 12.0)(26.0)(26.0)("#skull")([ Pha_Html.key("skull"), Pha_Html.fill("#20AF20") ]) ], Control_Bind.bind(Control_Bind.bindArray)(Game_Core.possibleMoves(Game_Chocolat_Model.chocolat2Game)(state))(function (v1) {
               if (v1 instanceof Game_Chocolat_Model.FromLeft) {
                   return [ cutter(pos.top)(v1.value0)(new Game_Chocolat_Model.FromLeft(v1.value0)), cutter(pos.bottom)(v1.value0)(new Game_Chocolat_Model.FromLeft(v1.value0)) ];
               };
@@ -7436,8 +7437,8 @@ var PS = {};
               if (v1 instanceof Game_Chocolat_Model.FromBottom) {
                   return [ cutter(v1.value0)(pos.left)(new Game_Chocolat_Model.FromBottom(v1.value0)), cutter(v1.value0)(pos.right)(new Game_Chocolat_Model.FromBottom(v1.value0)) ];
               };
-              throw new Error("Failed pattern match at Game.Chocolat.View (line 75, column 50 - line 79, column 106): " + [ v1.constructor.name ]);
-          })) ])) ]);
+              throw new Error("Failed pattern match at Game.Chocolat.View (line 59, column 41 - line 63, column 106): " + [ v1.constructor.name ]);
+          }) ])) ]);
           var config = UI_Template.card("Barre de chocolat")([ UI_Icons.iconSizesGroup(Game_Chocolat_Model.chocolatGame)(function (dictStrong) {
               return lens(dictStrong);
           })(state)([ new Data_Tuple.Tuple(6, 7) ])(true), UI_Icons.iconSelectGroup(Game_Chocolat_Model.showSoapMode)(Game_Chocolat_Model.eqSoapMode)(function (dictStrong) {
@@ -7480,7 +7481,7 @@ var PS = {};
                           style: opt.style
                       };
                   };
-                  throw new Error("Failed pattern match at Game.Chocolat.View (line 44, column 58 - line 47, column 100): " + [ mode.constructor.name ]);
+                  throw new Error("Failed pattern match at Game.Chocolat.View (line 28, column 58 - line 31, column 100): " + [ mode.constructor.name ]);
               };
           }), UI_Icons.icons2Players(Game_Chocolat_Model.chocolatGame)(function (dictStrong) {
               return lens(dictStrong);
@@ -8101,7 +8102,7 @@ var PS = {};
           })();
           var x = Data_Maybe.fromMaybe(0)(Data_Array.index(position)(i));
           return (x * (y + z | 0) | 0) === 0;
-      })(Data_Array.range(0)(Data_Array.length(position) - 1 | 0));
+      })(Lib_Util["range'"](0)(Data_Array.length(position) - 1 | 0));
   }, Game_Core.defaultOnNewGame, function (state) {
       return function (v) {
           var position = Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
@@ -9278,7 +9279,7 @@ var PS = {};
                   return !Data_Array["null"](p) && isValidPath(state)(Data_Semigroup.append(Data_Semigroup.semigroupArray)(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget)))(p));
               })(pathBetween(Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget)))(Data_Array_NonEmpty.last(v1.value0))(v));
           };
-          throw new Error("Failed pattern match at Game.Paths.Model (line 59, column 9 - line 63, column 78): " + [ v1.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Paths.Model (line 56, column 9 - line 60, column 78): " + [ v1.constructor.name ]);
       };
   }, function (v) {
       return Data_Maybe.Nothing.value;
@@ -9697,7 +9698,7 @@ var PS = {};
                   };
                   return pieces2;
               };
-              throw new Error("Failed pattern match at Game.Queens.Model (line 161, column 1 - line 161, column 70): " + [ piece.constructor.name, v.constructor.name, pieces.constructor.name ]);
+              throw new Error("Failed pattern match at Game.Queens.Model (line 154, column 1 - line 154, column 70): " + [ piece.constructor.name, v.constructor.name, pieces.constructor.name ]);
           };
       };
   };
@@ -10883,7 +10884,7 @@ var PS = {};
                   customSize: true
               };
           };
-          throw new Error("Failed pattern match at Game.Solitaire.Model (line 102, column 13 - line 120, column 18): " + [ v1.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Solitaire.Model (line 97, column 13 - line 115, column 18): " + [ v1.constructor.name ]);
       })();
       return Data_Functor.mapFlipped(Lib_Random.functorRandom)(v.position)(function (p) {
           return Data_Lens_Setter.set(Game_Core["_customSize"](Data_Profunctor_Strong.strongFn))(v.customSize)(Data_Lens_Setter.set(Game_Core["_position"](Data_Profunctor_Strong.strongFn))(p)(Data_Lens_Setter.set(_holes(Data_Profunctor_Strong.strongFn))(v.holes)(state)));
@@ -11260,7 +11261,7 @@ var PS = {};
       if (v instanceof Type3) {
           return "beast3";
       };
-      throw new Error("Failed pattern match at Game.Tiling.Model (line 18, column 1 - line 21, column 26): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Tiling.Model (line 14, column 1 - line 17, column 26): " + [ v.constructor.name ]);
   });
   var rotate90 = Data_Functor.map(Data_Functor.functorArray)(function (v) {
       return {
@@ -11354,7 +11355,7 @@ var PS = {};
               col: 0
           } ];
       };
-      throw new Error("Failed pattern match at Game.Tiling.Model (line 23, column 1 - line 23, column 28): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Tiling.Model (line 19, column 1 - line 19, column 28): " + [ v.constructor.name ]);
   };
   var eqTileType = new Data_Eq.Eq(function (x) {
       return function (y) {
@@ -11954,6 +11955,11 @@ var PS = {};
               help: "Jeu: chemins",
               drag: false
           })(450)(445)(64)(64)([ Pha_Html.transform("rotate(40)") ])([  ]), object({
+              symbol: "quiet",
+              link: Data_Maybe.Nothing.value,
+              help: "Jeu: preuve sans mot",
+              drag: false
+          })(180)(130)(50)(50)([  ])([  ]), object({
               symbol: "chocolate",
               link: new Data_Maybe.Just("chocolat"),
               help: "Jeu: chocolat",

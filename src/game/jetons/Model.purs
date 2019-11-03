@@ -1,12 +1,8 @@
 module Game.Jetons.Model where
 
-import Prelude
-import Data.Array (length, replicate, (!!), (..), updateAt, modifyAt, all)
-import Data.Maybe (Maybe (..), fromMaybe)
-import Data.Lens (Lens', lens, (^.))
-import Lib.Util (dCoords)
+import MyPrelude
+import Lib.Util ((..), dCoords)
 import Game.Core (class Game, GState(..), SizeLimit (..), genState, _position, _nbColumns, _nbRows, defaultOnNewGame)
-infixr 9 compose as ∘
 
 type Position = Array Int
 type Ext' = { dragged :: Maybe Int }

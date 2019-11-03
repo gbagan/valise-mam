@@ -1,16 +1,11 @@
 module Game.Solitaire.Model where
-import Prelude
-import Data.Tuple (Tuple(..))
-import Data.Maybe (Maybe(..), maybe, fromMaybe)
+import MyPrelude
 import Data.Traversable (sequence)
-import Data.Array ((!!), replicate, all, mapWithIndex, updateAtIndices)
-import Data.Lens (Lens', lens, view, (^.), (.~), (%~))
-import Data.Lens.Index (ix)
+import Data.Array (updateAtIndices)
 import Pha.Action (Action, action)
 import Lib.Random (Random, randomInt, randomBool)
 import Lib.Util (tabulate, tabulate2, dCoords)
 import Game.Core (class Game, GState(..), SizeLimit(..), genState, canPlay, _nbColumns, _nbRows, _customSize, _position, newGame)
-infixr 9 compose as ∘
 
 type Move = {from :: Int, to :: Int}
 

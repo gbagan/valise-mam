@@ -1,14 +1,10 @@
 module Game.Tiling.Model where
 
-import Prelude
-import Data.Lens (Lens', lens, set, view, (.~), (^.), (%~))
-import Data.Lens.Index (ix)
-import Data.Maybe (Maybe(..), maybe)
-import Data.Array ((!!), all, catMaybes, elem, foldl, length, mapWithIndex, replicate)
+import MyPrelude
+import Data.Array (catMaybes)
 import Lib.Util (coords)
 import Game.Core (GState(..), class Game, SizeLimit(..), canPlay, genState, newGame', playA, _position, _nbColumns, _nbRows)
 import Pha.Action (Action, action, ifThenElseA)
-infixr 9 compose as ∘
 
 type Coord = {row :: Int, col :: Int}
 type Tile = Array Coord

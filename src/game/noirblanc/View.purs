@@ -1,14 +1,10 @@
 module Game.Noirblanc.View where
 
-import Prelude
-import Data.Int (toNumber)
-import Data.Maybe (Maybe(..))
-import Data.Array ((!!))
-import Data.Lens (Lens', (^.))
+import MyPrelude
+import Lib.Util (coords, map2)
 import Pha (Prop, VDom, text)
 import Pha.Action ((🎲))
 import Pha.Html (div', svguse, class', key, style, click)
-import Lib.Util (coords, map2)
 import Game.Core (_position, _nbRows, _nbColumns, _help)
 import Game.Noirblanc.Model (State, _level, _mode2, _maxLevels, play2A, selectLevelA, selectModeA)
 import UI.Icon (Icon(..), Options)

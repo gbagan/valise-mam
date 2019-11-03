@@ -1,17 +1,13 @@
 module Game.Core where
 
-import Prelude
-import Data.Maybe (Maybe(..), maybe)
-import Data.Array (snoc, null, find)
+import MyPrelude
 import Data.Array.NonEmpty (fromArray, head, init, last, toArray) as N
 import Data.Time.Duration (Milliseconds(..))
 import Effect.Aff (delay)
 import Effect.Class (liftEffect)
 import Control.Alt ((<|>))
-import Data.Lens (lens, Lens', set, (^.), (.~), (%~))
 import Lib.Random (Random, runRnd, randomPick)
 import Pha.Action (Action, action, randomAction, asyncAction)
-infixr 9 compose as ∘
 
 data Dialog a = Rules | NoDialog | ConfirmNewGame a
 data Mode = SoloMode | RandomMode | ExpertMode | DuelMode

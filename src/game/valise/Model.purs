@@ -1,10 +1,8 @@
 module Game.Valise.Model where
-import Prelude
+import MyPrelude
 import Effect.Aff (delay)
-import Data.Lens (Lens', lens, (.~), (%~))
 import Pha.Action (Action, action, asyncAction)
 import Data.Time.Duration (Milliseconds(..))
-infixr 9 compose as ∘
 
 type State = {
     isOpen :: Boolean,

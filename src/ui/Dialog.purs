@@ -1,6 +1,5 @@
 module UI.Dialog where
-import Prelude
-import Data.Maybe (Maybe)
+import MyPrelude
 import Data.Array (catMaybes)
 import Pha.Action (Action)
 import Pha (VDom, text)

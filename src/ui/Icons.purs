@@ -23,11 +23,13 @@ icongroup title children =
         div' [class' "ui-icon-grid" true] children
     ]
 
+{-
 iconSelect :: forall a pos ext sel. Eq sel =>
     Lens' a (GState pos ext) -> GState pos ext -> sel -> (sel -> Action (GState pos ext)) -> sel
   -> (I.Options -> I.Options) -> VDom a
 iconSelect lens state selection action value optionFn =
     iconbutton state (\opt -> optionFn $ opt{selected = value == selection}) [click $ lens 🎲 action value]
+-}
 
 iundo :: forall a b d. Lens' d (GState a b) -> GState a b -> VDom d
 iundo lens state =

@@ -11,6 +11,7 @@ type Move = {from :: Int, to :: Int}
 
 data Board = FrenchBoard | EnglishBoard | CircleBoard | Grid3Board | RandomBoard
 derive instance boardMode :: Eq Board
+instance showMode :: Show Board where show _ = "board"
 
 type Ext' = {
     board :: Board,

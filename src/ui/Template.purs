@@ -5,7 +5,7 @@ import Pha (VDom, Prop, text, emptyNode)
 import Pha.Action (Event, Action, action, withPayload', onlyEffectAction, (🎲))
 import Pha.Html (div', class', attr, style, pointerup, pointerdown, pointerleave, pointermove)
 import Game.Core (class Game, GState, Mode(..), PointerPosition, SizeLimit(..), Dialog(..),
-         _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointerPosition, canPlay, isLevelFinished, sizeLimit,
+         _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointer, canPlay, isLevelFinished, sizeLimit,
          setGridSizeA, confirmNewGameA, dropA)
 import UI.Dialog (dialog)
 import UI.IncDecGrid (incDecGrid) as U
@@ -85,7 +85,7 @@ releasePointerCaptureA = onlyEffectAction releasePointerCapture
 
 
 setPointerPositionA :: forall pos ext. (Maybe PointerPosition) -> Action (GState pos ext)
-setPointerPositionA a = action $ _pointerPosition .~ a
+setPointerPositionA a = action $ _pointer .~ a
 
 cursorStyle :: forall a. PointerPosition -> Int -> Int -> Number -> Array (Prop a)    
 cursorStyle {left, top} rows columns size = [
@@ -105,19 +105,19 @@ trackPointer lens = [
     attr "touch-action" "none", 
     class' "ui-touch-action-none" true,
     pointermove $ lens 🎲 move,
-    pointerleave $ lens 🎲  action (_pointerPosition .~ Nothing),
+    pointerleave $ lens 🎲  action (_pointer .~ Nothing),
     pointerdown $ lens 🎲 move --  todo tester
 ] where
     move :: Action (GState pos ext)
     move =  setPointerPositionA  `withPayload'` relativePointerPosition
         -- (\_ e -> pointerType e == Just "mouse")
         -- combine(
-        --    whenA (\s -> s.pointerPosition == Nothing) (actions.drop NoDrop)
+        --    whenA (\s -> s.pointer == Nothing) (actions.drop NoDrop)
         --)
     leave = -- combine(
            -- whenA
             --    (\_ e -> hasDnD || pointerType e == Just "mouse")
-            action (_pointerPosition .~ Nothing)
+            action (_pointer .~ Nothing)
 
             -- hasDnD && drop NoDrop
 
@@ -139,9 +139,9 @@ dndBoardProps lens dragLens = [
         -- (\_ e -> pointerType e == Just "mouse")
         -- combine(
         -- setPointerPosition -- `withPayload` relativePointerPosition
-        --    whenA (\s -> s.pointerPosition == Nothing) (actions.drop NoDrop)
+        --    whenA (\s -> s.pointer == Nothing) (actions.drop NoDrop)
         --)
-    leave = action $ (_pointerPosition .~ Nothing) ∘ (dragLens .~ Nothing)
+    leave = action $ (_pointer .~ Nothing) ∘ (dragLens .~ Nothing)
             -- hasDnD && drop NoDrop
 
 dndItemProps :: forall pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>

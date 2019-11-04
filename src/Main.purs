@@ -1,8 +1,5 @@
 module Main where
-import Prelude
-import Data.Lens (Lens', lens, (^.))
-import Data.Tuple (Tuple(..))
-import Data.Maybe (Maybe, maybe)
+import MyPrelude
 import Data.String (drop, indexOf)
 import Data.String.Pattern (Pattern (..))
 import Data.Time.Duration (Milliseconds(..))
@@ -123,8 +120,8 @@ onKeyDown k = asyncAction \{dispatch} state ->
     k # maybe (pure state) \k' -> dispatch (sliceFn state \lens -> lens 🎲 G.onKeyDown k')
 
 
-view :: RootState -> VDom RootState
-view state = div' [
+viewG :: RootState -> VDom RootState
+viewG state = div' [
     key state.location,
     class' "main-main-container" true,
     class' "valise" $ state.location == "valise",
@@ -176,7 +173,7 @@ main = do
     }
     app {
         state,
-        view,
+        view: viewG,
         node: "root",
         events: [
                 Tuple "keydown" (onKeyDown `withPayload` E.key),

@@ -3,6 +3,7 @@ module Game.Core where
 import MyPrelude
 import Data.Array.NonEmpty (fromArray, head, init, last, toArray) as N
 import Data.Time.Duration (Milliseconds(..))
+import Effect (Effect)
 import Effect.Aff (delay)
 import Effect.Class (liftEffect)
 import Control.Alt ((<|>))
@@ -29,7 +30,7 @@ type CoreState pos ext = {
     help :: Boolean,
     locked :: Boolean,
     showWin :: Boolean,
-    pointerPosition :: Maybe PointerPosition
+    pointer :: Maybe PointerPosition
 }
 
 data GState pos ext = State (CoreState pos ext) ext
@@ -48,7 +49,7 @@ defaultCoreState p = {
     mode: SoloMode,
     locked: false,
     showWin: false,
-    pointerPosition: Nothing
+    pointer: Nothing
 }
 
 genState :: forall pos ext. pos -> (CoreState pos ext -> CoreState pos ext) -> ext -> GState pos ext
@@ -93,8 +94,8 @@ _locked = _core ∘ lens (_.locked) (_{locked = _})
 _showWin :: forall pos ext. Lens' (GState pos ext) Boolean
 _showWin = _core ∘ lens (_.showWin) (_{showWin = _})
 
-_pointerPosition :: forall pos ext. Lens' (GState pos ext) (Maybe PointerPosition)
-_pointerPosition = _core ∘ lens (_.pointerPosition) (_{pointerPosition = _})
+_pointer :: forall pos ext. Lens' (GState pos ext) (Maybe PointerPosition)
+_pointer = _core ∘ lens (_.pointer) (_{pointer = _})
 
 data SizeLimit = SizeLimit Int Int Int Int
 
@@ -232,8 +233,8 @@ newGame' :: forall a pos ext mov. Game pos ext mov =>
     (a -> GState pos ext -> GState pos ext) -> a -> Action (GState pos ext)
 newGame' f val = newGame $ f val
 
-init :: forall pos ext mov. Game pos ext mov => GState pos ext -> Random (GState pos ext)
-init = newGameAux identity
+init :: forall pos ext mov. Game pos ext mov => GState pos ext -> Effect (GState pos ext)
+init = runRnd ∘ newGameAux identity
 
 setModeA :: forall pos ext mov. Game pos ext mov => Mode -> Action (GState pos ext)
 setModeA = newGame' (set _mode)

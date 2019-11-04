@@ -37,6 +37,7 @@ const showBeast = state => state.help ? asyncToggle('beastVisible', 200)(state) 
 
 
 type Ext' = {
+    beast :: Array Beast
 }
 newtype ExtState = Ext Ext'
 type State = GState (Array Boolean) ExtState
@@ -44,8 +45,11 @@ type State = GState (Array Boolean) ExtState
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 
+_beast :: Lens' State (Array Beast)
+_beast = _ext ∘ lens (_.beast) (_{beast = _})
+
 istate :: State
-istate = genState [] (_{nbRows = 5, nbColumns = 5}) (Ext {})
+istate = genState [] (_{nbRows = 5, nbColumns = 5}) (Ext {beast: [type1]})
 
 rotate90 :: Beast -> Beast
 rotate90 = map \{row, col} -> { row: -col, col: row }
@@ -65,21 +69,29 @@ allTranslations n m beast = tabulate2 n m \row col -> translate row col beast
 allBeastPositions :: Int -> Int -> Array Beast -> Array Beast
 allBeastPositions rows cols = concatMap $ allRotations >=> allTranslations rows cols
 
-adaptatedConfig :: Int -> Int -> String -> Beast -> Beast
-adaptatedConfig rows columns mode =
+adaptatedBeast :: Int -> Int -> String -> Beast -> Beast
+adaptatedBeast rows columns mode =
     map \{row, col} -> case mode of
                         "normal" -> {row, col}
                         "cylinder" -> {row, col: col `mod` columns}
                         _ -> {row: row `mod` rows, col: col `mod` columns}
-        
--- const pseudoRandomPick = t => t[28921 % t.length];
-{-
-nonTrappedBeast = state =>
-            allConfigs(state.rows, state.columns, state.beast)
-            |> map(adaptedConfig(state.rows, state.columns, state.mode))
-            |> filter(
-                all(({row, col}) => row >= 0 && row < state.rows && col >= 0 && col < state.columns && !state.position[row * state.columns + col])
-            )
+
+pseudoRandomPick :: forall t. Array t -> Maybe t
+pseudoRandomPick t = t !! (28921 `mod` length t)
+
+
+nonTrappedBeast :: State -> Maybe (Array Boolean)
+nonTrappedBeast state =
+    allBeastPositions rows columns (state^._beast)
+        <#> adaptatedBeast rows columns "normal"
+        # filter isValidBeast
+        # pseudoRandomPick
+        <#> foldr (\p -> ix (p.row * columns + p.col) .~ true) (replicate (rows * columns) false)
+    where rows = state^._nbRows
+          columns = state^._nbColumns
+          isValidBeast = all \{row, col} -> row >= 0 && row < rows && col >= 0 && col < columns && 
+                    (state^._position) !! (row * columns + col) == Just false
+        {-
             |> (s => s.length === 0 ?
                 null
                 : pseudoRandomPick(s)
@@ -93,7 +105,7 @@ nonTrappedBeast = state =>
 instance labeteGame :: Game (Array Boolean) ExtState Int where
     play state index = state^._position # ix index %~ not
     canPlay _ _ = true
-    isLevelFinished st = false --  not ∘ nonTrappedBeast
+    isLevelFinished st = false --  isNothing ∘ nonTrappedBeast
     initialPosition st = pure $ replicate (st^._nbRows * st^._nbColumns) false
     onNewGame st = pure st
     {- state => ({
@@ -137,8 +149,8 @@ instance labeteGame :: Game (Array Boolean) ExtState Int where
 
         startZone: (state, index) => state |> set('zoneStart', {index}),
         startZone2: state => state|> set('zoneStart', merge({
-            left: 100 * state.pointerPosition.left / state.pointerPosition.width,
-            top: 100 * state.pointerPosition.top / state.pointerPosition.height,
+            left: 100 * state.pointer.left / state.pointer.width,
+            top: 100 * state.pointer.top / state.pointer.height,
         })),
 
         play: combine($.play, showBeast),
@@ -168,8 +180,8 @@ instance labeteGame :: Game (Array Boolean) ExtState Int where
         zone: !state.zoneStart ? null : {
             x1: state.zoneStart.left,
             y1: state.zoneStart.top,
-            x2: 100 * state.pointerPosition.left / state.pointerPosition.width,
-            y2: 100 * state.pointerPosition.top / state.pointerPosition.height,
+            x2: 100 * state.pointer.left / state.pointer.width,
+            y2: 100 * state.pointer.top / state.pointer.height,
             color: state.selectedColor
         }
     })

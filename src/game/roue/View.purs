@@ -4,7 +4,7 @@ import MyPrelude
 import Data.String (joinWith)
 import Data.Array (catMaybes)
 import Lib.Util (map2)
-import Game.Core (PointerPosition, _position, _pointerPosition, _locked)
+import Game.Core (PointerPosition, _position, _pointer, _locked)
 import Game.Roue.Model (State, Ball(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, deleteDraggedA,
                         aligned, validRotation, validRotation')
 import Pha (VDom, text, maybeN)
@@ -124,7 +124,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                 if valid then span [class' "valid" true] [text "✓"] else span [class' "invalid" true] [text "✗"]
             ]
         ],
-        maybeN $ cursor <$> state^._pointerPosition <*> draggedColor
+        maybeN $ cursor <$> state^._pointer <*> draggedColor
     ]
 
     winTitle = "GAGNÉ"

@@ -3,13 +3,13 @@ import MyPrelude
 import Data.Int (even)
 import Data.String (joinWith)
 import Lib.Util (coords, tabulate)
-import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _pointerPosition)
+import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _pointer)
 import Game.Paths.Model (State, Mode(..), _exit, _mode, selectVertexA, selectModeA)
 import Pha (VDom, Prop, text, emptyNode, maybeN, whenN)
 import Pha.Action ((🎲))
 import Pha.Html (div', p, br, g, svg, use, path, key, class', attr, click, style, width, height, viewBox)
 import UI.Icon (Icon(..))
-import UI.Icons (icongroup, iconSizesGroup, iconSelect, ihelp, iundo, iredo, ireset, irules)
+import UI.Icons (icongroup, iconSizesGroup, iconSelectGroup, ihelp, iundo, iredo, ireset, irules)
 import UI.Template (template, card, incDecGrid, gridStyle, svgCursorStyle, trackPointer)
 
 square :: forall a. {darken :: Boolean, trap :: Boolean, door :: Boolean, x :: Number, y :: Number} -> Array (Prop a) -> VDom a
@@ -44,10 +44,9 @@ view lens state = template lens {config, board, rules, winTitle} state where
     columns = state^._nbColumns
     
     config = card "Chemins" [
-        icongroup "Mode de jeu" [
-            iconSelect lens state (state^._mode) selectModeA Mode1 (_{icon = IconSymbol "#paths-mode0", tooltip = Just "Mode 1"}),
-            iconSelect lens state (state^._mode) selectModeA Mode2 (_{icon = IconSymbol "#paths-mode1", tooltip = Just "Mode 2"})
-        ],
+        iconSelectGroup lens state "Mode de jeu" [Mode1, Mode2] (state^._mode) selectModeA \mode opt -> case mode of
+            Mode1 -> opt{icon = IconSymbol "#paths-mode0", tooltip = Just "Mode 1"}
+            Mode2 -> opt{icon = IconSymbol "#paths-mode1", tooltip = Just "Mode 2"},
         iconSizesGroup lens state [Tuple 4 6, Tuple 5 5, Tuple 3 8] true,
         icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x lens state
     ]
@@ -82,7 +81,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
             ) <> [
                 path pathdec [class' "paths-path" true],
                 maybeN hero,
-                maybeN $ state^._pointerPosition <#> \pp ->
+                maybeN $ state^._pointer <#> \pp ->
                     if null position then
                         heroCursor pp
                     else if isNothing $ state^._exit then

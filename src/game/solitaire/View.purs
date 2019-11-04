@@ -5,10 +5,10 @@ import Lib.Util (coords)
 import Pha (VDom, text, whenN, maybeN)
 import Pha.Action ((🎲))
 import Pha.Html (div', br, svg, rect, circle, key, attr, class', style,click, width, height, viewBox, fill, stroke, strokeWidth, translate)
-import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointerPosition)
+import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointer)
 import Game.Solitaire.Model (State, Board(..), _board, _holes, _dragged, _help, setBoardA, toggleHelpA)
 import UI.Icon (Icon(..))
-import UI.Icons (iconbutton, icongroup, iconSelect, iundo, iredo, ireset, irules)
+import UI.Icons (iconbutton, icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 import UI.Template (template, card, gridStyle, incDecGrid, svgCursorStyle, dndBoardProps, dndItemProps)
 
 tricolor :: Int -> Int -> Int -> String
@@ -37,18 +37,17 @@ view lens state = template lens {config, board, rules, winTitle} state where
             translate (50.0 * toNumber col + 25.0) (50.0 * toNumber row + 25.0)
 
     config =
-        let ic = iconSelect lens state (state^._board) setBoardA 
+        let boards = [CircleBoard, Grid3Board, RandomBoard, EnglishBoard, FrenchBoard]
             ihelp = iconbutton state (_{icon = IconSymbol "#help", selected = state^._help > 0, tooltip = Just "Aide"})
                     [click $ lens 🎲 toggleHelpA]
         in        
         card "Jeu du solitaire" [
-            icongroup "Plateau" [
-                ic CircleBoard (_{icon = IconSymbol "#circle", tooltip = Just "Cercle"}),
-                ic Grid3Board (_{icon = IconText "3xN", tooltip = Just "3xN"}), 
-                ic RandomBoard (_{icon = IconSymbol "#shuffle", tooltip = Just "Aléatoire"}), 
-                ic EnglishBoard  (_{icon = IconSymbol "#bread", tooltip = Just "Anglais"}),
-                ic FrenchBoard (_{icon = IconSymbol "#tea", tooltip = Just "Français"}) 
-            ],
+            iconSelectGroup lens state "Plateau" boards (state^._board) setBoardA \i opt -> case i of
+                CircleBoard -> opt{icon = IconSymbol "#circle", tooltip = Just "Cercle"}
+                Grid3Board -> opt{icon = IconText "3xN", tooltip = Just "3xN"}
+                RandomBoard -> opt{icon = IconSymbol "#shuffle", tooltip = Just "Aléatoire"}
+                EnglishBoard -> opt{icon = IconSymbol "#bread", tooltip = Just "Anglais"}
+                FrenchBoard ->  opt{icon = IconSymbol "#tea", tooltip = Just "Français"},
             icongroup "Options" $ [ihelp] <> ([iundo, iredo, ireset, irules] <#> \x -> x lens state)     --- help
         ] 
 
@@ -81,7 +80,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                         class' "solitaire-peg" true,
                         style "transform" $ itemStyle i
                     ] <> dndItemProps lens _dragged true false i state)
-            ) <> [maybeN $ cursor <$> state^._pointerPosition <*> state^._dragged]
+            ) <> [maybeN $ cursor <$> state^._pointer <*> state^._dragged]
     ]
 
     board = incDecGrid lens state [grid]

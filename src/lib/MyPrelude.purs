@@ -6,6 +6,6 @@ import Math (cos, sin, pi) as Exports
 import Data.Maybe (Maybe(..), maybe, fromMaybe, isJust, isNothing) as Exports
 import Data.Foldable (foldl, foldr, elem, any, all) as Exports
 import Data.Array ((!!), head, last, cons, snoc, filter, find, take, null, length, replicate, updateAt, modifyAt, mapWithIndex, concat, concatMap, sortWith, zipWith) as Exports
-import Data.Lens (Lens', lens, set, view, over, (^.), (.~), (%~)) as Exports
+import Data.Lens (Lens', lens, set, Iso', iso, view, over, (^.), (.~), (%~)) as Exports
 import Data.Lens.Index (ix) as Exports
 infixr 9 Exports.compose as ∘

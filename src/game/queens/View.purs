@@ -5,7 +5,7 @@ import Lib.Util (map3)
 import Pha (VDom, Prop, h, text)
 import Pha.Action ((🎲))
 import Pha.Html (div', br, class', attr, svg, key, style, width, height, href, click, pointerenter, pointerleave)
-import Game.Core (_position, _nbRows, _nbColumns, _help, _pointerPosition)
+import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer)
 import Game.Queens.Model (State, Piece(..), _selectedPiece, _selectedSquare, _allowedPieces, _multiPieces,
                            piecesList, capturableSquares, attackedBySelected,
                            playA, selectSquareA, selectPieceA, selectAllowedPieceA, toggleMultiPiecesA)
@@ -90,7 +90,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                 pointerenter $ lens 🎲 selectSquareA (Just index),
                 pointerleave $ lens 🎲 selectSquareA Nothing
             ]
-        ) <> (state^._pointerPosition # maybe [] (pure ∘ cursor))
+        ) <> (state^._pointer # maybe [] (pure ∘ cursor))
 
     board = div' [] [
         pieceSelector,

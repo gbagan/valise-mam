@@ -5,7 +5,7 @@ import Data.Int (floor)
 import Math (sqrt)
 import Pha (VDom, text, whenN, maybeN)
 import Pha.Html (div', span, br, key, class', style, rgbColor)
-import Game.Core (_position, _nbColumns, _nbRows, _pointerPosition)
+import Game.Core (_position, _nbColumns, _nbRows, _pointer)
 import Game.Jetons.Model (State, _dragged)
 import Lib.Util (coords)
 import UI.Template (template, card, incDecGrid, gridStyle, dndBoardProps, dndItemProps, cursorStyle)
@@ -63,7 +63,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
             (position # mapWithIndex \i val ->
                 whenN (val /= 0) \_ ->
                     piece i val ([key $ show i] <> dndItemProps lens _dragged true true i state)
-            ) <> [maybeN $ cursor <$> state^._pointerPosition <*> state^._dragged]
+            ) <> [maybeN $ cursor <$> state^._pointer <*> state^._dragged]
     ]
 
     rules = [

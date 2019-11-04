@@ -7,7 +7,7 @@ import Pha.Action ((🎲))
 import Pha.Event (preventDefaultA)
 import Pha.Html (div', g, rect, line, use, key, attr, style, svg, class', click, contextmenu, pointerenter, pointerleave,
                  width, height, viewBox, fill, stroke, strokeWidth, transform)
-import Game.Core (_position, _nbRows, _nbColumns, _pointerPosition, _help)
+import Game.Core (_position, _nbRows, _nbColumns, _pointer, _help)
 import Game.Tiling.Model (State, TileType(..), _nbSinks, _rotation, _tile, _tileType,
                           sinks, inConflict, setNbSinksA, setTileA, clickOnCellA, rotateA, setHoverSquareA)
 import UI.Template (template, card, incDecGrid, gridStyle, svgCursorStyle, trackPointer)
@@ -94,7 +94,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                     whenN (pos > 0 && border index columns) \_ ->
                         line 0.0 50.0 50.0 50.0 [stroke "#000", strokeWidth "2"]    
                 ]
-            ) <> [maybeN $ (if length (sinks state) < state^._nbSinks then sinkCursor else tileCursor) <$> state^._pointerPosition]
+            ) <> [maybeN $ (if length (sinks state) < state^._nbSinks then sinkCursor else tileCursor) <$> state^._pointer]
     ]
 
     board = incDecGrid lens state [grid]
@@ -151,7 +151,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                         border(index, state.columns) && line({ x1: 0, y1: 50, x2: 50, y2: 50, stroke: '#000', 'stroke-width': 2 }),
                     )
                 ),
-                state.pointerPosition && (state.sinks.length < state.nbSinks ? SinkCursor() : TileCursor())
+                state.pointer && (state.sinks.length < state.nbSinks ? SinkCursor() : TileCursor())
             )
         );
 

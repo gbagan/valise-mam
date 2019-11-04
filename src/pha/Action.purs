@@ -15,7 +15,7 @@ instance semigroupAction :: Semigroup (Action a) where
         _ <- f dispatch e
         g dispatch e
 
-instance semigroupMonoid :: Monoid (Action a) where
+instance monoidAction :: Monoid (Action a) where
     mempty = Action (\dispatch ev -> liftEffect (dispatch identity))
 
 action :: forall a. (a -> a) -> Action a

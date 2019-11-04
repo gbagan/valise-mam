@@ -35,7 +35,7 @@ pizza cx cy radius startAngle endAngle =
 
 innerWheel :: forall a. Int -> VDom a 
 innerWheel size = div' [class' "roue-inner" true] [
-    svg [viewBox "0 0 100 100"] $ take size colors # mapWithIndex \i color ->
+    svg [viewBox 0 0 100 100] $ take size colors # mapWithIndex \i color ->
         path (pizza 50.0 50.0 50.0 (2.0 * pi * (toNumber i - 0.5) / toNumber size) (2.0 * pi * (toNumber i + 0.5) / toNumber size)) [
             fill color,
             stroke "black"
@@ -75,7 +75,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
         class' "roue-outer" true,
         style "transform" $ "rotate(" <> show (360.0 * toNumber (state^._rotation) / toNumber size) <> "deg)"
     ] $
-        [svg [key "svg", viewBox "0 0 100 100"] $ map2 position (aligned state) \i pos align ->
+        [svg [key "svg", viewBox 0 0 100 100] $ map2 position (aligned state) \i pos align ->
             path (pizza 50.0 50.0 50.0 (2.0 * pi * (toNumber i - 0.5) / toNumber size) (2.0 * pi * (toNumber i + 0.5) / toNumber size)) ([
                 class' "roue-wheel-part" true,
                 fill $ if not align then  "#F0B27A" else if validRotation' state then "lightgreen" else "#F5B7B1"

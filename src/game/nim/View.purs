@@ -23,7 +23,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
     ]
 
     board = div' [class' "ui-board nim-board" true] [
-        svg [viewBox "0 0 100 100", height "100%", width "100%"] $
+        svg [viewBox 0 0 100 100, height "100%", width "100%"] $
             concat $ state^._position # mapWithIndex \i pile ->
                 [rect
                     (if length == 5 then 25.0 else 0.0)

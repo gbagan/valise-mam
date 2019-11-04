@@ -55,7 +55,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
         class' "ui-board" true
     ] <> dndBoardProps lens _dragged <> (if isCircleBoard then [style "width" "100%", style "height" "100%"]  else gridStyle rows columns 5)) [
         svg [width "100%", height "100%",
-            viewBox $ if isCircleBoard then "0 0 250 250" else "0 0 " <> show (50 * columns) <> " " <> show (50 * rows)
+            if isCircleBoard then viewBox 0 0 250 250 else viewBox 0 0 (50 * columns) (50 * rows)
         ] $
             [whenN isCircleBoard \_ ->
                 circle 125.0 125.0 90.0 [stroke "grey", fill "transparent", strokeWidth "5"]

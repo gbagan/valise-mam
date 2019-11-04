@@ -5,6 +5,10 @@ import Pha.Action (Action)
 import Game.Core (class Game, SizeLimit(..), GState(..),
                    genState, _position, _nbRows, _nbColumns)
 
+data Mode = StandardMode | CylinderMode | TorusMode
+derive instance eqMode :: Eq Mode
+instance showMode :: Show Mode where show _ = "mode"
+
 type Beast = Array {row :: Int, col :: Int}
 type1 :: Beast
 type1 = [{ row: 0, col: 0 }, { row: 0, col: 1 }]
@@ -37,7 +41,8 @@ const showBeast = state => state.help ? asyncToggle('beastVisible', 200)(state) 
 
 
 type Ext' = {
-    beast :: Array Beast
+    beast :: Array Beast,
+    mode :: Mode
 }
 newtype ExtState = Ext Ext'
 type State = GState (Array Boolean) ExtState
@@ -48,8 +53,11 @@ _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _beast :: Lens' State (Array Beast)
 _beast = _ext ∘ lens (_.beast) (_{beast = _})
 
+_mode :: Lens' State Mode
+_mode = _ext ∘ lens (_.mode) (_{mode = _})
+
 istate :: State
-istate = genState [] (_{nbRows = 5, nbColumns = 5}) (Ext {beast: [type1]})
+istate = genState [] (_{nbRows = 5, nbColumns = 5}) (Ext {beast: [type1], mode: StandardMode})
 
 rotate90 :: Beast -> Beast
 rotate90 = map \{row, col} -> { row: -col, col: row }
@@ -80,32 +88,29 @@ pseudoRandomPick :: forall t. Array t -> Maybe t
 pseudoRandomPick t = t !! (28921 `mod` length t)
 
 
-nonTrappedBeast :: State -> Maybe (Array Boolean)
-nonTrappedBeast state =
+nonTrappedBeasts :: State -> Array Beast
+nonTrappedBeasts state =
     allBeastPositions rows columns (state^._beast)
         <#> adaptatedBeast rows columns "normal"
         # filter isValidBeast
-        # pseudoRandomPick
-        <#> foldr (\p -> ix (p.row * columns + p.col) .~ true) (replicate (rows * columns) false)
     where rows = state^._nbRows
           columns = state^._nbColumns
           isValidBeast = all \{row, col} -> row >= 0 && row < rows && col >= 0 && col < columns && 
                     (state^._position) !! (row * columns + col) == Just false
-        {-
-            |> (s => s.length === 0 ?
-                null
-                : pseudoRandomPick(s)
-                |> reduce(
-                    p => set(p.row * state.columns + p.col, true),
-                    repeat(state.rows * state.columns, false)
-                )
-            );
--}
+
+nonTrappedBeastOnGrid :: State -> Array Boolean
+nonTrappedBeastOnGrid st = 
+    st # nonTrappedBeasts
+    # pseudoRandomPick
+    # fromMaybe []
+    # foldr (\p -> ix (p.row * columns + p.col) .~ true) (replicate (rows * columns) false)
+    where rows = st^._nbRows
+          columns = st^._nbColumns
 
 instance labeteGame :: Game (Array Boolean) ExtState Int where
     play state index = state^._position # ix index %~ not
     canPlay _ _ = true
-    isLevelFinished st = false --  isNothing ∘ nonTrappedBeast
+    isLevelFinished = null ∘ nonTrappedBeasts
     initialPosition st = pure $ replicate (st^._nbRows * st^._nbColumns) false
     onNewGame st = pure st
     {- state => ({

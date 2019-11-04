@@ -66,7 +66,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
         class' "ui-board" true,
         contextmenu $ lens 🎲 (preventDefaultA <> rotateA)
     ]) [
-        svg [width "100%", height "100%", viewBox $ "0 0 " <> show (50 * columns) <> " " <> show (50 * rows)] $
+        svg [width "100%", height "100%", viewBox 0 0 (50 * columns) (50 * rows)] $
             (position # mapWithIndex \index pos ->
                 let {row, col} = coords columns index in
                 square {

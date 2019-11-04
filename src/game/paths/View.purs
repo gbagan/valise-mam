@@ -64,7 +64,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
         let {row, col} = coords columns v in [if i == 0 then "M" else "L", show $ 100 * col + 50, show $ 100 * row + 50]
     
     grid = div' (gridStyle rows columns 5 <> trackPointer lens) [
-        svg [width "100%", height "100%", viewBox $ "0 0 " <> show (100 * columns) <> " " <> show (100 * rows)] $
+        svg [width "100%", height "100%", viewBox 0 0 (100 * columns) (100 * rows)] $
             (tabulate (rows * columns) \index ->
                 let {row, col} = coords columns index in
                 square {

@@ -15,6 +15,7 @@ import Game.Baseball (State, state) as Baseball
 import Game.Chocolat (State, state) as Chocolat
 import Game.Frog (State, state) as Frog
 import Game.Jetons (State, state) as Jetons
+import Game.Labete (State, state) as Labete
 import Game.Nim (State, state) as Nim
 import Game.Noirblanc (State, state) as Noirblanc
 import Game.Paths (State, state) as Paths
@@ -34,6 +35,7 @@ type RootState = {
     chocolat :: Chocolat.State,
     frog :: Frog.State,
     jetons :: Jetons.State,
+    labete :: Labete.State,
     nim :: Nim.State,
     noirblanc :: Noirblanc.State,
     paths :: Paths.State,
@@ -57,6 +59,9 @@ _frog = lens (_.frog) (_{frog = _})
 
 _jetons :: Lens' RootState Jetons.State
 _jetons = lens (_.jetons) (_{jetons = _})
+
+_labete :: Lens' RootState Labete.State
+_labete = lens (_.labete) (_{labete = _})
 
 _nim :: Lens' RootState Nim.State
 _nim = lens (_.nim) (_{nim = _})
@@ -106,6 +111,7 @@ sliceFn state fn = case state.location of
     "chocolat" -> fn _chocolat
     "frog" -> fn _frog
     "jetons" -> fn _jetons
+    "labete" -> fn _labete
     "noirblanc" -> fn _noirblanc
     "paths" -> fn _paths
     "roue" -> fn _roue
@@ -146,6 +152,7 @@ main = do
     chocolatState <- G.init Chocolat.state
     frogState <- G.init Frog.state
     jetonsState <- G.init Jetons.state
+    labeteState <- G.init Labete.state
     nimState <- G.init Nim.state
     noirblancState <- G.init Noirblanc.state
     pathState <- G.init Paths.state
@@ -160,6 +167,7 @@ main = do
         chocolat: chocolatState,
         frog: frogState,
         jetons: jetonsState,
+        labete: labeteState,
         nim: nimState,
         noirblanc: noirblancState,
         paths: pathState,

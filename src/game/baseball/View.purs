@@ -39,7 +39,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
 
     board =
         div' [class' "ui-board baseball-board" true] [
-            svg [width "100%", height "100%", viewBox "0 0 100 100"] $ 
+            svg [width "100%", height "100%", viewBox 0 0 100 100] $ 
                 (take nbBases colors # mapWithIndex \i color ->
                     rect (-10.0) (-10.0) 20.0 20.0 [
                         key $ "b" <> show i,

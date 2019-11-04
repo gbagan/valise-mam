@@ -43,7 +43,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
     ]
 
     grid = div' (gridStyle rows columns 3 <> [class' "ui-board" true]) [
-        svg [width "100%", height "100%", viewBox $ "-7 -7 " <> show(50 * columns + 14) <> " " <> show(50 * rows + 14)] $
+        svg [width "100%", height "100%", viewBox (-7) (-7) (50 * columns + 14) (50 * rows + 14)] $
             concat [
                 tabulate2 rows columns \row col ->
                     rect (50.0 * toNumber col + 7.0) (50.0 * toNumber row + 7.0) 36.0 36.0 [

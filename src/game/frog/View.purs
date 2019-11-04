@@ -83,7 +83,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
     ]
     grid = 
         div' [class' "ui-board frog-board" true] [
-            svg [viewBox "-190 -200 400 400", height "100%", width "100%"] $
+            svg [viewBox (-190) (-200) 400 400, height "100%", width "100%"] $
                 [
                     path spiralPath [fill "none", stroke "black", strokeWidth "3"],
                     line 153.0 9.0 207.0 20.0 [stroke "black", strokeDasharray "5", strokeWidth "6"],

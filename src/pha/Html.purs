@@ -83,8 +83,8 @@ stroke :: forall a. String -> Prop a
 stroke = attr "stroke"
 fill :: forall a. String -> Prop a
 fill = attr "fill"
-viewBox :: forall a. String -> Prop a
-viewBox = attr "viewBox"
+viewBox :: forall a. Int -> Int -> Int -> Int -> Prop a
+viewBox a b c d = attr "viewBox" $ show a <> " " <> show b <> " " <> show c <> " " <> show d
 transform :: forall a. String -> Prop a
 transform = attr "transform"
 strokeWidth :: forall a. String -> Prop a

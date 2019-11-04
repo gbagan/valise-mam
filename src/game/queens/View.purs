@@ -2,6 +2,7 @@ module Game.Queens.View where
 
 import MyPrelude
 import Lib.Util (map3)
+import Data.Array.NonEmpty (toArray, head) as N
 import Pha (VDom, Prop, h, text)
 import Pha.Action ((🎲))
 import Pha.Html (div', br, class', attr, svg, key, style, width, height, href, click, pointerenter, pointerleave)
@@ -47,7 +48,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
             opt{icon = IconSymbol $ "#piece-" <> show piece, tooltip = Just $ tooltip piece},
         icongroup "Options" $ [
             iconbutton state (_{icon = IconSymbol "#customize",
-                              selected = head (state^._allowedPieces) == Just Custom,
+                              selected = N.head (state^._allowedPieces) == Custom,
                               tooltip = Just "Crée ta propre propre pièce"}) [],
             iconbutton state (_{icon = IconSymbol "#piece-mix", selected = state^._multiPieces, tooltip = Just "Mode mixte"}) [
                 click $ lens 🎲 toggleMultiPiecesA
@@ -60,7 +61,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
 
     -}
     pieceSelector = div' [class' "ui-flex-center gutter2 queens-pieceselector" true] $
-        state^._allowedPieces <#> \piece ->
+        N.toArray (state^._allowedPieces) <#> \piece ->
             let name = show piece in
             iconbutton state (\x -> x{
                     selected = piece == state^._selectedPiece,

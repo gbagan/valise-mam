@@ -2,6 +2,7 @@ module Game.Solitaire.Model where
 import MyPrelude
 import Data.Traversable (sequence)
 import Data.Array (updateAtIndices)
+import Data.FoldableWithIndex (allWithIndex)
 import Pha.Action (Action, action)
 import Lib.Random (Random, randomInt, randomBool)
 import Lib.Util (tabulate, tabulate2, dCoords)
@@ -86,7 +87,7 @@ instance solitaireGame :: Game (Array Boolean) ExtState {from :: Int, to :: Int}
     initialPosition = pure ∘ view _position
 
     isLevelFinished state =
-        all identity $ state^._position # mapWithIndex \i val ->
+        state^._position # allWithIndex \i val ->
             ([2, -2, 2 * state^._nbColumns, -2 * state^._nbColumns, state^._nbRows - 2] # all \d ->
                 not canPlay state { from: i, to: i + d }
             )

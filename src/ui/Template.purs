@@ -82,8 +82,6 @@ foreign import releasePointerCapture :: Event -> Effect Unit
 releasePointerCaptureA :: forall a. Action a
 releasePointerCaptureA = onlyEffectAction releasePointerCapture
 
-
-
 setPointerPositionA :: forall pos ext. (Maybe PointerPosition) -> Action (GState pos ext)
 setPointerPositionA a = action $ _pointer .~ a
 

@@ -1,6 +1,7 @@
 module Game.Queens.Model where
 import MyPrelude
 import Lib.Util (tabulate, dCoords, map2)
+import Data.Array.NonEmpty (NonEmptyArray, fromArray, head, singleton) as N
 import Game.Core (GState(..), class Game, SizeLimit(..), genState, newGame, _position, _nbRows, _nbColumns, playA')
 import Pha.Action (Action, action)
 
@@ -21,7 +22,7 @@ type Position = Array Piece
 type Ext' = {
     selectedPiece :: Piece,
     selectedSquare :: Maybe Int,
-    allowedPieces :: Array Piece,
+    allowedPieces :: N.NonEmptyArray Piece,
     multiPieces :: Boolean
 }
 newtype Ext = Ext Ext'
@@ -30,7 +31,7 @@ type State = GState Position Ext
 istate :: State
 istate = genState []
     (_{nbRows = 8, nbColumns = 8})
-    (Ext {selectedPiece: Queen, selectedSquare: Nothing, allowedPieces: [Queen], multiPieces: false})
+    (Ext {selectedPiece: Queen, selectedSquare: Nothing, allowedPieces: N.singleton Rook, multiPieces: false})
 
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
@@ -38,7 +39,7 @@ _selectedPiece :: Lens' State Piece
 _selectedPiece = _ext ∘ lens (_.selectedPiece) (_{selectedPiece = _})
 _selectedSquare :: Lens' State (Maybe Int)
 _selectedSquare = _ext ∘ lens (_.selectedSquare) (_{selectedSquare = _})
-_allowedPieces :: Lens' State (Array Piece)
+_allowedPieces :: Lens' State (N.NonEmptyArray Piece)
 _allowedPieces = _ext ∘ lens (_.allowedPieces) (_{allowedPieces = _})
 _multiPieces :: Lens' State Boolean
 _multiPieces = _ext ∘ lens (_.multiPieces) (_{multiPieces = _})
@@ -100,10 +101,10 @@ instance pathGame :: Game (Array Piece) Ext Int where
 
     initialPosition state = pure $ replicate (state^._nbRows * state^._nbColumns) Empty
 
-    isLevelFinished state = all identity $ map2 (capturableSquares state) (state^._position)
-                            \index captured piece -> not captured || piece == Empty
+    isLevelFinished state = and $ map2 (capturableSquares state) (state^._position)
+                            \_ captured piece -> not captured || piece == Empty
     
-    onNewGame state = pure $ state # _selectedPiece .~ fromMaybe Queen (head $ state^._allowedPieces)
+    onNewGame state = pure $ state # _selectedPiece .~ N.head (state^._allowedPieces)
       -- selectedPiece: state.allowedPieces[0]}),
     
     sizeLimit _ = SizeLimit 3 3 9 9
@@ -151,9 +152,9 @@ instance pathGame :: Game (Array Piece) Ext Int where
 playA :: Int -> Action State
 playA = playA' (_{showWin = false})
 
-toggleAllowedPiece :: Piece ->  Boolean -> Array Piece -> Array Piece
-toggleAllowedPiece piece false pieces = [piece]
-toggleAllowedPiece piece true pieces = if null pieces2 then pieces else pieces2 where
+toggleAllowedPiece :: Piece ->  Boolean -> N.NonEmptyArray Piece -> N.NonEmptyArray Piece
+toggleAllowedPiece piece false pieces = N.singleton piece
+toggleAllowedPiece piece true pieces = N.fromArray pieces2 # fromMaybe pieces where
     pieces2 = piecesList # filter \p2 -> (p2 == piece) /= elem p2 pieces
     
 selectPieceA :: Piece -> Action State

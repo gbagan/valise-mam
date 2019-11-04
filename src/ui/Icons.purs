@@ -84,9 +84,9 @@ iconSelectGroup lens state title values selected action optionFn =
             selected = val == selected
         })) [click $ lens 🎲 action val]
 
-iconSelectGroupM :: forall a pos ext d.
-    Show a => Eq a =>
-    Lens' d (GState pos ext) -> GState pos ext -> String -> Array a -> Array a -> (a -> Action (GState pos ext))
+iconSelectGroupM :: forall a t pos ext d.
+    Show a => Eq a => Foldable t =>
+    Lens' d (GState pos ext) -> GState pos ext -> String -> Array a -> t a -> (a -> Action (GState pos ext))
     -> (a -> I.Options -> I.Options) -> VDom d
 iconSelectGroupM lens state title values selected action optionFn =
     icongroup title $ values <#> \val ->

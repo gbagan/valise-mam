@@ -4,7 +4,7 @@ import Data.Int (toNumber) as Exports
 import Data.Tuple (Tuple(..), fst, snd) as Exports
 import Math (cos, sin, pi) as Exports
 import Data.Maybe (Maybe(..), maybe, fromMaybe, isJust, isNothing) as Exports
-import Data.Foldable (foldl, foldr, elem, any, all) as Exports
+import Data.Foldable (class Foldable, foldl, foldr, elem, any, all, and, or) as Exports
 import Data.Array ((!!), head, last, cons, snoc, filter, find, take, null, length, replicate, updateAt, modifyAt, mapWithIndex, concat, concatMap, sortWith, zipWith) as Exports
 import Data.Lens (Lens', lens, set, Iso', iso, view, over, (^.), (.~), (%~)) as Exports
 import Data.Lens.Index (ix) as Exports

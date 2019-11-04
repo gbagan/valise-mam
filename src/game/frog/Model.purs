@@ -1,20 +1,16 @@
 module Game.Frog.Model where
 
-import Prelude
-import Data.Array ((..), (!!), elem, foldr, filter, all, null, replicate)
+import MyPrelude
 import Data.Lazy (defer, force)
-import Data.Maybe (maybe, fromMaybe)
-import Data.Lens (Lens', lens, (^.), (.~), (%~), over)
-import Data.Lens.Index (ix)
-import Lib.Util (tabulate)
+import Lib.Util (tabulate, (..))
+import Data.Array.NonEmpty (NonEmptyArray, singleton, fromArray, cons) as N
 import Lib.KonamiCode (konamiCode)
 import Pha.Action (Action, action)
 import Game.Core (class Game, canPlay, class TwoPlayersGame, Mode(..), GState(..), SizeLimit(..),
                 newGame', computerMove', genState, _position, _nbRows)
-infixr 9 compose as ∘
 
 type Ext' = {
-    moves :: Array Int,  -- la liste des mouvements autorisées (en nombre de cases)
+    moves :: N.NonEmptyArray Int,  -- la liste des mouvements autorisées (en nombre de cases)
     winning :: Array Boolean, --- la liste des positions gagnantes
     marked :: Array Boolean,  -- la liste des posiions marquées par l'utilisateur
     keySequence :: Array String    --- pour le konami code
@@ -26,7 +22,7 @@ type State = GState Int ExtState
 -- lenses
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
-_moves :: Lens' State (Array Int)
+_moves :: Lens' State (N.NonEmptyArray Int)
 _moves = _ext ∘ lens (_.moves) (_{moves = _})
 _winning :: Lens' State (Array Boolean)
 _winning = _ext ∘ lens (_.winning) (_{winning = _})
@@ -36,7 +32,8 @@ _keySequence :: Lens' State (Array String)
 _keySequence = _ext ∘ lens (_.keySequence) (_{keySequence = _})
 
 istate :: State
-istate = genState 20 (_{nbRows = 20, mode = ExpertMode}) (Ext { moves: [1, 2, 3], winning: [], marked: [], keySequence: [] })
+istate = genState 20 (_{nbRows = 20, mode = ExpertMode}) (Ext { moves: 1 `N.cons` (2 `N.cons` N.singleton 3),
+                                                                 winning: [], marked: [], keySequence: [] })
 
 instance frogGame :: Game Int ExtState Int where
     play state v = v
@@ -62,10 +59,10 @@ selectMoveA :: Int -> Action State
 selectMoveA = newGame' $ over _moves ∘ _selectMove where
     _selectMove move moves =
         let moves2 = filter (\m -> (m == move) /= elem m moves) (1 .. 5) in
-        if null moves2 then moves else moves2
+        N.fromArray moves2 # fromMaybe moves
 
 -- calcule l'ensemble des positions gagnantes pour une taille et un ensemble de mouvements donnés
-winningPositions :: Int -> Array Int -> Array Boolean
+winningPositions :: forall t. Foldable t => Int -> t Int -> Array Boolean
 winningPositions size moves =
     let t = tabulate size \i -> defer
             \_ -> i == 0 || (moves # all \m -> maybe false (not ∘ force) (t !! (i - m))) in

@@ -104,7 +104,7 @@ trackPointer lens = [
     class' "ui-touch-action-none" true,
     pointermove $ lens 🎲 move,
     pointerleave $ lens 🎲  action (_pointer .~ Nothing),
-    pointerdown $ lens 🎲 move --  todo tester
+    pointerdown $ lens 🎲 move
 ] where
     move :: Action (GState pos ext)
     move =  setPointerPositionA  `withPayload'` relativePointerPosition
@@ -128,7 +128,7 @@ dndBoardProps lens dragLens = [
     pointermove $ lens 🎲 move,
     pointerup $ lens 🎲 action (dragLens .~ Nothing),
     pointerleave $ lens 🎲 leave,
-    pointerdown $ lens 🎲 move --  todo tester
+    pointerdown $ lens 🎲 move
 ] where
     move :: Action (GState pos ext)
     move = setPointerPositionA `withPayload'` relativePointerPosition

@@ -1,6 +1,5 @@
 module Game.Tiling.View (view) where
 import MyPrelude
-import Data.Int (even)
 import Lib.Util (coords)
 import Pha (VDom, Prop, text, whenN, maybeN)
 import Pha.Action ((🎲))

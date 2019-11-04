@@ -10,7 +10,7 @@ is :: Iso' State M.State
 is = iso (\(State a) -> a) State
 
 instance cgame :: CGame State where
-    init (State st) = C.init st <#> State -- todo simplifier? 
+    init (State st) = State <$> C.init st 
     view lens (State st) = V.view (lens ∘ is) st
     onKeyDown _ = mempty
 

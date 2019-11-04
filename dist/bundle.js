@@ -5620,6 +5620,7 @@ var PS = {};
   var Data_Eq = $PS["Data.Eq"];
   var Data_EuclideanRing = $PS["Data.EuclideanRing"];
   var Data_Foldable = $PS["Data.Foldable"];
+  var Data_FoldableWithIndex = $PS["Data.FoldableWithIndex"];
   var Data_Function = $PS["Data.Function"];
   var Data_Functor = $PS["Data.Functor"];
   var Data_HeytingAlgebra = $PS["Data.HeytingAlgebra"];
@@ -5693,11 +5694,11 @@ var PS = {};
   }, Data_Function["const"](Data_Maybe.Nothing.value), function (state) {
       return Lib_Random.shuffle(Lib_Util["range'"](0)((2 * Data_Lens_Getter.viewOn(state)(_nbBases(Data_Lens_Internal_Forget.strongForget)) | 0) - 1 | 0));
   }, function (state) {
-      return Data_Foldable.and(Data_Foldable.foldableArray)(Data_HeytingAlgebra.heytingAlgebraBoolean)(Data_Array.mapWithIndex(function (i) {
+      return Data_FoldableWithIndex.allWithIndex(Data_FoldableWithIndex.foldableWithIndexArray)(Data_HeytingAlgebra.heytingAlgebraBoolean)(function (i) {
           return function (j) {
               return Data_EuclideanRing.div(Data_EuclideanRing.euclideanRingInt)(i)(2) === Data_EuclideanRing.div(Data_EuclideanRing.euclideanRingInt)(j)(2);
           };
-      })(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))));
+      })(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget)));
   }, function (state) {
       return Data_Functor.mapFlipped(Lib_Random.functorRandom)(Lib_Random.randomInt(2 * Data_Lens_Getter.viewOn(state)(_nbBases(Data_Lens_Internal_Forget.strongForget)) | 0))(function (i) {
           return Data_Lens_Setter.set(_missingPeg(Data_Profunctor_Strong.strongFn))(i)(state);
@@ -9563,7 +9564,7 @@ var PS = {};
                           style: opt.style
                       };
                   };
-                  throw new Error("Failed pattern match at Game.Paths.View (line 47, column 105 - line 49, column 84): " + [ mode.constructor.name ]);
+                  throw new Error("Failed pattern match at Game.Paths.View (line 46, column 105 - line 48, column 84): " + [ mode.constructor.name ]);
               };
           }), UI_Icons.iconSizesGroup(Game_Paths_Model.pathGame)(function (dictStrong) {
               return lens(dictStrong);
@@ -9652,7 +9653,7 @@ var PS = {};
       })(State)(dictProfunctor);
   };
   var cgame = new Game.CGame(function (v) {
-      return Data_Functor.mapFlipped(Effect.functorEffect)(Game_Core.init(Game_Paths_Model.pathGame)(v))(State);
+      return Data_Functor.map(Effect.functorEffect)(State)(Game_Core.init(Game_Paths_Model.pathGame)(v));
   }, function (v) {
       return Data_Monoid.mempty(Pha_Action.semigroupMonoid);
   }, function (lens) {

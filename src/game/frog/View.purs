@@ -1,13 +1,7 @@
 module Game.Frog.View where
 
-import Prelude
-import Math (cos, sin, pi, sqrt)
-import Data.Array ((!!), concat, mapWithIndex, reverse)
-import Data.Maybe (fromMaybe)
-import Data.Tuple (Tuple(..))
+import MyPrelude
 import Data.String (joinWith)
-import Data.Int (toNumber)
-import Data.Lens (Lens', (^.))
 import Lib.Util (map2, tabulate, pairwise, floatRange)
 import Pha (VDom, text, whenN)
 import Pha.Action ((🎲), ifThenElseA)

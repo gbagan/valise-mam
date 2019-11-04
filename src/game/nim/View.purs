@@ -1,9 +1,5 @@
 module Game.Nim.View where
-import Prelude
-import Data.Array (mapWithIndex, concat)
-import Data.Tuple (fst, snd)
-import Data.Int (toNumber)
-import Data.Lens (Lens', (^.))
+import MyPrelude
 import Pha (VDom, text)
 import Pha.Action ((🎲))
 import Pha.Html (div', span, br, svg, rect, use, class', key, style,

@@ -1,5 +1,4 @@
 module Game.Nim.Model where
-
 import MyPrelude
 import Data.Traversable (sequence)
 import Data.Int.Bits (xor)

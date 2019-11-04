@@ -1,8 +1,6 @@
 module Game.Jetons.View where
 
 import MyPrelude
-import Data.Int (floor)
-import Math (sqrt)
 import Pha (VDom, text, whenN, maybeN)
 import Pha.Html (div', span, br, key, class', style, rgbColor)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer)

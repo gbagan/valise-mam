@@ -1,6 +1,7 @@
 module Game.Baseball.Model where
 
 import MyPrelude
+import Data.FoldableWithIndex (allWithIndex)
 import Lib.Util (swap, (..))
 import Lib.Random (shuffle, randomInt)
 import Pha.Action (Action)
@@ -31,8 +32,8 @@ instance baseballGame :: Game (Array Int) ExtState Int where
         pure $ elem diff [1, nbBases-1, -1, 1-nbBases]
 
     initialPosition state = shuffle $ 0 .. (2 * state^._nbBases - 1)
-    isLevelFinished state = state^._position # mapWithIndex (\i j -> i / 2 == j / 2) # and
-    onNewGame state = randomInt (2 * state^._nbBases) <#> \i -> state # _missingPeg .~ i  
+    isLevelFinished state = state^._position # allWithIndex \i j -> i / 2 == j / 2
+    onNewGame state = randomInt (2 * state^._nbBases) <#> \i -> state # _missingPeg .~ i
     
     computerMove = const Nothing
     sizeLimit = defaultSizeLimit

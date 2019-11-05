@@ -89,8 +89,9 @@ cursorStyle :: forall a. PointerPosition -> Int -> Int -> Number -> Array (Prop 
 cursorStyle {left, top} rows columns size = [
     style "left" $ show left <> "px",
     style "top" $ show top <> "px",
-    style "width" $ show (size / toNumber columns) <> "%",
-    style "height" $ show (size / toNumber rows) <> "%"
+    style "position" "fixed"
+    -- style "width" $ show (size / toNumber columns) <> "%",
+    -- style "height" $ show (size / toNumber rows) <> "%"
 ]
 
 svgCursorStyle :: forall a. PointerPosition -> Array (Prop a)

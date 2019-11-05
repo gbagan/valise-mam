@@ -1,16 +1,16 @@
 module Game.Labete.View where
 
 import MyPrelude
-import Pha (VDom, Prop, text, whenN)
+import Pha (VDom, Prop, text, whenN, maybeN)
 import Pha.Action ((🎲))
-import Pha.Html (div', span, br, svg, g, rect, use, key, class', style, click, 
+import Pha.Html (div', span, br, svg, g, rect, use, key, attr, class', style, click,  pointerdown, pointerup, pointerleave,
                 fill, stroke, strokeWidth, transform, viewBox, width, height)
-import Game.Core (_position, _nbColumns, _nbRows, _pointer, playA)
-import Game.Labete.Model (State, Mode(..), _mode, nonTrappedBeastOnGrid)
+import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, playA)
+import Game.Labete.Model (State, Mode(..), _mode, _beastIndex, nonTrappedBeastOnGrid, setModeA, setHelpA, setBeastA)
 import Lib.Util (coords, map2)
-import UI.Template (template, card, incDecGrid, gridStyle, trackPointer, cursorStyle)
+import UI.Template (template, card, incDecGrid, gridStyle, trackPointer, svgCursorStyle)
 import UI.Icon (Icon(..))
-import UI.Icons (icongroup, iconSelectGroup, iconSizesGroup, ihelp, ireset, irules)
+import UI.Icons (iconbutton, icongroup, iconSelectGroup, iconSizesGroup, ireset, irules)
 
 colors :: Array String
 colors = ["#5aa02c", "blue", "red", "yellow", "magenta", "cyan", "orange", "darkgreen", "grey"]
@@ -42,6 +42,16 @@ square { hasTrap, hasBeast, row, col } props =
             use 5.0 5.0 40.0 40.0 "#trap" []
     ]
 
+ihelp ::forall a. Lens' a State -> State -> VDom a
+ihelp lens state =
+    iconbutton
+        state
+        (_{icon = IconSymbol "#help", tooltip = Just "Aide", selected = state^._help}) [
+            pointerdown $ lens 🎲 setHelpA true,
+            pointerup $ lens 🎲 setHelpA false,
+            pointerleave $ lens 🎲 setHelpA false
+        ]
+
 view :: forall a. Lens' a State -> State -> VDom a
 view lens state = template lens {config, board, rules, winTitle} state where
     rows = state^._nbRows
@@ -58,14 +68,12 @@ view lens state = template lens {config, board, rules, winTitle} state where
     -}
 
     config = card "La bête" [
-            {-I.Group({
-                title: 'Forme de la bête',
-                list: [0, 1, 2, 3, 'custom'],
-                symbol: ['beast1', 'beast2', 'beast3', 'beast23', 'customize'],
-                select: state.beastIndex,
-                onclick: actions.setBeast
-            -}
-        iconSelectGroup lens state "Type de la grille" modes (state^._mode) (\_ -> mempty) \i opt -> case i of
+        iconSelectGroup lens state "Forme de la bête" [0, 1, 2, 3] (state^._beastIndex) setBeastA \i opt -> case i of
+            0 -> opt{icon = IconSymbol "#beast1"}
+            1 -> opt{icon = IconSymbol "#beast2"}
+            2 -> opt{icon = IconSymbol "#beast3"}
+            _ -> opt{icon = IconSymbol "#beast23"},
+        iconSelectGroup lens state "Type de la grille" modes (state^._mode) setModeA \i opt -> case i of
             StandardMode -> opt{icon = IconSymbol "#grid-normal", tooltip = Just "Normale"}
             CylinderMode -> opt{icon = IconSymbol "#grid-cylinder", tooltip = Just "Cylindrique"}
             TorusMode -> opt{icon = IconSymbol "#grid-torus", tooltip = Just "Torique"},
@@ -87,27 +95,19 @@ view lens state = template lens {config, board, rules, winTitle} state where
         text "Le plateau de jeu peut prendre une grille, un cylindre ou un tore"
     ]
 
-    {-
-    const Cursor = () =>
-        use({
-            href: '#trap',
-            x: -20,
-            y: -20,
-            width: 40,
-            height: 40,
-            opacity: state.position[state.squareHover] ? 0.3 : 0.7,
-            'pointer-events': 'none',
-            style: svgCursorStyle(state.pointerPosition)
-        });
-    -}
+    cursor pp = use (-20.0) (-20.0) 40.0 40.0 "#trap" (svgCursorStyle pp <> [  
+        key "cursor",
+        attr "opacity" "0.7", -- state.position[state.squareHover] ? 0.3 : 0.7,
+        attr "pointer-events" "none"
+    ])
 
-    grid = div' (gridStyle rows columns 5 <> [class' "ui-board" true]) [
+    grid = div' (gridStyle rows columns 5 <> trackPointer lens <> [class' "ui-board" true]) [
            -- trackPointer: true,
            -- onpointerdown: actions.when(shift, actions.startZone2),
         svg [viewBox 0 0 (50 * columns) (50 * rows), width "100%", height "100%"] $
-            map2 (state^._position) nonTrappedBeast \index hasTrap hasBeast ->
+            (map2 (state^._position) nonTrappedBeast \index hasTrap hasBeast ->
                 let {row, col} = coords columns index in
-                square { row, col, hasTrap, hasBeast } [
+                square { row, col, hasTrap, hasBeast: hasBeast && state^._help } [
                     key $ show index,
                     -- color: state.squareColors[index],
                     -- hasBeast: state.beastVisible && state.nonTrappedBeast && state.nonTrappedBeast[index],
@@ -118,7 +118,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                     --    onpointerdown: actions.when(shift, [actions.startZone, index])
                 ]
                 -- state.zone && Zone({ key: 'zone', ...state.zone }),
-                -- state.pointerPosition && !state.zoneStart && Cursor({ key: 'cursor' })
+            ) <> [maybeN $ cursor <$> state^._pointer]   --  && !state.zoneStart && Cursor({ key: 'cursor' })
     ]
 
     board = incDecGrid lens state [grid]

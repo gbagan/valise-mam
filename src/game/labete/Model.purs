@@ -1,9 +1,10 @@
 module Game.Labete.Model where
 import MyPrelude
 import Lib.Util (tabulate2)
-import Pha.Action (Action)
+import Data.Array (updateAtIndices)
+import Pha.Action (Action, action)
 import Game.Core (class Game, SizeLimit(..), GState(..),
-                   genState, _position, _nbRows, _nbColumns)
+                   genState, newGame', _position, _nbRows, _nbColumns, _help)
 
 data Mode = StandardMode | CylinderMode | TorusMode
 derive instance eqMode :: Eq Mode
@@ -23,26 +24,15 @@ beastTypes = [[type1], [type2], [type3], [type2, type3]]
 const fromCustomBeast = customBeast =>
     repeat2(5, 5, (row, col, i) => customBeast[i] ? {row: row - 2, col: col - 2} : null)
     |> filter(x => x !== null);
-
-const zoneposition = ({ columns }, row1, col1, row2, col2) =>
-    repeat2(Math.abs(row1 - row2) + 1, Math.abs(col1 - col2) + 1, (i, j) =>
-        (i + Math.min(row1, row2)) * columns + j + Math.min(col1, col2)
-    );
-
-
-const colorZone = (state, zone) => zoneposition(state, zone.row1, zone.col1, zone.row2, zone.col2)
-    |> reduce(pos => set(pos, state.selectedColor), state.squareColors);
-
-
-const incSelectedColor = x => set('selectedColor', y => (x + y + 9) % 9);
-
-const showBeast = state => state.help ? asyncToggle('beastVisible', 200)(state) : state;
 -}
 
 
 type Ext' = {
     beast :: Array Beast,
-    mode :: Mode
+    beastIndex :: Int,
+    mode :: Mode,
+    selectedColor :: Int,
+    squareColors :: Array Int
 }
 newtype ExtState = Ext Ext'
 type State = GState (Array Boolean) ExtState
@@ -53,11 +43,21 @@ _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _beast :: Lens' State (Array Beast)
 _beast = _ext ∘ lens (_.beast) (_{beast = _})
 
+_beastIndex :: Lens' State Int
+_beastIndex = _ext ∘ lens (_.beastIndex) (_{beastIndex = _})
+
 _mode :: Lens' State Mode
 _mode = _ext ∘ lens (_.mode) (_{mode = _})
 
+_selectedColor :: Lens' State Int
+_selectedColor = _ext ∘ lens (_.selectedColor) (_{selectedColor = _})
+
+_squareColors :: Lens' State (Array Int)
+_squareColors = _ext ∘ lens (_.squareColors) (_{squareColors = _})
+
 istate :: State
-istate = genState [] (_{nbRows = 5, nbColumns = 5}) (Ext {beast: [type1], mode: StandardMode})
+istate = genState [] (_{nbRows = 5, nbColumns = 5}) (Ext {beast: [type1], beastIndex: 0, mode: StandardMode, 
+                                                        squareColors: [], selectedColor: 0})
 
 rotate90 :: Beast -> Beast
 rotate90 = map \{row, col} -> { row: -col, col: row }
@@ -77,12 +77,12 @@ allTranslations n m beast = tabulate2 n m \row col -> translate row col beast
 allBeastPositions :: Int -> Int -> Array Beast -> Array Beast
 allBeastPositions rows cols = concatMap $ allRotations >=> allTranslations rows cols
 
-adaptatedBeast :: Int -> Int -> String -> Beast -> Beast
+adaptatedBeast :: Int -> Int -> Mode -> Beast -> Beast
 adaptatedBeast rows columns mode =
     map \{row, col} -> case mode of
-                        "normal" -> {row, col}
-                        "cylinder" -> {row, col: col `mod` columns}
-                        _ -> {row: row `mod` rows, col: col `mod` columns}
+                        StandardMode -> {row, col}
+                        CylinderMode -> {row, col: col `mod` columns}
+                        TorusMode -> {row: row `mod` rows, col: col `mod` columns}
 
 pseudoRandomPick :: forall t. Array t -> Maybe t
 pseudoRandomPick t = t !! (28921 `mod` length t)
@@ -91,7 +91,7 @@ pseudoRandomPick t = t !! (28921 `mod` length t)
 nonTrappedBeasts :: State -> Array Beast
 nonTrappedBeasts state =
     allBeastPositions rows columns (state^._beast)
-        <#> adaptatedBeast rows columns "normal"
+        <#> adaptatedBeast rows columns (state^._mode)
         # filter isValidBeast
     where rows = state^._nbRows
           columns = state^._nbColumns
@@ -112,7 +112,7 @@ instance labeteGame :: Game (Array Boolean) ExtState Int where
     canPlay _ _ = true
     isLevelFinished = null ∘ nonTrappedBeasts
     initialPosition st = pure $ replicate (st^._nbRows * st^._nbColumns) false
-    onNewGame st = pure st
+    onNewGame st = pure $ st # _beast .~ (beastTypes !! (st^._beastIndex) # fromMaybe [type1])
     {- state => ({
         beast: beastTypes[state.beastIndex] || [fromCustomBeast(state.customBeast)],
         squareColors: duplicate(state.rows * state.columns, 0),
@@ -127,22 +127,50 @@ instance labeteGame :: Game (Array Boolean) ExtState Int where
             isCustomLevel: F,
         },
     -}
-{-
+setModeA :: Mode -> Action State
+setModeA = newGame' (set _mode)
+
+setHelpA :: Boolean -> Action State
+setHelpA a = action (_help .~ a)
+
+setBeastA :: Int -> Action State
+setBeastA = newGame' (set _beastIndex)
+
+
+abs :: Int -> Int
+abs x = if x < 0 then -x else x
+          
+type Zone = { row1 :: Int, row2 :: Int, col1 :: Int, col2 :: Int}
+
+zoneposition :: Int -> Zone -> Array Int
+zoneposition columns {row1, col1, row2, col2} =
+    tabulate2 (abs (row1 - row2) + 1) (abs(col1 - col2) + 1) \i j ->
+        i + (min row1 row2) * columns + j + (min col1 col2)
+          
+colorZone :: State -> Zone -> Array Int
+colorZone state zone = state^._squareColors # updateAtIndices ( 
+    zoneposition (state^._nbColumns) zone
+    <#> \i -> Tuple i (state^._selectedColor)
+)
+
+incSelectedColorA :: Int -> Action State
+incSelectedColorA x = action $ _selectedColor %~ \y -> (x + y + 9) `mod` 9
+
+startZone index action $ set _zoneStart %~ {index}),
+
+startZone state => set('zoneStart', merge({
+    left: 100 * state.pointer.left / state.pointer.width,
+    top: 100 * state.pointer.top / state.pointer.height,
+})),
+
+    {-
 
     state: {
-        columns: 5,
-        rows: 5,
         beastIndex: 0,
         customBeast: duplicate(25, false) |> set(12, true) |> set(13, true),
-        mode: 'normal', // normal | cylinder | torus
-
-        customSize: false,
-        help: false,
-        beastVisible: false,
 
         squareHover: null,
 
-        selectedColor: 0,
         zoneStart: null,
         zone: null,
     },
@@ -151,12 +179,6 @@ instance labeteGame :: Game (Array Boolean) ExtState Int where
         setBeast: $.newGame(beastIndex => ({ beastIndex, dialog: beastIndex === 'custom' ? 'custombeast' : null })),
         setSquareHover: update('squareHover'),
         flipBeast: $.newGame(index => set(['customBeast', index], not)),
-
-        startZone: (state, index) => state |> set('zoneStart', {index}),
-        startZone2: state => state|> set('zoneStart', merge({
-            left: 100 * state.pointer.left / state.pointer.width,
-            top: 100 * state.pointer.top / state.pointer.height,
-        })),
 
         play: combine($.play, showBeast),
 

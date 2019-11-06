@@ -2,7 +2,7 @@ module Game.Valise.View where
 import MyPrelude
 import Game.Valise.Model (State, showHelpA)
 import Pha (VDom, Prop, h, text, maybeN)
-import Pha.Action ((🎲))
+import Pha.Action ((🔍))
 import Pha.Html (div', a, svg, g, class', svguse, href, width, height, viewBox, fill, transform, x, y,
     pointerenter, pointerleave)
 
@@ -116,8 +116,8 @@ valise lens state = svg [viewBox 0 0 825 690] [
                         class' "draggable" drag,
                         width $ show w',
                         height $ show h',
-                        pointerenter (lens 🎲 showHelpA help),
-                        pointerleave (lens 🎲 showHelpA "")
+                        pointerenter (lens 🔍 showHelpA help),
+                        pointerleave (lens 🔍 showHelpA "")
                         -- style: {
                         --    ...(position && { left: position.left + 'px', top: position.top + 'px' })
                         --},

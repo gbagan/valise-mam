@@ -3,7 +3,7 @@ module Game.Solitaire.View where
 import MyPrelude
 import Lib.Util (coords)
 import Pha (VDom, text, whenN, maybeN)
-import Pha.Action ((🎲))
+import Pha.Action ((🔍))
 import Pha.Html (div', br, svg, rect, circle, key, attr, class', style,click, width, height, viewBox, fill, stroke, strokeWidth, translate)
 import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointer)
 import Game.Solitaire.Model (State, Board(..), _board, _holes, _dragged, _help, setBoardA, toggleHelpA)
@@ -39,7 +39,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
     config =
         let boards = [CircleBoard, Grid3Board, RandomBoard, EnglishBoard, FrenchBoard]
             ihelp = iconbutton state (_{icon = IconSymbol "#help", selected = state^._help > 0, tooltip = Just "Aide"})
-                    [click $ lens 🎲 toggleHelpA]
+                    [click $ lens 🔍 toggleHelpA]
         in        
         card "Jeu du solitaire" [
             iconSelectGroup lens state "Plateau" boards (state^._board) setBoardA \i opt -> case i of

@@ -6,16 +6,16 @@ import Pha.Action (Action)
 import Pha.Html (div', span, class', click)
 import UI.Icon (iconbutton, Icon(..))
 
-type IncDecGridOptions a = {
+type IncDecGridOptions a effs = {
     nbRows :: Int,
     nbColumns :: Int,
     customSize :: Boolean,
     showRowButtons :: Boolean,
     showColButtons :: Boolean,
-    onResize :: Int -> Int -> Action a
+    onResize :: Int -> Int -> Action a effs
 }
 
-incDecGrid :: forall a. IncDecGridOptions a -> Array (VDom a) -> VDom a   
+incDecGrid :: forall a effs. IncDecGridOptions a effs -> Array (VDom a effs) -> VDom a effs   
 incDecGrid {nbRows, nbColumns, customSize, showRowButtons, showColButtons, onResize} children =
     div' [class' "ui-incdecgrid" true] [
         div' [class' "flex" true] [

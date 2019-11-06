@@ -8,7 +8,7 @@ import Game.Core (PointerPosition, _position, _pointer, _locked)
 import Game.Roue.Model (State, Ball(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, deleteDraggedA,
                         aligned, validRotation, validRotation')
 import Pha (VDom, text, maybeN)
-import Pha.Action ((🎲))
+import Pha.Action ((🔍))
 import Pha.Html (div', button, span, svg, path, key, class', click, pointerup, style, disabled, viewBox, fill, stroke)
 import UI.Template (template, card, dndBoardProps, dndItemProps)
 import UI.Icons (icongroup, iconSelectGroup, ireset, irules)
@@ -92,13 +92,13 @@ view lens state = template lens {config, board, rules, winTitle} state where
 
     board = div' (dndBoardProps lens _dragged <> [
         class' "roue-board" true,
-        pointerup $ lens 🎲 deleteDraggedA
+        pointerup $ lens 🔍 deleteDraggedA
     ]) [
         div' [class' "roue-buttons" true] $
             [button [
                 class' "ui-button ui-button-primary roue-button" true,
                 disabled $ state^._locked,
-                click $ lens 🎲 rotateA (-1)
+                click $ lens 🔍 rotateA (-1)
             ] [text "↶"]]
             <> (take size colors # mapWithIndex \i color ->
                     div' ([
@@ -109,7 +109,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
             ) <> [button [
                 class' "ui-button ui-button-primary roue-button" true,
                     disabled $ state^._locked,
-                    click $ lens 🎲 rotateA 1 -- lock
+                    click $ lens 🔍 rotateA 1 -- lock
             ] [text "↷"]],
 
         div' [class' "roue-roue" true] [
@@ -118,7 +118,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
             button [
                 class' "ui-button ui-button-primary roue-validate" true,
                 disabled $ not valid || state^._locked,
-                click $ lens 🎲 checkA
+                click $ lens 🔍 checkA
             ] [text "Valider"],
             div' [class' "roue-valid-rotation" true] [
                 if valid then span [class' "valid" true] [text "✓"] else span [class' "invalid" true] [text "✗"]

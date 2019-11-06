@@ -5,13 +5,13 @@ import Pha.Action (Action)
 import Pha (VDom, text)
 import Pha.Html (div', button, class', click)
 
-type DialogOptions a = {
+type DialogOptions a effs = {
     title :: String,
-    onOk :: Maybe (Action a),
-    onCancel :: Maybe (Action a)
+    onOk :: Maybe (Action a effs),
+    onCancel :: Maybe (Action a effs)
 }
 
-dialog :: forall a. DialogOptions a -> Array (VDom a) -> VDom a
+dialog :: forall a effs. DialogOptions a effs -> Array (VDom a effs) -> VDom a effs
 dialog {title, onOk, onCancel} children =
     div' [class' "ui-absolute ui-flex-center ui-dialog-container" true] [
         div' [class' "ui-dialog" true] [

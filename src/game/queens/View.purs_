@@ -4,7 +4,7 @@ import MyPrelude
 import Lib.Util (map3)
 import Data.Array.NonEmpty (toArray, head) as N
 import Pha (VDom, Prop, h, text)
-import Pha.Action ((🎲))
+import Pha.Action ((🔍))
 import Pha.Html (div', br, class', attr, svg, key, style, width, height, href, click, pointerenter, pointerleave)
 import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer)
 import Game.Queens.Model (State, Piece(..), _selectedPiece, _selectedSquare, _allowedPieces, _multiPieces,
@@ -51,7 +51,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                               selected = N.head (state^._allowedPieces) == Custom,
                               tooltip = Just "Crée ta propre propre pièce"}) [],
             iconbutton state (_{icon = IconSymbol "#piece-mix", selected = state^._multiPieces, tooltip = Just "Mode mixte"}) [
-                click $ lens 🎲 toggleMultiPiecesA
+                click $ lens 🔍 toggleMultiPiecesA
             ]
         ] <> ([ihelp, ireset, irules] <#> \x -> x lens state)
     ]
@@ -68,7 +68,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                     icon = IconSymbol $ "#piece-" <> name
                 }) [
                     key $ name,
-                    click $ lens 🎲 selectPieceA piece
+                    click $ lens 🔍 selectPieceA piece
                 ]
         
 
@@ -87,9 +87,9 @@ view lens state = template lens {config, board, rules, winTitle} state where
             } [
                 style "width" $ show (100.0 / toNumber columns) <> "%",
                 style "height" $ show (100.0 / toNumber rows) <> "%",
-                click $ lens 🎲 playA index,
-                pointerenter $ lens 🎲 selectSquareA (Just index),
-                pointerleave $ lens 🎲 selectSquareA Nothing
+                click $ lens 🔍 playA index,
+                pointerenter $ lens 🔍 selectSquareA (Just index),
+                pointerleave $ lens 🔍 selectSquareA Nothing
             ]
         ) <> (state^._pointer # maybe [] (pure ∘ cursor))
 

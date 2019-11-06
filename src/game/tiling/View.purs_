@@ -2,7 +2,7 @@ module Game.Tiling.View (view) where
 import MyPrelude
 import Lib.Util (coords)
 import Pha (VDom, Prop, text, whenN, maybeN)
-import Pha.Action ((🎲))
+import Pha.Action ((🔍))
 import Pha.Event (preventDefaultA)
 import Pha.Html (div', g, rect, line, use, key, attr, style, svg, class', click, contextmenu, pointerenter, pointerleave,
                  width, height, viewBox, fill, stroke, strokeWidth, transform)
@@ -64,7 +64,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
 
     grid = div' (gridStyle rows columns 5 <> trackPointer lens <> [
         class' "ui-board" true,
-        contextmenu $ lens 🎲 (preventDefaultA <> rotateA)
+        contextmenu $ lens 🔍 (preventDefaultA <> rotateA)
     ]) [
         svg [width "100%", height "100%", viewBox 0 0 (50 * columns) (50 * rows)] $
             (position # mapWithIndex \index pos ->
@@ -75,9 +75,9 @@ view lens state = template lens {config, board, rules, winTitle} state where
                     hasSink: pos == -1,
                     row, col
                 } [
-                    click $ lens 🎲 clickOnCellA index,
-                    pointerenter $ lens 🎲 setHoverSquareA (Just index),
-                    pointerleave $ lens 🎲 setHoverSquareA Nothing
+                    click $ lens 🔍 clickOnCellA index,
+                    pointerenter $ lens 🔍 setHoverSquareA (Just index),
+                    pointerleave $ lens 🔍 setHoverSquareA Nothing
                 ]
             ) <> (position # mapWithIndex \index pos ->
                 let {row, col} = coords columns index in

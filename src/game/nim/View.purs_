@@ -1,7 +1,7 @@
 module Game.Nim.View where
 import MyPrelude
 import Pha (VDom, text)
-import Pha.Action ((🎲))
+import Pha.Action ((🔍))
 import Pha.Html (div', span, br, svg, rect, use, class', key, style,
             click, width, height, fill, viewBox, translate)
 import Lib.Util (tabulate)
@@ -37,7 +37,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                     rect (-2.5) (-2.5) 5.0 5.0 [
                         key $ "base-" <> show i <> "-" <> show j,
                         fill "gray",
-                        click $ lens 🎲 playA (Move i j),
+                        click $ lens 🔍 playA (Move i j),
                         style "transform" $
                             translate (toNumber $ (if length == 5 then 30 else 5) + 10 * j) (toNumber $ 15 + 19 * i) <>
                             " rotate(45deg)",

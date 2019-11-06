@@ -1,4 +1,6 @@
 module Main where
+
+{-
 import MyPrelude
 import Data.String (drop, indexOf)
 import Data.String.Pattern (Pattern (..))
@@ -6,7 +8,7 @@ import Data.Time.Duration (Milliseconds(..))
 import Effect (Effect)
 import Effect.Aff (delay, forkAff)
 import Pha (VDom, app, whenN)
-import Pha.Action (Action, (🎲), asyncAction, withPayload, withPayload')
+import Pha.Action (Action, (🔍), asyncAction, withPayload, withPayload')
 import Pha.Html (div', a, svguse, key, class', href)
 import Pha.Event (key) as E
 import Game (class CGame, init, view, onKeyDown) as G
@@ -98,7 +100,7 @@ hashChange hash = asyncAction \{getState, updateState, dispatch} _ -> do
         delay $ Milliseconds 100.0
         updateState (_{location = location, anim = false})
     if location == "valise" || location == "" then do
-        dispatch ((_valise <<< Valise.is) 🎲 ValiseM.enterA)
+        dispatch ((_valise <<< Valise.is) 🔍 ValiseM.enterA)
     else
         getState
 
@@ -123,7 +125,7 @@ sliceFn state fn = case state.location of
 
 onKeyDown :: (Maybe String) -> Action RootState
 onKeyDown k = asyncAction \{dispatch} state ->
-    k # maybe (pure state) \k' -> dispatch (sliceFn state \lens -> lens 🎲 G.onKeyDown k')
+    k # maybe (pure state) \k' -> dispatch (sliceFn state \lens -> lens 🔍 G.onKeyDown k')
 
 
 viewG :: RootState -> VDom RootState

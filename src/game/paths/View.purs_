@@ -5,7 +5,7 @@ import Lib.Util (coords, tabulate)
 import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _pointer)
 import Game.Paths.Model (State, Mode(..), _exit, _mode, selectVertexA, selectModeA)
 import Pha (VDom, Prop, text, emptyNode, maybeN, whenN)
-import Pha.Action ((🎲))
+import Pha.Action ((🔍))
 import Pha.Html (div', p, br, g, svg, use, path, key, class', attr, click, style, width, height, viewBox)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, iconSelectGroup, ihelp, iundo, iredo, ireset, irules)
@@ -75,7 +75,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                     y: toNumber (100 * row)
                 } [
                     key $ show index,
-                    click $ lens 🎲 selectVertexA index
+                    click $ lens 🔍 selectVertexA index
                 ]
             ) <> [
                 path pathdec [class' "paths-path" true],

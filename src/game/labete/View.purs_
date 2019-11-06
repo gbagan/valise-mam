@@ -2,7 +2,7 @@ module Game.Labete.View where
 
 import MyPrelude
 import Pha (VDom, Prop, text, whenN, maybeN)
-import Pha.Action ((🎲))
+import Pha.Action ((🔍))
 import Pha.Html (div', span, br, svg, g, rect, use, key, attr, class', style, click,  pointerdown, pointerup, pointerleave,
                 fill, stroke, strokeWidth, transform, viewBox, width, height)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, playA)
@@ -47,9 +47,9 @@ ihelp lens state =
     iconbutton
         state
         (_{icon = IconSymbol "#help", tooltip = Just "Aide", selected = state^._help}) [
-            pointerdown $ lens 🎲 setHelpA true,
-            pointerup $ lens 🎲 setHelpA false,
-            pointerleave $ lens 🎲 setHelpA false
+            pointerdown $ lens 🔍 setHelpA true,
+            pointerup $ lens 🔍 setHelpA false,
+            pointerleave $ lens 🔍 setHelpA false
         ]
 
 view :: forall a. Lens' a State -> State -> VDom a
@@ -111,7 +111,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                     key $ show index,
                     -- color: state.squareColors[index],
                     -- hasBeast: state.beastVisible && state.nonTrappedBeast && state.nonTrappedBeast[index],
-                    click $ lens 🎲 playA index --  actions.unless(orF(shift, attr('zoneStart')), [actions.play, index]),
+                    click $ lens 🔍 playA index --  actions.unless(orF(shift, attr('zoneStart')), [actions.play, index]),
                     --    onpointerenter: [actions.setSquareHover, index],
                     --    onponterleave: [actions.setSquareHover, null],
                     --    onpointerup: [actions.finishZone, index],

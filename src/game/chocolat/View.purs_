@@ -5,7 +5,7 @@ import Lib.Util (tabulate2)
 import Game.Core (_position, _nbRows, _nbColumns, possibleMoves, playA)
 import Game.Chocolat.Model (State, Move(..), SoapMode(..), _soap, _soapMode, setSoapModeA) 
 import Pha (VDom, text)
-import Pha.Action ((🎲))
+import Pha.Action ((🔍))
 import Pha.Html (div', svg, br, rect, circle, use, key, class', click, width, height, viewBox, fill)
 import UI.Template (template, card, gridStyle, incDecGrid)
 import UI.Icon (Icon(..))
@@ -38,7 +38,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
         class' "chocolat-cutter" true,
             --onpointerenter: [actions.showCutter, {row, col}],
             --onpointerleave: [actions.showCutter, null],
-        click $ lens 🎲 playA move
+        click $ lens 🔍 playA move
             --    combine([actions.showCutter, null], [actions.play, {row, col}])
     ]
 

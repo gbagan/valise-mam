@@ -4,7 +4,7 @@ import MyPrelude
 import Data.String (joinWith)
 import Lib.Util (map2, tabulate, pairwise, floatRange)
 import Pha (VDom, text, whenN)
-import Pha.Action ((🎲), ifThenElseA)
+import Pha.Action ((🔍), ifThenElseA)
 import Pha.Html (div', span, br, svg, viewBox, g, use, line, path, text',
                 class', key, click, style,
                 width, height, stroke, fill, strokeDasharray, strokeWidth, translate)
@@ -92,7 +92,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                 ] <> (map2 spoints reachable \i {x, y} reach ->
                     g [
                         key $ "lily" <> show i,
-                        click $ lens 🎲 ifThenElseA (const shiftKey) (markA i) (playA i)
+                        click $ lens 🔍 ifThenElseA (const shiftKey) (markA i) (playA i)
                     ] [
                         lily i x y false false,
                         lily i x y true (not reach), --  || state.hideReachable),

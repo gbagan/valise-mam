@@ -3,7 +3,7 @@ module Game.Noirblanc.View where
 import MyPrelude
 import Lib.Util (coords, map2)
 import Pha (Prop, VDom, text)
-import Pha.Action ((🎲))
+import Pha.Action ((🔍))
 import Pha.Html (div', svguse, class', key, style, click)
 import Game.Core (_position, _nbRows, _nbColumns, _help)
 import Game.Noirblanc.Model (State, _level, _mode2, _maxLevels, play2A, selectLevelA, selectModeA)
@@ -59,7 +59,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
                 style "width" $ show (86.0 / toNumber columns) <> "%",
                 style "left" $ show ((100.0 * toNumber col + 7.0) / toNumber columns) <> "%",
                 style "top" $ show ((100.0 * toNumber row + 7.0) / toNumber rows) <> "%",
-                click $ lens 🎲 play2A index
+                click $ lens 🔍 play2A index
             ]
 
     board = incDecGrid lens state [grid]

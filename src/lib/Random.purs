@@ -58,7 +58,5 @@ randomPick :: forall a. N.NonEmptyArray a -> Random a
 randomPick t =
     unsafePartial $ N.unsafeIndex t <$> (randomInt $ N.length t)
 
-runRnd :: forall a. Random a -> Effect a
-runRnd (Random m) = do
-    seed <- genSeed
-    pure $ fst $ m seed
+runRnd :: forall a. Seed -> Random a -> a
+runRnd seed (Random m) = fst $ m seed

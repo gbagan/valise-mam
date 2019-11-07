@@ -32,7 +32,7 @@ const Zone = ({ x1, y1, x2, y2, color }) =>
 modes :: Array Mode
 modes = [StandardMode, CylinderMode, TorusMode]
 
-square :: forall a. { hasTrap :: Boolean, hasBeast :: Boolean, row :: Int, col :: Int} -> Array (Prop a) -> VDom a
+square :: ∀a. { hasTrap :: Boolean, hasBeast :: Boolean, row :: Int, col :: Int} -> Array (Prop a) -> VDom a
 square { hasTrap, hasBeast, row, col } props =
     g ([transform $ "translate(" <> show (50 * col) <> " " <> show(50 * row) <> ")"] <> props) [
         use 0.0 0.0 50.0 50.0 "#grass" [fill "#5aa02c"], -- fromMaybe "blackcolors[color] }),
@@ -42,7 +42,7 @@ square { hasTrap, hasBeast, row, col } props =
             use 5.0 5.0 40.0 40.0 "#trap" []
     ]
 
-ihelp ::forall a. Lens' a State -> State -> VDom a
+ihelp ::∀a. Lens' a State -> State -> VDom a
 ihelp lens state =
     iconbutton
         state
@@ -52,7 +52,7 @@ ihelp lens state =
             pointerleave $ lens 🔍 setHelpA false
         ]
 
-view :: forall a. Lens' a State -> State -> VDom a
+view :: ∀a. Lens' a State -> State -> VDom a
 view lens state = template lens {config, board, rules, winTitle} state where
     rows = state^._nbRows
     columns = state^._nbColumns

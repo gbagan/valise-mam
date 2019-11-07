@@ -4,6 +4,7 @@ import MyPrelude
 import Data.String (joinWith)
 import Data.Array (catMaybes)
 import Lib.Util (map2)
+import Game.Effs (EFFS)
 import Game.Core (PointerPosition, _position, _pointer, _locked)
 import Game.Roue.Model (State, Ball(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, deleteDraggedA,
                         aligned, validRotation, validRotation')
@@ -33,7 +34,7 @@ pizza cx cy radius startAngle endAngle =
         s = polarToCartesian cx cy radius startAngle
         e = polarToCartesian cx cy radius endAngle
 
-innerWheel :: forall a. Int -> VDom a 
+innerWheel :: ∀a. Int -> VDom a EFFS
 innerWheel size = div' [class' "roue-inner" true] [
     svg [viewBox 0 0 100 100] $ take size colors # mapWithIndex \i color ->
         path (pizza 50.0 50.0 50.0 (2.0 * pi * (toNumber i - 0.5) / toNumber size) (2.0 * pi * (toNumber i + 0.5) / toNumber size)) [
@@ -42,16 +43,16 @@ innerWheel size = div' [class' "roue-inner" true] [
         ]
 ]
 
-cursor :: forall a. PointerPosition -> String -> VDom a
-cursor {left, top} color = div' [
+cursor :: ∀a. PointerPosition -> String -> VDom a EFFS
+cursor {x, y} color = div' [
     class' "ui-cursor roue-select-color roue-cursor" true,
-    style "left" $ show left <> "px",
-    style "top" $ show top <> "px",
+    style "left" $ show (100.0 * x) <> "%",
+    style "top" $ show (100.0 * y) <> "%",
     style "background-color" color
 ] []
 
 
-view :: forall a. Lens' a State -> State -> VDom a
+view :: ∀a. Lens' a State -> State -> VDom a EFFS
 view lens state = template lens {config, board, rules, winTitle} state where
     size = state^._size
     position = state^._position

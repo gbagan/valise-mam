@@ -70,5 +70,5 @@ instance chocolat2Game :: TwoPlayersGame {left :: Int, top :: Int, right :: Int,
         ((left + 1) .. col <#> FromLeft) <> ((col + 1) .. (right - 1) <#> FromRight)
         <> ((top + 1) .. row <#> FromTop) <> ((row + 1) .. (bottom - 1) <#> FromBottom) 
 
-setSoapModeA :: forall effs. SoapMode -> Action State (rng :: RNG | effs)
+setSoapModeA :: ∀effs. SoapMode -> Action State (rng :: RNG | effs)
 setSoapModeA = newGame' (set _soapMode)

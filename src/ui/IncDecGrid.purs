@@ -15,7 +15,7 @@ type IncDecGridOptions a effs = {
     onResize :: Int -> Int -> Action a effs
 }
 
-incDecGrid :: forall a effs. IncDecGridOptions a effs -> Array (VDom a effs) -> VDom a effs   
+incDecGrid :: ∀a effs. IncDecGridOptions a effs -> Array (VDom a effs) -> VDom a effs   
 incDecGrid {nbRows, nbColumns, customSize, showRowButtons, showColButtons, onResize} children =
     div' [class' "ui-incdecgrid" true] [
         div' [class' "flex" true] [

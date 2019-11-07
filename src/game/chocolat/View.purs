@@ -2,13 +2,13 @@ module Game.Chocolat.View where
   
 import MyPrelude
 import Lib.Util (tabulate2)
-import Game.Types (EFFS)
+import Game.Effs (EFFS)
 import Game.Core (_position, _nbRows, _nbColumns, possibleMoves, playA)
 import Game.Chocolat.Model (State, Move(..), SoapMode(..), _soap, _soapMode, setSoapModeA) 
 import Pha (VDom, text)
 import Pha.Action ((🔍))
 import Pha.Html (div', svg, br, rect, circle, use, key, class', click, width, height, viewBox, fill)
-import UI.Template (template, card, gridStyle, incDecGrid)
+import UI.Template (template, card, gridStyle, incDecGrid, winTitleFor2Players)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, icons2Players, iconSelectGroup, iundo, iredo, ireset, irules)
 
@@ -16,7 +16,7 @@ inside :: State -> Int -> Int -> Boolean
 inside state row col = col >= left && col <= right - 1 && row >= top && row <= bottom - 1
     where {left, right, top, bottom} = state^._position
     
-view :: forall a. Lens' a State -> State -> VDom a EFFS
+view :: ∀a. Lens' a State -> State -> VDom a EFFS
 view lens state = template lens {config, board, rules, winTitle} state where
     pos = state^._position
     rows = state^._nbRows
@@ -80,4 +80,4 @@ view lens state = template lens {config, board, rules, winTitle} state where
             text "qui contient au moins autant de jetons", br,
             text "Le but est de finir la partie avec le moins de cases contenant des piles de jetons."
     ]
-    winTitle = "todo" -- winTitleFor2Players(state),
+    winTitle = winTitleFor2Players state

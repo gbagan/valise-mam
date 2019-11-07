@@ -7,7 +7,7 @@ import Pha.Action (Action, getState, setState')
 codeSequence :: String
 codeSequence = "ArrowUp ArrowUp ArrowDown ArrowDown ArrowLeft ArrowRight ArrowLeft ArrowRight b a"
 
-konamiCode :: forall a effs. Lens' a (Array String) -> Action a effs -> String -> Action a effs
+konamiCode :: ∀a effs. Lens' a (Array String) -> Action a effs -> String -> Action a effs
 konamiCode lens onActivation key = do
     state <- getState
     let seq = state ^. lens # flip snoc key # takeEnd 10

@@ -3,7 +3,7 @@ import MyPrelude
 import Lib.Util (tabulate, dCoords, map2)
 import Data.Array.NonEmpty (NonEmptyArray, fromArray, head, singleton) as N
 import Game.Core (GState(..), class Game, SizeLimit(..), genState, newGame, _position, _nbRows, _nbColumns, playA')
-import Pha.Action (Action, action)
+import Pha.Action (Action, action, RNG, DELAY)
 
 piecesList :: Array Piece
 piecesList = [Rook, Bishop, King, Knight, Queen]
@@ -149,7 +149,7 @@ instance pathGame :: Game (Array Piece) Ext Int where
 });
 -}
 
-playA :: Int -> Action State
+playA :: ∀effs. Int -> Action State (rng :: RNG, delay :: DELAY | effs)
 playA = playA' (_{showWin = false})
 
 toggleAllowedPiece :: Piece ->  Boolean -> N.NonEmptyArray Piece -> N.NonEmptyArray Piece
@@ -157,14 +157,14 @@ toggleAllowedPiece piece false pieces = N.singleton piece
 toggleAllowedPiece piece true pieces = N.fromArray pieces2 # fromMaybe pieces where
     pieces2 = piecesList # filter \p2 -> (p2 == piece) /= elem p2 pieces
     
-selectPieceA :: Piece -> Action State
+selectPieceA :: ∀effs. Piece -> Action State effs
 selectPieceA piece = action $ _selectedPiece .~ piece
 
-selectSquareA :: Maybe Int -> Action State
+selectSquareA :: ∀effs. Maybe Int -> Action State effs
 selectSquareA a = action $ _selectedSquare .~ a
 
-selectAllowedPieceA :: Piece -> Action State
+selectAllowedPieceA :: ∀effs. Piece -> Action State (rng :: RNG, delay :: DELAY | effs)
 selectAllowedPieceA piece = newGame $ \state -> state # _allowedPieces %~ toggleAllowedPiece piece (state^._multiPieces)
 
-toggleMultiPiecesA :: Action State
+toggleMultiPiecesA :: ∀effs. Action State effs
 toggleMultiPiecesA = action $ _multiPieces %~ not

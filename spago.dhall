@@ -5,8 +5,8 @@ You can edit this file as you like.
 { name =
     "purescript"
 , dependencies =
-    [ "aff"
-    , "arrays"
+    [
+      "arrays"
     , "effect"
     , "maybe"
     , "prelude"

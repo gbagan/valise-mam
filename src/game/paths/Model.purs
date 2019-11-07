@@ -5,7 +5,7 @@ import Data.Array.NonEmpty (fromArray, head, last, init, tail) as N
 import Lib.Random (randomInt)
 import Lib.Util (dCoords, rangeStep)
 import Game.Core (GState(..), class Game, SizeLimit(..), newGame', genState, _nbRows, _nbColumns, _position, playA)
-import Pha.Action (Action, action, ifThenElseA)
+import Pha.Action (Action, DELAY, RNG, getState, setState)
 
 data Mode = Mode1 | Mode2
 derive instance eqMode :: Eq Mode
@@ -84,15 +84,16 @@ instance pathGame :: Game (Array Int) Ext Int where
     computerMove _ = Nothing
     sizeLimit _ = SizeLimit 2 2 9 9
 
-selectVertexA :: Int -> Action State
-selectVertexA v =
-    ifThenElseA (\state _ -> null $ state^._position)
-        (action $ _position .~ [v])
-    -- else
-        $ ifThenElseA (\state _ -> isNothing $ state^._exit)
-            (action $ _exit .~ Just v)
-            (playA v)
+selectVertexA :: ∀effs. Int -> Action State (rng :: RNG, delay :: DELAY | effs)
+selectVertexA v = do
+    state <- getState
+    if null (state^._position) then
+        setState (_position .~ [v])
+    else if isNothing (state^._exit) then
+        setState (_exit .~ Just v)
+    else
+        playA v
 
 
-selectModeA :: Mode -> Action State
+selectModeA :: ∀effs. Mode -> Action State (rng :: RNG | effs)
 selectModeA = newGame' $ (set _mode)

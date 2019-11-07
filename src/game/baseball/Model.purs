@@ -38,5 +38,5 @@ instance baseballGame :: Game (Array Int) ExtState Int where
     computerMove = const Nothing
     sizeLimit = defaultSizeLimit
     
-setNbBases :: forall effs. Int -> Action State (rng :: RNG | effs)
+setNbBases :: ∀effs. Int -> Action State (rng :: RNG | effs)
 setNbBases = newGame' (set _nbBases)

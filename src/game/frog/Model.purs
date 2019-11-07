@@ -56,7 +56,7 @@ instance frogGame2 :: TwoPlayersGame Int ExtState Int where
 
 
 -- calcule l'ensemble des positions gagnantes pour une taille et un ensemble de mouvements donnés
-winningPositions :: forall t. Foldable t => Int -> t Int -> Array Boolean
+winningPositions :: ∀t. Foldable t => Int -> t Int -> Array Boolean
 winningPositions size moves =
     let t = tabulate size \i -> defer
             \_ -> i == 0 || (moves # all \m -> maybe false (not ∘ force) (t !! (i - m))) in
@@ -67,16 +67,16 @@ reachableArray :: State -> Array Boolean
 reachableArray state = tabulate (state^._nbRows + 1) (canPlay state)
 
 -- ajoute ou enlève un mouvement dans la liste des mouvements permis
-selectMoveA :: forall effs. Int -> Action State (rng :: RNG | effs)
+selectMoveA :: ∀effs. Int -> Action State (rng :: RNG | effs)
 selectMoveA = newGame' $ over _moves ∘ _selectMove where
     _selectMove move moves =
         let moves2 = filter (\m -> (m == move) /= elem m moves) (1 .. 5) in
         N.fromArray moves2 # fromMaybe moves
 
 -- place/retire une marque à la position i
-markA :: forall effs. Int -> Action State effs
+markA :: ∀effs. Int -> Action State effs
 markA i = action $ (_marked ∘ ix i) %~ not
 
-onKeyDown :: forall effs. String -> Action State effs
+onKeyDown :: ∀effs. String -> Action State effs
 onKeyDown = konamiCode _keySequence (action \st -> st # _marked .~ st^._winning)
 

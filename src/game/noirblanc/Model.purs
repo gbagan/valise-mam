@@ -5,7 +5,8 @@ import Data.Array (modifyAtIndices)
 import Lib.Random (Random, randomInt)
 import Lib.Util (dCoords)
 import Lib.KonamiCode (konamiCode)
-import Pha.Action (Action, action, asyncAction)
+import Pha.Action (Action, action)
+import Game.Effs (RNG, DELAY, getState, setState)
 import Game.Core (class Game, GState(..), SizeLimit(..), playA, isLevelFinished, _position, _nbColumns, _nbRows, newGame, newGame', genState)
 
 type Position = { light :: Array Boolean, played :: Array Boolean }
@@ -73,26 +74,27 @@ instance noirblancGame :: Game { light :: Array Boolean, played :: Array Boolean
 sizes :: Array (Tuple Int Int)
 sizes = [ Tuple 3 3, Tuple 4 4, Tuple 2 10, Tuple 3 10, Tuple 5 5, Tuple 8 8, Tuple 8 8]
 
-selectModeA :: Int -> Action State
+selectModeA :: ∀effs. Int -> Action State (rng :: RNG | effs)
 selectModeA mode = newGame $ (_mode2 .~ mode) ∘ (_level .~ 0)
-selectLevelA :: Int -> Action State
+selectLevelA :: ∀effs. Int -> Action State (rng :: RNG | effs)
 selectLevelA = newGame' (set _level)
 
-afterPlay :: Action State
-afterPlay = asyncAction \{getState, updateState, dispatch} state ->
-    let mode = state^._mode2 in
+afterPlay :: ∀effs. Action State (rng :: RNG, delay :: DELAY | effs)
+afterPlay = do
+    state <- getState
+    let mode = state^._mode2
     if isLevelFinished state then do
         let nextLevel = if state^._level >= 4 then
                         6
                     else
                         state^._level + (if mode == 0 || mode == 3 then 1 else 2)
-        _ <- updateState (_maxLevels ∘ ix mode .~ nextLevel)
-        dispatch $ newGame (_level %~ \lvl -> min (lvl + 1) 6)
+        setState (_maxLevels ∘ ix mode .~ nextLevel)
+        newGame (_level %~ \lvl -> min (lvl + 1) 6)
     else
-        pure state
+        pure unit
 
-onKeyDown :: String -> Action State
+onKeyDown :: ∀effs. String -> Action State effs
 onKeyDown = konamiCode _keySequence (action $ _maxLevels .~ [6, 6, 6, 6])
 
-play2A :: Int -> Action State
-play2A i = playA i <> afterPlay
+play2A :: ∀effs. Int -> Action State (rng :: RNG, delay :: DELAY | effs)
+play2A i = playA i *> afterPlay

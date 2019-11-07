@@ -5,6 +5,7 @@ import Lib.Util (coords)
 import Pha (VDom, text, whenN, maybeN)
 import Pha.Action ((🔍))
 import Pha.Html (div', br, svg, rect, circle, key, attr, class', style,click, width, height, viewBox, fill, stroke, strokeWidth, translate)
+import Game.Effs (EFFS)
 import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointer)
 import Game.Solitaire.Model (State, Board(..), _board, _holes, _dragged, _help, setBoardA, toggleHelpA)
 import UI.Icon (Icon(..))
@@ -18,10 +19,10 @@ tricolor i columns help =
         1 -> "blue"
         _ -> "green"
 
-cursor :: forall a b. PointerPosition -> b -> VDom a
+cursor :: ∀a b. PointerPosition -> b -> VDom a EFFS
 cursor pp _ = circle 0.0 0.0 20.0 ([attr "pointer-events" "none", fill "url(#soli-peg)"] <> svgCursorStyle pp)
 
-view :: forall a. Lens' a State -> State -> VDom a
+view :: ∀a. Lens' a State -> State -> VDom a EFFS
 view lens state = template lens {config, board, rules, winTitle} state where
     columns = state^._nbColumns
     rows = state^._nbRows
@@ -46,8 +47,8 @@ view lens state = template lens {config, board, rules, winTitle} state where
                 CircleBoard -> opt{icon = IconSymbol "#circle", tooltip = Just "Cercle"}
                 Grid3Board -> opt{icon = IconText "3xN", tooltip = Just "3xN"}
                 RandomBoard -> opt{icon = IconSymbol "#shuffle", tooltip = Just "Aléatoire"}
-                EnglishBoard -> opt{icon = IconSymbol "#bread", tooltip = Just "Anglais"}
-                FrenchBoard ->  opt{icon = IconSymbol "#tea", tooltip = Just "Français"},
+                EnglishBoard -> opt{icon = IconSymbol "#tea", tooltip = Just "Anglais"}
+                FrenchBoard ->  opt{icon = IconSymbol "#bread", tooltip = Just "Français"},
             icongroup "Options" $ [ihelp] <> ([iundo, iredo, ireset, irules] <#> \x -> x lens state)     --- help
         ] 
 

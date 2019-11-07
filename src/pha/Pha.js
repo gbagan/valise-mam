@@ -319,7 +319,7 @@ const appAux = disp => props => () => {
   let vdom = node && recycleNode(node);
 
   const listener = function(event) {
-      disp(() => state)(dispatch)(effects(event))(this.actions[event.type])();
+    dispatch(event, this.actions[event.type]);
   }
 
   const setState = newState => {
@@ -330,11 +330,11 @@ const appAux = disp => props => () => {
     return state
   }
 
-  const dispatch = fn => () => setState(fn(state));
+  const dispatch = (event, action) => disp(() => state)(fn => () => setState(fn(state)))(effects(event))(action)();
 
   const rawEvent = (name, action) => {
-     //const listener = event => disp(action(dispatch)(event))();
-     //addEventListener (name, listener);
+     const listener = event => dispatch(event, action);
+     addEventListener (name, listener);
    }
 
 
@@ -352,7 +352,8 @@ const appAux = disp => props => () => {
   for (let i = 0; i < events.length; i++) {
      rawEvent(events[i].value0, events[i].value1);
   }
-  //launchAff(init(dispatch)(undefined))();
+  console.log(init);
+  dispatch(undefined, init);
 }
 
 const h = isStyle => name => ps => children => {

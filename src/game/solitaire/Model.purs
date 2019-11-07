@@ -3,7 +3,7 @@ import MyPrelude
 import Data.Traversable (sequence)
 import Data.Array (updateAtIndices)
 import Data.FoldableWithIndex (allWithIndex)
-import Pha.Action (Action, action)
+import Pha.Action (Action, action, RNG)
 import Lib.Random (Random, randomInt, randomBool)
 import Lib.Util (tabulate, tabulate2, dCoords)
 import Game.Core (class Game, GState(..), SizeLimit(..), genState, canPlay, _nbColumns, _nbRows, _customSize, _position, newGame)
@@ -124,7 +124,7 @@ instance solitaireGame :: Game (Array Boolean) ExtState {from :: Int, to :: Int}
 
     computerMove _ = Nothing
 
-setBoardA :: Board -> Action State
+setBoardA :: ∀effs. Board -> Action State (rng :: RNG | effs)
 setBoardA board = newGame \state ->
     let st2 = state # _board .~ board in 
     case board of
@@ -133,5 +133,5 @@ setBoardA board = newGame \state ->
         RandomBoard -> st2 # _nbRows .~ 3 # _nbColumns .~ 5
         _ -> st2 # _nbRows .~ 7 # _nbColumns .~ 7
 
-toggleHelpA :: Action State
+toggleHelpA :: ∀effs. Action State effs
 toggleHelpA = action $ _help %~ \x -> (x + 1) `mod` 3

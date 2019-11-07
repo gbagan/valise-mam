@@ -5,12 +5,13 @@ import Pha.Action ((🔍))
 import Pha.Html (div', span, br, svg, rect, use, class', key, style,
             click, width, height, fill, viewBox, translate)
 import Lib.Util (tabulate)
+import Game.Effs (EFFS)
 import Game.Core (canPlay, playA, isLevelFinished, _position, _turn)
 import Game.Nim.Model (State, Move(..), _nbPiles, _length, setLengthA, setNbPilesA)
 import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset, irules)
 
-view :: forall a. Lens' a State -> State -> VDom a
+view :: ∀a. Lens' a State -> State -> VDom a EFFS
 view lens state = template lens {config, board, rules, winTitle} state where
     nbPiles = state^._nbPiles
     length = state^._length

@@ -3,6 +3,7 @@ import MyPrelude
 import Data.String (joinWith)
 import Lib.Util (coords, tabulate)
 import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _pointer)
+import Game.Effs (EFFS)
 import Game.Paths.Model (State, Mode(..), _exit, _mode, selectVertexA, selectModeA)
 import Pha (VDom, Prop, text, emptyNode, maybeN, whenN)
 import Pha.Action ((🔍))
@@ -11,7 +12,7 @@ import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, iconSelectGroup, ihelp, iundo, iredo, ireset, irules)
 import UI.Template (template, card, incDecGrid, gridStyle, svgCursorStyle, trackPointer)
 
-square :: forall a. {darken :: Boolean, trap :: Boolean, door :: Boolean, x :: Number, y :: Number} -> Array (Prop a) -> VDom a
+square :: ∀a. {darken :: Boolean, trap :: Boolean, door :: Boolean, x :: Number, y :: Number} -> Array (Prop a EFFS) -> VDom a EFFS
 square {darken, trap, door, x, y} props =
     g ([class' "paths-darken" darken] <> props) [
         use x y 100.0 100.0 "#paths-background" [],
@@ -20,7 +21,7 @@ square {darken, trap, door, x, y} props =
         use x y 100.0 100.0 "#paths-trap" [class' "paths-trap" true, class' "visible" $ trap && not door]
     ]
 
-doorCursor :: forall a. PointerPosition -> VDom a
+doorCursor :: ∀a. PointerPosition -> VDom a EFFS
 doorCursor pp =
     use (-50.0) (-50.0) 100.0 100.0 " #paths-door" $ [
         key "cdoor",
@@ -28,7 +29,7 @@ doorCursor pp =
         attr "pointer-events" "none"
     ] <> svgCursorStyle pp
         
-heroCursor :: forall a. PointerPosition -> VDom a
+heroCursor :: ∀a. PointerPosition -> VDom a EFFS
 heroCursor pp =
     use (-40.0) (-40.0) 80.0 80.0 " #meeplehat" $ [
         key "chero",
@@ -36,7 +37,7 @@ heroCursor pp =
         attr "pointer-events" "none"
     ] <> svgCursorStyle pp
 
-view :: forall a. Lens' a State -> State -> VDom a
+view :: ∀a. Lens' a State -> State -> VDom a EFFS
 view lens state = template lens {config, board, rules, winTitle} state where
     position = state^._position
     rows = state^._nbRows

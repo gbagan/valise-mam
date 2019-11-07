@@ -1,16 +1,16 @@
 module UI.Template where
 import MyPrelude
 import Pha (VDom, Prop, text, emptyNode)
-import Pha.Action (Event, Action, action, (🔍), rng, RNG)
+import Pha.Action (Action, action, (🔍))
 import Pha.Html (div', class', attr, style, pointerup, pointerdown, pointerleave, pointermove)
-import Game.Core (class Game, GState, Mode(..), PointerPosition, SizeLimit(..), Dialog(..),
+import Game.Core (class Game, GState, Mode(..), SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointer, canPlay, isLevelFinished, sizeLimit,
-         setGridSizeA, confirmNewGameA) --, dropA)
+         setGridSizeA, confirmNewGameA, dropA)
 import UI.Dialog (dialog)
 import UI.IncDecGrid (incDecGrid) as U
-import Game.Types (EFFS)
+import Game.Effs (EFFS, getPointerPosition, releasePointerCapture, Position)
 
-winPanel :: forall a b d. String -> GState a b -> VDom d EFFS
+winPanel :: ∀a b d. String -> GState a b -> VDom d EFFS
 winPanel title state =
     div' [class' "ui-flex-center ui-absolute component-win-container" true] [
         div' [class' "component-win" true, class' "visible" $ state^._showWin] [
@@ -18,7 +18,7 @@ winPanel title state =
         ]
     ]
 
-card :: forall a. String -> Array (VDom a EFFS) -> VDom a EFFS
+card :: ∀a. String -> Array (VDom a EFFS) -> VDom a EFFS
 card title children =
     div' [class' "ui-card" true] [
         div' [class' "ui-card-head ui-flex-center" true] [
@@ -27,12 +27,12 @@ card title children =
         div' [class' "ui-card-body" true] children
     ]
 
-gridStyle :: forall a. Int -> Int -> Int -> Array (Prop a EFFS)
+gridStyle :: ∀a. Int -> Int -> Int -> Array (Prop a EFFS)
 gridStyle rows columns limit = [style "height" $ show (toNumber rows / m * 100.0) <> "%",
                                 style "width" $ show (toNumber columns / m * 100.0) <> "%"]
     where m = toNumber $ max limit $ max rows columns
 
-incDecGrid :: forall pos ext mov d. Game pos ext mov => Lens' d (GState pos ext) -> GState pos ext -> Array (VDom d EFFS) 
+incDecGrid :: ∀pos ext mov d. Game pos ext mov => Lens' d (GState pos ext) -> GState pos ext -> Array (VDom d EFFS) 
                         -> VDom d EFFS
 incDecGrid lens state = U.incDecGrid {
     nbRows: state^._nbRows,
@@ -52,7 +52,7 @@ type Elements a = {
     winTitle :: String
 }
 
-template :: forall a pos aux mov. Game pos aux mov =>
+template :: ∀a pos aux mov. Game pos aux mov =>
                 Lens' a (GState pos aux) -> Elements a -> GState pos aux  -> VDom a EFFS
 template lens {board, config, rules, winTitle} state = 
     div' [] [
@@ -71,36 +71,24 @@ template lens {board, config, rules, winTitle} state =
             ]
         dialog' _ = emptyNode
 
--- todo
--- foreign import relativePointerPositionAux :: Maybe PointerPosition -> (PointerPosition -> Maybe PointerPosition) 
---                                            -> Event -> Effect (Maybe PointerPosition)
 
--- relativePointerPosition :: Event -> Effect (Maybe PointerPosition)
--- relativePointerPosition = relativePointerPositionAux Nothing Just
-
--- foreign import releasePointerCapture :: Event -> Effect Unit
-
--- releasePointerCaptureA :: forall a. Action a
--- releasePointerCaptureA = onlyEffectAction releasePointerCapture
-
-setPointerPositionA :: forall pos ext effs. (Maybe PointerPosition) -> Action (GState pos ext) effs
+setPointerPositionA :: ∀pos ext effs. (Maybe Position) -> Action (GState pos ext) effs
 setPointerPositionA a = action $ _pointer .~ a
 
-cursorStyle :: forall a. PointerPosition -> Int -> Int -> Number -> Array (Prop a EFFS)    
-cursorStyle {left, top} rows columns size = [
-    style "left" $ show left <> "px",
-    style "top" $ show top <> "px",
-    style "position" "fixed"
-    -- style "width" $ show (size / toNumber columns) <> "%",
-    -- style "height" $ show (size / toNumber rows) <> "%"
+cursorStyle :: ∀a. Position -> Int -> Int -> Number -> Array (Prop a EFFS)    
+cursorStyle {x, y} rows columns size = [
+    style "left" $ show (x * 100.0) <> "%",
+    style "top" $ show (y * 100.0) <> "%",
+    style "width" $ show (size / toNumber columns) <> "%",
+    style "height" $ show (size / toNumber rows) <> "%"
 ]
 
-svgCursorStyle :: forall a. PointerPosition -> Array (Prop a EFFS)
-svgCursorStyle {left, top, width, height} = [
-    style "transform" $ "translate(" <> show (100.0 * left / width) <> "%," <> show (100.0 * top / height) <> "%"
+svgCursorStyle :: ∀a. Position -> Array (Prop a EFFS)
+svgCursorStyle {x, y} = [
+    style "transform" $ "translate(" <> show (100.0 * x) <> "%," <> show (100.0 * y) <> "%)"
 ]
-{-
-trackPointer :: forall pos ext a. Lens' a (GState pos ext) -> Array (Prop a)
+
+trackPointer :: ∀pos ext a. Lens' a (GState pos ext) -> Array (Prop a EFFS)
 trackPointer lens = [
     attr "touch-action" "none", 
     class' "ui-touch-action-none" true,
@@ -108,8 +96,7 @@ trackPointer lens = [
     pointerleave $ lens 🔍  action (_pointer .~ Nothing),
     pointerdown $ lens 🔍 move
 ] where
-    move :: Action (GState pos ext)
-    move =  setPointerPositionA  `withPayload'` relativePointerPosition
+    move = getPointerPosition >>= setPointerPositionA
         -- (\_ e -> pointerType e == Just "mouse")
         -- combine(
         --    whenA (\s -> s.pointer == Nothing) (actions.drop NoDrop)
@@ -120,10 +107,9 @@ trackPointer lens = [
             action (_pointer .~ Nothing)
 
             -- hasDnD && drop NoDrop
--}
-{-
-dndBoardProps :: forall pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>
-    Lens' a (GState pos ext) -> Lens' (GState pos ext) (Maybe dnd) -> Array (Prop a)
+
+dndBoardProps :: ∀pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>
+    Lens' a (GState pos ext) -> Lens' (GState pos ext) (Maybe dnd) -> Array (Prop a EFFS)
 dndBoardProps lens dragLens = [
     attr "touch-action" "none", 
     class' "ui-touch-action-none" true,
@@ -132,8 +118,7 @@ dndBoardProps lens dragLens = [
     pointerleave $ lens 🔍 leave,
     pointerdown $ lens 🔍 move
 ] where
-    move :: Action (GState pos ext)
-    move = setPointerPositionA `withPayload'` relativePointerPosition
+    move = getPointerPosition >>= setPointerPositionA
         
         -- whenA
         -- (\_ e -> pointerType e == Just "mouse")
@@ -143,23 +128,20 @@ dndBoardProps lens dragLens = [
         --)
     leave = action $ (_pointer .~ Nothing) ∘ (dragLens .~ Nothing)
             -- hasDnD && drop NoDrop
--}
 
-{-            
-dndItemProps :: forall pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>
-    Lens' a (GState pos ext) -> Lens' (GState pos ext) (Maybe dnd) -> Boolean -> Boolean -> dnd -> (GState pos ext) -> Array (Prop a)
+dndItemProps :: ∀pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>
+    Lens' a (GState pos ext) -> Lens' (GState pos ext) (Maybe dnd) -> Boolean -> Boolean -> dnd -> (GState pos ext) -> Array (Prop a EFFS)
 dndItemProps lens dragLens draggable droppable id state = [
     class' "dragged" dragged,
     class' "candrop" candrop,
-    pointerdown $ if draggable then lens 🔍 action (dragLens .~ Just id) <> releasePointerCaptureA else mempty,
+    pointerdown $ if draggable then releasePointerCapture *> (lens 🔍 action (dragLens .~ Just id)) else pure unit,
     pointerup $ lens 🔍 (if candrop then dropA dragLens id else action (dragLens .~ Nothing))  -- stopPropagation
 ] where
     draggedItem = state ^. dragLens
     candrop = droppable && (draggedItem # maybe false (\x -> canPlay state { from: x, to: id }))
     dragged = draggable && draggedItem == Just id
--}
 
-turnMessage :: forall pos ext mov. Game pos ext mov => GState pos ext -> String
+turnMessage :: ∀pos ext mov. Game pos ext mov => GState pos ext -> String
 turnMessage state =
     if isLevelFinished state then
         "Partie finie"
@@ -170,7 +152,7 @@ turnMessage state =
     else 
         "Tour de l'IA"
 
-winTitleFor2Players :: forall pos ext. GState pos ext -> String
+winTitleFor2Players :: ∀pos ext. GState pos ext -> String
 winTitleFor2Players state =
     if state^._mode == DuelMode then
         "Le " <> (if state^._turn == 1 then "premier" else "second") <> " joueur gagne"

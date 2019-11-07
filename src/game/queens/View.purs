@@ -6,6 +6,7 @@ import Data.Array.NonEmpty (toArray, head) as N
 import Pha (VDom, Prop, h, text)
 import Pha.Action ((🔍))
 import Pha.Html (div', br, class', attr, svg, key, style, width, height, href, click, pointerenter, pointerleave)
+import Game.Effs (EFFS)
 import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer)
 import Game.Queens.Model (State, Piece(..), _selectedPiece, _selectedSquare, _allowedPieces, _multiPieces,
                            piecesList, capturableSquares, attackedBySelected,
@@ -22,7 +23,7 @@ tooltip Bishop = "Fou"
 tooltip Knight = "Cavalier"
 tooltip _ = "Pièce personnalisée"
 
-square :: forall a. { piece :: Piece, capturable :: Boolean, selected :: Boolean, nonavailable :: Boolean} -> Array (Prop a) -> VDom a
+square :: ∀a. { piece :: Piece, capturable :: Boolean, selected :: Boolean, nonavailable :: Boolean} -> Array (Prop a EFFS) -> VDom a EFFS
 square { piece, capturable, selected, nonavailable} props =
     div' ([
         class' "queens-square" true,
@@ -36,7 +37,7 @@ square { piece, capturable, selected, nonavailable} props =
         ]
     ]
 
-view :: forall a. Lens' a State -> State -> VDom a
+view :: ∀a. Lens' a State -> State -> VDom a EFFS
 view lens state = template lens {config, board, rules, winTitle} state where
     position = state^._position
     rows = state^._nbRows

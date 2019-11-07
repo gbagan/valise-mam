@@ -12,7 +12,7 @@ import Pha.Event (shiftKey)
 import UI.Template (template, card, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icons (icongroup, iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
 import Game.Core (_nbRows, _position, _help, playA)
-import Game.Types (EFFS)
+import Game.Effs (EFFS)
 import Game.Frog.Model (State, _moves, _marked, selectMoveA, reachableArray, markA)
 
 type Cartesian = { x :: Number, y :: Number}
@@ -59,7 +59,7 @@ spiralPoints n = spiralPointsPolar n <#> polarToCartesian
 spiralPath :: String
 spiralPath = spiral { x: 0.0, y: 0.0 } 0.0 61.0 0.0 (37.0 / 6.0 * pi) (pi / 6.0)
 
-lily :: forall a. Int -> Number -> Number -> Boolean -> Boolean -> VDom a EFFS
+lily :: ∀a. Int -> Number -> Number -> Boolean -> Boolean -> VDom a EFFS
 lily i x y reachable hidden =
     (if i == 0 then
         use (x - 30.0) (y - 45.0) 80.0 80.0 
@@ -71,7 +71,7 @@ lily i x y reachable hidden =
         class' "hidden" hidden
     ]
 
-view :: forall a. Lens' a State -> State -> VDom a EFFS
+view :: ∀a. Lens' a State -> State -> VDom a EFFS
 view lens state = template lens {config, board, rules, winTitle} state where
     position = state^._position
     reachable = reachableArray state

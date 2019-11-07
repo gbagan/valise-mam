@@ -7,9 +7,9 @@ import Game.Core (GState, class Game, Dialog(Rules), Mode(..),
                 undoA, redoA, resetA, toggleHelpA, setModeA, computerStartsA, setGridSizeA,
                 _help, _dialog, _history, _redoHistory, _mode, _nbRows, _nbColumns, _locked, _customSize)
 import UI.Icon (iconbutton, Options, Icon(..)) as I
-import Game.Types (EFFS)
+import Game.Effs (EFFS)
 
-iconbutton :: forall a b d.
+iconbutton :: ∀a b d.
     GState a b
     -> (I.Options -> I.Options)
     -> Array (Prop d EFFS)
@@ -17,7 +17,7 @@ iconbutton :: forall a b d.
 iconbutton state optionFn props =
     I.iconbutton (\opts -> let opts2 = optionFn opts in opts2{disabled = opts2.disabled || state^._locked}) props
 
-icongroup :: forall a. String -> Array (VDom a EFFS) -> VDom a EFFS
+icongroup :: ∀a. String -> Array (VDom a EFFS) -> VDom a EFFS
 icongroup title children =
     div' [] [
         h2 [] [text title],
@@ -25,21 +25,21 @@ icongroup title children =
     ]
 
 {-
-iconSelect :: forall a pos ext sel. Eq sel =>
+iconSelect :: ∀a pos ext sel. Eq sel =>
     Lens' a (GState pos ext) -> GState pos ext -> sel -> (sel -> Action (GState pos ext)) -> sel
   -> (I.Options -> I.Options) -> VDom a
 iconSelect lens state selection action value optionFn =
     iconbutton state (\opt -> optionFn $ opt{selected = value == selection}) [click $ lens 🔍 action value]
 -}
 
-iundo :: forall a b d. Lens' d (GState a b) -> GState a b -> VDom d EFFS
+iundo :: ∀a b d. Lens' d (GState a b) -> GState a b -> VDom d EFFS
 iundo lens state =
     iconbutton
         state
         (_{icon = I.IconSymbol "#undo", tooltip = Just "Annule le dernier coup effectué", disabled = null $ state^._history})
         [click $ lens 🔍 undoA]
 
-iredo :: forall a b d. Lens' d (GState a b) -> GState a b -> VDom d EFFS
+iredo :: ∀a b d. Lens' d (GState a b) -> GState a b -> VDom d EFFS
 iredo lens state =
     iconbutton
         state
@@ -49,21 +49,21 @@ iredo lens state =
             style = [Tuple "transform" "scaleX(-1)"]})
         [click $ lens 🔍 redoA]
 
-ireset :: forall a b d. Lens' d (GState a b) -> GState a b -> VDom d EFFS
+ireset :: ∀a b d. Lens' d (GState a b) -> GState a b -> VDom d EFFS
 ireset lens state =
     iconbutton
         state
         (_{icon = I.IconSymbol "#reset", tooltip = Just "Recommence la partie", disabled = null $ state^._history})
         [click $ lens 🔍 resetA]
 
-ihelp ::forall a b d. Lens' d (GState a b) -> GState a b -> VDom d EFFS
+ihelp :: ∀a b d. Lens' d (GState a b) -> GState a b -> VDom d EFFS
 ihelp lens state =
     iconbutton
         state
         (_{icon = I.IconSymbol "#help", tooltip = Just "Aide", selected = state^._help})
         [click $ lens 🔍 toggleHelpA]
 
-irules :: forall a b d. Lens' d (GState a b) -> GState a b -> VDom d EFFS
+irules :: ∀a b d. Lens' d (GState a b) -> GState a b -> VDom d EFFS
 irules lens state =
     iconbutton
         state
@@ -74,7 +74,7 @@ irules lens state =
             Rules -> true
             _ -> false
 
-iconSelectGroup :: forall a pos ext d.
+iconSelectGroup :: ∀a pos ext d.
     Show a => Eq a =>
     Lens' d (GState pos ext) -> GState pos ext -> String -> Array a -> a -> (a -> Action (GState pos ext) EFFS) 
     -> (a -> I.Options -> I.Options) -> VDom d EFFS
@@ -85,7 +85,7 @@ iconSelectGroup lens state title values selected action optionFn =
             selected = val == selected
         })) [click $ lens 🔍 action val]
 
-iconSelectGroupM :: forall a t pos ext d.
+iconSelectGroupM :: ∀a t pos ext d.
     Show a => Eq a => Foldable t =>
     Lens' d (GState pos ext) -> GState pos ext -> String -> Array a -> t a -> (a -> Action (GState pos ext) EFFS)
     -> (a -> I.Options -> I.Options) -> VDom d EFFS
@@ -96,7 +96,7 @@ iconSelectGroupM lens state title values selected action optionFn =
             selected = elem val selected
         })) [click $ lens 🔍 action val]
 
-iconSizesGroup :: forall a pos ext mov. Game pos ext mov =>
+iconSizesGroup :: ∀a pos ext mov. Game pos ext mov =>
     Lens' a (GState pos ext) -> GState pos ext -> Array (Tuple Int Int) -> Boolean -> VDom a EFFS
 iconSizesGroup lens state sizeList customSize =
     icongroup "Dimensions de la grille" $
@@ -114,7 +114,7 @@ iconSizesGroup lens state sizeList customSize =
     ccols = state^._nbColumns
     csize = state^._customSize
 
-icons2Players :: forall a pos ext mov. Game pos ext mov => Lens' a (GState pos ext) -> GState pos ext -> VDom a EFFS
+icons2Players :: ∀a pos ext mov. Game pos ext mov => Lens' a (GState pos ext) -> GState pos ext -> VDom a EFFS
 icons2Players lens state =
     icongroup "Mode de jeu" [
         iconbutton

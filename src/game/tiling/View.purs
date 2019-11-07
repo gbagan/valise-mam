@@ -3,9 +3,9 @@ import MyPrelude
 import Lib.Util (coords)
 import Pha (VDom, Prop, text, whenN, maybeN)
 import Pha.Action ((🔍))
-import Pha.Event (preventDefaultA)
 import Pha.Html (div', g, rect, line, use, key, attr, style, svg, class', click, contextmenu, pointerenter, pointerleave,
                  width, height, viewBox, fill, stroke, strokeWidth, transform)
+import Game.Effs (EFFS, preventDefault)
 import Game.Core (_position, _nbRows, _nbColumns, _pointer, _help)
 import Game.Tiling.Model (State, TileType(..), _nbSinks, _rotation, _tile, _tileType,
                           sinks, inConflict, setNbSinksA, setTileA, clickOnCellA, rotateA, setHoverSquareA)
@@ -15,7 +15,7 @@ import UI.Icons (icongroup, iconSizesGroup, iconSelectGroup, ihelp, ireset, irul
 
 type Borders = {top :: Boolean, left :: Boolean, bottom :: Boolean, right :: Boolean}
 
-square :: forall a. {isBlack :: Boolean, hasBlock :: Boolean, hasSink :: Boolean, row :: Int, col :: Int} -> Array (Prop a) -> VDom a 
+square :: ∀a effs. {isBlack :: Boolean, hasBlock :: Boolean, hasSink :: Boolean, row :: Int, col :: Int} -> Array (Prop a effs) -> VDom a effs 
 square {isBlack, hasBlock, hasSink, row, col} props =
     g ([
         class' "tiling-darken" isBlack,
@@ -28,7 +28,7 @@ square {isBlack, hasBlock, hasSink, row, col} props =
             use 0.0 0.0 50.0 50.0 "#sink" [key "sink"]
     ]
     
-view :: forall a. Lens' a State -> State -> VDom a
+view :: ∀a. Lens' a State -> State -> VDom a EFFS
 view lens state = template lens {config, board, rules, winTitle} state where
     position = state^._position
     rows = state^._nbRows
@@ -64,7 +64,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
 
     grid = div' (gridStyle rows columns 5 <> trackPointer lens <> [
         class' "ui-board" true,
-        contextmenu $ lens 🔍 (preventDefaultA <> rotateA)
+        contextmenu $ preventDefault *> (lens 🔍 rotateA)
     ]) [
         svg [width "100%", height "100%", viewBox 0 0 (50 * columns) (50 * rows)] $
             (position # mapWithIndex \index pos ->

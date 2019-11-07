@@ -45,7 +45,7 @@ randomInt n = Random (\seed -> Tuple (intFromSeed seed n) (nextSeed seed))
 randomBool :: Random Boolean
 randomBool = randomInt 2 <#> eq 0
 
-shuffle :: forall a. Array a -> Random (Array a)
+shuffle :: ∀a. Array a -> Random (Array a)
 shuffle array = do
     rnds <- sequence $ tabulate (n - 1) (\x -> randomInt $ n - x)
     pure (rnds 
@@ -54,9 +54,9 @@ shuffle array = do
     )
     where n = length array
 
-randomPick :: forall a. N.NonEmptyArray a -> Random a
+randomPick :: ∀a. N.NonEmptyArray a -> Random a
 randomPick t =
     unsafePartial $ N.unsafeIndex t <$> (randomInt $ N.length t)
 
-runRnd :: forall a. Seed -> Random a -> a
+runRnd :: ∀a. Seed -> Random a -> a
 runRnd seed (Random m) = fst $ m seed

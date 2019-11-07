@@ -84,7 +84,7 @@ adaptatedBeast rows columns mode =
                         CylinderMode -> {row, col: col `mod` columns}
                         TorusMode -> {row: row `mod` rows, col: col `mod` columns}
 
-pseudoRandomPick :: forall t. Array t -> Maybe t
+pseudoRandomPick :: ∀t. Array t -> Maybe t
 pseudoRandomPick t = t !! (28921 `mod` length t)
 
 

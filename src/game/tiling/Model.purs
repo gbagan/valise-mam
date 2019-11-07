@@ -4,7 +4,7 @@ import MyPrelude
 import Data.Array (catMaybes)
 import Lib.Util (coords)
 import Game.Core (GState(..), class Game, SizeLimit(..), canPlay, genState, newGame', playA, _position, _nbColumns, _nbRows)
-import Pha.Action (Action, action, ifThenElseA)
+import Pha.Action (Action, action, RNG, DELAY, getState)
 
 type Coord = {row :: Int, col :: Int}
 type Tile = Array Coord
@@ -104,30 +104,35 @@ instance tilingGame :: Game (Array Int) ExtState Int where
     computerMove _ = Nothing
   
 
-putSinkA :: Int -> Action State
+putSinkA :: ∀effs. Int -> Action State effs
 putSinkA i = action $ (_position ∘ ix i) .~ (-1)
 
-setNbSinksA :: Int -> Action State
+setNbSinksA :: ∀effs. Int -> Action State (rng :: RNG | effs)
 setNbSinksA = newGame' (set _nbSinks)
 
-setTileA :: TileType -> Action State
+setTileA :: ∀effs. TileType -> Action State (rng :: RNG | effs)
 setTileA = newGame' (set _tileType)
 
-clickOnCellA :: Int -> Action State
-clickOnCellA a = ifThenElseA (\s e -> length (sinks s) < s^._nbSinks) (putSinkA a) (playA a)
+clickOnCellA :: ∀effs. Int -> Action State (rng :: RNG, delay :: DELAY | effs)
+clickOnCellA a = do
+    state <- getState
+    if length (sinks state) < state^._nbSinks then
+        putSinkA a
+    else
+        playA a
 
-rotateA :: Action State
+rotateA :: ∀effs. Action State effs
 rotateA = action $ _rotation %~ (add 1)
 
-setHoverSquareA :: Maybe Int -> Action State
+setHoverSquareA :: ∀effs. Maybe Int -> Action State effs
 setHoverSquareA a = action $ _hoverSquare .~ a
 
 inConflict :: State -> Boolean
 inConflict state = state^._hoverSquare # maybe false \sqr -> state^._position !! sqr /= Just 0 || not canPlay state sqr
 
-onKeyDown :: String -> Action State
+onKeyDown :: ∀effs. String -> Action State effs
 onKeyDown " " = rotateA
-onKeyDown _ = mempty
+onKeyDown _ = pure unit
 
 {-            
 const configHash = state => `${state.rows}-${state.columns}-${state.tileIndex}-${state.nbSinks}`

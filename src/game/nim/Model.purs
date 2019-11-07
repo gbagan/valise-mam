@@ -5,7 +5,7 @@ import Data.Int.Bits (xor)
 import Lib.Util (tabulate2)
 import Pha.Action (Action)
 import Lib.Random (randomInt)
-
+import Game.Effs (EFFS)
 import Game.Core (class Game, class TwoPlayersGame, GState(..), Mode(..),
                 genState, newGame', canPlay, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
 
@@ -63,8 +63,8 @@ instance nimGame2 :: TwoPlayersGame (Array (Tuple Int Int)) ExtState Move where
 
     isLosingPosition = eq 0 ∘ foldr (\t -> xor (snd t - fst t - 1)) 0 ∘ view _position
 
-setNbPilesA :: Int -> Action State
+setNbPilesA :: Int -> Action State EFFS
 setNbPilesA = newGame' (set _nbPiles)
 
-setLengthA :: Int -> Action State
+setLengthA :: Int -> Action State EFFS
 setLengthA = newGame'(set _length)

@@ -6,6 +6,7 @@ import Pha (Prop, VDom, text)
 import Pha.Action ((🔍))
 import Pha.Html (div', svguse, class', key, style, click)
 import Game.Core (_position, _nbRows, _nbColumns, _help)
+import Game.Effs (EFFS)
 import Game.Noirblanc.Model (State, _level, _mode2, _maxLevels, play2A, selectLevelA, selectModeA)
 import UI.Icon (Icon(..), Options)
 import UI.Icons (icongroup, ihelp, ireset, irules, iconSelectGroup)
@@ -22,7 +23,7 @@ levelOptions level _ opt = case level of
     5 -> opt{ icon = IconText "NxM", tooltip = Just "Dimensions personnalisées" }
     _ -> opt{ icon = IconSymbol "#lo-rand", tooltip = Just "Grille aléatoire" }
 
-square :: forall a. Boolean -> Boolean -> Array (Prop a) -> VDom a
+square :: ∀a. Boolean -> Boolean -> Array (Prop a EFFS) -> VDom a EFFS
 square light cross props = 
     div' ([class' "noirblanc-square" true] <> props) [
         div' [class' "noirblanc-square-inner" true, class' "blanc" light] [
@@ -34,7 +35,7 @@ square light cross props =
         ]
     ]
 
-view :: forall a. Lens' a State -> State -> VDom a
+view :: ∀a. Lens' a State -> State -> VDom a EFFS
 view lens state = template lens {config, board, rules, winTitle} state where
     rows = state^._nbRows
     columns = state^._nbColumns

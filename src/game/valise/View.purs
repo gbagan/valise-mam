@@ -1,12 +1,13 @@
 module Game.Valise.View where
 import MyPrelude
+import Game.Effs (EFFS)
 import Game.Valise.Model (State, showHelpA)
 import Pha (VDom, Prop, h, text, maybeN)
 import Pha.Action ((🔍))
 import Pha.Html (div', a, svg, g, class', svguse, href, width, height, viewBox, fill, transform, x, y,
     pointerenter, pointerleave)
 
-pos :: forall a. Int -> Int -> Int -> Int -> Array (Prop a)
+pos :: ∀a effs. Int -> Int -> Int -> Int -> Array (Prop a effs)
 pos x' y' w h = [
     width (show w),
     height (show h),
@@ -14,7 +15,7 @@ pos x' y' w h = [
     y (show y')
 ]
 
-valise :: forall a. Lens' a State -> State -> VDom a
+valise :: ∀a. Lens' a State -> State -> VDom a EFFS
 valise lens state = svg [viewBox 0 0 825 690] [
     h "use" [href "#valise", class' "valise-close" true, width "100%", height "100%"] [], 
     
@@ -133,7 +134,7 @@ valise lens state = svg [viewBox 0 0 825 690] [
                 ]
             ]
 
-view :: forall a. Lens' a State -> State -> VDom a 
+view :: ∀a. Lens' a State -> State -> VDom a EFFS 
 view lens state = div' [
     class' "ui-flex-center valise-main-container" true,
     class' "open" state.isOpen

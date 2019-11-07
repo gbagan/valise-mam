@@ -10,17 +10,17 @@ range' :: Int -> Int -> Array Int
 range' n m = if n > m then [] else range n m
 infix 8 range' as ..
 
-tabulate :: forall a. Int -> (Int -> a) -> Array a
+tabulate :: ∀a. Int -> (Int -> a) -> Array a
 tabulate 0 _ = []
 tabulate n f = 0 .. (n - 1) <#> f
 
-tabulate2 :: forall a. Int -> Int -> (Int -> Int -> a) -> Array a
+tabulate2 :: ∀a. Int -> Int -> (Int -> Int -> a) -> Array a
 tabulate2 n m f = tabulate (n * m) $ \i -> f (i / m) (i `mod` m)
 
-map2 :: forall a b c. Array a -> Array b -> (Int -> a -> b -> c) -> Array c
+map2 :: ∀a b c. Array a -> Array b -> (Int -> a -> b -> c) -> Array c
 map2 t1 t2 fn = zipWith ($) (mapWithIndex fn t1) t2
 
-map3 :: forall a b c d. Array a -> Array b -> Array c -> (Int -> a -> b -> c -> d) -> Array d
+map3 :: ∀a b c d. Array a -> Array b -> Array c -> (Int -> a -> b -> c -> d) -> Array d
 map3 t1 t2 t3 fn = zipWith ($) (zipWith ($) (mapWithIndex fn t1) t2) t3
 
 rangeStep :: Int -> Int -> Int -> Array Int
@@ -30,11 +30,11 @@ floatRange :: Number -> Number -> Number -> Array Number
 floatRange begin end step = tabulate (max 0 (floor $ 1.0 + (end - begin) / step)) \i -> begin + toNumber i * step
 
 -- [x1, x2, x3, x4] -> [(x1, x2), (x2, x3), (x3, x4)]
-pairwise :: forall a. Array a -> Array (Tuple a a)
+pairwise :: ∀a. Array a -> Array (Tuple a a)
 pairwise list =  maybe [] (zip list) (tail list)
 
 -- échange les éléments à la position i et j, retourne array si une des positions est hors du tableau  
-swap :: forall a. Int -> Int -> Array a -> Array a
+swap :: ∀a. Int -> Int -> Array a -> Array a
 swap i j array = fromMaybe array $ do
     x <- array !! i
     y <- array !! j

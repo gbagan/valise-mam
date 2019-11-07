@@ -12,7 +12,7 @@ data Mode = SoloMode | RandomMode | ExpertMode | DuelMode
 derive instance eqMode :: Eq Mode
 
 
-type PointerPosition = {left :: Number, top :: Number, width :: Number, height :: Number}
+type PointerPosition = {x :: Number, y :: Number}
 
 type CoreState pos ext = {
     position :: pos,
@@ -32,7 +32,7 @@ type CoreState pos ext = {
 
 data GState pos ext = State (CoreState pos ext) ext
 
-defaultCoreState :: forall pos ext. pos -> CoreState pos ext
+defaultCoreState :: ∀pos ext. pos -> CoreState pos ext
 defaultCoreState p = {
     position: p,
     history: [],
@@ -49,49 +49,49 @@ defaultCoreState p = {
     pointer: Nothing
 }
 
-genState :: forall pos ext. pos -> (CoreState pos ext -> CoreState pos ext) -> ext -> GState pos ext
+genState :: ∀pos ext. pos -> (CoreState pos ext -> CoreState pos ext) -> ext -> GState pos ext
 genState p f ext = State (f $ defaultCoreState p) ext
 
-_core :: forall pos ext. Lens' (GState pos ext) (CoreState pos ext)
+_core :: ∀pos ext. Lens' (GState pos ext) (CoreState pos ext)
 _core = lens (\(State c e) -> c) \(State _ ext) x -> State x ext
 
-_position :: forall pos ext. Lens' (GState pos ext) pos
+_position :: ∀pos ext. Lens' (GState pos ext) pos
 _position = _core ∘ lens (_.position) (_{position = _})
 
-_history :: forall pos ext. Lens' (GState pos ext) (Array pos)
+_history :: ∀pos ext. Lens' (GState pos ext) (Array pos)
 _history = _core ∘ lens (_.history) (_{history = _})
 
-_redoHistory :: forall pos ext. Lens' (GState pos ext) (Array pos)
+_redoHistory :: ∀pos ext. Lens' (GState pos ext) (Array pos)
 _redoHistory = _core ∘ lens (_.redoHistory) (_{redoHistory = _})
 
-_mode :: forall pos ext. Lens' (GState pos ext) Mode
+_mode :: ∀pos ext. Lens' (GState pos ext) Mode
 _mode = _core ∘ lens (_.mode) (_{mode = _})
 
-_help :: forall pos ext. Lens' (GState pos ext) Boolean
+_help :: ∀pos ext. Lens' (GState pos ext) Boolean
 _help = _core ∘ lens (_.help) (_{help = _})
 
-_turn :: forall pos ext. Lens' (GState pos ext) Int
+_turn :: ∀pos ext. Lens' (GState pos ext) Int
 _turn = _core ∘ lens (_.turn) (_{turn = _})
 
-_dialog :: forall pos ext. Lens' (GState pos ext) (Dialog (GState pos ext))
+_dialog :: ∀pos ext. Lens' (GState pos ext) (Dialog (GState pos ext))
 _dialog = _core ∘ lens (_.dialog) (_{dialog = _})
 
-_nbRows :: forall pos ext. Lens' (GState pos ext) Int
+_nbRows :: ∀pos ext. Lens' (GState pos ext) Int
 _nbRows = _core ∘ lens (_.nbRows) (_{nbRows = _})
 
-_nbColumns :: forall pos ext. Lens' (GState pos ext) Int
+_nbColumns :: ∀pos ext. Lens' (GState pos ext) Int
 _nbColumns = _core ∘ lens (_.nbColumns) (_{nbColumns = _})
 
-_customSize :: forall pos ext. Lens' (GState pos ext) Boolean
+_customSize :: ∀pos ext. Lens' (GState pos ext) Boolean
 _customSize = _core ∘ lens (_.customSize) (_{customSize = _})
 
-_locked :: forall pos ext. Lens' (GState pos ext) Boolean
+_locked :: ∀pos ext. Lens' (GState pos ext) Boolean
 _locked = _core ∘ lens (_.locked) (_{locked = _})
 
-_showWin :: forall pos ext. Lens' (GState pos ext) Boolean
+_showWin :: ∀pos ext. Lens' (GState pos ext) Boolean
 _showWin = _core ∘ lens (_.showWin) (_{showWin = _})
 
-_pointer :: forall pos ext. Lens' (GState pos ext) (Maybe PointerPosition)
+_pointer :: ∀pos ext. Lens' (GState pos ext) (Maybe PointerPosition)
 _pointer = _core ∘ lens (_.pointer) (_{pointer = _})
 
 data SizeLimit = SizeLimit Int Int Int Int
@@ -105,16 +105,16 @@ class Game pos ext mov | ext -> pos mov where
     computerMove :: GState pos ext -> Maybe (Random mov)
     onNewGame :: GState pos ext -> Random (GState pos ext)
 
-defaultSizeLimit :: forall a. a -> SizeLimit
+defaultSizeLimit :: ∀a. a -> SizeLimit
 defaultSizeLimit _ = SizeLimit 0 0 0 0
 
-defaultOnNewGame :: forall a. a -> Random a
+defaultOnNewGame :: ∀a. a -> Random a
 defaultOnNewGame = pure
 
-changeTurn :: forall pos ext. GState pos ext -> GState pos ext
+changeTurn :: ∀pos ext. GState pos ext -> GState pos ext
 changeTurn state = if state^._mode == DuelMode then state # _turn %~ \x -> 1 - x else state
 
-undoA :: forall pos ext effs. Action (GState pos ext) effs
+undoA :: ∀pos ext effs. Action (GState pos ext) effs
 undoA = action \state -> N.fromArray (state^._history) # maybe state \hs ->
     changeTurn
     $ _position .~ N.last hs
@@ -122,7 +122,7 @@ undoA = action \state -> N.fromArray (state^._history) # maybe state \hs ->
     $ _redoHistory %~ flip snoc (state^._position)
     $ state
 
-redoA :: forall pos ext effs. Action (GState pos ext) effs
+redoA :: ∀pos ext effs. Action (GState pos ext) effs
 redoA = action \state -> N.fromArray (state^._redoHistory) # maybe state  \hs ->
     changeTurn
     $ _position .~ N.last hs
@@ -130,7 +130,7 @@ redoA = action \state -> N.fromArray (state^._redoHistory) # maybe state  \hs ->
     $ _history %~ flip snoc (state^._position)
     $ state
 
-resetA :: forall pos ext effs. Action (GState pos ext) effs
+resetA :: ∀pos ext effs. Action (GState pos ext) effs
 resetA = action \state -> N.fromArray (state^._history) # maybe state \hs ->
     _position .~ N.head hs
     $ _history .~ []
@@ -138,10 +138,10 @@ resetA = action \state -> N.fromArray (state^._history) # maybe state \hs ->
     $ _turn .~ 0
     $ state
 
-toggleHelpA :: forall pos ext effs. Action (GState pos ext) effs
+toggleHelpA :: ∀pos ext effs. Action (GState pos ext) effs
 toggleHelpA = action (_help %~ not)
 
-playAux :: forall pos ext mov. Game pos ext mov => mov -> GState pos ext -> GState pos ext
+playAux :: ∀pos ext mov. Game pos ext mov => mov -> GState pos ext -> GState pos ext
 playAux move state =
     if canPlay state move then
         let position = state^._position in
@@ -150,17 +150,17 @@ playAux move state =
     else
         state
 
-pushToHistory :: forall pos ext. GState pos ext -> GState pos ext
+pushToHistory :: ∀pos ext. GState pos ext -> GState pos ext
 pushToHistory state = state # _history %~ flip snoc (state^._position) # _redoHistory .~ []
 
-showVictory :: forall pos ext effs. Action (GState pos ext) (delay :: DELAY | effs)
+showVictory :: ∀pos ext effs. Action (GState pos ext) (delay :: DELAY | effs)
 showVictory = do
     setState $ _showWin .~ true
     delay 1000
     setState $ _showWin .~ false
 
 
-computerPlay :: forall pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
+computerPlay :: ∀pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
 computerPlay = do
     state <- getState
     computerMove state # maybe (pure unit) \rndmove -> do
@@ -170,17 +170,14 @@ computerPlay = do
         else
             pure unit
 
-computerStartsA :: forall pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
-computerStartsA = do
-    action pushToHistory
-    computerPlay
-
+computerStartsA :: ∀pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
+computerStartsA = action pushToHistory *> computerPlay
 
 type PlayOption = {
     showWin :: Boolean
 }
 
-playA' :: forall pos ext mov effs. Game pos ext mov => (PlayOption -> PlayOption) -> mov -> 
+playA' :: ∀pos ext mov effs. Game pos ext mov => (PlayOption -> PlayOption) -> mov -> 
     Action (GState pos ext) (delay :: DELAY, rng :: RNG | effs)
 playA' optionFn move = lockAction $ do 
     state <- getState
@@ -197,13 +194,13 @@ playA' optionFn move = lockAction $ do
         else 
             pure unit
 
-playA :: forall pos ext mov effs. Game pos ext mov => mov -> Action (GState pos ext) (delay :: DELAY, rng :: RNG | effs)
+playA :: ∀pos ext mov effs. Game pos ext mov => mov -> Action (GState pos ext) (delay :: DELAY, rng :: RNG | effs)
 playA = playA' identity
 
 
 -- affecte à true l'attribut locked avant le début de l'action act et l'affecte à false à la fin de l'action
 -- fonctionne sur toute la durée d'une action asynchrone
-lockAction :: forall pos ext effs. Action (GState pos ext) effs -> Action (GState pos ext) effs 
+lockAction :: ∀pos ext effs. Action (GState pos ext) effs -> Action (GState pos ext) effs 
 lockAction act = do
     state <- getState
     if state^._locked then
@@ -213,7 +210,7 @@ lockAction act = do
         act
         setState $ _locked .~ false
 
-newGameAux :: forall pos ext mov. Game pos ext mov =>
+newGameAux :: ∀pos ext mov. Game pos ext mov =>
     (GState pos ext -> GState pos ext) -> (GState pos ext) -> Random (GState pos ext)
 newGameAux f = \state ->
     let state2 = f state in do
@@ -230,22 +227,22 @@ newGameAux f = \state ->
         else
             pure $ _dialog .~ ConfirmNewGame state4 $ state
 
-newGame :: forall pos ext mov effs. Game pos ext mov =>
+newGame :: ∀pos ext mov effs. Game pos ext mov =>
     (GState pos ext -> GState pos ext) -> Action (GState pos ext) (rng :: RNG | effs)
 newGame f = randomAction $ newGameAux f
 
-newGame' :: forall a pos ext mov effs. Game pos ext mov =>
+newGame' :: ∀a pos ext mov effs. Game pos ext mov =>
     (a -> GState pos ext -> GState pos ext) -> a -> Action (GState pos ext) (rng :: RNG | effs)
 newGame' f val = newGame $ f val
 
-init :: forall pos ext mov. Game pos ext mov => GState pos ext -> Effect (GState pos ext)
+init :: ∀pos ext mov. Game pos ext mov => GState pos ext -> Effect (GState pos ext)
 init st = genSeed <#> \seed -> runRnd seed $ newGameAux identity st
 
 
-setModeA :: forall pos ext mov effs. Game pos ext mov => Mode -> Action (GState pos ext) (rng :: RNG | effs)
+setModeA :: ∀pos ext mov effs. Game pos ext mov => Mode -> Action (GState pos ext) (rng :: RNG | effs)
 setModeA = newGame' (set _mode)
 
-setGridSizeA :: forall pos ext mov effs. Game pos ext mov => Int -> Int -> Boolean -> Action (GState pos ext) (rng :: RNG | effs)
+setGridSizeA :: ∀pos ext mov effs. Game pos ext mov => Int -> Int -> Boolean -> Action (GState pos ext) (rng :: RNG | effs)
 setGridSizeA nbRows nbColumns customSize = newGame $ setSize' ∘ (_customSize .~ customSize) where
     setSize' state =
         if nbRows >= minrows && nbRows <= maxrows && nbColumns >= mincols && nbColumns <= maxcols then
@@ -254,7 +251,7 @@ setGridSizeA nbRows nbColumns customSize = newGame $ setSize' ∘ (_customSize .
             state
         where SizeLimit minrows mincols maxrows maxcols = sizeLimit state
 
-confirmNewGameA :: forall pos ext effs. GState pos ext -> Action (GState pos ext) effs
+confirmNewGameA :: ∀pos ext effs. GState pos ext -> Action (GState pos ext) effs
 confirmNewGameA st = action \_ -> st # _dialog .~ NoDialog
 
 class Game pos ext mov <= TwoPlayersGame pos ext mov | ext -> pos mov  where
@@ -262,7 +259,7 @@ class Game pos ext mov <= TwoPlayersGame pos ext mov | ext -> pos mov  where
     possibleMoves :: GState pos ext -> Array mov
 
 
-computerMove' :: forall pos ext mov. TwoPlayersGame pos ext mov => GState pos ext -> Maybe (Random mov)
+computerMove' :: ∀pos ext mov. TwoPlayersGame pos ext mov => GState pos ext -> Maybe (Random mov)
 computerMove' state =
     if isLevelFinished state then
         Nothing
@@ -276,13 +273,13 @@ computerMove' state =
                         moves # N.toArray # find (isLosingPosition ∘ flip playAux state)
                 ) in
                     (bestMove <#> pure) <|> Just (randomPick moves)
-
-{-                    
-dropA :: forall pos ext dnd. Eq dnd =>  Game pos ext {from :: dnd, to :: dnd} =>
-            Lens' (GState pos ext) (Maybe dnd) -> dnd -> Action (GState pos ext)
-dropA dragLens to = asyncAction \{dispatch, getState, updateState} state -> do
+                
+dropA :: ∀pos ext dnd effs. Eq dnd =>  Game pos ext {from :: dnd, to :: dnd} =>
+            Lens' (GState pos ext) (Maybe dnd) -> dnd -> Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
+dropA dragLens to = do
+    state <- getState
     case state ^. dragLens of
-        Nothing -> pure state
+        Nothing -> pure unit
         Just drag -> do
-            _ <- updateState (dragLens .~ Nothing)
-            if drag /= to then dispatch (playA { from: drag, to }) else pure state
+            setState (dragLens .~ Nothing)
+            if drag /= to then playA { from: drag, to } else pure unit

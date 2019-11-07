@@ -1,24 +1,20 @@
 module Main where
 
-
 import MyPrelude
 import Data.String (drop, indexOf)
 import Data.String.Pattern (Pattern (..))
 import Effect (Effect)
 import Pha (VDom, app, whenN)
-import Pha.Action (Action, (🔍), DelayF(..), RngF(..), GetEventF(..))
+import Pha.Action (Action, (🔍))
 import Pha.Html (div', a, svguse, key, class', href)
-import Lib.Random (genSeed)
--- import Pha.Event (key) as E
-import Run (match)
+import Pha.Event (key) as E
 import Game (class CGame, init, view, onKeyDown) as G
-import Game.Types (EFFS)
+import Game.Effs (EFFS, delay, getLoc, getLocation, getEvent, getState, setState, interpretEffects)
 import Game.Baseball (State, state) as Baseball
 import Game.Chocolat (State, state) as Chocolat
 import Game.Frog (State, state) as Frog
-{-
 import Game.Jetons (State, state) as Jetons
-import Game.Labete (State, state) as Labete
+--import Game.Labete (State, state) as Labete
 import Game.Nim (State, state) as Nim
 import Game.Noirblanc (State, state) as Noirblanc
 import Game.Paths (State, state) as Paths
@@ -27,8 +23,8 @@ import Game.Roue (State, state) as Roue
 import Game.Solitaire (State, state) as Solitaire
 import Game.Tiling (State, state) as Tiling
 import Game.Valise (State, state, is) as Valise
-import Game.Valise.Model (enterA) as ValiseM
--}
+import Game.Valise.Model (enterA, leaveA) as ValiseM
+
 
 extractLocation :: String -> String -> String
 extractLocation url defaultValue =
@@ -37,9 +33,9 @@ extractLocation url defaultValue =
 type RootState = {
     baseball :: Baseball.State, 
     chocolat :: Chocolat.State, 
-    frog :: Frog.State, {-
+    frog :: Frog.State,
     jetons :: Jetons.State,
-    labete :: Labete.State,
+    -- labete :: Labete.State,
     nim :: Nim.State,
     noirblanc :: Noirblanc.State,
     paths :: Paths.State,
@@ -48,7 +44,6 @@ type RootState = {
     solitaire :: Solitaire.State,
     tiling :: Tiling.State,
     valise :: Valise.State,
-    -}
     location :: String,
     anim :: Boolean
 }
@@ -61,12 +56,12 @@ _chocolat = lens (_.chocolat) (_{chocolat = _})
 
 _frog :: Lens' RootState Frog.State
 _frog = lens (_.frog) (_{frog = _})
-{-
+
 _jetons :: Lens' RootState Jetons.State
 _jetons = lens (_.jetons) (_{jetons = _})
 
-_labete :: Lens' RootState Labete.State
-_labete = lens (_.labete) (_{labete = _})
+-- _labete :: Lens' RootState Labete.State
+-- _labete = lens (_.labete) (_{labete = _})
 
 _nim :: Lens' RootState Nim.State
 _nim = lens (_.nim) (_{nim = _})
@@ -91,50 +86,49 @@ _tiling = lens (_.tiling) (_{tiling = _})
 
 _valise :: Lens' RootState Valise.State
 _valise = lens (_.valise) (_{valise = _})
--}
 
-foreign import getLocationHref :: Effect String
-foreign import setTimeout :: Int -> Effect Unit -> Effect Unit
-
-{-
-hashChange :: String -> Action RootState
-hashChange hash = asyncAction \{getState, updateState, dispatch} _ -> do
-    let location = extractLocation hash "valise"
-    _ <- updateState (_{location = location, anim = true})
-    _ <- forkAff $ do
-        delay $ Milliseconds 100.0
-        updateState (_{location = location, anim = false})
+hashChange :: Action RootState EFFS
+hashChange = do
+    loc <- getLocation
+    let location = extractLocation loc.hash "valise"
     if location == "valise" || location == "" then do
-        dispatch ((_valise <<< Valise.is) 🔍 ValiseM.enterA)
-    else
-        getState
--}
-{-
-init2 :: Action RootState
-init2 = hashChange `withPayload'` \e -> getLocationHref
--}
+        setState (_{location = location, anim = true})
+        delay 100
+        setState (_{location = location, anim = false})
+        _valise <<< Valise.is 🔍 ValiseM.enterA
+    else do
+        _valise <<< Valise.is 🔍 ValiseM.leaveA
+        setState (_{location = location, anim = true})
+        delay 100
+        setState (_{location = location, anim = false})
+    
 
-sliceFn :: forall a. RootState -> (forall b. G.CGame b => (Lens' RootState b) -> a)  -> a
+init2 :: Action RootState EFFS
+init2 = hashChange
+
+sliceFn :: ∀a. RootState -> (∀b. G.CGame b => (Lens' RootState b) -> a)  -> a
 sliceFn state fn = case state.location of
     "baseball" -> fn _baseball
     "chocolat" -> fn _chocolat 
-    "frog" -> fn _frog {-
+    "frog" -> fn _frog
     "jetons" -> fn _jetons
-    "labete" -> fn _labete
+    -- "labete" -> fn _labete
+    "nim" -> fn _nim
     "noirblanc" -> fn _noirblanc
     "paths" -> fn _paths
     "roue" -> fn _roue
     "queens" -> fn _queens
     "solitaire" -> fn _solitaire
     "tiling" -> fn _tiling
-    "nim" -> fn _nim -}
-    _ -> fn _baseball
+    _ -> fn _valise
 
-{-
-onKeyDown :: (Maybe String) -> Action RootState
-onKeyDown k = asyncAction \{dispatch} state ->
-    k # maybe (pure state) \k' -> dispatch (sliceFn state \lens -> lens 🔍 G.onKeyDown k')
--}
+onKeyDown :: Action RootState EFFS
+onKeyDown = do
+    ev <- getEvent
+    state <- getState
+    case E.key ev of
+        Nothing  -> pure unit
+        Just k -> sliceFn state \lens -> lens 🔍 G.onKeyDown k
 
 viewG :: RootState -> VDom RootState EFFS
 viewG state = div' [
@@ -156,13 +150,13 @@ viewGame st = sliceFn st \lens -> G.view lens (st ^. lens)
 
 main :: Effect Unit
 main = do
-    locationHref <- getLocationHref
-    let location = extractLocation locationHref "valise"
+    loc <- getLoc
+    let location = extractLocation loc.hash "valise"
     baseballState <- G.init Baseball.state
     chocolatState <- G.init Chocolat.state
-    frogState <- G.init Frog.state {-
+    frogState <- G.init Frog.state
     jetonsState <- G.init Jetons.state
-    labeteState <- G.init Labete.state
+    -- labeteState <- G.init Labete.state
     nimState <- G.init Nim.state
     noirblancState <- G.init Noirblanc.state
     pathState <- G.init Paths.state
@@ -171,13 +165,13 @@ main = do
     solitaireState <- G.init Solitaire.state
     tilingState <- G.init Tiling.state
     valiseState <- G.init Valise.state
--}
+
     let state = {
         baseball: baseballState, 
         chocolat: chocolatState,
-        frog: frogState, {-
+        frog: frogState,
         jetons: jetonsState,
-        labete: labeteState,
+        -- labete: labeteState,
         nim: nimState,
         noirblanc: noirblancState,
         paths: pathState,
@@ -186,22 +180,17 @@ main = do
         solitaire: solitaireState,
         tiling: tilingState,
         valise: valiseState,
-        -}
         location: location,
-        anim: false
+        anim: true  --- empèche l'animation à l'ouverture de la page
     }
     app {
         state,
         view: viewG,
         node: "root",
         events: [
-              --  Tuple "keydown" (onKeyDown `withPayload` E.key),
-              --  Tuple "hashchange" (hashChange `withPayload'` \e -> getLocationHref)
+            Tuple "keydown" onKeyDown,
+            Tuple "hashchange" hashChange
         ],
-        effects: \ev -> match {
-            delay: \(Delay ms cont) -> setTimeout ms cont,
-            rng: \(Rng cont) -> genSeed >>= cont,
-            event: \(GetEvent cont) -> cont ev
-        },
-        init: pure unit-- init2
+        effects: interpretEffects,
+        init: init2
     }

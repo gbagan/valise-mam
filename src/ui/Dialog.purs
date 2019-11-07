@@ -11,7 +11,7 @@ type DialogOptions a effs = {
     onCancel :: Maybe (Action a effs)
 }
 
-dialog :: forall a effs. DialogOptions a effs -> Array (VDom a effs) -> VDom a effs
+dialog :: ∀a effs. DialogOptions a effs -> Array (VDom a effs) -> VDom a effs
 dialog {title, onOk, onCancel} children =
     div' [class' "ui-absolute ui-flex-center ui-dialog-container" true] [
         div' [class' "ui-dialog" true] [

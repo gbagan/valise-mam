@@ -1,8 +1,6 @@
 module Game.Valise.Model where
 import MyPrelude
-import Effect.Aff (delay)
-import Pha.Action (Action, action, asyncAction)
-import Data.Time.Duration (Milliseconds(..))
+import Pha.Action (Action, action, DELAY, delay, setState)
 
 type State = {
     isOpen :: Boolean,
@@ -36,26 +34,28 @@ _pawPassings = lens (_.pawPassings) (_{pawPassings = _})
 _isSwitchOn :: Lens' State Boolean
 _isSwitchOn = lens (_.isSwitchOn) (_{isSwitchOn = _})
 
-
-incPawPassingsA :: Action State
+incPawPassingsA :: ∀effs. Action State effs
 incPawPassingsA = action $ _pawPassings %~ \x -> min 4 (x + 1)
 
-showHelpA :: String -> Action State
+showHelpA :: ∀effs. String -> Action State effs
 showHelpA help = action $ (_help %~ if help == "" then identity else const help) ∘ (_helpVisible .~ (help /= ""))
 
-toggleSwitchA :: Action State
+toggleSwitchA :: ∀effs. Action State effs
 toggleSwitchA = action $ _isSwitchOn %~ not
 
-enterA :: Action State
-enterA = asyncAction \{updateState, dispatch} _ -> do
-    _ <- updateState (\st -> st{
-          isOpen = false,
-         -- drag: null,
+enterA :: ∀effs. Action State (delay :: DELAY | effs) 
+enterA = do
+    delay 1500
+    setState (_{isOpen = true})
+
+leaveA :: ∀effs. Action State effs 
+leaveA = setState (\st -> st{
+    isOpen = false,
+     -- drag: null,
 --        help: null,
 --        position: {},
-          helpVisible = false })
-    delay $ Milliseconds 1500.0
-    updateState (_{isOpen = true})
+    helpVisible = false
+})
 
 {-
 --const actions = {

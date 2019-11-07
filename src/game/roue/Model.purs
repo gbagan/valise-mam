@@ -1,11 +1,10 @@
 module Game.Roue.Model where
 
 import MyPrelude
-import Data.Time.Duration (Milliseconds(..))
-import Effect.Aff (delay)
 import Lib.Util (swap)
+import Control.Monad.Rec.Class (tailRecM, Step(..))
 import Game.Core (class Game, GState(..), genState, newGame', lockAction, _position, _showWin, defaultSizeLimit)
-import Pha.Action (Action, action, asyncAction)
+import Pha.Action (Action, action, delay, DELAY, RNG, getState, setState)
 
 type Position = Array (Maybe Int)
 
@@ -51,30 +50,30 @@ validRotation state = validRotation' state && (all isJust $ state^._position )
 rotate :: Int -> State -> State
 rotate i = _rotation %~ add i
 
-rotateA :: Int -> Action State
+rotateA :: ∀effs. Int -> Action State effs
 rotateA i = action $ rotate i
 
-setSizeA :: Int -> Action State
+setSizeA :: ∀effs. Int -> Action State (rng :: RNG | effs)
 setSizeA = newGame' (set _size)
 
 
-checkA :: Action State
-checkA = lockAction $ asyncAction \h state ->
-    aux h (state^._size) where
-    aux h 0 = do
-        _ <- h.updateState (_showWin .~ true)
-        delay $ Milliseconds 1000.0
-        h.updateState (_showWin .~ false)
-    aux h i = do
-        st2 <- h.getState
+checkA :: ∀effs. Action State (delay :: DELAY | effs)
+checkA = lockAction $ getState >>= \st -> tailRecM go (st^._size) where
+    go 0 = do
+        setState (_showWin .~ true)
+        delay $ 1000
+        setState (_showWin .~ false)
+        pure (Done unit)
+    go i = do
+        st2 <- getState
         if not (validRotation st2) then
-            pure st2
+            pure (Done unit)
         else do
-            _ <- h.updateState (rotate 1)
-            delay $ Milliseconds 600.0
-            aux h (i-1)
+            setState (rotate 1)
+            delay 600
+            pure $ Loop (i-1)
 
-deleteDraggedA :: Action State
+deleteDraggedA :: ∀effs. Action State effs
 deleteDraggedA = action \state ->
     let state2 = state # _dragged .~ Nothing in
     state^._dragged # maybe state2 case _ of

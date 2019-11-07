@@ -6,6 +6,7 @@ import Pha.Action ((🔍))
 import Pha.Html (div', span, br, svg, g, rect, use, key, attr, class', style, click,  pointerdown, pointerup, pointerleave,
                 fill, stroke, strokeWidth, transform, viewBox, width, height)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, playA)
+import Game.Effs (EFFS)
 import Game.Labete.Model (State, Mode(..), _mode, _beastIndex, nonTrappedBeastOnGrid, setModeA, setHelpA, setBeastA)
 import Lib.Util (coords, map2)
 import UI.Template (template, card, incDecGrid, gridStyle, trackPointer, svgCursorStyle)
@@ -32,7 +33,7 @@ const Zone = ({ x1, y1, x2, y2, color }) =>
 modes :: Array Mode
 modes = [StandardMode, CylinderMode, TorusMode]
 
-square :: ∀a. { hasTrap :: Boolean, hasBeast :: Boolean, row :: Int, col :: Int} -> Array (Prop a) -> VDom a
+square :: ∀a effs. { hasTrap :: Boolean, hasBeast :: Boolean, row :: Int, col :: Int} -> Array (Prop a effs) -> VDom a effs
 square { hasTrap, hasBeast, row, col } props =
     g ([transform $ "translate(" <> show (50 * col) <> " " <> show(50 * row) <> ")"] <> props) [
         use 0.0 0.0 50.0 50.0 "#grass" [fill "#5aa02c"], -- fromMaybe "blackcolors[color] }),
@@ -42,7 +43,7 @@ square { hasTrap, hasBeast, row, col } props =
             use 5.0 5.0 40.0 40.0 "#trap" []
     ]
 
-ihelp ::∀a. Lens' a State -> State -> VDom a
+ihelp :: ∀a. Lens' a State -> State -> VDom a EFFS
 ihelp lens state =
     iconbutton
         state
@@ -52,7 +53,7 @@ ihelp lens state =
             pointerleave $ lens 🔍 setHelpA false
         ]
 
-view :: ∀a. Lens' a State -> State -> VDom a
+view :: ∀a. Lens' a State -> State -> VDom a EFFS
 view lens state = template lens {config, board, rules, winTitle} state where
     rows = state^._nbRows
     columns = state^._nbColumns

@@ -2,7 +2,7 @@ module Game.Labete.Model where
 import MyPrelude
 import Lib.Util (tabulate2)
 import Data.Array (updateAtIndices)
-import Pha.Action (Action, action)
+import Pha.Action (Action, action, RNG)
 import Game.Core (class Game, SizeLimit(..), GState(..),
                    genState, newGame', _position, _nbRows, _nbColumns, _help)
 
@@ -127,15 +127,14 @@ instance labeteGame :: Game (Array Boolean) ExtState Int where
             isCustomLevel: F,
         },
     -}
-setModeA :: Mode -> Action State
+setModeA :: ∀effs. Mode -> Action State (rng :: RNG | effs)
 setModeA = newGame' (set _mode)
 
-setHelpA :: Boolean -> Action State
+setHelpA :: ∀effs. Boolean -> Action State effs
 setHelpA a = action (_help .~ a)
 
-setBeastA :: Int -> Action State
+setBeastA :: ∀effs.  Int -> Action State (rng :: RNG | effs)
 setBeastA = newGame' (set _beastIndex)
-
 
 abs :: Int -> Int
 abs x = if x < 0 then -x else x
@@ -153,15 +152,15 @@ colorZone state zone = state^._squareColors # updateAtIndices (
     <#> \i -> Tuple i (state^._selectedColor)
 )
 
-incSelectedColorA :: Int -> Action State
+incSelectedColorA :: ∀effs. Int -> Action State effs
 incSelectedColorA x = action $ _selectedColor %~ \y -> (x + y + 9) `mod` 9
 
-startZone index action $ set _zoneStart %~ {index}),
+--startZone index action $ set _zoneStart %~ {index}),
 
-startZone state => set('zoneStart', merge({
-    left: 100 * state.pointer.left / state.pointer.width,
-    top: 100 * state.pointer.top / state.pointer.height,
-})),
+--startZone state => set('zoneStart', merge({
+--    left: 100 * state.pointer.left / state.pointer.width,
+--    top: 100 * state.pointer.top / state.pointer.height,
+--})),
 
     {-
 

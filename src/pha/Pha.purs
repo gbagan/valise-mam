@@ -5,10 +5,7 @@ import Effect (Effect)
 import Pha.Action (Action, Event, GetStateF(..), SetStateF(..))
 import Data.Maybe (Maybe, fromMaybe)
 import Data.Tuple (Tuple)
-import Run (VariantF, runCont, onMatch, match)
-import Prim.RowList (class RowToList)
-import Prim.Row (class Union)
-import Data.Variant.Internal (class VariantFMatchCases)
+import Run (VariantF, runCont, onMatch)
 
 foreign import data VDom :: Type -> #Type -> Type
 

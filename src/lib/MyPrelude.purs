@@ -5,7 +5,7 @@ import Data.Tuple (Tuple(..), fst, snd) as Exports
 import Math (cos, sin, pi, sqrt) as Exports
 import Data.Maybe (Maybe(..), maybe, fromMaybe, isJust, isNothing) as Exports
 import Data.Foldable (class Foldable, foldl, foldr, elem, any, all, and, or) as Exports
-import Data.Array ((!!), head, last, cons, snoc, filter, find, take, null, length, 
+import Data.Array ((!!), head, last, cons, snoc, filter, find, take, null, length, mapMaybe,
         replicate, reverse, updateAt, modifyAt, mapWithIndex, concat, concatMap, sortWith, zipWith) as Exports
 import Data.Lens (Lens', lens, set, Iso', iso, view, over, (^.), (.~), (%~)) as Exports
 import Data.Lens.Index (ix) as Exports

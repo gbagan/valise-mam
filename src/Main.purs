@@ -12,9 +12,10 @@ import Game (class CGame, init, view, onKeyDown) as G
 import Game.Effs (EFFS, delay, getLoc, getLocation, getEvent, getState, setState, interpretEffects)
 import Game.Baseball (State, state) as Baseball
 import Game.Chocolat (State, state) as Chocolat
+import Game.Dessin (State, state) as Dessin
 import Game.Frog (State, state) as Frog
 import Game.Jetons (State, state) as Jetons
---import Game.Labete (State, state) as Labete
+import Game.Labete (State, state) as Labete
 import Game.Nim (State, state) as Nim
 import Game.Noirblanc (State, state) as Noirblanc
 import Game.Paths (State, state) as Paths
@@ -32,10 +33,11 @@ extractLocation url defaultValue =
 
 type RootState = {
     baseball :: Baseball.State, 
-    chocolat :: Chocolat.State, 
+    chocolat :: Chocolat.State,
+    dessin :: Dessin.State,
     frog :: Frog.State,
     jetons :: Jetons.State,
-    -- labete :: Labete.State,
+    labete :: Labete.State,
     nim :: Nim.State,
     noirblanc :: Noirblanc.State,
     paths :: Paths.State,
@@ -54,14 +56,17 @@ _baseball = lens (_.baseball) (_{baseball = _})
 _chocolat :: Lens' RootState Chocolat.State
 _chocolat = lens (_.chocolat) (_{chocolat = _})
 
+_dessin :: Lens' RootState Dessin.State
+_dessin = lens (_.dessin) (_{dessin = _})
+
 _frog :: Lens' RootState Frog.State
 _frog = lens (_.frog) (_{frog = _})
 
 _jetons :: Lens' RootState Jetons.State
 _jetons = lens (_.jetons) (_{jetons = _})
 
--- _labete :: Lens' RootState Labete.State
--- _labete = lens (_.labete) (_{labete = _})
+_labete :: Lens' RootState Labete.State
+_labete = lens (_.labete) (_{labete = _})
 
 _nim :: Lens' RootState Nim.State
 _nim = lens (_.nim) (_{nim = _})
@@ -109,10 +114,11 @@ init2 = hashChange
 sliceFn :: ∀a. RootState -> (∀b. G.CGame b => (Lens' RootState b) -> a)  -> a
 sliceFn state fn = case state.location of
     "baseball" -> fn _baseball
-    "chocolat" -> fn _chocolat 
+    "chocolat" -> fn _chocolat
+    "dessin" -> fn _dessin
     "frog" -> fn _frog
     "jetons" -> fn _jetons
-    -- "labete" -> fn _labete
+    "labete" -> fn _labete
     "nim" -> fn _nim
     "noirblanc" -> fn _noirblanc
     "paths" -> fn _paths
@@ -154,9 +160,10 @@ main = do
     let location = extractLocation loc.hash "valise"
     baseballState <- G.init Baseball.state
     chocolatState <- G.init Chocolat.state
+    dessinState <- G.init Dessin.state
     frogState <- G.init Frog.state
     jetonsState <- G.init Jetons.state
-    -- labeteState <- G.init Labete.state
+    labeteState <- G.init Labete.state
     nimState <- G.init Nim.state
     noirblancState <- G.init Noirblanc.state
     pathState <- G.init Paths.state
@@ -169,9 +176,10 @@ main = do
     let state = {
         baseball: baseballState, 
         chocolat: chocolatState,
+        dessin: dessinState,
         frog: frogState,
         jetons: jetonsState,
-        -- labete: labeteState,
+        labete: labeteState,
         nim: nimState,
         noirblanc: noirblancState,
         paths: pathState,

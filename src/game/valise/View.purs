@@ -4,7 +4,7 @@ import Game.Effs (EFFS)
 import Game.Valise.Model (State, showHelpA)
 import Pha (VDom, Prop, h, text, maybeN)
 import Pha.Action ((🔍))
-import Pha.Html (div', a, svg, g, class', svguse, href, width, height, viewBox, fill, transform, x, y,
+import Pha.Html (div', a, svg, g, class', svguse, attr, href, width, height, viewBox, fill, transform, x, y,
     pointerenter, pointerleave)
 
 pos :: ∀a effs. Int -> Int -> Int -> Int -> Array (Prop a effs)
@@ -59,7 +59,7 @@ valise lens state = svg [viewBox 0 0 825 690] [
         object {symbol: "knight", link: Just "queens", help: "Jeu: les 8 reines", drag: false}
             461 380 24 48 [transform "rotate(40)"] [],
     
-        object { symbol: "pen", link: Nothing, help: "Jeu: dessin (non implémenté)", drag: false}
+        object { symbol: "pen", link: Just "dessin", help: "Jeu: dessin", drag: false}
             610 400 60 60 [] [],
         
         object {symbol: "stack", link: Just "jetons", help: "Jeu: jetons", drag: false}
@@ -88,15 +88,15 @@ valise lens state = svg [viewBox 0 0 825 690] [
                     class: `valise-pawimage valise-paw-${i}`
                 })
             ),
-            Object({
-                symbol: 'paw',
-                class: 'valise-pawimage valise-paw-3 valise-paw',
-                style: {opacity: state.pawPassings*0.1},
-                help: state.pawPassings === 4 ? 'Jeu: La bête' : 'Trouve un moyen de dévoiler l\'empreinte cachée',
-                onpointerleave: actions.incPawPassings,
-                link: state.pawPassings === 4 && 'labete'
-            }),
-        -}
+            -}
+        object {symbol: "paw", link: Just "labete", help: "Jeu: la bête", drag: false}
+            300 180 40 40 [transform "rotate(30)", attr "opacity" "0.7"] [],
+        --        class: 'valise-pawimage valise-paw-3 valise-paw',
+        --        style: {opacity: state.pawPassings*0.1},
+        --        help: state.pawPassings === 4 ? 'Jeu: La bête' : 'Trouve un moyen de dévoiler l\'empreinte cachée',
+        --        onpointerleave: actions.incPawPassings,
+        --        link: state.pawPassings === 4 && 'labete'
+
         object {symbol: "quiet", link: Nothing, help: "Jeu: preuve sans mot", drag: false}
             180 130 50 50 [] [],
 

@@ -4,7 +4,7 @@ import MyPrelude
 import Data.FoldableWithIndex (allWithIndex)
 import Lib.Util (swap, (..))
 import Lib.Random (shuffle, randomInt)
-import Pha.Action (Action)
+import Pha.Action (Action, RNG)
 import Game.Core (class Game, GState(..), genState, newGame', _position, defaultSizeLimit)
 
 type Ext' = { nbBases :: Int, missingPeg :: Int }
@@ -38,5 +38,5 @@ instance baseballGame :: Game (Array Int) ExtState Int where
     computerMove = const Nothing
     sizeLimit = defaultSizeLimit
     
-setNbBases :: Int -> Action State
+setNbBases :: forall effs. Int -> Action State (rng :: RNG | effs)
 setNbBases = newGame' (set _nbBases)

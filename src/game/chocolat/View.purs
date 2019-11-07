@@ -2,6 +2,7 @@ module Game.Chocolat.View where
   
 import MyPrelude
 import Lib.Util (tabulate2)
+import Game.Types (EFFS)
 import Game.Core (_position, _nbRows, _nbColumns, possibleMoves, playA)
 import Game.Chocolat.Model (State, Move(..), SoapMode(..), _soap, _soapMode, setSoapModeA) 
 import Pha (VDom, text)
@@ -15,7 +16,7 @@ inside :: State -> Int -> Int -> Boolean
 inside state row col = col >= left && col <= right - 1 && row >= top && row <= bottom - 1
     where {left, right, top, bottom} = state^._position
     
-view :: forall a. Lens' a State -> State -> VDom a
+view :: forall a. Lens' a State -> State -> VDom a EFFS
 view lens state = template lens {config, board, rules, winTitle} state where
     pos = state^._position
     rows = state^._nbRows

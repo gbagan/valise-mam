@@ -43,16 +43,33 @@ _rng = SProxy :: SProxy "rng"
 rng :: forall r. Run (rng :: RNG | r) Seed
 rng = lift _rng (Rng identity)
 
+data GetEventF a = GetEvent (Event -> a)
+derive instance functorEvF :: Functor GetEventF
+type EVENT = FProxy GetEventF
+_getEvent = SProxy :: SProxy "event"
+getEvent :: forall r. Run (event :: EVENT | r) Event
+getEvent = lift _getEvent (GetEvent identity)
+
 type Action st effs = Run (getState :: GETSTATE st, setState :: SETSTATE st | effs) Unit
 
 action :: forall effs st. (st -> st) -> Action st effs
 action fn = setState fn
+
+setState' :: forall effs st. (st -> st) -> Run (getState :: GETSTATE st, setState :: SETSTATE st | effs) st
+setState' fn = do
+    setState fn
+    getState
 
 randomAction :: forall effs st. (st -> Random st) -> Action st (rng :: RNG | effs)
 randomAction fn = do
     st <- getState
     st2 <- rng <#> \x -> runRnd x (fn st)
     setState (\_ -> st2)
+
+randomAction' :: forall effs st. (st -> Random st) ->  Run (getState :: GETSTATE st, setState :: SETSTATE st, rng :: RNG | effs) st
+randomAction' fn = do
+    randomAction fn
+    getState
 
 lensVariant :: forall st1 st2 v. Lens' st1 st2 -> VariantF (getState :: GETSTATE st2, setState :: SETSTATE st2 | v) ~>
                                                    VariantF (getState :: GETSTATE st1, setState :: SETSTATE st1 | v)

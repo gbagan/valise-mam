@@ -3,7 +3,7 @@ import MyPrelude
 import Data.Int.Bits ((.^.))
 import Lib.Util ((..))
 import Lib.Random (randomInt)
-import Pha.Action (Action)
+import Pha.Action (Action, RNG)
 import Game.Core (class Game, class TwoPlayersGame, SizeLimit(..), GState(..), Mode(..),
                    genState, newGame', computerMove', _position, _nbRows, _nbColumns)
 
@@ -70,5 +70,5 @@ instance chocolat2Game :: TwoPlayersGame {left :: Int, top :: Int, right :: Int,
         ((left + 1) .. col <#> FromLeft) <> ((col + 1) .. (right - 1) <#> FromRight)
         <> ((top + 1) .. row <#> FromTop) <> ((row + 1) .. (bottom - 1) <#> FromBottom) 
 
-setSoapModeA :: SoapMode -> Action State
+setSoapModeA :: forall effs. SoapMode -> Action State (rng :: RNG | effs)
 setSoapModeA = newGame' (set _soapMode)

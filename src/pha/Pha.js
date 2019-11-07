@@ -311,15 +311,15 @@ const recycleNode = node =>
         RECYCLED_NODE
       )
 
-const appAux = props => () => {
-  const {view, launchAff, events, init} = props
+const appAux = disp => props => () => {
+  const {view, events, effects, init} = props
   let state = {};
   let lock = false
   let node = document.getElementById(props.node);
   let vdom = node && recycleNode(node);
 
   const listener = function(event) {
-    launchAff(this.actions[event.type](dispatch)(event))();
+      disp(() => state)(dispatch)(effects(event))(this.actions[event.type])();
   }
 
   const setState = newState => {
@@ -333,8 +333,8 @@ const appAux = props => () => {
   const dispatch = fn => () => setState(fn(state));
 
   const rawEvent = (name, action) => {
-     const listener = event => launchAff(action(dispatch)(event))();
-     addEventListener (name, listener);
+     //const listener = event => disp(action(dispatch)(event))();
+     //addEventListener (name, listener);
    }
 
 
@@ -352,7 +352,7 @@ const appAux = props => () => {
   for (let i = 0; i < events.length; i++) {
      rawEvent(events[i].value0, events[i].value1);
   }
-  launchAff(init(dispatch)(undefined))();
+  //launchAff(init(dispatch)(undefined))();
 }
 
 const h = isStyle => name => ps => children => {
@@ -366,7 +366,7 @@ const h = isStyle => name => ps => children => {
         const value1 = obj.value1;
         if (value1 === undefined)
             vdom.key = value0;
-        else if (typeof value1 === 'function')
+        else if (typeof value1 === 'object')
             vdom.props["on"+value0] = value1;
         else if (typeof value1 === 'boolean') {
             if(!value1)

@@ -5,7 +5,7 @@ import Data.Lazy (defer, force)
 import Lib.Util (tabulate, (..))
 import Data.Array.NonEmpty (NonEmptyArray, singleton, fromArray, cons) as N
 import Lib.KonamiCode (konamiCode)
-import Pha.Action (Action, action)
+import Pha.Action (Action, action, RNG)
 import Game.Core (class Game, canPlay, class TwoPlayersGame, Mode(..), GState(..), SizeLimit(..),
                 newGame', computerMove', genState, _position, _nbRows)
 
@@ -54,12 +54,6 @@ instance frogGame2 :: TwoPlayersGame Int ExtState Int where
     possibleMoves state = filter (canPlay state) (0 .. (state^._nbRows))
     isLosingPosition state = fromMaybe true $ state^._winning !! (state^._position)
 
--- ajoute ou enlève un mouvement dans la liste des mouvements permis
-selectMoveA :: Int -> Action State
-selectMoveA = newGame' $ over _moves ∘ _selectMove where
-    _selectMove move moves =
-        let moves2 = filter (\m -> (m == move) /= elem m moves) (1 .. 5) in
-        N.fromArray moves2 # fromMaybe moves
 
 -- calcule l'ensemble des positions gagnantes pour une taille et un ensemble de mouvements donnés
 winningPositions :: forall t. Foldable t => Int -> t Int -> Array Boolean
@@ -72,10 +66,17 @@ winningPositions size moves =
 reachableArray :: State -> Array Boolean
 reachableArray state = tabulate (state^._nbRows + 1) (canPlay state)
 
+-- ajoute ou enlève un mouvement dans la liste des mouvements permis
+selectMoveA :: forall effs. Int -> Action State (rng :: RNG | effs)
+selectMoveA = newGame' $ over _moves ∘ _selectMove where
+    _selectMove move moves =
+        let moves2 = filter (\m -> (m == move) /= elem m moves) (1 .. 5) in
+        N.fromArray moves2 # fromMaybe moves
+
 -- place/retire une marque à la position i
-markA :: Int -> Action State
+markA :: forall effs. Int -> Action State effs
 markA i = action $ (_marked ∘ ix i) %~ not
 
-onKeyDown :: String -> Action State
+onKeyDown :: forall effs. String -> Action State effs
 onKeyDown = konamiCode _keySequence (action \st -> st # _marked .~ st^._winning)
 

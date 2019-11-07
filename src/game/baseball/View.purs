@@ -6,6 +6,7 @@ import Pha (VDom, text, whenN)
 import Pha.Action ((🔍))
 import Pha.Html (div', svg, g, rect, use, class', key, style,
             click, width, height, stroke, fill, viewBox, translate)
+import Game.Types (EFFS)
 import Game.Core (canPlay, playA, isLevelFinished, _position)
 import Game.Baseball.Model (State, setNbBases, _nbBases, _missingPeg)
 import UI.Template (template, card)
@@ -27,7 +28,7 @@ transformBase i nbBases = translate x y  <> " rotate(45deg)" where
     x = 50.0 + 35.0 * cos (toNumber i * 2.0 * pi / toNumber nbBases)
     y = 50.0 + 35.0 * sin (toNumber i * 2.0 * pi / toNumber nbBases)
 
-view :: forall a. Lens' a State -> State -> VDom a
+view :: forall a. Lens' a State -> State -> VDom a EFFS
 view lens state = template lens {config, board, rules, winTitle} state where
     nbBases = state^._nbBases
     levelFinished = isLevelFinished state

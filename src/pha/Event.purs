@@ -1,6 +1,6 @@
 module Pha.Event where
 import Prelude
-import Pha.Action (Action, Event, onlyEffectAction)
+import Pha.Action (Action, Event)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 infixr 9 compose as ∘
@@ -10,11 +10,11 @@ unsafeToMaybe :: forall a. a -> Maybe a
 unsafeToMaybe = unsafeToMaybeAux Nothing Just
 
 foreign import shiftKey :: Event -> Boolean
-
+{-
 foreign import unsafePointerType :: Event -> String
 pointerType :: Event -> Maybe String
 pointerType = unsafeToMaybe ∘ unsafePointerType
-
+-}
 foreign import unsafeKey :: Event -> String
 key :: Event -> Maybe String
 key = unsafeToMaybe ∘ unsafeKey
@@ -22,5 +22,5 @@ key = unsafeToMaybe ∘ unsafeKey
 
 foreign import preventDefault :: Event -> Effect Unit
 
-preventDefaultA :: forall a. Action a
-preventDefaultA = onlyEffectAction preventDefault
+--preventDefaultA :: forall a. Action a
+--preventDefaultA = onlyEffectAction preventDefault

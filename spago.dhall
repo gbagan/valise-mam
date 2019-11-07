@@ -13,6 +13,7 @@ You can edit this file as you like.
     , "profunctor-lenses"
     , "run"
     , "strings"
+    , "typelevel-prelude"
     ]
 , packages =
     ./packages.dhall

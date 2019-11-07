@@ -3,7 +3,7 @@ module Game.Core where
 import MyPrelude
 import Data.Array.NonEmpty (fromArray, head, init, last, toArray) as N
 import Lib.Random (Random, runRnd, genSeed, randomPick)
-import Pha.Action (Action, action, delay, DELAY, rng, RNG, randomAction) -- asyncAction)
+import Pha.Action (Action, action, delay, DELAY, rng, RNG, getState, setState, setState', randomAction, randomAction') -- asyncAction)
 import Effect (Effect)
 import Control.Alt ((<|>))
 
@@ -153,66 +153,65 @@ playAux move state =
 pushToHistory :: forall pos ext. GState pos ext -> GState pos ext
 pushToHistory state = state # _history %~ flip snoc (state^._position) # _redoHistory .~ []
 
-{-
-showVictory :: forall pos ext. Action (GState pos ext)
-showVictory = asyncAction \{updateState} _ -> do
-    _ <- updateState $ _showWin .~ true
-    delay $ Milliseconds 1000.0
-    updateState $ _showWin .~ false
+showVictory :: forall pos ext effs. Action (GState pos ext) (delay :: DELAY | effs)
+showVictory = do
+    setState $ _showWin .~ true
+    delay 1000
+    setState $ _showWin .~ false
 
-computerPlay :: forall pos ext mov. Game pos ext mov => Action (GState pos ext)
-computerPlay = asyncAction \{getState, updateState, dispatch} state -> do 
-    computerMove state # maybe (pure state) \rndmove -> do
-        move2 <- liftEffect $ runRnd rndmove
-        st2 <- updateState (playAux move2)
+
+computerPlay :: forall pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
+computerPlay = do
+    state <- getState
+    computerMove state # maybe (pure unit) \rndmove -> do
+        st2 <- randomAction' (\st -> rndmove <#> \m -> playAux m st)
         if isLevelFinished st2 then
-            dispatch showVictory
+            showVictory
         else
-            pure st2
+            pure unit
 
-computerStartsA :: forall pos ext mov. Game pos ext mov => Action (GState pos ext)
-computerStartsA = action pushToHistory <> computerPlay
+computerStartsA :: forall pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
+computerStartsA = do
+    action pushToHistory
+    computerPlay
 
--}
 
 type PlayOption = {
     showWin :: Boolean
 }
 
-playA' :: forall pos ext mov effs. Game pos ext mov => (PlayOption -> PlayOption) -> mov -> Action (GState pos ext) effs
-playA' optionFn move = action (playAux move)
-{-    
-    -- lockAction $ asyncAction \{getState, updateState, dispatch} state -> 
+playA' :: forall pos ext mov effs. Game pos ext mov => (PlayOption -> PlayOption) -> mov -> 
+    Action (GState pos ext) (delay :: DELAY, rng :: RNG | effs)
+playA' optionFn move = lockAction $ do 
+    state <- getState
     let {showWin} = optionFn {showWin: true}
     if not $ canPlay state move then
-        pure state
+        pure unit
     else do
-        st2 <- updateState (playAux move ∘ pushToHistory)
+        st2 <- setState' (playAux move ∘ pushToHistory)
         if showWin && isLevelFinished st2 then
-            dispatch(showVictory)
+            showVictory
         else if state^._mode == ExpertMode || state^._mode == RandomMode then do
-            delay $ Milliseconds 1000.0
-            dispatch(computerPlay)
+            delay 1000
+            computerPlay
         else 
-            pure st2
--}
+            pure unit
 
-playA :: forall pos ext mov effs. Game pos ext mov => mov -> Action (GState pos ext) effs
+playA :: forall pos ext mov effs. Game pos ext mov => mov -> Action (GState pos ext) (delay :: DELAY, rng :: RNG | effs)
 playA = playA' identity
 
 
-{-
 -- affecte à true l'attribut locked avant le début de l'action act et l'affecte à false à la fin de l'action
 -- fonctionne sur toute la durée d'une action asynchrone
-lockAction :: forall pos ext. Action (GState pos ext) -> Action (GState pos ext)
-lockAction act = asyncAction \{getState, dispatch, updateState} state -> do
+lockAction :: forall pos ext effs. Action (GState pos ext) effs -> Action (GState pos ext) effs 
+lockAction act = do
+    state <- getState
     if state^._locked then
-        pure state
+        pure unit
     else do
-        _ <- updateState $ _locked .~ true
-        _ <- dispatch act
-        updateState $ _locked .~ false
--}
+        setState $ _locked .~ true
+        act
+        setState $ _locked .~ false
 
 newGameAux :: forall pos ext mov. Game pos ext mov =>
     (GState pos ext -> GState pos ext) -> (GState pos ext) -> Random (GState pos ext)

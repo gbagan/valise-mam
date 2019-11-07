@@ -4,9 +4,7 @@ import Pha (VDom, Prop, text)
 import Pha.Action (Action, action, (🔍))
 import Pha.Html (div', h2, class', click)
 import Game.Core (GState, class Game, Dialog(Rules), Mode(..),
-                undoA, redoA, resetA, toggleHelpA, setModeA, 
-                --computerStartsA,
-                setGridSizeA,
+                undoA, redoA, resetA, toggleHelpA, setModeA, computerStartsA, setGridSizeA,
                 _help, _dialog, _history, _redoHistory, _mode, _nbRows, _nbColumns, _locked, _customSize)
 import UI.Icon (iconbutton, Options, Icon(..)) as I
 import Game.Types (EFFS)
@@ -115,7 +113,7 @@ iconSizesGroup lens state sizeList customSize =
     crows = state^._nbRows
     ccols = state^._nbColumns
     csize = state^._customSize
-{-
+
 icons2Players :: forall a pos ext mov. Game pos ext mov => Lens' a (GState pos ext) -> GState pos ext -> VDom a EFFS
 icons2Players lens state =
     icongroup "Mode de jeu" [
@@ -136,4 +134,4 @@ icons2Players lens state =
             (_{icon = I.IconText "2P⇨", disabled = not (null $ state^._history) || state^._mode == DuelMode, tooltip = Just "L'IA commence"})
             [click $ lens 🔍 computerStartsA]
     ]
--}
+

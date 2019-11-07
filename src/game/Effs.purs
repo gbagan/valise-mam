@@ -3,10 +3,9 @@ module Game.Effs (EFFS, LOCATION, Location, getLoc, getLocation, GetLocationF, G
 import MyPrelude
 import Effect (Effect)
 import Lib.Random (genSeed)
-import Run (FProxy, Run(Run), SProxy(..), lift, match)
-import MyPrelude
+import Run (FProxy, Run, SProxy(..), lift, match)
 import Pha (InterpretEffs)
-import Pha.Action as A
+import Pha.Action (DELAY, DelayF(..), RNG, RngF(..), GetEventF(..), getEvent, EVENT, delay, getState, setState, setState', Event) as A
 import Pha.Event (preventDefault) as E
 
 type Location = {
@@ -61,7 +60,7 @@ relativePointerPosition = relativePointerPositionAux Nothing Just
 
 foreign import releasePointerCaptureAux :: A.Event -> Effect Unit
 
-
+interpretEffects :: A.Event -> InterpretEffs EFFS
 interpretEffects ev = match {
     delay: \(A.Delay ms cont) -> setTimeout ms cont,
     rng: \(A.Rng cont) -> genSeed >>= cont,

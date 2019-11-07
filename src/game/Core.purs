@@ -3,7 +3,7 @@ module Game.Core where
 import MyPrelude
 import Data.Array.NonEmpty (fromArray, head, init, last, toArray) as N
 import Lib.Random (Random, runRnd, genSeed, randomPick)
-import Pha.Action (Action, action, delay, DELAY, rng, RNG, getState, setState, setState', randomAction, randomAction') -- asyncAction)
+import Pha.Action (Action, action, delay, DELAY, RNG, getState, setState, setState', randomAction, randomAction') -- asyncAction)
 import Effect (Effect)
 import Control.Alt ((<|>))
 

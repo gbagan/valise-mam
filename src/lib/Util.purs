@@ -52,4 +52,3 @@ dCoords cols x y = {
 } where
     p = coords cols x
     q = coords cols y
-

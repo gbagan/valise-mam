@@ -3,7 +3,7 @@ module Game.Labete.View where
 import MyPrelude
 import Pha (VDom, Prop, text, whenN, maybeN)
 import Pha.Action ((🔍))
-import Pha.Html (div', span, br, svg, g, rect, use, key, attr, class', style, click,  pointerdown, pointerup, pointerleave,
+import Pha.Html (div', span, br, svg, g, rect, use, key, attr, class', style, click, pointerdown, pointerup, pointerleave,
                 fill, stroke, strokeWidth, transform, viewBox, width, height)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, playA)
 import Game.Effs (EFFS)

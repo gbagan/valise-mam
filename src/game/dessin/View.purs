@@ -13,10 +13,10 @@ import UI.Icons (icongroup, iconSelectGroup, ireset, irules)
 currentLine :: ∀a e. Position -> Position -> VDom a e
 currentLine p1 p2 = line (100.0 * p1.x) (100.0 * p1.y) (20.0 * p2.x) (20.0 * p2.y) [class' "dessin-line-to-pointer" true]
 
-getCoords :: ∀a e. Graph -> Int -> Position
+getCoords :: Graph -> Int -> Position
 getCoords graph u = graph.vertices !! u # fromMaybe {x: 0.0, y: 0.0}
 
-getCoordsOfEdge :: ∀a e. Graph -> Edge -> {x1 :: Number, x2 :: Number, y1 :: Number, y2 :: Number}
+getCoordsOfEdge :: Graph -> Edge -> {x1 :: Number, x2 :: Number, y1 :: Number, y2 :: Number}
 getCoordsOfEdge graph (u ↔ v) = {x1, x2, y1, y2} where
     {x: x1, y: y1} = getCoords graph u
     {x: x2, y: y2} = getCoords graph v

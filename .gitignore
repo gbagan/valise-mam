@@ -10,4 +10,4 @@
 /.spago/
 /bundle.*
 /yarn*
-/package.dhall
+/packages.dhall

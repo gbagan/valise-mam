@@ -17,14 +17,14 @@ inside state row col = col >= left && col <= right - 1 && row >= top && row <= b
     where {left, right, top, bottom} = state^._position
     
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens {config, board, rules, winTitle} state where
+view lens state = template lens (_{config = config, board = board, rules = rules, winTitle = winTitle}) state where
     pos = state^._position
     rows = state^._nbRows
     columns = state^._nbColumns
     {col: soapCol, row: soapRow} = state^._soap
 
     config = card "Barre de chocolat" [
-        iconSizesGroup lens state [Tuple 6 7] true,
+        iconSizesGroup lens state [6~7] true,
         iconSelectGroup lens state "Emplacement du savon" [CornerMode, BorderMode, StandardMode] 
             (state^._soapMode) setSoapModeA \mode opt -> case mode of
                 CornerMode -> opt{icon = IconSymbol "#choc-mode0", tooltip = Just "Dans le coin"}

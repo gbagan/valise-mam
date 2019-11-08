@@ -196,8 +196,8 @@ main = do
         view: viewG,
         node: "root",
         events: [
-            Tuple "keydown" onKeyDown,
-            Tuple "hashchange" hashChange
+            "keydown" ~ onKeyDown,
+            "hashchange" ~ hashChange
         ],
         effects: interpretEffects,
         init: init2

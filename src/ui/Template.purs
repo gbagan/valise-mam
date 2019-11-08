@@ -1,24 +1,24 @@
 module UI.Template where
 import MyPrelude
-import Pha (VDom, Prop, text, emptyNode)
+import Pha (VDom, Prop, text, emptyNode, maybeN)
 import Pha.Action (Action, action, (🔍))
 import Pha.Html (div', class', attr, style, pointerup, pointerdown, pointerleave, pointermove)
 import Game.Core (class Game, GState, Mode(..), SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointer, canPlay, isLevelFinished, sizeLimit,
          setGridSizeA, confirmNewGameA, dropA)
-import UI.Dialog (dialog)
+import UI.Dialog (dialog) as D
 import UI.IncDecGrid (incDecGrid) as U
 import Game.Effs (EFFS, getPointerPosition, releasePointerCapture, Position)
 
-winPanel :: ∀a b d. String -> GState a b -> VDom d EFFS
-winPanel title state =
+winPanel :: ∀a effs. String -> Boolean -> VDom a effs
+winPanel title visible =
     div' [class' "ui-flex-center ui-absolute component-win-container" true] [
-        div' [class' "component-win" true, class' "visible" $ state^._showWin] [
+        div' [class' "component-win" true, class' "visible" visible] [
             text title
         ]
     ]
 
-card :: ∀a. String -> Array (VDom a EFFS) -> VDom a EFFS
+card :: ∀a effs. String -> Array (VDom a effs) -> VDom a effs
 card title children =
     div' [class' "ui-card" true] [
         div' [class' "ui-card-head ui-flex-center" true] [
@@ -26,11 +26,6 @@ card title children =
         ],
         div' [class' "ui-card-body" true] children
     ]
-
-gridStyle :: ∀a. Int -> Int -> Int -> Array (Prop a EFFS)
-gridStyle rows columns limit = [style "height" $ show (toNumber rows / m * 100.0) <> "%",
-                                style "width" $ show (toNumber columns / m * 100.0) <> "%"]
-    where m = toNumber $ max limit $ max rows columns
 
 incDecGrid :: ∀pos ext mov d. Game pos ext mov => Lens' d (GState pos ext) -> GState pos ext -> Array (VDom d EFFS) 
                         -> VDom d EFFS
@@ -43,39 +38,61 @@ incDecGrid lens state = U.incDecGrid {
     onResize: \x y -> lens 🔍 setGridSizeA x y true
 } where
     SizeLimit minRows minCols maxRows maxCols = sizeLimit state 
-    
 
-type Elements a = {
-    board :: VDom a EFFS,
-    config :: VDom a EFFS,
-    rules :: Array (VDom a EFFS),
-    winTitle :: String
+type Elements a effs = {
+    board :: VDom a effs,
+    config :: VDom a effs,
+    rules :: Array (VDom a effs),
+    winTitle :: String,
+    customDialog :: VDom a effs,
+    scoreDialog :: VDom a effs
 }
 
+defaultElements :: ∀a effs. Elements a effs
+defaultElements = {
+    board: emptyNode,
+    config: emptyNode,
+    rules: [text "blah blah"],
+    winTitle: "GAGNÉ",
+    customDialog: emptyNode,
+    scoreDialog: emptyNode
+}
+
+dialog :: ∀a pos aux mov effs. Lens' a (GState pos aux) -> String -> Array (VDom a effs) -> VDom a effs
+dialog lens title = D.dialog {title, onCancel: Nothing, onOk: Just $ lens 🔍 action (_dialog .~ NoDialog)}
+
 template :: ∀a pos aux mov. Game pos aux mov =>
-                Lens' a (GState pos aux) -> Elements a -> GState pos aux  -> VDom a EFFS
-template lens {board, config, rules, winTitle} state = 
+                Lens' a (GState pos aux) -> (Elements a EFFS -> Elements a EFFS) -> GState pos aux  -> VDom a EFFS
+template lens elemFn state =
     div' [] [
         div' [class' "main-container" true] [
-            div' [] [board, winPanel winTitle state],
+            div' [] [board, winPanel winTitle (state^._showWin)],
             config
         ],
         dialog' (state^._dialog)
     ]
     where
+        {board, config, rules, winTitle, customDialog, scoreDialog} = elemFn defaultElements
         dialog' Rules = 
-            dialog {title: "Règles du jeu", onCancel: Nothing, onOk: Just $ lens 🔍 action (_dialog .~ NoDialog)} rules
+            dialog lens "Règles du jeu" rules
         dialog' (ConfirmNewGame s) =
-            dialog {title: "Nouvelle partie", onCancel: Just $ lens 🔍 action (_dialog .~ NoDialog), onOk: Just (lens 🔍 confirmNewGameA s)} [
+            D.dialog {title: "Nouvelle partie", onCancel: Just $ lens 🔍 action (_dialog .~ NoDialog), onOk: Just (lens 🔍 confirmNewGameA s)} [
                 text "Tu es sur le point de créer une nouvelle partie. Ta partie en cours sera perdue. Es-tu sûr(e)?"
             ]
+        dialog' CustomDialog = customDialog
+        dialog' ScoreDialog = scoreDialog
         dialog' _ = emptyNode
 
+
+gridStyle :: ∀a effs. Int -> Int -> Int -> Array (Prop a effs)
+gridStyle rows columns limit = [style "height" $ show (toNumber rows / m * 100.0) <> "%",
+                                style "width" $ show (toNumber columns / m * 100.0) <> "%"]
+    where m = toNumber $ max limit $ max rows columns        
 
 setPointerPositionA :: ∀pos ext effs. (Maybe Position) -> Action (GState pos ext) effs
 setPointerPositionA a = action $ _pointer .~ a
 
-cursorStyle :: ∀a. Position -> Int -> Int -> Number -> Array (Prop a EFFS)    
+cursorStyle :: ∀a effs. Position -> Int -> Int -> Number -> Array (Prop a effs)    
 cursorStyle {x, y} rows columns size = [
     style "left" $ show (x * 100.0) <> "%",
     style "top" $ show (y * 100.0) <> "%",
@@ -83,7 +100,7 @@ cursorStyle {x, y} rows columns size = [
     style "height" $ show (size / toNumber rows) <> "%"
 ]
 
-svgCursorStyle :: ∀a. Position -> Array (Prop a EFFS)
+svgCursorStyle :: ∀a effs. Position -> Array (Prop a effs)
 svgCursorStyle {x, y} = [
     style "transform" $ "translate(" <> show (100.0 * x) <> "%," <> show (100.0 * y) <> "%)"
 ]

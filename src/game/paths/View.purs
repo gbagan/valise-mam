@@ -38,7 +38,7 @@ heroCursor pp =
     ] <> svgCursorStyle pp
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens {config, board, rules, winTitle} state where
+view lens state = template lens (_{config=config, board=board, rules=rules}) state where
     position = state^._position
     rows = state^._nbRows
     columns = state^._nbColumns
@@ -47,7 +47,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
         iconSelectGroup lens state "Mode de jeu" [Mode1, Mode2] (state^._mode) selectModeA \mode opt -> case mode of
             Mode1 -> opt{icon = IconSymbol "#paths-mode0", tooltip = Just "Mode 1"}
             Mode2 -> opt{icon = IconSymbol "#paths-mode1", tooltip = Just "Mode 2"},
-        iconSizesGroup lens state [Tuple 4 6, Tuple 5 5, Tuple 3 8] true,
+        iconSizesGroup lens state [4~6, 5~5, 3~8] true,
         icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x lens state
     ]
 
@@ -112,5 +112,3 @@ view lens state = template lens {config, board, rules, winTitle} state where
             text "Trouve des critères sur les positions d\'Hamilton et de la porte pour qu\'une solution soit possible."
         ]
     ]
-
-    winTitle = "GAGNÉ"

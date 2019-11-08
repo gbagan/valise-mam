@@ -7,11 +7,12 @@ import Pha.Action (Action, action, delay, DELAY, RNG, getState, setState, setSta
 import Effect (Effect)
 import Control.Alt ((<|>))
 
-data Dialog a = Rules | NoDialog | ConfirmNewGame a
+data Dialog a = Rules | NoDialog | ConfirmNewGame a | ScoreDialog | CustomDialog
 data Mode = SoloMode | RandomMode | ExpertMode | DuelMode
 derive instance eqMode :: Eq Mode
 
-
+--- la position d'un pointer est donné en valeur entre 0 et 1 en tant que proportion entre la coordonée et la taille de l'élément
+-- où l'on enregistre les mouvements du pointeur 
 type PointerPosition = {x :: Number, y :: Number}
 
 type CoreState pos ext = {

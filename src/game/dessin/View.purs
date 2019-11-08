@@ -22,7 +22,7 @@ getCoordsOfEdge graph (u ↔ v) = {x1, x2, y1, y2} where
     {x: x2, y: y2} = getCoords graph v
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens {config, board, rules, winTitle} state where
+view lens state = template lens (_{config = config, board = board, rules = rules, winTitle = winTitle}) state where
     position = state^._position
     graph = state^._graph
     raises = nbRaises state

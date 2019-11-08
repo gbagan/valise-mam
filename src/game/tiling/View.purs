@@ -29,7 +29,7 @@ square {isBlack, hasBlock, hasSink, row, col} props =
     ]
     
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens {config, board, rules, winTitle} state where
+view lens state = template lens (_{config=config, board=board, rules=rules, winTitle=winTitle}) state where
     position = state^._position
     rows = state^._nbRows
     columns = state^._nbColumns
@@ -38,7 +38,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
 
 
     config = card "Carrelage" [
-        iconSizesGroup lens state [Tuple 4 5, Tuple 5 5, Tuple 5 6, Tuple 7 7] true,
+        iconSizesGroup lens state [4~5, 5~5, 5~6, 7~7] true,
         iconSelectGroup lens state "Motif du pavé" [Type1, Type2, Type3] (state^._tileType) setTileA \t ->
             _{icon = IconSymbol ("#" <> show t)},  --- custom
         iconSelectGroup lens state "Nombre d'éviers" [0, 1, 2] (state^._nbSinks) setNbSinksA (const identity),

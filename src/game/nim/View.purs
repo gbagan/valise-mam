@@ -12,7 +12,7 @@ import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset, irules)
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens {config, board, rules, winTitle} state where
+view lens state = template lens (_{config = config, board = board, rules = rules, winTitle = winTitle}) state where
     nbPiles = state^._nbPiles
     length = state^._length
 

@@ -11,13 +11,13 @@ import UI.Template (template, card, incDecGrid, gridStyle, dndBoardProps, dndIte
 import UI.Icons (icongroup, iconSizesGroup, iundo, iredo, ireset, irules)
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens {config, board, rules, winTitle} state where
+view lens state = template lens (_{config = config, board = board, rules = rules, winTitle = winTitle}) state where
     position = state^._position
     columns = state^._nbColumns
     rows = state^._nbRows
 
     config = card "Jeu des jetons" [
-        iconSizesGroup lens state [Tuple 2 2, Tuple 4 4, Tuple 5 5, Tuple 6 6] true,
+        iconSizesGroup lens state [2~2, 4~4, 5~5, 6~6] true,
         icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x lens state
         --    I.Group({title: `Meilleur score (${state.bestScore || '∅'})`},
         --        I.BestScore()

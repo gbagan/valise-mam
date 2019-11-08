@@ -29,7 +29,7 @@ transformBase i nbBases = translate x y  <> " rotate(45deg)" where
     y = 50.0 + 35.0 * sin (toNumber i * 2.0 * pi / toNumber nbBases)
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens {config, board, rules, winTitle} state where
+view lens state = template lens (_{config=config, board=board, rules=rules}) state where
     nbBases = state^._nbBases
     levelFinished = isLevelFinished state
     config =
@@ -70,7 +70,6 @@ view lens state = template lens {config, board, rules, winTitle} state where
                 )
         ]
     rules = [text "blah blah blah blah"]
-    winTitle = "GAGNÉ"
 
     
     

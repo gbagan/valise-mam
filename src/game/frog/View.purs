@@ -36,7 +36,7 @@ spiral center startRadius radiusStep startTheta endTheta thetaStep =
             { point, slope, intercept }
     )
     # pairwise
-    # mapWithIndex (\i (Tuple a b) ->
+    # mapWithIndex (\i (a ~ b) ->
         let { x, y } = lineIntersection a.slope a.intercept b.slope b.intercept
             p = ["Q", show $ x + center.x, show $ y + center.y, show $ b.point.x, show b.point.y]
         in
@@ -72,7 +72,7 @@ lily i x y reachable hidden =
     ]
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens {config, board, rules, winTitle} state where
+view lens state = template lens (_{config = config, board = board, rules = rules, winTitle = winTitle}) state where
     position = state^._position
     reachable = reachableArray state
     spoints = spiralPoints (state^._nbRows)

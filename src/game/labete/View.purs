@@ -54,7 +54,7 @@ ihelp lens state =
         ]
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens {config, board, rules, winTitle} state where
+view lens state = template lens (_{config = config, board = board, rules = rules, winTitle = winTitle}) state where
     rows = state^._nbRows
     columns = state^._nbColumns
     nonTrappedBeast = nonTrappedBeastOnGrid state
@@ -79,7 +79,7 @@ view lens state = template lens {config, board, rules, winTitle} state where
             CylinderMode -> opt{icon = IconSymbol "#grid-cylinder", tooltip = Just "Cylindrique"}
             TorusMode -> opt{icon = IconSymbol "#grid-torus", tooltip = Just "Torique"},
 
-        iconSizesGroup lens state [Tuple 3 3, Tuple 5 5, Tuple 6 6] true,
+        iconSizesGroup lens state [3~3, 5~5, 6~6] true,
 
         icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state 
         {-    I.Group({ title: `Meilleur score (${state.bestScore || 'Ø'})` },

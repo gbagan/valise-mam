@@ -81,7 +81,7 @@ instance solitaireGame :: Game (Array Boolean) ExtState {from :: Int, to :: Int}
         pure $ pfrom && pbetween && hto && not pto
 
     play state move@{from, to} = maybe (state^._position)
-        (\between -> state^._position # updateAtIndices [Tuple from false, Tuple between false, Tuple to true])
+        (\between -> state^._position # updateAtIndices [from ~ false, between ~ false, to ~ true])
         (betweenMove2 state move)
 
     initialPosition = pure ∘ view _position

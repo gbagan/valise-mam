@@ -149,7 +149,7 @@ zoneposition columns {row1, col1, row2, col2} =
 colorZone :: State -> Zone -> Array Int
 colorZone state zone = state^._squareColors # updateAtIndices ( 
     zoneposition (state^._nbColumns) zone
-    <#> \i -> Tuple i (state^._selectedColor)
+    <#> \i -> i ~ (state^._selectedColor)
 )
 
 incSelectedColorA :: ∀effs. Int -> Action State effs

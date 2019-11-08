@@ -32,23 +32,23 @@ _nbPiles = _ext ∘ lens (_.nbPiles) (_{nbPiles = _})
 instance nimGame :: Game (Array (Tuple Int Int)) ExtState Move where
     canPlay state (Move pile pos) =
         state^._position !! pile # maybe false 
-            \(Tuple p1 p2) -> pos /= p1 && pos /= p2 && if state^._turn == 0 then pos < p2 else pos > p1
+            \(p1 ~ p2) -> pos /= p1 && pos /= p2 && if state^._turn == 0 then pos < p2 else pos > p1
 
     play state (Move pile pos) = 
         state ^. _position # (ix pile) %~
-            \(Tuple p1 p2) -> if state^._turn == 0 then Tuple pos p2 else Tuple p1 pos
+            \(p1 ~ p2) -> if state^._turn == 0 then pos ~ p2 else p1 ~ pos
     
     isLevelFinished state = state^._position # all
-        \(Tuple p1 p2) -> p2 - p1 == 1 && p1 == (if state^._turn == 1 then state^._length - 2 else 0)
+        \(p1 ~ p2) -> p2 - p1 == 1 && p1 == (if state^._turn == 1 then state^._length - 2 else 0)
 
     initialPosition state = 
         sequence $ replicate (state^._nbPiles) $
             if state^._length == 5 then
-                pure $ Tuple 0 4
+                pure (0 ~ 4)
             else do 
                 x <- randomInt 5
                 y <- randomInt 5
-                pure $ Tuple x (y + 5)
+                pure (x ~ y + 5)
 
     computerMove = computerMove'
     sizeLimit = defaultSizeLimit

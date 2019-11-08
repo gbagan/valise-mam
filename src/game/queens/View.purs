@@ -1,17 +1,18 @@
 module Game.Queens.View where
 
 import MyPrelude
-import Lib.Util (map3)
+import Lib.Util (map2, map3)
 import Data.Array.NonEmpty (toArray, head) as N
 import Pha (VDom, Prop, h, text)
-import Pha.Action ((🔍))
+import Pha.Action (action, (🔍))
 import Pha.Html (div', br, class', attr, svg, key, style, width, height, href, click, pointerenter, pointerleave)
 import Game.Effs (EFFS)
 import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer)
-import Game.Queens.Model (State, Piece(..), _selectedPiece, _selectedSquare, _allowedPieces, _multiPieces,
+import Game.Queens.Model (State, Piece(..),
+                           _selectedPiece, _selectedSquare, _allowedPieces, _multiPieces, _customLocalMoves, _customDirections,
                            piecesList, capturableSquares, attackedBySelected,
-                           playA, selectSquareA, selectPieceA, selectAllowedPieceA, toggleMultiPiecesA)
-import UI.Template (template, card, incDecGrid, gridStyle, trackPointer, cursorStyle)
+                 customizeA,  playA, selectSquareA, selectPieceA, selectAllowedPieceA, toggleMultiPiecesA, flipLocalMoveA, flipDirectionA)
+import UI.Template (template, card, dialog, incDecGrid, gridStyle, trackPointer, cursorStyle)
 import UI.Icon (Icon(..))
 import UI.Icons (iconbutton, icongroup, iconSizesGroup, iconSelectGroupM, ihelp, irules, ireset)
 
@@ -38,19 +39,21 @@ square { piece, capturable, selected, nonavailable} props =
     ]
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens {config, board, rules, winTitle} state where
+view lens state = template lens (_{config=config, board=board, rules=rules, winTitle=winTitle, customDialog = customDialog}) state where
     position = state^._position
     rows = state^._nbRows
     columns = state^._nbColumns
         
     config = card "Les reines" [
-        iconSizesGroup lens state [Tuple 4 4, Tuple 5 5, Tuple 7 7, Tuple 8 8] true,
+        iconSizesGroup lens state [4~4, 5~5, 7~7, 8~8] true,
         iconSelectGroupM lens state "Pièces disponibles" piecesList (state^._allowedPieces) selectAllowedPieceA \piece opt ->
             opt{icon = IconSymbol $ "#piece-" <> show piece, tooltip = Just $ tooltip piece},
         icongroup "Options" $ [
             iconbutton state (_{icon = IconSymbol "#customize",
                               selected = N.head (state^._allowedPieces) == Custom,
-                              tooltip = Just "Crée ta propre propre pièce"}) [],
+                              tooltip = Just "Crée ta propre propre pièce"})[
+                                  click $ lens 🔍 customizeA
+                              ],
             iconbutton state (_{icon = IconSymbol "#piece-mix", selected = state^._multiPieces, tooltip = Just "Mode mixte"}) [
                 click $ lens 🔍 toggleMultiPiecesA
             ]
@@ -99,45 +102,37 @@ view lens state = template lens {config, board, rules, winTitle} state where
         incDecGrid lens state [grid]
     ]
 
-    directions = [1, 2, 3, 0, 0, 4, 7, 6, 5]
+    angles = [45, 90, 135, 0, 0, 180, -45, -90, -135]
 
-    {-
-    const CustomPieceDialog = () =>
-        Dialog({
-            onOk: [actions.showDialog, null],
-            title: 'Pièce personnalisée'
-        },
-            div({class: 'flex'},
-                div({class: 'queens-custompiece-grid'},
-                    div({
-                        class: 'queens-grid',
-                        style: gridStyle(state.rows, state.columns)
-                    },
-                        state.customMoves.local.map((selected, index) =>
-                            Square({
-                                style: { width: '20%', height: '20%' },
-                                key: index,
-                                piece: index === 12 && 'custom',
-                                selected,
-                                onclick: index !== 12 && [actions.flipLocal, index],
-                            })
-                        )
-                    )
-                ),
-                div ({class: 'flex queens-custompiece-directions'},
-                    state.customMoves.directions.map((selected, i) =>
-                        Icon({
-                            key: i,
-                            selected,
-                            symbol: i != 4 ? 'arrow' : null,
-                            style: {transform: `rotate(${45 * directions[i]}deg)`},
-                            onclick: i != 4 && [actions.flipDirection, i]
-                        })
-                    )
-                )
+    customDialog = dialog lens "Personnalise ta pièce" [
+        div' [class' "flex queens-custompiece" true] [
+            div' [class' "queens-grid queens-custompiece-grid" true] (
+                state^._customLocalMoves # mapWithIndex \index selected ->
+                    square {
+                            piece: if index == 12 then Custom else Empty,
+                            selected: selected,
+                            capturable: false,
+                            nonavailable: false
+                    } [key $ show index, 
+                        style "width" "20%", style "height" "20%",
+                        click if index /= 12 then lens 🔍 flipLocalMoveA index else pure unit
+                    ]
+            ),
+            div' [class' "flex queens-custompiece-directions" true] (
+                map2 (state^._customDirections) angles \i selected angle ->
+                    iconbutton state (_{
+                        selected = selected,
+                        icon = if i == 4 then IconNone else IconSymbol "#arrow",
+                        style = ["transform" ~ ("rotate(" <> show angle <> "deg)")]
+                    }) [
+                        key $ show i,
+                        click $ if i /= 4 then lens 🔍 flipDirectionA i else pure unit
+                    ]
             )
-        );
-
+        ]
+    ]    
+        
+   {-
     const BestScoreDialog = () =>
         Dialog({
             title: 'Meilleur score',
@@ -160,13 +155,8 @@ view lens state = template lens {config, board, rules, winTitle} state where
                 )
             )
         );
-
-
-    const dialogs = {
-        bestscore: BestScoreDialog,
-        custompiece: CustomPieceDialog,
-    };
     -}
+
     rules = [
         text "Place le plus de pièces possible sur ta grille sans qu\'aucune ne soit menacée par une autre pièce.", br,
         text "Tu peux choisir de jouer avec différentes pièces comme celles du jeu d\'échecs."

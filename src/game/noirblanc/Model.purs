@@ -68,11 +68,11 @@ instance noirblancGame :: Game { light :: Array Boolean, played :: Array Boolean
     computerMove _ = Nothing
     sizeLimit _ = SizeLimit 3 3 10 10
     onNewGame state = 
-        let Tuple rows columns = fromMaybe (Tuple 8 8) (sizes !! (state^._level)) in
+        let rows~columns = fromMaybe (8~8) (sizes !! (state^._level)) in
         pure $ state # _nbRows .~ rows # _nbColumns .~ columns
 
 sizes :: Array (Tuple Int Int)
-sizes = [ Tuple 3 3, Tuple 4 4, Tuple 2 10, Tuple 3 10, Tuple 5 5, Tuple 8 8, Tuple 8 8]
+sizes = [3~3, 4~4, 2~10, 3~10, 5~5, 8~8, 8~8]
 
 selectModeA :: ∀effs. Int -> Action State (rng :: RNG | effs)
 selectModeA mode = newGame $ (_mode2 .~ mode) ∘ (_level .~ 0)

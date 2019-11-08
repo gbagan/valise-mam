@@ -32,38 +32,38 @@ iconSelect lens state selection action value optionFn =
     iconbutton state (\opt -> optionFn $ opt{selected = value == selection}) [click $ lens 🔍 action value]
 -}
 
-iundo :: ∀a b d. Lens' d (GState a b) -> GState a b -> VDom d EFFS
+iundo :: ∀pos ext a. Lens' a (GState pos ext) -> GState pos ext -> VDom a EFFS
 iundo lens state =
     iconbutton
         state
         (_{icon = I.IconSymbol "#undo", tooltip = Just "Annule le dernier coup effectué", disabled = null $ state^._history})
         [click $ lens 🔍 undoA]
 
-iredo :: ∀a b d. Lens' d (GState a b) -> GState a b -> VDom d EFFS
+iredo :: ∀pos ext a. Lens' a (GState pos ext) -> GState pos ext -> VDom a EFFS
 iredo lens state =
     iconbutton
         state
         (_{icon = I.IconSymbol "#undo",
             tooltip = Just "Rejoue le coup annulé",
             disabled = null $ state^._redoHistory,
-            style = [Tuple "transform" "scaleX(-1)"]})
+            style = ["transform" ~ "scaleX(-1)"]})
         [click $ lens 🔍 redoA]
 
-ireset :: ∀a b d. Lens' d (GState a b) -> GState a b -> VDom d EFFS
+ireset :: ∀pos ext a. Lens' a (GState pos ext) -> GState pos ext -> VDom a EFFS
 ireset lens state =
     iconbutton
         state
         (_{icon = I.IconSymbol "#reset", tooltip = Just "Recommence la partie", disabled = null $ state^._history})
         [click $ lens 🔍 resetA]
 
-ihelp :: ∀a b d. Lens' d (GState a b) -> GState a b -> VDom d EFFS
+ihelp :: ∀pos ext a. Lens' a (GState pos ext) -> GState pos ext -> VDom a EFFS
 ihelp lens state =
     iconbutton
         state
         (_{icon = I.IconSymbol "#help", tooltip = Just "Aide", selected = state^._help})
         [click $ lens 🔍 toggleHelpA]
 
-irules :: ∀a b d. Lens' d (GState a b) -> GState a b -> VDom d EFFS
+irules :: ∀pos ext a. Lens' a (GState pos ext) -> GState pos ext -> VDom a EFFS
 irules lens state =
     iconbutton
         state
@@ -74,10 +74,9 @@ irules lens state =
             Rules -> true
             _ -> false
 
-iconSelectGroup :: ∀a pos ext d.
-    Show a => Eq a =>
-    Lens' d (GState pos ext) -> GState pos ext -> String -> Array a -> a -> (a -> Action (GState pos ext) EFFS) 
-    -> (a -> I.Options -> I.Options) -> VDom d EFFS
+iconSelectGroup :: ∀pos ext sel a. Show sel => Eq sel =>
+    Lens' a (GState pos ext) -> GState pos ext -> String -> Array sel -> sel -> (sel -> Action (GState pos ext) EFFS) 
+    -> (sel -> I.Options -> I.Options) -> VDom a EFFS
 iconSelectGroup lens state title values selected action optionFn =
     icongroup title $ values <#> \val ->
         iconbutton state (optionFn val ∘ (_{
@@ -85,10 +84,10 @@ iconSelectGroup lens state title values selected action optionFn =
             selected = val == selected
         })) [click $ lens 🔍 action val]
 
-iconSelectGroupM :: ∀a t pos ext d.
-    Show a => Eq a => Foldable t =>
-    Lens' d (GState pos ext) -> GState pos ext -> String -> Array a -> t a -> (a -> Action (GState pos ext) EFFS)
-    -> (a -> I.Options -> I.Options) -> VDom d EFFS
+iconSelectGroupM :: ∀pos ext a t sel.
+    Show sel => Eq sel => Foldable t =>
+    Lens' a (GState pos ext) -> GState pos ext -> String -> Array sel -> t sel -> (sel -> Action (GState pos ext) EFFS)
+    -> (sel -> I.Options -> I.Options) -> VDom a EFFS
 iconSelectGroupM lens state title values selected action optionFn =
     icongroup title $ values <#> \val ->
         iconbutton state (optionFn val ∘ (_{
@@ -100,7 +99,7 @@ iconSizesGroup :: ∀a pos ext mov. Game pos ext mov =>
     Lens' a (GState pos ext) -> GState pos ext -> Array (Tuple Int Int) -> Boolean -> VDom a EFFS
 iconSizesGroup lens state sizeList customSize =
     icongroup "Dimensions de la grille" $
-        (sizeList <#> \(Tuple rows cols) ->
+        (sizeList <#> \(rows ~ cols) ->
             iconbutton state (_{
                 icon = I.IconText $ show rows <> "x" <> show cols,
                 selected = rows == crows && cols == ccols && not csize

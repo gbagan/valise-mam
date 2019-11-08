@@ -23,7 +23,7 @@ cursor :: ∀a b. PointerPosition -> b -> VDom a EFFS
 cursor pp _ = circle 0.0 0.0 20.0 ([attr "pointer-events" "none", fill "url(#soli-peg)"] <> svgCursorStyle pp)
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens {config, board, rules, winTitle} state where
+view lens state = template lens (_{config=config, board=board, rules=rules, winTitle=winTitle}) state where
     columns = state^._nbColumns
     rows = state^._nbRows
     isCircleBoard = state^._board == CircleBoard

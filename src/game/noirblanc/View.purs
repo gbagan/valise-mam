@@ -36,7 +36,7 @@ square light cross props =
     ]
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens {config, board, rules, winTitle} state where
+view lens state = template lens (_{config=config, board=board, rules=rules, winTitle=winTitle}) state where
     rows = state^._nbRows
     columns = state^._nbColumns
     position = state^._position

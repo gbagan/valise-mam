@@ -5,9 +5,9 @@ import Data.Lazy (defer, force)
 import Lib.Util (tabulate, (..))
 import Data.Array.NonEmpty (NonEmptyArray, singleton, fromArray, cons) as N
 import Lib.KonamiCode (konamiCode)
-import Pha.Action (Action, action, RNG)
-import Game.Core (class Game, canPlay, class TwoPlayersGame, Mode(..), GState(..), SizeLimit(..),
-                newGame', computerMove', genState, _position, _nbRows)
+import Pha.Action (Action, action, RNG, DELAY, delay)
+import Game.Core (class Game, canPlay, playA, class TwoPlayersGame, Mode(..), GState(..), SizeLimit(..),
+                lockAction, newGame', computerMove', genState, _position, _nbRows)
 
 type Ext' = {
     moves :: N.NonEmptyArray Int,  -- la liste des mouvements autorisées (en nombre de cases)
@@ -32,8 +32,8 @@ _keySequence :: Lens' State (Array String)
 _keySequence = _ext ∘ lens (_.keySequence) (_{keySequence = _})
 
 istate :: State
-istate = genState 20 (_{nbRows = 20, mode = ExpertMode}) (Ext { moves: 1 `N.cons` (2 `N.cons` N.singleton 3),
-                                                                 winning: [], marked: [], keySequence: [] })
+istate = genState 20 (_{nbRows = 20, mode = ExpertMode, customSize = true}) (Ext { moves: 1 `N.cons` (2 `N.cons` N.singleton 3),
+                                                            winning: [], marked: [], keySequence: [] })
 
 instance frogGame :: Game Int ExtState Int where
     play state v = v
@@ -72,6 +72,9 @@ selectMoveA = newGame' $ over _moves ∘ _selectMove where
     _selectMove move moves =
         let moves2 = filter (\m -> (m == move) /= elem m moves) (1 .. 5) in
         N.fromArray moves2 # fromMaybe moves
+
+playA' :: ∀effs. Int -> Action State (delay :: DELAY, rng :: RNG | effs)
+playA' i = playA i *> lockAction (delay 500)
 
 -- place/retire une marque à la position i
 markA :: ∀effs. Int -> Action State effs

@@ -253,7 +253,7 @@ setGridSizeA nbRows nbColumns customSize = newGame $ setSize' ∘ (_customSize .
         where SizeLimit minrows mincols maxrows maxcols = sizeLimit state
 
 confirmNewGameA :: ∀pos ext effs. GState pos ext -> Action (GState pos ext) effs
-confirmNewGameA st = action \_ -> st # _dialog .~ NoDialog
+confirmNewGameA st = action \_ -> st
 
 class Game pos ext mov <= TwoPlayersGame pos ext mov | ext -> pos mov  where
     isLosingPosition :: GState pos ext -> Boolean

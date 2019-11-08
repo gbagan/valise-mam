@@ -4,7 +4,7 @@ import Pha (VDom, Prop, text, emptyNode)
 import Pha.Action (Action, action, (🔍))
 import Pha.Html (div', class', attr, style, pointerup, pointerdown, pointerleave, pointermove)
 import Game.Core (class Game, GState, Mode(..), SizeLimit(..), Dialog(..),
-         _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointer, canPlay, isLevelFinished, sizeLimit,
+         _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointer, _locked, canPlay, isLevelFinished, sizeLimit,
          setGridSizeA, confirmNewGameA, dropA)
 import UI.Dialog (dialog) as D
 import UI.IncDecGrid (incDecGrid) as U
@@ -30,6 +30,7 @@ card title children =
 incDecGrid :: ∀pos ext mov d. Game pos ext mov => Lens' d (GState pos ext) -> GState pos ext -> Array (VDom d EFFS) 
                         -> VDom d EFFS
 incDecGrid lens state = U.incDecGrid {
+    locked: state^._locked,
     nbRows: state^._nbRows,
     nbColumns: state^._nbColumns,
     showRowButtons: minRows < maxRows,
@@ -172,9 +173,9 @@ turnMessage state =
 winTitleFor2Players :: ∀pos ext. GState pos ext -> String
 winTitleFor2Players state =
     if state^._mode == DuelMode then
-        "Le " <> (if state^._turn == 1 then "premier" else "second") <> " joueur gagne"
+        "Le " <> (if state^._turn == 1 then "second" else "premier") <> " joueur gagne"
     else if state^._turn == 1 then
-        "Tu as gagné"
-    else
         "L\'IA gagne"
+    else
+        "Tu as gagné"
         

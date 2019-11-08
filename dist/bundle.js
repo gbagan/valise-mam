@@ -4443,6 +4443,11 @@ var PS = {};
           };
       };
   };
+  var confirmNewGameA = function (st) {
+      return Pha_Action.action(function (v) {
+          return st;
+      });
+  };
   var computerMove = function (dict) {
       return dict.computerMove;
   };
@@ -4511,11 +4516,6 @@ var PS = {};
       return function ($127) {
           return $125($126($127));
       };
-  };
-  var confirmNewGameA = function (st) {
-      return Pha_Action.action(function (v) {
-          return Data_Lens_Setter.set(_dialog(Data_Profunctor_Strong.strongFn))(NoDialog.value)(st);
-      });
   };
   var _help = function (dictStrong) {
       var $128 = _core(dictStrong);
@@ -6496,7 +6496,7 @@ var PS = {};
                       round: true,
                       large: v2.large,
                       hidden: !v.customSize,
-                      disabled: v2.disabled,
+                      disabled: v.locked,
                       style: v2.style
                   };
               })([ Pha_Html.click(v.onResize(v.nbRows + 1 | 0)(v.nbColumns)) ]), Pha_Html["div'"]([ Pha_Html["class'"]("ui-incdecgrid-text")(true) ])([ Pha_Html.span([  ])([ Pha.text(Data_Show.show(Data_Show.showInt)(v.nbRows)) ]) ]), UI_Icon.iconbutton(function (v2) {
@@ -6507,7 +6507,7 @@ var PS = {};
                       round: true,
                       large: v2.large,
                       hidden: !v.customSize,
-                      disabled: v2.disabled,
+                      disabled: v.locked,
                       style: v2.style
                   };
               })([ Pha_Html.click(v.onResize(v.nbRows - 1 | 0)(v.nbColumns)) ]) ]);
@@ -6520,7 +6520,7 @@ var PS = {};
                       round: true,
                       large: x.large,
                       hidden: !v.customSize,
-                      disabled: x.disabled,
+                      disabled: v.locked,
                       style: x.style
                   };
               })([ Pha_Html.click(v.onResize(v.nbRows)(v.nbColumns - 1 | 0)) ]), Pha_Html["div'"]([ Pha_Html["class'"]("ui-incdecgrid-text")(true) ])([ Pha_Html.span([  ])([ Pha.text(Data_Show.show(Data_Show.showInt)(v.nbColumns)) ]) ]), UI_Icon.iconbutton(function (x) {
@@ -6531,7 +6531,7 @@ var PS = {};
                       round: true,
                       large: x.large,
                       hidden: !v.customSize,
-                      disabled: x.disabled,
+                      disabled: v.locked,
                       style: x.style
                   };
               })([ Pha_Html.click(v.onResize(v.nbRows)(v.nbColumns + 1 | 0)) ]) ]);
@@ -6572,16 +6572,16 @@ var PS = {};
           return "Le " + ((function () {
               var $28 = Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)) === 1;
               if ($28) {
-                  return "premier";
+                  return "second";
               };
-              return "second";
+              return "premier";
           })() + " joueur gagne");
       };
       var $29 = Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)) === 1;
       if ($29) {
-          return "Tu as gagn\xe9";
+          return "L'IA gagne";
       };
-      return "L'IA gagne";
+      return "Tu as gagn\xe9";
   };
   var winPanel = function (title) {
       return function (visible) {
@@ -6627,6 +6627,7 @@ var PS = {};
           return function (state) {
               var v = Game_Core.sizeLimit(dictGame)(state);
               return UI_IncDecGrid.incDecGrid({
+                  locked: Data_Lens_Getter.viewOn(state)(Game_Core["_locked"](Data_Lens_Internal_Forget.strongForget)),
                   nbRows: Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)),
                   nbColumns: Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget)),
                   showRowButtons: v.value0 < v.value2,
@@ -7815,6 +7816,7 @@ var PS = {};
   $PS["Game.Frog.Model"] = $PS["Game.Frog.Model"] || {};
   var exports = $PS["Game.Frog.Model"];
   var Control_Applicative = $PS["Control.Applicative"];
+  var Control_Apply = $PS["Control.Apply"];
   var Data_Array = $PS["Data.Array"];
   var Data_Array_NonEmpty = $PS["Data.Array.NonEmpty"];
   var Data_Array_NonEmpty_Internal = $PS["Data.Array.NonEmpty.Internal"];
@@ -7837,6 +7839,7 @@ var PS = {};
   var Lib_Random = $PS["Lib.Random"];
   var Lib_Util = $PS["Lib.Util"];
   var Pha_Action = $PS["Pha.Action"];
+  var Run = $PS["Run"];
   var winningPositions = function (dictFoldable) {
       return function (size) {
           return function (moves) {
@@ -7865,7 +7868,7 @@ var PS = {};
           turn: v.turn,
           nbRows: 20,
           nbColumns: v.nbColumns,
-          customSize: v.customSize,
+          customSize: true,
           mode: Game_Core.ExpertMode.value,
           help: v.help,
           locked: v.locked,
@@ -7995,6 +7998,9 @@ var PS = {};
   }, function (v) {
       return new Game_Core.SizeLimit(5, 0, 30, 0);
   });
+  var playA$prime = function (i) {
+      return Control_Apply.applySecond(Run.applyRun)(Game_Core.playA(frogGame)(i))(Game_Core.lockAction(Pha_Action.delay(500)));
+  };
   var reachableArray = function (state) {
       return Lib_Util.tabulate(Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)) + 1 | 0)(Game_Core.canPlay(frogGame)(state));
   };
@@ -8024,6 +8030,7 @@ var PS = {};
   exports["istate"] = istate;
   exports["reachableArray"] = reachableArray;
   exports["selectMoveA"] = selectMoveA;
+  exports["playA'"] = playA$prime;
   exports["markA"] = markA;
   exports["onKeyDown"] = onKeyDown;
   exports["frogGame"] = frogGame;
@@ -8172,8 +8179,8 @@ var PS = {};
                           if ($27) {
                               return Game_Frog_Model.markA(i);
                           };
-                          return Game_Core.playA(Game_Frog_Model.frogGame)(i);
-                      }))) ])([ lily(i)(v.x)(v.y)(false)(false), lily(i)(v.x)(v.y)(true)(!reach), Pha_Html["text'"](v.x)(v.y)((function () {
+                          return Game_Frog_Model["playA'"](i);
+                      }))) ])([ lily(i)(v.x)(v.y)(false)(false), lily(i)(v.x)(v.y)(true)(!reach || Data_Lens_Getter.viewOn(state)(Game_Core["_locked"](Data_Lens_Internal_Forget.strongForget))), Pha_Html["text'"](v.x)(v.y)((function () {
                           var $28 = Data_Lens_Getter.viewOn(state)(Game_Core["_help"](Data_Lens_Internal_Forget.strongForget));
                           if ($28) {
                               return Data_Show.show(Data_Show.showInt)(Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)) - i | 0);
@@ -12150,6 +12157,7 @@ var PS = {};
   var exports = $PS["Game.Tiling.Model"];
   var Control_Applicative = $PS["Control.Applicative"];
   var Control_Bind = $PS["Control.Bind"];
+  var Control_Category = $PS["Control.Category"];
   var Data_Array = $PS["Data.Array"];
   var Data_Eq = $PS["Data.Eq"];
   var Data_EuclideanRing = $PS["Data.EuclideanRing"];
@@ -12195,6 +12203,13 @@ var PS = {};
       Type3.value = new Type3();
       return Type3;
   })();
+  var CustomTile = (function () {
+      function CustomTile() {
+
+      };
+      CustomTile.value = new CustomTile();
+      return CustomTile;
+  })();
   var translate = function (v) {
       return Data_Functor.map(Data_Functor.functorArray)(function (v1) {
           return {
@@ -12206,8 +12221,8 @@ var PS = {};
   var sinks = function (state) {
       return Data_Array.catMaybes(Data_Array.mapWithIndex(function (i) {
           return function (v) {
-              var $43 = v === (-1 | 0);
-              if ($43) {
+              var $47 = v === (-1 | 0);
+              if ($47) {
                   return new Data_Maybe.Just(i);
               };
               return Data_Maybe.Nothing.value;
@@ -12224,7 +12239,10 @@ var PS = {};
       if (v instanceof Type3) {
           return "beast3";
       };
-      throw new Error("Failed pattern match at Game.Tiling.Model (line 14, column 1 - line 17, column 26): " + [ v.constructor.name ]);
+      if (v instanceof CustomTile) {
+          return "customize";
+      };
+      throw new Error("Failed pattern match at Game.Tiling.Model (line 15, column 1 - line 19, column 34): " + [ v.constructor.name ]);
   });
   var rotate90 = Data_Functor.map(Data_Functor.functorArray)(function (v) {
       return {
@@ -12254,10 +12272,10 @@ var PS = {};
   };
   var putSinkA = function (i) {
       return Pha_Action.action(Data_Lens_Setter.set((function () {
-          var $69 = Game_Core["_position"](Data_Profunctor_Strong.strongFn);
-          var $70 = Data_Lens_Index.ix(Data_Lens_Index.indexArray)(i)(Data_Lens_Internal_Wander.wanderFunction);
-          return function ($71) {
-              return $69($70($71));
+          var $75 = Game_Core["_position"](Data_Profunctor_Strong.strongFn);
+          var $76 = Data_Lens_Index.ix(Data_Lens_Index.indexArray)(i)(Data_Lens_Internal_Wander.wanderFunction);
+          return function ($77) {
+              return $75($76($77));
           };
       })())(-1 | 0));
   };
@@ -12282,9 +12300,184 @@ var PS = {};
       tileType: Type1.value,
       tile: [  ],
       nbSinks: 0,
+      customTile: Data_Lens_Setter.set(Data_Lens_Index.ix(Data_Lens_Index.indexArray)(12)(Data_Lens_Internal_Wander.wanderFunction))(true)(Data_Array.replicate(25)(false)),
       hoverSquare: Data_Maybe.Nothing.value
   });
-  var getTile = function (v) {
+  var eqTileType = new Data_Eq.Eq(function (x) {
+      return function (y) {
+          if (x instanceof Type1 && y instanceof Type1) {
+              return true;
+          };
+          if (x instanceof Type2 && y instanceof Type2) {
+              return true;
+          };
+          if (x instanceof Type3 && y instanceof Type3) {
+              return true;
+          };
+          if (x instanceof CustomTile && y instanceof CustomTile) {
+              return true;
+          };
+          return false;
+      };
+  });
+  var canPutTile = function (state) {
+      return Data_Foldable.all(Data_Foldable.foldableArray)(Data_HeytingAlgebra.heytingAlgebraBoolean)(function (index) {
+          return Data_Maybe.maybe(false)(Data_Eq.eq(Data_Eq.eqInt)(0))(Data_Array.index(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget)))(index));
+      });
+  };
+  var _ext = function (dictStrong) {
+      return Data_Lens_Lens.lens(function (v) {
+          return v.value1;
+      })(function (v) {
+          return function (x) {
+              return new Game_Core.State(v.value0, x);
+          };
+      })(dictStrong);
+  };
+  var _hoverSquare = function (dictStrong) {
+      var $78 = _ext(dictStrong);
+      var $79 = Data_Lens_Lens.lens(function (v) {
+          return v.hoverSquare;
+      })(function (v) {
+          return function (v1) {
+              return {
+                  hoverSquare: v1,
+                  customTile: v.customTile,
+                  nbSinks: v.nbSinks,
+                  rotation: v.rotation,
+                  tile: v.tile,
+                  tileType: v.tileType
+              };
+          };
+      })(dictStrong);
+      return function ($80) {
+          return $78($79($80));
+      };
+  };
+  var setHoverSquareA = function (a) {
+      return Pha_Action.action(Data_Lens_Setter.set(_hoverSquare(Data_Profunctor_Strong.strongFn))(a));
+  };
+  var _nbSinks = function (dictStrong) {
+      var $81 = _ext(dictStrong);
+      var $82 = Data_Lens_Lens.lens(function (v) {
+          return v.nbSinks;
+      })(function (v) {
+          return function (v1) {
+              return {
+                  nbSinks: v1,
+                  customTile: v.customTile,
+                  hoverSquare: v.hoverSquare,
+                  rotation: v.rotation,
+                  tile: v.tile,
+                  tileType: v.tileType
+              };
+          };
+      })(dictStrong);
+      return function ($83) {
+          return $81($82($83));
+      };
+  };
+  var _rotation = function (dictStrong) {
+      var $84 = _ext(dictStrong);
+      var $85 = Data_Lens_Lens.lens(function (v) {
+          return v.rotation;
+      })(function (v) {
+          return function (v1) {
+              return {
+                  rotation: v1,
+                  customTile: v.customTile,
+                  hoverSquare: v.hoverSquare,
+                  nbSinks: v.nbSinks,
+                  tile: v.tile,
+                  tileType: v.tileType
+              };
+          };
+      })(dictStrong);
+      return function ($86) {
+          return $84($85($86));
+      };
+  };
+  var rotateA = Pha_Action.action(Data_Lens_Setter.over(_rotation(Data_Profunctor_Strong.strongFn))(Data_Semiring.add(Data_Semiring.semiringInt)(1)));
+  var onKeyDown = function (v) {
+      if (v === " ") {
+          return rotateA;
+      };
+      return Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit);
+  };
+  var _tile = function (dictStrong) {
+      var $87 = _ext(dictStrong);
+      var $88 = Data_Lens_Lens.lens(function (v) {
+          return v.tile;
+      })(function (v) {
+          return function (v1) {
+              return {
+                  tile: v1,
+                  customTile: v.customTile,
+                  hoverSquare: v.hoverSquare,
+                  nbSinks: v.nbSinks,
+                  rotation: v.rotation,
+                  tileType: v.tileType
+              };
+          };
+      })(dictStrong);
+      return function ($89) {
+          return $87($88($89));
+      };
+  };
+  var placeTile = function (state) {
+      return function (index) {
+          var columns = Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget));
+          return Data_Functor.mapFlipped(Data_Functor.functorArray)(translate(Lib_Util.coords(columns)(index))(rotate(Data_EuclideanRing.mod(Data_EuclideanRing.euclideanRingInt)(Data_Lens_Getter.viewOn(state)(_rotation(Data_Lens_Internal_Forget.strongForget)))(4))(Data_Lens_Getter.viewOn(state)(_tile(Data_Lens_Internal_Forget.strongForget)))))(function (v) {
+              var $64 = 0 <= v.col && v.col < columns;
+              if ($64) {
+                  return (v.row * columns | 0) + v.col | 0;
+              };
+              return -1 | 0;
+          });
+      };
+  };
+  var _tileType = function (dictStrong) {
+      var $90 = _ext(dictStrong);
+      var $91 = Data_Lens_Lens.lens(function (v) {
+          return v.tileType;
+      })(function (v) {
+          return function (v1) {
+              return {
+                  tileType: v1,
+                  customTile: v.customTile,
+                  hoverSquare: v.hoverSquare,
+                  nbSinks: v.nbSinks,
+                  rotation: v.rotation,
+                  tile: v.tile
+              };
+          };
+      })(dictStrong);
+      return function ($92) {
+          return $90($91($92));
+      };
+  };
+  var _customTile = function (dictStrong) {
+      var $93 = _ext(dictStrong);
+      var $94 = Data_Lens_Lens.lens(function (v) {
+          return v.customTile;
+      })(function (v) {
+          return function (v1) {
+              return {
+                  customTile: v1,
+                  hoverSquare: v.hoverSquare,
+                  nbSinks: v.nbSinks,
+                  rotation: v.rotation,
+                  tile: v.tile,
+                  tileType: v.tileType
+              };
+          };
+      })(dictStrong);
+      return function ($95) {
+          return $93($94($95));
+      };
+  };
+  var getTile = function (state) {
+      var v = Data_Lens_Getter.viewOn(state)(_tileType(Data_Lens_Internal_Forget.strongForget));
       if (v instanceof Type1) {
           return [ {
               row: 0,
@@ -12318,152 +12511,20 @@ var PS = {};
               col: 0
           } ];
       };
-      throw new Error("Failed pattern match at Game.Tiling.Model (line 19, column 1 - line 19, column 28): " + [ v.constructor.name ]);
-  };
-  var eqTileType = new Data_Eq.Eq(function (x) {
-      return function (y) {
-          if (x instanceof Type1 && y instanceof Type1) {
-              return true;
-          };
-          if (x instanceof Type2 && y instanceof Type2) {
-              return true;
-          };
-          if (x instanceof Type3 && y instanceof Type3) {
-              return true;
-          };
-          return false;
-      };
-  });
-  var canPutTile = function (state) {
-      return Data_Foldable.all(Data_Foldable.foldableArray)(Data_HeytingAlgebra.heytingAlgebraBoolean)(function (index) {
-          return Data_Maybe.maybe(false)(Data_Eq.eq(Data_Eq.eqInt)(0))(Data_Array.index(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget)))(index));
-      });
-  };
-  var _ext = function (dictStrong) {
-      return Data_Lens_Lens.lens(function (v) {
-          return v.value1;
-      })(function (v) {
-          return function (x) {
-              return new Game_Core.State(v.value0, x);
-          };
-      })(dictStrong);
-  };
-  var _hoverSquare = function (dictStrong) {
-      var $72 = _ext(dictStrong);
-      var $73 = Data_Lens_Lens.lens(function (v) {
-          return v.hoverSquare;
-      })(function (v) {
-          return function (v1) {
-              return {
-                  hoverSquare: v1,
-                  nbSinks: v.nbSinks,
-                  rotation: v.rotation,
-                  tile: v.tile,
-                  tileType: v.tileType
+      if (v instanceof CustomTile) {
+          return Data_Array.catMaybes(Data_Array.mapWithIndex(function (i) {
+              return function (b) {
+                  if (b) {
+                      return new Data_Maybe.Just({
+                          row: Data_EuclideanRing.div(Data_EuclideanRing.euclideanRingInt)(i)(5) - 2 | 0,
+                          col: Data_EuclideanRing.mod(Data_EuclideanRing.euclideanRingInt)(i)(5) - 2 | 0
+                      });
+                  };
+                  return Data_Maybe.Nothing.value;
               };
-          };
-      })(dictStrong);
-      return function ($74) {
-          return $72($73($74));
+          })(Data_Lens_Getter.viewOn(state)(_customTile(Data_Lens_Internal_Forget.strongForget))));
       };
-  };
-  var setHoverSquareA = function (a) {
-      return Pha_Action.action(Data_Lens_Setter.set(_hoverSquare(Data_Profunctor_Strong.strongFn))(a));
-  };
-  var _nbSinks = function (dictStrong) {
-      var $75 = _ext(dictStrong);
-      var $76 = Data_Lens_Lens.lens(function (v) {
-          return v.nbSinks;
-      })(function (v) {
-          return function (v1) {
-              return {
-                  nbSinks: v1,
-                  hoverSquare: v.hoverSquare,
-                  rotation: v.rotation,
-                  tile: v.tile,
-                  tileType: v.tileType
-              };
-          };
-      })(dictStrong);
-      return function ($77) {
-          return $75($76($77));
-      };
-  };
-  var _rotation = function (dictStrong) {
-      var $78 = _ext(dictStrong);
-      var $79 = Data_Lens_Lens.lens(function (v) {
-          return v.rotation;
-      })(function (v) {
-          return function (v1) {
-              return {
-                  rotation: v1,
-                  hoverSquare: v.hoverSquare,
-                  nbSinks: v.nbSinks,
-                  tile: v.tile,
-                  tileType: v.tileType
-              };
-          };
-      })(dictStrong);
-      return function ($80) {
-          return $78($79($80));
-      };
-  };
-  var rotateA = Pha_Action.action(Data_Lens_Setter.over(_rotation(Data_Profunctor_Strong.strongFn))(Data_Semiring.add(Data_Semiring.semiringInt)(1)));
-  var onKeyDown = function (v) {
-      if (v === " ") {
-          return rotateA;
-      };
-      return Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit);
-  };
-  var _tile = function (dictStrong) {
-      var $81 = _ext(dictStrong);
-      var $82 = Data_Lens_Lens.lens(function (v) {
-          return v.tile;
-      })(function (v) {
-          return function (v1) {
-              return {
-                  tile: v1,
-                  hoverSquare: v.hoverSquare,
-                  nbSinks: v.nbSinks,
-                  rotation: v.rotation,
-                  tileType: v.tileType
-              };
-          };
-      })(dictStrong);
-      return function ($83) {
-          return $81($82($83));
-      };
-  };
-  var placeTile = function (state) {
-      return function (index) {
-          var columns = Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget));
-          return Data_Functor.mapFlipped(Data_Functor.functorArray)(translate(Lib_Util.coords(columns)(index))(rotate(Data_EuclideanRing.mod(Data_EuclideanRing.euclideanRingInt)(Data_Lens_Getter.viewOn(state)(_rotation(Data_Lens_Internal_Forget.strongForget)))(4))(Data_Lens_Getter.viewOn(state)(_tile(Data_Lens_Internal_Forget.strongForget)))))(function (v) {
-              var $61 = 0 <= v.col && v.col < columns;
-              if ($61) {
-                  return (v.row * columns | 0) + v.col | 0;
-              };
-              return -1 | 0;
-          });
-      };
-  };
-  var _tileType = function (dictStrong) {
-      var $84 = _ext(dictStrong);
-      var $85 = Data_Lens_Lens.lens(function (v) {
-          return v.tileType;
-      })(function (v) {
-          return function (v1) {
-              return {
-                  tileType: v1,
-                  hoverSquare: v.hoverSquare,
-                  nbSinks: v.nbSinks,
-                  rotation: v.rotation,
-                  tile: v.tile
-              };
-          };
-      })(dictStrong);
-      return function ($86) {
-          return $84($85($86));
-      };
+      throw new Error("Failed pattern match at Game.Tiling.Model (line 64, column 17 - line 68, column 139): " + [ v.constructor.name ]);
   };
   var tilingGame = new Game_Core.Game(function (state) {
       return function (index) {
@@ -12476,24 +12537,24 @@ var PS = {};
   }, function (state) {
       return Control_Applicative.pure(Lib_Random.applicativeRandom)(Data_Array.replicate(Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)) * Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget)) | 0)(0));
   }, (function () {
-      var $87 = Data_Foldable.all(Data_Foldable.foldableArray)(Data_HeytingAlgebra.heytingAlgebraBoolean)(Data_Eq.notEq(Data_Eq.eqInt)(0));
-      var $88 = Data_Lens_Getter.view(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
-      return function ($89) {
-          return $87($88($89));
+      var $96 = Data_Foldable.all(Data_Foldable.foldableArray)(Data_HeytingAlgebra.heytingAlgebraBoolean)(Data_Eq.notEq(Data_Eq.eqInt)(0));
+      var $97 = Data_Lens_Getter.view(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
+      return function ($98) {
+          return $96($97($98));
       };
   })(), function (state) {
-      return Control_Applicative.pure(Lib_Random.applicativeRandom)(Data_Lens_Setter.set(_rotation(Data_Profunctor_Strong.strongFn))(0)(Data_Lens_Setter.set(_tile(Data_Profunctor_Strong.strongFn))(getTile(Data_Lens_Getter.viewOn(state)(_tileType(Data_Lens_Internal_Forget.strongForget))))(state)));
+      return Control_Applicative.pure(Lib_Random.applicativeRandom)(Data_Lens_Setter.set(_rotation(Data_Profunctor_Strong.strongFn))(0)(Data_Lens_Setter.set(_tile(Data_Profunctor_Strong.strongFn))(getTile(state))(state)));
   }, function (state) {
       return function (index) {
           var tilePos = placeTile(state)(index);
           var pos = Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
-          var $64 = canPutTile(state)(tilePos);
-          if ($64) {
+          var $69 = canPutTile(state)(tilePos);
+          if ($69) {
               var m = Data_Foldable.foldl(Data_Foldable.foldableArray)(Data_Ord.max(Data_Ord.ordInt))(0)(pos) + 1 | 0;
               return Data_Array.mapWithIndex(function (i) {
                   return function (x) {
-                      var $65 = Data_Foldable.elem(Data_Foldable.foldableArray)(Data_Eq.eqInt)(i)(tilePos);
-                      if ($65) {
+                      var $70 = Data_Foldable.elem(Data_Foldable.foldableArray)(Data_Eq.eqInt)(i)(tilePos);
+                      if ($70) {
                           return m;
                       };
                       return x;
@@ -12501,8 +12562,8 @@ var PS = {};
               })(pos);
           };
           return Data_Functor.mapFlipped(Data_Functor.functorArray)(pos)(function (x) {
-              var $66 = Data_Eq.eq(Data_Maybe.eqMaybe(Data_Eq.eqInt))(new Data_Maybe.Just(x))(Data_Array.index(pos)(index));
-              if ($66) {
+              var $71 = Data_Eq.eq(Data_Maybe.eqMaybe(Data_Eq.eqInt))(new Data_Maybe.Just(x))(Data_Array.index(pos)(index));
+              if ($71) {
                   return 0;
               };
               return x;
@@ -12511,12 +12572,21 @@ var PS = {};
   }, Data_Function["const"](new Game_Core.SizeLimit(3, 3, 10, 10)));
   var clickOnCellA = function (a) {
       return Control_Bind.bind(Run.bindRun)(Pha_Action.getState)(function (v) {
-          var $68 = Data_Array.length(sinks(v)) < Data_Lens_Getter.viewOn(v)(_nbSinks(Data_Lens_Internal_Forget.strongForget));
-          if ($68) {
+          var $73 = Data_Array.length(sinks(v)) < Data_Lens_Getter.viewOn(v)(_nbSinks(Data_Lens_Internal_Forget.strongForget));
+          if ($73) {
               return putSinkA(a);
           };
           return Game_Core.playA(tilingGame)(a);
       });
+  };
+  var flipTileA = function (index) {
+      return Game_Core.newGame(tilingGame)(Data_Lens_Setter.over((function () {
+          var $99 = _customTile(Data_Profunctor_Strong.strongFn);
+          var $100 = Data_Lens_Index.ix(Data_Lens_Index.indexArray)(index)(Data_Lens_Internal_Wander.wanderFunction);
+          return function ($101) {
+              return $99($100($101));
+          };
+      })())(Data_HeytingAlgebra.not(Data_HeytingAlgebra.heytingAlgebraBoolean)));
   };
   var inConflict = function (state) {
       return Data_Maybe.maybe(false)(function (sqr) {
@@ -12524,14 +12594,30 @@ var PS = {};
       })(Data_Lens_Getter.viewOn(state)(_hoverSquare(Data_Lens_Internal_Forget.strongForget)));
   };
   var setNbSinksA = Game_Core["newGame'"](tilingGame)(Data_Lens_Setter.set(_nbSinks(Data_Profunctor_Strong.strongFn)));
-  var setTileA = Game_Core["newGame'"](tilingGame)(Data_Lens_Setter.set(_tileType(Data_Profunctor_Strong.strongFn)));
+  var setTileA = function (ttype) {
+      return Game_Core.newGame(tilingGame)((function () {
+          var $102 = Data_Lens_Setter.set(_tileType(Data_Profunctor_Strong.strongFn))(ttype);
+          var $103 = (function () {
+              var $74 = Data_Eq.eq(eqTileType)(ttype)(CustomTile.value);
+              if ($74) {
+                  return Data_Lens_Setter.set(Game_Core["_dialog"](Data_Profunctor_Strong.strongFn))(Game_Core.CustomDialog.value);
+              };
+              return Control_Category.identity(Control_Category.categoryFn);
+          })();
+          return function ($104) {
+              return $102($103($104));
+          };
+      })());
+  };
   exports["Type1"] = Type1;
   exports["Type2"] = Type2;
   exports["Type3"] = Type3;
+  exports["CustomTile"] = CustomTile;
   exports["istate"] = istate;
   exports["_rotation"] = _rotation;
   exports["_tile"] = _tile;
   exports["_tileType"] = _tileType;
+  exports["_customTile"] = _customTile;
   exports["_nbSinks"] = _nbSinks;
   exports["sinks"] = sinks;
   exports["setNbSinksA"] = setNbSinksA;
@@ -12541,6 +12627,7 @@ var PS = {};
   exports["setHoverSquareA"] = setHoverSquareA;
   exports["inConflict"] = inConflict;
   exports["onKeyDown"] = onKeyDown;
+  exports["flipTileA"] = flipTileA;
   exports["eqTileType"] = eqTileType;
   exports["showTileType"] = showTileType;
   exports["tilingGame"] = tilingGame;
@@ -12576,7 +12663,7 @@ var PS = {};
   var UI_Template = $PS["UI.Template"];                
   var square = function (v) {
       return function (props) {
-          return Pha_Html.g(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html["class'"]("tiling-darken")(v.isBlack), Pha_Html.transform("translate(" + (Data_Show.show(Data_Show.showInt)(50 * v.col | 0) + ("," + (Data_Show.show(Data_Show.showInt)(50 * v.row | 0) + ")")))) ])(props))([ Pha_Html.rect(0.0)(0.0)(50.0)(50.0)([ Pha_Html.key("conc"), Pha_Html.fill("url(#concrete)") ]), Pha.whenN(v.hasBlock)(function (v1) {
+          return Pha_Html.g(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html["class'"]("tiling-darken")(v.isDark), Pha_Html.transform("translate(" + (Data_Show.show(Data_Show.showInt)(50 * v.col | 0) + ("," + (Data_Show.show(Data_Show.showInt)(50 * v.row | 0) + ")")))) ])(props))([ Pha_Html.rect(0.0)(0.0)(50.0)(50.0)([ Pha_Html.key("conc"), Pha_Html.fill("url(#concrete)") ]), Pha.whenN(v.hasBlock)(function (v1) {
               return Pha_Html.use(0.0)(0.0)(50.0)(50.0)("#tile2")([ Pha_Html.key("tile") ]);
           }), Pha.whenN(v.hasSink)(function (v1) {
               return Pha_Html.use(0.0)(0.0)(50.0)(50.0)("#sink")([ Pha_Html.key("sink") ]);
@@ -12588,8 +12675,8 @@ var PS = {};
           var tileCursor = function (pp) {
               return Pha_Html.g(UI_Template.svgCursorStyle(pp))([ Pha_Html.g([ Pha_Html["class'"]("tiling-cursor")(true), Pha_Html.style("transform")("rotate(" + (Data_Show.show(Data_Show.showInt)(90 * Data_Lens_Getter.viewOn(state)(Game_Tiling_Model["_rotation"](Data_Lens_Internal_Forget.strongForget)) | 0) + "deg)")) ])(Data_Functor.mapFlipped(Data_Functor.functorArray)(Data_Lens_Getter.viewOn(state)(Game_Tiling_Model["_tile"](Data_Lens_Internal_Forget.strongForget)))(function (v) {
                   return Pha_Html.use(50.0 * Data_Int.toNumber(v.col) - 25.0)(50.0 * Data_Int.toNumber(v.row) - 25.0)(50.0)(50.0)("#tile2")([ Pha_Html.attr("pointer-events")("none"), Pha_Html.attr("opacity")((function () {
-                      var $31 = Game_Tiling_Model.inConflict(state);
-                      if ($31) {
+                      var $34 = Game_Tiling_Model.inConflict(state);
+                      if ($34) {
                           return "0.3";
                       };
                       return "0.8";
@@ -12602,11 +12689,27 @@ var PS = {};
           var rules = [ Pha.text("blah blah") ];
           var rows = Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget));
           var position = Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
+          var customDialog = UI_Template.dialog(function (dictStrong) {
+              return lens(dictStrong);
+          })("Personnalise ta tuile")([ Pha_Html["div'"]([ Pha_Html["class'"]("tiling-customtile-grid-container")(true) ])([ Pha_Html["div'"]([ Pha_Html["class'"]("tiling-grid")(true) ])([ Pha_Html.svg([ Pha_Html.viewBox(0)(0)(250)(250) ])(Data_Array.mapWithIndex(function (index) {
+              return function (hasBlock) {
+                  var v = Lib_Util.coords(5)(index);
+                  return square({
+                      hasBlock: hasBlock,
+                      row: v.row,
+                      col: v.col,
+                      hasSink: false,
+                      isDark: false
+                  })([ Pha_Html.key(Data_Show.show(Data_Show.showInt)(index)), Pha_Html.click(Pha_Action.zoomAt(function (dictStrong) {
+                      return lens(dictStrong);
+                  })(Game_Tiling_Model.flipTileA(index))) ]);
+              };
+          })(Data_Lens_Getter.viewOn(state)(Game_Tiling_Model["_customTile"](Data_Lens_Internal_Forget.strongForget)))) ]) ]) ]);
           var config = UI_Template.card("Carrelage")([ UI_Icons.iconSizesGroup(Game_Tiling_Model.tilingGame)(function (dictStrong) {
               return lens(dictStrong);
           })(state)([ new Data_Tuple.Tuple(4, 5), new Data_Tuple.Tuple(5, 5), new Data_Tuple.Tuple(5, 6), new Data_Tuple.Tuple(7, 7) ])(true), UI_Icons.iconSelectGroup(Game_Tiling_Model.showTileType)(Game_Tiling_Model.eqTileType)(function (dictStrong) {
               return lens(dictStrong);
-          })(state)("Motif du pav\xe9")([ Game_Tiling_Model.Type1.value, Game_Tiling_Model.Type2.value, Game_Tiling_Model.Type3.value ])(Data_Lens_Getter.viewOn(state)(Game_Tiling_Model["_tileType"](Data_Lens_Internal_Forget.strongForget)))(Game_Tiling_Model.setTileA)(function (t) {
+          })(state)("Motif du pav\xe9")([ Game_Tiling_Model.Type1.value, Game_Tiling_Model.Type2.value, Game_Tiling_Model.Type3.value, Game_Tiling_Model.CustomTile.value ])(Data_Lens_Getter.viewOn(state)(Game_Tiling_Model["_tileType"](Data_Lens_Internal_Forget.strongForget)))(Game_Tiling_Model.setTileA)(function (t) {
               return function (v) {
                   return {
                       icon: new UI_Icon.IconSymbol("#" + Data_Show.show(Game_Tiling_Model.showTileType)(t)),
@@ -12640,7 +12743,7 @@ var PS = {};
               return function (pos) {
                   var v = Lib_Util.coords(columns)(index);
                   return square({
-                      isBlack: Data_Lens_Getter.viewOn(state)(Game_Core["_help"](Data_Lens_Internal_Forget.strongForget)) && Data_Int.even(v.row + v.col | 0),
+                      isDark: Data_Lens_Getter.viewOn(state)(Game_Core["_help"](Data_Lens_Internal_Forget.strongForget)) && Data_Int.even(v.row + v.col | 0),
                       hasBlock: pos > 0,
                       hasSink: pos === (-1 | 0),
                       row: v.row,
@@ -12667,8 +12770,8 @@ var PS = {};
                   }) ]);
               };
           })(position))([ Pha.maybeN(Data_Functor.map(Data_Maybe.functorMaybe)((function () {
-              var $40 = Data_Array.length(Game_Tiling_Model.sinks(state)) < Data_Lens_Getter.viewOn(state)(Game_Tiling_Model["_nbSinks"](Data_Lens_Internal_Forget.strongForget));
-              if ($40) {
+              var $46 = Data_Array.length(Game_Tiling_Model.sinks(state)) < Data_Lens_Getter.viewOn(state)(Game_Tiling_Model["_nbSinks"](Data_Lens_Internal_Forget.strongForget));
+              if ($46) {
                   return sinkCursor;
               };
               return tileCursor;
@@ -12684,7 +12787,7 @@ var PS = {};
                   config: config,
                   rules: rules,
                   winTitle: "GAGN\xc9",
-                  customDialog: v.customDialog,
+                  customDialog: customDialog,
                   scoreDialog: v.scoreDialog
               };
           })(state);

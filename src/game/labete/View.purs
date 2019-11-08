@@ -103,7 +103,6 @@ view lens state = template lens (_{config = config, board = board, rules = rules
     ])
 
     grid = div' (gridStyle rows columns 5 <> trackPointer lens <> [class' "ui-board" true]) [
-           -- trackPointer: true,
            -- onpointerdown: actions.when(shift, actions.startZone2),
         svg [viewBox 0 0 (50 * columns) (50 * rows), width "100%", height "100%"] $
             (map2 (state^._position) nonTrappedBeast \index hasTrap hasBeast ->

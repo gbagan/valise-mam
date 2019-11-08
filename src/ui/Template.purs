@@ -1,6 +1,6 @@
 module UI.Template where
 import MyPrelude
-import Pha (VDom, Prop, text, emptyNode, maybeN)
+import Pha (VDom, Prop, text, emptyNode)
 import Pha.Action (Action, action, (🔍))
 import Pha.Html (div', class', attr, style, pointerup, pointerdown, pointerleave, pointermove)
 import Game.Core (class Game, GState, Mode(..), SizeLimit(..), Dialog(..),
@@ -58,7 +58,7 @@ defaultElements = {
     scoreDialog: emptyNode
 }
 
-dialog :: ∀a pos aux mov effs. Lens' a (GState pos aux) -> String -> Array (VDom a effs) -> VDom a effs
+dialog :: ∀a pos aux effs. Lens' a (GState pos aux) -> String -> Array (VDom a effs) -> VDom a effs
 dialog lens title = D.dialog {title, onCancel: Nothing, onOk: Just $ lens 🔍 action (_dialog .~ NoDialog)}
 
 template :: ∀a pos aux mov. Game pos aux mov =>

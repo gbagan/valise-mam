@@ -11,7 +11,6 @@ range' n m = if n > m then [] else range n m
 infix 8 range' as ..
 
 tabulate :: ∀a. Int -> (Int -> a) -> Array a
-tabulate 0 _ = []
 tabulate n f = 0 .. (n - 1) <#> f
 
 tabulate2 :: ∀a. Int -> Int -> (Int -> Int -> a) -> Array a

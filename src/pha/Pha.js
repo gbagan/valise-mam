@@ -1,3 +1,6 @@
+// code comes from hyperapp by Jorge Bucaran
+// https://github.com/jorgebucaran/hyperapp
+
 const RECYCLED_NODE = 1
 const LAZY_NODE = 2
 const TEXT_NODE = 3
@@ -321,7 +324,7 @@ const appAux = disp => props => () => {
   const listener = function(event) {
     dispatch(event, this.actions[event.type]);
   }
-
+ 
   const setState = newState => {
     if (state !== newState) {
       state = newState

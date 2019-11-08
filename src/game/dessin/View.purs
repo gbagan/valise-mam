@@ -2,13 +2,13 @@ module Game.Dessin.View where
 import MyPrelude
 import Pha (VDom, text, maybeN)
 import Pha.Action ((🔍))
-import Pha.Html (div', button, svg, line, circle, span, br, class', attr, click, disabled, viewBox, stroke, fill, strokeWidth)
+import Pha.Html (div', button, svg, line, circle, span, br, class', attr, click, contextmenu, disabled, viewBox, stroke, fill, strokeWidth)
 import Game.Core (canPlay, playA, _position, _pointer)
-import Game.Effs (EFFS)
+import Game.Effs (EFFS, preventDefault)
 import Game.Dessin.Model (State, Graph, Position, Edge, (↔), edgesOf, nbRaises, setGraphIndexA, _graph, _graphIndex)
 import UI.Template (template, card, trackPointer)
 import UI.Icon (Icon(..))
-import UI.Icons (icongroup, iconSelectGroup, ireset, irules)
+import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 
 currentLine :: ∀a e. Position -> Position -> VDom a e
 currentLine p1 p2 = line (100.0 * p1.x) (100.0 * p1.y) (20.0 * p2.x) (20.0 * p2.y) [class' "dessin-line-to-pointer" true]
@@ -30,10 +30,12 @@ view lens state = template lens (_{config = config, board = board, rules = rules
 
     config = card "Dessin" [
         iconSelectGroup lens state "Dessin" [0, 1] (state^._graphIndex) setGraphIndexA (\i opt -> opt{icon = IconText (show (i + 1)) }),
-        icongroup "Options" $ [ireset, irules] <#> \x -> x lens state
+        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x lens state
     ]
 
-    board = div' (trackPointer lens <> [class' "ui-board dessin-board" true]) [
+    board = div' (trackPointer lens <> [
+                class' "ui-board dessin-board" true,
+                contextmenu $ preventDefault *> (lens 🔍 playA Nothing)]) [
         svg [class' "dessin-svg" true, viewBox 0 0 100 100] $ concat [
             graph.edges <#> \edge ->
                 let {x1, x2, y1, y2} = getCoordsOfEdge graph edge

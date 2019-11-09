@@ -4,7 +4,8 @@ import MyPrelude
 import Lib.Util (coords)
 import Pha (VDom, text, ifN, maybeN)
 import Pha.Action ((🔍))
-import Pha.Html (div', br, svg, rect, circle, key, attr, class', style, click, viewBox, fill, stroke, strokeWidth, translate)
+import Pha.Html (div', br, svg, rect, circle, key, attr, class', style, click, 
+                    viewBox, fill, stroke, strokeWidth, translate, px)
 import Game.Effs (EFFS)
 import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointer)
 import Game.Solitaire.Model (State, Board(..), _board, _holes, _dragged, _help, setBoardA, toggleHelpA)
@@ -32,10 +33,10 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
         let {row, col} = coords columns i in
         if isCircleBoard then
             translate
-                (125.0 + sin(2.0 * pi * toNumber i / toNumber rows) * 90.0)
-                (125.0 + cos(2.0 * pi * toNumber i / toNumber rows) * 90.0)
+                (px $ 125.0 + sin(2.0 * pi * toNumber i / toNumber rows) * 90.0)
+                (px $ 125.0 + cos(2.0 * pi * toNumber i / toNumber rows) * 90.0)
         else
-            translate (50.0 * toNumber col + 25.0) (50.0 * toNumber row + 25.0)
+            translate (px $ 50.0 * toNumber col + 25.0) (px $ 50.0 * toNumber row + 25.0)
 
     config =
         let boards = [CircleBoard, Grid3Board, RandomBoard, EnglishBoard, FrenchBoard]

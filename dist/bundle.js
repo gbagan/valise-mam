@@ -12409,7 +12409,7 @@ var PS = {};
                               style: opt.style
                           };
                       };
-                      throw new Error("Failed pattern match at Game.Solitaire.View (line 46, column 93 - line 51, column 91): " + [ i.constructor.name ]);
+                      throw new Error("Failed pattern match at Game.Solitaire.View (line 47, column 93 - line 52, column 91): " + [ i.constructor.name ]);
                   };
               }), UI_Icons.icongroup("Options")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ ihelp ])(Data_Functor.mapFlipped(Data_Functor.functorArray)([ UI_Icons.iundo, UI_Icons.iredo, UI_Icons.ireset, UI_Icons.irules ])(function (x) {
                   return x(function (dictStrong) {
@@ -12421,9 +12421,9 @@ var PS = {};
           var itemStyle = function (i) {
               var v = Lib_Util.coords(columns)(i);
               if (isCircleBoard) {
-                  return Pha_Html.translate(Pha_Html.unitNumber)(Pha_Html.unitNumber)(125.0 + $$Math.sin((2.0 * $$Math.pi * Data_Int.toNumber(i)) / Data_Int.toNumber(rows)) * 90.0)(125.0 + $$Math.cos((2.0 * $$Math.pi * Data_Int.toNumber(i)) / Data_Int.toNumber(rows)) * 90.0);
+                  return Pha_Html.translate(Pha_Html.unitPx)(Pha_Html.unitPx)(Pha_Html.px(125.0 + $$Math.sin((2.0 * $$Math.pi * Data_Int.toNumber(i)) / Data_Int.toNumber(rows)) * 90.0))(Pha_Html.px(125.0 + $$Math.cos((2.0 * $$Math.pi * Data_Int.toNumber(i)) / Data_Int.toNumber(rows)) * 90.0));
               };
-              return Pha_Html.translate(Pha_Html.unitNumber)(Pha_Html.unitNumber)(50.0 * Data_Int.toNumber(v.col) + 25.0)(50.0 * Data_Int.toNumber(v.row) + 25.0);
+              return Pha_Html.translate(Pha_Html.unitPx)(Pha_Html.unitPx)(Pha_Html.px(50.0 * Data_Int.toNumber(v.col) + 25.0))(Pha_Html.px(50.0 * Data_Int.toNumber(v.row) + 25.0));
           };
           var grid = Pha_Html["div'"](Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html["class'"]("ui-board")(true) ])(Data_Semigroup.append(Data_Semigroup.semigroupArray)(UI_Template.dndBoardProps(Data_Eq.eqInt)(Game_Solitaire_Model.solitaireGame)(function (dictStrong) {
               return lens(dictStrong);

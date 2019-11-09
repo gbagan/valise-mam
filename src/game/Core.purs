@@ -113,7 +113,7 @@ defaultOnNewGame :: ∀a. a -> Random a
 defaultOnNewGame = pure
 
 changeTurn :: ∀pos ext. GState pos ext -> GState pos ext
-changeTurn state = if state^._mode == DuelMode then state # _turn %~ \x -> 1 - x else state
+changeTurn state = state # _turn %~ \x -> if state^._mode == DuelMode then 1 - x else 0
 
 undoA :: ∀pos ext effs. Action (GState pos ext) effs
 undoA = action \state -> N.fromArray (state^._history) # maybe state \hs ->

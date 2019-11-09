@@ -121,15 +121,16 @@ rect x' y' w h' props = h "rect" ([attr "x" x', attr "y" y', attr "width" w, att
 path :: ∀a effs. String -> Array (Prop a effs) -> VDom a effs
 path d props = h "path" ([attr "d" d] <> props) []
 
-line :: ∀a effs. Number -> Number -> Number -> Number -> Array (Prop a effs) -> VDom a effs
-line x1 y1 x2 y2 props = h "line" ([attr "x1" $ show x1, attr "y1" $ show y1, attr "x2" $ show x2, attr "y2" $ show y2] <> props) []
+line ::  ∀a effs u1 u2 u3 u4. EUnit u1 => EUnit u2 => EUnit u3 => EUnit u4 => u1 -> u2 -> u3 -> u4 -> Array (Prop a effs) -> VDom a effs
+line x1 y1 x2 y2 props = h "line" ([attr "x1" x1, attr "y1" y1, attr "x2" x2, attr "y2" y2] <> props) []
 
 circle :: ∀a effs. Number -> Number -> Number -> Array (Prop a effs) -> VDom a effs
 circle cx cy r props = h "circle" ([attr "cx" $ show cx, attr "cy" $ show cy, attr "r" $ show r] <> props) []
 
-use :: ∀a effs. Number -> Number -> Number -> Number -> String -> Array (Prop a effs) -> VDom a effs
+use :: ∀a effs u1 u2 u3 u4. EUnit u1 => EUnit u2 => EUnit u3 => EUnit u4 =>
+            u1 -> u2 -> u3 -> u4 -> String -> Array (Prop a effs) -> VDom a effs
 use x y w h' href' props =
-    h "use" ([attr "x" $ show x, attr "y" $ show y, attr "width" $ show w, attr "height" $ show h', attr "href" href'] <> props) []
+    h "use" ([attr "x" x, attr "y" y, attr "width" w, attr "height" h', attr "href" href'] <> props) []
 
 text' :: ∀a effs. Number -> Number -> String -> Array (Prop a effs) -> VDom a effs
 text' x y t props = h "text" ([attr "x" $ show x, attr "y" $ show y] <> props) [text t]

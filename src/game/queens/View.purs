@@ -5,7 +5,7 @@ import Lib.Util (map2, map3)
 import Data.Array.NonEmpty (toArray, head) as N
 import Pha (VDom, Prop, h, text)
 import Pha.Action ((🔍))
-import Pha.Html (div', br, class', attr, svg, key, style, pc, width, height, href, click, pointerenter, pointerleave)
+import Pha.Html (div', br, class', attr, svg, use, key, style, pc, width, height, href, click, pointerenter, pointerleave)
 import Game.Effs (EFFS)
 import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer)
 import Game.Queens.Model (State, Piece(..),
@@ -33,8 +33,7 @@ square { piece, capturable, selected, nonavailable} props =
         class' "queens-square-selected" selected
     ] <> props) $ if piece == Empty then [] else [
         svg [width "100%", height "100%", class' "queen-piece" true] [
-            h "use" [href $ "#piece-" <> show piece, attr "x" "10%", attr "y" "10%",
-                     width "80%", height "80%", class' "queens-piece" true] []
+            use (pc 10) (pc 10) (pc 80) (pc 80) ("#piece-" <> show piece) [class' "queens-piece" true]
         ]
     ]
 

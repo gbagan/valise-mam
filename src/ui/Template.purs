@@ -173,9 +173,9 @@ turnMessage state =
 winTitleFor2Players :: ∀pos ext. GState pos ext -> String
 winTitleFor2Players state =
     if state^._mode == DuelMode then
-        "Le " <> (if state^._turn == 1 then "second" else "premier") <> " joueur gagne"
+        "Le " <> (if state^._turn == 1 then "premier" else "second") <> " joueur gagne"
     else if state^._turn == 1 then
-        "L\'IA gagne"
-    else
         "Tu as gagné"
+    else
+        "L'IA gagne"
         

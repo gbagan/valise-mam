@@ -2,7 +2,7 @@ module Game.Nim.View where
 import MyPrelude
 import Pha (VDom, text)
 import Pha.Action ((🔍))
-import Pha.Html (div', span, br, svg, rect, use, class', key, style, click, fill, viewBox, translate)
+import Pha.Html (div', span, br, svg, rect, use, class', key, style, click, fill, viewBox, translate, px)
 import Lib.Util (tabulate)
 import Game.Effs (EFFS)
 import Game.Core (canPlay, playA, isLevelFinished, _position, _turn)
@@ -11,7 +11,7 @@ import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset, irules)
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens (_{config = config, board = board, rules = rules, winTitle = winTitle}) state where
+view lens state = template lens (_{config=config, board=board, rules=rules, winTitle=winTitle}) state where
     nbPiles = state^._nbPiles
     length = state^._length
 
@@ -39,7 +39,7 @@ view lens state = template lens (_{config = config, board = board, rules = rules
                         fill "gray",
                         click $ lens 🔍 playA (Move i j),
                         style "transform" $
-                            translate (toNumber $ (if length == 5 then 30 else 5) + 10 * j) (toNumber $ 15 + 19 * i) <>
+                            translate (px $ (if length == 5 then 30 else 5) + 10 * j) (px $ 15 + 19 * i) <>
                             " rotate(45deg)",
                         style "cursor" $ if canPlay state (Move i j) then "pointer" else "not-allowed"
                     ]
@@ -48,7 +48,7 @@ view lens state = template lens (_{config = config, board = board, rules = rules
                         key $ "p-" <> show i <> "-" <> show j,
                         class' "nim-player" true,
                         fill $ if j == 0 then "blue" else "red",
-                        style "transform" $ translate (toNumber $ (if length == 5 then 26 else 1) + 10 * peg) (toNumber $ 11 + 19 * i)
+                        style "transform" $ translate (px $ (if length == 5 then 26 else 1) + 10 * peg) (px $ 11 + 19 * i)
                     ]
                 ),
         span [class' "nim-turn-message" true] [

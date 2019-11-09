@@ -3,7 +3,7 @@ import MyPrelude
 import Data.Int.Bits ((.^.))
 import Lib.Util ((..))
 import Lib.Random (randomInt)
-import Pha.Action (Action, RNG)
+import Pha.Action (Action, RNG, setState)
 import Game.Core (class Game, class TwoPlayersGame, SizeLimit(..), GState(..), Mode(..),
                    genState, newGame', computerMove', _position, _nbRows, _nbColumns)
 
@@ -16,7 +16,8 @@ type Position = {left :: Int, top :: Int, right :: Int, bottom :: Int}
 
 type Ext' = {
     soap :: {row :: Int, col :: Int},
-    soapMode :: SoapMode
+    soapMode :: SoapMode,
+    moveWhenHover :: Maybe Move
 }
 newtype ExtState = Ext Ext'
 type State = GState Position ExtState
@@ -30,9 +31,12 @@ _soap = _ext ∘ lens (_.soap) (_{soap = _})
 _soapMode :: Lens' State SoapMode
 _soapMode = _ext ∘ lens (_.soapMode) (_{soapMode = _})
 
+_moveWhenHover :: Lens' State (Maybe Move)
+_moveWhenHover = _ext ∘ lens (_.moveWhenHover) (_{moveWhenHover = _})
+
 istate :: State
 istate = genState {left: 0, top: 0, right: 0, bottom: 0} (_{nbRows = 6, nbColumns = 7, mode = RandomMode})
-        (Ext { soap: {row: 0, col: 0}, soapMode: CornerMode})
+        (Ext { soap: {row: 0, col: 0}, soapMode: CornerMode, moveWhenHover: Nothing})
 
 instance chocolatGame :: Game {left :: Int, top :: Int, right :: Int, bottom :: Int} ExtState Move where
     play st = case _ of
@@ -68,6 +72,17 @@ instance chocolat2Game :: TwoPlayersGame {left :: Int, top :: Int, right :: Int,
         in
         ((left + 1) .. col <#> FromLeft) <> ((col + 1) .. (right - 1) <#> FromRight)
         <> ((top + 1) .. row <#> FromTop) <> ((row + 1) .. (bottom - 1) <#> FromBottom) 
+
+cutLine :: State -> Move -> {x1 :: Int, x2 :: Int, y1 :: Int, y2 :: Int}
+cutLine state = case _ of
+    FromLeft i -> {x1: i, y1: top, x2: i, y2: bottom}
+    FromRight i -> {x1: i, y1: top, x2: i, y2: bottom}
+    FromTop i -> {x1: left, y1: i, x2: right, y2: i}
+    FromBottom i -> {x1: left, y1: i, x2: right, y2: i}
+    where {left, right, top, bottom} = state^._position
+
+setHoverA :: ∀effs. Maybe Move -> Action State effs
+setHoverA a = setState (_moveWhenHover .~ a) 
 
 setSoapModeA :: ∀effs. SoapMode -> Action State (rng :: RNG | effs)
 setSoapModeA = newGame' (set _soapMode)

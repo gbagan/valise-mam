@@ -5,7 +5,7 @@ import Data.String (joinWith)
 import Lib.Util (map2, tabulate, pairwise, floatRange)
 import Pha (VDom, text, ifN)
 import Pha.Action ((🔍), getEvent)
-import Pha.Html (div', span, br, svg, viewBox, g, use, line, path, text',
+import Pha.Html (div', span, br, svg, viewBox, g, use, line, path, text', px,
                 class', key, click, style, stroke, fill, strokeDasharray, strokeWidth, translate)
 import Pha.Event (shiftKey)
 import UI.Template (template, card, incDecGrid, turnMessage, winTitleFor2Players)
@@ -106,7 +106,7 @@ view lens state = template lens (_{config = config, board = board, rules = rules
                     g [
                     key "frog",
                     class' "frog-frog-container" true,
-                    style "transform" $ translate radius 0.0 <> " rotate(" <> show (theta * 180.0 / pi) <> "deg)",
+                    style "transform" $ translate (px radius) 0 <> " rotate(" <> show (theta * 180.0 / pi) <> "deg)",
                     style "transform-origin" $ show (-radius) <> "px 0"
                 ] [
                     g [

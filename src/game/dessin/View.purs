@@ -2,7 +2,8 @@ module Game.Dessin.View where
 import MyPrelude
 import Pha (VDom, text, maybeN)
 import Pha.Action ((🔍))
-import Pha.Html (div', button, svg, line, circle, span, br, class', attr, click, contextmenu, disabled, viewBox, stroke, fill, strokeWidth)
+import Pha.Html (div', button, svg, line, circle, span, br, class', click, contextmenu,
+                 disabled, viewBox, stroke, fill, strokeWidth, strokeDasharray)
 import Game.Core (canPlay, playA, _position, _pointer)
 import Game.Effs (EFFS, preventDefault)
 import Game.Dessin.Model (State, Graph, Position, Edge, (↔), edgesOf, nbRaises, setGraphIndexA, _graph, _graphIndex)
@@ -22,7 +23,7 @@ getCoordsOfEdge graph (u ↔ v) = {x1, x2, y1, y2} where
     {x: x2, y: y2} = getCoords graph v
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens (_{config = config, board = board, rules = rules, winTitle = winTitle}) state where
+view lens state = template lens (_{config=config, board=board, rules=rules, winTitle=winTitle}) state where
     position = state^._position
     graph = state^._graph
     raises = nbRaises state
@@ -39,7 +40,7 @@ view lens state = template lens (_{config = config, board = board, rules = rules
         svg [class' "dessin-svg" true, viewBox 0 0 100 100] $ concat [
             graph.edges <#> \edge ->
                 let {x1, x2, y1, y2} = getCoordsOfEdge graph edge
-                in line (20.0 * x1) (20.0 * y1) (20.0 * x2) (20.0 * y2) [stroke "grey", attr "stroke-dasharray" "3,1"],
+                in line (20.0 * x1) (20.0 * y1) (20.0 * x2) (20.0 * y2) [stroke "grey", strokeDasharray "3,1"],
             edgesOf (state^._position) <#> \edge ->
                 let {x1, x2, y1, y2} = getCoordsOfEdge graph edge
                 in line (20.0 * x1) (20.0 * y1) (20.0 * x2) (20.0 * y2) [stroke "red", strokeWidth "1.5"],

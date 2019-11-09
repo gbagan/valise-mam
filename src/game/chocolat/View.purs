@@ -7,7 +7,7 @@ import Game.Core (_position, _nbRows, _nbColumns, possibleMoves, playA)
 import Game.Chocolat.Model (State, Move(..), SoapMode(..), _soap, _soapMode, setSoapModeA) 
 import Pha (VDom, text)
 import Pha.Action ((🔍))
-import Pha.Html (div', svg, br, rect, circle, use, key, class', click, width, height, viewBox, fill)
+import Pha.Html (div', svg, br, rect, circle, use, key, class', click, viewBox, fill)
 import UI.Template (template, card, gridStyle, incDecGrid, winTitleFor2Players)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, icons2Players, iconSelectGroup, iundo, iredo, ireset, irules)
@@ -44,7 +44,7 @@ view lens state = template lens (_{config = config, board = board, rules = rules
     ]
 
     grid = div' (gridStyle rows columns 3 <> [class' "ui-board" true]) [
-        svg [width "100%", height "100%", viewBox (-7) (-7) (50 * columns + 14) (50 * rows + 14)] $
+        svg [viewBox (-7) (-7) (50 * columns + 14) (50 * rows + 14)] $
             concat [
                 tabulate2 rows columns \row col ->
                     rect (50.0 * toNumber col + 7.0) (50.0 * toNumber row + 7.0) 36.0 36.0 [

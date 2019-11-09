@@ -28,8 +28,8 @@ foreign import text :: ∀a effs. String -> VDom a effs
 
 foreign import emptyNode :: ∀a effs. VDom a effs
 
-whenN :: ∀a effs. Boolean -> (Unit -> VDom a effs) -> VDom a effs
-whenN cond vdom = if cond then vdom unit else emptyNode
+ifN :: ∀a effs. Boolean -> (Unit -> VDom a effs) -> VDom a effs
+ifN cond vdom = if cond then vdom unit else emptyNode
 
 maybeN :: ∀a effs. Maybe (VDom a effs) -> VDom a effs
 maybeN = fromMaybe emptyNode

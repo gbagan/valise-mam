@@ -5,7 +5,7 @@ import Lib.Util (map2, map3)
 import Data.Array.NonEmpty (toArray, head) as N
 import Pha (VDom, Prop, h, text)
 import Pha.Action ((🔍))
-import Pha.Html (div', br, class', attr, svg, key, style, width, height, href, click, pointerenter, pointerleave)
+import Pha.Html (div', br, class', attr, svg, key, style, pc, width, height, href, click, pointerenter, pointerleave)
 import Game.Effs (EFFS)
 import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer)
 import Game.Queens.Model (State, Piece(..),
@@ -89,8 +89,8 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
                 nonavailable: state^._help && (piece /= Empty || capturable),
                 capturable
             } [
-                style "width" $ show (100.0 / toNumber columns) <> "%",
-                style "height" $ show (100.0 / toNumber rows) <> "%",
+                style "width" $ pc (100.0 / toNumber columns),
+                style "height" $ pc (100.0 / toNumber rows),
                 click $ lens 🔍 playA index,
                 pointerenter $ lens 🔍 selectSquareA (Just index),
                 pointerleave $ lens 🔍 selectSquareA Nothing

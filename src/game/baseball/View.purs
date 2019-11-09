@@ -2,10 +2,9 @@ module Game.Baseball.View where
 
 import MyPrelude
 import Lib.Util (map2)
-import Pha (VDom, text, whenN)
+import Pha (VDom, text, ifN)
 import Pha.Action ((🔍))
-import Pha.Html (div', svg, g, rect, use, class', key, style,
-            click, width, height, stroke, fill, viewBox, translate)
+import Pha.Html (div', svg, g, rect, use, class', key, style, click, stroke, fill, viewBox, translate)
 import Game.Effs (EFFS)
 import Game.Core (canPlay, playA, isLevelFinished, _position)
 import Game.Baseball.Model (State, setNbBases, _nbBases, _missingPeg)
@@ -40,7 +39,7 @@ view lens state = template lens (_{config=config, board=board, rules=rules}) sta
 
     board =
         div' [class' "ui-board baseball-board" true] [
-            svg [width "100%", height "100%", viewBox 0 0 100 100] $ 
+            svg [viewBox 0 0 100 100] $ 
                 (take nbBases colors # mapWithIndex \i color ->
                     rect (-10.0) (-10.0) 20.0 20.0 [
                         key $ "b" <> show i,
@@ -49,7 +48,7 @@ view lens state = template lens (_{config=config, board=board, rules=rules}) sta
                         style "transform" $ transformBase i nbBases
                     ]
                 ) <> (map2 (state^._position) dupColors \peg pos color ->
-                    whenN (peg /= state^._missingPeg) \_ ->
+                    ifN (peg /= state^._missingPeg) \_ ->
                         g [
                             class' "baseball-player" true,
                             style "transform" $ translatePeg pos nbBases,

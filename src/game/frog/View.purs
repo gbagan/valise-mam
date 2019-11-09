@@ -3,11 +3,10 @@ module Game.Frog.View where
 import MyPrelude
 import Data.String (joinWith)
 import Lib.Util (map2, tabulate, pairwise, floatRange)
-import Pha (VDom, text, whenN)
+import Pha (VDom, text, ifN)
 import Pha.Action ((🔍), getEvent)
 import Pha.Html (div', span, br, svg, viewBox, g, use, line, path, text',
-                class', key, click, style,
-                width, height, stroke, fill, strokeDasharray, strokeWidth, translate)
+                class', key, click, style, stroke, fill, strokeDasharray, strokeWidth, translate)
 import Pha.Event (shiftKey)
 import UI.Template (template, card, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icons (icongroup, iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
@@ -32,8 +31,7 @@ spiral center startRadius radiusStep startTheta endTheta thetaStep =
             point = { x: center.x + r * cos theta, y: center.y + r * sin theta }
             slope = (b * sin theta + r * cos theta) / (b * cos theta - r * sin theta)
             intercept = -(slope * r * cos theta - r * sin theta)
-        in
-            { point, slope, intercept }
+        in { point, slope, intercept }
     )
     # pairwise
     # mapWithIndex (\i (a ~ b) ->
@@ -49,8 +47,7 @@ spiralPointsPolar :: Int -> Array Polar
 spiralPointsPolar n = reverse $ tabulate (n + 1) \i ->
     let theta = sqrt(if i == n then 21.0 else toNumber i * 20.0 / toNumber n) * 1.36 * pi
         radius = 61.0 * theta / (2.0 * pi)
-    in
-        { theta, radius }
+    in { theta, radius }
 
 
 spiralPoints :: Int -> Array Cartesian
@@ -84,7 +81,7 @@ view lens state = template lens (_{config = config, board = board, rules = rules
     ]
     grid = 
         div' [class' "ui-board frog-board" true] [
-            svg [viewBox (-190) (-200) 400 400, height "100%", width "100%"] $
+            svg [viewBox (-190) (-200) 400 400] $
                 [
                     path spiralPath [fill "none", stroke "black", strokeWidth "3"],
                     line 153.0 9.0 207.0 20.0 [stroke "black", strokeDasharray "5", strokeWidth "6"],
@@ -93,14 +90,14 @@ view lens state = template lens (_{config = config, board = board, rules = rules
                 ] <> (map2 spoints reachable \i {x, y} reach ->
                     g [
                         key $ "lily" <> show i,
-                        click $ lens 🔍 (getEvent >>= \e -> if shiftKey e then markA i else playA' i)
+                        click $ lens 🔍 ifM (shiftKey <$> getEvent) (markA i) (playA' i)
                     ] [
                         lily i x y false false,
                         lily i x y true (not reach || state^._locked),
                         text' x y (if state^._help then show $ (state^._nbRows) - i else "") [class' "frog-index" true]
                     ]
                 ) <> (map2 (state^._marked) spoints \i mark {x, y} ->
-                    whenN (mark && i /= position) \_ ->
+                    ifN (mark && i /= position) \_ ->
                         use (x - 20.0) (y - 20.0) 32.0 32.0 "#frog2" [
                             key $ "reach" <> show i,
                             class' "frog-frog marked" true

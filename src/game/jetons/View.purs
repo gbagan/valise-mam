@@ -1,8 +1,8 @@
 module Game.Jetons.View where
 
 import MyPrelude
-import Pha (VDom, text, whenN, maybeN)
-import Pha.Html (div', span, br, key, class', style, rgbColor)
+import Pha (VDom, text, ifN, maybeN)
+import Pha.Html (div', span, br, pc, key, class', style, rgbColor)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer)
 import Game.Effs (EFFS)
 import Game.Jetons.Model (State, _dragged)
@@ -33,10 +33,10 @@ view lens state = template lens (_{config = config, board = board, rules = rules
             class' "jetons-peg" true,
             class' "small" $ columns >= 8,
             style "background-color" $ rgbColor 255 (floor $ 255.0 * (1.0 - sqrt (toNumber val / toNumber (rows * columns)))) 0,
-            style "left" $ show ((15.0 + toNumber col * 100.0) / toNumber columns) <> "%",
-            style "top" $ show ((15.0 + toNumber row * 100.0) / toNumber rows) <> "%",
-            style "width" $ show (70.0 / toNumber columns) <> "%",
-            style "height" $ show (70.0 / toNumber rows) <> "%",
+            style "left" $ pc $ (15.0 + toNumber col * 100.0) / toNumber columns,
+            style "top" $ pc $ (15.0 + toNumber row * 100.0) / toNumber rows,
+            style "width" $ pc $ 70.0 / toNumber columns,
+            style "height" $ pc $ 70.0 / toNumber rows,
             style "box-shadow" $ show (val * 2) <> "px " <> show(val * 2) <> "px 5px 0px #656565"
         ] <> props) [ span [] [text $ show val] ]
         {-
@@ -60,7 +60,7 @@ view lens state = template lens (_{config = config, board = board, rules = rules
     board = incDecGrid lens state [
         div' ([class' "ui-board" true] <> dndBoardProps lens _dragged <> gridStyle rows columns 3) $
             (position # mapWithIndex \i val ->
-                whenN (val /= 0) \_ ->
+                ifN (val /= 0) \_ ->
                     piece i val ([key $ show i] <> dndItemProps lens _dragged true true i state)
             ) <> [maybeN $ cursor <$> state^._pointer <*> state^._dragged]
     ]

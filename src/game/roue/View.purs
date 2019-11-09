@@ -10,7 +10,7 @@ import Game.Roue.Model (State, Ball(..), _size, _rotation, _dragged, setSizeA, r
                         aligned, validRotation, validRotation')
 import Pha (VDom, text, maybeN)
 import Pha.Action ((🔍))
-import Pha.Html (div', button, span, svg, path, key, class', click, pointerup, style, disabled, viewBox, fill, stroke)
+import Pha.Html (div', button, span, svg, path, key, class', pc, click, pointerup, style, disabled, viewBox, fill, stroke)
 import UI.Template (template, card, dndBoardProps, dndItemProps)
 import UI.Icons (icongroup, iconSelectGroup, ireset, irules)
 
@@ -46,8 +46,8 @@ innerWheel size = div' [class' "roue-inner" true] [
 cursor :: ∀a. PointerPosition -> String -> VDom a EFFS
 cursor {x, y} color = div' [
     class' "ui-cursor roue-select-color roue-cursor" true,
-    style "left" $ show (100.0 * x) <> "%",
-    style "top" $ show (100.0 * y) <> "%",
+    style "left" $ pc (100.0 * x),
+    style "top" $ pc (100.0 * y),
     style "background-color" color
 ] []
 
@@ -85,8 +85,8 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
             div' [
                 class' "roue-outer-piece" true,
                 key $ show index,
-                style "left" $ show (44.0 + 40.0 * cos(toNumber index * 2.0 * pi / toNumber size)) <> "%",
-                style "top" $ show (44.0 + 40.0 * sin(toNumber index * 2.0 * pi / toNumber size)) <> "%",
+                style "left" $ pc $ 44.0 + 40.0 * cos(toNumber index * 2.0 * pi / toNumber size),
+                style "top" $ pc $ 44.0 + 40.0 * sin(toNumber index * 2.0 * pi / toNumber size),
                 style "background-color" $ colors !! color # fromMaybe "black"
             ] []
         )

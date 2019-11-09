@@ -213,20 +213,20 @@ lockAction act = do
 
 newGameAux :: ∀pos ext mov. Game pos ext mov =>
     (GState pos ext -> GState pos ext) -> (GState pos ext) -> Random (GState pos ext)
-newGameAux f = \state ->
-    let state2 = f state in do
-        state3 <- onNewGame state2
-        position <- initialPosition state3
-        let state4 = state3
-                    # _position .~ position
-                    # _history .~ []
-                    # _redoHistory .~ []
-                    # _help .~ false
+newGameAux f state = do
+    let state2 = f state
+    state3 <- onNewGame state2
+    position <- initialPosition state3
+    let state4 = state3
+                # _position .~ position
+                # _history .~ []
+                # _redoHistory .~ []
+                # _help .~ false
         
-        if null (state2^._history) || isLevelFinished state then
-            pure state4
-        else
-            pure $ _dialog .~ ConfirmNewGame state4 $ state
+    if null (state2^._history) || isLevelFinished state then
+        pure state4
+    else
+        pure $ _dialog .~ ConfirmNewGame state4 $ state
 
 newGame :: ∀pos ext mov effs. Game pos ext mov =>
     (GState pos ext -> GState pos ext) -> Action (GState pos ext) (rng :: RNG | effs)

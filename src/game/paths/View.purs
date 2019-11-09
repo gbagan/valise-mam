@@ -5,9 +5,9 @@ import Lib.Util (coords, tabulate)
 import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _pointer)
 import Game.Effs (EFFS)
 import Game.Paths.Model (State, Mode(..), _exit, _mode, selectVertexA, selectModeA)
-import Pha (VDom, Prop, text, emptyNode, maybeN, whenN)
+import Pha (VDom, Prop, text, emptyNode, maybeN, ifN)
 import Pha.Action ((🔍))
-import Pha.Html (div', p, br, g, svg, use, path, key, class', attr, click, style, width, height, viewBox)
+import Pha.Html (div', p, br, g, svg, use, path, key, class', attr, click, style, viewBox, translate, pc)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, iconSelectGroup, ihelp, iundo, iredo, ireset, irules)
 import UI.Template (template, card, incDecGrid, gridStyle, svgCursorStyle, trackPointer)
@@ -16,7 +16,7 @@ square :: ∀a. {darken :: Boolean, trap :: Boolean, door :: Boolean, x :: Numbe
 square {darken, trap, door, x, y} props =
     g ([class' "paths-darken" darken] <> props) [
         use x y 100.0 100.0 "#paths-background" [],
-        whenN door \_ ->
+        ifN door \_ ->
             use x y 100.0 100.0 "#paths-door" [],
         use x y 100.0 100.0 "#paths-trap" [class' "paths-trap" true, class' "visible" $ trap && not door]
     ]
@@ -57,15 +57,15 @@ view lens state = template lens (_{config=config, board=board, rules=rules}) sta
             use 0.0 0.0 80.0 80.0 "#meeplehat" [
                 key "hero",
                 class' "paths-hero" true,
-                style "transform" $ "translate(" <> show ((toNumber col * 100.0 + 10.0) / toNumber columns) <> "%,"
-                                    <> show ((toNumber row * 100.0 + 10.0) / toNumber rows) <> "%)"
+                style "transform" $ translate (pc $ (toNumber col * 100.0 + 10.0) / toNumber columns)
+                                              (pc $ (toNumber row * 100.0 + 10.0) / toNumber rows)
             ]
 
     pathdec = joinWith " " $ concat $ position # mapWithIndex \i v ->
         let {row, col} = coords columns v in [if i == 0 then "M" else "L", show $ 100 * col + 50, show $ 100 * row + 50]
     
     grid = div' (gridStyle rows columns 5 <> trackPointer lens) [
-        svg [width "100%", height "100%", viewBox 0 0 (100 * columns) (100 * rows)] $
+        svg [viewBox 0 0 (100 * columns) (100 * rows)] $
             (tabulate (rows * columns) \index ->
                 let {row, col} = coords columns index in
                 square {

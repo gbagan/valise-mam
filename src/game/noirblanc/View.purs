@@ -4,7 +4,7 @@ import MyPrelude
 import Lib.Util (coords, map2)
 import Pha (Prop, VDom, text)
 import Pha.Action ((🔍))
-import Pha.Html (div', svguse, class', key, style, click)
+import Pha.Html (div', svguse, class', pc, key, style, click)
 import Game.Core (_position, _nbRows, _nbColumns, _help)
 import Game.Effs (EFFS)
 import Game.Noirblanc.Model (State, _level, _mode2, _maxLevels, play2A, selectLevelA, selectModeA)
@@ -56,10 +56,10 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
                 light
                 (state^._help && played) [
                 key $ show index,
-                style "height" $ show (86.0 / toNumber rows) <> "%",
-                style "width" $ show (86.0 / toNumber columns) <> "%",
-                style "left" $ show ((100.0 * toNumber col + 7.0) / toNumber columns) <> "%",
-                style "top" $ show ((100.0 * toNumber row + 7.0) / toNumber rows) <> "%",
+                style "height" $ pc (86.0 / toNumber rows),
+                style "width" $ pc (86.0 / toNumber columns),
+                style "left" $ pc ((100.0 * toNumber col + 7.0) / toNumber columns),
+                style "top" $ pc ((100.0 * toNumber row + 7.0) / toNumber rows),
                 click $ lens 🔍 play2A index
             ]
 

@@ -2,8 +2,7 @@ module Game.Nim.View where
 import MyPrelude
 import Pha (VDom, text)
 import Pha.Action ((🔍))
-import Pha.Html (div', span, br, svg, rect, use, class', key, style,
-            click, width, height, fill, viewBox, translate)
+import Pha.Html (div', span, br, svg, rect, use, class', key, style, click, fill, viewBox, translate)
 import Lib.Util (tabulate)
 import Game.Effs (EFFS)
 import Game.Core (canPlay, playA, isLevelFinished, _position, _turn)
@@ -24,7 +23,7 @@ view lens state = template lens (_{config = config, board = board, rules = rules
     ]
 
     board = div' [class' "ui-board nim-board" true] [
-        svg [viewBox 0 0 100 100, height "100%", width "100%"] $
+        svg [viewBox 0 0 100 100] $
             concat $ state^._position # mapWithIndex \i pile ->
                 [rect
                     (if length == 5 then 25.0 else 0.0)

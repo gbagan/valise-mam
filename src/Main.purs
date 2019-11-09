@@ -4,7 +4,7 @@ import MyPrelude
 import Data.String (drop, indexOf)
 import Data.String.Pattern (Pattern (..))
 import Effect (Effect)
-import Pha (VDom, app, whenN)
+import Pha (VDom, app, ifN)
 import Pha.Action (Action, (🔍))
 import Pha.Html (div', a, svguse, key, class', href)
 import Pha.Event (key) as E
@@ -143,7 +143,7 @@ viewG state = div' [
     class' "valise" $ state.location == "valise",
     class' "appear" state.anim
 ] [
-    whenN (state.location /= "valise") \_ ->
+    ifN (state.location /= "valise") \_ ->
         a [
             class' "main-minivalise-link" true,
             href "#valise"

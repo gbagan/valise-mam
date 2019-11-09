@@ -1,14 +1,17 @@
 module Game.Labete.View where
 
 import MyPrelude
-import Pha (VDom, Prop, text, whenN, maybeN)
+import Lib.Util (coords, map3)
+import Math (abs)
+import Pha (VDom, Prop, text, ifN, maybeN)
 import Pha.Action ((🔍))
-import Pha.Html (div', span, br, svg, g, rect, use, key, attr, class', style, click, pointerdown, pointerup, pointerleave,
-                fill, stroke, strokeWidth, transform, viewBox, width, height)
+import Pha.Event (shiftKey)
+import Pha.Html (div', br, svg, g, rect, use, key, attr, class', style, click, pointerdown, pointerup, pointerleave,
+                pc, translate, fill, stroke, strokeWidth, transform, viewBox)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, playA)
-import Game.Effs (EFFS)
-import Game.Labete.Model (State, Mode(..), _mode, _beastIndex, nonTrappedBeastOnGrid, setModeA, setHelpA, setBeastA)
-import Lib.Util (coords, map2)
+import Game.Effs (EFFS, getEvent)
+import Game.Labete.Model (State, Mode(..), _mode, _beastIndex, _selectedColor, _startPointer, _squareColors,
+                          nonTrappedBeastOnGrid, setModeA, setHelpA, setBeastA, startZoneA, startZone2A, finishZoneA )
 import UI.Template (template, card, incDecGrid, gridStyle, trackPointer, svgCursorStyle)
 import UI.Icon (Icon(..))
 import UI.Icons (iconbutton, icongroup, iconSelectGroup, iconSizesGroup, ireset, irules)
@@ -16,30 +19,26 @@ import UI.Icons (iconbutton, icongroup, iconSelectGroup, iconSizesGroup, ireset,
 colors :: Array String
 colors = ["#5aa02c", "blue", "red", "yellow", "magenta", "cyan", "orange", "darkgreen", "grey"]
 
-{-
-const Zone = ({ x1, y1, x2, y2, color }) =>
-    rect({
-        stroke: 'black',
-        fill: colors[color],
-        'pointer-events': 'none',
-        opacity: 0.4,
-        x: Math.min(x1, x2) + '%',
-        y: Math.min(y1, y2) + '%',
-        width: Math.abs(x2 - x1) + '%',
-        height: Math.abs(y2 - y1) + '%'
-    });
--}
+zone :: ∀a effs. Int -> {x :: Number, y :: Number} -> {x :: Number, y :: Number} -> VDom a effs
+zone color { x: x1, y: y1 }  {x: x2, y: y2 } =
+    rect (pc $ 100.0 * min x1 x2) (pc $ 100.0 * min y1 y2) (pc $ 100.0 * abs (x2 - x1)) (pc $ 100.0 * abs (y2 - y1)) [
+        key "zone",
+        stroke "black",
+        fill $ colors !! color # fromMaybe "#5aa02c",
+        attr "pointer-events" "none",
+        attr "opacity" "0.4"
+    ]
 
 modes :: Array Mode
 modes = [StandardMode, CylinderMode, TorusMode]
 
-square :: ∀a effs. { hasTrap :: Boolean, hasBeast :: Boolean, row :: Int, col :: Int} -> Array (Prop a effs) -> VDom a effs
-square { hasTrap, hasBeast, row, col } props =
-    g ([transform $ "translate(" <> show (50 * col) <> " " <> show(50 * row) <> ")"] <> props) [
-        use 0.0 0.0 50.0 50.0 "#grass" [fill "#5aa02c"], -- fromMaybe "blackcolors[color] }),
+square :: ∀a effs. { color :: Int, hasTrap :: Boolean, hasBeast :: Boolean, row :: Int, col :: Int} -> Array (Prop a effs) -> VDom a effs
+square { color, hasTrap, hasBeast, row, col } props =
+    g ([transform $ translate (50 * col) (50 * row)] <> props) [
+        use 0.0 0.0 50.0 50.0 "#grass" [fill $ colors !! color # fromMaybe "#5aa02c"],
         rect 0.0 0.0 51.0 51.0 [stroke "black", strokeWidth "0.5", fill "transparent"],
         use 5.0 5.0 40.0 40.0 "#paw" [class' "labete-beast" true, class' "visible" hasBeast],
-        whenN hasTrap \_ ->
+        ifN hasTrap \_ ->
             use 5.0 5.0 40.0 40.0 "#trap" []
     ]
 
@@ -84,8 +83,6 @@ view lens state = template lens (_{config = config, board = board, rules = rules
         icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state 
         {-    I.Group({ title: `Meilleur score (${state.bestScore || 'Ø'})` },
                 I.BestScore()
-            )
-        )
         -}
     ]
 
@@ -102,34 +99,39 @@ view lens state = template lens (_{config = config, board = board, rules = rules
         attr "pointer-events" "none"
     ])
 
-    grid = div' (gridStyle rows columns 5 <> trackPointer lens <> [class' "ui-board" true]) [
-           -- onpointerdown: actions.when(shift, actions.startZone2),
-        svg [viewBox 0 0 (50 * columns) (50 * rows), width "100%", height "100%"] $
-            (map2 (state^._position) nonTrappedBeast \index hasTrap hasBeast ->
+    grid = div' (gridStyle rows columns 5 <> trackPointer lens <> [class' "ui-board" true,
+            pointerdown $ lens 🔍 ifM (shiftKey <$> getEvent) startZone2A (pure unit)
+    ]) [
+        svg [viewBox 0 0 (50 * columns) (50 * rows)] (
+            (map3 (state^._position) nonTrappedBeast  (state^._squareColors) \index hasTrap hasBeast color ->
                 let {row, col} = coords columns index in
-                square { row, col, hasTrap, hasBeast: hasBeast && state^._help } [
+                square { color, row, col, hasTrap, hasBeast: hasBeast && state^._help } [
                     key $ show index,
-                    -- color: state.squareColors[index],
-                    -- hasBeast: state.beastVisible && state.nonTrappedBeast && state.nonTrappedBeast[index],
-                    click $ lens 🔍 playA index --  actions.unless(orF(shift, attr('zoneStart')), [actions.play, index]),
-                    --    onpointerenter: [actions.setSquareHover, index],
+                    click $ lens 🔍ifM (shiftKey <$> getEvent) (pure unit) (playA index),
+                    --    onpointerenter: [actions.setSquareHover, index], todo
                     --    onponterleave: [actions.setSquareHover, null],
-                    --    onpointerup: [actions.finishZone, index],
-                    --    onpointerdown: actions.when(shift, [actions.startZone, index])
+                    pointerup $ lens 🔍 finishZoneA index,
+                    pointerdown $ lens 🔍 ifM (shiftKey <$> getEvent) (startZoneA index) (pure unit)
                 ]
-                -- state.zone && Zone({ key: 'zone', ...state.zone }),
-            ) <> [maybeN $ cursor <$> state^._pointer]   --  && !state.zoneStart && Cursor({ key: 'cursor' })
+            ) <> [
+                maybeN $ case state^._startPointer of
+                    Nothing -> cursor <$> state^._pointer
+                    Just p -> (zone (state^._selectedColor) p) <$> state^._pointer
+            ]
+        )
     ]
 
-    board = incDecGrid lens state [grid]
-    winTitle = "GAGNÉ"
+    board = incDecGrid lens state [
+        grid,
+        ifN (state^._selectedColor > 0) \_ ->
+            div' [
+                class' "labete-color" true,
+                style "background-color" $ colors !! (state^._selectedColor) # fromMaybe "transparent"
+            ][]
+    ]
 
-           {- state.selectedColor > 0 && div({
-                class: 'labete-color',
-                style: { 'background-color': colors[state.selectedColor] },
-            })
-        );
-        -}
+    winTitle = "GAGNÉ"
+    -- todo winTitle: `Record: ${sum(state.position)} pièges`,
 
     {-
     const BestScoreDialog = () =>
@@ -149,11 +151,7 @@ view lens state = template lens (_{config = config, board = board, rules = rules
                             col,
                             color: 0,
                             hasTrap: state.bestPosition[index]
-                        })
-                    )
-                )
-            )
-        )
+
 
 const CustomBeastDialog = () =>
     Dialog({
@@ -170,22 +168,4 @@ const CustomBeastDialog = () =>
                         color: 0,
                         hasBeast: state.customBeast[index],
                         onclick: [actions.flipBeast, index]
-                    })
-                )
-            )
-        )
-    );
-
-const dialogs = {
-    bestscore: BestScoreDialog,
-    custombeast: CustomBeastDialog,
-};
-
-return {
-    HelpDialog,
-    Board,
-    Config,
-    dialogs,
-    winTitle: `Record: ${sum(state.position)} pièges`,
-};
-});
+  

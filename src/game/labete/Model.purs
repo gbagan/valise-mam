@@ -1,10 +1,11 @@
 module Game.Labete.Model where
 import MyPrelude
-import Lib.Util (tabulate2)
+import Lib.Util (coords, tabulate2, abs)
 import Data.Array (updateAtIndices)
 import Pha.Action (Action, action, RNG)
-import Game.Core (class Game, SizeLimit(..), GState(..),
+import Game.Core (class Game, SizeLimit(..), GState(..), PointerPosition,
                    genState, newGame', _position, _nbRows, _nbColumns, _help)
+import Game.Effs (POINTER, getPointerPosition, setState)
 
 data Mode = StandardMode | CylinderMode | TorusMode
 derive instance eqMode :: Eq Mode
@@ -32,7 +33,9 @@ type Ext' = {
     beastIndex :: Int,
     mode :: Mode,
     selectedColor :: Int,
-    squareColors :: Array Int
+    squareColors :: Array Int,
+    startSquare :: Maybe Int,
+    startPointer :: Maybe PointerPosition
 }
 newtype ExtState = Ext Ext'
 type State = GState (Array Boolean) ExtState
@@ -55,9 +58,15 @@ _selectedColor = _ext ∘ lens (_.selectedColor) (_{selectedColor = _})
 _squareColors :: Lens' State (Array Int)
 _squareColors = _ext ∘ lens (_.squareColors) (_{squareColors = _})
 
+_startPointer :: Lens' State (Maybe PointerPosition)
+_startPointer = _ext ∘ lens (_.startPointer) (_{startPointer = _})
+
+_startSquare :: Lens' State (Maybe Int)
+_startSquare = _ext ∘ lens (_.startSquare) (_{startSquare = _})
+
 istate :: State
 istate = genState [] (_{nbRows = 5, nbColumns = 5}) (Ext {beast: [type1], beastIndex: 0, mode: StandardMode, 
-                                                        squareColors: [], selectedColor: 0})
+                                                startSquare: Nothing, startPointer: Nothing, squareColors: [], selectedColor: 0})
 
 rotate90 :: Beast -> Beast
 rotate90 = map \{row, col} -> { row: -col, col: row }
@@ -112,10 +121,11 @@ instance labeteGame :: Game (Array Boolean) ExtState Int where
     canPlay _ _ = true
     isLevelFinished = null ∘ nonTrappedBeasts
     initialPosition st = pure $ replicate (st^._nbRows * st^._nbColumns) false
-    onNewGame st = pure $ st # _beast .~ (beastTypes !! (st^._beastIndex) # fromMaybe [type1])
-    {- state => ({
+    onNewGame st = pure $ st
+                        # _beast .~ (beastTypes !! (st^._beastIndex) # fromMaybe [type1])
+                        # _squareColors .~ replicate (st^._nbRows * st^._nbColumns) 0
+    {- 
         beast: beastTypes[state.beastIndex] || [fromCustomBeast(state.customBeast)],
-        squareColors: duplicate(state.rows * state.columns, 0),
     -}
     sizeLimit _ = SizeLimit 2 2 9 9
     computerMove _ = Nothing
@@ -135,16 +145,13 @@ setHelpA a = action (_help .~ a)
 
 setBeastA :: ∀effs.  Int -> Action State (rng :: RNG | effs)
 setBeastA = newGame' (set _beastIndex)
-
-abs :: Int -> Int
-abs x = if x < 0 then -x else x
           
 type Zone = { row1 :: Int, row2 :: Int, col1 :: Int, col2 :: Int}
 
 zoneposition :: Int -> Zone -> Array Int
 zoneposition columns {row1, col1, row2, col2} =
     tabulate2 (abs (row1 - row2) + 1) (abs(col1 - col2) + 1) \i j ->
-        i + (min row1 row2) * columns + j + (min col1 col2)
+        (i + min row1 row2) * columns + j + (min col1 col2)
           
 colorZone :: State -> Zone -> Array Int
 colorZone state zone = state^._squareColors # updateAtIndices ( 
@@ -155,12 +162,25 @@ colorZone state zone = state^._squareColors # updateAtIndices (
 incSelectedColorA :: ∀effs. Int -> Action State effs
 incSelectedColorA x = action $ _selectedColor %~ \y -> (x + y + 9) `mod` 9
 
---startZone index action $ set _zoneStart %~ {index}),
+onKeyDown :: ∀effs. String -> Action State effs
+onKeyDown "o" = incSelectedColorA (-1)
+onKeyDown "p" = incSelectedColorA 1
+onKeyDown _ = pure unit
 
---startZone state => set('zoneStart', merge({
---    left: 100 * state.pointer.left / state.pointer.width,
---    top: 100 * state.pointer.top / state.pointer.height,
---})),
+startZoneA :: ∀effs. Int -> Action State effs
+startZoneA pos = action (_startSquare .~ Just pos)
+
+startZone2A :: ∀effs. Action State (pointer :: POINTER | effs)
+startZone2A = getPointerPosition >>= \pos -> setState (_startPointer .~ pos)
+
+finishZoneA :: ∀effs. Int -> Action State effs
+finishZoneA index1 = action \state ->
+    state^._startSquare # maybe state \index2 ->
+        let {row: row1, col: col1} = coords (state^._nbColumns) index1
+            {row: row2, col: col2} = coords (state^._nbColumns) index2
+        in state # _squareColors .~ colorZone state {row1, col1, row2, col2}
+                 # _startSquare .~ Nothing
+                 # _startPointer .~ Nothing
 
     {-
 
@@ -181,24 +201,9 @@ incSelectedColorA x = action $ _selectedColor %~ \y -> (x + y + 9) `mod` 9
 
         play: combine($.play, showBeast),
 
-        finishZone: (state, index) =>
-            !state.zoneStart ? state : {
-                ...state,
-                squareColors: colorZone(state, {
-                    row1: state.zoneStart.index / state.columns | 0,
-                    col1: state.zoneStart.index % state.columns,
-                    row2: index / state.columns | 0,
-                    col2: index % state.columns
-                }),
-                zoneStart: null,
-            },
-
         toggleHelp: pipe(set('help', not), showBeast),
 
-        keyDown: keyEvents({
-            o: incSelectedColor(-1),
-            p: incSelectedColor(1),
-        }),
+
     }),
 
     computed: state => ({

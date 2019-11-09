@@ -2,7 +2,7 @@ module UI.Template where
 import MyPrelude
 import Pha (VDom, Prop, text, emptyNode)
 import Pha.Action (Action, action, (🔍))
-import Pha.Html (div', class', attr, style, pointerup, pointerdown, pointerleave, pointermove)
+import Pha.Html (div', class', attr, style, translate, pc, pointerup, pointerdown, pointerleave, pointermove)
 import Game.Core (class Game, GState, Mode(..), SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointer, _locked, canPlay, isLevelFinished, sizeLimit,
          setGridSizeA, confirmNewGameA, dropA)
@@ -86,8 +86,8 @@ template lens elemFn state =
 
 
 gridStyle :: ∀a effs. Int -> Int -> Int -> Array (Prop a effs)
-gridStyle rows columns limit = [style "height" $ show (toNumber rows / m * 100.0) <> "%",
-                                style "width" $ show (toNumber columns / m * 100.0) <> "%"]
+gridStyle rows columns limit = [style "height" $ pc (toNumber rows / m * 100.0),
+                                style "width" $ pc (toNumber columns / m * 100.0)]
     where m = toNumber $ max limit $ max rows columns        
 
 setPointerPositionA :: ∀pos ext effs. (Maybe Position) -> Action (GState pos ext) effs
@@ -95,15 +95,15 @@ setPointerPositionA a = action $ _pointer .~ a
 
 cursorStyle :: ∀a effs. Position -> Int -> Int -> Number -> Array (Prop a effs)    
 cursorStyle {x, y} rows columns size = [
-    style "left" $ show (x * 100.0) <> "%",
-    style "top" $ show (y * 100.0) <> "%",
-    style "width" $ show (size / toNumber columns) <> "%",
-    style "height" $ show (size / toNumber rows) <> "%"
+    style "left" $ pc (x * 100.0),
+    style "top" $ pc (y * 100.0),
+    style "width" $ pc (size / toNumber columns),
+    style "height" $ pc (size / toNumber rows)
 ]
 
 svgCursorStyle :: ∀a effs. Position -> Array (Prop a effs)
 svgCursorStyle {x, y} = [
-    style "transform" $ "translate(" <> show (100.0 * x) <> "%," <> show (100.0 * y) <> "%)"
+    style "transform" $ translate (pc $ 100.0 * x) (pc $ 100.0 * y)
 ]
 
 trackPointer :: ∀pos ext a. Lens' a (GState pos ext) -> Array (Prop a EFFS)

@@ -46,6 +46,28 @@ validRotation' state = (length $ filter identity $ aligned state) == 1
 validRotation :: State -> Boolean
 validRotation state = validRotation' state && (all isJust $ state^._position )
 
+
+instance roueGame :: Game (Array (Maybe Int)) Ext {from :: Ball, to :: Ball} where
+    play state move = act (state^._position) where
+        act = case move of 
+            {from: Panel from, to: Wheel to} -> ix to .~ Just from
+            {from: Wheel from, to: Wheel to } -> swap from to
+            {from: Wheel from, to: Board} -> ix from .~ Nothing
+            _ -> identity
+    
+    canPlay _ _ = true
+    
+    initialPosition state = pure $ replicate (state^._size) Nothing
+
+    isLevelFinished _ = false
+    
+    onNewGame = pure ∘ (_rotation .~ 0)
+
+    computerMove _ = Nothing
+    sizeLimit = defaultSizeLimit
+
+
+
 -- tourne la roue de i crans
 rotate :: Int -> State -> State
 rotate i = _rotation %~ add i
@@ -79,22 +101,3 @@ deleteDraggedA = action \state ->
     state^._dragged # maybe state2 case _ of
             Wheel i -> state2 # (_position ∘ ix i) .~ Nothing
             _ -> state2
-
-instance roueGame :: Game (Array (Maybe Int)) Ext {from :: Ball, to :: Ball} where
-    play state move = act (state^._position) where
-        act = case move of 
-            {from: Panel from, to: Wheel to} -> ix to .~ Just from
-            {from: Wheel from, to: Wheel to } -> swap from to
-            {from: Wheel from, to: Board} -> ix from .~ Nothing
-            _ -> identity
-    
-    canPlay _ _ = true
-    
-    initialPosition state = pure $ replicate (state^._size) Nothing
-
-    isLevelFinished _ = false
-    
-    onNewGame = pure ∘ (_rotation .~ 0)
-
-    computerMove _ = Nothing
-    sizeLimit = defaultSizeLimit

@@ -4,17 +4,34 @@ import Prelude
 import Pha (VDom, Prop(..), h, text)
 import Pha.Action (Action)
 
+class EUnit a where toStr  :: a -> String
+newtype Px a = Px a
+newtype Percent a = Percent a
+
+instance unittoStr :: EUnit String where toStr = identity
+instance unitInt :: EUnit Int where toStr = show
+instance unitNumber :: EUnit Number where toStr = show 
+instance unitPx :: EUnit (Px Number) where toStr (Px x) = show x <> "px"
+instance unitPx2 :: EUnit (Px Int) where toStr (Px x) = show x <> "px"    
+instance unitPc :: EUnit (Percent Number) where toStr (Percent x) = show x <> "%"
+instance unitPc2 :: EUnit (Percent Int) where toStr (Percent x) = show x <> "%"
+
+px :: ∀a. a -> Px a
+px = Px
+pc :: ∀a. a -> Percent a
+pc = Percent
+
 key :: ∀a effs. String -> Prop a effs
 key = Key
 
-attr :: ∀a effs. String -> String -> Prop a effs
-attr = Attr
+attr :: ∀a effs u. EUnit u  => String -> u -> Prop a effs
+attr n x = Attr n (toStr x)
 
 class' :: ∀a effs. String -> Boolean -> Prop a effs
 class' = Class
 
-style :: ∀a effs. String -> String -> Prop a effs
-style = Style
+style :: ∀a effs u. EUnit u => String -> u -> Prop a effs
+style n x = Style n (toStr x)
 
 click :: ∀a effs. Action a effs -> Prop a effs
 click = Event "click"
@@ -67,17 +84,17 @@ a = h "a"
 
 disabled :: ∀a effs. Boolean -> Prop a effs
 disabled b = attr "disabled" (if b then "true" else "")
-width :: ∀a effs. String -> Prop a effs
+width :: ∀a effs u. EUnit u => u -> Prop a effs
 width = attr "width"
-height :: ∀a effs. String -> Prop a effs
+height :: ∀a effs u. EUnit u => u -> Prop a effs
 height = attr "height"
 href :: ∀a effs. String -> Prop a effs
 href = attr "href"
 
     -- svg
-x :: ∀a effs. String -> Prop a effs
+x :: ∀a effs u. EUnit u => u -> Prop a effs
 x = attr "x"
-y :: ∀a effs. String -> Prop a effs
+y :: ∀a effs u. EUnit u => u -> Prop a effs
 y = attr "y" 
 stroke :: ∀a effs. String -> Prop a effs
 stroke = attr "stroke"
@@ -92,15 +109,14 @@ strokeWidth = attr "stroke-width"
 strokeDasharray :: ∀a effs. String -> Prop a effs
 strokeDasharray = attr "stroke-dasharray"
 
-
 g :: ∀a effs. Array (Prop a effs) -> Array (VDom a effs) -> VDom a effs
 g = h "g"
 
 svg :: ∀a effs. Array (Prop a effs) -> Array (VDom a effs) -> VDom a effs
 svg = h "svg"
 
-rect :: ∀a effs. Number -> Number -> Number -> Number -> Array (Prop a effs) -> VDom a effs
-rect x' y' w h' props = h "rect" ([attr "x" $ show x', attr "y" $ show y', attr "width" $ show w, attr "height" $ show h'] <> props) []
+rect :: ∀a effs u1 u2 u3 u4. EUnit u1 => EUnit u2 => EUnit u3 => EUnit u4 => u1 -> u2 -> u3 -> u4 -> Array (Prop a effs) -> VDom a effs
+rect x' y' w h' props = h "rect" ([attr "x" x', attr "y" y', attr "width" w, attr "height" h'] <> props) []
 
 path :: ∀a effs. String -> Array (Prop a effs) -> VDom a effs
 path d props = h "path" ([attr "d" d] <> props) []
@@ -118,8 +134,8 @@ use x y w h' href' props =
 text' :: ∀a effs. Number -> Number -> String -> Array (Prop a effs) -> VDom a effs
 text' x y t props = h "text" ([attr "x" $ show x, attr "y" $ show y] <> props) [text t]
 
-translate :: Number -> Number -> String
-translate x y = "translate(" <> show x <> "px," <> show y <> "px)"
+translate :: ∀u1 u2. EUnit u1 => EUnit u2 => u1 -> u2 -> String
+translate x y = "translate(" <> toStr x <> "," <> toStr y <> ")"
 
 svguse :: ∀a effs. String -> Array (Prop a effs) -> VDom a effs
 svguse symbol props = svg ([width "100%", height "100%"]  <> props) [h "use" [attr "href" symbol] []]

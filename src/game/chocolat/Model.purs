@@ -58,10 +58,9 @@ instance chocolatGame :: Game {left :: Int, top :: Int, right :: Int, bottom :: 
     computerMove = computerMove'
 
 instance chocolat2Game :: TwoPlayersGame {left :: Int, top :: Int, right :: Int, bottom :: Int} ExtState Move where
-    isLosingPosition st =
-        let {left, right, top, bottom} = st^._position
-            {row, col} = st^._soap
-        in (col - left) .^. (right - col - 1) .^. (row - top) .^. (bottom - row - 1) == 0
+    isLosingPosition st = (col - left) .^. (right - col - 1) .^. (row - top) .^. (bottom - row - 1) == 0 where
+        {left, right, top, bottom} = st^._position
+        {row, col} = st^._soap 
 
     possibleMoves st =
         let {left, right, top, bottom} = st^._position

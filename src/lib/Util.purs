@@ -6,6 +6,9 @@ import Data.Tuple (Tuple)
 import Data.Array (range, (!!), mapWithIndex, updateAt, tail, zip, zipWith)
 import Data.Int (toNumber, floor)
 
+abs :: Int -> Int
+abs x = if x < 0 then -x else x
+
 range' :: Int -> Int -> Array Int
 range' n m = if n > m then [] else range n m
 infix 8 range' as ..

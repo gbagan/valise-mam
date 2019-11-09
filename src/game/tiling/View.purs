@@ -1,10 +1,10 @@
 module Game.Tiling.View (view) where
 import MyPrelude
 import Lib.Util (coords)
-import Pha (VDom, Prop, text, whenN, maybeN)
+import Pha (VDom, Prop, text, ifN, maybeN)
 import Pha.Action ((🔍))
 import Pha.Html (div', g, rect, line, use, key, attr, style, svg, class', click, contextmenu, pointerenter, pointerleave,
-                 width, height, viewBox, fill, stroke, strokeWidth, transform)
+                 translate, viewBox, fill, stroke, strokeWidth, transform)
 import Game.Effs (EFFS, preventDefault)
 import Game.Core (_position, _nbRows, _nbColumns, _pointer, _help)
 import Game.Tiling.Model (State, TileType(..), _nbSinks, _rotation, _tile, _tileType, _customTile,
@@ -19,12 +19,12 @@ square :: ∀a effs. {isDark :: Boolean, hasBlock :: Boolean, hasSink :: Boolean
 square {isDark, hasBlock, hasSink, row, col} props =
     g ([
         class' "tiling-darken" isDark,
-        transform $ "translate(" <> show (50 * col) <> "," <> show (50 * row) <> ")"
+        transform $ translate (50 * col) (50 * row)
     ] <> props) [
         rect 0.0 0.0 50.0 50.0 [key "conc", fill "url(#concrete)"],
-        whenN hasBlock \_ ->
+        ifN hasBlock \_ ->
             use 0.0 0.0 50.0 50.0 "#tile2" [key "tile"],
-        whenN hasSink \_ ->
+        ifN hasSink \_ ->
             use 0.0 0.0 50.0 50.0 "#sink" [key "sink"]
     ]
     
@@ -66,7 +66,7 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
         class' "ui-board" true,
         contextmenu $ preventDefault *> (lens 🔍 rotateA)
     ]) [
-        svg [width "100%", height "100%", viewBox 0 0 (50 * columns) (50 * rows)] $
+        svg [viewBox 0 0 (50 * columns) (50 * rows)] $
             (position # mapWithIndex \index pos ->
                 let {row, col} = coords columns index in
                 square {
@@ -81,16 +81,14 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
                 ]
             ) <> (position # mapWithIndex \index pos ->
                 let {row, col} = coords columns index in
-                g [
-                    transform $ "translate(" <> show (50 * col) <> "," <> show (50 * row) <> ")"
-                ] [
-                    whenN (pos > 0 && border index (-1)) \_ ->
+                g [transform $ translate (50 * col) (50 * row)] [
+                    ifN (pos > 0 && border index (-1)) \_ ->
                         line 0.0 0.0 0.0 50.0 [stroke "#000", strokeWidth "2"],
-                    whenN (pos > 0 && border index 1) \_ ->
+                    ifN (pos > 0 && border index 1) \_ ->
                         line 50.0 0.0 50.0 50.0 [stroke "#000", strokeWidth "2"],
-                    whenN (pos > 0 && border index (-columns)) \_ ->
+                    ifN (pos > 0 && border index (-columns)) \_ ->
                         line 0.0 0.0 50.0 0.0 [stroke "#000", strokeWidth "2"],
-                    whenN (pos > 0 && border index columns) \_ ->
+                    ifN (pos > 0 && border index columns) \_ ->
                         line 0.0 50.0 50.0 50.0 [stroke "#000", strokeWidth "2"]    
                 ]
             ) <> [maybeN $ (if length (sinks state) < state^._nbSinks then sinkCursor else tileCursor) <$> state^._pointer]

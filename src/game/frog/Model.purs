@@ -57,10 +57,9 @@ instance frogGame2 :: TwoPlayersGame Int ExtState Int where
 
 -- calcule l'ensemble des positions gagnantes pour une taille et un ensemble de mouvements donnés
 winningPositions :: ∀t. Foldable t => Int -> t Int -> Array Boolean
-winningPositions size moves =
-    let t = tabulate size \i -> defer
-            \_ -> i == 0 || (moves # all \m -> maybe false (not ∘ force) (t !! (i - m))) in
-    t <#> force
+winningPositions size moves = t <#> force where
+    t = tabulate size \i -> defer
+            \_ -> i == 0 || (moves # all \m -> maybe false (not ∘ force) (t !! (i - m)))
 
 --- calcule les positions accessibles depluis la position courante
 reachableArray :: State -> Array Boolean

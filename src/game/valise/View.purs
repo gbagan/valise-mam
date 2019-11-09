@@ -4,7 +4,7 @@ import Game.Effs (EFFS)
 import Game.Valise.Model (State, showHelpA)
 import Pha (VDom, Prop, h, text, maybeN)
 import Pha.Action ((🔍))
-import Pha.Html (div', a, svg, g, class', svguse, attr, href, width, height, viewBox, fill, transform, x, y,
+import Pha.Html (div', a, svg, g, class', svguse, attr, href, width, height, viewBox, fill, transform, translate, x, y,
     pointerenter, pointerleave)
 
 pos :: ∀a effs. Int -> Int -> Int -> Int -> Array (Prop a effs)
@@ -106,7 +106,7 @@ valise lens state = svg [viewBox 0 0 825 690] [
     ]
 ] where
         object {drag, link, help, symbol} x' y' w' h' props children = 
-            g [transform $ "translate(" <> show x' <> " " <> show y' <> ")"] [
+            g [transform $ translate x' y'] [
                 g props [
                     svg [
                         -- payloadFn = relativePointerPosition -- >>= (set('name', drag));

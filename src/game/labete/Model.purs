@@ -1,7 +1,6 @@
 module Game.Labete.Model where
 import MyPrelude
 import Lib.Util (coords, tabulate2, abs)
-import Data.Array (updateAtIndices)
 import Pha.Action (Action, action, RNG)
 import Game.Common (_isoCustom)
 import Game.Core (class Game, SizeLimit(..), GState(..), PointerPosition, Dialog(..),
@@ -141,6 +140,7 @@ instance labeteGame :: Game (Array Boolean) ExtState Int where
 
     sizeLimit _ = SizeLimit 2 2 9 9
     computerMove _ = Nothing
+    updateScore st = st ~ true
     {-
         score: {
             objective: 'minimize',

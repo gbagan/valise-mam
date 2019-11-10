@@ -122,6 +122,7 @@ instance solitaireGame :: Game (Array Boolean) ExtState {from :: Int, to :: Int}
         _ -> SizeLimit 7 7 7 7
 
     computerMove _ = Nothing
+    updateScore st = st ~ true 
 
 setBoardA :: ∀effs. Board -> Action State (rng :: RNG | effs)
 setBoardA board = newGame \state ->

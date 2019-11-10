@@ -1,9 +1,10 @@
 module Game.Core where
-
+import Debug.Trace (trace)
 import MyPrelude
 import Data.List (List(..))
 import Data.List (last, null) as L
 import Data.Array.NonEmpty (fromArray, toArray) as N
+import Data.Map (Map, empty) as M
 import Lib.Random (Random, runRnd, genSeed, randomPick)
 import Pha.Action (Action, action, delay, DELAY, RNG, getState, setState, setState', randomAction, randomAction') -- asyncAction)
 import Effect (Effect)
@@ -30,6 +31,7 @@ type CoreState pos ext = {
     help :: Boolean,
     locked :: Boolean,
     showWin :: Boolean,
+    scores :: M.Map String (Tuple Int pos),
     pointer :: Maybe PointerPosition
 }
 
@@ -49,6 +51,7 @@ defaultCoreState p = {
     mode: SoloMode,
     locked: false,
     showWin: false,
+    scores: M.empty,
     pointer: Nothing
 }
 
@@ -97,6 +100,9 @@ _showWin = _core ∘ lens (_.showWin) (_{showWin = _})
 _pointer :: ∀pos ext. Lens' (GState pos ext) (Maybe PointerPosition)
 _pointer = _core ∘ lens (_.pointer) (_{pointer = _})
 
+_scores :: ∀pos ext. Lens' (GState pos ext) (M.Map String (Tuple Int pos))
+_scores = _core ∘ lens (_.scores) (_{scores = _})
+
 data SizeLimit = SizeLimit Int Int Int Int
 
 class Game pos ext mov | ext -> pos mov where
@@ -107,6 +113,7 @@ class Game pos ext mov | ext -> pos mov where
     sizeLimit ::  GState pos ext -> SizeLimit
     computerMove :: GState pos ext -> Maybe (Random mov)
     onNewGame :: GState pos ext -> Random (GState pos ext)
+    updateScore :: GState pos ext -> Tuple (GState pos ext) Boolean
 
 defaultSizeLimit :: ∀a. a -> SizeLimit
 defaultSizeLimit _ = SizeLimit 0 0 0 0
@@ -178,29 +185,26 @@ computerPlay = do
 computerStartsA :: ∀pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
 computerStartsA = action pushToHistory *> computerPlay
 
-type PlayOption = {
-    showWin :: Boolean
-}
-
-playA' :: ∀pos ext mov effs. Game pos ext mov => (PlayOption -> PlayOption) -> mov -> 
-    Action (GState pos ext) (delay :: DELAY, rng :: RNG | effs)
-playA' optionFn move = lockAction $ do 
+playA :: ∀pos ext mov effs. Game pos ext mov => mov -> Action (GState pos ext) (delay :: DELAY, rng :: RNG | effs)
+playA move = lockAction $ do 
     state <- getState
-    let {showWin} = optionFn {showWin: true}
-    if not $ canPlay state move then
+    if not (canPlay state move) then
         pure unit
     else do
         st2 <- setState' (playAux move ∘ pushToHistory)
-        if showWin && isLevelFinished st2 then
-            showVictory
+        if isLevelFinished st2 then do
+            let st3 ~ isNewRecord = updateScore st2
+            setState \_ -> st3
+            if isNewRecord then
+                showVictory
+            else
+                pure unit
         else if state^._mode == ExpertMode || state^._mode == RandomMode then do
             delay 1000
             computerPlay
         else 
             pure unit
 
-playA :: ∀pos ext mov effs. Game pos ext mov => mov -> Action (GState pos ext) (delay :: DELAY, rng :: RNG | effs)
-playA = playA' identity
 
 
 -- affecte à true l'attribut locked avant le début de l'action act et l'affecte à false à la fin de l'action
@@ -278,7 +282,32 @@ computerMove' state =
                         moves # N.toArray # find (isLosingPosition ∘ flip playAux state)
                 ) in
                     (bestMove <#> pure) <|> Just (randomPick moves)
-                
+
+data Objective = Minimize | Maximize
+derive instance eqObjective :: Eq Objective 
+data ShowWinStrategy = AlwaysShowWin | NeverShowWin | ShowWinOnNewRecord
+derive instance eqSws :: Eq ShowWinStrategy 
+
+class Game pos ext mov <= ScoreGame pos ext mov | ext -> pos mov  where
+    objective :: GState pos ext -> Objective
+    scoreFn :: GState pos ext -> Int
+    scoreHash ::  GState pos ext -> String
+    isCustomGame :: GState pos ext -> Boolean                    
+
+updateScore' :: ∀pos ext mov. ScoreGame pos ext mov => ShowWinStrategy -> GState pos ext -> Tuple (GState pos ext) Boolean
+updateScore' strat state =
+    let score = scoreFn state
+        hash = scoreHash state 
+        cmp = if objective state == Minimize then (<) else (>)
+        oldScore = bestScore state
+        isNewRecord = maybe true (cmp score ∘ fst) oldScore
+        isNewRecord' = isNewRecord && strat == ShowWinOnNewRecord || strat == AlwaysShowWin
+        st2 = state # (_scores <<< at hash) %~ if isNewRecord then \_ -> Just (score ~ (state^._position)) else identity
+    in st2 ~ isNewRecord'
+
+bestScore :: ∀pos ext mov. ScoreGame pos ext mov => GState pos ext -> Maybe (Tuple Int pos)
+bestScore state = state ^. (_scores ∘ at (scoreHash state))
+
 dropA :: ∀pos ext dnd effs. Eq dnd =>  Game pos ext {from :: dnd, to :: dnd} =>
             Lens' (GState pos ext) (Maybe dnd) -> dnd -> Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
 dropA dragLens to = do

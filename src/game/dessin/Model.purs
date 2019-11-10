@@ -70,6 +70,7 @@ instance gameDessin :: Game (Array (Maybe Int)) ExtState (Maybe Int) where
     isLevelFinished state = length (edgesOf (state^._position)) == length (state^._graph).edges
     computerMove _ = Nothing
     sizeLimit = defaultSizeLimit
+    updateScore st = st ~ true
 
 nbRaises :: State -> Int
 nbRaises = length ∘ filter isNothing ∘ view _position

@@ -108,6 +108,7 @@ instance tilingGame :: Game (Array Int) ExtState Int where
 
     onNewGame state = pure $ state # _tile .~ getTile state # _rotation .~ 0
     computerMove _ = Nothing
+    updateScore st = st ~ true 
   
 
 putSinkA :: ∀effs. Int -> Action State effs

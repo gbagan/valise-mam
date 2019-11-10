@@ -3,18 +3,18 @@ module Game.Queens.View where
 import MyPrelude
 import Lib.Util (map2, map3)
 import Data.Array.NonEmpty (toArray, head) as N
-import Pha (VDom, Prop, h, text)
+import Pha (VDom, Prop, h, text, maybeN)
 import Pha.Action ((🔍))
 import Pha.Html (div', br, class', svg, use, key, style, pc, width, height, href, click, pointerenter, pointerleave)
 import Game.Effs (EFFS)
-import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer)
+import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer, playA, bestScore)
 import Game.Queens.Model (State, Piece(..),
                            _selectedPiece, _selectedSquare, _allowedPieces, _multiPieces, _customLocalMoves, _customDirections,
                            piecesList, capturableSquares, attackedBySelected,
-                 customizeA,  playA, selectSquareA, selectPieceA, selectAllowedPieceA, toggleMultiPiecesA, flipLocalMoveA, flipDirectionA)
+                 customizeA, selectSquareA, selectPieceA, selectAllowedPieceA, toggleMultiPiecesA, flipLocalMoveA, flipDirectionA)
 import UI.Template (template, card, dialog, incDecGrid, gridStyle, trackPointer, cursorStyle)
 import UI.Icon (Icon(..))
-import UI.Icons (iconbutton, icongroup, iconSizesGroup, iconSelectGroupM, ihelp, irules, ireset)
+import UI.Icons (iconbutton, icongroup, iconSizesGroup, iconSelectGroupM, iconBestScore, ihelp, irules, ireset)
 
 tooltip :: Piece -> String
 tooltip Queen = "Reine"
@@ -38,7 +38,8 @@ square { piece, capturable, selected, nonavailable} props =
     ]
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens (_{config=config, board=board, rules=rules, winTitle=winTitle, customDialog = customDialog}) state where
+view lens state = template lens (_{config=config, board=board, rules=rules, winTitle=winTitle, 
+                    customDialog=customDialog, scoreDialog=scoreDialog}) state where
     position = state^._position
     rows = state^._nbRows
     columns = state^._nbColumns
@@ -56,13 +57,10 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
             iconbutton state (_{icon = IconSymbol "#piece-mix", selected = state^._multiPieces, tooltip = Just "Mode mixte"}) [
                 click $ lens 🔍 toggleMultiPiecesA
             ]
-        ] <> ([ihelp, ireset, irules] <#> \x -> x lens state)
-    ]
-            {-    
-            I.Group({ title: `Meilleur score (${state.bestScore || 0})` },
-                I.BestScore()
+        ] <> ([ihelp, ireset, irules] <#> \x -> x lens state),
+        iconBestScore lens state
+    ]   
 
-    -}
     pieceSelector = div' [class' "ui-flex-center gutter2 queens-pieceselector" true] $
         N.toArray (state^._allowedPieces) <#> \piece ->
             let name = show piece in
@@ -131,30 +129,18 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
         ]
     ]    
         
-   {-
-    const BestScoreDialog = () =>
-        Dialog({
-            title: 'Meilleur score',
-            onOk: [actions.showDialog, null]
-        },
-            div({ class: 'ui-flex-center queens-bestscore-container' },
-                div({
-                    class: 'queens-grid',
-                    style: gridStyle(state.rows, state.columns)
-                },
-                    state.bestPosition.map(piece =>
-                        Square({
-                            style: {
-                                width: 100 / state.columns + '%',
-                                height: 100 / state.rows + '%'
-                            },
-                            piece,
-                        })
-                    )
+    scoreDialog score = maybeN $ bestScore state <#> \score ->
+        dialog lens "Meilleur score" [
+            div' [class' "ui-flex-center queens-bestscore-container" true] [
+                div' (gridStyle rows columns 5 <> [class' "queens-grid" true]) (
+                    (snd score) <#> \piece ->
+                        square { piece, capturable: false, selected: false, nonavailable: false} [
+                            style "width" $ pc $ 100.0 / toNumber columns,
+                            style "height" $ pc $ 100.0 / toNumber rows
+                        ]
                 )
-            )
-        );
-    -}
+            ]
+        ]
 
     rules = [
         text "Place le plus de pièces possible sur ta grille sans qu\'aucune ne soit menacée par une autre pièce.", br,

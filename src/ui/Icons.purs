@@ -4,7 +4,7 @@ import Data.List (null) as L
 import Pha (VDom, Prop, text)
 import Pha.Action (Action, action, (🔍))
 import Pha.Html (div', h2, class', click)
-import Game.Core (GState, class Game, Dialog(Rules), Mode(..),
+import Game.Core (GState, class Game, class ScoreGame, Dialog(..), Mode(..), bestScore,
                 undoA, redoA, resetA, toggleHelpA, setModeA, computerStartsA, setGridSizeA,
                 _help, _dialog, _history, _redoHistory, _mode, _nbRows, _nbColumns, _locked, _customSize)
 import UI.Icon (iconbutton, Options, Icon(..)) as I
@@ -137,3 +137,11 @@ icons2Players lens state =
             [click $ lens 🔍 computerStartsA]
     ]
 
+iconBestScore :: ∀a pos ext mov. ScoreGame pos ext mov => Lens' a (GState pos ext) -> GState pos ext -> VDom a EFFS
+iconBestScore lens state =
+    icongroup ("Meilleur score (" <> maybe "∅" (show <<< fst) (bestScore state) <> ")") [
+        iconbutton
+            state
+            (_{icon = I.IconSymbol "#cup", disabled = isNothing (bestScore state), tooltip = Just "Meilleur score"})
+            [click $ lens 🔍 action (_dialog .~ ScoreDialog)]
+    ]

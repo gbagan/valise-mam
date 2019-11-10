@@ -2,7 +2,8 @@ module Game.Queens.Model where
 import MyPrelude
 import Lib.Util (tabulate, dCoords, map2)
 import Data.Array.NonEmpty (NonEmptyArray, fromArray, head, singleton) as N
-import Game.Core (GState(..), class Game, Dialog(..), SizeLimit(..), genState, newGame, _dialog, _position, _nbRows, _nbColumns, playA')
+import Game.Core (GState(..), class Game, class ScoreGame, Objective(..), Dialog(..), SizeLimit(..), ShowWinStrategy(..),
+                  updateScore', genState, newGame, _dialog, _position, _nbRows, _nbColumns)
 import Pha.Action (Action, action, RNG, DELAY)
 
 piecesList :: Array Piece
@@ -98,7 +99,7 @@ attackedBySelected state =
      
 -- const isCustom = state => state.multiPieces || state.customSize || state.allowedPieces.includes('custom');
 
-instance pathGame :: Game (Array Piece) Ext Int where 
+instance queensGame :: Game (Array Piece) Ext Int where 
     canPlay _ _ = true
 
     play state index = 
@@ -113,43 +114,13 @@ instance pathGame :: Game (Array Piece) Ext Int where
     onNewGame state = pure $ state # _selectedPiece .~ N.head (state^._allowedPieces)
     sizeLimit _ = SizeLimit 3 3 9 9
     computerMove _ = Nothing
+    updateScore = updateScore' NeverShowWin 
 
-    {-
-      score: {
-            objective: 'maximize',
-            function: state => state.position |> countBy(identity),
-            params: attrs('columns,rows,allowedPieces'),
-        }
-    }, (3，2)
-    state: {
-        columns: 8,
-        rows: 8,
-        allowedPieces: ['rook'],
-        help: false,
-        customMoves: { local: f25, directions: f9 },
-        multiPieces: false,
-        selectedSquare: null,
-    },
-
-    actions: $ => ({
-        selectSquare: update('selectedSquare'),
-
-        toggleMultiPieces: $.newGame(() => state =>
-            state 
-                |> set('allowedPieces', x => x[0] === 'custom' ? ['queen'] : state.multiPieces ? [x[0]] : x)
-                |> set('multiPieces', not)
-        ),
-    }),
-
-    computed: state => ({
-        attackedSquares: capturableSquares(state),
-        attackedBySelected: attackedBySelected(state),
-    })
-});
--}
-
-playA :: ∀effs. Int -> Action State (rng :: RNG, delay :: DELAY | effs)
-playA = playA' (_{showWin = false})
+instance queensScoreGame :: ScoreGame (Array Piece) Ext Int where 
+    objective _ = Maximize
+    scoreFn = length ∘ filter (notEq Empty) ∘ view _position
+    scoreHash _ = "test"
+    isCustomGame _ = false
 
 toggleAllowedPiece :: Piece ->  Boolean -> N.NonEmptyArray Piece -> N.NonEmptyArray Piece
 toggleAllowedPiece piece false pieces = N.singleton piece

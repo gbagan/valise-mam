@@ -60,6 +60,7 @@ instance chocolatGame :: Game {left :: Int, top :: Int, right :: Int, bottom :: 
 
     sizeLimit = const (SizeLimit 4 4 10 10)
     computerMove = computerMove'
+    updateScore st = st ~ true
 
 instance chocolat2Game :: TwoPlayersGame {left :: Int, top :: Int, right :: Int, bottom :: Int} ExtState Move where
     isLosingPosition st = (col - left) .^. (right - col - 1) .^. (row - top) .^. (bottom - row - 1) == 0 where

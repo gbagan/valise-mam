@@ -327,7 +327,7 @@ const appAux = disp => props => () => {
  
   const setState = newState => {
     if (state !== newState) {
-      state = newState
+      state = newState;
       if (!lock) defer(render, (lock = true))
     }
     return state
@@ -355,7 +355,6 @@ const appAux = disp => props => () => {
   for (let i = 0; i < events.length; i++) {
      rawEvent(events[i].value0, events[i].value1);
   }
-  console.log(init);
   dispatch(undefined, init);
 }
 

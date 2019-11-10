@@ -46,6 +46,7 @@ instance jetonsGame :: Game (Array Int) Ext { from :: Int, to :: Int } where
     computerMove _ = Nothing
     sizeLimit _ = SizeLimit 1 2 6 12
     onNewGame = defaultOnNewGame
+    updateScore st = st ~ true
     -- objective = "minimize",
     --function = nbNonEmptyCells
     -- params = attrs('columns,rows')

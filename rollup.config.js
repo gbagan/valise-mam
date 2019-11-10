@@ -1,5 +1,5 @@
-//import commonjs from 'rollup-plugin-commonjs';
-//import { terser } from "rollup-plugin-terser";
+import commonjs from 'rollup-plugin-commonjs';
+import { terser } from "rollup-plugin-terser";
 //import resolve from 'rollup-plugin-node-resolve';
 //import babel from 'rollup-plugin-babel';
 
@@ -10,15 +10,22 @@ export default {
     output: {
         file: 'bundle.js',
         format: 'iife',
-        sourcemap: true
+        sourcemap: false
     },
     plugins: [
         postcss({
             extensions: [ '.css', '.scss' ],
             extract: true,
             minimize: true
+        }),
+        commonjs(),
+        terser({
+                ecma: 6,
+                compress: {
+                    unsafe_arrows: true
+                }
         })
-    ],
+    ]
 };
 
 
@@ -31,14 +38,6 @@ export default {
         name: "f"
     },
 
-    plugins: [
-        commonjs(),
-        terser({
-                ecma: 6,
-                compress: {
-                    unsafe_arrows: true
-                }
-        })
-    ]
+
 };
 */

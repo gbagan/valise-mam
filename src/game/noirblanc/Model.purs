@@ -65,11 +65,14 @@ instance noirblancGame :: Game { light :: Array Boolean, played :: Array Boolean
     
     isLevelFinished state = all not (state^._position).light
 
-    computerMove _ = Nothing
-    sizeLimit _ = SizeLimit 3 3 10 10
     onNewGame state = 
         let rows~columns = fromMaybe (8~8) (sizes !! (state^._level)) in
         pure $ state # _nbRows .~ rows # _nbColumns .~ columns
+
+    computerMove _ = Nothing
+    sizeLimit _ = SizeLimit 3 3 10 10
+
+    updateScore st = st ~ true
 
 sizes :: Array (Tuple Int Int)
 sizes = [3~3, 4~4, 2~10, 3~10, 5~5, 8~8, 8~8]

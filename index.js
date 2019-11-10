@@ -1,4 +1,4 @@
-// import  {main} from "./output/Main/index.js";
+import  {main} from "./output/Main/index.js";
 
 import "./src/css/main.scss";
 import "./src/css/ui/global.scss";

@@ -65,7 +65,7 @@ instance roueGame :: Game (Array (Maybe Int)) Ext {from :: Ball, to :: Ball} whe
 
     computerMove _ = Nothing
     sizeLimit = defaultSizeLimit
-
+    updateScore st = st ~ true
 
 
 -- tourne la roue de i crans

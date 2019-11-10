@@ -1,5 +1,6 @@
 module UI.Icons where
 import MyPrelude
+import Data.List (null) as L
 import Pha (VDom, Prop, text)
 import Pha.Action (Action, action, (🔍))
 import Pha.Html (div', h2, class', click)
@@ -36,7 +37,9 @@ iundo :: ∀pos ext a. Lens' a (GState pos ext) -> GState pos ext -> VDom a EFFS
 iundo lens state =
     iconbutton
         state
-        (_{icon = I.IconSymbol "#undo", tooltip = Just "Annule le dernier coup effectué", disabled = null $ state^._history})
+        (_{icon = I.IconSymbol "#undo",
+           tooltip = Just "Annule le dernier coup effectué",
+           disabled = L.null (state^._history)})
         [click $ lens 🔍 undoA]
 
 iredo :: ∀pos ext a. Lens' a (GState pos ext) -> GState pos ext -> VDom a EFFS
@@ -45,7 +48,7 @@ iredo lens state =
         state
         (_{icon = I.IconSymbol "#undo",
             tooltip = Just "Rejoue le coup annulé",
-            disabled = null $ state^._redoHistory,
+            disabled = L.null (state^._redoHistory),
             style = ["transform" ~ "scaleX(-1)"]})
         [click $ lens 🔍 redoA]
 
@@ -53,7 +56,7 @@ ireset :: ∀pos ext a. Lens' a (GState pos ext) -> GState pos ext -> VDom a EFF
 ireset lens state =
     iconbutton
         state
-        (_{icon = I.IconSymbol "#reset", tooltip = Just "Recommence la partie", disabled = null $ state^._history})
+        (_{icon = I.IconSymbol "#reset", tooltip = Just "Recommence la partie", disabled = L.null (state^._history)})
         [click $ lens 🔍 resetA]
 
 ihelp :: ∀pos ext a. Lens' a (GState pos ext) -> GState pos ext -> VDom a EFFS
@@ -130,7 +133,7 @@ icons2Players lens state =
             [click $ lens 🔍 setModeA DuelMode],
         iconbutton
             state
-            (_{icon = I.IconText "2P⇨", disabled = not (null $ state^._history) || state^._mode == DuelMode, tooltip = Just "L'IA commence"})
+            (_{icon = I.IconText "2P⇨", disabled = not (L.null $ state^._history) || state^._mode == DuelMode, tooltip = Just "L'IA commence"})
             [click $ lens 🔍 computerStartsA]
     ]
 

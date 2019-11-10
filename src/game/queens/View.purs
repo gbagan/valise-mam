@@ -5,7 +5,7 @@ import Lib.Util (map2, map3)
 import Data.Array.NonEmpty (toArray, head) as N
 import Pha (VDom, Prop, h, text)
 import Pha.Action ((🔍))
-import Pha.Html (div', br, class', attr, svg, use, key, style, pc, width, height, href, click, pointerenter, pointerleave)
+import Pha.Html (div', br, class', svg, use, key, style, pc, width, height, href, click, pointerenter, pointerleave)
 import Game.Effs (EFFS)
 import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer)
 import Game.Queens.Model (State, Piece(..),

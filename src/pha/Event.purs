@@ -19,5 +19,4 @@ foreign import unsafeKey :: Event -> String
 key :: Event -> Maybe String
 key = unsafeToMaybe ∘ unsafeKey
 
-
 foreign import preventDefault :: Event -> Effect Unit

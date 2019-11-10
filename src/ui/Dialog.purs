@@ -1,6 +1,5 @@
 module UI.Dialog where
 import MyPrelude
-import Data.Array (catMaybes)
 import Pha.Action (Action)
 import Pha (VDom, text)
 import Pha.Html (div', button, class', click)

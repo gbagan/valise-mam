@@ -63,9 +63,8 @@ rng = lift (SProxy :: SProxy "rng") (Rng identity)
 data DelayF a = Delay Int a
 derive instance functorDelayF :: Functor DelayF
 type DELAY = FProxy DelayF
-_delay = SProxy :: SProxy "delay"
 delay :: ∀r. Int -> Run (delay :: DELAY | r) Unit
-delay ms = lift _delay (Delay ms unit)
+delay ms = lift (SProxy :: SProxy "delay") (Delay ms unit)
 
 randomAction :: ∀effs st. (st -> Random st) -> Action st (rng :: RNG | effs)
 randomAction fn = do

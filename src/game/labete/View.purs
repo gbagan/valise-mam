@@ -10,9 +10,11 @@ import Pha.Html (div', br, svg, g, rect, use, key, attr, class', style, click, p
                 pc, translate, fill, stroke, strokeWidth, transform, viewBox)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, playA)
 import Game.Effs (EFFS, getEvent)
-import Game.Labete.Model (State, Mode(..), _mode, _beastIndex, _selectedColor, _startPointer, _squareColors,
-                          nonTrappedBeastOnGrid, setModeA, setHelpA, setBeastA, startZoneA, startZone2A, finishZoneA )
-import UI.Template (template, card, incDecGrid, gridStyle, trackPointer, svgCursorStyle)
+import Game.Common (_isoCustom)
+import Game.Labete.Model (State, Mode(..), BeastType(..), 
+                          _mode, _beast, _beastType, _selectedColor, _startPointer, _squareColors,
+                    flipCustomBeastA, nonTrappedBeastOnGrid, setModeA, setHelpA, setBeastA, startZoneA, startZone2A, finishZoneA )
+import UI.Template (template, card, dialog, incDecGrid, gridStyle, trackPointer, svgCursorStyle)
 import UI.Icon (Icon(..))
 import UI.Icons (iconbutton, icongroup, iconSelectGroup, iconSizesGroup, ireset, irules)
 
@@ -53,7 +55,7 @@ ihelp lens state =
         ]
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens (_{config = config, board = board, rules = rules, winTitle = winTitle}) state where
+view lens state = template lens (_{config=config, board=board, rules=rules, winTitle=winTitle, customDialog=customDialog}) state where
     rows = state^._nbRows
     columns = state^._nbColumns
     nonTrappedBeast = nonTrappedBeastOnGrid state
@@ -66,13 +68,16 @@ view lens state = template lens (_{config = config, board = board, rules = rules
         </svg>
     );
     -}
+    beastTypes = [Type1, Type2, Type3, Type4, CustomBeast]
 
     config = card "La bête" [
-        iconSelectGroup lens state "Forme de la bête" [0, 1, 2, 3] (state^._beastIndex) setBeastA \i opt -> case i of
-            0 -> opt{icon = IconSymbol "#beast1"}
-            1 -> opt{icon = IconSymbol "#beast2"}
-            2 -> opt{icon = IconSymbol "#beast3"}
-            _ -> opt{icon = IconSymbol "#beast23"},
+        iconSelectGroup lens state "Forme de la bête" beastTypes (state^._beastType) setBeastA \i opt -> case i of
+            Type1 -> opt{icon = IconSymbol "#beast1"}
+            Type2 -> opt{icon = IconSymbol "#beast2"}
+            Type3 -> opt{icon = IconSymbol "#beast3"}
+            Type4 -> opt{icon = IconSymbol "#beast23"}
+            CustomBeast -> opt{icon = IconSymbol "#customize"}
+        ,
         iconSelectGroup lens state "Type de la grille" modes (state^._mode) setModeA \i opt -> case i of
             StandardMode -> opt{icon = IconSymbol "#grid-normal", tooltip = Just "Normale"}
             CylinderMode -> opt{icon = IconSymbol "#grid-cylinder", tooltip = Just "Cylindrique"}
@@ -130,6 +135,20 @@ view lens state = template lens (_{config = config, board = board, rules = rules
             ][]
     ]
 
+    customDialog = dialog  lens "Personnalise ta bête" [
+        div' [class' "labete-custombeast-grid-container" true] [ 
+            svg [viewBox 0 0 250 250] (
+                state ^. (_beast ∘ ix 0 ∘ _isoCustom) #
+                    mapWithIndex \index hasBeast ->
+                        let {row, col} = coords 5 index in
+                        square {row, col, hasBeast, hasTrap: false, color: 0} [
+                            key $ show index,
+                            click $ lens  🔍 flipCustomBeastA index
+                        ]
+            )
+        ]
+    ]
+                    
     winTitle = "GAGNÉ"
     -- todo winTitle: `Record: ${sum(state.position)} pièges`,
 
@@ -153,19 +172,5 @@ view lens state = template lens (_{config = config, board = board, rules = rules
                             hasTrap: state.bestPosition[index]
 
 
-const CustomBeastDialog = () =>
-    Dialog({
-        onOk: [actions.showDialog, null],
-        title: 'Bête personnalisée'
-    },
-        div({ class: 'labete-custombeast-grid-container' },
-            svg({ viewBox: '0 0 250 250', width: '100%', height: '100%' },
-                repeat2(5, 5, (row, col, index) =>
-                    Square({
-                        key: index,
-                        row,
-                        col,
-                        color: 0,
-                        hasBeast: state.customBeast[index],
-                        onclick: [actions.flipBeast, index]
+
   

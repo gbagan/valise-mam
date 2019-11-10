@@ -1,7 +1,9 @@
 module Game.Core where
 
 import MyPrelude
-import Data.Array.NonEmpty (fromArray, head, init, last, toArray) as N
+import Data.List (List(..))
+import Data.List (last, null) as L
+import Data.Array.NonEmpty (fromArray, toArray) as N
 import Lib.Random (Random, runRnd, genSeed, randomPick)
 import Pha.Action (Action, action, delay, DELAY, RNG, getState, setState, setState', randomAction, randomAction') -- asyncAction)
 import Effect (Effect)
@@ -17,8 +19,8 @@ type PointerPosition = {x :: Number, y :: Number}
 
 type CoreState pos ext = {
     position :: pos,
-    history :: Array pos,
-    redoHistory :: Array pos,
+    history :: List pos,
+    redoHistory :: List pos,
     dialog :: Dialog (GState pos ext),
     turn :: Int,
     nbRows :: Int,
@@ -36,8 +38,8 @@ data GState pos ext = State (CoreState pos ext) ext
 defaultCoreState :: ∀pos ext. pos -> CoreState pos ext
 defaultCoreState p = {
     position: p,
-    history: [],
-    redoHistory: [],
+    history: Nil,
+    redoHistory: Nil,
     dialog: Rules,
     turn: 0,
     nbRows: 0,
@@ -59,10 +61,10 @@ _core = lens (\(State c e) -> c) \(State _ ext) x -> State x ext
 _position :: ∀pos ext. Lens' (GState pos ext) pos
 _position = _core ∘ lens (_.position) (_{position = _})
 
-_history :: ∀pos ext. Lens' (GState pos ext) (Array pos)
+_history :: ∀pos ext. Lens' (GState pos ext) (List pos)
 _history = _core ∘ lens (_.history) (_{history = _})
 
-_redoHistory :: ∀pos ext. Lens' (GState pos ext) (Array pos)
+_redoHistory :: ∀pos ext. Lens' (GState pos ext) (List pos)
 _redoHistory = _core ∘ lens (_.redoHistory) (_{redoHistory = _})
 
 _mode :: ∀pos ext. Lens' (GState pos ext) Mode
@@ -116,28 +118,30 @@ changeTurn :: ∀pos ext. GState pos ext -> GState pos ext
 changeTurn state = state # _turn %~ \x -> if state^._mode == DuelMode then 1 - x else 0
 
 undoA :: ∀pos ext effs. Action (GState pos ext) effs
-undoA = action \state -> N.fromArray (state^._history) # maybe state \hs ->
-    changeTurn
-    $ _position .~ N.last hs
-    $ _history .~ N.init hs
-    $ _redoHistory %~ flip snoc (state^._position)
-    $ state
+undoA = action \state -> case state^._history of
+    Nil -> state
+    Cons h rest ->
+        state # changeTurn
+              # _position .~ h
+              # _history .~ rest
+              # _redoHistory %~ Cons (state^._position)
 
 redoA :: ∀pos ext effs. Action (GState pos ext) effs
-redoA = action \state -> N.fromArray (state^._redoHistory) # maybe state  \hs ->
-    changeTurn
-    $ _position .~ N.last hs
-    $ _redoHistory .~ N.init hs
-    $ _history %~ flip snoc (state^._position)
-    $ state
+redoA = action \state -> case state^._redoHistory of
+    Nil -> state
+    Cons h rest ->
+        state # changeTurn
+              # _position .~ h
+              # _redoHistory .~ rest
+              # _history %~ Cons (state^._position)
 
 resetA :: ∀pos ext effs. Action (GState pos ext) effs
-resetA = action \state -> N.fromArray (state^._history) # maybe state \hs ->
-    _position .~ N.head hs
-    $ _history .~ []
-    $ _redoHistory .~ []
-    $ _turn .~ 0
-    $ state
+resetA = action \state -> case L.last (state^._history) of
+    Nothing -> state
+    Just x -> state # _position .~ x
+                    # _history .~ Nil
+                    # _redoHistory .~ Nil
+                    # _turn .~ 0
 
 toggleHelpA :: ∀pos ext effs. Action (GState pos ext) effs
 toggleHelpA = action (_help %~ not)
@@ -152,7 +156,7 @@ playAux move state =
         state
 
 pushToHistory :: ∀pos ext. GState pos ext -> GState pos ext
-pushToHistory state = state # _history %~ flip snoc (state^._position) # _redoHistory .~ []
+pushToHistory state = state # _history %~ Cons (state^._position) # _redoHistory .~ Nil
 
 showVictory :: ∀pos ext effs. Action (GState pos ext) (delay :: DELAY | effs)
 showVictory = do
@@ -219,11 +223,11 @@ newGameAux f state = do
     position <- initialPosition state3
     let state4 = state3
                 # _position .~ position
-                # _history .~ []
-                # _redoHistory .~ []
+                # _history .~ Nil
+                # _redoHistory .~ Nil
                 # _help .~ false
         
-    if null (state2^._history) || isLevelFinished state then
+    if L.null (state2^._history) || isLevelFinished state then
         pure state4
     else
         pure $ _dialog .~ ConfirmNewGame state4 $ state

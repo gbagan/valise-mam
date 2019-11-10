@@ -2,7 +2,6 @@ module Game.Roue.View where
 
 import MyPrelude
 import Data.String (joinWith)
-import Data.Array (catMaybes)
 import Lib.Util (map2)
 import Game.Effs (EFFS)
 import Game.Core (PointerPosition, _position, _pointer, _locked)

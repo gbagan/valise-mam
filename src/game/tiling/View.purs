@@ -6,8 +6,9 @@ import Pha.Action ((🔍))
 import Pha.Html (div', g, rect, line, use, key, attr, style, svg, class', click, contextmenu, pointerenter, pointerleave,
                  translate, viewBox, fill, stroke, strokeWidth, transform)
 import Game.Effs (EFFS, preventDefault)
+import Game.Common (_isoCustom)
 import Game.Core (_position, _nbRows, _nbColumns, _pointer, _help)
-import Game.Tiling.Model (State, TileType(..), _nbSinks, _rotation, _tile, _tileType, _customTile,
+import Game.Tiling.Model (State, TileType(..), _nbSinks, _rotation, _tile, _tileType,
                           sinks, inConflict, setNbSinksA, setTileA, clickOnCellA, rotateA, flipTileA, setHoverSquareA)
 import UI.Template (template, card, dialog, incDecGrid, gridStyle, svgCursorStyle, trackPointer)
 import UI.Icon (Icon(..))
@@ -103,7 +104,7 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
         div' [class' "tiling-customtile-grid-container" true] [
             div' [class' "tiling-grid" true] [
                 svg [viewBox 0 0 250 250] (
-                    state^._customTile # mapWithIndex \index hasBlock ->
+                    state^. (_tile ∘ _isoCustom) # mapWithIndex \index hasBlock ->
                         let {row, col} = coords 5 index
                         in square {hasBlock, row, col, hasSink: false, isDark: false}
                             [key (show index), click $ lens 🔍 flipTileA index]

@@ -1,8 +1,8 @@
 module Game.Tiling.Model where
 
 import MyPrelude
-import Data.Array (catMaybes)
 import Lib.Util (coords)
+import Game.Common (_isoCustom)
 import Game.Core (GState(..), Dialog(..), class Game, SizeLimit(..),
                   canPlay, genState, newGame, newGame', playA, _position, _nbColumns, _nbRows, _dialog)
 import Pha.Action (Action, action, RNG, DELAY, getState)
@@ -33,16 +33,21 @@ type Ext' = {
     tileType :: TileType,
     tile :: Tile,
     nbSinks :: Int,
-    hoverSquare :: Maybe Int,
-    customTile :: Array Boolean
+    hoverSquare :: Maybe Int
 }
 
 newtype ExtState = Ext Ext'
 type State = GState (Array Int) ExtState
 
 istate :: State
-istate = genState [] (_{nbRows = 5, nbColumns = 5}) (Ext { rotation: 0, tileType: Type1, tile: [], nbSinks: 0, 
-                    customTile: replicate 25 false # ix 12 .~ true, hoverSquare: Nothing })
+istate = genState [] (_{nbRows = 5, nbColumns = 5}) 
+    (Ext {
+        rotation: 0,
+        tileType: Type1, 
+        tile: [],
+        nbSinks: 0, 
+        hoverSquare: Nothing
+    })
 
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
@@ -52,8 +57,6 @@ _tile :: Lens' State Tile
 _tile = _ext ∘ lens (_.tile) (_{tile = _})
 _tileType :: Lens' State TileType
 _tileType = _ext ∘ lens (_.tileType) (_{tileType = _})
-_customTile :: Lens' State (Array Boolean)
-_customTile = _ext ∘ lens (_.customTile) (_{customTile = _})
 _nbSinks :: Lens' State Int
 _nbSinks = _ext ∘ lens (_.nbSinks) (_{nbSinks = _})
 _hoverSquare :: Lens' State (Maybe Int)
@@ -65,8 +68,7 @@ getTile state = case state^._tileType of
     Type1 -> [{row: 0, col: 0}, {row: 0, col: 1}]
     Type2 -> [{row: 0, col: 0}, {row: 0, col: 1}, {row: 0, col: -1}]
     Type3 -> [{row: 0, col: 0}, {row: 0, col: 1}, {row: 1, col: 0}]
-    CustomTile -> state^._customTile # mapWithIndex (\i b -> if b then Just {row: i / 5 - 2, col: i `mod` 5 - 2} else Nothing) # catMaybes
-        --    |> filter(x => x !== null); 
+    CustomTile -> state^._tile
 
 -- renvoie la liste des positions où devra être posée une tuile,  -1 est une position invalide
 placeTile :: State -> Int -> Array Int
@@ -105,7 +107,6 @@ instance tilingGame :: Game (Array Int) ExtState Int where
     sizeLimit = const (SizeLimit 3 3 10 10)
 
     onNewGame state = pure $ state # _tile .~ getTile state # _rotation .~ 0
---      hoverSquare: null,
     computerMove _ = Nothing
   
 
@@ -140,7 +141,7 @@ onKeyDown " " = rotateA
 onKeyDown _ = pure unit
 
 flipTileA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-flipTileA index = newGame $ (_customTile ∘ ix index) %~ not
+flipTileA index = newGame $ (_tile ∘ _isoCustom ∘ ix index) %~ not
 
 {-            
 const configHash = state => `${state.rows}-${state.columns}-${state.tileIndex}-${state.nbSinks}`

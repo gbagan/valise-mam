@@ -1,7 +1,6 @@
 module Game.Solitaire.Model where
 import MyPrelude
 import Data.Traversable (sequence)
-import Data.Array (updateAtIndices)
 import Data.FoldableWithIndex (allWithIndex)
 import Pha.Action (Action, action, RNG)
 import Lib.Random (Random, randomInt, randomBool)

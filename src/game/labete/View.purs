@@ -14,7 +14,7 @@ import Game.Common (_isoCustom)
 import Game.Labete.Model (State, Mode(..), BeastType(..), 
                           _mode, _beast, _beastType, _selectedColor, _startPointer, _squareColors,
                     flipCustomBeastA, nonTrappedBeastOnGrid, setModeA, setHelpA, setBeastA, startZoneA, startZone2A, finishZoneA )
-import UI.Template (template, card, dialog, incDecGrid, gridStyle, trackPointer, svgCursorStyle)
+import UI.Template (template, card, dialog, bestScoreDialog, incDecGrid, gridStyle, trackPointer, svgCursorStyle)
 import UI.Icon (Icon(..))
 import UI.Icons (iconbutton, icongroup, iconSelectGroup, iconSizesGroup, iconBestScore, ireset, irules)
 
@@ -112,8 +112,8 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
                 square { color, row, col, hasTrap, hasBeast: hasBeast && state^._help } [
                     key $ show index,
                     click $ lens 🔍ifM (shiftKey <$> getEvent) (pure unit) (playA index),
-                    --    onpointerenter: [actions.setSquareHover, index], todo
-                    --    onponterleave: [actions.setSquareHover, null],
+                    -- pointerenter: [actions.setSquareHover, index], todo
+                    -- ponterleave: [actions.setSquareHover, null],
                     pointerup $ lens 🔍 finishZoneA index,
                     pointerdown $ lens 🔍 ifM (shiftKey <$> getEvent) (startZoneA index) (pure unit)
                 ]
@@ -148,18 +148,17 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
         ]
     ]
 
-    scoreDialog _ = maybeN $ bestScore state <#> \score ->
-        dialog lens "Meilleur score" [
-            div' [class' "ui-flex-center labete-bestscore-grid-container" true] [
-                div' (gridStyle rows columns 5 <> [class' "ui-board" true])  [
-                    svg [viewBox 0 0 (50 * columns) (50 * rows)] (
-                        (snd score) # mapWithIndex \index hasTrap ->
-                            let {row, col} = coords columns index in
-                            square { color: 0, row, col, hasTrap, hasBeast: false } [key $ show index]
-                    )
-                ]
+    scoreDialog _ = bestScoreDialog lens state \position -> [
+        div' [class' "ui-flex-center labete-bestscore-grid-container" true] [
+            div' (gridStyle rows columns 5 <> [class' "ui-board" true])  [
+                svg [viewBox 0 0 (50 * columns) (50 * rows)] (
+                    position # mapWithIndex \index hasTrap ->
+                        let {row, col} = coords columns index in
+                        square { color: 0, row, col, hasTrap, hasBeast: false } [key $ show index]
+                )
             ]
         ]
+    ]
  
                     
     winTitle = "Record: " <> maybe "" (show ∘ fst) (bestScore state)  <> " pièges"

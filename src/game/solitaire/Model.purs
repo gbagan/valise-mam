@@ -5,13 +5,19 @@ import Data.FoldableWithIndex (allWithIndex)
 import Pha.Action (Action, action, RNG)
 import Lib.Random (Random, randomInt, randomBool)
 import Lib.Util (tabulate, tabulate2, dCoords)
-import Game.Core (class Game, GState(..), SizeLimit(..), genState, canPlay, _nbColumns, _nbRows, _customSize, _position, newGame)
+import Game.Core (class Game, class ScoreGame, GState(..), SizeLimit(..), Objective(..), ShowWinStrategy(..),
+                  genState, canPlay, _nbColumns, _nbRows, _customSize, _position, newGame, updateScore')
 
 type Move = {from :: Int, to :: Int}
 
 data Board = FrenchBoard | EnglishBoard | CircleBoard | Grid3Board | RandomBoard
 derive instance boardMode :: Eq Board
-instance showMode :: Show Board where show _ = "board"
+instance showMode :: Show Board where
+    show FrenchBoard = "french"
+    show EnglishBoard = "english"
+    show CircleBoard = "circle"
+    show Grid3Board = "grid3"
+    show RandomBoard = "random"
 
 type Ext' = {
     board :: Board,
@@ -37,11 +43,13 @@ _dragged = _ext ∘ lens (_.dragged) (_{dragged = _})
 _help :: Lens' State Int
 _help = _ext ∘ lens (_.help') (_{help' = _})
 
+-- retourne la position du trou situé entre les deux positions d'un coup si celui est valide
 betweenMove :: State -> Move -> Maybe Int
 betweenMove state { from, to } = 
     let {row, col} = dCoords (state^._nbColumns) from to in
     if row * row + col * col == 4 then Just $ (from + to) / 2 else Nothing
 
+-- même chose que betweenMove mais dans un plateau circulaire    
 betweenInCircle :: Int -> Int -> Int -> Maybe Int
 betweenInCircle from to size =
     if from - to == 2 || to - from == 2 then
@@ -52,7 +60,8 @@ betweenInCircle from to size =
         Just $ (to + 1) `mod` size
     else
         Nothing
-        
+
+-- même chose que betweenMove dans un plateau normal ou circuaire. Traite le cas pariculier du plateau circulaire de taille 4
 betweenMove2 :: State -> Move -> Maybe Int
 betweenMove2 state move@{from, to} =
     let rows = state ^._nbRows in
@@ -122,7 +131,13 @@ instance solitaireGame :: Game (Array Boolean) ExtState {from :: Int, to :: Int}
         _ -> SizeLimit 7 7 7 7
 
     computerMove _ = Nothing
-    updateScore st = st ~ true 
+    updateScore = updateScore' AlwaysShowWin
+
+instance scoregame :: ScoreGame (Array Boolean) ExtState {from :: Int, to :: Int} where
+    objective _ = Minimize
+    scoreFn = length ∘ filter identity ∘ view _position
+    scoreHash state = joinWith "-" [show (state^._board), show (state^._nbRows), show (state^._nbColumns)]
+    isCustomGame state = state^._board == RandomBoard
 
 setBoardA :: ∀effs. Board -> Action State (rng :: RNG | effs)
 setBoardA board = newGame \state ->

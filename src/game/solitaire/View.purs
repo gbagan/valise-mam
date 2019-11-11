@@ -10,8 +10,8 @@ import Game.Effs (EFFS)
 import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointer)
 import Game.Solitaire.Model (State, Board(..), _board, _holes, _dragged, _help, setBoardA, toggleHelpA)
 import UI.Icon (Icon(..))
-import UI.Icons (iconbutton, icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
-import UI.Template (template, card, gridStyle, incDecGrid, svgCursorStyle, dndBoardProps, dndItemProps)
+import UI.Icons (iconbutton, icongroup, iconSelectGroup, iconBestScore, iundo, iredo, ireset, irules)
+import UI.Template (template, card, bestScoreDialog, gridStyle, incDecGrid, svgCursorStyle, dndBoardProps, dndItemProps)
 
 tricolor :: Int -> Int -> Int -> String
 tricolor i columns help = 
@@ -24,7 +24,7 @@ cursor :: ∀a b. PointerPosition -> b -> VDom a EFFS
 cursor pp _ = circle 0.0 0.0 20.0 ([attr "pointer-events" "none", fill "url(#soli-peg)"] <> svgCursorStyle pp)
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens (_{config=config, board=board, rules=rules, winTitle=winTitle}) state where
+view lens state = template lens (_{config=config, board=board, rules=rules, winTitle=winTitle, scoreDialog=scoreDialog}) state where
     columns = state^._nbColumns
     rows = state^._nbRows
     isCircleBoard = state^._board == CircleBoard
@@ -50,16 +50,22 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
                 RandomBoard -> opt{icon = IconSymbol "#shuffle", tooltip = Just "Aléatoire"}
                 EnglishBoard -> opt{icon = IconSymbol "#tea", tooltip = Just "Anglais"}
                 FrenchBoard ->  opt{icon = IconSymbol "#bread", tooltip = Just "Français"},
-            icongroup "Options" $ [ihelp] <> ([iundo, iredo, ireset, irules] <#> \x -> x lens state)     --- help
+            icongroup "Options" $ [ihelp] <> ([iundo, iredo, ireset, irules] <#> \x -> x lens state),
+            iconBestScore lens state
         ] 
 
     grid = div' ([
         class' "ui-board" true
-    ] <> dndBoardProps lens _dragged <> (if isCircleBoard then [style "width" "100%", style "height" "100%"]  else gridStyle rows columns 5)) [
-        svg [if isCircleBoard then viewBox 0 0 250 250 else viewBox 0 0 (50 * columns) (50 * rows)] (
+    ] <> dndBoardProps lens _dragged <> (if isCircleBoard then
+                            [style "width" "100%", style "height" "100%"] 
+                        else 
+                            gridStyle rows columns 5
+    )) [
+        svg [if isCircleBoard then viewBox 0 0 250 250 else viewBox 0 0 (50 * columns) (50 * rows)] $ concat [
             [ifN isCircleBoard \_ ->
                 circle 125.0 125.0 90.0 [stroke "grey", fill "transparent", strokeWidth "5"]
-            ] <> (concat $ state^._holes # mapWithIndex \i val -> if not val then [] else [
+            ],
+            concat $ state^._holes # mapWithIndex \i val -> if not val then [] else [
                 ifN (state^._help > 0 && not isCircleBoard) \_ ->
                     rect (-25.0) (-25.0) 50.0 50.0 [
                         key $ "rect" <> show i,
@@ -72,19 +78,50 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
                     class' "solitaire-hole" true,
                     style "transform" $ itemStyle i
                 ] <> dndItemProps lens _dragged false true i state)
-            ]) <> (state^._position # mapWithIndex \i val -> 
-                ifN val \_ ->
-                    circle 0.0 0.0 20.0 ([
-                        key $ "p" <> show i,
-                        fill "url(#soli-peg)",
-                        class' "solitaire-peg" true,
-                        style "transform" $ itemStyle i
-                    ] <> dndItemProps lens _dragged true false i state)
-            ) <> [maybeN $ cursor <$> state^._pointer <*> state^._dragged]
-        )
+            ],
+            state^._position # mapWithIndex \i val -> ifN val \_ ->
+                circle 0.0 0.0 20.0 ([
+                    key $ "p" <> show i,
+                    fill "url(#soli-peg)",
+                    class' "solitaire-peg" true,
+                    style "transform" $ itemStyle i
+                ] <> dndItemProps lens _dragged true false i state),
+            [maybeN $ cursor <$> state^._pointer <*> state^._dragged]
+        ]
     ]
 
     board = incDecGrid lens state [grid]
+
+    scoreDialog _ = bestScoreDialog lens state \position -> [
+        div' [class' "ui-flex-center solitaire-scoredialog" true] [
+            div'([class' "ui-board" true] <> (if isCircleBoard then 
+                                    [style "width" "100%", style "height" "100%"] 
+                                else 
+                                    gridStyle rows columns 5
+            )) [
+                svg [if isCircleBoard then viewBox 0 0 250 250 else viewBox 0 0 (50 * columns) (50 * rows)] $ concat [
+                    [ifN isCircleBoard \_ ->
+                        circle 125.0 125.0 90.0 [stroke "grey", fill "transparent", strokeWidth "5"]
+                    ],
+                    state^._holes # mapWithIndex \i val -> ifN val \_ ->
+                        circle 0.0 0.0 17.0 [
+                            key $ "h" <> show i,
+                            fill "url(#soli-hole)",
+                            class' "solitaire-hole" true,
+                            style "transform" $ itemStyle i
+                        ],
+                    position # mapWithIndex \i val -> ifN val \_ ->
+                        circle 0.0 0.0 20.0 [
+                            key $ "p" <> show i,
+                            fill "url(#soli-peg)",
+                            class' "solitaire-peg" true,
+                            style "transform" $ itemStyle i
+                        ]
+                ]
+            ]
+        ]
+    ]
+
 
     rules = [text "Jeu du solitaire", br, text "blah blah"]
 

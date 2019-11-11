@@ -147,24 +147,10 @@ flipTileA index = newGame $ (_tile ∘ _isoCustom ∘ ix index) %~ not
 {-            
 const configHash = state => `${state.rows}-${state.columns}-${state.tileIndex}-${state.nbSinks}`
 
-const toggleColoringVisible = set('coloringVisible', not);
-
 const updateSuccess = state => state |> set(
     ['succeeded', configHash(state)],
     v => (v || repeat(state.rows * state.columns, false)) |> set(sinks(state)[0], true)
 );
-     todo todo
-
-    },
-
-    state: {
-        customTile: repeat(25, false) |> set(12, true)
-    },
-    
-    actions: $ => ({
-        setTile: $.newGame(tileIndex => ({ tileIndex, dialog: tileIndex === 'custom' ? 'customtile' : null })),
-        
-
         ////// todo concat if
         whenLevelFinished: state => state |> updateSuccess |> $.newGame(null, {noDialog: true}),
 

@@ -7,12 +7,12 @@ import Pha (VDom, Prop, h, text, maybeN)
 import Pha.Action ((🔍))
 import Pha.Html (div', br, class', svg, use, key, style, pc, width, height, href, click, pointerenter, pointerleave)
 import Game.Effs (EFFS)
-import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer, playA, bestScore)
+import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer, playA)
 import Game.Queens.Model (State, Piece(..),
                            _selectedPiece, _selectedSquare, _allowedPieces, _multiPieces, _customLocalMoves, _customDirections,
                            piecesList, capturableSquares, attackedBySelected,
                  customizeA, selectSquareA, selectPieceA, selectAllowedPieceA, toggleMultiPiecesA, flipLocalMoveA, flipDirectionA)
-import UI.Template (template, card, dialog, incDecGrid, gridStyle, trackPointer, cursorStyle)
+import UI.Template (template, card, dialog, bestScoreDialog, incDecGrid, gridStyle, trackPointer, cursorStyle)
 import UI.Icon (Icon(..))
 import UI.Icons (iconbutton, icongroup, iconSizesGroup, iconSelectGroupM, iconBestScore, ihelp, irules, ireset)
 
@@ -129,18 +129,17 @@ view lens state = template lens (_{config=config, board=board, rules=rules,
         ]
     ]    
         
-    scoreDialog _ = maybeN $ bestScore state <#> \score ->
-        dialog lens "Meilleur score" [
-            div' [class' "ui-flex-center queens-bestscore-container" true] [
-                div' (gridStyle rows columns 5 <> [class' "ui-board queens-grid" true]) (
-                    (snd score) <#> \piece ->
-                        square { piece, capturable: false, selected: false, nonavailable: false} [
-                            style "width" $ pc $ 100.0 / toNumber columns,
-                            style "height" $ pc $ 100.0 / toNumber rows
-                        ]
-                )
-            ]
+    scoreDialog _ = bestScoreDialog lens state \position -> [
+        div' [class' "ui-flex-center queens-bestscore-container" true] [
+            div' (gridStyle rows columns 5 <> [class' "ui-board queens-grid" true]) (
+                position <#> \piece ->
+                    square { piece, capturable: false, selected: false, nonavailable: false} [
+                        style "width" $ pc $ 100.0 / toNumber columns,
+                        style "height" $ pc $ 100.0 / toNumber rows
+                    ]
+            )
         ]
+    ]
 
     rules = [
         text "Place le plus de pièces possible sur ta grille sans qu\'aucune ne soit menacée par une autre pièce.", br,

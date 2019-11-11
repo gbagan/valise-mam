@@ -1,11 +1,11 @@
 module UI.Template where
 import MyPrelude
-import Pha (VDom, Prop, text, emptyNode)
+import Pha (VDom, Prop, text, emptyNode, maybeN)
 import Pha.Action (Action, action, (🔍))
 import Pha.Html (div', class', attr, style, translate, pc, pointerup, pointerdown, pointerleave, pointermove)
-import Game.Core (class Game, GState, Mode(..), SizeLimit(..), Dialog(..),
+import Game.Core (class Game, class ScoreGame, GState, Mode(..), SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointer, _locked, 
-         canPlay, isLevelFinished, sizeLimit, setGridSizeA, confirmNewGameA, dropA)
+         canPlay, isLevelFinished, sizeLimit, bestScore, setGridSizeA, confirmNewGameA, dropA)
 import UI.Dialog (dialog) as D
 import UI.IncDecGrid (incDecGrid) as U
 import Game.Effs (EFFS, getPointerPosition, releasePointerCapture, Position)
@@ -61,6 +61,11 @@ defaultElements = {
 
 dialog :: ∀a pos aux effs. Lens' a (GState pos aux) -> String -> Array (VDom a effs) -> VDom a effs
 dialog lens title = D.dialog {title, onCancel: Nothing, onOk: Just $ lens 🔍 action (_dialog .~ NoDialog)}
+
+bestScoreDialog :: ∀a pos aux mov effs. ScoreGame pos aux mov => Lens' a (GState pos aux) -> GState pos aux
+                                  -> (pos -> Array (VDom a effs)) -> VDom a effs
+bestScoreDialog lens state children = maybeN $ bestScore state <#> snd <#> \pos ->
+    dialog lens "Meilleur score" (children pos)
 
 template :: ∀a pos aux mov. Game pos aux mov =>
                 Lens' a (GState pos aux) -> (Elements a EFFS -> Elements a EFFS) -> GState pos aux  -> VDom a EFFS

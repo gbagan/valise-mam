@@ -7035,6 +7035,12 @@ var PS = {};
           return svg(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ width(unittoStr)("100%"), height(unittoStr)("100%") ])(props))([ Pha.h("use")([ attr(unittoStr)("href")(symbol) ])([  ]) ]);
       };
   };
+  var x = function (dictEUnit) {
+      return attr(dictEUnit)("x");
+  };
+  var y = function (dictEUnit) {
+      return attr(dictEUnit)("y");
+  };
   var a = Pha.h("a");
   exports["px"] = px;
   exports["pc"] = pc;
@@ -7060,6 +7066,8 @@ var PS = {};
   exports["width"] = width;
   exports["height"] = height;
   exports["href"] = href;
+  exports["x"] = x;
+  exports["y"] = y;
   exports["stroke"] = stroke;
   exports["fill"] = fill;
   exports["viewBox"] = viewBox;
@@ -14748,39 +14756,77 @@ var PS = {};
   "use strict";
   $PS["Game.Valise.Model"] = $PS["Game.Valise.Model"] || {};
   var exports = $PS["Game.Valise.Model"];
+  var Control_Applicative = $PS["Control.Applicative"];
   var Control_Bind = $PS["Control.Bind"];
   var Control_Category = $PS["Control.Category"];
   var Data_Function = $PS["Data.Function"];
+  var Data_Lens_At = $PS["Data.Lens.At"];
   var Data_Lens_Lens = $PS["Data.Lens.Lens"];
   var Data_Lens_Setter = $PS["Data.Lens.Setter"];
+  var Data_Map_Internal = $PS["Data.Map.Internal"];
+  var Data_Maybe = $PS["Data.Maybe"];
+  var Data_Ord = $PS["Data.Ord"];
   var Data_Profunctor_Strong = $PS["Data.Profunctor.Strong"];
+  var Data_Tuple = $PS["Data.Tuple"];
+  var Data_Unit = $PS["Data.Unit"];
+  var Game_Effs = $PS["Game.Effs"];
   var Pha_Action = $PS["Pha.Action"];
   var Run = $PS["Run"];                
-  var leaveA = Pha_Action.setState(function (st) {
-      return {
-          isOpen: false,
-          helpVisible: false,
-          help: st.help,
-          isSwitchOn: st.isSwitchOn,
-          pawPassings: st.pawPassings
-      };
-  });
   var istate = {
       isOpen: false,
       help: "",
       helpVisible: false,
-      isSwitchOn: false,
-      pawPassings: 0
+      drag: Data_Maybe.Nothing.value,
+      positions: Data_Map_Internal.empty,
+      isSwitchOn: false
   };
+  var leaveA = Pha_Action.setState(function (v) {
+      return istate;
+  });
   var enterA = Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Action.delay(1500))(function () {
       return Pha_Action.setState(function (v) {
           return {
               isOpen: true,
+              drag: v.drag,
               help: v.help,
               helpVisible: v.helpVisible,
               isSwitchOn: v.isSwitchOn,
-              pawPassings: v.pawPassings
+              positions: v.positions
           };
+      });
+  });
+  var _positions = function (dictStrong) {
+      return Data_Lens_Lens.lens(function (v) {
+          return v.positions;
+      })(function (v) {
+          return function (v1) {
+              return {
+                  positions: v1,
+                  drag: v.drag,
+                  help: v.help,
+                  helpVisible: v.helpVisible,
+                  isOpen: v.isOpen,
+                  isSwitchOn: v.isSwitchOn
+              };
+          };
+      })(dictStrong);
+  };
+  var moveObjectA = Control_Bind.bind(Run.bindRun)(Pha_Action.getState)(function (v) {
+      return Control_Bind.bind(Run.bindRun)(Game_Effs.getPointerPosition)(function (v1) {
+          var v2 = new Data_Tuple.Tuple(v.drag, v1);
+          if (v2.value0 instanceof Data_Maybe.Just && v2.value1 instanceof Data_Maybe.Just) {
+              return Pha_Action.setState(Data_Lens_Setter.set((function () {
+                  var $38 = _positions(Data_Profunctor_Strong.strongFn);
+                  var $39 = Data_Lens_At.at(Data_Lens_At.atMap(Data_Ord.ordString))(v2.value0.value0.name)(Data_Profunctor_Strong.strongFn);
+                  return function ($40) {
+                      return $38($39($40));
+                  };
+              })())(new Data_Maybe.Just({
+                  x: v2.value1.value0.x - v2.value0.value0.x,
+                  y: v2.value1.value0.y - v2.value0.value0.y
+              })));
+          };
+          return Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit);
       });
   });                                                                                                                                                                            
   var _helpVisible = function (dictStrong) {
@@ -14790,10 +14836,11 @@ var PS = {};
           return function (v1) {
               return {
                   helpVisible: v1,
+                  drag: v.drag,
                   help: v.help,
                   isOpen: v.isOpen,
                   isSwitchOn: v.isSwitchOn,
-                  pawPassings: v.pawPassings
+                  positions: v.positions
               };
           };
       })(dictStrong);
@@ -14805,47 +14852,77 @@ var PS = {};
           return function (v1) {
               return {
                   help: v1,
+                  drag: v.drag,
                   helpVisible: v.helpVisible,
                   isOpen: v.isOpen,
                   isSwitchOn: v.isSwitchOn,
-                  pawPassings: v.pawPassings
+                  positions: v.positions
               };
           };
       })(dictStrong);
   };
   var showHelpA = function (help) {
       return Pha_Action.action((function () {
-          var $19 = Data_Lens_Setter.over(_help(Data_Profunctor_Strong.strongFn))((function () {
-              var $18 = help === "";
-              if ($18) {
+          var $41 = Data_Lens_Setter.over(_help(Data_Profunctor_Strong.strongFn))((function () {
+              var $37 = help === "";
+              if ($37) {
                   return Control_Category.identity(Control_Category.categoryFn);
               };
               return Data_Function["const"](help);
           })());
-          var $20 = Data_Lens_Setter.set(_helpVisible(Data_Profunctor_Strong.strongFn))(help !== "");
-          return function ($21) {
-              return $19($20($21));
+          var $42 = Data_Lens_Setter.set(_helpVisible(Data_Profunctor_Strong.strongFn))(help !== "");
+          return function ($43) {
+              return $41($42($43));
           };
       })());
   };
+  var _drag = function (dictStrong) {
+      return Data_Lens_Lens.lens(function (v) {
+          return v.drag;
+      })(function (v) {
+          return function (v1) {
+              return {
+                  drag: v1,
+                  help: v.help,
+                  helpVisible: v.helpVisible,
+                  isOpen: v.isOpen,
+                  isSwitchOn: v.isSwitchOn,
+                  positions: v.positions
+              };
+          };
+      })(dictStrong);
+  };
+  var setDragA = function (d) {
+      return Pha_Action.setState(Data_Lens_Setter.set(_drag(Data_Profunctor_Strong.strongFn))(d));
+  };
   exports["istate"] = istate;
+  exports["_positions"] = _positions;
   exports["showHelpA"] = showHelpA;
   exports["enterA"] = enterA;
   exports["leaveA"] = leaveA;
+  exports["setDragA"] = setDragA;
+  exports["moveObjectA"] = moveObjectA;
 })(PS);
 (function($PS) {
   // Generated by purs version 0.13.4
   "use strict";
   $PS["Game.Valise.View"] = $PS["Game.Valise.View"] || {};
   var exports = $PS["Game.Valise.View"];
+  var Control_Applicative = $PS["Control.Applicative"];
   var Data_Functor = $PS["Data.Functor"];
+  var Data_Int = $PS["Data.Int"];
+  var Data_Lens_At = $PS["Data.Lens.At"];
+  var Data_Lens_Getter = $PS["Data.Lens.Getter"];
+  var Data_Lens_Internal_Forget = $PS["Data.Lens.Internal.Forget"];
   var Data_Maybe = $PS["Data.Maybe"];
+  var Data_Ord = $PS["Data.Ord"];
   var Data_Semigroup = $PS["Data.Semigroup"];
-  var Data_Show = $PS["Data.Show"];
+  var Data_Unit = $PS["Data.Unit"];
   var Game_Valise_Model = $PS["Game.Valise.Model"];
   var Pha = $PS["Pha"];
   var Pha_Action = $PS["Pha.Action"];
-  var Pha_Html = $PS["Pha.Html"];                
+  var Pha_Html = $PS["Pha.Html"];
+  var Run = $PS["Run"];                
   var valise = function (lens) {
       return function (state) {
           var object = function (v) {
@@ -14855,12 +14932,47 @@ var PS = {};
                           return function (h$prime) {
                               return function (props) {
                                   return function (children) {
-                                      return Pha_Html.g([ Pha_Html.transform(Pha_Html.translate(Pha_Html.unitInt)(Pha_Html.unitInt)(x$prime)(y$prime)) ])([ Pha_Html.g(props)([ Pha_Html.svg([ Pha_Html["class'"]("valise-object ui-touch-action-none")(true), Pha_Html["class'"]("draggable")(v.drag), Pha_Html.width(Pha_Html.unittoStr)(Data_Show.show(Data_Show.showInt)(w$prime)), Pha_Html.height(Pha_Html.unittoStr)(Data_Show.show(Data_Show.showInt)(h$prime)), Pha_Html.pointerenter(Pha_Action.zoomAt(function (dictStrong) {
-                                          return lens(dictStrong);
-                                      })(Game_Valise_Model.showHelpA(v.help))), Pha_Html.pointerleave(Pha_Action.zoomAt(function (dictStrong) {
-                                          return lens(dictStrong);
-                                      })(Game_Valise_Model.showHelpA(""))) ])([ Pha.h("use")([ Pha_Html.href("#" + v.symbol), Pha_Html["class'"]("valise-symbol")(true) ])([  ]), Pha.maybeN(Data_Functor.mapFlipped(Data_Maybe.functorMaybe)(v.link)(function (l) {
-                                          return Pha_Html.a([ Pha_Html.href("#" + l) ])([ Pha.h("rect")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html["class'"]("valise-object-link")(true), Pha_Html.fill("transparent"), Pha_Html.width(Pha_Html.unittoStr)("100%"), Pha_Html.height(Pha_Html.unittoStr)("100%") ])(children))([  ]) ]);
+                                      var defaultTranslate = Pha_Html.translate(Pha_Html.unitPc)(Pha_Html.unitPc)(Pha_Html.pc(Data_Int.toNumber(x$prime) / 8.5))(Pha_Html.pc(Data_Int.toNumber(y$prime) / 6.9));
+                                      return Pha_Html.g([ Pha_Html.style(Pha_Html.unittoStr)("transform")((function () {
+                                          if (v.drag) {
+                                              return Data_Maybe.maybe(defaultTranslate)(function (v1) {
+                                                  return Pha_Html.translate(Pha_Html.unitPc)(Pha_Html.unitPc)(Pha_Html.pc(100.0 * v1.x))(Pha_Html.pc(100.0 * v1.y));
+                                              })(Data_Lens_Getter.viewOn(state)((function () {
+                                                  var $27 = Game_Valise_Model["_positions"](Data_Lens_Internal_Forget.strongForget);
+                                                  var $28 = Data_Lens_At.at(Data_Lens_At.atMap(Data_Ord.ordString))(v.symbol)(Data_Lens_Internal_Forget.strongForget);
+                                                  return function ($29) {
+                                                      return $27($28($29));
+                                                  };
+                                              })()));
+                                          };
+                                          return defaultTranslate;
+                                      })()) ])([ Pha_Html.g(props)([ Pha_Html.svg(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html["class'"]("valise-object ui-touch-action-none")(true), Pha_Html["class'"]("draggable")(v.drag), Pha_Html.width(Pha_Html.unitInt)(w$prime), Pha_Html.height(Pha_Html.unitInt)(h$prime), Pha_Html.pointerdown((function () {
+                                          if (v.drag) {
+                                              return Pha_Action.zoomAt(function (dictStrong) {
+                                                  return lens(dictStrong);
+                                              })(Game_Valise_Model.setDragA(new Data_Maybe.Just({
+                                                  name: v.symbol,
+                                                  x: Data_Int.toNumber(w$prime) / 1650.0,
+                                                  y: Data_Int.toNumber(h$prime) / 1380.0
+                                              })));
+                                          };
+                                          return Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit);
+                                      })()) ])((function () {
+                                          var $22 = Data_Maybe.isJust(v.link);
+                                          if ($22) {
+                                              return [  ];
+                                          };
+                                          return [ Pha_Html.pointerenter(Pha_Action.zoomAt(function (dictStrong) {
+                                              return lens(dictStrong);
+                                          })(Game_Valise_Model.showHelpA(v.help))), Pha_Html.pointerleave(Pha_Action.zoomAt(function (dictStrong) {
+                                              return lens(dictStrong);
+                                          })(Game_Valise_Model.showHelpA(""))) ];
+                                      })()))([ Pha.h("use")([ Pha_Html.href("#" + v.symbol), Pha_Html["class'"]("valise-symbol")(true) ])([  ]), Pha.maybeN(Data_Functor.mapFlipped(Data_Maybe.functorMaybe)(v.link)(function (l) {
+                                          return Pha_Html.a([ Pha_Html.href("#" + l) ])([ Pha_Html.rect(Pha_Html.unittoStr)(Pha_Html.unittoStr)(Pha_Html.unittoStr)(Pha_Html.unittoStr)("0")("0")("100%")("100%")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html["class'"]("valise-object-link")(true), Pha_Html.fill("transparent"), Pha_Html.pointerenter(Pha_Action.zoomAt(function (dictStrong) {
+                                              return lens(dictStrong);
+                                          })(Game_Valise_Model.showHelpA(v.help))), Pha_Html.pointerleave(Pha_Action.zoomAt(function (dictStrong) {
+                                              return lens(dictStrong);
+                                          })(Game_Valise_Model.showHelpA(""))) ])(children)) ]);
                                       })) ]) ]) ]);
                                   };
                               };
@@ -14869,7 +14981,11 @@ var PS = {};
                   };
               };
           };
-          return Pha_Html.svg([ Pha_Html.viewBox(0)(0)(825)(690) ])([ Pha.h("use")([ Pha_Html.href("#valise"), Pha_Html["class'"]("valise-close")(true), Pha_Html.width(Pha_Html.unittoStr)("100%"), Pha_Html.height(Pha_Html.unittoStr)("100%") ])([  ]), Pha_Html.g([ Pha_Html["class'"]("valise-open")(true) ])([ Pha.h("use")([ Pha_Html.href("#openvalise") ])([  ]), object({
+          return Pha_Html.svg([ Pha_Html.viewBox(0)(0)(825)(690), Pha_Html.pointermove(Pha_Action.zoomAt(function (dictStrong) {
+              return lens(dictStrong);
+          })(Game_Valise_Model.moveObjectA)), Pha_Html.pointerup(Pha_Action.zoomAt(function (dictStrong) {
+              return lens(dictStrong);
+          })(Game_Valise_Model.setDragA(Data_Maybe.Nothing.value))) ])([ Pha.h("use")([ Pha_Html.href("#valise"), Pha_Html["class'"]("valise-close")(true), Pha_Html.width(Pha_Html.unittoStr)("100%"), Pha_Html.height(Pha_Html.unittoStr)("100%") ])([  ]), Pha_Html.g([ Pha_Html["class'"]("valise-open")(true) ])([ Pha.h("use")([ Pha_Html.href("#openvalise") ])([  ]), object({
               symbol: "switch",
               link: Data_Maybe.Nothing.value,
               help: "",
@@ -14884,12 +15000,22 @@ var PS = {};
               link: new Data_Maybe.Just("frog"),
               help: "Jeu: la grenouille",
               drag: false
-          })(549)(320)(35)(34)([ Pha_Html.fill("#bcd35f") ])([  ]), object({
+          })(549)(320)(40)(40)([ Pha_Html.fill("#bcd35f") ])([ Pha_Html.x(Pha_Html.unittoStr)("10%"), Pha_Html.y(Pha_Html.unittoStr)("20%"), Pha_Html.width(Pha_Html.unittoStr)("80%"), Pha_Html.height(Pha_Html.unittoStr)("80%") ]), object({
+              symbol: "flowerpot",
+              link: Data_Maybe.Nothing.value,
+              help: "Quelque chose se cache derri\xe8re ce pot",
+              drag: true
+          })(533)(300)(64)(64)([  ])([  ]), object({
               symbol: "hanoibot",
               link: new Data_Maybe.Just("solitaire"),
               help: "Jeu: solitaire",
               drag: false
-          })(500)(430)(75)(51)([  ])([  ]), object({
+          })(500)(430)(75)(51)([  ])([ Pha_Html.x(Pha_Html.unittoStr)("30%"), Pha_Html.y(Pha_Html.unittoStr)("20%"), Pha_Html.width(Pha_Html.unittoStr)("40%"), Pha_Html.height(Pha_Html.unittoStr)("40%") ]), object({
+              symbol: "hanoitop",
+              link: Data_Maybe.Nothing.value,
+              help: "Quelque chose se cache sous cette tour",
+              drag: true
+          })(507)(409)(60)(57)([  ])([  ]), object({
               symbol: "knight",
               link: new Data_Maybe.Just("queens"),
               help: "Jeu: les 8 reines",
@@ -14934,7 +15060,7 @@ var PS = {};
               link: new Data_Maybe.Just("labete"),
               help: "Jeu: la b\xeate",
               drag: false
-          })(300)(180)(40)(40)([ Pha_Html.transform("rotate(30)"), Pha_Html.attr(Pha_Html.unittoStr)("opacity")("0.7") ])([  ]), object({
+          })(300)(180)(40)(40)([ Pha_Html.transform("rotate(30)"), Pha_Html.attr(Pha_Html.unittoStr)("opacity")("0.5") ])([  ]), object({
               symbol: "quiet",
               link: Data_Maybe.Nothing.value,
               help: "Jeu: preuve sans mot",

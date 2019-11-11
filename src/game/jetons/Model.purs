@@ -2,7 +2,8 @@ module Game.Jetons.Model where
 
 import MyPrelude
 import Lib.Util ((..), dCoords)
-import Game.Core (class Game, GState(..), SizeLimit (..), genState, _position, _nbColumns, _nbRows, defaultOnNewGame)
+import Game.Core (class Game, class ScoreGame, GState(..), SizeLimit (..), Objective(..), ShowWinStrategy(..),
+                  genState, updateScore', _position, _nbColumns, _nbRows, defaultOnNewGame)
 
 type Position = Array Int
 type Ext' = { dragged :: Maybe Int }
@@ -42,13 +43,16 @@ instance jetonsGame :: Game (Array Int) Ext { from :: Int, to :: Int } where
                 y = if (i+1) `mod` columns == 0 then 0 else fromMaybe 0 $ position !! (i+1)
                 z = fromMaybe 0 $ position !! (i+columns) in
             x * (y + z) == 0
-    
-    computerMove _ = Nothing
+
     sizeLimit _ = SizeLimit 1 2 6 12
+
+    computerMove _ = Nothing
     onNewGame = defaultOnNewGame
-    updateScore st = st ~ true
-    -- objective = "minimize",
-    --function = nbNonEmptyCells
-    -- params = attrs('columns,rows')
-    -- isCustomLevel _ = false
+    updateScore = updateScore' AlwaysShowWin
+
+instance scoregame :: ScoreGame (Array Int) Ext { from :: Int, to :: Int } where
+    objective state = Minimize
+    scoreFn = length ∘ filter (_ > 0) ∘ view _position
+    scoreHash state = show (state^._nbRows) <> "-" <> show (state^._nbColumns)
+    isCustomGame _ = false
 

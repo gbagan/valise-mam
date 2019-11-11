@@ -8,7 +8,7 @@ import Pha.Action ((🔍))
 import Pha.Event (shiftKey)
 import Pha.Html (div', br, svg, g, rect, use, key, attr, class', style, click, pointerdown, pointerup, pointerleave,
                 pc, translate, fill, stroke, strokeWidth, transform, viewBox)
-import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, playA, bestScore)
+import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, playA, scoreFn)
 import Game.Effs (EFFS, getEvent)
 import Game.Common (_isoCustom)
 import Game.Labete.Model (State, Mode(..), BeastType(..), 
@@ -161,4 +161,4 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
     ]
  
                     
-    winTitle = "Record: " <> maybe "" (show ∘ fst) (bestScore state)  <> " pièges"
+    winTitle = "Record: " <> show (scoreFn state)  <> " pièges"

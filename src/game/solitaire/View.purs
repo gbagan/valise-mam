@@ -7,7 +7,7 @@ import Pha.Action ((🔍))
 import Pha.Html (div', br, svg, rect, circle, key, attr, class', style, click, 
                     viewBox, fill, stroke, strokeWidth, translate, px)
 import Game.Effs (EFFS)
-import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointer)
+import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointer, scoreFn)
 import Game.Solitaire.Model (State, Board(..), _board, _holes, _dragged, _help, setBoardA, toggleHelpA)
 import UI.Icon (Icon(..))
 import UI.Icons (iconbutton, icongroup, iconSelectGroup, iconBestScore, iundo, iredo, ireset, irules)
@@ -125,6 +125,6 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
 
     rules = [text "Jeu du solitaire", br, text "blah blah"]
 
-    nbPegs = state^._position # filter identity # length
+    nbPegs = scoreFn state
     s = if nbPegs > 1 then "s" else ""
     winTitle = show nbPegs <> " jeton" <> s <> " restant" <> s

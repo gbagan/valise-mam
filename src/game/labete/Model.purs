@@ -3,13 +3,17 @@ import MyPrelude
 import Lib.Util (coords, tabulate2, abs)
 import Pha.Action (Action, action, RNG)
 import Game.Common (_isoCustom)
-import Game.Core (class Game, SizeLimit(..), GState(..), PointerPosition, Dialog(..),
-                   genState, newGame, newGame', _position, _nbRows, _nbColumns, _help, _dialog)
+import Game.Core (class Game, class ScoreGame, SizeLimit(..), GState(..), Objective(..), ShowWinStrategy(..),
+                    PointerPosition, Dialog(..),
+                   genState, newGame, newGame', _position, _nbRows, _nbColumns, _help, _dialog, updateScore')
 import Game.Effs (POINTER, getPointerPosition, setState)
 
 data Mode = StandardMode | CylinderMode | TorusMode
 derive instance eqMode :: Eq Mode
-instance showMode :: Show Mode where show _ = "mode"
+instance showMode :: Show Mode where
+    show StandardMode = "standard"
+    show CylinderMode = "cylinder"
+    show TorusMode    = "torus"
 
 type Beast = Array {row :: Int, col :: Int}
 type1 :: Beast
@@ -23,7 +27,12 @@ beastTypes = [[type1], [type2], [type3], [type2, type3]]
 
 data BeastType = Type1 | Type2 | Type3 | Type4 | CustomBeast
 derive instance eqBt :: Eq BeastType
-instance showBt :: Show BeastType where show _ = "beastype"
+instance showBt :: Show BeastType where
+    show Type1       = "type1"
+    show Type2       = "type2"
+    show Type3       = "type3"
+    show Type4       = "type4"
+    show CustomBeast = "custom"
 
 type Ext' = {
     beast :: Array Beast,
@@ -140,15 +149,14 @@ instance labeteGame :: Game (Array Boolean) ExtState Int where
 
     sizeLimit _ = SizeLimit 2 2 9 9
     computerMove _ = Nothing
-    updateScore st = st ~ true
-    {-
-        score: {
-            objective: 'minimize',
-            function: state => sum(state.position),
-            params: attrs('columns,rows,mode,beastIndex'),
-            isCustomLevel: F,
-        },
-    -}
+    updateScore = updateScore' ShowWinOnNewRecord
+
+instance scoregameLabete :: ScoreGame (Array Boolean) ExtState Int where
+    objective _ = Minimize
+    scoreFn = length ∘ filter identity ∘ view _position
+    scoreHash state = joinWith "-" [show (state^._nbColumns), show (state^._nbRows), show (state^._mode), show (state^._beastType)]
+    isCustomGame state = state^._beastType == CustomBeast
+
 setModeA :: ∀effs. Mode -> Action State (rng :: RNG | effs)
 setModeA = newGame' (set _mode)
 
@@ -159,7 +167,7 @@ setBeastA :: ∀effs. BeastType -> Action State (rng :: RNG | effs)
 setBeastA ttype = newGame $ (_beastType .~ ttype) ∘ 
                           (if ttype == CustomBeast then
                                 (_dialog .~ CustomDialog) ∘ (_beast %~ take 1)
-                           else 
+                           else
                                 identity
                         )
 
@@ -201,18 +209,3 @@ finishZoneA index1 = action \state ->
                  # _startPointer .~ Nothing
 flipCustomBeastA :: ∀effs. Int -> Action State (rng :: RNG | effs)
 flipCustomBeastA i = newGame $ (_beast ∘ ix 0 ∘ _isoCustom ∘ ix i) %~ not
-
-{-
-    state: {
-        beastIndex: 0,
-        customBeast: duplicate(25, false) |> set(12, true) |> set(13, true),
-
-        squareHover: null,
-
-        zoneStart: null,
-        zone: null,
-    },
-
-    actions: $ => ({
-        setSquareHover: update('squareHover'),
- 

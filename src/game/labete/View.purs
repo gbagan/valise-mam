@@ -8,7 +8,7 @@ import Pha.Action ((🔍))
 import Pha.Event (shiftKey)
 import Pha.Html (div', br, svg, g, rect, use, key, attr, class', style, click, pointerdown, pointerup, pointerleave,
                 pc, translate, fill, stroke, strokeWidth, transform, viewBox)
-import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, playA)
+import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, playA, bestScore)
 import Game.Effs (EFFS, getEvent)
 import Game.Common (_isoCustom)
 import Game.Labete.Model (State, Mode(..), BeastType(..), 
@@ -16,7 +16,7 @@ import Game.Labete.Model (State, Mode(..), BeastType(..),
                     flipCustomBeastA, nonTrappedBeastOnGrid, setModeA, setHelpA, setBeastA, startZoneA, startZone2A, finishZoneA )
 import UI.Template (template, card, dialog, incDecGrid, gridStyle, trackPointer, svgCursorStyle)
 import UI.Icon (Icon(..))
-import UI.Icons (iconbutton, icongroup, iconSelectGroup, iconSizesGroup, ireset, irules)
+import UI.Icons (iconbutton, icongroup, iconSelectGroup, iconSizesGroup, iconBestScore, ireset, irules)
 
 colors :: Array String
 colors = ["#5aa02c", "blue", "red", "yellow", "magenta", "cyan", "orange", "darkgreen", "grey"]
@@ -55,7 +55,8 @@ ihelp lens state =
         ]
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens (_{config=config, board=board, rules=rules, winTitle=winTitle, customDialog=customDialog}) state where
+view lens state = template lens (_{config=config, board=board, rules=rules, winTitle=winTitle, 
+                                customDialog=customDialog, scoreDialog=scoreDialog}) state where
     rows = state^._nbRows
     columns = state^._nbColumns
     nonTrappedBeast = nonTrappedBeastOnGrid state
@@ -85,10 +86,8 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
 
         iconSizesGroup lens state [3~3, 5~5, 6~6] true,
 
-        icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state 
-        {-    I.Group({ title: `Meilleur score (${state.bestScore || 'Ø'})` },
-                I.BestScore()
-        -}
+        icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state,
+        iconBestScore lens state
     ]
 
     rules = [
@@ -135,7 +134,7 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
             ][]
     ]
 
-    customDialog = dialog  lens "Personnalise ta bête" [
+    customDialog _ = dialog lens "Personnalise ta bête" [
         div' [class' "labete-custombeast-grid-container" true] [ 
             svg [viewBox 0 0 250 250] (
                 state ^. (_beast ∘ ix 0 ∘ _isoCustom) #
@@ -148,29 +147,19 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
             )
         ]
     ]
+
+    scoreDialog _ = maybeN $ bestScore state <#> \score ->
+        dialog lens "Meilleur score" [
+            div' [class' "ui-flex-center labete-bestscore-grid-container" true] [
+                div' (gridStyle rows columns 5 <> [class' "ui-board" true])  [
+                    svg [viewBox 0 0 (50 * columns) (50 * rows)] (
+                        (snd score) # mapWithIndex \index hasTrap ->
+                            let {row, col} = coords columns index in
+                            square { color: 0, row, col, hasTrap, hasBeast: false } [key $ show index]
+                    )
+                ]
+            ]
+        ]
+ 
                     
-    winTitle = "GAGNÉ"
-    -- todo winTitle: `Record: ${sum(state.position)} pièges`,
-
-    {-
-    const BestScoreDialog = () =>
-        Dialog({
-            title: 'Meilleur score',
-            onOk: [actions.showDialog, null],
-        },
-            div({ 
-                class: 'ui-board ui-flex-center labete-bestscore-grid-container',
-                style: gridStyle(state.rows, state.columns)
-            },
-                svg({ viewBox: `0 0 ${50 * state.columns} ${50 * state.rows}`, width: '100%', height: '100%' },
-                    repeat2(state.rows, state.columns, (row, col, index) =>
-                        Square({
-                            key: index,
-                            row,
-                            col,
-                            color: 0,
-                            hasTrap: state.bestPosition[index]
-
-
-
-  
+    winTitle = "Record: " <> maybe "" (show ∘ fst) (bestScore state)  <> " pièges"

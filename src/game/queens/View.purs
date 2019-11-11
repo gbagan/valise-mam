@@ -38,8 +38,8 @@ square { piece, capturable, selected, nonavailable} props =
     ]
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens (_{config=config, board=board, rules=rules, winTitle=winTitle, 
-                    customDialog=customDialog, scoreDialog=scoreDialog}) state where
+view lens state = template lens (_{config=config, board=board, rules=rules, 
+                                  customDialog=customDialog, scoreDialog=scoreDialog}) state where
     position = state^._position
     rows = state^._nbRows
     columns = state^._nbColumns
@@ -101,7 +101,7 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
 
     angles = [45, 90, 135, 0, 0, 180, -45, -90, -135]
 
-    customDialog = dialog lens "Personnalise ta pièce" [
+    customDialog _ = dialog lens "Personnalise ta pièce" [
         div' [class' "flex queens-custompiece" true] [
             div' [class' "queens-grid queens-custompiece-grid" true] (
                 state^._customLocalMoves # mapWithIndex \index selected ->
@@ -129,10 +129,10 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
         ]
     ]    
         
-    scoreDialog score = maybeN $ bestScore state <#> \score ->
+    scoreDialog _ = maybeN $ bestScore state <#> \score ->
         dialog lens "Meilleur score" [
             div' [class' "ui-flex-center queens-bestscore-container" true] [
-                div' (gridStyle rows columns 5 <> [class' "queens-grid" true]) (
+                div' (gridStyle rows columns 5 <> [class' "ui-board queens-grid" true]) (
                     (snd score) <#> \piece ->
                         square { piece, capturable: false, selected: false, nonavailable: false} [
                             style "width" $ pc $ 100.0 / toNumber columns,
@@ -155,5 +155,3 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
             Au cours de la partie, il peut être difficile de voir les cases libres (non menacées par des pièces posées).<br />
             Tu peux alors voir les cases libres avec l&#39;aide: <Icon image="help" />
     -}
-
-    winTitle = ""

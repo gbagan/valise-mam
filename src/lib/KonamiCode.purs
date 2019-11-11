@@ -1,7 +1,6 @@
 module Lib.KonamiCode (konamiCode) where
 import MyPrelude
 import Data.Array (takeEnd)
-import Data.String (joinWith)
 import Pha.Action (Action, getState, setState')
 
 codeSequence :: String

@@ -1,7 +1,6 @@
 module Game.Frog.View where
 
 import MyPrelude
-import Data.String (joinWith)
 import Lib.Util (map2, tabulate, pairwise, floatRange)
 import Pha (VDom, text, ifN)
 import Pha.Action ((🔍), getEvent)

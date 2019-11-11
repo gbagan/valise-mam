@@ -100,7 +100,7 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
     rules = [text "blah blah"]
     winTitle = "GAGNÉ"
 
-    customDialog = dialog lens "Personnalise ta tuile" [
+    customDialog _ = dialog lens "Personnalise ta tuile" [
         div' [class' "tiling-customtile-grid-container" true] [
             div' [class' "tiling-grid" true] [
                 svg [viewBox 0 0 250 250] (

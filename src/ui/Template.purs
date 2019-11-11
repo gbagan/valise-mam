@@ -5,8 +5,7 @@ import Pha.Action (Action, action, (🔍))
 import Pha.Html (div', class', attr, style, translate, pc, pointerup, pointerdown, pointerleave, pointermove)
 import Game.Core (class Game, GState, Mode(..), SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointer, _locked, 
-         canPlay, isLevelFinished, sizeLimit, bestScore,
-         setGridSizeA, confirmNewGameA, dropA)
+         canPlay, isLevelFinished, sizeLimit, setGridSizeA, confirmNewGameA, dropA)
 import UI.Dialog (dialog) as D
 import UI.IncDecGrid (incDecGrid) as U
 import Game.Effs (EFFS, getPointerPosition, releasePointerCapture, Position)
@@ -46,7 +45,7 @@ type Elements a effs = {
     config :: VDom a effs,
     rules :: Array (VDom a effs),
     winTitle :: String,
-    customDialog :: VDom a effs,
+    customDialog :: Unit -> VDom a effs,
     scoreDialog :: Unit -> VDom a effs
 }
 
@@ -56,7 +55,7 @@ defaultElements = {
     config: emptyNode,
     rules: [text "blah blah"],
     winTitle: "GAGNÉ",
-    customDialog: emptyNode,
+    customDialog: \_ -> emptyNode,
     scoreDialog: \_ -> emptyNode
 }
 
@@ -75,13 +74,12 @@ template lens elemFn state =
     ]
     where
         {board, config, rules, winTitle, customDialog, scoreDialog} = elemFn defaultElements
-        dialog' Rules = 
-            dialog lens "Règles du jeu" rules
+        dialog' Rules = dialog lens "Règles du jeu" rules
         dialog' (ConfirmNewGame s) =
             D.dialog {title: "Nouvelle partie", onCancel: Just $ lens 🔍 action (_dialog .~ NoDialog), onOk: Just (lens 🔍 confirmNewGameA s)} [
                 text "Tu es sur le point de créer une nouvelle partie. Ta partie en cours sera perdue. Es-tu sûr(e)?"
             ]
-        dialog' CustomDialog = customDialog
+        dialog' CustomDialog = customDialog unit
         dialog' ScoreDialog = scoreDialog unit
         dialog' _ = emptyNode
 

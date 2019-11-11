@@ -230,6 +230,7 @@ newGameAux f state = do
                 # _history .~ Nil
                 # _redoHistory .~ Nil
                 # _help .~ false
+                # _scores ∘ at "custom" .~ Nothing
         
     if L.null (state2^._history) || isLevelFinished state then
         pure state4
@@ -294,10 +295,13 @@ class Game pos ext mov <= ScoreGame pos ext mov | ext -> pos mov  where
     scoreHash ::  GState pos ext -> String
     isCustomGame :: GState pos ext -> Boolean                    
 
+scoreHash' :: ∀pos ext mov. ScoreGame pos ext mov => GState pos ext -> String
+scoreHash' state = if isCustomGame state then "custom" else scoreHash state
+
 updateScore' :: ∀pos ext mov. ScoreGame pos ext mov => ShowWinStrategy -> GState pos ext -> Tuple (GState pos ext) Boolean
 updateScore' strat state =
     let score = scoreFn state
-        hash = scoreHash state 
+        hash = scoreHash' state 
         cmp = if objective state == Minimize then (<) else (>)
         oldScore = bestScore state
         isNewRecord = maybe true (cmp score ∘ fst) oldScore
@@ -306,7 +310,7 @@ updateScore' strat state =
     in st2 ~ isNewRecord'
 
 bestScore :: ∀pos ext mov. ScoreGame pos ext mov => GState pos ext -> Maybe (Tuple Int pos)
-bestScore state = state ^. (_scores ∘ at (scoreHash state))
+bestScore state = state ^. (_scores ∘ at (scoreHash' state))
 
 dropA :: ∀pos ext dnd effs. Eq dnd =>  Game pos ext {from :: dnd, to :: dnd} =>
             Lens' (GState pos ext) (Maybe dnd) -> dnd -> Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)

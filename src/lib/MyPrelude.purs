@@ -10,5 +10,6 @@ import Data.Array ((!!), head, last, cons, snoc, filter, find, take, null, lengt
 import Data.Lens (Lens', lens, set, Iso', iso, view, over, (^.), (.~), (%~), (?~)) as Exports
 import Data.Lens.Index (ix) as Exports
 import Data.Lens.At (at) as Exports
+import Data.String (joinWith) as Exports
 infixr 9 Exports.compose as ∘
 infix 3 Exports.Tuple as ~

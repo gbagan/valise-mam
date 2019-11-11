@@ -1,6 +1,5 @@
 module Game.Paths.View (view) where
 import MyPrelude
-import Data.String (joinWith)
 import Lib.Util (coords, tabulate)
 import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _pointer)
 import Game.Effs (EFFS)

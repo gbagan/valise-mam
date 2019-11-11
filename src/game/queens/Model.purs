@@ -119,10 +119,10 @@ instance queensGame :: Game (Array Piece) Ext Int where
 instance queensScoreGame :: ScoreGame (Array Piece) Ext Int where 
     objective _ = Maximize
     scoreFn = length ∘ filter (notEq Empty) ∘ view _position
-    scoreHash _ = "test"
-    isCustomGame _ = false
+    scoreHash state = joinWith "-" [show (state^._nbRows), show (state^._nbColumns), show (N.head $ state^._allowedPieces)]
+    isCustomGame state = state^._multiPieces || N.head (state^._allowedPieces) == Custom
 
-toggleAllowedPiece :: Piece ->  Boolean -> N.NonEmptyArray Piece -> N.NonEmptyArray Piece
+toggleAllowedPiece :: Piece ->  Boolean ->  N.NonEmptyArray Piece -> N.NonEmptyArray Piece
 toggleAllowedPiece piece false pieces = N.singleton piece
 toggleAllowedPiece piece true pieces = N.fromArray pieces2 # fromMaybe pieces where
     pieces2 = piecesList # filter \p2 -> (p2 == piece) /= elem p2 pieces

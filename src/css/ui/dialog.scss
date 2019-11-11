@@ -13,17 +13,14 @@
 
 .ui-dialog-head {
     border-bottom: 1px solid #e8e8e8;
-    padding: 0 1.2em;
+    padding: 1rem;
     border-radius: 2px 2px 0 0;
     margin-bottom: -1px;
-    min-height: 2em;
+    min-height: 2rem;
 }
 
 .ui-dialog-title {
-    font-size: 2em;
-    padding: 1em 0;
-    text-overflow: ellipsis;
-    overflow: hidden;
+    font-size: 2rem;
     color: rgba(0, 0, 0, 0.85);
     font-weight: 500;
     display: inline-block;
@@ -37,7 +34,7 @@
 }
 
 .ui-dialog-buttons {
-    padding: 1.5em;
+    padding: 1em;
     text-align: right;
 
     & > button + button {

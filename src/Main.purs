@@ -21,6 +21,7 @@ import Game.Noirblanc (State, state) as Noirblanc
 import Game.Paths (State, state) as Paths
 import Game.Queens (State, state) as Queens
 import Game.Roue (State, state) as Roue
+import Game.Sansmot (State, state) as Sansmot
 import Game.Solitaire (State, state) as Solitaire
 import Game.Tiling (State, state) as Tiling
 import Game.Valise (State, state, is) as Valise
@@ -43,6 +44,7 @@ type RootState = {
     paths :: Paths.State,
     queens :: Queens.State,
     roue :: Roue.State,
+    sansmot :: Sansmot.State,
     solitaire :: Solitaire.State,
     tiling :: Tiling.State,
     valise :: Valise.State,
@@ -82,6 +84,9 @@ _queens = lens (_.queens) (_{queens = _})
 
 _roue :: Lens' RootState Roue.State
 _roue = lens (_.roue) (_{roue = _})
+
+_sansmot :: Lens' RootState Sansmot.State
+_sansmot = lens (_.sansmot) (_{sansmot = _})
 
 _solitaire :: Lens' RootState Solitaire.State
 _solitaire = lens (_.solitaire) (_{solitaire = _})
@@ -124,6 +129,7 @@ sliceFn state fn = case state.location of
     "paths" -> fn _paths
     "roue" -> fn _roue
     "queens" -> fn _queens
+    "sansmot" -> fn _sansmot
     "solitaire" -> fn _solitaire
     "tiling" -> fn _tiling
     _ -> fn _valise
@@ -169,6 +175,7 @@ main = do
     pathState <- G.init Paths.state
     queensState <- G.init Queens.state
     roueState <- G.init Roue.state
+    sansmotState <- G.init Sansmot.state
     solitaireState <- G.init Solitaire.state
     tilingState <- G.init Tiling.state
     valiseState <- G.init Valise.state
@@ -185,6 +192,7 @@ main = do
         paths: pathState,
         queens: queensState,
         roue: roueState,
+        sansmot: sansmotState,
         solitaire: solitaireState,
         tiling: tilingState,
         valise: valiseState,

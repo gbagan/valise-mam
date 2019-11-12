@@ -70,8 +70,11 @@ div' = h "div"
 span :: ∀a effs. Array (Prop a effs) -> Array (VDom a effs) -> VDom a effs
 span = h "span"
 
-h2 :: ∀a effs. Array (Prop a effs) -> Array (VDom a effs) -> VDom a effs
-h2 = h "h2"
+h1 :: ∀a effs. Array (Prop a effs) -> String -> VDom a effs
+h1 props str = h "h1" props [text str]
+
+h2 :: ∀a effs. Array (Prop a effs) -> String -> VDom a effs
+h2 props str = h "h2" props [text str]
 
 p :: ∀a effs. Array (Prop a effs) -> Array (VDom a effs) -> VDom a effs
 p = h "p"
@@ -97,6 +100,8 @@ y :: ∀a effs u. EUnit u => u -> Prop a effs
 y = attr "y" 
 stroke :: ∀a effs. String -> Prop a effs
 stroke = attr "stroke"
+opacity :: ∀a effs. String -> Prop a effs
+opacity = attr "opacity"
 fill :: ∀a effs. String -> Prop a effs
 fill = attr "fill"
 viewBox :: ∀a effs. Int -> Int -> Int -> Int -> Prop a effs
@@ -131,8 +136,8 @@ use :: ∀a effs u1 u2 u3 u4. EUnit u1 => EUnit u2 => EUnit u3 => EUnit u4 =>
 use x y w h' href' props =
     h "use" ([attr "x" x, attr "y" y, attr "width" w, attr "height" h', attr "href" href'] <> props) []
 
-text' :: ∀a effs. Number -> Number -> String -> Array (Prop a effs) -> VDom a effs
-text' x y t props = h "text" ([attr "x" $ show x, attr "y" $ show y] <> props) [text t]
+text' :: ∀a effs u. EUnit u => u -> u -> String -> Array (Prop a effs) -> VDom a effs
+text' x y t props = h "text" ([attr "x" x, attr "y" y] <> props) [text t]
 
 translate :: ∀u1 u2. EUnit u1 => EUnit u2 => u1 -> u2 -> String
 translate x y = "translate(" <> toStr x <> "," <> toStr y <> ")"

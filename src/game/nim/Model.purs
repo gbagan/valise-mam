@@ -1,6 +1,5 @@
 module Game.Nim.Model where
 import MyPrelude
-import Data.Traversable (sequence)
 import Data.Int.Bits (xor)
 import Lib.Util (tabulate2)
 import Pha.Action (Action)

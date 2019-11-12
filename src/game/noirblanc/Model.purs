@@ -1,6 +1,5 @@
 module Game.Noirblanc.Model where
 import MyPrelude
-import Data.Traversable (sequence)
 import Data.Array (modifyAtIndices)
 import Lib.Random (Random, randomInt)
 import Lib.Util (dCoords)

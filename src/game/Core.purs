@@ -1,5 +1,4 @@
 module Game.Core where
-import Debug.Trace (trace)
 import MyPrelude
 import Data.List (List(..))
 import Data.List (last, null) as L

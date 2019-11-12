@@ -104,7 +104,7 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
     ])
 
     grid = div' (gridStyle rows columns 5 <> trackPointer lens <> [class' "ui-board" true,
-            pointerdown $ lens 🔍 ifM (shiftKey <$> getEvent) startZone2A (pure unit)
+            pointerdown $ lens 🔍 whenM (shiftKey <$> getEvent) startZone2A
     ]) [
         svg [viewBox 0 0 (50 * columns) (50 * rows)] (
             (map3 (state^._position) nonTrappedBeast  (state^._squareColors) \index hasTrap hasBeast color ->
@@ -115,7 +115,7 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
                     -- pointerenter: [actions.setSquareHover, index], todo
                     -- ponterleave: [actions.setSquareHover, null],
                     pointerup $ lens 🔍 finishZoneA index,
-                    pointerdown $ lens 🔍 ifM (shiftKey <$> getEvent) (startZoneA index) (pure unit)
+                    pointerdown $ lens 🔍 whenM (shiftKey <$> getEvent) (startZoneA index)
                 ]
             ) <> [
                 maybeN $ case state^._startPointer of

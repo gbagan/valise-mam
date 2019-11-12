@@ -79,7 +79,7 @@ valise lens state = svg [
         object {symbol: "paw", link: Just "labete", help: "Jeu: la bête", drag: false}
             300 180 40 40 [transform "rotate(30)", attr "opacity" "0.5"] [],
 
-        object {symbol: "quiet", link: Nothing, help: "Jeu: preuve sans mot", drag: false}
+        object {symbol: "quiet", link: Just "sansmot", help: "Jeu: preuve sans mot", drag: false}
             180 130 50 50 [] [],
 
         object {symbol: "chocolate", link: Just "chocolat", help: "Jeu: chocolat", drag: false}

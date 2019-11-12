@@ -21,7 +21,7 @@ iconbutton state optionFn props =
 icongroup :: ∀a. String -> Array (VDom a EFFS) -> VDom a EFFS
 icongroup title children =
     div' [] [
-        h2 [] [text title],
+        h2 [] title,
         div' [class' "ui-icon-grid" true] children
     ]
 

@@ -13,8 +13,7 @@ instance unitInt :: EUnit Int where toStr = show
 instance unitNumber :: EUnit Number where toStr = show 
 instance unitPx :: EUnit (Px Number) where toStr (Px x) = show x <> "px"
 instance unitPx2 :: EUnit (Px Int) where toStr (Px x) = show x <> "px"    
-instance unitPc :: EUnit (Percent Number) where toStr (Percent x) = show x <> "%"
-instance unitPc2 :: EUnit (Percent Int) where toStr (Percent x) = show x <> "%"
+instance unitPc :: EUnit (Percent Number) where toStr (Percent x) = show (100.0 * x) <> "%"
 
 px :: ∀a. a -> Px a
 px = Px

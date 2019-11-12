@@ -56,8 +56,8 @@ view lens state = template lens (_{config=config, board=board, rules=rules}) sta
             use 0.0 0.0 80.0 80.0 "#meeplehat" [
                 key "hero",
                 class' "paths-hero" true,
-                style "transform" $ translate (pc $ (toNumber col * 100.0 + 10.0) / toNumber columns)
-                                              (pc $ (toNumber row * 100.0 + 10.0) / toNumber rows)
+                style "transform" $ translate (pc $ (toNumber col + 0.1) / toNumber columns)
+                                              (pc $ (toNumber row + 0.1) / toNumber rows)
             ]
 
     pathdec = joinWith " " $ concat $ position # mapWithIndex \i v ->

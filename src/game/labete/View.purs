@@ -23,7 +23,7 @@ colors = ["#5aa02c", "blue", "red", "yellow", "magenta", "cyan", "orange", "dark
 
 zone :: ∀a effs. Int -> {x :: Number, y :: Number} -> {x :: Number, y :: Number} -> VDom a effs
 zone color { x: x1, y: y1 }  {x: x2, y: y2 } =
-    rect (pc $ 100.0 * min x1 x2) (pc $ 100.0 * min y1 y2) (pc $ 100.0 * abs (x2 - x1)) (pc $ 100.0 * abs (y2 - y1)) [
+    rect (pc $ min x1 x2) (pc $ min y1 y2) (pc $ abs (x2 - x1)) (pc $ abs (y2 - y1)) [
         key "zone",
         stroke "black",
         fill $ colors !! color # fromMaybe "#5aa02c",

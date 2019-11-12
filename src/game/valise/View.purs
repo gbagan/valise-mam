@@ -1,11 +1,11 @@
 module Game.Valise.View where
 import MyPrelude
 import Game.Effs (EFFS)
-import Game.Valise.Model (State, showHelpA, setDragA, moveObjectA, _positions)
+import Game.Valise.Model (State, showHelpA, setDragA, moveObjectA, toggleSwitchA, _positions)
 import Pha (VDom, Prop, h, text, maybeN)
 import Pha.Action ((🔍))
 import Pha.Html (div', a, svg, g, class', svguse, rect, attr, style, href, width, height, viewBox, fill, transform, translate, x, y, pc,
-    pointermove, pointerenter, pointerleave, pointerup, pointerdown)
+    click, pointermove, pointerenter, pointerleave, pointerup, pointerdown)
 
 pos :: ∀a effs. Int -> Int -> Int -> Int -> Array (Prop a effs)
 pos x' y' w h = [
@@ -22,25 +22,23 @@ valise lens state = svg [
     pointerup $ lens 🔍 setDragA Nothing
 ][
     h "use" [href "#valise", class' "valise-close" true, width "100%", height "100%"] [], 
-    
-    -- 
-   
 
     g [class' "valise-open" true] [
         h "use" [href "#openvalise"] [],
 
         object { symbol: "switch", link: Nothing, help: "", drag: false } 
-            300 460 42 60 [] [], {-
+            300 460 42 60 [click $ lens 🔍 toggleSwitchA,
+                          style "transform" (if state.isSwitchOn then "scale(1,-1) translateY(-8%)" else "scale(1,1)")
+                        ] [],
 
-            Object({
-                symbol: 'bulboff',
-                class: {'valise-bulb': true, on: state.isSwitchOn},
-                help: 'Trouve un moyen d\'allumer l\'ampoule',
-            }, -}
+        object { symbol: "bulboff", link: Nothing, help: "Trouve un moyen d'allumer l'ampoule", drag: false}
+            477 280 48 48 [] [],
 
         object { symbol: "bulbon", link: Just "noirblanc", help: "Jeu: tour noir, tout blanc", drag: false } 
-            477 280 48 48 [] [],
-        
+            477 280 48 48 [ attr "transition" "opacity 0.5s",
+                            attr "opacity" $ if state.isSwitchOn then "1" else "0",
+                            attr "pointer-events" if state.isSwitchOn then "auto" else "none"
+                         ] [],
 
         object { symbol: "frog2", link: Just "frog", help: "Jeu: la grenouille", drag: false}
             549 320 40 40 [fill "#bcd35f"] [x "10%", y "20%", width "80%", height "80%"],
@@ -90,20 +88,17 @@ valise lens state = svg [
     ]
 ] where
     object {drag, link, help, symbol} x' y' w' h' props children =
-        let defaultTranslate = translate (pc $ toNumber x' / 8.5)  (pc $ toNumber y' / 6.9) in
+        let defaultTranslate = translate (pc $ toNumber x' / 850.0)  (pc $ toNumber y' / 690.0) in
         g [style "transform" $ 
             if drag then   
-                state ^. (_positions ∘ at symbol) # maybe defaultTranslate \{x: x2, y: y2} -> translate (pc $ 100.0 * x2) (pc $ 100.0 * y2)
+                state ^. (_positions ∘ at symbol) # maybe defaultTranslate \{x: x2, y: y2} -> translate (pc x2) (pc y2)
             else 
                 defaultTranslate
         ] [
             g props [
                 svg ([
-                    -- payloadFn = relativePointerPosition -- >>= (set('name', drag));
-                    -- position = if drag then state.position[drag];
-            
-                    -- 'touch-action': 'none',
-                    class' "valise-object ui-touch-action-none" true,
+                    class' "valise-object" true,
+                    style "touch-action" "none",
                     class' "draggable" drag,
                     width w',
                     height h',

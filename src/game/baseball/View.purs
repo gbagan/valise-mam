@@ -4,7 +4,7 @@ import MyPrelude
 import Lib.Util (map2)
 import Pha (VDom, text, ifN)
 import Pha.Action ((🔍))
-import Pha.Html (div', svg, g, rect, use, class', key, style, click, stroke, fill, viewBox, translate)
+import Pha.Html (div', svg, g, rect, use, class', key, style, click, pc, stroke, fill, viewBox, translate)
 import Game.Effs (EFFS)
 import Game.Core (canPlay, playA, isLevelFinished, _position)
 import Game.Baseball.Model (State, setNbBases, _nbBases, _missingPeg)
@@ -17,15 +17,15 @@ dupColors :: Array String
 dupColors = colors >>= \x -> [x, x]
 
 translatePeg :: Int -> Int -> String
-translatePeg position nbBases = translate x y  where
+translatePeg position nbBases = translate (pc x) (pc y)  where
     mid = toNumber (position / 2)
-    x = 42.0 + 35.0 * cos (mid * 2.0 * pi / toNumber nbBases) + 10.0 * toNumber (position `mod` 2)
-    y = 46.0 + 35.0 * sin (mid * 2.0 * pi / toNumber nbBases)
+    x = 0.42 + 0.35 * cos (mid * 2.0 * pi / toNumber nbBases) + 0.1 * toNumber (position `mod` 2)
+    y = 0.46 + 0.35 * sin (mid * 2.0 * pi / toNumber nbBases)
 
 transformBase :: Int -> Int -> String
-transformBase i nbBases = translate x y  <> " rotate(45deg)" where
-    x = 50.0 + 35.0 * cos (toNumber i * 2.0 * pi / toNumber nbBases)
-    y = 50.0 + 35.0 * sin (toNumber i * 2.0 * pi / toNumber nbBases)
+transformBase i nbBases = translate (pc x) (pc y)  <> " rotate(45deg)" where
+    x = 0.50 + 0.35 * cos (toNumber i * 2.0 * pi / toNumber nbBases)
+    y = 0.50 + 0.35 * sin (toNumber i * 2.0 * pi / toNumber nbBases)
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
 view lens state = template lens (_{config=config, board=board, rules=rules}) state where

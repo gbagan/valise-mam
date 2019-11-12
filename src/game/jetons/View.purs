@@ -22,7 +22,7 @@ view lens state = template lens (_{config=config, board= board, rules= rules, wi
         iconBestScore lens state
     ]
 
-    cursor pp _ = div' ([class' "ui-cursor jetons-cursor" true] <> cursorStyle pp rows columns 60.0) []
+    cursor pp _ = div' ([class' "ui-cursor jetons-cursor" true] <> cursorStyle pp rows columns 0.6) []
 
     piece i val props =
         let {row, col} = coords columns i in
@@ -30,10 +30,10 @@ view lens state = template lens (_{config=config, board= board, rules= rules, wi
             class' "jetons-peg" true,
             class' "small" $ columns >= 8,
             style "background-color" $ rgbColor 255 (floor $ 255.0 * (1.0 - sqrt (toNumber val / toNumber (rows * columns)))) 0,
-            style "left" $ pc $ (15.0 + toNumber col * 100.0) / toNumber columns,
-            style "top" $ pc $ (15.0 + toNumber row * 100.0) / toNumber rows,
-            style "width" $ pc $ 70.0 / toNumber columns,
-            style "height" $ pc $ 70.0 / toNumber rows,
+            style "left" $ pc $ (0.15 + toNumber col) / toNumber columns,
+            style "top" $ pc $ (0.15 + toNumber row) / toNumber rows,
+            style "width" $ pc $ 0.7 / toNumber columns,
+            style "height" $ pc $ 0.7 / toNumber rows,
             style "box-shadow" $ show (val * 2) <> "px " <> show(val * 2) <> "px 5px 0px #656565"
         ] <> props) [ span [] [text $ show val] ]
 

@@ -50,10 +50,6 @@ html, body {
     pointer-events: none;
 }
 
-.ui-touch-action-none {
-    touch-action: none;
-}
-
 @each $i in 2 /* 5 */ {
     .gutter#{$i} {
         & > div {

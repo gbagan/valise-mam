@@ -56,10 +56,10 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
                 light
                 (state^._help && played) [
                 key $ show index,
-                style "height" $ pc (86.0 / toNumber rows),
-                style "width" $ pc (86.0 / toNumber columns),
-                style "left" $ pc ((100.0 * toNumber col + 7.0) / toNumber columns),
-                style "top" $ pc ((100.0 * toNumber row + 7.0) / toNumber rows),
+                style "height" $ pc (0.86 / toNumber rows),
+                style "width" $ pc (0.86 / toNumber columns),
+                style "left" $ pc ((toNumber col + 0.07) / toNumber columns),
+                style "top" $ pc ((toNumber row + 0.07) / toNumber rows),
                 click $ lens 🔍 play2A index
             ]
 

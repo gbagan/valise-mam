@@ -27,6 +27,7 @@
 }
 
 .valise-object {
+    pointer-events: all;
     &.draggable {
         cursor: -webkit-grab;
         cursor: grab;
@@ -58,6 +59,7 @@
     border-radius: 0.5em;
     opacity: 0;
     transition: opacity 0.5s ease;
+    pointer-events: none;
 
     &.visible {
         opacity: 1;

@@ -2,7 +2,7 @@ module UI.Template where
 import MyPrelude
 import Pha (VDom, Prop, text, emptyNode, maybeN)
 import Pha.Action (Action, action, (🔍))
-import Pha.Html (div', class', attr, style, translate, pc, pointerup, pointerdown, pointerleave, pointermove)
+import Pha.Html (div', class', style, translate, pc, pointerup, pointerdown, pointerleave, pointermove)
 import Game.Core (class Game, class ScoreGame, GState, Mode(..), SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointer, _locked, 
          canPlay, isLevelFinished, sizeLimit, bestScore, setGridSizeA, confirmNewGameA, dropA)
@@ -90,8 +90,8 @@ template lens elemFn state =
 
 
 gridStyle :: ∀a effs. Int -> Int -> Int -> Array (Prop a effs)
-gridStyle rows columns limit = [style "height" $ pc (toNumber rows / m * 100.0),
-                                style "width" $ pc (toNumber columns / m * 100.0)]
+gridStyle rows columns limit = [style "height" $ pc (toNumber rows / m),
+                                style "width" $ pc (toNumber columns / m)]
     where m = toNumber $ max limit $ max rows columns        
 
 setPointerPositionA :: ∀pos ext effs. (Maybe Position) -> Action (GState pos ext) effs
@@ -99,21 +99,20 @@ setPointerPositionA a = action $ _pointer .~ a
 
 cursorStyle :: ∀a effs. Position -> Int -> Int -> Number -> Array (Prop a effs)    
 cursorStyle {x, y} rows columns size = [
-    style "left" $ pc (x * 100.0),
-    style "top" $ pc (y * 100.0),
+    style "left" $ pc x,
+    style "top" $ pc y,
     style "width" $ pc (size / toNumber columns),
     style "height" $ pc (size / toNumber rows)
 ]
 
 svgCursorStyle :: ∀a effs. Position -> Array (Prop a effs)
 svgCursorStyle {x, y} = [
-    style "transform" $ translate (pc $ 100.0 * x) (pc $ 100.0 * y)
+    style "transform" $ translate (pc x) (pc y)
 ]
 
 trackPointer :: ∀pos ext a. Lens' a (GState pos ext) -> Array (Prop a EFFS)
 trackPointer lens = [
-    attr "touch-action" "none", 
-    class' "ui-touch-action-none" true,
+    style "touch-action" "none",
     pointermove $ lens 🔍 move,
     pointerleave $ lens 🔍  action (_pointer .~ Nothing),
     pointerdown $ lens 🔍 move
@@ -133,8 +132,7 @@ trackPointer lens = [
 dndBoardProps :: ∀pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>
     Lens' a (GState pos ext) -> Lens' (GState pos ext) (Maybe dnd) -> Array (Prop a EFFS)
 dndBoardProps lens dragLens = [
-    attr "touch-action" "none", 
-    class' "ui-touch-action-none" true,
+    style "touch-action" "none", 
     pointermove $ lens 🔍 move,
     pointerup $ lens 🔍 action (dragLens .~ Nothing),
     pointerleave $ lens 🔍 leave,

@@ -3,7 +3,7 @@ module Game.Queens.View where
 import MyPrelude
 import Lib.Util (map2, map3)
 import Data.Array.NonEmpty (toArray, head) as N
-import Pha (VDom, Prop, h, text, maybeN)
+import Pha (VDom, Prop, h, text)
 import Pha.Action ((🔍))
 import Pha.Html (div', br, class', svg, use, key, style, pc, width, height, href, click, pointerenter, pointerleave)
 import Game.Effs (EFFS)
@@ -33,7 +33,7 @@ square { piece, capturable, selected, nonavailable} props =
         class' "queens-square-selected" selected
     ] <> props) $ if piece == Empty then [] else [
         svg [width "100%", height "100%", class' "queen-piece" true] [
-            use (pc 10) (pc 10) (pc 80) (pc 80) ("#piece-" <> show piece) [class' "queens-piece" true]
+            use "10%" "10%" "80%" "80%" ("#piece-" <> show piece) [class' "queens-piece" true]
         ]
     ]
 
@@ -73,7 +73,7 @@ view lens state = template lens (_{config=config, board=board, rules=rules,
                 ]
         
 
-    cursor pp = div' ([class' "ui-cursor" true] <> cursorStyle pp rows columns 80.0) [
+    cursor pp = div' ([class' "ui-cursor" true] <> cursorStyle pp rows columns 0.8) [
         svg [width "100%", height "100%"] [
             h "use" [href $ "#piece-" <> show (state^._selectedPiece)] []
         ]
@@ -86,8 +86,8 @@ view lens state = template lens (_{config=config, board=board, rules=rules,
                 nonavailable: state^._help && (piece /= Empty || capturable),
                 capturable
             } [
-                style "width" $ pc (100.0 / toNumber columns),
-                style "height" $ pc (100.0 / toNumber rows),
+                style "width" $ pc (1.0 / toNumber columns),
+                style "height" $ pc (1.0 / toNumber rows),
                 click $ lens 🔍 playA index,
                 pointerenter $ lens 🔍 selectSquareA (Just index),
                 pointerleave $ lens 🔍 selectSquareA Nothing
@@ -129,13 +129,13 @@ view lens state = template lens (_{config=config, board=board, rules=rules,
         ]
     ]    
         
-    scoreDialog _ = bestScoreDialog lens state \position -> [
+    scoreDialog _ = bestScoreDialog lens state \pos -> [
         div' [class' "ui-flex-center queens-bestscore-container" true] [
             div' (gridStyle rows columns 5 <> [class' "ui-board queens-grid" true]) (
-                position <#> \piece ->
+                pos <#> \piece ->
                     square { piece, capturable: false, selected: false, nonavailable: false} [
-                        style "width" $ pc $ 100.0 / toNumber columns,
-                        style "height" $ pc $ 100.0 / toNumber rows
+                        style "width" $ pc $ 1.0 / toNumber columns,
+                        style "height" $ pc $ 1.0 / toNumber rows
                     ]
             )
         ]

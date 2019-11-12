@@ -44,8 +44,8 @@ innerWheel size = div' [class' "roue-inner" true] [
 cursor :: ∀a. PointerPosition -> String -> VDom a EFFS
 cursor {x, y} color = div' [
     class' "ui-cursor roue-select-color roue-cursor" true,
-    style "left" $ pc (100.0 * x),
-    style "top" $ pc (100.0 * y),
+    style "left" $ pc x,
+    style "top" $ pc y,
     style "background-color" color
 ] []
 
@@ -83,8 +83,8 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
             div' [
                 class' "roue-outer-piece" true,
                 key $ show index,
-                style "left" $ pc $ 44.0 + 40.0 * cos(toNumber index * 2.0 * pi / toNumber size),
-                style "top" $ pc $ 44.0 + 40.0 * sin(toNumber index * 2.0 * pi / toNumber size),
+                style "left" $ pc $ 0.44 + 0.4 * cos(toNumber index * 2.0 * pi / toNumber size),
+                style "top" $ pc $ 0.44 + 0.4 * sin(toNumber index * 2.0 * pi / toNumber size),
                 style "background-color" $ colors !! color # fromMaybe "black"
             ] []
         )

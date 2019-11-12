@@ -5,7 +5,7 @@ import Lib.Util (coords)
 import Game.Common (_isoCustom)
 import Game.Core (GState(..), Dialog(..), class Game, SizeLimit(..),
                   canPlay, genState, newGame, newGame', playA, _position, _nbColumns, _nbRows, _dialog)
-import Pha.Action (Action, action, RNG, DELAY, getState)
+import Pha.Action (Action, RNG, DELAY, setState, getState)
 
 type Coord = {row :: Int, col :: Int}
 type Tile = Array Coord
@@ -112,7 +112,7 @@ instance tilingGame :: Game (Array Int) ExtState Int where
   
 
 putSinkA :: ∀effs. Int -> Action State effs
-putSinkA i = action $ (_position ∘ ix i) .~ (-1)
+putSinkA i = setState ((_position ∘ ix i) .~ (-1))
 
 setNbSinksA :: ∀effs. Int -> Action State (rng :: RNG | effs)
 setNbSinksA = newGame' (set _nbSinks)
@@ -129,10 +129,10 @@ clickOnCellA a = do
         playA a
 
 rotateA :: ∀effs. Action State effs
-rotateA = action $ _rotation %~ (add 1)
+rotateA = setState (_rotation %~ add 1)
 
 setHoverSquareA :: ∀effs. Maybe Int -> Action State effs
-setHoverSquareA a = action $ _hoverSquare .~ a
+setHoverSquareA a = setState (_hoverSquare .~ a)
 
 inConflict :: State -> Boolean
 inConflict state = state^._hoverSquare # maybe false \sqr -> state^._position !! sqr /= Just 0 || not canPlay state sqr

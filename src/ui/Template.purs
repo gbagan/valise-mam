@@ -1,7 +1,7 @@
 module UI.Template where
 import MyPrelude
 import Pha (VDom, Prop, text, emptyNode, maybeN)
-import Pha.Action (Action, action, (🔍))
+import Pha.Action (Action, setState, (🔍))
 import Pha.Html (div', class', style, translate, pc, pointerup, pointerdown, pointerleave, pointermove)
 import Game.Core (class Game, class ScoreGame, GState, Mode(..), SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointer, _locked, 
@@ -60,7 +60,7 @@ defaultElements = {
 }
 
 dialog :: ∀a pos aux effs. Lens' a (GState pos aux) -> String -> Array (VDom a effs) -> VDom a effs
-dialog lens title = D.dialog {title, onCancel: Nothing, onOk: Just $ lens 🔍 action (_dialog .~ NoDialog)}
+dialog lens title = D.dialog {title, onCancel: Nothing, onOk: Just $ lens 🔍 setState (_dialog .~ NoDialog)}
 
 bestScoreDialog :: ∀a pos aux mov effs. ScoreGame pos aux mov => Lens' a (GState pos aux) -> GState pos aux
                                   -> (pos -> Array (VDom a effs)) -> VDom a effs
@@ -81,7 +81,11 @@ template lens elemFn state =
         {board, config, rules, winTitle, customDialog, scoreDialog} = elemFn defaultElements
         dialog' Rules = dialog lens "Règles du jeu" rules
         dialog' (ConfirmNewGame s) =
-            D.dialog {title: "Nouvelle partie", onCancel: Just $ lens 🔍 action (_dialog .~ NoDialog), onOk: Just (lens 🔍 confirmNewGameA s)} [
+            D.dialog {
+                title: "Nouvelle partie", 
+                onCancel: Just $ lens 🔍 setState (_dialog .~ NoDialog), 
+                onOk: Just (lens 🔍 confirmNewGameA s)
+            } [
                 text "Tu es sur le point de créer une nouvelle partie. Ta partie en cours sera perdue. Es-tu sûr(e)?"
             ]
         dialog' CustomDialog = customDialog unit
@@ -95,7 +99,7 @@ gridStyle rows columns limit = [style "height" $ pc (toNumber rows / m),
     where m = toNumber $ max limit $ max rows columns        
 
 setPointerPositionA :: ∀pos ext effs. (Maybe Position) -> Action (GState pos ext) effs
-setPointerPositionA a = action $ _pointer .~ a
+setPointerPositionA a = setState (_pointer .~ a)
 
 cursorStyle :: ∀a effs. Position -> Int -> Int -> Number -> Array (Prop a effs)    
 cursorStyle {x, y} rows columns size = [
@@ -114,7 +118,7 @@ trackPointer :: ∀pos ext a. Lens' a (GState pos ext) -> Array (Prop a EFFS)
 trackPointer lens = [
     style "touch-action" "none",
     pointermove $ lens 🔍 move,
-    pointerleave $ lens 🔍  action (_pointer .~ Nothing),
+    pointerleave $ lens 🔍 setState (_pointer .~ Nothing),
     pointerdown $ lens 🔍 move
 ] where
     move = getPointerPosition >>= setPointerPositionA
@@ -125,7 +129,7 @@ trackPointer lens = [
     leave = -- combine(
            -- whenA
             --    (\_ e -> hasDnD || pointerType e == Just "mouse")
-            action (_pointer .~ Nothing)
+            setState (_pointer .~ Nothing)
 
             -- hasDnD && drop NoDrop
 
@@ -134,7 +138,7 @@ dndBoardProps :: ∀pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to :: dn
 dndBoardProps lens dragLens = [
     style "touch-action" "none", 
     pointermove $ lens 🔍 move,
-    pointerup $ lens 🔍 action (dragLens .~ Nothing),
+    pointerup $ lens 🔍 setState (dragLens .~ Nothing),
     pointerleave $ lens 🔍 leave,
     pointerdown $ lens 🔍 move
 ] where
@@ -146,7 +150,7 @@ dndBoardProps lens dragLens = [
         -- setPointerPosition -- `withPayload` relativePointerPosition
         --    whenA (\s -> s.pointer == Nothing) (actions.drop NoDrop)
         --)
-    leave = action $ (_pointer .~ Nothing) ∘ (dragLens .~ Nothing)
+    leave = setState $ (_pointer .~ Nothing) ∘ (dragLens .~ Nothing)
             -- hasDnD && drop NoDrop
 
 dndItemProps :: ∀pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>
@@ -154,8 +158,8 @@ dndItemProps :: ∀pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to :: dnd
 dndItemProps lens dragLens draggable droppable id state = [
     class' "dragged" dragged,
     class' "candrop" candrop,
-    pointerdown $ if draggable then releasePointerCapture *> (lens 🔍 action (dragLens .~ Just id)) else pure unit,
-    pointerup $ lens 🔍 (if candrop then dropA dragLens id else action (dragLens .~ Nothing))  -- stopPropagation
+    pointerdown $ when draggable $ releasePointerCapture *> (lens 🔍 setState (dragLens .~ Just id)),
+    pointerup $ lens 🔍 (if candrop then dropA dragLens id else setState (dragLens .~ Nothing))  -- stopPropagation
 ] where
     draggedItem = state ^. dragLens
     candrop = droppable && (draggedItem # maybe false (\x -> canPlay state { from: x, to: id }))

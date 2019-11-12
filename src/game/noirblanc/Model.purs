@@ -4,7 +4,7 @@ import Data.Array (modifyAtIndices)
 import Lib.Random (Random, randomInt)
 import Lib.Util (dCoords)
 import Lib.KonamiCode (konamiCode)
-import Pha.Action (Action, action)
+import Pha.Action (Action)
 import Game.Effs (RNG, DELAY, getState, setState)
 import Game.Core (class Game, GState(..), SizeLimit(..), playA, isLevelFinished, _position, _nbColumns, _nbRows, newGame, newGame', genState)
 
@@ -96,7 +96,7 @@ afterPlay = do
         pure unit
 
 onKeyDown :: ∀effs. String -> Action State effs
-onKeyDown = konamiCode _keySequence (action $ _maxLevels .~ [6, 6, 6, 6])
+onKeyDown = konamiCode _keySequence (setState (_maxLevels .~ [6, 6, 6, 6]))
 
 play2A :: ∀effs. Int -> Action State (rng :: RNG, delay :: DELAY | effs)
 play2A i = playA i *> afterPlay

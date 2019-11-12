@@ -1,12 +1,12 @@
 module Game.Labete.Model where
 import MyPrelude
 import Lib.Util (coords, tabulate2, abs)
-import Pha.Action (Action, action, RNG)
+import Pha.Action (Action, setState, RNG)
 import Game.Common (_isoCustom)
 import Game.Core (class Game, class ScoreGame, SizeLimit(..), GState(..), Objective(..), ShowWinStrategy(..),
                     PointerPosition, Dialog(..),
                    genState, newGame, newGame', _position, _nbRows, _nbColumns, _help, _dialog, updateScore')
-import Game.Effs (POINTER, getPointerPosition, setState)
+import Game.Effs (POINTER, getPointerPosition)
 
 data Mode = StandardMode | CylinderMode | TorusMode
 derive instance eqMode :: Eq Mode
@@ -161,7 +161,7 @@ setModeA :: ∀effs. Mode -> Action State (rng :: RNG | effs)
 setModeA = newGame' (set _mode)
 
 setHelpA :: ∀effs. Boolean -> Action State effs
-setHelpA a = action (_help .~ a)
+setHelpA a = setState (_help .~ a)
 
 setBeastA :: ∀effs. BeastType -> Action State (rng :: RNG | effs)
 setBeastA ttype = newGame $ (_beastType .~ ttype) ∘ 
@@ -186,7 +186,7 @@ colorZone state zone = state^._squareColors # updateAtIndices (
 )
 
 incSelectedColorA :: ∀effs. Int -> Action State effs
-incSelectedColorA x = action $ _selectedColor %~ \y -> (x + y + 9) `mod` 9
+incSelectedColorA x = setState $ _selectedColor %~ \y -> (x + y + 9) `mod` 9
 
 onKeyDown :: ∀effs. String -> Action State effs
 onKeyDown "o" = incSelectedColorA (-1)
@@ -194,13 +194,13 @@ onKeyDown "p" = incSelectedColorA 1
 onKeyDown _ = pure unit
 
 startZoneA :: ∀effs. Int -> Action State effs
-startZoneA pos = action (_startSquare .~ Just pos)
+startZoneA pos = setState (_startSquare .~ Just pos)
 
 startZone2A :: ∀effs. Action State (pointer :: POINTER | effs)
 startZone2A = getPointerPosition >>= \pos -> setState (_startPointer .~ pos)
 
 finishZoneA :: ∀effs. Int -> Action State effs
-finishZoneA index1 = action \state ->
+finishZoneA index1 = setState \state ->
     state^._startSquare # maybe state \index2 ->
         let {row: row1, col: col1} = coords (state^._nbColumns) index1
             {row: row2, col: col2} = coords (state^._nbColumns) index2

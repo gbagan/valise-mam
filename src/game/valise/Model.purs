@@ -1,6 +1,6 @@
 module Game.Valise.Model where
 import MyPrelude
-import Pha.Action (Action, action, DELAY, delay, getState, setState)
+import Pha.Action (Action, DELAY, delay, getState, setState)
 import Game.Effs (getPointerPosition, POINTER)
 import Data.Map (Map, empty) as M
 
@@ -42,10 +42,10 @@ _isSwitchOn :: Lens' State Boolean
 _isSwitchOn = lens (_.isSwitchOn) (_{isSwitchOn = _})
 
 showHelpA :: ∀effs. String -> Action State effs
-showHelpA help = action $ (_help %~ if help == "" then identity else const help) ∘ (_helpVisible .~ (help /= ""))
+showHelpA help = setState $ (_help %~ if help == "" then identity else const help) ∘ (_helpVisible .~ (help /= ""))
 
 toggleSwitchA :: ∀effs. Action State effs
-toggleSwitchA = action $ _isSwitchOn %~ not
+toggleSwitchA = setState (_isSwitchOn %~ not)
 
 enterA :: ∀effs. Action State (delay :: DELAY | effs) 
 enterA = do
@@ -53,10 +53,10 @@ enterA = do
     setState (_{isOpen = true})
 
 leaveA :: ∀effs. Action State effs 
-leaveA = setState $ \_ -> istate
+leaveA = setState (\_ -> istate)
 
 setDragA :: ∀effs. Maybe { name :: String, x :: Number, y :: Number } -> Action State effs
-setDragA d = setState $ _drag .~ d
+setDragA d = setState (_drag .~ d)
 
 moveObjectA :: ∀effs. Action State (pointer :: POINTER | effs)
 moveObjectA = do
@@ -65,6 +65,3 @@ moveObjectA = do
     case state.drag ~ pos of
         Just {name, x: x2, y: y2} ~ Just {x, y} -> setState $ _positions ∘ at name .~ Just {x: x-x2, y:y-y2}
         _ -> pure unit
-
-{-
-    toggleSwitch: set('isSwitchOn', not),

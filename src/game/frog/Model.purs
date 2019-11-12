@@ -5,7 +5,7 @@ import Data.Lazy (defer, force)
 import Lib.Util (tabulate, (..))
 import Data.Array.NonEmpty (NonEmptyArray, singleton, fromArray, cons) as N
 import Lib.KonamiCode (konamiCode)
-import Pha.Action (Action, action, RNG, DELAY, delay)
+import Pha.Action (Action, RNG, DELAY, setState, delay)
 import Game.Core (class Game, canPlay, playA, class TwoPlayersGame, Mode(..), GState(..), SizeLimit(..),
                 lockAction, newGame', computerMove', genState, _position, _nbRows)
 
@@ -78,8 +78,8 @@ playA' i = playA i *> lockAction (delay 500)
 
 -- place/retire une marque à la position i
 markA :: ∀effs. Int -> Action State effs
-markA i = action $ (_marked ∘ ix i) %~ not
+markA i = setState ((_marked ∘ ix i) %~ not)
 
 onKeyDown :: ∀effs. String -> Action State effs
-onKeyDown = konamiCode _keySequence (action \st -> st # _marked .~ st^._winning)
+onKeyDown = konamiCode _keySequence (setState \st -> st # _marked .~ st^._winning)
 

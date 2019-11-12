@@ -1,8 +1,8 @@
 module UI.Icons where
 import MyPrelude
 import Data.List (null) as L
-import Pha (VDom, Prop, text)
-import Pha.Action (Action, action, (🔍))
+import Pha (VDom, Prop)
+import Pha.Action (Action, setState, (🔍))
 import Pha.Html (div', h2, class', click)
 import Game.Core (GState, class Game, class ScoreGame, Dialog(..), Mode(..), bestScore,
                 undoA, redoA, resetA, toggleHelpA, setModeA, computerStartsA, setGridSizeA,
@@ -71,7 +71,7 @@ irules lens state =
     iconbutton
         state
         (_{icon = I.IconSymbol "#rules", tooltip = Just "Règles", selected = selected})
-        [click $ lens 🔍 action (_dialog .~ Rules)]
+        [click $ lens 🔍 setState (_dialog .~ Rules)]
     where
         selected = case state^._dialog of
             Rules -> true
@@ -109,7 +109,7 @@ iconSizesGroup lens state sizeList customSize =
             }) [click $ lens 🔍 setGridSizeA rows cols false]
         ) <> (if customSize then [
             iconbutton state (_{icon = I.IconText "NxM", tooltip = Just "Taille personnalisée", selected = csize})
-                            [click $ lens 🔍 action (_customSize .~ true)]
+                            [click $ lens 🔍 setState (_customSize .~ true)]
         ] else [])
     where
     crows = state^._nbRows
@@ -143,5 +143,5 @@ iconBestScore lens state =
         iconbutton
             state
             (_{icon = I.IconSymbol "#cup", disabled = isNothing (bestScore state), tooltip = Just "Meilleur score"})
-            [click $ lens 🔍 action (_dialog .~ ScoreDialog)]
+            [click $ lens 🔍 setState (_dialog .~ ScoreDialog)]
     ]

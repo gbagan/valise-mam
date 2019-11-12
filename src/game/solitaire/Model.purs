@@ -1,7 +1,7 @@
 module Game.Solitaire.Model where
 import MyPrelude
 import Data.FoldableWithIndex (allWithIndex)
-import Pha.Action (Action, action, RNG)
+import Pha.Action (Action, RNG, setState)
 import Lib.Random (Random, randomInt, randomBool)
 import Lib.Util (tabulate, tabulate2, dCoords)
 import Game.Core (class Game, class ScoreGame, GState(..), SizeLimit(..), Objective(..), ShowWinStrategy(..),
@@ -148,4 +148,4 @@ setBoardA board = newGame \state ->
         _ -> st2 # _nbRows .~ 7 # _nbColumns .~ 7
 
 toggleHelpA :: ∀effs. Action State effs
-toggleHelpA = action $ _help %~ \x -> (x + 1) `mod` 3
+toggleHelpA = setState $ _help %~ \x -> (x + 1) `mod` 3

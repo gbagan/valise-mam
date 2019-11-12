@@ -4,7 +4,7 @@ import MyPrelude
 import Lib.Util (swap)
 import Control.Monad.Rec.Class (tailRecM, Step(..))
 import Game.Core (class Game, GState(..), genState, newGame', lockAction, _position, _showWin, defaultSizeLimit)
-import Pha.Action (Action, action, delay, DELAY, RNG, getState, setState)
+import Pha.Action (Action, delay, DELAY, RNG, getState, setState)
 
 type Position = Array (Maybe Int)
 
@@ -73,7 +73,7 @@ rotate :: Int -> State -> State
 rotate i = _rotation %~ add i
 
 rotateA :: ∀effs. Int -> Action State effs
-rotateA i = action $ rotate i
+rotateA i = setState (rotate i)
 
 setSizeA :: ∀effs. Int -> Action State (rng :: RNG | effs)
 setSizeA = newGame' (set _size)
@@ -96,7 +96,7 @@ checkA = lockAction $ getState >>= \st -> tailRecM go (st^._size) where
             pure $ Loop (i-1)
 
 deleteDraggedA :: ∀effs. Action State effs
-deleteDraggedA = action \state ->
+deleteDraggedA = setState \state ->
     let state2 = state # _dragged .~ Nothing in
     state^._dragged # maybe state2 case _ of
             Wheel i -> state2 # (_position ∘ ix i) .~ Nothing

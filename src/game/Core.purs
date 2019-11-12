@@ -5,7 +5,7 @@ import Data.List (last, null) as L
 import Data.Array.NonEmpty (fromArray, toArray) as N
 import Data.Map (Map, empty) as M
 import Lib.Random (Random, runRnd, genSeed, randomPick)
-import Pha.Action (Action, action, delay, DELAY, RNG, getState, setState, setState', randomAction, randomAction') -- asyncAction)
+import Pha.Action (Action, delay, DELAY, RNG, getState, setState, setState', randomAction, randomAction') -- asyncAction)
 import Effect (Effect)
 import Control.Alt ((<|>))
 
@@ -124,7 +124,7 @@ changeTurn :: ∀pos ext. GState pos ext -> GState pos ext
 changeTurn state = state # _turn %~ \x -> if state^._mode == DuelMode then 1 - x else 0
 
 undoA :: ∀pos ext effs. Action (GState pos ext) effs
-undoA = action \state -> case state^._history of
+undoA = setState \state -> case state^._history of
     Nil -> state
     Cons h rest ->
         state # changeTurn
@@ -133,7 +133,7 @@ undoA = action \state -> case state^._history of
               # _redoHistory %~ Cons (state^._position)
 
 redoA :: ∀pos ext effs. Action (GState pos ext) effs
-redoA = action \state -> case state^._redoHistory of
+redoA = setState \state -> case state^._redoHistory of
     Nil -> state
     Cons h rest ->
         state # changeTurn
@@ -142,7 +142,7 @@ redoA = action \state -> case state^._redoHistory of
               # _history %~ Cons (state^._position)
 
 resetA :: ∀pos ext effs. Action (GState pos ext) effs
-resetA = action \state -> case L.last (state^._history) of
+resetA = setState \state -> case L.last (state^._history) of
     Nothing -> state
     Just x -> state # _position .~ x
                     # _history .~ Nil
@@ -150,7 +150,7 @@ resetA = action \state -> case L.last (state^._history) of
                     # _turn .~ 0
 
 toggleHelpA :: ∀pos ext effs. Action (GState pos ext) effs
-toggleHelpA = action (_help %~ not)
+toggleHelpA = setState (_help %~ not)
 
 playAux :: ∀pos ext mov. Game pos ext mov => mov -> GState pos ext -> GState pos ext
 playAux move state =
@@ -182,14 +182,11 @@ computerPlay = do
             pure unit
 
 computerStartsA :: ∀pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
-computerStartsA = action pushToHistory *> computerPlay
+computerStartsA = setState pushToHistory *> computerPlay
 
 playA :: ∀pos ext mov effs. Game pos ext mov => mov -> Action (GState pos ext) (delay :: DELAY, rng :: RNG | effs)
-playA move = lockAction $ do 
-    state <- getState
-    if not (canPlay state move) then
-        pure unit
-    else do
+playA move = lockAction $
+    whenM (getState <#> flip canPlay move) do
         st2 <- setState' (playAux move ∘ pushToHistory)
         if isLevelFinished st2 then do
             let st3 ~ isNewRecord = updateScore st2
@@ -198,7 +195,7 @@ playA move = lockAction $ do
                 showVictory
             else
                 pure unit
-        else if state^._mode == ExpertMode || state^._mode == RandomMode then do
+        else if st2^._mode == ExpertMode || st2^._mode == RandomMode then do
             delay 1000
             computerPlay
         else 
@@ -209,14 +206,10 @@ playA move = lockAction $ do
 -- affecte à true l'attribut locked avant le début de l'action act et l'affecte à false à la fin de l'action
 -- fonctionne sur toute la durée d'une action asynchrone
 lockAction :: ∀pos ext effs. Action (GState pos ext) effs -> Action (GState pos ext) effs 
-lockAction act = do
-    state <- getState
-    if state^._locked then
-        pure unit
-    else do
-        setState $ _locked .~ true
+lockAction act = unlessM (view _locked <$> getState) do
+        setState (_locked .~ true)
         act
-        setState $ _locked .~ false
+        setState (_locked .~ false)
 
 newGameAux :: ∀pos ext mov. Game pos ext mov =>
     (GState pos ext -> GState pos ext) -> (GState pos ext) -> Random (GState pos ext)
@@ -261,7 +254,7 @@ setGridSizeA nbRows nbColumns customSize = newGame $ setSize' ∘ (_customSize .
         where SizeLimit minrows mincols maxrows maxcols = sizeLimit state
 
 confirmNewGameA :: ∀pos ext effs. GState pos ext -> Action (GState pos ext) effs
-confirmNewGameA st = action \_ -> st
+confirmNewGameA st = setState (\_ -> st)
 
 class Game pos ext mov <= TwoPlayersGame pos ext mov | ext -> pos mov  where
     isLosingPosition :: GState pos ext -> Boolean

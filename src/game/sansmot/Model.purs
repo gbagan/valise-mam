@@ -39,7 +39,7 @@ _locked = lens (_.locked) (_{locked = _})
 
 animateA :: ∀effs. Array AnimationStep -> Action State (delay :: DELAY | effs)
 animateA animation = do
-    whenM (not <$> view _locked <$> getState) $ do
+    unlessM (view _locked <$> getState) $ do
         setState $ (_anim .~ M.empty) ∘ (_locked .~ true)
         delay 1000
         for_ animation \(Step d key step) -> do

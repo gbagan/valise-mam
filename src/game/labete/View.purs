@@ -111,7 +111,7 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
                 let {row, col} = coords columns index in
                 square { color, row, col, hasTrap, hasBeast: hasBeast && state^._help } [
                     key $ show index,
-                    click $ lens 🔍ifM (shiftKey <$> getEvent) (pure unit) (playA index),
+                    click $ lens 🔍unlessM (shiftKey <$> getEvent) (playA index),
                     -- pointerenter: [actions.setSquareHover, index], todo
                     -- ponterleave: [actions.setSquareHover, null],
                     pointerup $ lens 🔍 finishZoneA index,

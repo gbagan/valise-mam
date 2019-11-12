@@ -29,9 +29,6 @@ getEvent = lift (SProxy :: SProxy "event") (GetEvent identity)
 type Action' st effs a = Run (getState :: GETSTATE st, setState :: SETSTATE st | effs) a
 type Action st effs = Action' st effs Unit
 
-action :: ∀effs st. (st -> st) -> Action st effs
-action fn = setState fn
-
 setState' :: ∀effs st. (st -> st) -> Run (getState :: GETSTATE st, setState :: SETSTATE st | effs) st
 setState' fn = do
     setState fn

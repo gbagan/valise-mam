@@ -4,7 +4,7 @@ import Lib.Util (tabulate, dCoords, map2)
 import Data.Array.NonEmpty (NonEmptyArray, fromArray, head, singleton) as N
 import Game.Core (GState(..), class Game, class ScoreGame, Objective(..), Dialog(..), SizeLimit(..), ShowWinStrategy(..),
                   updateScore', genState, newGame, _dialog, _position, _nbRows, _nbColumns)
-import Pha.Action (Action, action, RNG, DELAY)
+import Pha.Action (Action, setState, RNG, DELAY)
 
 piecesList :: Array Piece
 piecesList = [Rook, Bishop, King, Knight, Queen]
@@ -128,16 +128,16 @@ toggleAllowedPiece piece true pieces = N.fromArray pieces2 # fromMaybe pieces wh
     pieces2 = piecesList # filter \p2 -> (p2 == piece) /= elem p2 pieces
     
 selectPieceA :: ∀effs. Piece -> Action State effs
-selectPieceA piece = action $ _selectedPiece .~ piece
+selectPieceA piece = setState (_selectedPiece .~ piece)
 
 selectSquareA :: ∀effs. Maybe Int -> Action State effs
-selectSquareA a = action $ _selectedSquare .~ a
+selectSquareA a = setState (_selectedSquare .~ a)
 
 selectAllowedPieceA :: ∀effs. Piece -> Action State (rng :: RNG, delay :: DELAY | effs)
 selectAllowedPieceA piece = newGame $ \state -> state # _allowedPieces %~ toggleAllowedPiece piece (state^._multiPieces)
 
 toggleMultiPiecesA :: ∀effs. Action State effs
-toggleMultiPiecesA = action $ _multiPieces %~ not
+toggleMultiPiecesA = setState (_multiPieces %~ not)
 
 flipDirectionA :: ∀effs. Int -> Action State (rng :: RNG | effs)
 flipDirectionA direction = newGame $ (_customDirections ∘ ix direction) %~ not

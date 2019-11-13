@@ -1,5 +1,6 @@
 module Game.Queens (State, state) where
 import MyPrelude
+import Pha.Action ((🔍))
 import Game (class CGame)
 import Game.Core (init) as C
 import Game.Queens.Model (State, istate) as M
@@ -10,7 +11,7 @@ _iso :: Iso' State M.State
 _iso = iso (\(State a) -> a) State
 
 instance cgame :: CGame State where
-    init (State st) = State <$> C.init st
+    init = _iso 🔍 C.init
     view lens (State st) = V.view (lens ∘ _iso) st
     onKeyDown _ = pure unit
 

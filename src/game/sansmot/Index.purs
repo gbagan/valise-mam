@@ -10,7 +10,7 @@ _iso :: Iso' State M.State
 _iso = iso (\(State a) -> a) State
 
 instance cgame :: CGame State where
-    init = pure
+    init = pure unit
     view lens (State st) = V.view (lens ∘ _iso) st
     onKeyDown _ = pure unit
 

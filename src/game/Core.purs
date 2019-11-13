@@ -176,10 +176,7 @@ computerPlay = do
     state <- getState
     computerMove state # maybe (pure unit) \rndmove -> do
         st2 <- randomAction' (\st -> rndmove <#> \m -> playAux m st)
-        if isLevelFinished st2 then
-            showVictory
-        else
-            pure unit
+        when (isLevelFinished st2) showVictory
 
 computerStartsA :: ∀pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
 computerStartsA = setState pushToHistory *> computerPlay
@@ -191,10 +188,7 @@ playA move = lockAction $
         if isLevelFinished st2 then do
             let st3 ~ isNewRecord = updateScore st2
             setState \_ -> st3
-            if isNewRecord then
-                showVictory
-            else
-                pure unit
+            when isNewRecord showVictory
         else if st2^._mode == ExpertMode || st2^._mode == RandomMode then do
             delay 1000
             computerPlay
@@ -237,9 +231,8 @@ newGame' :: ∀a pos ext mov effs. Game pos ext mov =>
     (a -> GState pos ext -> GState pos ext) -> a -> Action (GState pos ext) (rng :: RNG | effs)
 newGame' f val = newGame $ f val
 
-init :: ∀pos ext mov. Game pos ext mov => GState pos ext -> Effect (GState pos ext)
-init st = genSeed <#> \seed -> runRnd seed $ newGameAux identity st
-
+init :: ∀pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG | effs)
+init = newGame identity
 
 setModeA :: ∀pos ext mov effs. Game pos ext mov => Mode -> Action (GState pos ext) (rng :: RNG | effs)
 setModeA = newGame' (set _mode)

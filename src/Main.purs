@@ -9,7 +9,7 @@ import Pha.Action (Action, (🔍))
 import Pha.Html (div', a, svguse, key, class', href)
 import Pha.Event (key) as E
 import Game (class CGame, init, view, onKeyDown) as G
-import Game.Effs (EFFS, delay, getLoc, getLocation, getEvent, getState, setState, interpretEffects)
+import Game.Effs (EFFS, delay, getLocation, getEvent, getState, setState, interpretEffects)
 import Game.Baseball (State, state) as Baseball
 import Game.Chocolat (State, state) as Chocolat
 import Game.Dessin (State, state) as Dessin
@@ -113,8 +113,24 @@ hashChange = do
         setState (_{location = location, anim = false})
     
 
-init2 :: Action RootState EFFS
-init2 = hashChange
+init :: Action RootState EFFS
+init = do
+    _baseball 🔍 G.init
+    _chocolat 🔍 G.init
+    _dessin 🔍 G.init
+    _frog 🔍 G.init
+    _jetons 🔍 G.init
+    _labete 🔍 G.init
+    _nim 🔍 G.init
+    _noirblanc 🔍 G.init
+    _paths 🔍 G.init
+    _queens 🔍 G.init
+    _roue 🔍 G.init
+    _sansmot 🔍 G.init
+    _solitaire 🔍 G.init
+    _tiling 🔍 G.init
+    _valise 🔍 G.init  
+    hashChange
 
 sliceFn :: ∀a. RootState -> (∀b. G.CGame b => (Lens' RootState b) -> a)  -> a
 sliceFn state fn = case state.location of
@@ -161,44 +177,26 @@ viewGame :: RootState -> VDom RootState EFFS
 viewGame st = sliceFn st \lens -> G.view lens (st ^. lens)
 
 main :: Effect Unit
-main = do
-    loc <- getLoc
-    let location = extractLocation loc.hash "valise"
-    baseballState <- G.init Baseball.state
-    chocolatState <- G.init Chocolat.state
-    dessinState <- G.init Dessin.state
-    frogState <- G.init Frog.state
-    jetonsState <- G.init Jetons.state
-    labeteState <- G.init Labete.state
-    nimState <- G.init Nim.state
-    noirblancState <- G.init Noirblanc.state
-    pathState <- G.init Paths.state
-    queensState <- G.init Queens.state
-    roueState <- G.init Roue.state
-    sansmotState <- G.init Sansmot.state
-    solitaireState <- G.init Solitaire.state
-    tilingState <- G.init Tiling.state
-    valiseState <- G.init Valise.state
-
+main =
     let state = {
-        baseball: baseballState, 
-        chocolat: chocolatState,
-        dessin: dessinState,
-        frog: frogState,
-        jetons: jetonsState,
-        labete: labeteState,
-        nim: nimState,
-        noirblanc: noirblancState,
-        paths: pathState,
-        queens: queensState,
-        roue: roueState,
-        sansmot: sansmotState,
-        solitaire: solitaireState,
-        tiling: tilingState,
-        valise: valiseState,
-        location: location,
+        baseball: Baseball.state, 
+        chocolat: Chocolat.state,
+        dessin: Dessin.state,
+        frog: Frog.state,
+        jetons: Jetons.state,
+        labete: Labete.state,
+        nim: Nim.state,
+        noirblanc: Noirblanc.state,
+        paths: Paths.state,
+        queens: Queens.state,
+        roue: Roue.state,
+        sansmot: Sansmot.state,
+        solitaire: Solitaire.state,
+        tiling: Tiling.state,
+        valise: Valise.state,
+        location: "",
         anim: true  --- empèche l'animation à l'ouverture de la page
-    }
+    } in
     app {
         state,
         view: viewG,
@@ -208,5 +206,5 @@ main = do
             "hashchange" ~ hashChange
         ],
         effects: interpretEffects,
-        init: init2
+        init
     }

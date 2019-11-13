@@ -11,7 +11,7 @@ is :: Iso' State M.State
 is = iso (\(State a) -> a) State
 
 instance cgame :: CGame State where
-    init (State st) = State <$> C.init st
+    init = is 🔍 C.init
     view lens (State st) = V.view (lens ∘ is) st
     onKeyDown a = is 🔍 M.onKeyDown a
 

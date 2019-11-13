@@ -1,17 +1,18 @@
 module Game.Paths where
 import MyPrelude
+import Pha.Action ((🔍))
 import Game (class CGame)
 import Game.Core (init) as C
 import Game.Paths.Model (State, istate) as M
 import Game.Paths.View (view) as V
 
 newtype State = State M.State
-is :: Iso' State M.State
-is = iso (\(State a) -> a) State
+_iso :: Iso' State M.State
+_iso = iso (\(State a) -> a) State
 
 instance cgame :: CGame State where
-    init (State st) = State <$> C.init st 
-    view lens (State st) = V.view (lens ∘ is) st
+    init = _iso 🔍 C.init
+    view lens (State st) = V.view (lens ∘ _iso) st
     onKeyDown _ = pure unit
 
 state :: State

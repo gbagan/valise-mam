@@ -85,15 +85,13 @@ afterPlay :: ∀effs. Action State (rng :: RNG, delay :: DELAY | effs)
 afterPlay = do
     state <- getState
     let mode = state^._mode2
-    if isLevelFinished state then do
+    when (isLevelFinished state) do
         let nextLevel = if state^._level >= 4 then
                         6
                     else
                         state^._level + (if mode == 0 || mode == 3 then 1 else 2)
         setState (_maxLevels ∘ ix mode .~ nextLevel)
         newGame (_level %~ \lvl -> min (lvl + 1) 6)
-    else
-        pure unit
 
 onKeyDown :: ∀effs. String -> Action State effs
 onKeyDown = konamiCode _keySequence (setState (_maxLevels .~ [6, 6, 6, 6]))

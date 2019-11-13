@@ -1,5 +1,6 @@
 module Game.Chocolat where
 import MyPrelude
+import Pha.Action ((🔍))
 import Game (class CGame)
 import Game.Core (init) as C
 import Game.Chocolat.Model (State, istate) as M
@@ -10,7 +11,7 @@ is :: Iso' State M.State
 is = iso (\(State a) -> a) State
 
 instance cgame :: CGame State where
-    init (State st) = State <$> C.init st
+    init = is 🔍 C.init
     view lens (State st) = V.view (lens ∘ is) st
     onKeyDown _ = pure unit
 

@@ -95,7 +95,7 @@ instance tilingGame :: Game (Array Int) ExtState Int where
             tilePos = placeTile state index
         in
         if canPutTile state tilePos then
-            let m = (foldl max 0 pos) + 1 in
+            let m = (foldr max 0 pos) + 1 in
             pos # mapWithIndex \i x -> if elem i tilePos then m else x
         else
             pos <#> \x -> if Just x == pos !! index then 0 else x

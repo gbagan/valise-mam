@@ -1,3 +1,21 @@
+.sansmot-main {
+    position: relative;
+}
+
+.sansmot-menu {
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 1.5rem;
+}
+
+.sansmot-pagelink {
+    width: 4rem;
+    height: 4rem;
+    border: solid blue thick;
+    text-align: center;
+}
+
 .sansmot-title {
     text-align: center;
     color: #0066FF

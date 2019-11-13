@@ -4,9 +4,8 @@ import Data.List (List(..))
 import Data.List (last, null) as L
 import Data.Array.NonEmpty (fromArray, toArray) as N
 import Data.Map (Map, empty) as M
-import Lib.Random (Random, runRnd, genSeed, randomPick)
+import Lib.Random (Random, randomPick)
 import Pha.Action (Action, delay, DELAY, RNG, getState, setState, setState', randomAction, randomAction') -- asyncAction)
-import Effect (Effect)
 import Control.Alt ((<|>))
 
 data Dialog a = Rules | NoDialog | ConfirmNewGame a | ScoreDialog | CustomDialog

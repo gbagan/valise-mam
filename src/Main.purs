@@ -1,7 +1,7 @@
 module Main where
 
-import MyPrelude
-import Data.String (drop, indexOf)
+import MyPrelude hiding (view)
+import Data.String (drop, indexOf) as S
 import Data.String.Pattern (Pattern (..))
 import Effect (Effect)
 import Pha (VDom, app, ifN)
@@ -30,7 +30,7 @@ import Game.Valise.Model (enterA, leaveA) as ValiseM
 
 extractLocation :: String -> String -> String
 extractLocation url defaultValue =
-    indexOf (Pattern "#") url # maybe defaultValue \i -> drop (i + 1) url 
+    S.indexOf (Pattern "#") url # maybe defaultValue \i -> S.drop (i + 1) url 
 
 type RootState = {
     baseball :: Baseball.State, 
@@ -133,7 +133,7 @@ init = do
     hashChange
 
 sliceFn :: ∀a. RootState -> (∀b. G.CGame b => (Lens' RootState b) -> a)  -> a
-sliceFn state fn = case state.location of
+sliceFn st fn = case st.location of
     "baseball" -> fn _baseball
     "chocolat" -> fn _chocolat
     "dessin" -> fn _dessin
@@ -153,58 +153,59 @@ sliceFn state fn = case state.location of
 onKeyDown :: Action RootState EFFS
 onKeyDown = do
     ev <- getEvent
-    state <- getState
+    st <- getState
     case E.key ev of
         Nothing  -> pure unit
-        Just k -> sliceFn state \lens -> lens 🔍 G.onKeyDown k
+        Just k -> sliceFn st \lens -> lens 🔍 G.onKeyDown k
 
-viewG :: RootState -> VDom RootState EFFS
-viewG state = div' [
-    key state.location,
+view :: RootState -> VDom RootState EFFS
+view st = div' [
+    key st.location,
     class' "main-main-container" true,
-    class' "valise" $ state.location == "valise",
-    class' "appear" state.anim
+    class' "valise" $ st.location == "valise",
+    class' "appear" st.anim
 ] [
-    ifN (state.location /= "valise") \_ ->
+    ifN (st.location /= "valise") \_ ->
         a [
             class' "main-minivalise-link" true,
             href "#valise"
         ] [svguse "#valise" []],
-    viewGame state
+    viewGame st
 ]
 
 viewGame :: RootState -> VDom RootState EFFS
 viewGame st = sliceFn st \lens -> G.view lens (st ^. lens)
 
+state :: RootState
+state = {
+    baseball: Baseball.state, 
+    chocolat: Chocolat.state,
+    dessin: Dessin.state,
+    frog: Frog.state,
+    jetons: Jetons.state,
+    labete: Labete.state,
+    nim: Nim.state,
+    noirblanc: Noirblanc.state,
+    paths: Paths.state,
+    queens: Queens.state,
+    roue: Roue.state,
+    sansmot: Sansmot.state,
+    solitaire: Solitaire.state,
+    tiling: Tiling.state,
+    valise: Valise.state,
+    location: "",
+    anim: true  --- empèche l'animation à l'ouverture de la page
+}
+
 main :: Effect Unit
-main =
-    let state = {
-        baseball: Baseball.state, 
-        chocolat: Chocolat.state,
-        dessin: Dessin.state,
-        frog: Frog.state,
-        jetons: Jetons.state,
-        labete: Labete.state,
-        nim: Nim.state,
-        noirblanc: Noirblanc.state,
-        paths: Paths.state,
-        queens: Queens.state,
-        roue: Roue.state,
-        sansmot: Sansmot.state,
-        solitaire: Solitaire.state,
-        tiling: Tiling.state,
-        valise: Valise.state,
-        location: "",
-        anim: true  --- empèche l'animation à l'ouverture de la page
-    } in
-    app {
-        state,
-        view: viewG,
-        node: "root",
-        events: [
-            "keydown" ~ onKeyDown,
-            "hashchange" ~ hashChange
-        ],
-        effects: interpretEffects,
-        init
-    }
+main = app {
+    state,
+    view,
+    init,
+    node: "root",
+    events: [
+        "keydown" ~ onKeyDown,
+        "hashchange" ~ hashChange
+    ],
+    effects: interpretEffects
+}

@@ -6049,7 +6049,7 @@ var PS = {};
       if (v instanceof Data_List_Types.Cons) {
           return Data_Lens_Setter.over(_history(Data_Profunctor_Strong.strongFn))(Data_List_Types.Cons.create(Data_Lens_Getter.viewOn(state)(_position(Data_Lens_Internal_Forget.strongForget))))(Data_Lens_Setter.set(_redoHistory(Data_Profunctor_Strong.strongFn))(v.value1)(Data_Lens_Setter.set(_position(Data_Profunctor_Strong.strongFn))(v.value0)(changeTurn(state))));
       };
-      throw new Error("Failed pattern match at Game.Core (line 136, column 28 - line 142, column 52): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Core (line 135, column 28 - line 141, column 52): " + [ v.constructor.name ]);
   });
   var undoA = Pha_Action.setState(function (state) {
       var v = Data_Lens_Getter.viewOn(state)(_history(Data_Lens_Internal_Forget.strongForget));
@@ -6059,7 +6059,7 @@ var PS = {};
       if (v instanceof Data_List_Types.Cons) {
           return Data_Lens_Setter.over(_redoHistory(Data_Profunctor_Strong.strongFn))(Data_List_Types.Cons.create(Data_Lens_Getter.viewOn(state)(_position(Data_Lens_Internal_Forget.strongForget))))(Data_Lens_Setter.set(_history(Data_Profunctor_Strong.strongFn))(v.value1)(Data_Lens_Setter.set(_position(Data_Profunctor_Strong.strongFn))(v.value0)(changeTurn(state))));
       };
-      throw new Error("Failed pattern match at Game.Core (line 127, column 28 - line 133, column 56): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Core (line 126, column 28 - line 132, column 56): " + [ v.constructor.name ]);
   });
   var playAux = function (dictGame) {
       return function (move) {
@@ -6163,7 +6163,7 @@ var PS = {};
                               return Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit);
                           });
                       };
-                      throw new Error("Failed pattern match at Game.Core (line 304, column 5 - line 308, column 71): " + [ v1.constructor.name ]);
+                      throw new Error("Failed pattern match at Game.Core (line 303, column 5 - line 307, column 71): " + [ v1.constructor.name ]);
                   });
               };
           };
@@ -6177,7 +6177,7 @@ var PS = {};
       if (v instanceof Data_Maybe.Just) {
           return Data_Lens_Setter.set(_turn(Data_Profunctor_Strong.strongFn))(0)(Data_Lens_Setter.set(_redoHistory(Data_Profunctor_Strong.strongFn))(Data_List_Types.Nil.value)(Data_Lens_Setter.set(_history(Data_Profunctor_Strong.strongFn))(Data_List_Types.Nil.value)(Data_Lens_Setter.set(_position(Data_Profunctor_Strong.strongFn))(v.value0)(state))));
       };
-      throw new Error("Failed pattern match at Game.Core (line 145, column 29 - line 150, column 33): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Core (line 144, column 29 - line 149, column 33): " + [ v.constructor.name ]);
   });
   exports["canPlay"] = canPlay;
   exports["isLevelFinished"] = isLevelFinished;
@@ -13396,6 +13396,20 @@ var PS = {};
   var Data_Profunctor_Strong = $PS["Data.Profunctor.Strong"];
   var Pha_Action = $PS["Pha.Action"];
   var Run = $PS["Run"];                
+  var PythaPage = (function () {
+      function PythaPage() {
+
+      };
+      PythaPage.value = new PythaPage();
+      return PythaPage;
+  })();
+  var CarollPage = (function () {
+      function CarollPage() {
+
+      };
+      CarollPage.value = new CarollPage();
+      return CarollPage;
+  })();
   var Step = (function () {
       function Step(value0, value1, value2) {
           this.value0 = value0;
@@ -13414,7 +13428,22 @@ var PS = {};
   var pythaAnimation = [ new Step(500, "a", 1), new Step(200, "a", 2), new Step(600, "b", 1), new Step(200, "b", 2), new Step(600, "c", 1), new Step(200, "c", 2), new Step(600, "d", 1), new Step(200, "d", 2), new Step(600, "e", 1) ];
   var istate = {
       anim: Data_Map_Internal.empty,
-      locked: false
+      locked: false,
+      page: CarollPage.value
+  };
+  var carollAnimation = [ new Step(700, "a", 1), new Step(700, "b", 1), new Step(700, "c", 1), new Step(700, "d", 1), new Step(600, "e", 1) ];
+  var _page = function (dictStrong) {
+      return Data_Lens_Lens.lens(function (v) {
+          return v.page;
+      })(function (v) {
+          return function (v1) {
+              return {
+                  page: v1,
+                  anim: v.anim,
+                  locked: v.locked
+              };
+          };
+      })(dictStrong);
   };
   var _locked = function (dictStrong) {
       return Data_Lens_Lens.lens(function (v) {
@@ -13423,7 +13452,8 @@ var PS = {};
           return function (v1) {
               return {
                   locked: v1,
-                  anim: v.anim
+                  anim: v.anim,
+                  page: v.page
               };
           };
       })(dictStrong);
@@ -13435,40 +13465,52 @@ var PS = {};
           return function (v1) {
               return {
                   anim: v1,
-                  locked: v.locked
+                  locked: v.locked,
+                  page: v.page
               };
           };
       })(dictStrong);
   };
   var animateA = function (animation) {
       return Control_Monad.unlessM(Run.monadRun)(Data_Functor.map(Run.functorRun)(Data_Lens_Getter.view(_locked(Data_Lens_Internal_Forget.strongForget)))(Pha_Action.getState))(Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Action.setState((function () {
-          var $15 = Data_Lens_Setter.set(_anim(Data_Profunctor_Strong.strongFn))(Data_Map_Internal.empty);
-          var $16 = Data_Lens_Setter.set(_locked(Data_Profunctor_Strong.strongFn))(true);
-          return function ($17) {
-              return $15($16($17));
+          var $19 = Data_Lens_Setter.set(_anim(Data_Profunctor_Strong.strongFn))(Data_Map_Internal.empty);
+          var $20 = Data_Lens_Setter.set(_locked(Data_Profunctor_Strong.strongFn))(true);
+          return function ($21) {
+              return $19($20($21));
           };
       })()))(function () {
-          return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Action.delay(1000))(function () {
-              return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Data_Foldable.for_(Run.applicativeRun)(Data_Foldable.foldableArray)(animation)(function (v) {
-                  return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Action.delay(v.value0))(function () {
-                      return Control_Bind.bind(Run.bindRun)(Pha_Action.getState)(function (v1) {
-                          return Pha_Action.setState(Data_Lens_Setter.set((function () {
-                              var $18 = _anim(Data_Profunctor_Strong.strongFn);
-                              var $19 = Data_Lens_At.at(Data_Lens_At.atMap(Data_Ord.ordString))(v.value1)(Data_Profunctor_Strong.strongFn);
-                              return function ($20) {
-                                  return $18($19($20));
-                              };
-                          })())(new Data_Maybe.Just(v.value2)));
-                      });
+          return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Data_Foldable.for_(Run.applicativeRun)(Data_Foldable.foldableArray)(animation)(function (v) {
+              return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Action.delay(v.value0))(function () {
+                  return Control_Bind.bind(Run.bindRun)(Pha_Action.getState)(function (v1) {
+                      return Pha_Action.setState(Data_Lens_Setter.set((function () {
+                          var $22 = _anim(Data_Profunctor_Strong.strongFn);
+                          var $23 = Data_Lens_At.at(Data_Lens_At.atMap(Data_Ord.ordString))(v.value1)(Data_Profunctor_Strong.strongFn);
+                          return function ($24) {
+                              return $22($23($24));
+                          };
+                      })())(new Data_Maybe.Just(v.value2)));
                   });
-              }))(function () {
-                  return Pha_Action.setState(Data_Lens_Setter.set(_locked(Data_Profunctor_Strong.strongFn))(false));
               });
+          }))(function () {
+              return Pha_Action.setState(Data_Lens_Setter.set(_locked(Data_Profunctor_Strong.strongFn))(false));
           });
       }));
   };
+  var setPageA = function (page) {
+      return Control_Monad.unlessM(Run.monadRun)(Data_Functor.map(Run.functorRun)(Data_Lens_Getter.view(_locked(Data_Lens_Internal_Forget.strongForget)))(Pha_Action.getState))(Pha_Action.setState((function () {
+          var $25 = Data_Lens_Setter.set(_page(Data_Profunctor_Strong.strongFn))(page);
+          var $26 = Data_Lens_Setter.set(_anim(Data_Profunctor_Strong.strongFn))(Data_Map_Internal.empty);
+          return function ($27) {
+              return $25($26($27));
+          };
+      })()));
+  };
+  exports["PythaPage"] = PythaPage;
+  exports["CarollPage"] = CarollPage;
   exports["pythaAnimation"] = pythaAnimation;
+  exports["carollAnimation"] = carollAnimation;
   exports["istate"] = istate;
+  exports["setPageA"] = setPageA;
   exports["animateA"] = animateA;
 })(PS);
 (function($PS) {
@@ -13490,48 +13532,93 @@ var PS = {};
   var Data_Show = $PS["Data.Show"];
   var Data_Tuple = $PS["Data.Tuple"];
   var Game_Sansmot_Model = $PS["Game.Sansmot.Model"];
+  var Lib_Util = $PS["Lib.Util"];
   var Pha = $PS["Pha"];
   var Pha_Action = $PS["Pha.Action"];
   var Pha_Html = $PS["Pha.Html"];                
-  var compStyle = function (v) {
-      return [ Pha_Html.style(Pha_Html.unittoStr)("transform")("rotate(" + (Data_Show.show(Data_Show.showInt)(v.rotation) + ("deg) " + Pha_Html.translate(Pha_Html.unitPc)(Pha_Html.unitPc)(Pha_Html.pc(Data_Int.toNumber(v.translation.value0) / 700.0))(Pha_Html.pc(Data_Int.toNumber(v.translation.value1) / 300.0))))), Pha_Html.style(Pha_Html.unittoStr)("transition")("all linear " + (Data_Show.show(Data_Show.showInt)(v.duration) + "ms")) ];
+  var compStyle = function (width) {
+      return function (height) {
+          return function (v) {
+              return [ Pha_Html.style(Pha_Html.unittoStr)("transform")("rotate(" + (Data_Show.show(Data_Show.showInt)(v.rotation) + ("deg) " + Pha_Html.translate(Pha_Html.unitPc)(Pha_Html.unitPc)(Pha_Html.pc(Data_Int.toNumber(v.translation.value0) / width))(Pha_Html.pc(Data_Int.toNumber(v.translation.value1) / height))))), Pha_Html.style(Pha_Html.unittoStr)("transition")("all linear " + (Data_Show.show(Data_Show.showInt)(v.duration) + "ms")) ];
+          };
+      };
   };
-  var pythaStyles = Data_Map_Internal.fromFoldable(Data_Ord.ordString)(Data_Foldable.foldableArray)([ new Data_Tuple.Tuple("a", [ [ Pha_Html.opacity("0") ], [ Pha_Html.opacity("1") ], compStyle({
+  var pythaStyles = Data_Map_Internal.fromFoldable(Data_Ord.ordString)(Data_Foldable.foldableArray)([ new Data_Tuple.Tuple("a", [ [ Pha_Html.opacity("0") ], [ Pha_Html.opacity("1") ], compStyle(700.0)(300.0)({
       translation: new Data_Tuple.Tuple(400, -100 | 0),
       rotation: 0,
       duration: 600
-  }) ]), new Data_Tuple.Tuple("b", [ [ Pha_Html.opacity("0") ], [ Pha_Html.opacity("1") ], compStyle({
+  }) ]), new Data_Tuple.Tuple("b", [ [ Pha_Html.opacity("0") ], [ Pha_Html.opacity("1") ], compStyle(700.0)(300.0)({
       translation: new Data_Tuple.Tuple(600, 0),
       rotation: 0,
       duration: 600
-  }) ]), new Data_Tuple.Tuple("c", [ [ Pha_Html.opacity("0") ], [ Pha_Html.opacity("1") ], compStyle({
+  }) ]), new Data_Tuple.Tuple("c", [ [ Pha_Html.opacity("0") ], [ Pha_Html.opacity("1") ], compStyle(700.0)(300.0)({
       translation: new Data_Tuple.Tuple(400, 0),
       rotation: 0,
       duration: 600
-  }) ]), new Data_Tuple.Tuple("d", [ [ Pha_Html.opacity("0") ], [ Pha_Html.opacity("1") ], compStyle({
+  }) ]), new Data_Tuple.Tuple("d", [ [ Pha_Html.opacity("0") ], [ Pha_Html.opacity("1") ], compStyle(700.0)(300.0)({
       translation: new Data_Tuple.Tuple(300, 200),
       rotation: 0,
       duration: 600
   }) ]), new Data_Tuple.Tuple("e", [ [ Pha_Html.opacity("0") ], [ Pha_Html.opacity("1") ] ]) ]);
+  var carollStyles = Data_Map_Internal.fromFoldable(Data_Ord.ordString)(Data_Foldable.foldableArray)([ new Data_Tuple.Tuple("a", [ [ Pha_Html.opacity("1") ], compStyle(1370.0)(270.0)({
+      translation: new Data_Tuple.Tuple(300, 150),
+      rotation: 0,
+      duration: 600
+  }) ]), new Data_Tuple.Tuple("b", [ [ Pha_Html.opacity("1") ], compStyle(1370.0)(270.0)({
+      translation: new Data_Tuple.Tuple(550, 50),
+      rotation: 0,
+      duration: 600
+  }) ]), new Data_Tuple.Tuple("c", [ [ Pha_Html.opacity("1") ], compStyle(1370.0)(270.0)({
+      translation: new Data_Tuple.Tuple(700, 0),
+      rotation: 0,
+      duration: 600
+  }) ]), new Data_Tuple.Tuple("d", [ [ Pha_Html.opacity("1") ], compStyle(1370.0)(270.0)({
+      translation: new Data_Tuple.Tuple(950, -100 | 0),
+      rotation: 0,
+      duration: 600
+  }) ]), new Data_Tuple.Tuple("e", [ [ Pha_Html.opacity("0") ], [ Pha_Html.opacity("1") ] ]) ]);
   var animPytha = function (v) {
-      return function (styles) {
-          var f = function (key) {
-              return Data_Maybe.fromMaybe([  ])((function () {
-                  var phase = Data_Maybe.fromMaybe(0)(Data_Lens_Getter.viewOn(v.anim)(Data_Lens_At.at(Data_Lens_At.atMap(Data_Ord.ordString))(key)(Data_Lens_Internal_Forget.strongForget)));
-                  return Control_Bind.bind(Data_Maybe.bindMaybe)(Data_Lens_Getter.viewOn(pythaStyles)(Data_Lens_At.at(Data_Lens_At.atMap(Data_Ord.ordString))(key)(Data_Lens_Internal_Forget.strongForget)))(function (v1) {
-                      return Data_Array.index(v1)(phase);
-                  });
-              })());
-          };
-          return Pha_Html.svg([ Pha_Html["class'"]("sansmot-svg")(true), Pha_Html.viewBox(0)(0)(700)(300), Pha_Html.style(Pha_Html.unittoStr)("width")("84vmin"), Pha_Html.style(Pha_Html.unittoStr)("height")("36vmin") ])([ Pha_Html.path("M 0 300 h 300 v -300 h -300 Z L 100 100 M 0 100 h 300 l -200 -100 v 300")([ Pha_Html.fill("transparent"), Pha_Html.stroke("#000") ]), Pha_Html.path("M 400 300 h 300 v -300 h -300 Z M 400 200 l 200 100 l 100 -200 l -200 -100 l -100 200")([ Pha_Html.fill("transparent"), Pha_Html.stroke("#000") ]), Pha_Html.path("M 0 300 v -200 h 100 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("blue"), Pha_Html.stroke("#000") ])(f("a"))), Pha_Html.path("M 0 300 h 100 v -200 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("yellow"), Pha_Html.stroke("#000") ])(f("b"))), Pha_Html.path("M 100 0 h 200 v 100 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("#00FF00"), Pha_Html.stroke("#000") ])(f("c"))), Pha_Html.path("M 100 0 v 100 h 200 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("red"), Pha_Html.stroke("#000") ])(f("d"))), Pha_Html.path("M 0 300 v -200 h 100 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("blue"), Pha_Html.stroke("#000") ])(f("e"))), Pha_Html.path("M 0 300 h 100 v -200 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("yellow"), Pha_Html.stroke("#000") ])(f("e"))), Pha_Html.path("M 100 0 h 200 v 100 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("#00FF00"), Pha_Html.stroke("#000") ])(f("e"))), Pha_Html.path("M 100 0 v 100 h 200 0 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("red"), Pha_Html.stroke("#000") ])(f("e"))), Pha_Html["text'"](Pha_Html.unitInt)(5)(55)("a")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.style(Pha_Html.unitInt)("font-size")(20) ])(f("e"))), Pha_Html["text'"](Pha_Html.unitInt)(46)(12)("a")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.style(Pha_Html.unitInt)("font-size")(20) ])(f("e"))), Pha_Html["text'"](Pha_Html.unitInt)(105)(210)("b")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.style(Pha_Html.unitInt)("font-size")(20) ])(f("e"))), Pha_Html["text'"](Pha_Html.unitInt)(198)(120)("b")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.style(Pha_Html.unitInt)("font-size")(20) ])(f("e"))), Pha_Html["text'"](Pha_Html.unitInt)(460)(98)("c")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.style(Pha_Html.unitInt)("font-size")(20) ])(f("e"))), Pha_Html["text'"](Pha_Html.unitInt)(595)(80)("c")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.style(Pha_Html.unitInt)("font-size")(20) ])(f("e"))) ]);
+      var f = function (key) {
+          var phase = Data_Maybe.fromMaybe(0)(Data_Lens_Getter.viewOn(v.anim)(Data_Lens_At.at(Data_Lens_At.atMap(Data_Ord.ordString))(key)(Data_Lens_Internal_Forget.strongForget)));
+          return Data_Maybe.fromMaybe([  ])(Control_Bind.bind(Data_Maybe.bindMaybe)(Data_Lens_Getter.viewOn(pythaStyles)(Data_Lens_At.at(Data_Lens_At.atMap(Data_Ord.ordString))(key)(Data_Lens_Internal_Forget.strongForget)))(function (t) {
+              return Data_Array.index(t)(phase);
+          }));
       };
+      return Pha_Html.svg([ Pha_Html["class'"]("sansmot-svg")(true), Pha_Html.viewBox(0)(0)(700)(300), Pha_Html.style(Pha_Html.unittoStr)("width")("84vmin"), Pha_Html.style(Pha_Html.unittoStr)("height")("36vmin") ])([ Pha_Html.path("M 0 300 h 300 v -300 h -300 Z L 100 100 M 0 100 h 300 l -200 -100 v 300")([ Pha_Html.fill("transparent"), Pha_Html.stroke("#000") ]), Pha_Html.path("M 400 300 h 300 v -300 h -300 Z M 400 200 l 200 100 l 100 -200 l -200 -100 l -100 200")([ Pha_Html.fill("transparent"), Pha_Html.stroke("#000") ]), Pha_Html.path("M 0 300 v -200 h 100 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("blue"), Pha_Html.stroke("#000") ])(f("a"))), Pha_Html.path("M 0 300 h 100 v -200 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("yellow"), Pha_Html.stroke("#000") ])(f("b"))), Pha_Html.path("M 100 0 h 200 v 100 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("#00FF00"), Pha_Html.stroke("#000") ])(f("c"))), Pha_Html.path("M 100 0 v 100 h 200 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("red"), Pha_Html.stroke("#000") ])(f("d"))), Pha_Html.path("M 0 300 v -200 h 100 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("blue"), Pha_Html.stroke("#000") ])(f("e"))), Pha_Html.path("M 0 300 h 100 v -200 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("yellow"), Pha_Html.stroke("#000") ])(f("e"))), Pha_Html.path("M 100 0 h 200 v 100 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("#00FF00"), Pha_Html.stroke("#000") ])(f("e"))), Pha_Html.path("M 100 0 v 100 h 200 0 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("red"), Pha_Html.stroke("#000") ])(f("e"))), Pha_Html["text'"](Pha_Html.unitInt)(5)(55)("a")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.style(Pha_Html.unitInt)("font-size")(20) ])(f("e"))), Pha_Html["text'"](Pha_Html.unitInt)(46)(12)("a")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.style(Pha_Html.unitInt)("font-size")(20) ])(f("e"))), Pha_Html["text'"](Pha_Html.unitInt)(105)(210)("b")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.style(Pha_Html.unitInt)("font-size")(20) ])(f("e"))), Pha_Html["text'"](Pha_Html.unitInt)(198)(120)("b")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.style(Pha_Html.unitInt)("font-size")(20) ])(f("e"))), Pha_Html["text'"](Pha_Html.unitInt)(460)(98)("c")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.style(Pha_Html.unitInt)("font-size")(20) ])(f("e"))), Pha_Html["text'"](Pha_Html.unitInt)(595)(80)("c")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.style(Pha_Html.unitInt)("font-size")(20) ])(f("e"))) ]);
+  };
+  var animCaroll = function (v) {
+      var f = function (key) {
+          var phase = Data_Maybe.fromMaybe(0)(Data_Lens_Getter.viewOn(v.anim)(Data_Lens_At.at(Data_Lens_At.atMap(Data_Ord.ordString))(key)(Data_Lens_Internal_Forget.strongForget)));
+          return Data_Maybe.fromMaybe([  ])(Control_Bind.bind(Data_Maybe.bindMaybe)(Data_Lens_Getter.viewOn(carollStyles)(Data_Lens_At.at(Data_Lens_At.atMap(Data_Ord.ordString))(key)(Data_Lens_Internal_Forget.strongForget)))(function (t) {
+              return Data_Array.index(t)(phase);
+          }));
+      };
+      return Pha_Html.svg([ Pha_Html["class'"]("sansmot-svg")(true), Pha_Html.viewBox(-10 | 0)(-10 | 0)(1370)(270), Pha_Html.width(Pha_Html.unitInt)(1370), Pha_Html.height(Pha_Html.unitInt)(270) ])(Data_Array.concat([ [ Pha_Html.path("M 400 100 h 250 v -100 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("orange") ])(f("a"))), Pha_Html.path("M 400 200 h 150 v -50 h 100 v -50 h -250 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("red") ])(f("b"))), Pha_Html.path("M 400 250 h 250 v -100 h -100 v 50 h -150 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("blue") ])(f("c"))), Pha_Html.path("M 0 250 h 400 v -150 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("green") ])(f("d"))), Pha_Html.path("M 400 100 h 250 v -100 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("orange") ])(f("e"))), Pha_Html.path("M 400 200 h 150 v -50 h 100 v -50 h -250 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("red") ])(f("e"))), Pha_Html.path("M 400 250 h 250 v -100 h -100 v 50 h -150 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("blue") ])(f("e"))), Pha_Html.path("M 0 250 h 400 v -150 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("green") ])(f("e"))) ], Lib_Util.tabulate(28)(function (i) {
+          return Pha_Html.line(Pha_Html.unitInt)(Pha_Html.unitInt)(Pha_Html.unitInt)(Pha_Html.unitInt)(50 * i | 0)(-10 | 0)(50 * i | 0)(260)([ Pha_Html["class'"]("sansmot-grid")(true) ]);
+      }), Lib_Util.tabulate(6)(function (i) {
+          return Pha_Html.line(Pha_Html.unitInt)(Pha_Html.unitInt)(Pha_Html.unitInt)(Pha_Html.unitInt)(-10 | 0)(50 * i | 0)(1360)(50 * i | 0)([ Pha_Html["class'"]("sansmot-grid")(true) ]);
+      }) ]));
   };
   var view = function (lens) {
       return function (state) {
-          var main = Pha_Html["div'"]([  ])([ Pha_Html.h1([ Pha_Html["class'"]("sansmot-title")(true) ])("Preuve sans mot"), Pha_Html.h2([ Pha_Html["class'"]("sansmot-h2")(true) ])("Que raconte le th\xe9or\xe8me de Pythagore ?"), Pha_Html.p([ Pha_Html["class'"]("sansmot-center")(true) ])([ Pha_Html.svg([ Pha_Html["class'"]("sansmot-svg")(true), Pha_Html.viewBox(0)(-100 | 0)(200)(250), Pha_Html.style(Pha_Html.unittoStr)("width")("20vmin"), Pha_Html.height(Pha_Html.unittoStr)("25vmin") ])([ Pha_Html.path("M 50 50 h 100 v 100 h -100 Z")([ Pha_Html.fill("yellow"), Pha_Html.stroke("black") ]), Pha_Html.path("M 0 0 h 50 v 50 h -50 Z")([ Pha_Html.fill("yellow"), Pha_Html.stroke("black") ]), Pha_Html.path("M 50 0 l 100 50 l 50 -100 l -100 -50 Z")([ Pha_Html.fill("#00ff00"), Pha_Html.stroke("black") ]), Pha_Html["text'"](Pha_Html.unitInt)(90)(105)("a\xb2")([ Pha_Html.attr(Pha_Html.unitInt)("font-size")(35) ]), Pha_Html["text'"](Pha_Html.unitInt)(18)(35)("b\xb2")([ Pha_Html.attr(Pha_Html.unitInt)("font-size")(35) ]), Pha_Html["text'"](Pha_Html.unitInt)(110)(-10 | 0)("c\xb2")([ Pha_Html.attr(Pha_Html.unitInt)("font-size")(35) ]) ]) ]), Pha_Html.h2([ Pha_Html["class'"]("sansmot-h2")(true) ])("Preuve sans mot due \xe0 un auteur chinois inconnu qui vivait vers 200 avant J.-C."), Pha_Html.p([ Pha_Html["class'"]("sansmot-center")(true) ])([ animPytha(state)(pythaStyles) ]), Pha_Html.p([ Pha_Html["class'"]("sansmot-center")(true), Pha_Html.click(Pha_Action.zoomAt(function (dictStrong) {
+          var main = function (v) {
+              if (v instanceof Game_Sansmot_Model.PythaPage) {
+                  return Pha_Html["div'"]([  ])([ Pha_Html.h1([ Pha_Html["class'"]("sansmot-title")(true) ])("Preuve sans mot"), Pha_Html.h2([ Pha_Html["class'"]("sansmot-h2")(true) ])("Que raconte le th\xe9or\xe8me de Pythagore ?"), Pha_Html.p([ Pha_Html["class'"]("sansmot-center")(true) ])([ Pha_Html.svg([ Pha_Html["class'"]("sansmot-svg")(true), Pha_Html.viewBox(0)(-100 | 0)(200)(250), Pha_Html.width(Pha_Html.unittoStr)("20vmin"), Pha_Html.height(Pha_Html.unittoStr)("25vmin") ])([ Pha_Html.path("M 50 50 h 100 v 100 h -100 Z")([ Pha_Html.fill("yellow"), Pha_Html.stroke("black") ]), Pha_Html.path("M 0 0 h 50 v 50 h -50 Z")([ Pha_Html.fill("yellow"), Pha_Html.stroke("black") ]), Pha_Html.path("M 50 0 l 100 50 l 50 -100 l -100 -50 Z")([ Pha_Html.fill("#00ff00"), Pha_Html.stroke("black") ]), Pha_Html["text'"](Pha_Html.unitInt)(90)(105)("a\xb2")([ Pha_Html.attr(Pha_Html.unitInt)("font-size")(35) ]), Pha_Html["text'"](Pha_Html.unitInt)(18)(35)("b\xb2")([ Pha_Html.attr(Pha_Html.unitInt)("font-size")(35) ]), Pha_Html["text'"](Pha_Html.unitInt)(110)(-10 | 0)("c\xb2")([ Pha_Html.attr(Pha_Html.unitInt)("font-size")(35) ]) ]) ]), Pha_Html.h2([ Pha_Html["class'"]("sansmot-h2")(true) ])("Preuve sans mot due \xe0 un auteur chinois inconnu qui vivait vers 200 avant J.-C."), Pha_Html.p([ Pha_Html["class'"]("sansmot-center")(true) ])([ animPytha(state) ]), Pha_Html.p([ Pha_Html["class'"]("sansmot-center sansmot-link")(true), Pha_Html.click(Pha_Action.zoomAt(function (dictStrong) {
+                      return lens(dictStrong);
+                  })(Game_Sansmot_Model.animateA(Game_Sansmot_Model.pythaAnimation))) ])([ Pha.text("Lancer l'animation") ]) ]);
+              };
+              if (v instanceof Game_Sansmot_Model.CarollPage) {
+                  return Pha_Html["div'"]([  ])([ Pha_Html.h1([ Pha_Html["class'"]("sansmot-title")(true) ])("Preuve sans mot"), Pha_Html.h2([ Pha_Html["class'"]("sansmot-h2")(true) ])("O\xf9 est pass\xe9 le carr\xe9 manquant ?"), Pha_Html.p([ Pha_Html["class'"]("sansmot-center")(true) ])([ animCaroll(state) ]), Pha_Html.p([ Pha_Html["class'"]("sansmot-center sansmot-link")(true), Pha_Html.click(Pha_Action.zoomAt(function (dictStrong) {
+                      return lens(dictStrong);
+                  })(Game_Sansmot_Model.animateA(Game_Sansmot_Model.carollAnimation))) ])([ Pha.text("Lancer l'animation") ]) ]);
+              };
+              throw new Error("Failed pattern match at Game.Sansmot.View (line 98, column 5 - line 119, column 6): " + [ v.constructor.name ]);
+          };
+          return Pha_Html["div'"]([ Pha_Html["class'"]("sansmot-main")(true) ])([ Pha_Html["div'"]([ Pha_Html["class'"]("sansmot-menu")(true) ])([ Pha_Html["div'"]([ Pha_Html["class'"]("sansmot-pagelink")(true), Pha_Html.click(Pha_Action.zoomAt(function (dictStrong) {
               return lens(dictStrong);
-          })(Game_Sansmot_Model.animateA(Game_Sansmot_Model.pythaAnimation))) ])([ Pha.text("Explications") ]) ]);
-          return main;
+          })(Game_Sansmot_Model.setPageA(Game_Sansmot_Model.PythaPage.value))) ])([ Pha.text("1") ]), Pha_Html["div'"]([ Pha_Html["class'"]("sansmot-pagelink")(true), Pha_Html.click(Pha_Action.zoomAt(function (dictStrong) {
+              return lens(dictStrong);
+          })(Game_Sansmot_Model.setPageA(Game_Sansmot_Model.CarollPage.value))) ])([ Pha.text("2") ]) ]), main(state.page) ]);
       };
   };
   exports["view"] = view;
@@ -14658,7 +14745,7 @@ var PS = {};
           var pos = Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
           var $64 = canPutTile(state)(tilePos);
           if ($64) {
-              var m = Data_Foldable.foldl(Data_Foldable.foldableArray)(Data_Ord.max(Data_Ord.ordInt))(0)(pos) + 1 | 0;
+              var m = Data_Foldable.foldr(Data_Foldable.foldableArray)(Data_Ord.max(Data_Ord.ordInt))(0)(pos) + 1 | 0;
               return Data_Array.mapWithIndex(function (i) {
                   return function (x) {
                       var $65 = Data_Foldable.elem(Data_Foldable.foldableArray)(Data_Eq.eqInt)(i)(tilePos);
@@ -15401,6 +15488,25 @@ var PS = {};
   var Pha_Event = $PS["Pha.Event"];
   var Pha_Html = $PS["Pha.Html"];
   var Run = $PS["Run"];                
+  var state = {
+      baseball: Game_Baseball.state,
+      chocolat: Game_Chocolat.state,
+      dessin: Game_Dessin.state,
+      frog: Game_Frog.state,
+      jetons: Game_Jetons.state,
+      labete: Game_Labete.state,
+      nim: Game_Nim.state,
+      noirblanc: Game_Noirblanc.state,
+      paths: Game_Paths.state,
+      queens: Game_Queens.state,
+      roue: Game_Roue.state,
+      sansmot: Game_Sansmot.state,
+      solitaire: Game_Solitaire.state,
+      tiling: Game_Tiling.state,
+      valise: Game_Valise.state,
+      location: "",
+      anim: true
+  };
   var extractLocation = function (url) {
       return function (defaultValue) {
           return Data_Maybe.maybe(defaultValue)(function (i) {
@@ -15986,74 +16092,74 @@ var PS = {};
           });
       });
   });
-  var sliceFn = function (state) {
+  var sliceFn = function (st) {
       return function (fn) {
-          if (state.location === "baseball") {
+          if (st.location === "baseball") {
               return fn(Game_Baseball.cgame)(function (dictStrong) {
                   return _baseball(dictStrong);
               });
           };
-          if (state.location === "chocolat") {
+          if (st.location === "chocolat") {
               return fn(Game_Chocolat.cgame)(function (dictStrong) {
                   return _chocolat(dictStrong);
               });
           };
-          if (state.location === "dessin") {
+          if (st.location === "dessin") {
               return fn(Game_Dessin.cgame)(function (dictStrong) {
                   return _dessin(dictStrong);
               });
           };
-          if (state.location === "frog") {
+          if (st.location === "frog") {
               return fn(Game_Frog.cgame)(function (dictStrong) {
                   return _frog(dictStrong);
               });
           };
-          if (state.location === "jetons") {
+          if (st.location === "jetons") {
               return fn(Game_Jetons.cgame)(function (dictStrong) {
                   return _jetons(dictStrong);
               });
           };
-          if (state.location === "labete") {
+          if (st.location === "labete") {
               return fn(Game_Labete.cgame)(function (dictStrong) {
                   return _labete(dictStrong);
               });
           };
-          if (state.location === "nim") {
+          if (st.location === "nim") {
               return fn(Game_Nim.cgame)(function (dictStrong) {
                   return _nim(dictStrong);
               });
           };
-          if (state.location === "noirblanc") {
+          if (st.location === "noirblanc") {
               return fn(Game_Noirblanc.cgame)(function (dictStrong) {
                   return _noirblanc(dictStrong);
               });
           };
-          if (state.location === "paths") {
+          if (st.location === "paths") {
               return fn(Game_Paths.cgame)(function (dictStrong) {
                   return _paths(dictStrong);
               });
           };
-          if (state.location === "roue") {
+          if (st.location === "roue") {
               return fn(Game_Roue.cgame)(function (dictStrong) {
                   return _roue(dictStrong);
               });
           };
-          if (state.location === "queens") {
+          if (st.location === "queens") {
               return fn(Game_Queens.cgame)(function (dictStrong) {
                   return _queens(dictStrong);
               });
           };
-          if (state.location === "sansmot") {
+          if (st.location === "sansmot") {
               return fn(Game_Sansmot.cgame)(function (dictStrong) {
                   return _sansmot(dictStrong);
               });
           };
-          if (state.location === "solitaire") {
+          if (st.location === "solitaire") {
               return fn(Game_Solitaire.cgame)(function (dictStrong) {
                   return _solitaire(dictStrong);
               });
           };
-          if (state.location === "tiling") {
+          if (st.location === "tiling") {
               return fn(Game_Tiling.cgame)(function (dictStrong) {
                   return _tiling(dictStrong);
               });
@@ -16078,7 +16184,7 @@ var PS = {};
                   };
               });
           };
-          throw new Error("Failed pattern match at Main (line 157, column 5 - line 159, column 62): " + [ v2.constructor.name ]);
+          throw new Error("Failed pattern match at Main (line 157, column 5 - line 159, column 59): " + [ v2.constructor.name ]);
       });
   });
   var viewGame = function (st) {
@@ -16090,40 +16196,19 @@ var PS = {};
           };
       });
   };
-  var viewG = function (state) {
-      return Pha_Html["div'"]([ Pha_Html.key(state.location), Pha_Html["class'"]("main-main-container")(true), Pha_Html["class'"]("valise")(state.location === "valise"), Pha_Html["class'"]("appear")(state.anim) ])([ Pha.ifN(state.location !== "valise")(function (v) {
+  var view = function (st) {
+      return Pha_Html["div'"]([ Pha_Html.key(st.location), Pha_Html["class'"]("main-main-container")(true), Pha_Html["class'"]("valise")(st.location === "valise"), Pha_Html["class'"]("appear")(st.anim) ])([ Pha.ifN(st.location !== "valise")(function (v) {
           return Pha_Html.a([ Pha_Html["class'"]("main-minivalise-link")(true), Pha_Html.href("#valise") ])([ Pha_Html.svguse("#valise")([  ]) ]);
-      }), viewGame(state) ]);
+      }), viewGame(st) ]);
   };
-  var main = (function () {
-      var state = {
-          baseball: Game_Baseball.state,
-          chocolat: Game_Chocolat.state,
-          dessin: Game_Dessin.state,
-          frog: Game_Frog.state,
-          jetons: Game_Jetons.state,
-          labete: Game_Labete.state,
-          nim: Game_Nim.state,
-          noirblanc: Game_Noirblanc.state,
-          paths: Game_Paths.state,
-          queens: Game_Queens.state,
-          roue: Game_Roue.state,
-          sansmot: Game_Sansmot.state,
-          solitaire: Game_Solitaire.state,
-          tiling: Game_Tiling.state,
-          valise: Game_Valise.state,
-          location: "",
-          anim: true
-      };
-      return Pha.app({
-          state: state,
-          view: viewG,
-          node: "root",
-          events: [ new Data_Tuple.Tuple("keydown", onKeyDown), new Data_Tuple.Tuple("hashchange", hashChange) ],
-          effects: Game_Effs.interpretEffects,
-          init: init
-      });
-  })();
+  var main = Pha.app({
+      state: state,
+      view: view,
+      init: init,
+      node: "root",
+      events: [ new Data_Tuple.Tuple("keydown", onKeyDown), new Data_Tuple.Tuple("hashchange", hashChange) ],
+      effects: Game_Effs.interpretEffects
+  });
   exports["extractLocation"] = extractLocation;
   exports["_baseball"] = _baseball;
   exports["_chocolat"] = _chocolat;
@@ -16144,8 +16229,9 @@ var PS = {};
   exports["init"] = init;
   exports["sliceFn"] = sliceFn;
   exports["onKeyDown"] = onKeyDown;
-  exports["viewG"] = viewG;
+  exports["view"] = view;
   exports["viewGame"] = viewGame;
+  exports["state"] = state;
   exports["main"] = main;
 })(PS);
 PS["Main"].main();

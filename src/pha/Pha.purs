@@ -36,7 +36,7 @@ maybeN = fromMaybe emptyNode
 
 -- type Match effs = -- ∀rl r1 r2 a. RowToList effs rl => VariantFMatchCases rl r1 a (Effect Unit) => Union r1 () r2 =>
 --   Record effs -- -> VariantF r2 a -> b} -> Effect Unit
-type InterpretEffs effs = ∀b. VariantF effs (Effect Unit) -> Effect Unit
+type InterpretEffs effs = VariantF effs (Effect Unit) -> Effect Unit
 
 type Dispatch = ∀st effs. Effect st -> ((st -> st) -> Effect Unit) -> InterpretEffs effs -> Action st effs -> Effect Unit
 dispatch :: Dispatch

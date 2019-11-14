@@ -6,7 +6,6 @@ You can edit this file as you like.
     "purescript"
 , dependencies =
     [ "arrays"
-    , "debug"
     , "effect"
     , "maybe"
     , "prelude"

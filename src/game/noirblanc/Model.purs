@@ -10,21 +10,21 @@ import Game.Core (class Game, GState(..), SizeLimit(..), playA, isLevelFinished,
 
 type Position = { light :: Array Boolean, played :: Array Boolean }
 type Ext' = {
-    mode2 :: Int,
-    level :: Int,
-    maxLevels :: Array Int,
-    keySequence :: Array String
+    mode :: Int, -- entre 0 et 3
+    level :: Int, --- le niveau en cours
+    maxLevels :: Array Int, -- pour chaque mode, le nombre de niveaux débloqués
+    keySequence :: Array String --- pour le konami code
 }
 newtype ExtState = Ext Ext'
 type State = GState Position ExtState
 
 istate :: State
-istate = genState {light: [], played: []} identity (Ext { level: 0, mode2: 0, maxLevels: [0, 1, 1, 0], keySequence: [] })
+istate = genState {light: [], played: []} identity (Ext { level: 0, mode: 0, maxLevels: [0, 1, 1, 0], keySequence: [] })
 
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _mode2 :: Lens' State Int
-_mode2 = _ext ∘ lens (_.mode2) (_{mode2 = _})
+_mode2 = _ext ∘ lens (_.mode) (_{mode = _})
 _level :: Lens' State Int
 _level = _ext ∘ lens (_.level) (_{level = _})
 _maxLevels :: Lens' State (Array Int)
@@ -81,6 +81,7 @@ selectModeA mode = newGame $ (_mode2 .~ mode) ∘ (_level .~ 0)
 selectLevelA :: ∀effs. Int -> Action State (rng :: RNG | effs)
 selectLevelA = newGame' (set _level)
 
+-- si le niveau est fini, on met à jour les nivaux débloqués
 afterPlay :: ∀effs. Action State (rng :: RNG, delay :: DELAY | effs)
 afterPlay = do
     state <- getState

@@ -96,9 +96,6 @@ attackedBySelected state =
                             (attackedBy state $ state^._selectedPiece) 
                             (state^._selectedSquare)
 
-     
--- const isCustom = state => state.multiPieces || state.customSize || state.allowedPieces.includes('custom');
-
 instance queensGame :: Game (Array Piece) Ext Int where 
     canPlay _ _ = true
 

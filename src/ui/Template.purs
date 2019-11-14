@@ -114,6 +114,8 @@ svgCursorStyle {x, y} = [
     style "transform" $ translate (pc x) (pc y)
 ]
 
+-- style à appliquer sur l'élément DOM représentant le plateau
+-- permet de mémoriser la position du pointeur
 trackPointer :: ∀pos ext a. Lens' a (GState pos ext) -> Array (Prop a EFFS)
 trackPointer lens = [
     style "touch-action" "none",
@@ -122,17 +124,8 @@ trackPointer lens = [
     pointerdown $ lens 🔍 move
 ] where
     move = getPointerPosition >>= setPointerPositionA
-        -- (\_ e -> pointerType e == Just "mouse")
-        -- combine(
-        --    whenA (\s -> s.pointer == Nothing) (actions.drop NoDrop)
-        --)
-    leave = -- combine(
-           -- whenA
-            --    (\_ e -> hasDnD || pointerType e == Just "mouse")
-            setState (_pointer .~ Nothing)
 
-            -- hasDnD && drop NoDrop
-
+-- même chose que trackPointer mais gère le drag and drop par l'intermédiaire d'un lens
 dndBoardProps :: ∀pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>
     Lens' a (GState pos ext) -> Lens' (GState pos ext) (Maybe dnd) -> Array (Prop a EFFS)
 dndBoardProps lens dragLens = [
@@ -143,15 +136,7 @@ dndBoardProps lens dragLens = [
     pointerdown $ lens 🔍 move
 ] where
     move = getPointerPosition >>= setPointerPositionA
-        
-        -- whenA
-        -- (\_ e -> pointerType e == Just "mouse")
-        -- combine(
-        -- setPointerPosition -- `withPayload` relativePointerPosition
-        --    whenA (\s -> s.pointer == Nothing) (actions.drop NoDrop)
-        --)
     leave = setState $ (_pointer .~ Nothing) ∘ (dragLens .~ Nothing)
-            -- hasDnD && drop NoDrop
 
 dndItemProps :: ∀pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>
     Lens' a (GState pos ext) -> Lens' (GState pos ext) (Maybe dnd) -> Boolean -> Boolean -> dnd -> (GState pos ext) -> Array (Prop a EFFS)
@@ -184,4 +169,4 @@ winTitleFor2Players state =
         "Tu as gagné"
     else
         "L'IA gagne"
-        
+ 

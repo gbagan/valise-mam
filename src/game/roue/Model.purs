@@ -8,13 +8,13 @@ import Pha.Action (Action, delay, DELAY, RNG, getState, setState)
 
 type Position = Array (Maybe Int)
 
-data Ball = Panel Int | Wheel Int | Board
-derive instance eqBall :: Eq Ball
+data Location = Panel Int | Wheel Int | Board
+derive instance eqLoc :: Eq Location
 
 type Ext' = {
     size :: Int,
     rotation :: Int,
-    dragged :: Maybe Ball
+    dragged :: Maybe Location
 }
 newtype Ext = Ext Ext'
 type State = GState Position Ext
@@ -28,7 +28,7 @@ _rotation :: Lens' State Int
 _rotation = _ext ∘ lens (_.rotation) (_{rotation = _})
 _size :: Lens' State Int
 _size = _ext ∘ lens (_.size) (_{size = _})
-_dragged :: Lens' State (Maybe Ball)
+_dragged :: Lens' State (Maybe Location)
 _dragged = _ext ∘ lens (_.dragged) (_{dragged = _})
 
 -- renvoie un tableau indiquant quelles sont les balles alignées avec leur couleur
@@ -42,12 +42,12 @@ aligned state =
 validRotation' :: State -> Boolean
 validRotation' state = (length $ filter identity $ aligned state) == 1
 
--- une rotation est valide si exactement une couleur est alignée et il y a une balle pour chque couleur         
+-- une rotation est valide si exactement une couleur est alignée et il y a une balle pour chaque couleur         
 validRotation :: State -> Boolean
 validRotation state = validRotation' state && (all isJust $ state^._position )
 
 
-instance roueGame :: Game (Array (Maybe Int)) Ext {from :: Ball, to :: Ball} where
+instance roueGame :: Game (Array (Maybe Int)) Ext {from :: Location, to :: Location} where
     play state move = act (state^._position) where
         act = case move of 
             {from: Panel from, to: Wheel to} -> ix to .~ Just from

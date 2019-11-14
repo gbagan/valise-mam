@@ -60,15 +60,6 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
     rows = state^._nbRows
     columns = state^._nbColumns
     nonTrappedBeast = nonTrappedBeastOnGrid state
-    {-
-    const BeastView = () => (
-        <svg width={50*getBeast(state).length + 2} height="52" fill="yellow" stroke="black" strokeWidth="1">
-            {getBeast(state).map((b, j) => b.map(({row, col}, i) =>
-                <rect key={j* 25 + i} x={j * 50 + col*10+21} y={row*10+21} width="10" height="10" />   
-            ))}
-        </svg>
-    );
-    -}
     beastTypes = [Type1, Type2, Type3, Type4, CustomBeast]
 
     config = card "La bête" [
@@ -159,6 +150,5 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
             ]
         ]
     ]
- 
-                    
+        
     winTitle = "Record: " <> show (scoreFn state)  <> " pièges"

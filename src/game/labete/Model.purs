@@ -15,14 +15,17 @@ instance showMode :: Show Mode where
     show CylinderMode = "cylinder"
     show TorusMode    = "torus"
 
+-- le type Beast représente la forme d'une bête bête par l'ensemble de positions
+-- le type Beast' représente une bête pouvant avoir plusieurs formes
 type Beast = Array {row :: Int, col :: Int}
+type Beast' = Array Beast
 type1 :: Beast
 type1 = [{ row: 0, col: 0 }, { row: 0, col: 1 }]
 type2 :: Beast
 type2 = [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: -1 }]
 type3 :: Beast
 type3 = [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 1, col: 1 }]
-beastTypes :: Array (Array Beast)
+beastTypes :: Array Beast'
 beastTypes = [[type1], [type2], [type3], [type2, type3]]
 
 data BeastType = Type1 | Type2 | Type3 | Type4 | CustomBeast
@@ -35,7 +38,7 @@ instance showBt :: Show BeastType where
     show CustomBeast = "custom"
 
 type Ext' = {
-    beast :: Array Beast,
+    beast :: Beast',
     beastType :: BeastType,
     mode :: Mode,
     selectedColor :: Int,
@@ -49,7 +52,7 @@ type State = GState (Array Boolean) ExtState
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 
-_beast :: Lens' State (Array Beast)
+_beast :: Lens' State Beast'
 _beast = _ext ∘ lens (_.beast) (_{beast = _})
 
 _beastType :: Lens' State BeastType
@@ -97,8 +100,8 @@ allRotations beast = [beast, beast2, beast3, beast4] where
 allTranslations :: Int -> Int -> Beast -> Array Beast
 allTranslations n m beast = tabulate2 n m \row col -> translate row col beast
 
-allBeastPositions :: Int -> Int -> Array Beast -> Array Beast
-allBeastPositions rows cols = concatMap $ allRotations >=> allTranslations rows cols
+allBeastPositions :: Int -> Int -> Beast' -> Array Beast
+allBeastPositions rows cols = concatMap (allRotations >=> allTranslations rows cols)
 
 adaptatedBeast :: Int -> Int -> Mode -> Beast -> Beast
 adaptatedBeast rows columns mode =
@@ -107,10 +110,12 @@ adaptatedBeast rows columns mode =
                         CylinderMode -> {row, col: col `mod` columns}
                         TorusMode -> {row: row `mod` rows, col: col `mod` columns}
 
+-- fonction auxiliaire pour nonTrappedBeastOnGrid
+-- il n'est pas nécessaire d'avoir une vraie fonction aléatoire
 pseudoRandomPick :: ∀t. Array t -> Maybe t
 pseudoRandomPick t = t !! (28921 `mod` length t)
 
-
+-- renvoie tous les emplacement possibles évitants les pièges pour la bête
 nonTrappedBeasts :: State -> Array Beast
 nonTrappedBeasts state =
     allBeastPositions rows columns (state^._beast)
@@ -121,6 +126,8 @@ nonTrappedBeasts state =
           isValidBeast = all \{row, col} -> row >= 0 && row < rows && col >= 0 && col < columns && 
                     (state^._position) !! (row * columns + col) == Just false
 
+-- renvoie un emplacement possible pour la bête sur le plateau sous forme d'un tableau de booléens indicé par les positions du plateau
+-- renvoie un tableau ne contenant que la valeur false si aucun emplacement pour la bête n'est possible
 nonTrappedBeastOnGrid :: State -> Array Boolean
 nonTrappedBeastOnGrid st = 
     st # nonTrappedBeasts
@@ -193,6 +200,9 @@ onKeyDown "o" = incSelectedColorA (-1)
 onKeyDown "p" = incSelectedColorA 1
 onKeyDown _ = pure unit
 
+-- le début d'une zone est décomposé en deux actions
+-- startZoneA est activé lors  du pointerdown sur l'élément html réprésentant le carré
+-- et startZone2A est appliqué lors du pointerdown sur l'élément html réprésentant le plateu
 startZoneA :: ∀effs. Int -> Action State effs
 startZoneA pos = setState (_startSquare .~ Just pos)
 

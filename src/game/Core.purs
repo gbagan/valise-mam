@@ -5,15 +5,15 @@ import Data.List (last, null) as L
 import Data.Array.NonEmpty (fromArray, toArray) as N
 import Data.Map (Map, empty) as M
 import Lib.Random (Random, randomPick)
-import Pha.Action (Action, delay, DELAY, RNG, getState, setState, setState', randomAction, randomAction') -- asyncAction)
+import Pha.Action (Action, delay, DELAY, RNG, getState, setState, setState', randomAction, randomAction')
 import Control.Alt ((<|>))
 
+-- ConfirmNewGame contient le futur state si l'utilisateur valide de commencer une nouvelle partie
 data Dialog a = Rules | NoDialog | ConfirmNewGame a | ScoreDialog | CustomDialog
+
 data Mode = SoloMode | RandomMode | ExpertMode | DuelMode
 derive instance eqMode :: Eq Mode
 
---- la position d'un pointer est donné en valeur entre 0 et 1 en tant que proportion entre la coordonée et la taille de l'élément
--- où l'on enregistre les mouvements du pointeur 
 type PointerPosition = {x :: Number, y :: Number}
 
 type CoreState pos ext = {
@@ -21,16 +21,16 @@ type CoreState pos ext = {
     history :: List pos,
     redoHistory :: List pos,
     dialog :: Dialog (GState pos ext),
-    turn :: Int,
+    turn :: Int,  -- 0 -> joueur 1,    1 -> joueur 2
     nbRows :: Int,
     nbColumns :: Int,
     customSize :: Boolean,
-    mode :: Mode,
-    help :: Boolean,
-    locked :: Boolean,
+    mode :: Mode,  --- mode pour les jeux à deux joueurs
+    help :: Boolean, --- si l'aide est activée ou non
+    locked :: Boolean,  ---- quand locked est à true, aucune action de l'utiliateur n'est possible
     showWin :: Boolean,
     scores :: M.Map String (Tuple Int pos),
-    pointer :: Maybe PointerPosition
+    pointer :: Maybe PointerPosition --- position du pointeur en % relativement au plateau de jeu
 }
 
 data GState pos ext = State (CoreState pos ext) ext
@@ -160,6 +160,7 @@ playAux move state =
     else
         state
 
+-- met dans l'historique la position actuelle
 pushToHistory :: ∀pos ext. GState pos ext -> GState pos ext
 pushToHistory state = state # _history %~ Cons (state^._position) # _redoHistory .~ Nil
 

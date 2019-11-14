@@ -4,7 +4,7 @@ import MyPrelude
 import Lib.Util (map2)
 import Game.Effs (EFFS)
 import Game.Core (PointerPosition, _position, _pointer, _locked)
-import Game.Roue.Model (State, Ball(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, deleteDraggedA,
+import Game.Roue.Model (State, Location(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, deleteDraggedA,
                         aligned, validRotation, validRotation')
 import Pha (VDom, text, maybeN)
 import Pha.Action ((🔍))

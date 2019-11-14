@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "node-sass": "^4.13.0",
-    "purescript": "0.13.4",
+    "purescript": "^0.13.5",
     "rollup": "^1.25.2",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-postcss": "^2.0.3",

@@ -6340,11 +6340,11 @@ var PS = {};
   }, Game_Core.defaultSizeLimit, function (st) {
       return new Data_Tuple.Tuple(st, true);
   });
-  var setNbBases = Game_Core["newGame'"](baseballGame)(Data_Lens_Setter.set(_nbBases(Data_Profunctor_Strong.strongFn)));
+  var setNbBasesA = Game_Core["newGame'"](baseballGame)(Data_Lens_Setter.set(_nbBases(Data_Profunctor_Strong.strongFn)));
   exports["_nbBases"] = _nbBases;
   exports["_missingPeg"] = _missingPeg;
   exports["istate"] = istate;
-  exports["setNbBases"] = setNbBases;
+  exports["setNbBasesA"] = setNbBasesA;
   exports["baseballGame"] = baseballGame;
 })(PS);
 (function(exports) {
@@ -6373,6 +6373,9 @@ var PS = {};
     } else if (key === "style") {
       for (var k in merge(oldValue, newValue)) {
         oldValue = newValue == null || newValue[k] == null ? "" : newValue[k]
+        //if (oldValue === "")
+        //  node[key].removeProperty(k);
+        // else
         if (k[0] === "-") {
           node[key].setProperty(k, oldValue)
         } else {
@@ -8137,7 +8140,7 @@ var PS = {};
           var levelFinished = Game_Core.isLevelFinished(Game_Baseball_Model.baseballGame)(state);
           var config = UI_Template.card("Baseball multicolore")([ UI_Icons.iconSelectGroup(Data_Show.showInt)(Data_Eq.eqInt)(function (dictStrong) {
               return lens(dictStrong);
-          })(state)("Nombres de bases")([ 4, 5, 6, 7, 8 ])(nbBases)(Game_Baseball_Model.setNbBases)(Data_Function["const"](Control_Category.identity(Control_Category.categoryFn))), UI_Icons.icongroup("Options")(Data_Functor.mapFlipped(Data_Functor.functorArray)([ UI_Icons.iundo, UI_Icons.iredo, UI_Icons.ireset, UI_Icons.irules ])(function (x) {
+          })(state)("Nombres de bases")([ 4, 5, 6, 7, 8 ])(nbBases)(Game_Baseball_Model.setNbBasesA)(Data_Function["const"](Control_Category.identity(Control_Category.categoryFn))), UI_Icons.icongroup("Options")(Data_Functor.mapFlipped(Data_Functor.functorArray)([ UI_Icons.iundo, UI_Icons.iredo, UI_Icons.ireset, UI_Icons.irules ])(function (x) {
               return x(function (dictStrong) {
                   return lens(dictStrong);
               })(state);
@@ -13536,47 +13539,48 @@ var PS = {};
   var Pha = $PS["Pha"];
   var Pha_Action = $PS["Pha.Action"];
   var Pha_Html = $PS["Pha.Html"];                
+  var defaultStyle = [ Pha_Html.style(Pha_Html.unittoStr)("transform")("translate(0px, 0px)") ];
   var compStyle = function (width) {
       return function (height) {
           return function (v) {
-              return [ Pha_Html.style(Pha_Html.unittoStr)("transform")("rotate(" + (Data_Show.show(Data_Show.showInt)(v.rotation) + ("deg) " + Pha_Html.translate(Pha_Html.unitPc)(Pha_Html.unitPc)(Pha_Html.pc(Data_Int.toNumber(v.translation.value0) / width))(Pha_Html.pc(Data_Int.toNumber(v.translation.value1) / height))))), Pha_Html.style(Pha_Html.unittoStr)("transition")("all linear " + (Data_Show.show(Data_Show.showInt)(v.duration) + "ms")) ];
+              return [ Pha_Html.style(Pha_Html.unittoStr)("transform")(Pha_Html.translate(Pha_Html.unitPc)(Pha_Html.unitPc)(Pha_Html.pc(Data_Int.toNumber(v.translation.value0) / width))(Pha_Html.pc(Data_Int.toNumber(v.translation.value1) / height))), Pha_Html.style(Pha_Html.unittoStr)("transition")("transform linear " + (Data_Show.show(Data_Show.showInt)(v.duration) + "ms")) ];
           };
       };
   };
-  var pythaStyles = Data_Map_Internal.fromFoldable(Data_Ord.ordString)(Data_Foldable.foldableArray)([ new Data_Tuple.Tuple("a", [ [ Pha_Html.opacity("0") ], [ Pha_Html.opacity("1") ], compStyle(700.0)(300.0)({
+  var pythaStyles = Data_Map_Internal.fromFoldable(Data_Ord.ordString)(Data_Foldable.foldableArray)([ new Data_Tuple.Tuple("a", [ [ Pha_Html.opacity("0") ], defaultStyle, compStyle(700.0)(300.0)({
       translation: new Data_Tuple.Tuple(400, -100 | 0),
       rotation: 0,
       duration: 600
-  }) ]), new Data_Tuple.Tuple("b", [ [ Pha_Html.opacity("0") ], [ Pha_Html.opacity("1") ], compStyle(700.0)(300.0)({
+  }) ]), new Data_Tuple.Tuple("b", [ [ Pha_Html.opacity("0") ], defaultStyle, compStyle(700.0)(300.0)({
       translation: new Data_Tuple.Tuple(600, 0),
       rotation: 0,
       duration: 600
-  }) ]), new Data_Tuple.Tuple("c", [ [ Pha_Html.opacity("0") ], [ Pha_Html.opacity("1") ], compStyle(700.0)(300.0)({
+  }) ]), new Data_Tuple.Tuple("c", [ [ Pha_Html.opacity("0") ], defaultStyle, compStyle(700.0)(300.0)({
       translation: new Data_Tuple.Tuple(400, 0),
       rotation: 0,
       duration: 600
-  }) ]), new Data_Tuple.Tuple("d", [ [ Pha_Html.opacity("0") ], [ Pha_Html.opacity("1") ], compStyle(700.0)(300.0)({
+  }) ]), new Data_Tuple.Tuple("d", [ [ Pha_Html.opacity("0") ], defaultStyle, compStyle(700.0)(300.0)({
       translation: new Data_Tuple.Tuple(300, 200),
       rotation: 0,
       duration: 600
-  }) ]), new Data_Tuple.Tuple("e", [ [ Pha_Html.opacity("0") ], [ Pha_Html.opacity("1") ] ]) ]);
-  var carollStyles = Data_Map_Internal.fromFoldable(Data_Ord.ordString)(Data_Foldable.foldableArray)([ new Data_Tuple.Tuple("a", [ [ Pha_Html.opacity("1") ], compStyle(1370.0)(270.0)({
+  }) ]), new Data_Tuple.Tuple("e", [ [ Pha_Html.opacity("0") ], [  ] ]) ]);
+  var carollStyles = Data_Map_Internal.fromFoldable(Data_Ord.ordString)(Data_Foldable.foldableArray)([ new Data_Tuple.Tuple("a", [ defaultStyle, compStyle(1370.0)(270.0)({
       translation: new Data_Tuple.Tuple(300, 150),
       rotation: 0,
       duration: 600
-  }) ]), new Data_Tuple.Tuple("b", [ [ Pha_Html.opacity("1") ], compStyle(1370.0)(270.0)({
+  }) ]), new Data_Tuple.Tuple("b", [ defaultStyle, compStyle(1370.0)(270.0)({
       translation: new Data_Tuple.Tuple(550, 50),
       rotation: 0,
       duration: 600
-  }) ]), new Data_Tuple.Tuple("c", [ [ Pha_Html.opacity("1") ], compStyle(1370.0)(270.0)({
+  }) ]), new Data_Tuple.Tuple("c", [ defaultStyle, compStyle(1370.0)(270.0)({
       translation: new Data_Tuple.Tuple(700, 0),
       rotation: 0,
       duration: 600
-  }) ]), new Data_Tuple.Tuple("d", [ [ Pha_Html.opacity("1") ], compStyle(1370.0)(270.0)({
+  }) ]), new Data_Tuple.Tuple("d", [ defaultStyle, compStyle(1370.0)(270.0)({
       translation: new Data_Tuple.Tuple(950, -100 | 0),
       rotation: 0,
       duration: 600
-  }) ]), new Data_Tuple.Tuple("e", [ [ Pha_Html.opacity("0") ], [ Pha_Html.opacity("1") ] ]) ]);
+  }) ]), new Data_Tuple.Tuple("e", [ [ Pha_Html.opacity("0") ], [  ] ]) ]);
   var animPytha = function (v) {
       var f = function (key) {
           var phase = Data_Maybe.fromMaybe(0)(Data_Lens_Getter.viewOn(v.anim)(Data_Lens_At.at(Data_Lens_At.atMap(Data_Ord.ordString))(key)(Data_Lens_Internal_Forget.strongForget)));
@@ -13593,7 +13597,7 @@ var PS = {};
               return Data_Array.index(t)(phase);
           }));
       };
-      return Pha_Html.svg([ Pha_Html["class'"]("sansmot-svg")(true), Pha_Html.viewBox(-10 | 0)(-10 | 0)(1370)(270), Pha_Html.width(Pha_Html.unitInt)(1370), Pha_Html.height(Pha_Html.unitInt)(270) ])(Data_Array.concat([ [ Pha_Html.path("M 400 100 h 250 v -100 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("orange") ])(f("a"))), Pha_Html.path("M 400 200 h 150 v -50 h 100 v -50 h -250 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("red") ])(f("b"))), Pha_Html.path("M 400 250 h 250 v -100 h -100 v 50 h -150 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("blue") ])(f("c"))), Pha_Html.path("M 0 250 h 400 v -150 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("green") ])(f("d"))), Pha_Html.path("M 400 100 h 250 v -100 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("orange") ])(f("e"))), Pha_Html.path("M 400 200 h 150 v -50 h 100 v -50 h -250 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("red") ])(f("e"))), Pha_Html.path("M 400 250 h 250 v -100 h -100 v 50 h -150 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("blue") ])(f("e"))), Pha_Html.path("M 0 250 h 400 v -150 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("green") ])(f("e"))) ], Lib_Util.tabulate(28)(function (i) {
+      return Pha_Html.svg([ Pha_Html["class'"]("sansmot-svg")(true), Pha_Html.viewBox(-10 | 0)(-10 | 0)(1370)(270), Pha_Html.width(Pha_Html.unittoStr)("90vw"), Pha_Html.height(Pha_Html.unittoStr)("19vw") ])(Data_Array.concat([ [ Pha_Html.path("M 400 100 h 250 v -100 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("orange") ])(f("a"))), Pha_Html.path("M 400 200 h 150 v -50 h 100 v -50 h -250 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("red") ])(f("b"))), Pha_Html.path("M 400 250 h 250 v -100 h -100 v 50 h -150 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("blue") ])(f("c"))), Pha_Html.path("M 0 250 h 400 v -150 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("green") ])(f("d"))), Pha_Html.path("M 400 100 h 250 v -100 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("orange") ])(f("e"))), Pha_Html.path("M 400 200 h 150 v -50 h 100 v -50 h -250 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("red") ])(f("e"))), Pha_Html.path("M 400 250 h 250 v -100 h -100 v 50 h -150 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("blue") ])(f("e"))), Pha_Html.path("M 0 250 h 400 v -150 Z")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Html.fill("green") ])(f("e"))) ], Lib_Util.tabulate(28)(function (i) {
           return Pha_Html.line(Pha_Html.unitInt)(Pha_Html.unitInt)(Pha_Html.unitInt)(Pha_Html.unitInt)(50 * i | 0)(-10 | 0)(50 * i | 0)(260)([ Pha_Html["class'"]("sansmot-grid")(true) ]);
       }), Lib_Util.tabulate(6)(function (i) {
           return Pha_Html.line(Pha_Html.unitInt)(Pha_Html.unitInt)(Pha_Html.unitInt)(Pha_Html.unitInt)(-10 | 0)(50 * i | 0)(1360)(50 * i | 0)([ Pha_Html["class'"]("sansmot-grid")(true) ]);
@@ -13603,16 +13607,16 @@ var PS = {};
       return function (state) {
           var main = function (v) {
               if (v instanceof Game_Sansmot_Model.PythaPage) {
-                  return Pha_Html["div'"]([  ])([ Pha_Html.h1([ Pha_Html["class'"]("sansmot-title")(true) ])("Preuve sans mot"), Pha_Html.h2([ Pha_Html["class'"]("sansmot-h2")(true) ])("Que raconte le th\xe9or\xe8me de Pythagore ?"), Pha_Html.p([ Pha_Html["class'"]("sansmot-center")(true) ])([ Pha_Html.svg([ Pha_Html["class'"]("sansmot-svg")(true), Pha_Html.viewBox(0)(-100 | 0)(200)(250), Pha_Html.width(Pha_Html.unittoStr)("20vmin"), Pha_Html.height(Pha_Html.unittoStr)("25vmin") ])([ Pha_Html.path("M 50 50 h 100 v 100 h -100 Z")([ Pha_Html.fill("yellow"), Pha_Html.stroke("black") ]), Pha_Html.path("M 0 0 h 50 v 50 h -50 Z")([ Pha_Html.fill("yellow"), Pha_Html.stroke("black") ]), Pha_Html.path("M 50 0 l 100 50 l 50 -100 l -100 -50 Z")([ Pha_Html.fill("#00ff00"), Pha_Html.stroke("black") ]), Pha_Html["text'"](Pha_Html.unitInt)(90)(105)("a\xb2")([ Pha_Html.attr(Pha_Html.unitInt)("font-size")(35) ]), Pha_Html["text'"](Pha_Html.unitInt)(18)(35)("b\xb2")([ Pha_Html.attr(Pha_Html.unitInt)("font-size")(35) ]), Pha_Html["text'"](Pha_Html.unitInt)(110)(-10 | 0)("c\xb2")([ Pha_Html.attr(Pha_Html.unitInt)("font-size")(35) ]) ]) ]), Pha_Html.h2([ Pha_Html["class'"]("sansmot-h2")(true) ])("Preuve sans mot due \xe0 un auteur chinois inconnu qui vivait vers 200 avant J.-C."), Pha_Html.p([ Pha_Html["class'"]("sansmot-center")(true) ])([ animPytha(state) ]), Pha_Html.p([ Pha_Html["class'"]("sansmot-center sansmot-link")(true), Pha_Html.click(Pha_Action.zoomAt(function (dictStrong) {
+                  return Pha_Html["div'"]([ Pha_Html.key("pytha") ])([ Pha_Html.h1([ Pha_Html["class'"]("sansmot-title")(true) ])("Preuve sans mot"), Pha_Html.h2([ Pha_Html["class'"]("sansmot-h2")(true) ])("Que raconte le th\xe9or\xe8me de Pythagore ?"), Pha_Html.p([ Pha_Html["class'"]("sansmot-center")(true) ])([ Pha_Html.svg([ Pha_Html["class'"]("sansmot-svg")(true), Pha_Html.viewBox(0)(-100 | 0)(200)(250), Pha_Html.width(Pha_Html.unittoStr)("20vmin"), Pha_Html.height(Pha_Html.unittoStr)("25vmin") ])([ Pha_Html.path("M 50 50 h 100 v 100 h -100 Z")([ Pha_Html.fill("yellow"), Pha_Html.stroke("black") ]), Pha_Html.path("M 0 0 h 50 v 50 h -50 Z")([ Pha_Html.fill("yellow"), Pha_Html.stroke("black") ]), Pha_Html.path("M 50 0 l 100 50 l 50 -100 l -100 -50 Z")([ Pha_Html.fill("#00ff00"), Pha_Html.stroke("black") ]), Pha_Html["text'"](Pha_Html.unitInt)(90)(105)("a\xb2")([ Pha_Html.attr(Pha_Html.unitInt)("font-size")(35) ]), Pha_Html["text'"](Pha_Html.unitInt)(18)(35)("b\xb2")([ Pha_Html.attr(Pha_Html.unitInt)("font-size")(35) ]), Pha_Html["text'"](Pha_Html.unitInt)(110)(-10 | 0)("c\xb2")([ Pha_Html.attr(Pha_Html.unitInt)("font-size")(35) ]) ]) ]), Pha_Html.h2([ Pha_Html["class'"]("sansmot-h2")(true) ])("Preuve sans mot due \xe0 un auteur chinois inconnu qui vivait vers 200 avant J.-C."), Pha_Html.p([ Pha_Html["class'"]("sansmot-center")(true) ])([ animPytha(state) ]), Pha_Html.p([ Pha_Html["class'"]("sansmot-center sansmot-link")(true), Pha_Html.click(Pha_Action.zoomAt(function (dictStrong) {
                       return lens(dictStrong);
                   })(Game_Sansmot_Model.animateA(Game_Sansmot_Model.pythaAnimation))) ])([ Pha.text("Lancer l'animation") ]) ]);
               };
               if (v instanceof Game_Sansmot_Model.CarollPage) {
-                  return Pha_Html["div'"]([  ])([ Pha_Html.h1([ Pha_Html["class'"]("sansmot-title")(true) ])("Preuve sans mot"), Pha_Html.h2([ Pha_Html["class'"]("sansmot-h2")(true) ])("O\xf9 est pass\xe9 le carr\xe9 manquant ?"), Pha_Html.p([ Pha_Html["class'"]("sansmot-center")(true) ])([ animCaroll(state) ]), Pha_Html.p([ Pha_Html["class'"]("sansmot-center sansmot-link")(true), Pha_Html.click(Pha_Action.zoomAt(function (dictStrong) {
+                  return Pha_Html["div'"]([ Pha_Html.key("caroll") ])([ Pha_Html.h1([ Pha_Html["class'"]("sansmot-title")(true) ])("Preuve sans mot"), Pha_Html.h2([ Pha_Html["class'"]("sansmot-h2")(true) ])("O\xf9 est pass\xe9 le carr\xe9 manquant ?"), Pha_Html.p([ Pha_Html["class'"]("sansmot-center")(true) ])([ animCaroll(state) ]), Pha_Html.p([ Pha_Html["class'"]("sansmot-center sansmot-link")(true), Pha_Html.click(Pha_Action.zoomAt(function (dictStrong) {
                       return lens(dictStrong);
                   })(Game_Sansmot_Model.animateA(Game_Sansmot_Model.carollAnimation))) ])([ Pha.text("Lancer l'animation") ]) ]);
               };
-              throw new Error("Failed pattern match at Game.Sansmot.View (line 98, column 5 - line 119, column 6): " + [ v.constructor.name ]);
+              throw new Error("Failed pattern match at Game.Sansmot.View (line 102, column 5 - line 123, column 6): " + [ v.constructor.name ]);
           };
           return Pha_Html["div'"]([ Pha_Html["class'"]("sansmot-main")(true) ])([ Pha_Html["div'"]([ Pha_Html["class'"]("sansmot-menu")(true) ])([ Pha_Html["div'"]([ Pha_Html["class'"]("sansmot-pagelink")(true), Pha_Html.click(Pha_Action.zoomAt(function (dictStrong) {
               return lens(dictStrong);

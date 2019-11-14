@@ -23,6 +23,9 @@ const patchProperty = function(node, key, oldValue, newValue, listener, isSvg) {
   } else if (key === "style") {
     for (var k in merge(oldValue, newValue)) {
       oldValue = newValue == null || newValue[k] == null ? "" : newValue[k]
+      //if (oldValue === "")
+      //  node[key].removeProperty(k);
+      // else
       if (k[0] === "-") {
         node[key].setProperty(k, oldValue)
       } else {

@@ -7,32 +7,36 @@ import Game.Effs (EFFS)
 import Pha (VDom, Prop, text)
 import Pha.Action ((🔍))
 import Pha.Html (div', p, h1, h2, svg, path, line, text',
-                class', attr, style, stroke, fill, viewBox, pc, opacity, width, height, translate, click)
+                key, class', attr, style, stroke, fill, viewBox, pc, opacity, width, height, translate, click)
 import Game.Sansmot.Model (State, Page(..), pythaAnimation, carollAnimation, animateA, setPageA)
+
+-- besoin d'un transform par défault pour empécher un bug sous safari
+defaultStyle :: ∀a effs. Array (Prop a effs)
+defaultStyle = [style "transform" "translate(0px, 0px)"]
 
 compStyle :: ∀a effs. Number -> Number -> { rotation :: Int, translation :: Tuple Int Int, duration :: Int} -> Array (Prop a effs)
 compStyle width height { rotation, translation: x ~ y, duration} = [
     style "transform" $ 
-        "rotate(" <> show rotation <> "deg) " <> translate (pc $ toNumber x / width) (pc $ toNumber y / height),
-    style "transition" $ "all linear " <> show duration <> "ms"
+        translate (pc $ toNumber x / width) (pc $ toNumber y / height),
+    style "transition" $ "transform linear " <> show duration <> "ms"
 ]
 
 pythaStyles :: ∀a effs. M.Map String (Array (Array (Prop a effs)))
 pythaStyles = M.fromFoldable [
-    "a" ~ [[opacity "0"], [opacity "1"], compStyle 700.0 300.0 { translation: 400 ~ (-100), rotation: 0, duration: 600 }],
-    "b" ~ [[opacity "0"], [opacity "1"], compStyle 700.0 300.0 { translation: 600 ~ 0,      rotation: 0, duration: 600 }],
-    "c" ~ [[opacity "0"], [opacity "1"], compStyle 700.0 300.0 { translation: 400 ~ 0,      rotation: 0, duration: 600 }],
-    "d" ~ [[opacity "0"], [opacity "1"], compStyle 700.0 300.0 { translation: 300 ~ 200,    rotation: 0, duration: 600 }],
-    "e" ~ [[opacity "0"], [opacity "1"]]
+    "a" ~ [[opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 400 ~ (-100), rotation: 0, duration: 600 }],
+    "b" ~ [[opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 600 ~ 0,      rotation: 0, duration: 600 }],
+    "c" ~ [[opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 400 ~ 0,      rotation: 0, duration: 600 }],
+    "d" ~ [[opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 300 ~ 200,    rotation: 0, duration: 600 }],
+    "e" ~ [[opacity "0"], []]
 ]
 
 carollStyles :: ∀a effs. M.Map String (Array (Array (Prop a effs)))
 carollStyles = M.fromFoldable [
-    "a" ~ [[opacity "1"], compStyle 1370.0 270.0 { translation: 300 ~ 150, rotation: 0, duration: 600 }],
-    "b" ~ [[opacity "1"], compStyle 1370.0 270.0 { translation: 550 ~ 50,   rotation: 0, duration: 600 }],
-    "c" ~ [[opacity "1"], compStyle 1370.0 270.0 { translation: 700 ~ 0,       rotation: 0, duration: 600 }],
-    "d" ~ [[opacity "1"], compStyle 1370.0 270.0 { translation: 950 ~ (-100),     rotation: 0, duration: 600 }],
-    "e" ~ [[opacity "0"], [opacity "1"]]
+    "a" ~ [defaultStyle, compStyle 1370.0 270.0 { translation: 300 ~ 150, rotation: 0, duration: 600 }],
+    "b" ~ [defaultStyle, compStyle 1370.0 270.0 { translation: 550 ~ 50,   rotation: 0, duration: 600 }],
+    "c" ~ [defaultStyle, compStyle 1370.0 270.0 { translation: 700 ~ 0,       rotation: 0, duration: 600 }],
+    "d" ~ [defaultStyle, compStyle 1370.0 270.0 { translation: 950 ~ (-100),     rotation: 0, duration: 600 }],
+    "e" ~ [[opacity "0"], []]
 ]
 
 
@@ -68,7 +72,7 @@ animCaroll {anim} =
                 let phase = anim ^. at key # fromMaybe 0 in
                 fromMaybe [] $ carollStyles ^. at key >>= \t -> t !! phase        
     in
-    svg [class' "sansmot-svg" true, viewBox (-10) (-10) 1370 270, width 1370, height 270] $concat [
+    svg [class' "sansmot-svg" true, viewBox (-10) (-10) 1370 270, width "90vw", height "19vw"] $concat [
         [
             path "M 400 100 h 250 v -100 Z"                    $  [fill "orange"] <> f "a",
             path "M 400 200 h 150 v -50 h 100 v -50 h -250 Z" $ [fill "red"] <> f "b",
@@ -95,7 +99,7 @@ view lens state =
         main state.page
     ] where
     
-    main PythaPage = div' [] [
+    main PythaPage = div' [key "pytha"] [
         h1 [class' "sansmot-title" true] "Preuve sans mot",
 
         h2 [class' "sansmot-h2" true] "Que raconte le théorème de Pythagore ?",
@@ -118,7 +122,7 @@ view lens state =
         p [class' "sansmot-center sansmot-link" true, click $ lens 🔍 animateA pythaAnimation] [text "Lancer l'animation"]
     ]
 
-    main CarollPage = div' [] [
+    main CarollPage = div' [key "caroll"] [
         h1 [class' "sansmot-title" true] "Preuve sans mot",
         h2 [class' "sansmot-h2" true] "Où est passé le carré manquant ?",
         p [class' "sansmot-center" true] [

@@ -39,5 +39,5 @@ instance baseballGame :: Game (Array Int) ExtState Int where
     sizeLimit = defaultSizeLimit
     updateScore st = st ~ true 
     
-setNbBases :: ∀effs. Int -> Action State (rng :: RNG | effs)
-setNbBases = newGame' (set _nbBases)
+setNbBasesA :: ∀effs. Int -> Action State (rng :: RNG | effs)
+setNbBasesA = newGame' (set _nbBases)

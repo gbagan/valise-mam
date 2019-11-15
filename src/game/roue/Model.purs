@@ -13,15 +13,17 @@ derive instance eqLoc :: Eq Location
 
 type Ext' = {
     size :: Int,
-    rotation :: Int,
+    rotation :: Int,  --- nombre de rotations effectuées, peut-être négatif et n'est pas borné.
     dragged :: Maybe Location
 }
 newtype Ext = Ext Ext'
 type State = GState Position Ext
 
+-- état initial
 istate :: State
 istate = genState [] identity (Ext {rotation: 0, size: 5, dragged: Nothing})
 
+-- lenses
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _rotation :: Lens' State Int
@@ -99,5 +101,5 @@ deleteDraggedA :: ∀effs. Action State effs
 deleteDraggedA = setState \state ->
     let state2 = state # _dragged .~ Nothing in
     state^._dragged # maybe state2 case _ of
-            Wheel i -> state2 # (_position ∘ ix i) .~ Nothing
+            Wheel i -> state2 # _position ∘ ix i .~ Nothing
             _ -> state2

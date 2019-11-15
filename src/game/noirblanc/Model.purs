@@ -77,7 +77,7 @@ sizes :: Array (Tuple Int Int)
 sizes = [3~3, 4~4, 2~10, 3~10, 5~5, 8~8, 8~8]
 
 selectModeA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-selectModeA mode = newGame $ (_mode2 .~ mode) ∘ (_level .~ 0)
+selectModeA mode = newGame (set _mode2 mode ∘ set _level 0)
 selectLevelA :: ∀effs. Int -> Action State (rng :: RNG | effs)
 selectLevelA = newGame' (set _level)
 

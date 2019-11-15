@@ -79,7 +79,7 @@ instance pathGame :: Game (Array Int) Ext Int where
             randomInt (state^._nbRows * state^._nbColumns) <#>
                 \begin -> state # _position .~ [begin] # _exit .~ Just begin 
         else
-            pure $ state # _position .~ [] # _exit .~ Nothing
+            pure (state # _position .~ [] # _exit .~ Nothing)
 
     computerMove _ = Nothing
     sizeLimit _ = SizeLimit 2 2 9 9
@@ -97,4 +97,4 @@ selectVertexA v = do
 
 
 selectModeA :: ∀effs. Mode -> Action State (rng :: RNG | effs)
-selectModeA = newGame' $ (set _mode)
+selectModeA = newGame' (set _mode)

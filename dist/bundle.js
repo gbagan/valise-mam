@@ -6145,7 +6145,7 @@ var PS = {};
       return Control_Apply.applySecond(Run.applyRun)(Pha_Action.setState((function () {
           var $209 = Data_Lens_Setter.over(_turn(Data_Profunctor_Strong.strongFn))(oppositeTurn);
           return function ($210) {
-              return $209(pushToHistory($210));
+              return pushToHistory($209($210));
           };
       })()))(computerPlay(dictGame));
   };
@@ -9456,18 +9456,17 @@ var PS = {};
       return Lib_Util.tabulate(Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)) + 1 | 0)(Game_Core.canPlay(frogGame)(state));
   };
   var selectMoveA = (function () {
-      var _selectMove = function (move) {
+      var selectMove = function (move) {
           return function (moves) {
-              var moves2 = Data_Array.filter(function (m) {
+              return Data_Maybe.fromMaybe(moves)(Data_Array_NonEmpty.fromArray(Data_Array.filter(function (m) {
                   return (m === move) !== Data_Foldable.elem(Data_Array_NonEmpty_Internal.foldableNonEmptyArray)(Data_Eq.eqInt)(m)(moves);
-              })(Lib_Util["range'"](1)(5));
-              return Data_Maybe.fromMaybe(moves)(Data_Array_NonEmpty.fromArray(moves2));
+              })(Lib_Util["range'"](1)(5))));
           };
       };
       return Game_Core["newGame'"](frogGame)((function () {
           var $47 = Data_Lens_Setter.over(_moves(Data_Profunctor_Strong.strongFn));
           return function ($48) {
-              return $47(_selectMove($48));
+              return $47(selectMove($48));
           };
       })());
   })();

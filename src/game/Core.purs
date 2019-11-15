@@ -186,7 +186,7 @@ computerPlay = do
         when (isLevelFinished st2) showVictory
 
 computerStartsA :: ∀pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
-computerStartsA = setState (pushToHistory >>> (_turn %~ oppositeTurn)) *> computerPlay
+computerStartsA = setState (pushToHistory ∘ (_turn %~ oppositeTurn)) *> computerPlay
 
 playA :: ∀pos ext mov effs. Game pos ext mov => mov -> Action (GState pos ext) (delay :: DELAY, rng :: RNG | effs)
 playA move = lockAction $

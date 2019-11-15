@@ -69,10 +69,12 @@ reachableArray state = tabulate (state^._nbRows + 1) (canPlay state)
 
 -- ajoute ou enlève un mouvement dans la liste des mouvements permis
 selectMoveA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-selectMoveA = newGame' $ over _moves ∘ _selectMove where
-    _selectMove move moves =
-        let moves2 = filter (\m -> (m == move) /= elem m moves) (1 .. 5) in
-        N.fromArray moves2 # fromMaybe moves
+selectMoveA = newGame' $ over _moves ∘ selectMove where
+    selectMove move moves =
+        1 .. 5 
+        # filter (\m -> (m == move) /= elem m moves)
+        # N.fromArray
+        # fromMaybe moves
 
 -- ajoute une pause de 500ms après un mouvement pour retarder l'affichage des positions accessibles
 playA' :: ∀effs. Int -> Action State (delay :: DELAY, rng :: RNG | effs)

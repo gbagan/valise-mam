@@ -218,4 +218,4 @@ finishZoneA index1 = setState \state ->
                  # _startSquare .~ Nothing
                  # _startPointer .~ Nothing
 flipCustomBeastA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-flipCustomBeastA i = newGame $ (_beast ∘ ix 0 ∘ _isoCustom ∘ ix i) %~ not
+flipCustomBeastA i = newGame (_beast ∘ ix 0 ∘ _isoCustom ∘ ix i %~ not)

@@ -34,7 +34,7 @@ instance nimGame :: Game (Array (Tuple Int Int)) ExtState Move where
             \(p1 ~ p2) -> pos /= p1 && pos /= p2 && if state^._turn == Turn1 then pos < p2 else pos > p1
 
     play state (Move pile pos) = 
-        state ^. _position # (ix pile) %~
+        state ^. _position # ix pile %~
             \(p1 ~ p2) -> if state^._turn == Turn1 then pos ~ p2 else p1 ~ pos
     
     isLevelFinished state = state^._position # all

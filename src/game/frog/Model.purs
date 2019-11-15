@@ -31,6 +31,7 @@ _marked = _ext ∘ lens (_.marked) (_{marked = _})
 _keySequence :: Lens' State (Array String)
 _keySequence = _ext ∘ lens (_.keySequence) (_{keySequence = _})
 
+-- état initial
 istate :: State
 istate = genState 20 (_{nbRows = 20, mode = ExpertMode, customSize = true}) (Ext { moves: 1 `N.cons` (2 `N.cons` N.singleton 3),
                                                             winning: [], marked: [], keySequence: [] })
@@ -73,12 +74,13 @@ selectMoveA = newGame' $ over _moves ∘ _selectMove where
         let moves2 = filter (\m -> (m == move) /= elem m moves) (1 .. 5) in
         N.fromArray moves2 # fromMaybe moves
 
+-- ajoute une pause de 500ms après un mouvement pour retarder l'affichage des positions accessibles
 playA' :: ∀effs. Int -> Action State (delay :: DELAY, rng :: RNG | effs)
 playA' i = playA i *> lockAction (delay 500)
 
 -- place/retire une marque à la position i
 markA :: ∀effs. Int -> Action State effs
-markA i = setState ((_marked ∘ ix i) %~ not)
+markA i = setState (_marked ∘ ix i %~ not)
 
 onKeyDown :: ∀effs. String -> Action State effs
 onKeyDown = konamiCode _keySequence (setState \st -> st # _marked .~ st^._winning)

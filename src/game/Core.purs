@@ -14,6 +14,9 @@ data Dialog a = Rules | NoDialog | ConfirmNewGame a | ScoreDialog | CustomDialog
 data Mode = SoloMode | RandomMode | ExpertMode | DuelMode
 derive instance eqMode :: Eq Mode
 
+data Turn = Turn1 | Turn2
+derive instance eqTurn :: Eq Turn
+
 type PointerPosition = {x :: Number, y :: Number}
 
 type CoreState pos ext = {
@@ -21,7 +24,7 @@ type CoreState pos ext = {
     history :: List pos,
     redoHistory :: List pos,
     dialog :: Dialog (GState pos ext),
-    turn :: Int,  -- 0 -> joueur 1,    1 -> joueur 2
+    turn :: Turn,
     nbRows :: Int,
     nbColumns :: Int,
     customSize :: Boolean,
@@ -41,7 +44,7 @@ defaultCoreState p = {
     history: Nil,
     redoHistory: Nil,
     dialog: Rules,
-    turn: 0,
+    turn: Turn1,
     nbRows: 0,
     nbColumns: 0,
     customSize: false,
@@ -74,7 +77,7 @@ _mode = _core ∘ lens (_.mode) (_{mode = _})
 _help :: ∀pos ext. Lens' (GState pos ext) Boolean
 _help = _core ∘ lens (_.help) (_{help = _})
 
-_turn :: ∀pos ext. Lens' (GState pos ext) Int
+_turn :: ∀pos ext. Lens' (GState pos ext) Turn
 _turn = _core ∘ lens (_.turn) (_{turn = _})
 
 _dialog :: ∀pos ext. Lens' (GState pos ext) (Dialog (GState pos ext))
@@ -119,8 +122,12 @@ defaultSizeLimit _ = SizeLimit 0 0 0 0
 defaultOnNewGame :: ∀a. a -> Random a
 defaultOnNewGame = pure
 
+oppositeTurn :: Turn -> Turn
+oppositeTurn Turn1 = Turn2
+oppositeTurn _ = Turn1
+
 changeTurn :: ∀pos ext. GState pos ext -> GState pos ext
-changeTurn state = state # _turn %~ \x -> if state^._mode == DuelMode then 1 - x else 0
+changeTurn state = state # _turn %~ \x -> if state^._mode == DuelMode then oppositeTurn x else Turn1
 
 undoA :: ∀pos ext effs. Action (GState pos ext) effs
 undoA = setState \state -> case state^._history of
@@ -146,7 +153,7 @@ resetA = setState \state -> case L.last (state^._history) of
     Just x -> state # _position .~ x
                     # _history .~ Nil
                     # _redoHistory .~ Nil
-                    # _turn .~ 0
+                    # _turn .~ Turn1
 
 toggleHelpA :: ∀pos ext effs. Action (GState pos ext) effs
 toggleHelpA = setState (_help %~ not)
@@ -156,7 +163,7 @@ playAux move state =
     if canPlay state move then
         let position = state^._position in
         state # _position .~ play state move
-              # _turn %~ (1 - _)
+              # _turn %~ oppositeTurn
     else
         state
 
@@ -179,7 +186,7 @@ computerPlay = do
         when (isLevelFinished st2) showVictory
 
 computerStartsA :: ∀pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
-computerStartsA = setState pushToHistory *> computerPlay
+computerStartsA = setState (pushToHistory >>> (_turn %~ oppositeTurn)) *> computerPlay
 
 playA :: ∀pos ext mov effs. Game pos ext mov => mov -> Action (GState pos ext) (delay :: DELAY, rng :: RNG | effs)
 playA move = lockAction $

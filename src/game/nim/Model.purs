@@ -5,7 +5,7 @@ import Lib.Util (tabulate2)
 import Pha.Action (Action)
 import Lib.Random (randomInt)
 import Game.Effs (EFFS)
-import Game.Core (class Game, class TwoPlayersGame, GState(..), Mode(..),
+import Game.Core (class Game, class TwoPlayersGame, GState(..), Mode(..), Turn(..),
                 genState, newGame', canPlay, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
 
 data Move = Move Int Int  --- pile et position dans la pile
@@ -31,14 +31,14 @@ _nbPiles = _ext ∘ lens (_.nbPiles) (_{nbPiles = _})
 instance nimGame :: Game (Array (Tuple Int Int)) ExtState Move where
     canPlay state (Move pile pos) =
         state^._position !! pile # maybe false 
-            \(p1 ~ p2) -> pos /= p1 && pos /= p2 && if state^._turn == 0 then pos < p2 else pos > p1
+            \(p1 ~ p2) -> pos /= p1 && pos /= p2 && if state^._turn == Turn1 then pos < p2 else pos > p1
 
     play state (Move pile pos) = 
         state ^. _position # (ix pile) %~
-            \(p1 ~ p2) -> if state^._turn == 0 then pos ~ p2 else p1 ~ pos
+            \(p1 ~ p2) -> if state^._turn == Turn1 then pos ~ p2 else p1 ~ pos
     
     isLevelFinished state = state^._position # all
-        \(p1 ~ p2) -> p2 - p1 == 1 && p1 == (if state^._turn == 1 then state^._length - 2 else 0)
+        \(p1 ~ p2) -> p2 - p1 == 1 && p1 == (if state^._turn == Turn2 then state^._length - 2 else 0)
 
     initialPosition state = 
         sequence $ replicate (state^._nbPiles) $
@@ -59,7 +59,7 @@ instance nimGame2 :: TwoPlayersGame (Array (Tuple Int Int)) ExtState Move where
         tabulate2 (state^._nbPiles) (state^._length) Move
         # filter (canPlay state)
         # sortWith \(Move pile pos) -> state^._position !! pile # maybe 0
-            \x -> if state^._turn == 0 then fst x - pos else pos - snd x
+            \x -> if state^._turn == Turn1 then fst x - pos else pos - snd x
 
     isLosingPosition = eq 0 ∘ foldr (\t -> xor (snd t - fst t - 1)) 0 ∘ view _position
 

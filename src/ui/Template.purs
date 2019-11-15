@@ -3,7 +3,7 @@ import MyPrelude
 import Pha (VDom, Prop, text, emptyNode, maybeN)
 import Pha.Action (Action, setState, (🔍))
 import Pha.Html (div', class', style, translate, pc, pointerup, pointerdown, pointerleave, pointermove)
-import Game.Core (class Game, class ScoreGame, GState, Mode(..), SizeLimit(..), Dialog(..),
+import Game.Core (class Game, class ScoreGame, GState, Mode(..), Turn(..), SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointer, _locked, 
          canPlay, isLevelFinished, sizeLimit, bestScore, setGridSizeA, confirmNewGameA, dropA)
 import UI.Dialog (dialog) as D
@@ -154,7 +154,7 @@ turnMessage :: ∀pos ext mov. Game pos ext mov => GState pos ext -> String
 turnMessage state =
     if isLevelFinished state then
         "Partie finie"
-    else if state^._turn == 0 then
+    else if state^._turn == Turn1 then
         "Tour du premier joueur"
     else if state^._mode == DuelMode then
         "Tour du second joueur"
@@ -164,8 +164,8 @@ turnMessage state =
 winTitleFor2Players :: ∀pos ext. GState pos ext -> String
 winTitleFor2Players state =
     if state^._mode == DuelMode then
-        "Le " <> (if state^._turn == 1 then "premier" else "second") <> " joueur gagne"
-    else if state^._turn == 1 then
+        "Le " <> (if state^._turn == Turn2 then "premier" else "second") <> " joueur gagne"
+    else if state^._turn == Turn2 then
         "Tu as gagné"
     else
         "L'IA gagne"

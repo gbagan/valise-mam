@@ -21,16 +21,17 @@ instance showPiece :: Show Piece where
 
 type Position = Array Piece
 type Ext' = {
-    selectedPiece :: Piece,
-    selectedSquare :: Maybe Int,
-    allowedPieces :: N.NonEmptyArray Piece,
-    multiPieces :: Boolean,
-    customLocalMoves :: Array Boolean,
-    customDirections :: Array Boolean
+    selectedPiece :: Piece,              --- la pièce actuellement choisie par l'utilisateur
+    selectedSquare :: Maybe Int,          -- la case sur laquelle pointe le pointeur de l'utilisateur
+    allowedPieces :: N.NonEmptyArray Piece, -- la liste des pièces que l'utilisateur a le droit d'utiliser
+    multiPieces :: Boolean,             -- l'utilisateur peut-il utiliser plusieurs pièces différentes ou une seule
+    customLocalMoves :: Array Boolean,  -- la liste des mouvements locaux autorisées pour la pièce personnalisée
+    customDirections :: Array Boolean   -- la liste des directions autorisées pour la pièce personnalisée
 }
 newtype Ext = Ext Ext'
 type State = GState Position Ext
 
+-- état initial
 istate :: State
 istate = genState []
     (_{nbRows = 8, nbColumns = 8})
@@ -38,6 +39,7 @@ istate = genState []
         customLocalMoves: replicate 25 false, customDirections: replicate 9 false
     })
 
+-- lenses
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _selectedPiece :: Lens' State Piece
@@ -88,7 +90,6 @@ capturableSquares state = state^._position # mapWithIndex Tuple
     # foldr
         (\(index ~ piece) -> if piece == Empty then identity else zipWith disj (attackedBy state piece index))
         (replicate (state^._nbRows * state^._nbColumns) false)
-        
 
 attackedBySelected :: State -> Array Boolean
 attackedBySelected state =
@@ -137,10 +138,10 @@ toggleMultiPiecesA :: ∀effs. Action State effs
 toggleMultiPiecesA = setState (_multiPieces %~ not)
 
 flipDirectionA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-flipDirectionA direction = newGame $ (_customDirections ∘ ix direction) %~ not
+flipDirectionA direction = newGame (_customDirections ∘ ix direction %~ not)
 
 flipLocalMoveA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-flipLocalMoveA position = newGame $ (_customLocalMoves ∘ ix position) %~ not
+flipLocalMoveA position = newGame (_customLocalMoves ∘ ix position %~ not)
 
 customizeA :: ∀effs. Action State (rng :: RNG | effs)
 customizeA = newGame $ (_allowedPieces .~ N.singleton Custom) ∘ (_dialog .~ CustomDialog) ∘ (_multiPieces .~ false)

@@ -9,8 +9,9 @@ infix 3 Edge as ↔
 instance eqEdge :: Eq Edge where
     eq (u1 ↔ v1) (u2 ↔ v2) = u1 == u2  && v1 == v2 || u1 == v2 && u2 == v1
 type Position = { x :: Number, y :: Number }
-type Graph = {vertices :: Array Position, edges :: Array Edge }
 
+-- une structure Graph est composé d'une liste des arêtes et de la position de chaque sommet dans le plan
+type Graph = {vertices :: Array Position, edges :: Array Edge }
 
 
 house :: Graph
@@ -37,10 +38,14 @@ graphs :: Array Graph
 graphs = [house, cross]
 
 
-type Ext' = { graphIndex :: Int, graph :: Graph }
+type Ext' = {
+    graphIndex :: Int,
+    graph :: Graph
+}
 newtype ExtState = Ext Ext'
 type State = GState (Array (Maybe Int)) ExtState
 
+-- lenses
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _graphIndex :: Lens' State Int
@@ -48,9 +53,11 @@ _graphIndex = _ext ∘ lens (_.graphIndex) (_{graphIndex = _})
 _graph :: Lens' State Graph
 _graph = _ext ∘ lens (_.graph) (_{graph = _})
 
+-- état initial
 istate :: State
 istate = genState [] identity (Ext { graphIndex: 0, graph: house})
 
+-- l'ensemble des arêtes composoant un chemin contenant potentiellement des levés de crayon
 edgesOf :: Array (Maybe Int) -> Array Edge
 edgesOf = mapMaybe toEdge ∘ pairwise where
     toEdge (Just u ~ Just v) = Just (u ↔ v)
@@ -72,6 +79,7 @@ instance gameDessin :: Game (Array (Maybe Int)) ExtState (Maybe Int) where
     sizeLimit = defaultSizeLimit
     updateScore st = st ~ true
 
+-- nombre de levés de crayon déjà effectués
 nbRaises :: State -> Int
 nbRaises = length ∘ filter isNothing ∘ view _position
 

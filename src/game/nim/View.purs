@@ -5,7 +5,7 @@ import Pha.Action ((🔍))
 import Pha.Html (div', span, br, svg, rect, use, class', key, style, click, fill, viewBox, translate, px)
 import Lib.Util (tabulate)
 import Game.Effs (EFFS)
-import Game.Core (canPlay, playA, isLevelFinished, _position, _turn)
+import Game.Core (Turn(..), canPlay, playA, isLevelFinished, _position, _turn)
 import Game.Nim.Model (State, Move(..), _nbPiles, _length, setLengthA, setNbPilesA)
 import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset, irules)
@@ -54,7 +54,7 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
         span [class' "nim-turn-message" true] [
             text (if isLevelFinished state then
                 "Partie finie"
-            else if state^._turn == 0 then
+            else if state^._turn == Turn1 then
                 "Tour du joueur bleu"
             else
                 "Tour du joueur rouge"
@@ -69,4 +69,4 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
         text "Tu gagnes la partie si ton adversaire n'a aucun mouvement possible."
     ]
 
-    winTitle = "Les " <> (if state^._turn == 1 then "bleu" else "rouge") <> "s gagnent"
+    winTitle = "Les " <> (if state^._turn == Turn2 then "bleu" else "rouge") <> "s gagnent"

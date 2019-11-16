@@ -2,7 +2,7 @@ module Game.Frog.View where
 
 import MyPrelude
 import Lib.Util (map2, tabulate, pairwise, floatRange)
-import Pha (VDom, text, ifN)
+import Pha (VDom, text, ifN, maybeN)
 import Pha.Action ((🔍), getEvent)
 import Pha.Html (div', span, br, svg, viewBox, g, use, line, path, text', px,
                 class', key, click, style, stroke, fill, strokeDasharray, strokeWidth, translate)
@@ -101,7 +101,7 @@ view lens state = template lens (_{config = config, board = board, rules = rules
                             key $ "reach" <> show i,
                             class' "frog-frog marked" true
                         ]
-                ) <> [ let {radius, theta} = fromMaybe {radius: 0.0, theta: 0.0} (pointsPolar !! position) in
+                ) <> [maybeN $ pointsPolar !! position <#> \{radius, theta} ->
                     g [
                     key "frog",
                     class' "frog-frog-container" true,

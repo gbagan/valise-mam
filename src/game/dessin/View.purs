@@ -30,7 +30,7 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
     s = if raises > 1 then "s" else ""
 
     config = card "Dessin" [
-        iconSelectGroup lens state "Dessin" [0, 1] (state^._graphIndex) setGraphIndexA (\i opt -> opt{icon = IconText (show (i + 1)) }),
+        iconSelectGroup lens state "Dessin" [0, 1, 2, 3, 4] (state^._graphIndex) setGraphIndexA (\i opt -> opt{icon = IconText (show (i + 1)) }),
         icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x lens state
     ]
 

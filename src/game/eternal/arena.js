@@ -1,4 +1,12 @@
 ﻿import {Map_dec} from '../util';
+//import {update} from '@fp';
+import {hasEdge} from '../graph/graph';
+import {allDifferent} from '@/lib/sorted';
+//import {all, countBy, filter, minBy, sortBy} from '@fp';
+import {hasEdge} from '../graph/graph';
+
+import {permutations, sublists} from '../util';
+
 
 const makeArenaGraph = arena => {
     const adj = new Map();
@@ -123,6 +131,7 @@ const allRules = {
 const makeRules = name => name === 'one' ? oneRules : allRules;
 
 
+/*
 export const guardsAnswer = (edsgraph, guards, attack) => {
     const ans = answer(edsgraph, sortBy(x => x, guards).concat(attack));
     if (!ans) {
@@ -134,6 +143,7 @@ export const guardsAnswer = (edsgraph, guards, attack) => {
         |> filter(all((guard, i) => guard === guards[i] || hasEdge(edsgraph.graph, guard, guards[i])))
         |> minBy(countBy((guard, i) => guard !== guards[i]))
 };
+*/
 
 export const makeEDS = (graph, k, rulesName) => {
     const rules = makeRules(rulesName);

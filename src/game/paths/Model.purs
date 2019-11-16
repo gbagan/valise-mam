@@ -64,7 +64,7 @@ instance pathGame :: Game (Array Int) Ext Int where
         let path = state^._position in
         if null path then
             [v]
-        else fromMaybe [] $ do -- la sequence ne peut échouer si canPlay a réussi
+        else fromMaybe path $ do -- la sequence ne peut échouer si canPlay a réussi
             l <- last path
             p2 <- pathBetween (state^._nbColumns) l v
             pure $ path <> p2

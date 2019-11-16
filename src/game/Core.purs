@@ -177,13 +177,14 @@ showVictory = do
     delay 1000
     setState $ _showWin .~ false
 
-
 computerPlay :: ∀pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
 computerPlay = do
     state <- getState
-    computerMove state # maybe (pure unit) \rndmove -> do
-        st2 <- randomAction' (\st -> rndmove <#> \m -> playAux m st)
-        when (isLevelFinished st2) showVictory
+    case computerMove state of
+        Nothing -> pure unit
+        Just move -> do
+            st2 <- randomAction' (\st -> move <#> flip playAux st)
+            when (isLevelFinished st2) showVictory
 
 computerStartsA :: ∀pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
 computerStartsA = setState (pushToHistory ∘ (_turn %~ oppositeTurn)) *> computerPlay

@@ -24,6 +24,7 @@ import Game.Roue (State, state) as Roue
 import Game.Sansmot (State, state) as Sansmot
 import Game.Solitaire (State, state) as Solitaire
 import Game.Tiling (State, state) as Tiling
+import Game.Tricolor (State, state) as Tricolor
 import Game.Valise (State, state, is) as Valise
 import Game.Valise.Model (enterA, leaveA) as ValiseM
 
@@ -47,6 +48,7 @@ type RootState = {
     sansmot :: Sansmot.State,
     solitaire :: Solitaire.State,
     tiling :: Tiling.State,
+    tricolor :: Tricolor.State,
     valise :: Valise.State,
     location :: String,
     anim :: Boolean
@@ -94,6 +96,9 @@ _solitaire = lens (_.solitaire) (_{solitaire = _})
 _tiling :: Lens' RootState Tiling.State
 _tiling = lens (_.tiling) (_{tiling = _})
 
+_tricolor :: Lens' RootState Tricolor.State
+_tricolor = lens (_.tricolor) (_{tricolor = _})
+
 _valise :: Lens' RootState Valise.State
 _valise = lens (_.valise) (_{valise = _})
 
@@ -129,6 +134,7 @@ init = do
     _sansmot 🔍 G.init
     _solitaire 🔍 G.init
     _tiling 🔍 G.init
+    _tricolor 🔍 G.init
     _valise 🔍 G.init  
     hashChange
 
@@ -148,6 +154,7 @@ sliceFn st fn = case st.location of
     "sansmot" -> fn _sansmot
     "solitaire" -> fn _solitaire
     "tiling" -> fn _tiling
+    "tricolor" -> fn _tricolor
     _ -> fn _valise
 
 onKeyDown :: Action RootState EFFS
@@ -192,6 +199,7 @@ state = {
     sansmot: Sansmot.state,
     solitaire: Solitaire.state,
     tiling: Tiling.state,
+    tricolor: Tricolor.state,
     valise: Valise.state,
     location: "",
     anim: true  --- empèche l'animation à l'ouverture de la page

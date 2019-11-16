@@ -100,6 +100,9 @@ allRotations beast = [beast, beast2, beast3, beast4] where
 allTranslations :: Int -> Int -> Beast -> Array Beast
 allTranslations n m beast = tabulate2 n m \row col -> translate row col beast
 
+-- renvoie toutes les positions possibles pour une bête à plusieurs formes en prenant
+-- en compte toutes les rotations et translations
+-- peut contenir des positions hors du plateau
 allBeastPositions :: Int -> Int -> Beast' -> Array Beast
 allBeastPositions rows cols = concatMap (allRotations >=> allTranslations rows cols)
 

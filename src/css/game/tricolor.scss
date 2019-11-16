@@ -1,0 +1,21 @@
+.tricolor-board {
+    height: 80vmin;
+    width: 80vmin;
+    position: relative;
+}
+
+.tricolor-cell {
+    fill: green;
+    transition: fill 0.4s linear;
+    &.finished {
+        animation: 3s infinite tricolorHola;
+    }
+}
+
+@keyframes tricolorHola {
+    0%  { fill: green; }
+    20% { fill: yellow; }
+    40% { fill: red; }
+    60% { fill: magenta; }
+    80% { fill: blue; }
+}

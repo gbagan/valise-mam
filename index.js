@@ -23,5 +23,6 @@ import './src/css/game/roue.scss';
 import './src/css/game/sansmot.scss';
 import './src/css/game/solitaire.scss';
 import './src/css/game/tiling.scss';
+import './src/css/game/tricolor.scss';
 import './src/css/game/valise.scss';
 

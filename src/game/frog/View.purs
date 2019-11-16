@@ -80,13 +80,14 @@ view lens state = template lens (_{config = config, board = board, rules = rules
     ]
     grid = 
         div' [class' "ui-board frog-board" true] [
-            svg [viewBox (-190) (-200) 400 400] $
+            svg [viewBox (-190) (-200) 400 400] $ concat [
                 [
                     path spiralPath [fill "none", stroke "black", strokeWidth "3"],
                     line 153.0 9.0 207.0 20.0 [stroke "black", strokeDasharray "5", strokeWidth "6"],
                     line 153.0 7.0 153.0 39.0 [stroke "black", strokeWidth "3"],
                     line 207.0 18.0 207.0 50.0 [stroke "black", strokeWidth "3"]
-                ] <> (map2 spoints reachable \i {x, y} reach ->
+                ],
+                map2 spoints reachable \i {x, y} reach ->
                     g [
                         key $ "lily" <> show i,
                         click $ lens 🔍 ifM (shiftKey <$> getEvent) (markA i) (playA' i)
@@ -94,14 +95,14 @@ view lens state = template lens (_{config = config, board = board, rules = rules
                         lily i x y false false,
                         lily i x y true (not reach || state^._locked),
                         text' x y (if state^._help then show $ (state^._nbRows) - i else "") [class' "frog-index" true]
-                    ]
-                ) <> (map2 (state^._marked) spoints \i mark {x, y} ->
+                    ],
+                map2 (state^._marked) spoints \i mark {x, y} ->
                     ifN (mark && i /= position) \_ ->
                         use (x - 20.0) (y - 20.0) 32.0 32.0 "#frog2" [
                             key $ "reach" <> show i,
                             class' "frog-frog marked" true
-                        ]
-                ) <> [maybeN $ pointsPolar !! position <#> \{radius, theta} ->
+                        ],
+                [maybeN $ pointsPolar !! position <#> \{radius, theta} ->
                     g [
                     key "frog",
                     class' "frog-frog-container" true,
@@ -117,7 +118,8 @@ view lens state = template lens (_{config = config, board = board, rules = rules
                             class' "goal" $ position == 0
                         ]
                     ]
-                ]],
+                ]]
+            ],
             span [] [text (turnMessage state)]
         ]
 

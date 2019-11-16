@@ -70,8 +70,11 @@ valise lens state = svg [
         object {symbol: "tile", link: Just "tiling", help: "Jeu: carrelage", drag: false}
             280 400 120 60 [] [],
 
-        object {symbol: "tricolor", link: Just "baseball", help: "Jeu: baseball multicolore", drag: false}
+        object {symbol: "tricolor2", link: Just "baseball", help: "Jeu: baseball multicolore", drag: false}
             350 330 90 60 [] [],
+
+        object {symbol: "traffic", link: Just "tricolor", help: "Jeu: feu tricolore", drag: false}
+            250 280 64 64 [] [],
 
         object {symbol: "race", link: Just "paths", help: "Jeu: chemins", drag: false}
             450 445 64 64 [transform "rotate(40)"] [],

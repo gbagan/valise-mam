@@ -36,14 +36,14 @@ square light cross props =
     ]
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens (_{config=config, board=board, rules=rules, winTitle=winTitle}) state where
+view lens state = template lens _{config=config, board=board, rules=rules, winTitle=winTitle} state where
     rows = state^._nbRows
     columns = state^._nbColumns
     position = state^._position
 
     config = card "Tout noir tout blanc" [
-        iconSelectGroup lens state "Mode jeu" [0, 1, 2, 3] (state^._mode2) selectModeA \i opt ->
-            opt{icon = IconSymbol $ "#lo-mode" <> show (i + 1)},
+        iconSelectGroup lens state "Mode jeu" [0, 1, 2, 3] (state^._mode2) selectModeA \i ->
+            _{icon = IconSymbol $ "#lo-mode" <> show (i + 1)},
         iconSelectGroup lens state "Difficulté" [0, 1, 2, 3, 4, 5, 6] (state^._level) selectLevelA \i ->
             levelOptions i (Just i > (state^._maxLevels) !! (state^._mode2)),
         icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state

@@ -10,7 +10,8 @@
     "yarn": "^1.19.1"
   },
   "scripts": {
-    "build": "rollup --config",
+    "build": "spago bundle-app --to dist/bundle.js",
+    "buildcss": "rollup --config",
     "deploy:test": "scp -r dist/* gbagan@connect.liris.cnrs.fr:~/valisetest/"
   }
 }

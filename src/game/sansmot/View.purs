@@ -14,7 +14,7 @@ import Game.Sansmot.Model (State, Page(..), pythaAnimation, carollAnimation, ani
 defaultStyle :: ∀a effs. Array (Prop a effs)
 defaultStyle = [style "transform" "translate(0px, 0px)"]
 
-compStyle :: ∀a effs. Number -> Number -> { rotation :: Int, translation :: Tuple Int Int, duration :: Int} -> Array (Prop a effs)
+compStyle :: ∀a effs. Number -> Number -> {rotation :: Int, translation :: Tuple Int Int, duration :: Int} -> Array (Prop a effs)
 compStyle width height { rotation, translation: x ~ y, duration} = [
     style "transform" $ 
         translate (pc $ toNumber x / width) (pc $ toNumber y / height),

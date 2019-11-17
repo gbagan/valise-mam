@@ -34,26 +34,26 @@ type State = GState Position Ext
 -- état initial
 istate :: State
 istate = genState []
-    (_{nbRows = 8, nbColumns = 8})
+    _{nbRows = 8, nbColumns = 8}
     (Ext {selectedPiece: Queen, selectedSquare: Nothing, allowedPieces: N.singleton Rook, multiPieces: false,
         customLocalMoves: replicate 25 false, customDirections: replicate 9 false
     })
 
 -- lenses
 _ext :: Lens' State Ext'
-_ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
+_ext = lens (\(State _ (Ext a)) -> a) \(State s _) x -> State s (Ext x)
 _selectedPiece :: Lens' State Piece
-_selectedPiece = _ext ∘ lens (_.selectedPiece) (_{selectedPiece = _})
+_selectedPiece = _ext ∘ lens _.selectedPiece _{selectedPiece = _}
 _selectedSquare :: Lens' State (Maybe Int)
-_selectedSquare = _ext ∘ lens (_.selectedSquare) (_{selectedSquare = _})
+_selectedSquare = _ext ∘ lens _.selectedSquare _{selectedSquare = _}
 _allowedPieces :: Lens' State (N.NonEmptyArray Piece)
-_allowedPieces = _ext ∘ lens (_.allowedPieces) (_{allowedPieces = _})
+_allowedPieces = _ext ∘ lens _.allowedPieces _{allowedPieces = _}
 _multiPieces :: Lens' State Boolean
-_multiPieces = _ext ∘ lens (_.multiPieces) (_{multiPieces = _})
+_multiPieces = _ext ∘ lens _.multiPieces _{multiPieces = _}
 _customLocalMoves :: Lens' State (Array Boolean)
-_customLocalMoves = _ext ∘ lens (_.customLocalMoves) (_{customLocalMoves = _})
+_customLocalMoves = _ext ∘ lens _.customLocalMoves _{customLocalMoves = _}
 _customDirections :: Lens' State (Array Boolean)
-_customDirections = _ext ∘ lens (_.customDirections) (_{customDirections = _})
+_customDirections = _ext ∘ lens _.customDirections _{customDirections = _}
 
 -- teste si une pièce peut se déplacer de x cases horizontalement et de y cases verticalement
 legalMoves :: Piece -> Int -> Int -> Boolean
@@ -116,7 +116,7 @@ instance queensGame :: Game (Array Piece) Ext Int where
 
 instance queensScoreGame :: ScoreGame (Array Piece) Ext Int where 
     objective _ = Maximize
-    scoreFn = length ∘ filter (notEq Empty) ∘ view _position
+    scoreFn = length ∘ filter (_ /= Empty) ∘ view _position
     scoreHash state = joinWith "-" [show (state^._nbRows), show (state^._nbColumns), show (N.head $ state^._allowedPieces)]
     isCustomGame state = state^._multiPieces || N.head (state^._allowedPieces) == Custom
 

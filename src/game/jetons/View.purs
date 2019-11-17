@@ -11,7 +11,7 @@ import UI.Template (template, card, bestScoreDialog, incDecGrid, gridStyle, dndB
 import UI.Icons (icongroup, iconBestScore, iconSizesGroup, iundo, iredo, ireset, irules)
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens (_{config=config, board= board, rules= rules, winTitle=winTitle, scoreDialog=scoreDialog}) state where
+view lens state = template lens _{config=config, board=board, rules=rules, winTitle=winTitle, scoreDialog=scoreDialog} state where
     position = state^._position
     columns = state^._nbColumns
     rows = state^._nbRows

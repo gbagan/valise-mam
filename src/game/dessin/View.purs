@@ -23,14 +23,14 @@ getCoordsOfEdge graph (u ↔ v) = {x1, x2, y1, y2} where
     {x: x2, y: y2} = getCoords graph v
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens (_{config=config, board=board, rules=rules, winTitle=winTitle}) state where
+view lens state = template lens _{config=config, board=board, rules=rules, winTitle=winTitle} state where
     position = state^._position
     graph = state^._graph
     raises = nbRaises state
     s = if raises > 1 then "s" else ""
 
     config = card "Dessin" [
-        iconSelectGroup lens state "Dessin" [0, 1, 2, 3, 4] (state^._graphIndex) setGraphIndexA (\i opt -> opt{icon = IconText (show (i + 1)) }),
+        iconSelectGroup lens state "Dessin" [0, 1, 2, 3, 4] (state^._graphIndex) setGraphIndexA \i -> _{icon = IconText (show (i + 1)) },
         icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x lens state
     ]
 

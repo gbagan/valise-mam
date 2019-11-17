@@ -63,46 +63,46 @@ _core :: ∀pos ext. Lens' (GState pos ext) (CoreState pos ext)
 _core = lens (\(State c e) -> c) \(State _ ext) x -> State x ext
 
 _position :: ∀pos ext. Lens' (GState pos ext) pos
-_position = _core ∘ lens (_.position) (_{position = _})
+_position = _core ∘ lens _.position _{position = _}
 
 _history :: ∀pos ext. Lens' (GState pos ext) (List pos)
-_history = _core ∘ lens (_.history) (_{history = _})
+_history = _core ∘ lens (_.history) _{history = _}
 
 _redoHistory :: ∀pos ext. Lens' (GState pos ext) (List pos)
-_redoHistory = _core ∘ lens (_.redoHistory) (_{redoHistory = _})
+_redoHistory = _core ∘ lens _.redoHistory _{redoHistory = _}
 
 _mode :: ∀pos ext. Lens' (GState pos ext) Mode
-_mode = _core ∘ lens (_.mode) (_{mode = _})
+_mode = _core ∘ lens _.mode _{mode = _}
 
 _help :: ∀pos ext. Lens' (GState pos ext) Boolean
-_help = _core ∘ lens (_.help) (_{help = _})
+_help = _core ∘ lens _.help _{help = _}
 
 _turn :: ∀pos ext. Lens' (GState pos ext) Turn
-_turn = _core ∘ lens (_.turn) (_{turn = _})
+_turn = _core ∘ lens _.turn _{turn = _}
 
 _dialog :: ∀pos ext. Lens' (GState pos ext) (Dialog (GState pos ext))
-_dialog = _core ∘ lens (_.dialog) (_{dialog = _})
+_dialog = _core ∘ lens _.dialog _{dialog = _}
 
 _nbRows :: ∀pos ext. Lens' (GState pos ext) Int
-_nbRows = _core ∘ lens (_.nbRows) (_{nbRows = _})
+_nbRows = _core ∘ lens _.nbRows _{nbRows = _}
 
 _nbColumns :: ∀pos ext. Lens' (GState pos ext) Int
-_nbColumns = _core ∘ lens (_.nbColumns) (_{nbColumns = _})
+_nbColumns = _core ∘ lens _.nbColumns _{nbColumns = _}
 
 _customSize :: ∀pos ext. Lens' (GState pos ext) Boolean
-_customSize = _core ∘ lens (_.customSize) (_{customSize = _})
+_customSize = _core ∘ lens _.customSize _{customSize = _}
 
 _locked :: ∀pos ext. Lens' (GState pos ext) Boolean
-_locked = _core ∘ lens (_.locked) (_{locked = _})
+_locked = _core ∘ lens _.locked _{locked = _}
 
 _showWin :: ∀pos ext. Lens' (GState pos ext) Boolean
-_showWin = _core ∘ lens (_.showWin) (_{showWin = _})
+_showWin = _core ∘ lens _.showWin _{showWin = _}
 
 _pointer :: ∀pos ext. Lens' (GState pos ext) (Maybe PointerPosition)
-_pointer = _core ∘ lens (_.pointer) (_{pointer = _})
+_pointer = _core ∘ lens _.pointer _{pointer = _}
 
 _scores :: ∀pos ext. Lens' (GState pos ext) (M.Map String (Tuple Int pos))
-_scores = _core ∘ lens (_.scores) (_{scores = _})
+_scores = _core ∘ lens  _.scores _{scores = _}
 
 data SizeLimit = SizeLimit Int Int Int Int
 

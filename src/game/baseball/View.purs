@@ -28,13 +28,13 @@ transformBase i nbBases = translate (pc x) (pc y)  <> " rotate(45deg)" where
     y = 0.50 + 0.35 * sin (toNumber i * 2.0 * pi / toNumber nbBases)
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens (_{config=config, board=board, rules=rules}) state where
+view lens state = template lens _{config=config, board=board, rules=rules} state where
     nbBases = state^._nbBases
     levelFinished = isLevelFinished state
 
     config = card "Baseball multicolore" [
         iconSelectGroup lens state "Nombres de bases" [4, 5, 6, 7, 8] nbBases setNbBasesA (const identity),
-        icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> \x -> x lens state
+        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x lens state
     ]
 
     board = div' [class' "ui-board baseball-board" true] [

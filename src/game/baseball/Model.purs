@@ -15,9 +15,9 @@ type State = GState (Array Int) ExtState
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _nbBases :: Lens' State Int
-_nbBases = _ext ∘ lens (_.nbBases) (_{nbBases = _})
+_nbBases = _ext ∘ lens _.nbBases _{nbBases = _}
 _missingPeg :: Lens' State Int
-_missingPeg = _ext ∘ lens (_.missingPeg) (_{missingPeg = _})
+_missingPeg = _ext ∘ lens _.missingPeg _{missingPeg = _}
 
 -- état initial
 istate :: State

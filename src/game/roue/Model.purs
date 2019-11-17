@@ -27,11 +27,11 @@ istate = genState [] identity (Ext {rotation: 0, size: 5, dragged: Nothing})
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _rotation :: Lens' State Int
-_rotation = _ext ∘ lens (_.rotation) (_{rotation = _})
+_rotation = _ext ∘ lens _.rotation _{rotation = _}
 _size :: Lens' State Int
-_size = _ext ∘ lens (_.size) (_{size = _})
+_size = _ext ∘ lens _.size _{size = _}
 _dragged :: Lens' State (Maybe Location)
-_dragged = _ext ∘ lens (_.dragged) (_{dragged = _})
+_dragged = _ext ∘ lens _.dragged _{dragged = _}
 
 -- renvoie un tableau indiquant quelles sont les balles alignées avec leur couleur
 aligned :: State -> Array Boolean
@@ -72,7 +72,7 @@ instance roueGame :: Game (Array (Maybe Int)) Ext {from :: Location, to :: Locat
 
 -- tourne la roue de i crans
 rotate :: Int -> State -> State
-rotate i = _rotation %~ add i
+rotate i = _rotation +~ i
 
 rotateA :: ∀effs. Int -> Action State effs
 rotateA i = setState (rotate i)

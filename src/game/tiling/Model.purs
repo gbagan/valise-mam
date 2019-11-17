@@ -40,7 +40,7 @@ newtype ExtState = Ext Ext'
 type State = GState (Array Int) ExtState
 
 istate :: State
-istate = genState [] (_{nbRows = 5, nbColumns = 5}) 
+istate = genState [] _{nbRows = 5, nbColumns = 5}
     (Ext {
         rotation: 0,
         tileType: Type1, 
@@ -52,15 +52,15 @@ istate = genState [] (_{nbRows = 5, nbColumns = 5})
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _rotation :: Lens' State Int
-_rotation = _ext ∘ lens (_.rotation) (_{rotation = _})
+_rotation = _ext ∘ lens _.rotation _{rotation = _}
 _tile :: Lens' State Tile
-_tile = _ext ∘ lens (_.tile) (_{tile = _})
+_tile = _ext ∘ lens _.tile _{tile = _}
 _tileType :: Lens' State TileType
-_tileType = _ext ∘ lens (_.tileType) (_{tileType = _})
+_tileType = _ext ∘ lens _.tileType _{tileType = _}
 _nbSinks :: Lens' State Int
-_nbSinks = _ext ∘ lens (_.nbSinks) (_{nbSinks = _})
+_nbSinks = _ext ∘ lens _.nbSinks _{nbSinks = _}
 _hoverSquare :: Lens' State (Maybe Int)
-_hoverSquare = _ext ∘ lens (_.hoverSquare) (_{hoverSquare = _})
+_hoverSquare = _ext ∘ lens _.hoverSquare _{hoverSquare = _}
 
 
 getTile :: State -> Tile
@@ -100,7 +100,7 @@ instance tilingGame :: Game (Array Int) ExtState Int where
         else
             pos <#> \x -> if Just x == pos !! index then 0 else x
 
-    isLevelFinished = all (notEq 0) ∘ view _position
+    isLevelFinished = all (_ /= 0) ∘ view _position
 
     initialPosition state = pure $ replicate (state^._nbRows * state^._nbColumns) 0
 

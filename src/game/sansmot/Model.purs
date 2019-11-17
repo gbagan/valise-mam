@@ -45,13 +45,11 @@ istate = {
 }
 
 _anim :: Lens' State (M.Map String Int)
-_anim = lens (_.anim) (_{anim = _})
-
+_anim = lens _.anim _{anim = _}
 _locked :: Lens' State Boolean
-_locked = lens (_.locked) (_{locked = _})
-
+_locked = lens _.locked _{locked = _}
 _page :: Lens' State Page
-_page = lens (_.page) (_{page = _})
+_page = lens _.page _{page = _}
 
 setPageA :: ∀effs. Page -> Action State effs
 setPageA page = unlessM (view _locked <$> getState) $ setState ((_page .~ page) ∘ (_anim .~ M.empty))

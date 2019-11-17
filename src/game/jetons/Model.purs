@@ -10,20 +10,22 @@ type Ext' = { dragged :: Maybe Int }
 newtype Ext = Ext Ext'
 type State = GState Position Ext
 
-istate :: State
-istate = genState [] (_{nbRows = 4, nbColumns = 4}) (Ext { dragged: Nothing })
-
+-- lenses
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _dragged :: Lens' State (Maybe Int)
-_dragged = _ext ∘ lens (_.dragged) (_{dragged = _})
+_dragged = _ext ∘ lens _.dragged _{dragged = _}
+
+-- état initial
+istate :: State
+istate = genState [] _{nbRows = 4, nbColumns = 4} (Ext { dragged: Nothing })
 
 instance jetonsGame :: Game (Array Int) Ext { from :: Int, to :: Int } where
     play state {from, to} =
         let position = state^._position in
         fromMaybe position $ do
             pfrom <- position !! from
-            position # updateAt from 0 >>= modifyAt to (add pfrom)
+            position # updateAt from 0 >>= modifyAt to (_ + pfrom)
     
     canPlay state {from, to} =
         let position = state^._position

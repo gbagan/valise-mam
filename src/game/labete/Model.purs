@@ -49,32 +49,29 @@ type Ext' = {
 newtype ExtState = Ext Ext'
 type State = GState (Array Boolean) ExtState
 
+
+-- lenses
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 
 _beast :: Lens' State Beast'
-_beast = _ext ∘ lens (_.beast) (_{beast = _})
-
+_beast = _ext ∘ lens _.beast _{beast = _}
 _beastType :: Lens' State BeastType
-_beastType = _ext ∘ lens (_.beastType) (_{beastType = _})
-
+_beastType = _ext ∘ lens _.beastType _{beastType = _}
 _mode :: Lens' State Mode
-_mode = _ext ∘ lens (_.mode) (_{mode = _})
-
+_mode = _ext ∘ lens _.mode _{mode = _}
 _selectedColor :: Lens' State Int
-_selectedColor = _ext ∘ lens (_.selectedColor) (_{selectedColor = _})
-
+_selectedColor = _ext ∘ lens _.selectedColor _{selectedColor = _}
 _squareColors :: Lens' State (Array Int)
-_squareColors = _ext ∘ lens (_.squareColors) (_{squareColors = _})
-
+_squareColors = _ext ∘ lens _.squareColors _{squareColors = _}
 _startPointer :: Lens' State (Maybe PointerPosition)
-_startPointer = _ext ∘ lens (_.startPointer) (_{startPointer = _})
-
+_startPointer = _ext ∘ lens _.startPointer _{startPointer = _}
 _startSquare :: Lens' State (Maybe Int)
-_startSquare = _ext ∘ lens (_.startSquare) (_{startSquare = _})
+_startSquare = _ext ∘ lens _.startSquare _{startSquare = _}
 
+-- état initial
 istate :: State
-istate = genState [] (_{nbRows = 5, nbColumns = 5}) 
+istate = genState [] _{nbRows = 5, nbColumns = 5} 
                 (Ext {
                     beast: [type1],
                     beastType: Type1,

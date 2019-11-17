@@ -19,7 +19,7 @@ translateCell i size = translate (pc x) (pc y) where
     y = 0.45 + 0.35 * sin (toNumber i * 2.0 * pi / toNumber size)
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens (_{config=config, board=board, rules=rules}) state where
+view lens state = template lens _{config=config, board=board, rules=rules} state where
     size = state^._size
     nbColors = state^._nbColors
     levelFinished = isLevelFinished state
@@ -37,7 +37,7 @@ view lens state = template lens (_{config=config, board=board, rules=rules}) sta
                 circle 0.0 0.0 7.5 [
                     class' "tricolor-cell" true,
                     class' "finished" levelFinished,
-                    stroke $ if maybe false (inRange state i) (state^._hoverCell) then "black" else "",
+                    stroke $ if maybe false (inRange state i) (state^._hoverCell) then "lightgreen" else "black",
                     key $ "b" <> show i,
                     style "fill" $ if levelFinished then "" else colors !! color # fromMaybe "",
                     style "transform" (translateCell i size),

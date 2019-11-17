@@ -23,17 +23,17 @@ type State = GState Int ExtState
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _moves :: Lens' State (N.NonEmptyArray Int)
-_moves = _ext ∘ lens (_.moves) (_{moves = _})
+_moves = _ext ∘ lens _.moves _{moves = _}
 _winning :: Lens' State (Array Boolean)
-_winning = _ext ∘ lens (_.winning) (_{winning = _})
+_winning = _ext ∘ lens _.winning _{winning = _}
 _marked :: Lens' State (Array Boolean)
-_marked = _ext ∘ lens (_.marked) (_{marked = _})
+_marked = _ext ∘ lens _.marked _{marked = _}
 _keySequence :: Lens' State (Array String)
-_keySequence = _ext ∘ lens (_.keySequence) (_{keySequence = _})
+_keySequence = _ext ∘ lens _.keySequence _{keySequence = _}
 
 -- état initial
 istate :: State
-istate = genState 20 (_{nbRows = 20, mode = ExpertMode, customSize = true}) (Ext { moves: 1 `N.cons` (2 `N.cons` N.singleton 3),
+istate = genState 20 _{nbRows = 20, mode = ExpertMode, customSize = true} (Ext { moves: 1 `N.cons` (2 `N.cons` N.singleton 3),
                                                             winning: [], marked: [], keySequence: [] })
 
 instance frogGame :: Game Int ExtState Int where

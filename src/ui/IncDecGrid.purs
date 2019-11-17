@@ -24,22 +24,22 @@ incDecGrid {locked, nbRows, nbColumns, customSize, showRowButtons, showColButton
             ifN showRowButtons \_ ->
                 div' [class' "ui-flex-center ui-incdecgrid-rows" true] [
                     iconbutton
-                        ((_{round = true, icon = IconSymbol "#plus", disabled = locked, hidden = not customSize}))
+                        _{round = true, icon = IconSymbol "#plus", disabled = locked, hidden = not customSize}
                         [click $ onResize (nbRows + 1) nbColumns],
                     div' [class' "ui-incdecgrid-text" true] [ span [] [ text $ show nbRows ] ],
                     iconbutton
-                        ((_{round = true, icon = IconSymbol "#minus", disabled = locked, hidden = not customSize}))
+                        _{round = true, icon = IconSymbol "#minus", disabled = locked, hidden = not customSize}
                         [click $ onResize (nbRows - 1) nbColumns]
                 ]
         ],
         ifN showColButtons \_ ->
             div' [class' "ui-flex-center ui-incdecgrid-cols" true] [ 
                 iconbutton
-                    (\x -> x{round = true, icon = IconSymbol "#minus", disabled = locked, hidden = not customSize})
+                    _{round = true, icon = IconSymbol "#minus", disabled = locked, hidden = not customSize}
                     [click $ onResize nbRows (nbColumns - 1)],
                 div' [class' "ui-incdecgrid-text" true] [ span [] [ text $ show nbColumns ] ],
                 iconbutton
-                    (\x -> x{round = true, icon = IconSymbol "#plus", disabled = locked, hidden = not customSize})
+                    _{round = true, icon = IconSymbol "#plus", disabled = locked, hidden = not customSize}
                     [click $ onResize nbRows (nbColumns + 1)]
             ]
     ]

@@ -24,7 +24,7 @@ cursor :: ∀a b. PointerPosition -> b -> VDom a EFFS
 cursor pp _ = circle 0.0 0.0 20.0 ([attr "pointer-events" "none", fill "url(#soli-peg)"] <> svgCursorStyle pp)
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens (_{config=config, board=board, rules=rules, winTitle=winTitle, scoreDialog=scoreDialog}) state where
+view lens state = template lens _{config=config, board=board, rules=rules, winTitle=winTitle, scoreDialog=scoreDialog} state where
     columns = state^._nbColumns
     rows = state^._nbRows
     isCircleBoard = state^._board == CircleBoard
@@ -40,7 +40,7 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
 
     config =
         let boards = [CircleBoard, Grid3Board, RandomBoard, EnglishBoard, FrenchBoard]
-            ihelp = iconbutton state (_{icon = IconSymbol "#help", selected = state^._help > 0, tooltip = Just "Aide"})
+            ihelp = iconbutton state _{icon = IconSymbol "#help", selected = state^._help > 0, tooltip = Just "Aide"}
                     [click $ lens 🔍 toggleHelpA]
         in        
         card "Jeu du solitaire" [

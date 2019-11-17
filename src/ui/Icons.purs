@@ -37,40 +37,40 @@ iundo :: ∀pos ext a. Lens' a (GState pos ext) -> GState pos ext -> VDom a EFFS
 iundo lens state =
     iconbutton
         state
-        (_{icon = I.IconSymbol "#undo",
+        _{icon = I.IconSymbol "#undo",
            tooltip = Just "Annule le dernier coup effectué",
-           disabled = L.null (state^._history)})
+           disabled = L.null (state^._history)}
         [click $ lens 🔍 undoA]
 
 iredo :: ∀pos ext a. Lens' a (GState pos ext) -> GState pos ext -> VDom a EFFS
 iredo lens state =
     iconbutton
         state
-        (_{icon = I.IconSymbol "#undo",
+        _{icon = I.IconSymbol "#undo",
             tooltip = Just "Rejoue le coup annulé",
             disabled = L.null (state^._redoHistory),
-            style = ["transform" ~ "scaleX(-1)"]})
+            style = ["transform" ~ "scaleX(-1)"]}
         [click $ lens 🔍 redoA]
 
 ireset :: ∀pos ext a. Lens' a (GState pos ext) -> GState pos ext -> VDom a EFFS
 ireset lens state =
     iconbutton
         state
-        (_{icon = I.IconSymbol "#reset", tooltip = Just "Recommence la partie", disabled = L.null (state^._history)})
+        _{icon = I.IconSymbol "#reset", tooltip = Just "Recommence la partie", disabled = L.null (state^._history)}
         [click $ lens 🔍 resetA]
 
 ihelp :: ∀pos ext a. Lens' a (GState pos ext) -> GState pos ext -> VDom a EFFS
 ihelp lens state =
     iconbutton
         state
-        (_{icon = I.IconSymbol "#help", tooltip = Just "Aide", selected = state^._help})
+        _{icon = I.IconSymbol "#help", tooltip = Just "Aide", selected = state^._help}
         [click $ lens 🔍 toggleHelpA]
 
 irules :: ∀pos ext a. Lens' a (GState pos ext) -> GState pos ext -> VDom a EFFS
 irules lens state =
     iconbutton
         state
-        (_{icon = I.IconSymbol "#rules", tooltip = Just "Règles", selected = selected})
+        _{icon = I.IconSymbol "#rules", tooltip = Just "Règles", selected = selected}
         [click $ lens 🔍 setState (_dialog .~ Rules)]
     where
         selected = case state^._dialog of
@@ -82,10 +82,10 @@ iconSelectGroup :: ∀pos ext sel a. Show sel => Eq sel =>
     -> (sel -> I.Options -> I.Options) -> VDom a EFFS
 iconSelectGroup lens state title values selected action optionFn =
     icongroup title $ values <#> \val ->
-        iconbutton state (optionFn val ∘ (_{
+        iconbutton state (optionFn val ∘ _{
             icon = I.IconText $ show val,
             selected = val == selected
-        })) [click $ lens 🔍 action val]
+        }) [click $ lens 🔍 action val]
 
 iconSelectGroupM :: ∀pos ext a t sel.
     Show sel => Eq sel => Foldable t =>
@@ -93,22 +93,22 @@ iconSelectGroupM :: ∀pos ext a t sel.
     -> (sel -> I.Options -> I.Options) -> VDom a EFFS
 iconSelectGroupM lens state title values selected action optionFn =
     icongroup title $ values <#> \val ->
-        iconbutton state (optionFn val ∘ (_{
+        iconbutton state (optionFn val ∘ _{
             icon = I.IconText $ show val,
             selected = elem val selected
-        })) [click $ lens 🔍 action val]
+        }) [click $ lens 🔍 action val]
 
 iconSizesGroup :: ∀a pos ext mov. Game pos ext mov =>
     Lens' a (GState pos ext) -> GState pos ext -> Array (Tuple Int Int) -> Boolean -> VDom a EFFS
 iconSizesGroup lens state sizeList customSize =
     icongroup "Dimensions de la grille" $
         (sizeList <#> \(rows ~ cols) ->
-            iconbutton state (_{
+            iconbutton state _{
                 icon = I.IconText $ show rows <> "x" <> show cols,
                 selected = rows == crows && cols == ccols && not csize
-            }) [click $ lens 🔍 setGridSizeA rows cols false]
+            } [click $ lens 🔍 setGridSizeA rows cols false]
         ) <> (if customSize then [
-            iconbutton state (_{icon = I.IconText "NxM", tooltip = Just "Taille personnalisée", selected = csize})
+            iconbutton state _{icon = I.IconText "NxM", tooltip = Just "Taille personnalisée", selected = csize}
                             [click $ lens 🔍 setState (_customSize .~ true)]
         ] else [])
     where
@@ -121,19 +121,19 @@ icons2Players lens state =
     icongroup "Mode de jeu" [
         iconbutton
             state
-            (_{icon = I.IconSymbol "#school", selected = state^._mode == RandomMode, tooltip = Just "IA mode facile"})
+            _{icon = I.IconSymbol "#school", selected = state^._mode == RandomMode, tooltip = Just "IA mode facile"}
             [click $ lens 🔍 setModeA RandomMode],
         iconbutton
             state
-            (_{icon = I.IconSymbol "#enstein", selected = state^._mode == ExpertMode, tooltip = Just "IA mode expert"})
+            _{icon = I.IconSymbol "#enstein", selected = state^._mode == ExpertMode, tooltip = Just "IA mode expert"}
             [click $ lens 🔍 setModeA ExpertMode],
         iconbutton
             state
-            (_{icon = I.IconSymbol "#duel", selected = state^._mode == DuelMode, tooltip = Just "Affronte un autre joueur"})
+            _{icon = I.IconSymbol "#duel", selected = state^._mode == DuelMode, tooltip = Just "Affronte un autre joueur"}
             [click $ lens 🔍 setModeA DuelMode],
         iconbutton
             state
-            (_{icon = I.IconText "2P⇨", disabled = not (L.null $ state^._history) || state^._mode == DuelMode, tooltip = Just "L'IA commence"})
+            _{icon = I.IconText "2P⇨", disabled = not (L.null $ state^._history) || state^._mode == DuelMode, tooltip = Just "L'IA commence"}
             [click $ lens 🔍 computerStartsA]
     ]
 
@@ -142,6 +142,6 @@ iconBestScore lens state =
     icongroup ("Meilleur score (" <> maybe "∅" (show <<< fst) (bestScore state) <> ")") [
         iconbutton
             state
-            (_{icon = I.IconSymbol "#cup", disabled = isNothing (bestScore state), tooltip = Just "Meilleur score"})
+            _{icon = I.IconSymbol "#cup", disabled = isNothing (bestScore state), tooltip = Just "Meilleur score"}
             [click $ lens 🔍 setState (_dialog .~ ScoreDialog)]
     ]

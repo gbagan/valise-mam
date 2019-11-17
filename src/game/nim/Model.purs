@@ -16,17 +16,17 @@ type Ext' = {
 newtype ExtState = Ext Ext'
 type State = GState (Array (Tuple Int Int)) ExtState
 
+-- état initial
 istate :: State
-istate = genState [] (_{mode = ExpertMode }) (Ext { length: 10, nbPiles: 4 })
+istate = genState [] _{mode = ExpertMode } (Ext { length: 10, nbPiles: 4 })
 
+-- lenses
 _ext :: Lens' State Ext'
-_ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
-
+_ext = lens (\(State _ (Ext a)) -> a) \(State s _) x -> State s (Ext x)
 _length :: Lens' State Int
-_length = _ext ∘ lens (_.length) (_{length = _})
-
+_length = _ext ∘ lens _.length _{length = _}
 _nbPiles :: Lens' State Int
-_nbPiles = _ext ∘ lens (_.nbPiles) (_{nbPiles = _})
+_nbPiles = _ext ∘ lens _.nbPiles _{nbPiles = _}
 
 instance nimGame :: Game (Array (Tuple Int Int)) ExtState Move where
     canPlay state (Move pile pos) =

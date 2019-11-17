@@ -47,33 +47,32 @@ square { color, hasTrap, hasBeast, row, col } props =
 ihelp :: ∀a. Lens' a State -> State -> VDom a EFFS
 ihelp lens state =
     iconbutton
-        state
-        (_{icon = IconSymbol "#help", tooltip = Just "Aide", selected = state^._help}) [
+        state _{icon = IconSymbol "#help", tooltip = Just "Aide", selected = state^._help} [
             pointerdown $ lens 🔍 setHelpA true,
             pointerup $ lens 🔍 setHelpA false,
             pointerleave $ lens 🔍 setHelpA false
         ]
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens (_{config=config, board=board, rules=rules, winTitle=winTitle, 
-                                customDialog=customDialog, scoreDialog=scoreDialog}) state where
+view lens state = template lens _{config=config, board=board, rules=rules, winTitle=winTitle, 
+                                customDialog=customDialog, scoreDialog=scoreDialog} state where
     rows = state^._nbRows
     columns = state^._nbColumns
     nonTrappedBeast = nonTrappedBeastOnGrid state
     beastTypes = [Type1, Type2, Type3, Type4, CustomBeast]
 
     config = card "La bête" [
-        iconSelectGroup lens state "Forme de la bête" beastTypes (state^._beastType) setBeastA \i opt -> case i of
-            Type1 -> opt{icon = IconSymbol "#beast1"}
-            Type2 -> opt{icon = IconSymbol "#beast2"}
-            Type3 -> opt{icon = IconSymbol "#beast3"}
-            Type4 -> opt{icon = IconSymbol "#beast23"}
-            CustomBeast -> opt{icon = IconSymbol "#customize"}
+        iconSelectGroup lens state "Forme de la bête" beastTypes (state^._beastType) setBeastA case _ of
+            Type1 -> _{icon = IconSymbol "#beast1"}
+            Type2 -> _{icon = IconSymbol "#beast2"}
+            Type3 -> _{icon = IconSymbol "#beast3"}
+            Type4 -> _{icon = IconSymbol "#beast23"}
+            CustomBeast -> _{icon = IconSymbol "#customize"}
         ,
-        iconSelectGroup lens state "Type de la grille" modes (state^._mode) setModeA \i opt -> case i of
-            StandardMode -> opt{icon = IconSymbol "#grid-normal", tooltip = Just "Normale"}
-            CylinderMode -> opt{icon = IconSymbol "#grid-cylinder", tooltip = Just "Cylindrique"}
-            TorusMode -> opt{icon = IconSymbol "#grid-torus", tooltip = Just "Torique"},
+        iconSelectGroup lens state "Type de la grille" modes (state^._mode) setModeA case _ of
+            StandardMode -> _{icon = IconSymbol "#grid-normal", tooltip = Just "Normale"}
+            CylinderMode -> _{icon = IconSymbol "#grid-cylinder", tooltip = Just "Cylindrique"}
+            TorusMode -> _{icon = IconSymbol "#grid-torus", tooltip = Just "Torique"},
 
         iconSizesGroup lens state [3~3, 5~5, 6~6] true,
 
@@ -111,7 +110,7 @@ view lens state = template lens (_{config=config, board=board, rules=rules, winT
             ) <> [
                 maybeN $ case state^._startPointer of
                     Nothing -> cursor <$> state^._pointer
-                    Just p -> (zone (state^._selectedColor) p) <$> state^._pointer
+                    Just p -> zone (state^._selectedColor) p <$> state^._pointer
             ]
         )
     ]

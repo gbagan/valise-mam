@@ -22,25 +22,25 @@ type Ext' = {
     board :: Board,
     holes :: Array Boolean,
     dragged :: Maybe Int,
-    help' :: Int -- 0 -> pas d'aide, 1 -> première tricoloration, 2 -> deuxème tricoloration
+    help :: Int -- 0 -> pas d'aide, 1 -> première tricoloration, 2 -> deuxème tricoloration
 }
 
 newtype ExtState = Ext Ext'
 type State = GState (Array Boolean) ExtState
 
 istate :: State
-istate = genState [] (_{nbRows = 5, nbColumns = 1}) (Ext { board: CircleBoard, holes: [], dragged: Nothing, help': 0 })
+istate = genState [] _{nbRows = 5, nbColumns = 1} (Ext { board: CircleBoard, holes: [], dragged: Nothing, help: 0 })
 
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _board :: Lens' State Board
-_board = _ext ∘ lens (_.board) (_{board = _})
+_board = _ext ∘ lens _.board _{board = _}
 _holes :: Lens' State (Array Boolean)
-_holes = _ext ∘ lens (_.holes) (_{holes = _})
+_holes = _ext ∘ lens _.holes _{holes = _}
 _dragged :: Lens' State (Maybe Int)
-_dragged = _ext ∘ lens (_.dragged) (_{dragged = _})
+_dragged = _ext ∘ lens _.dragged _{dragged = _}
 _help :: Lens' State Int
-_help = _ext ∘ lens (_.help') (_{help' = _})
+_help = _ext ∘ lens _.help _{help = _}
 
 -- retourne la position du trou situé entre les deux positions d'un coup si celui est valide
 betweenMove :: State -> Move -> Maybe Int
@@ -108,7 +108,7 @@ instance solitaireGame :: Game (Array Boolean) ExtState {from :: Int, to :: Int}
                 FrenchBoard -> generateBoard 7 7 24 \row col -> min row (6 - row) + min col (6 - col) >= 2
                 CircleBoard -> {
                     holes: replicate rows true,
-                    position: randomInt rows <#> \x -> tabulate rows (notEq x),
+                    position: randomInt rows <#> \x -> tabulate rows (_ /= x),
                     customSize: true
 
                 }

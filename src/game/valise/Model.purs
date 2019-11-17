@@ -27,19 +27,19 @@ istate = {
 }
 
 _help :: Lens' State String
-_help = lens (_.help) (_{help = _})
+_help = lens _.help _{help = _}
 
 _helpVisible :: Lens' State Boolean
-_helpVisible = lens (_.helpVisible) (_{helpVisible = _})
+_helpVisible = lens _.helpVisible _{helpVisible = _}
 
 _positions :: Lens' State (M.Map String {x :: Number, y :: Number})
-_positions = lens (_.positions) (_{positions = _})
+_positions = lens _.positions _{positions = _}
 
 _drag :: Lens' State (Maybe { name :: String, x :: Number, y :: Number })
-_drag = lens (_.drag) (_{drag = _})
+_drag = lens _.drag _{drag = _}
 
 _isSwitchOn :: Lens' State Boolean
-_isSwitchOn = lens (_.isSwitchOn) (_{isSwitchOn = _})
+_isSwitchOn = lens _.isSwitchOn _{isSwitchOn = _}
 
 showHelpA :: ∀effs. String -> Action State effs
 showHelpA help = setState $ (_help %~ if help == "" then identity else const help) ∘ (_helpVisible .~ (help /= ""))
@@ -50,13 +50,13 @@ toggleSwitchA = setState (_isSwitchOn %~ not)
 enterA :: ∀effs. Action State (delay :: DELAY | effs) 
 enterA = do
     delay 1500
-    setState (_{isOpen = true})
+    setState _{isOpen = true}
 
 leaveA :: ∀effs. Action State effs 
 leaveA = setState (\_ -> istate)
 
 setDragA :: ∀effs. Maybe { name :: String, x :: Number, y :: Number } -> Action State effs
-setDragA d = setState (_drag .~ d)
+setDragA d = setState _{drag = d}
 
 moveObjectA :: ∀effs. Action State (pointer :: POINTER | effs)
 moveObjectA = do

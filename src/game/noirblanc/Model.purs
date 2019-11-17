@@ -18,19 +18,21 @@ type Ext' = {
 newtype ExtState = Ext Ext'
 type State = GState Position ExtState
 
+-- état initial
 istate :: State
 istate = genState {light: [], played: []} identity (Ext { level: 0, mode: 0, maxLevels: [0, 1, 1, 0], keySequence: [] })
 
+-- lenses
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _mode2 :: Lens' State Int
-_mode2 = _ext ∘ lens (_.mode) (_{mode = _})
+_mode2 = _ext ∘ lens _.mode _{mode = _}
 _level :: Lens' State Int
-_level = _ext ∘ lens (_.level) (_{level = _})
+_level = _ext ∘ lens _.level _{level = _}
 _maxLevels :: Lens' State (Array Int)
-_maxLevels = _ext ∘ lens (_.maxLevels) (_{maxLevels = _})
+_maxLevels = _ext ∘ lens _.maxLevels _{maxLevels = _}
 _keySequence :: Lens' State (Array String)
-_keySequence = _ext ∘ lens (_.keySequence) (_{keySequence = _})
+_keySequence = _ext ∘ lens _.keySequence _{keySequence = _}
 
 neighbor :: State -> Int -> Int -> Boolean
 neighbor state index1 index2 =

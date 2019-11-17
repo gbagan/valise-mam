@@ -62,7 +62,6 @@ cross = {
 graphs :: Array Graph
 graphs = [house, ex1, ex2, ex3, cross]
 
-
 type Ext' = {
     graphIndex :: Int,
     graph :: Graph
@@ -74,9 +73,9 @@ type State = GState (Array (Maybe Int)) ExtState
 _ext :: Lens' State Ext'
 _ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
 _graphIndex :: Lens' State Int
-_graphIndex = _ext ∘ lens (_.graphIndex) (_{graphIndex = _})
+_graphIndex = _ext ∘ lens _.graphIndex _{graphIndex = _}
 _graph :: Lens' State Graph
-_graph = _ext ∘ lens (_.graph) (_{graph = _})
+_graph = _ext ∘ lens _.graph _{graph = _}
 
 -- état initial
 istate :: State

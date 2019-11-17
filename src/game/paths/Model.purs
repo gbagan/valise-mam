@@ -12,19 +12,19 @@ derive instance eqMode :: Eq Mode
 instance showMode :: Show Mode where show _ = "mode"
 
 type Position = Array Int
-type Ext' = { exit :: Maybe Int, mode' :: Mode }
+type Ext' = { exit :: Maybe Int, mode :: Mode }
 newtype Ext = Ext Ext'
 type State = GState Position Ext
 
 istate :: State
-istate = genState [] (_{nbRows = 4, nbColumns = 6}) (Ext { exit: Nothing, mode': Mode1 })
+istate = genState [] _{nbRows = 4, nbColumns = 6} (Ext { exit: Nothing, mode: Mode1 })
 
 _ext :: Lens' State Ext'
-_ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
+_ext = lens (\(State _ (Ext a)) -> a) \(State s _) x -> State s (Ext x)
 _exit :: Lens' State (Maybe Int)
-_exit = _ext ∘ lens (_.exit) (_{exit = _})
+_exit = _ext ∘ lens _.exit _{exit = _}
 _mode :: Lens' State Mode
-_mode = _ext ∘ lens (_.mode') (_{mode' = _})
+_mode = _ext ∘ lens _.mode _{mode = _}
 
 -- renvoie un chemin horizontal ou vertical entre u et v si celui ci existe (u exclus)
 pathBetween :: Int -> Int -> Int -> Maybe (Array Int)
@@ -72,14 +72,15 @@ instance pathGame :: Game (Array Int) Ext Int where
     isLevelFinished state =
         length (state^._position) == state^._nbColumns * state^._nbRows + (if state^._exit == head (state^._position) then 1 else 0)
 
-    initialPosition = pure ∘ view _position 
+    initialPosition state = pure $ case state^._exit of
+        Nothing -> []
+        Just exit -> [exit]
 
-    onNewGame state =
+    onNewGame state = flip (set _exit) state <$>
         if state^._mode == Mode1 then
-            randomInt (state^._nbRows * state^._nbColumns) <#>
-                \begin -> state # _position .~ [begin] # _exit .~ Just begin 
+            randomInt (state^._nbRows * state^._nbColumns) <#> Just
         else
-            pure (state # _position .~ [] # _exit .~ Nothing)
+            pure Nothing
 
     computerMove _ = Nothing
     sizeLimit _ = SizeLimit 2 2 9 9

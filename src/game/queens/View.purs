@@ -38,23 +38,22 @@ square { piece, capturable, selected, nonavailable} props =
     ]
 
 view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens (_{config=config, board=board, rules=rules, 
-                                  customDialog=customDialog, scoreDialog=scoreDialog}) state where
+view lens state = template lens _{config=config, board=board, rules=rules, customDialog=customDialog, scoreDialog=scoreDialog} state where
     position = state^._position
     rows = state^._nbRows
     columns = state^._nbColumns
         
     config = card "Les reines" [
         iconSizesGroup lens state [4~4, 5~5, 7~7, 8~8] true,
-        iconSelectGroupM lens state "Pièces disponibles" piecesList (state^._allowedPieces) selectAllowedPieceA \piece opt ->
-            opt{icon = IconSymbol $ "#piece-" <> show piece, tooltip = Just $ tooltip piece},
+        iconSelectGroupM lens state "Pièces disponibles" piecesList (state^._allowedPieces) selectAllowedPieceA \piece ->
+            _{icon = IconSymbol $ "#piece-" <> show piece, tooltip = Just $ tooltip piece},
         icongroup "Options" $ [
-            iconbutton state (_{icon = IconSymbol "#customize",
-                              selected = N.head (state^._allowedPieces) == Custom,
-                              tooltip = Just "Crée ta propre propre pièce"})[
+            iconbutton state _{icon = IconSymbol "#customize",
+                               selected = N.head (state^._allowedPieces) == Custom,
+                               tooltip = Just "Crée ta propre propre pièce"} [
                                   click $ lens 🔍 customizeA
                               ],
-            iconbutton state (_{icon = IconSymbol "#piece-mix", selected = state^._multiPieces, tooltip = Just "Mode mixte"}) [
+            iconbutton state _{icon = IconSymbol "#piece-mix", selected = state^._multiPieces, tooltip = Just "Mode mixte"} [
                 click $ lens 🔍 toggleMultiPiecesA
             ]
         ] <> ([ihelp, ireset, irules] <#> \x -> x lens state),
@@ -117,11 +116,11 @@ view lens state = template lens (_{config=config, board=board, rules=rules,
             ),
             div' [class' "flex queens-custompiece-directions" true] (
                 map2 (state^._customDirections) angles \i selected angle ->
-                    iconbutton state (_{
+                    iconbutton state _{
                         selected = selected,
                         icon = if i == 4 then IconNone else IconSymbol "#arrow",
                         style = ["transform" ~ ("rotate(" <> show angle <> "deg)")]
-                    }) [
+                    } [
                         key $ show i,
                         click $ if i /= 4 then lens 🔍 flipDirectionA i else pure unit
                     ]

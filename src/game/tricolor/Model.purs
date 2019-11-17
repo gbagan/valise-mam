@@ -1,16 +1,15 @@
 module Game.Tricolor.Model where
 
 import MyPrelude
-import Data.FoldableWithIndex (allWithIndex)
-import Lib.Util (abs, (..))
-import Lib.Random (shuffle, randomInt)
+import Lib.Util (abs)
+import Lib.Random (randomInt)
 import Pha.Action (Action, RNG, setState)
 import Game.Core (class Game, GState(..), genState, newGame', _position, defaultSizeLimit)
 
 type Ext' = { 
-    size :: Int,
+    size :: Int,   -- le nombre de sommets
     nbColors :: Int,
-    range :: Int,
+    range :: Int,  -- le rayon autour du sommet activé pour lequel tous les sommets changent de couleurs
     hoverCell :: Maybe Int
 }
 newtype ExtState = Ext Ext'
@@ -32,6 +31,7 @@ _hoverCell = _ext ∘ lens (_.hoverCell) (_{hoverCell = _})
 istate :: State
 istate = genState [] identity (Ext { size: 5, nbColors: 2, range: 1, hoverCell: Nothing })
 
+-- teste si le sommet i' va changer de couleur si on active le sommet i
 inRange :: State -> Int -> Int -> Boolean
 inRange state i i' = min diff (state^._size - diff) <= state^._range
     where diff = abs (i - i')

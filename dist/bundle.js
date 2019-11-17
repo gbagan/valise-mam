@@ -8142,7 +8142,6 @@ var PS = {};
   var Data_Int = $PS["Data.Int"];
   var Data_Lens_Getter = $PS["Data.Lens.Getter"];
   var Data_Lens_Internal_Forget = $PS["Data.Lens.Internal.Forget"];
-  var Data_Semigroup = $PS["Data.Semigroup"];
   var Data_Show = $PS["Data.Show"];
   var Game_Baseball_Model = $PS["Game.Baseball.Model"];
   var Game_Core = $PS["Game.Core"];
@@ -8184,11 +8183,11 @@ var PS = {};
                   return lens(dictStrong);
               })(state);
           })) ]);
-          var board = Pha_Html["div'"]([ Pha_Html["class'"]("ui-board baseball-board")(true) ])([ Pha_Html.svg([ Pha_Html.viewBox(0)(0)(100)(100) ])(Data_Semigroup.append(Data_Semigroup.semigroupArray)(Data_Array.mapWithIndex(function (i) {
+          var board = Pha_Html["div'"]([ Pha_Html["class'"]("ui-board baseball-board")(true) ])([ Pha_Html.svg([ Pha_Html.viewBox(0)(0)(100)(100) ])(Data_Array.concat([ Data_Array.mapWithIndex(function (i) {
               return function (color) {
                   return Pha_Html.rect(Pha_Html.unitNumber)(Pha_Html.unitNumber)(Pha_Html.unitNumber)(Pha_Html.unitNumber)(-10.0)(-10.0)(20.0)(20.0)([ Pha_Html.key("b" + Data_Show.show(Data_Show.showInt)(i)), Pha_Html["class'"]("baseball-base")(true), Pha_Html.stroke(color), Pha_Html.style(Pha_Html.unittoStr)("transform")(transformBase(i)(nbBases)) ]);
               };
-          })(Data_Array.take(nbBases)(colors)))(Lib_Util.map2(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget)))(dupColors)(function (peg) {
+          })(Data_Array.take(nbBases)(colors)), Lib_Util.map2(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget)))(dupColors)(function (peg) {
               return function (pos) {
                   return function (color) {
                       return Pha.ifN(peg !== Data_Lens_Getter.viewOn(state)(Game_Baseball_Model["_missingPeg"](Data_Lens_Internal_Forget.strongForget)))(function (v) {
@@ -8209,7 +8208,7 @@ var PS = {};
                       });
                   };
               };
-          }))) ]);
+          }) ])) ]);
           return UI_Template.template(Game_Baseball_Model.baseballGame)(function (dictStrong) {
               return lens(dictStrong);
           })(function (v) {
@@ -8244,20 +8243,20 @@ var PS = {};
       return x;
   };
   var state = Game_Baseball_Model.istate;
-  var is = function (dictProfunctor) {
+  var _iso = function (dictProfunctor) {
       return Data_Lens_Iso.iso(function (v) {
           return v;
       })(State)(dictProfunctor);
   };
   var cgame = new Game.CGame(Pha_Action.zoomAt(function (dictStrong) {
-      return is(dictStrong.Profunctor0());
+      return _iso(dictStrong.Profunctor0());
   })(Game_Core.init(Game_Baseball_Model.baseballGame)), function (v) {
       return Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit);
   }, function (lens) {
       return function (v) {
           return Game_Baseball_View.view(function (dictStrong) {
               var $9 = lens(dictStrong);
-              var $10 = is(dictStrong.Profunctor0());
+              var $10 = _iso(dictStrong.Profunctor0());
               return function ($11) {
                   return $9($10($11));
               };
@@ -15371,7 +15370,7 @@ var PS = {};
   var UI_Template = $PS["UI.Template"];                
   var translateCell = function (i) {
       return function (size) {
-          var y = 0.5 + 0.35 * $$Math.sin((Data_Int.toNumber(i) * 2.0 * $$Math.pi) / Data_Int.toNumber(size));
+          var y = 0.45 + 0.35 * $$Math.sin((Data_Int.toNumber(i) * 2.0 * $$Math.pi) / Data_Int.toNumber(size));
           var x = 0.5 + 0.35 * $$Math.cos((Data_Int.toNumber(i) * 2.0 * $$Math.pi) / Data_Int.toNumber(size));
           return Pha_Html.translate(Pha_Html.unitPc)(Pha_Html.unitPc)(Pha_Html.pc(x))(Pha_Html.pc(y));
       };
@@ -15381,24 +15380,25 @@ var PS = {};
       return function (state) {
           var size = Data_Lens_Getter.viewOn(state)(Game_Tricolor_Model["_size"](Data_Lens_Internal_Forget.strongForget));
           var rules = [ Pha.text("blah blah blah blah") ];
+          var nbColors = Data_Lens_Getter.viewOn(state)(Game_Tricolor_Model["_nbColors"](Data_Lens_Internal_Forget.strongForget));
           var levelFinished = Game_Core.isLevelFinished(Game_Tricolor_Model.tricolorGame)(state);
           var config = UI_Template.card("Feux tricolores")([ UI_Icons.iconSelectGroup(Data_Show.showInt)(Data_Eq.eqInt)(function (dictStrong) {
               return lens(dictStrong);
           })(state)("Nombre de lumi\xe8res")([ 4, 5, 6, 7, 8 ])(size)(Game_Tricolor_Model.setSizeA)(Data_Function["const"](Control_Category.identity(Control_Category.categoryFn))), UI_Icons.iconSelectGroup(Data_Show.showInt)(Data_Eq.eqInt)(function (dictStrong) {
               return lens(dictStrong);
-          })(state)("Nombre de couleurs")([ 2, 3, 4, 5 ])(Data_Lens_Getter.viewOn(state)(Game_Tricolor_Model["_nbColors"](Data_Lens_Internal_Forget.strongForget)))(Game_Tricolor_Model.setNbColorsA)(Data_Function["const"](Control_Category.identity(Control_Category.categoryFn))), UI_Icons.iconSelectGroup(Data_Show.showInt)(Data_Eq.eqInt)(function (dictStrong) {
+          })(state)("Nombre de couleurs")([ 2, 3, 4, 5 ])(nbColors)(Game_Tricolor_Model.setNbColorsA)(Data_Function["const"](Control_Category.identity(Control_Category.categoryFn))), UI_Icons.iconSelectGroup(Data_Show.showInt)(Data_Eq.eqInt)(function (dictStrong) {
               return lens(dictStrong);
           })(state)("Port\xe9e")([ 1, 2, 3 ])(Data_Lens_Getter.viewOn(state)(Game_Tricolor_Model["_range"](Data_Lens_Internal_Forget.strongForget)))(Game_Tricolor_Model.setRangeA)(Data_Function["const"](Control_Category.identity(Control_Category.categoryFn))), UI_Icons.icongroup("Options")(Data_Functor.mapFlipped(Data_Functor.functorArray)([ UI_Icons.iundo, UI_Icons.iredo, UI_Icons.ireset, UI_Icons.irules ])(function (x) {
               return x(function (dictStrong) {
                   return lens(dictStrong);
               })(state);
           })) ]);
-          var board = Pha_Html["div'"]([ Pha_Html["class'"]("ui-board tricolor-board")(true) ])([ Pha_Html.svg([ Pha_Html.viewBox(0)(0)(100)(100) ])(Data_Array.mapWithIndex(function (i) {
+          var board = Pha_Html["div'"]([ Pha_Html["class'"]("ui-board tricolor-board")(true) ])([ Pha_Html.svg([ Pha_Html.viewBox(0)(0)(100)(100) ])(Data_Array.concat([ Data_Array.mapWithIndex(function (i) {
               return function (color) {
                   return Pha_Html.circle(0.0)(0.0)(7.5)([ Pha_Html["class'"]("tricolor-cell")(true), Pha_Html["class'"]("finished")(levelFinished), Pha_Html.stroke((function () {
                       var $9 = Data_Maybe.maybe(false)(Game_Tricolor_Model.inRange(state)(i))(Data_Lens_Getter.viewOn(state)(Game_Tricolor_Model["_hoverCell"](Data_Lens_Internal_Forget.strongForget)));
                       if ($9) {
-                          return "lightgreen";
+                          return "black";
                       };
                       return "";
                   })()), Pha_Html.key("b" + Data_Show.show(Data_Show.showInt)(i)), Pha_Html.style(Pha_Html.unittoStr)("fill")((function () {
@@ -15414,7 +15414,11 @@ var PS = {};
                       return lens(dictStrong);
                   })(Game_Tricolor_Model.setHoverCellA(Data_Maybe.Nothing.value))) ]);
               };
-          })(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget)))) ]);
+          })(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))), Data_Array.concat(Data_Array.mapWithIndex(function (i) {
+              return function (color) {
+                  return [ Pha_Html.circle(102.0 + 15.0 * Data_Int.toNumber(i - nbColors | 0))(95.0)(3.0)([ Pha_Html.key("c" + Data_Show.show(Data_Show.showInt)(i)), Pha_Html.fill(color) ]), Pha_Html["text'"](Pha_Html.unitNumber)(106.0 + 15.0 * Data_Int.toNumber(i - nbColors | 0))(97.0)("\u27a1")([ Pha_Html.key("t" + Data_Show.show(Data_Show.showInt)(i)), Pha_Html.attr(Pha_Html.unittoStr)("font-size")("7") ]) ];
+              };
+          })(Data_Array.take(nbColors)(colors))) ])) ]);
           return UI_Template.template(Game_Tricolor_Model.tricolorGame)(function (dictStrong) {
               return lens(dictStrong);
           })(function (v) {

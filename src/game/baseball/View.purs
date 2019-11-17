@@ -38,15 +38,15 @@ view lens state = template lens (_{config=config, board=board, rules=rules}) sta
     ]
 
     board = div' [class' "ui-board baseball-board" true] [
-        svg [viewBox 0 0 100 100] $ 
-            (take nbBases colors # mapWithIndex \i color ->
+        svg [viewBox 0 0 100 100] $ concat [
+            take nbBases colors # mapWithIndex \i color ->
                 rect (-10.0) (-10.0) 20.0 20.0 [
                     key $ "b" <> show i,
                     class' "baseball-base" true,
                     stroke $ color,
                     style "transform" $ transformBase i nbBases
-                ]
-            ) <> (map2 (state^._position) dupColors \peg pos color ->
+                ],
+            map2 (state^._position) dupColors \peg pos color ->
                 ifN (peg /= state^._missingPeg) \_ ->
                     g [
                         class' "baseball-player" true,
@@ -55,17 +55,16 @@ view lens state = template lens (_{config=config, board=board, rules=rules}) sta
                     ] [ 
                         use 0.0 0.0 7.0 7.0 "#meeple" [
                             click $ lens 🔍 playA peg,
-                            fill $ color,
+                            fill color,
                             style "animation"
                                 if levelFinished then
-                                    "baseballHola 4s linear " <> show (1000 + 2000 * peg / nbBases)
-                                    <> "ms infinite"
+                                    "baseballHola 4s linear " <> show (1000 + 2000 * peg / nbBases) <> "ms infinite"
                                 else
                                     "none",
-                            style "cursor" $ if canPlay state peg then "pointer" else "not-allowed"
+                            style "cursor" (if canPlay state peg then "pointer" else "not-allowed")
                         ]
                     ]
-            )
+        ]
     ]
 
     rules = [text "blah blah blah blah"]

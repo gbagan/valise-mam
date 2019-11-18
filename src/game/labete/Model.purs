@@ -3,9 +3,8 @@ import MyPrelude
 import Lib.Util (coords, tabulate2, abs)
 import Pha.Action (Action, setState, RNG)
 import Game.Common (_isoCustom)
-import Game.Core (class Game, class ScoreGame, SizeLimit(..), GState(..), Objective(..), ShowWinStrategy(..),
-                    PointerPosition, Dialog(..),
-                   genState, newGame, newGame', _position, _nbRows, _nbColumns, _help, _dialog, updateScore')
+import Game.Core (class Game, class ScoreGame, SizeLimit(..), GState, Objective(..), ShowWinStrategy(..), PointerPosition, Dialog(..),
+                   _ext, genState, newGame, newGame', _position, _nbRows, _nbColumns, _help, _dialog, updateScore')
 import Game.Effs (POINTER, getPointerPosition)
 
 data Mode = StandardMode | CylinderMode | TorusMode
@@ -51,23 +50,22 @@ type State = GState (Array Boolean) ExtState
 
 
 -- lenses
-_ext :: Lens' State Ext'
-_ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
-
+_ext' :: Lens' State Ext'
+_ext' = _ext ∘ iso (\(Ext a) -> a) Ext
 _beast :: Lens' State Beast'
-_beast = _ext ∘ lens _.beast _{beast = _}
+_beast = _ext' ∘ lens _.beast _{beast = _}
 _beastType :: Lens' State BeastType
-_beastType = _ext ∘ lens _.beastType _{beastType = _}
+_beastType = _ext' ∘ lens _.beastType _{beastType = _}
 _mode :: Lens' State Mode
-_mode = _ext ∘ lens _.mode _{mode = _}
+_mode = _ext' ∘ lens _.mode _{mode = _}
 _selectedColor :: Lens' State Int
-_selectedColor = _ext ∘ lens _.selectedColor _{selectedColor = _}
+_selectedColor = _ext' ∘ lens _.selectedColor _{selectedColor = _}
 _squareColors :: Lens' State (Array Int)
-_squareColors = _ext ∘ lens _.squareColors _{squareColors = _}
+_squareColors = _ext' ∘ lens _.squareColors _{squareColors = _}
 _startPointer :: Lens' State (Maybe PointerPosition)
-_startPointer = _ext ∘ lens _.startPointer _{startPointer = _}
+_startPointer = _ext' ∘ lens _.startPointer _{startPointer = _}
 _startSquare :: Lens' State (Maybe Int)
-_startSquare = _ext ∘ lens _.startSquare _{startSquare = _}
+_startSquare = _ext' ∘ lens _.startSquare _{startSquare = _}
 
 -- état initial
 istate :: State
@@ -210,12 +208,14 @@ startZone2A :: ∀effs. Action State (pointer :: POINTER | effs)
 startZone2A = getPointerPosition >>= \pos -> setState (_startPointer .~ pos)
 
 finishZoneA :: ∀effs. Int -> Action State effs
-finishZoneA index1 = setState \state ->
-    state^._startSquare # maybe state \index2 ->
+finishZoneA index1 = setState \state -> case state^._startSquare of
+    Nothing -> state 
+    Just index2 ->
         let {row: row1, col: col1} = coords (state^._nbColumns) index1
             {row: row2, col: col2} = coords (state^._nbColumns) index2
         in state # _squareColors .~ colorZone state {row1, col1, row2, col2}
                  # _startSquare .~ Nothing
                  # _startPointer .~ Nothing
+
 flipCustomBeastA :: ∀effs. Int -> Action State (rng :: RNG | effs)
 flipCustomBeastA i = newGame (_beast ∘ ix 0 ∘ _isoCustom ∘ ix i %~ not)

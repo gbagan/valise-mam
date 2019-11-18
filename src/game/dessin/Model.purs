@@ -2,7 +2,7 @@ module Game.Dessin.Model where
 import MyPrelude
 import Lib.Util (pairwise)
 import Pha.Action (Action, RNG)
-import Game.Core (class Game, GState(..), genState, newGame', _position, defaultSizeLimit)
+import Game.Core (class Game, GState, _ext, genState, newGame', _position, defaultSizeLimit)
 
 data Edge = Edge Int Int
 infix 3 Edge as ↔
@@ -70,12 +70,12 @@ newtype ExtState = Ext Ext'
 type State = GState (Array (Maybe Int)) ExtState
 
 -- lenses
-_ext :: Lens' State Ext'
-_ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
+_ext' :: Lens' State Ext'
+_ext' = _ext ∘ iso (\(Ext a) -> a) Ext
 _graphIndex :: Lens' State Int
-_graphIndex = _ext ∘ lens _.graphIndex _{graphIndex = _}
+_graphIndex = _ext' ∘ lens _.graphIndex _{graphIndex = _}
 _graph :: Lens' State Graph
-_graph = _ext ∘ lens _.graph _{graph = _}
+_graph = _ext' ∘ lens _.graph _{graph = _}
 
 -- état initial
 istate :: State

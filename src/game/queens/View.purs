@@ -3,9 +3,9 @@ module Game.Queens.View where
 import MyPrelude
 import Lib.Util (map2, map3)
 import Data.Array.NonEmpty (toArray, head) as N
-import Pha (VDom, Prop, h, text)
+import Pha (VDom, Prop, text, maybeN)
 import Pha.Action ((🔍))
-import Pha.Html (div', br, class', svg, use, key, style, pc, width, height, href, click, pointerenter, pointerleave)
+import Pha.Html (div', br, class', svg, use, svguse, key, style, pc, width, height, click, pointerenter, pointerleave)
 import Game.Effs (EFFS)
 import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer, playA)
 import Game.Queens.Model (State, Piece(..),
@@ -26,14 +26,14 @@ tooltip _ = "Pièce personnalisée"
 
 square :: ∀a. { piece :: Piece, capturable :: Boolean, selected :: Boolean, nonavailable :: Boolean} -> Array (Prop a EFFS) -> VDom a EFFS
 square { piece, capturable, selected, nonavailable} props =
-    div' ([
+    div' (props <> [
         class' "queens-square" true,
         class' "queens-square-capturable" capturable,
         class' "queens-square-nonavailable" nonavailable,
         class' "queens-square-selected" selected
-    ] <> props) $ if piece == Empty then [] else [
-        svg [width "100%", height "100%", class' "queen-piece" true] [
-            use "10%" "10%" "80%" "80%" ("#piece-" <> show piece) [class' "queens-piece" true]
+    ]) $ if piece == Empty then [] else [
+        svg [width "100%", height "100%"] [
+            use "10%" "10%" "80%" "80%" ("#piece-" <> show piece) []
         ]
     ]
 
@@ -63,23 +63,21 @@ view lens state = template lens _{config=config, board=board, rules=rules, custo
     pieceSelector = div' [class' "ui-flex-center gutter2 queens-pieceselector" true] $
         N.toArray (state^._allowedPieces) <#> \piece ->
             let name = show piece in
-            iconbutton state (\x -> x{
+            iconbutton state _{
                     selected = piece == state^._selectedPiece,
                     icon = IconSymbol $ "#piece-" <> name
-                }) [
-                    key $ name,
+                } [
+                    key name,
                     click $ lens 🔍 selectPieceA piece
                 ]
         
 
     cursor pp = div' ([class' "ui-cursor" true] <> cursorStyle pp rows columns 0.8) [
-        svg [width "100%", height "100%"] [
-            h "use" [href $ "#piece-" <> show (state^._selectedPiece)] []
-        ]
+        svguse ("#piece-" <> show (state^._selectedPiece)) []
     ]
 
-    grid = div' ([class' "ui-board" true] <> gridStyle rows columns 5 <> trackPointer lens) $   
-        (map3 position (attackedBySelected state) (capturableSquares state) \index piece attacked capturable ->
+    grid = div' ([class' "ui-board" true] <> gridStyle rows columns 5 <> trackPointer lens) $ concat [  
+        map3 position (attackedBySelected state) (capturableSquares state) \index piece attacked capturable ->
             square {piece,
                 selected: attacked || state^._selectedSquare == Just index,
                 nonavailable: state^._help && (piece /= Empty || capturable),
@@ -90,8 +88,9 @@ view lens state = template lens _{config=config, board=board, rules=rules, custo
                 click $ lens 🔍 playA index,
                 pointerenter $ lens 🔍 selectSquareA (Just index),
                 pointerleave $ lens 🔍 selectSquareA Nothing
-            ]
-        ) <> (state^._pointer # maybe [] (pure ∘ cursor))
+            ],
+        [maybeN $ cursor <$> state^._pointer]
+    ]
 
     board = div' [] [
         pieceSelector,
@@ -133,8 +132,8 @@ view lens state = template lens _{config=config, board=board, rules=rules, custo
             div' (gridStyle rows columns 5 <> [class' "ui-board queens-grid" true]) (
                 pos <#> \piece ->
                     square { piece, capturable: false, selected: false, nonavailable: false} [
-                        style "width" $ pc $ 1.0 / toNumber columns,
-                        style "height" $ pc $ 1.0 / toNumber rows
+                        style "width" $ pc (1.0 / toNumber columns),
+                        style "height" $ pc (1.0 / toNumber rows)
                     ]
             )
         ]

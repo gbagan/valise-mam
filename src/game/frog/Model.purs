@@ -6,8 +6,8 @@ import Lib.Util (tabulate, (..))
 import Data.Array.NonEmpty (NonEmptyArray, singleton, fromArray, cons) as N
 import Lib.KonamiCode (konamiCode)
 import Pha.Action (Action, RNG, DELAY, setState, delay)
-import Game.Core (class Game, canPlay, playA, class TwoPlayersGame, Mode(..), GState(..), SizeLimit(..),
-                lockAction, newGame', computerMove', genState, _position, _nbRows)
+import Game.Core (class Game, class TwoPlayersGame, Mode(..), GState, SizeLimit(..),
+                _ext, canPlay, playA, lockAction, newGame', computerMove', genState, _position, _nbRows)
 
 type Ext' = {
     moves :: N.NonEmptyArray Int,  -- la liste des mouvements autorisées (en nombre de cases)
@@ -20,16 +20,16 @@ newtype ExtState = Ext Ext'
 type State = GState Int ExtState
 
 -- lenses
-_ext :: Lens' State Ext'
-_ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
+_ext' :: Lens' State Ext'
+_ext' = _ext ∘ iso (\(Ext a) -> a) Ext
 _moves :: Lens' State (N.NonEmptyArray Int)
-_moves = _ext ∘ lens _.moves _{moves = _}
+_moves = _ext' ∘ lens _.moves _{moves = _}
 _winning :: Lens' State (Array Boolean)
-_winning = _ext ∘ lens _.winning _{winning = _}
+_winning = _ext' ∘ lens _.winning _{winning = _}
 _marked :: Lens' State (Array Boolean)
-_marked = _ext ∘ lens _.marked _{marked = _}
+_marked = _ext' ∘ lens _.marked _{marked = _}
 _keySequence :: Lens' State (Array String)
-_keySequence = _ext ∘ lens _.keySequence _{keySequence = _}
+_keySequence = _ext' ∘ lens _.keySequence _{keySequence = _}
 
 -- état initial
 istate :: State

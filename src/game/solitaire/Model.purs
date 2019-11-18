@@ -4,8 +4,8 @@ import Data.FoldableWithIndex (allWithIndex)
 import Pha.Action (Action, RNG, setState)
 import Lib.Random (Random, randomInt, randomBool)
 import Lib.Util (tabulate, tabulate2, dCoords)
-import Game.Core (class Game, class ScoreGame, GState(..), SizeLimit(..), Objective(..), ShowWinStrategy(..),
-                  genState, canPlay, _nbColumns, _nbRows, _customSize, _position, newGame, updateScore')
+import Game.Core (class Game, class ScoreGame, GState, SizeLimit(..), Objective(..), ShowWinStrategy(..),
+                  _ext, genState, canPlay, _nbColumns, _nbRows, _customSize, _position, newGame, updateScore')
 
 type Move = {from :: Int, to :: Int}
 
@@ -31,16 +31,16 @@ type State = GState (Array Boolean) ExtState
 istate :: State
 istate = genState [] _{nbRows = 5, nbColumns = 1} (Ext { board: CircleBoard, holes: [], dragged: Nothing, help: 0 })
 
-_ext :: Lens' State Ext'
-_ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
+_ext' :: Lens' State Ext'
+_ext' = _ext ∘ iso (\(Ext a) -> a) Ext
 _board :: Lens' State Board
-_board = _ext ∘ lens _.board _{board = _}
+_board = _ext' ∘ lens _.board _{board = _}
 _holes :: Lens' State (Array Boolean)
-_holes = _ext ∘ lens _.holes _{holes = _}
+_holes = _ext' ∘ lens _.holes _{holes = _}
 _dragged :: Lens' State (Maybe Int)
-_dragged = _ext ∘ lens _.dragged _{dragged = _}
+_dragged = _ext' ∘ lens _.dragged _{dragged = _}
 _help :: Lens' State Int
-_help = _ext ∘ lens _.help _{help = _}
+_help = _ext' ∘ lens _.help _{help = _}
 
 -- retourne la position du trou situé entre les deux positions d'un coup si celui est valide
 betweenMove :: State -> Move -> Maybe Int
@@ -87,9 +87,9 @@ instance solitaireGame :: Game (Array Boolean) ExtState {from :: Int, to :: Int}
         hto <- state^._holes !! to
         pure $ pfrom && pbetween && hto && not pto
 
-    play state move@{from, to} = maybe (state^._position)
-        (\between -> state^._position # updateAtIndices [from ~ false, between ~ false, to ~ true])
-        (betweenMove2 state move)
+    play state move@{from, to} = case betweenMove2 state move of
+        Nothing -> state^._position
+        Just between -> state^._position # updateAtIndices [from ~ false, between ~ false, to ~ true]
 
     initialPosition = pure ∘ view _position
 

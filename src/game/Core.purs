@@ -60,7 +60,10 @@ genState :: ∀pos ext. pos -> (CoreState pos ext -> CoreState pos ext) -> ext -
 genState p f ext = State (f $ defaultCoreState p) ext
 
 _core :: ∀pos ext. Lens' (GState pos ext) (CoreState pos ext)
-_core = lens (\(State c e) -> c) \(State _ ext) x -> State x ext
+_core = lens (\(State c e) -> c) \(State _ e) c -> State c e
+
+_ext :: ∀pos ext. Lens' (GState pos ext) ext
+_ext = lens (\(State c e) -> e) \(State c _) e -> State c e
 
 _position :: ∀pos ext. Lens' (GState pos ext) pos
 _position = _core ∘ lens _.position _{position = _}

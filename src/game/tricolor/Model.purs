@@ -4,7 +4,7 @@ import MyPrelude
 import Lib.Util (abs)
 import Lib.Random (randomInt)
 import Pha.Action (Action, RNG, setState)
-import Game.Core (class Game, GState(..), genState, newGame', _position, defaultSizeLimit)
+import Game.Core (class Game, GState, _ext, genState, newGame', _position, defaultSizeLimit)
 
 type Ext' = { 
     size :: Int,   -- le nombre de sommets
@@ -16,16 +16,16 @@ newtype ExtState = Ext Ext'
 type State = GState (Array Int) ExtState
 
 -- lenses
-_ext :: Lens' State Ext'
-_ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
+_ext' :: Lens' State Ext'
+_ext' = _ext ∘ iso (\(Ext a) -> a) Ext
 _size :: Lens' State Int
-_size = _ext ∘ lens _.size _{size = _}
+_size = _ext' ∘ lens _.size _{size = _}
 _nbColors :: Lens' State Int
-_nbColors = _ext ∘ lens _.nbColors _{nbColors = _}
+_nbColors = _ext' ∘ lens _.nbColors _{nbColors = _}
 _range :: Lens' State Int
-_range = _ext ∘ lens _.range _{range = _}
+_range = _ext' ∘ lens _.range _{range = _}
 _hoverCell :: Lens' State (Maybe Int)
-_hoverCell = _ext ∘ lens _.hoverCell _{hoverCell = _}
+_hoverCell = _ext' ∘ lens _.hoverCell _{hoverCell = _}
 
 -- état initial
 istate :: State

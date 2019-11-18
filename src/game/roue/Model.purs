@@ -3,7 +3,7 @@ module Game.Roue.Model where
 import MyPrelude
 import Lib.Util (swap)
 import Control.Monad.Rec.Class (tailRecM, Step(..))
-import Game.Core (class Game, GState(..), genState, newGame', lockAction, _position, _showWin, defaultSizeLimit)
+import Game.Core (class Game, GState, genState, newGame', lockAction, _ext, _position, _showWin, defaultSizeLimit)
 import Pha.Action (Action, delay, DELAY, RNG, getState, setState)
 
 type Position = Array (Maybe Int)
@@ -24,19 +24,21 @@ istate :: State
 istate = genState [] identity (Ext {rotation: 0, size: 5, dragged: Nothing})
 
 -- lenses
-_ext :: Lens' State Ext'
-_ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
+_ext' :: Lens' State Ext'
+_ext' = _ext ∘ iso (\(Ext a) -> a) Ext
 _rotation :: Lens' State Int
-_rotation = _ext ∘ lens _.rotation _{rotation = _}
+_rotation = _ext' ∘ lens _.rotation _{rotation = _}
 _size :: Lens' State Int
-_size = _ext ∘ lens _.size _{size = _}
+_size = _ext' ∘ lens _.size _{size = _}
 _dragged :: Lens' State (Maybe Location)
-_dragged = _ext ∘ lens _.dragged _{dragged = _}
+_dragged = _ext' ∘ lens _.dragged _{dragged = _}
 
 -- renvoie un tableau indiquant quelles sont les balles alignées avec leur couleur
 aligned :: State -> Array Boolean
 aligned state =
-    state^._position # mapWithIndex (\index -> maybe false $ \c -> c == (index + rot) `mod` n)
+    state^._position # mapWithIndex \index -> case _ of
+        Nothing -> false
+        Just c -> mod (index + rot) n == c
     where
         n = length $ state^._position
         rot = state^._rotation
@@ -100,6 +102,6 @@ checkA = lockAction $ getState >>= \st -> tailRecM go (st^._size) where
 deleteDraggedA :: ∀effs. Action State effs
 deleteDraggedA = setState \state ->
     let state2 = state # _dragged .~ Nothing in
-    state^._dragged # maybe state2 case _ of
-            Wheel i -> state2 # _position ∘ ix i .~ Nothing
-            _ -> state2
+    case state^._dragged of
+        Just (Wheel i) -> state2 # _position ∘ ix i .~ Nothing
+        _ -> state2

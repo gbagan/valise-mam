@@ -5,19 +5,19 @@ import Data.FoldableWithIndex (allWithIndex)
 import Lib.Util (swap, (..))
 import Lib.Random (shuffle, randomInt)
 import Pha.Action (Action, RNG)
-import Game.Core (class Game, GState(..), genState, newGame', _position, defaultSizeLimit)
+import Game.Core (class Game, GState, _ext, genState, newGame', _position, defaultSizeLimit)
 
 type Ext' = { nbBases :: Int, missingPeg :: Int }
 newtype ExtState = Ext Ext'
 type State = GState (Array Int) ExtState
 
 -- lenses
-_ext :: Lens' State Ext'
-_ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
+_ext' :: Lens' State Ext'
+_ext' = _ext ∘ iso (\(Ext a) -> a) Ext
 _nbBases :: Lens' State Int
-_nbBases = _ext ∘ lens _.nbBases _{nbBases = _}
+_nbBases = _ext' ∘ lens _.nbBases _{nbBases = _}
 _missingPeg :: Lens' State Int
-_missingPeg = _ext ∘ lens _.missingPeg _{missingPeg = _}
+_missingPeg = _ext' ∘ lens _.missingPeg _{missingPeg = _}
 
 -- état initial
 istate :: State

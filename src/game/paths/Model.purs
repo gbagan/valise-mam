@@ -4,7 +4,7 @@ import Data.Array (nub)
 import Data.Array.NonEmpty (fromArray, head, last, init, tail) as N
 import Lib.Random (randomInt)
 import Lib.Util (dCoords, rangeStep)
-import Game.Core (GState(..), class Game, SizeLimit(..), newGame', genState, _nbRows, _nbColumns, _position, playA)
+import Game.Core (GState, class Game, SizeLimit(..), _ext, newGame', genState, _nbRows, _nbColumns, _position, playA)
 import Pha.Action (Action, DELAY, RNG, getState, setState)
 
 data Mode = Mode1 | Mode2
@@ -19,12 +19,12 @@ type State = GState Position Ext
 istate :: State
 istate = genState [] _{nbRows = 4, nbColumns = 6} (Ext { exit: Nothing, mode: Mode1 })
 
-_ext :: Lens' State Ext'
-_ext = lens (\(State _ (Ext a)) -> a) \(State s _) x -> State s (Ext x)
+_ext' :: Lens' State Ext'
+_ext' = _ext ∘ iso (\(Ext a) -> a) Ext
 _exit :: Lens' State (Maybe Int)
-_exit = _ext ∘ lens _.exit _{exit = _}
+_exit = _ext' ∘ lens _.exit _{exit = _}
 _mode :: Lens' State Mode
-_mode = _ext ∘ lens _.mode _{mode = _}
+_mode = _ext' ∘ lens _.mode _{mode = _}
 
 -- renvoie un chemin horizontal ou vertical entre u et v si celui ci existe (u exclus)
 pathBetween :: Int -> Int -> Int -> Maybe (Array Int)
@@ -57,8 +57,9 @@ instance pathGame :: Game (Array Int) Ext Int where
         case N.fromArray (state^._position) of
             Nothing -> state^._mode == Mode2
             Just path ->
-                pathBetween (state^._nbColumns) (N.last path) v # maybe false \p ->
-                    not (null p) && isValidPath state (state^._position <> p)
+                case pathBetween (state^._nbColumns) (N.last path) v of
+                    Nothing -> false 
+                    Just p -> not (null p) && isValidPath state (state^._position <> p)
 
     play state v =
         let path = state^._position in

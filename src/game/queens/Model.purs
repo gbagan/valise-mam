@@ -2,8 +2,8 @@ module Game.Queens.Model where
 import MyPrelude
 import Lib.Util (tabulate, dCoords, map2)
 import Data.Array.NonEmpty (NonEmptyArray, fromArray, head, singleton) as N
-import Game.Core (GState(..), class Game, class ScoreGame, Objective(..), Dialog(..), SizeLimit(..), ShowWinStrategy(..),
-                  updateScore', genState, newGame, _dialog, _position, _nbRows, _nbColumns)
+import Game.Core (GState, class Game, class ScoreGame, Objective(..), Dialog(..), SizeLimit(..), ShowWinStrategy(..),
+                  _ext, updateScore', genState, newGame, _dialog, _position, _nbRows, _nbColumns)
 import Pha.Action (Action, setState, RNG, DELAY)
 
 piecesList :: Array Piece
@@ -40,20 +40,20 @@ istate = genState []
     })
 
 -- lenses
-_ext :: Lens' State Ext'
-_ext = lens (\(State _ (Ext a)) -> a) \(State s _) x -> State s (Ext x)
+_ext' :: Lens' State Ext'
+_ext' = _ext ∘ iso (\(Ext a) -> a) Ext
 _selectedPiece :: Lens' State Piece
-_selectedPiece = _ext ∘ lens _.selectedPiece _{selectedPiece = _}
+_selectedPiece = _ext' ∘ lens _.selectedPiece _{selectedPiece = _}
 _selectedSquare :: Lens' State (Maybe Int)
-_selectedSquare = _ext ∘ lens _.selectedSquare _{selectedSquare = _}
+_selectedSquare = _ext' ∘ lens _.selectedSquare _{selectedSquare = _}
 _allowedPieces :: Lens' State (N.NonEmptyArray Piece)
-_allowedPieces = _ext ∘ lens _.allowedPieces _{allowedPieces = _}
+_allowedPieces = _ext' ∘ lens _.allowedPieces _{allowedPieces = _}
 _multiPieces :: Lens' State Boolean
-_multiPieces = _ext ∘ lens _.multiPieces _{multiPieces = _}
+_multiPieces = _ext' ∘ lens _.multiPieces _{multiPieces = _}
 _customLocalMoves :: Lens' State (Array Boolean)
-_customLocalMoves = _ext ∘ lens _.customLocalMoves _{customLocalMoves = _}
+_customLocalMoves = _ext' ∘ lens _.customLocalMoves _{customLocalMoves = _}
 _customDirections :: Lens' State (Array Boolean)
-_customDirections = _ext ∘ lens _.customDirections _{customDirections = _}
+_customDirections = _ext' ∘ lens _.customDirections _{customDirections = _}
 
 -- teste si une pièce peut se déplacer de x cases horizontalement et de y cases verticalement
 legalMoves :: Piece -> Int -> Int -> Boolean
@@ -92,10 +92,9 @@ capturableSquares state = state^._position # mapWithIndex Tuple
         (replicate (state^._nbRows * state^._nbColumns) false)
 
 attackedBySelected :: State -> Array Boolean
-attackedBySelected state =
-     maybe (replicate (state^._nbRows * state^._nbColumns) false)
-                            (attackedBy state $ state^._selectedPiece) 
-                            (state^._selectedSquare)
+attackedBySelected state = case state^._selectedSquare of
+    Nothing -> replicate (state^._nbRows * state^._nbColumns) false
+    Just index -> attackedBy state (state^._selectedPiece) index 
 
 instance queensGame :: Game (Array Piece) Ext Int where 
     canPlay _ _ = true

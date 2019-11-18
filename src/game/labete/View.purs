@@ -26,7 +26,7 @@ zone color { x: x1, y: y1 }  {x: x2, y: y2 } =
     rect (pc $ min x1 x2) (pc $ min y1 y2) (pc $ abs (x2 - x1)) (pc $ abs (y2 - y1)) [
         key "zone",
         stroke "black",
-        fill $ colors !! color # fromMaybe "#5aa02c",
+        fill $ colors !! color # fromMaybe "",
         attr "pointer-events" "none",
         attr "opacity" "0.4"
     ]
@@ -37,7 +37,7 @@ modes = [StandardMode, CylinderMode, TorusMode]
 square :: ∀a effs. { color :: Int, hasTrap :: Boolean, hasBeast :: Boolean, row :: Int, col :: Int} -> Array (Prop a effs) -> VDom a effs
 square { color, hasTrap, hasBeast, row, col } props =
     g ([transform $ translate (50 * col) (50 * row)] <> props) [
-        use 0.0 0.0 50.0 50.0 "#grass" [fill $ colors !! color # fromMaybe "#5aa02c"],
+        use 0.0 0.0 50.0 50.0 "#grass" [fill $ colors !! color # fromMaybe ""],
         rect 0.0 0.0 51.0 51.0 [stroke "black", strokeWidth "0.5", fill "transparent"],
         use 5.0 5.0 40.0 40.0 "#paw" [class' "labete-beast" true, class' "visible" hasBeast],
         ifN hasTrap \_ ->
@@ -120,7 +120,7 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
         ifN (state^._selectedColor > 0) \_ ->
             div' [
                 class' "labete-color" true,
-                style "background-color" $ colors !! (state^._selectedColor) # fromMaybe "transparent"
+                style "background-color" $ colors !! (state^._selectedColor) # fromMaybe ""
             ][]
     ]
 

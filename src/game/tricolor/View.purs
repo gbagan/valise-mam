@@ -37,7 +37,7 @@ view lens state = template lens _{config=config, board=board, rules=rules} state
                 circle 0.0 0.0 7.5 [
                     class' "tricolor-cell" true,
                     class' "finished" levelFinished,
-                    stroke $ if maybe false (inRange state i) (state^._hoverCell) then "lightgreen" else "black",
+                    stroke $ if (inRange state i <$> state^._hoverCell) == Just true then "lightgreen" else "black",
                     key $ "b" <> show i,
                     style "fill" $ if levelFinished then "" else colors !! color # fromMaybe "",
                     style "transform" (translateCell i size),

@@ -6,7 +6,8 @@ import Lib.Util (dCoords)
 import Lib.KonamiCode (konamiCode)
 import Pha.Action (Action)
 import Game.Effs (RNG, DELAY, getState, setState)
-import Game.Core (class Game, GState(..), SizeLimit(..), playA, isLevelFinished, _position, _nbColumns, _nbRows, newGame, newGame', genState)
+import Game.Core (class Game, GState, SizeLimit(..), 
+         _ext, playA, isLevelFinished, _position, _nbColumns, _nbRows, newGame, newGame', genState)
 
 type Position = { light :: Array Boolean, played :: Array Boolean }
 type Ext' = {
@@ -23,16 +24,16 @@ istate :: State
 istate = genState {light: [], played: []} identity (Ext { level: 0, mode: 0, maxLevels: [0, 1, 1, 0], keySequence: [] })
 
 -- lenses
-_ext :: Lens' State Ext'
-_ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
+_ext' :: Lens' State Ext'
+_ext' = _ext ∘ iso (\(Ext a) -> a) Ext
 _mode2 :: Lens' State Int
-_mode2 = _ext ∘ lens _.mode _{mode = _}
+_mode2 = _ext' ∘ lens _.mode _{mode = _}
 _level :: Lens' State Int
-_level = _ext ∘ lens _.level _{level = _}
+_level = _ext' ∘ lens _.level _{level = _}
 _maxLevels :: Lens' State (Array Int)
-_maxLevels = _ext ∘ lens _.maxLevels _{maxLevels = _}
+_maxLevels = _ext' ∘ lens _.maxLevels _{maxLevels = _}
 _keySequence :: Lens' State (Array String)
-_keySequence = _ext ∘ lens _.keySequence _{keySequence = _}
+_keySequence = _ext' ∘ lens _.keySequence _{keySequence = _}
 
 neighbor :: State -> Int -> Int -> Boolean
 neighbor state index1 index2 =

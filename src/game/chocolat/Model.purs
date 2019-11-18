@@ -4,8 +4,8 @@ import Data.Int.Bits ((.^.))
 import Lib.Util ((..))
 import Lib.Random (randomInt)
 import Pha.Action (Action, RNG, setState)
-import Game.Core (class Game, class TwoPlayersGame, SizeLimit(..), GState(..), Mode(..),
-                   genState, newGame', computerMove', _position, _nbRows, _nbColumns)
+import Game.Core (class Game, class TwoPlayersGame, SizeLimit(..), GState, Mode(..),
+                   _ext, genState, newGame', computerMove', _position, _nbRows, _nbColumns)
 
 data Move = FromLeft Int | FromRight Int | FromTop Int | FromBottom Int
 data SoapMode = CornerMode | BorderMode | StandardMode
@@ -22,18 +22,17 @@ type Ext' = {
 newtype ExtState = Ext Ext'
 type State = GState Position ExtState
 
-_ext :: Lens' State Ext'
-_ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
-
+-- lenses
+_ext' :: Lens' State Ext'
+_ext' = _ext ∘ iso (\(Ext a) -> a) Ext
 _soap :: Lens' State {row :: Int, col :: Int}
-_soap = _ext ∘ lens _.soap _{soap = _}
-
+_soap = _ext' ∘ lens _.soap _{soap = _}
 _soapMode :: Lens' State SoapMode
-_soapMode = _ext ∘ lens _.soapMode _{soapMode = _}
-
+_soapMode = _ext' ∘ lens _.soapMode _{soapMode = _}
 _moveWhenHover :: Lens' State (Maybe Move)
-_moveWhenHover = _ext ∘ lens _.moveWhenHover _{moveWhenHover = _}
+_moveWhenHover = _ext' ∘ lens _.moveWhenHover _{moveWhenHover = _}
 
+-- état initial
 istate :: State
 istate = genState {left: 0, top: 0, right: 0, bottom: 0} _{nbRows = 6, nbColumns = 7, mode = RandomMode}
         (Ext { soap: {row: 0, col: 0}, soapMode: CornerMode, moveWhenHover: Nothing})

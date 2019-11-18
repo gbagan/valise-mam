@@ -63,6 +63,7 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
 
     rules = [text "blah blah"]
 
+    draggedColor :: Maybe String 
     draggedColor = state^._dragged >>= \d ->
         let colorIndex = case d of
                             Panel i -> i
@@ -85,7 +86,7 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
                 key $ show index,
                 style "left" $ pc $ 0.44 + 0.4 * cos(toNumber index * 2.0 * pi / toNumber size),
                 style "top" $ pc $ 0.44 + 0.4 * sin(toNumber index * 2.0 * pi / toNumber size),
-                style "background-color" $ colors !! color # fromMaybe "black"
+                style "background-color" $ colors !! color # fromMaybe ""
             ] []
         )
 
@@ -93,24 +94,24 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
         class' "roue-board" true,
         pointerup $ lens 🔍 deleteDraggedA
     ]) [
-        div' [class' "roue-buttons" true] $
+        div' [class' "roue-buttons" true] $ concat [
             [button [
                 class' "ui-button ui-button-primary roue-button" true,
                 disabled $ state^._locked,
                 click $ lens 🔍 rotateA (-1)
-            ] [text "↶"]]
-            <> (take size colors # mapWithIndex \i color ->
+            ] [text "↶"]],
+            take size colors # mapWithIndex \i color ->
                     div' ([
                         class' "roue-select-color ui-flex-center" true,
                         style "background-color" color
                     ] <> dndItemProps lens _dragged true false (Panel i) state)
-                        (if elem (Just i) position then [span [] $ [text "✓"]] else [])
-            ) <> [button [
+                        (if elem (Just i) position then [span [] $ [text "✓"]] else []),
+            [button [
                 class' "ui-button ui-button-primary roue-button" true,
                     disabled $ state^._locked,
-                    click $ lens 🔍 rotateA 1 -- lock
-            ] [text "↷"]],
-
+                    click $ lens 🔍 rotateA 1 -- lockAction n'est pas nécessaire
+            ] [text "↷"]]
+        ],
         div' [class' "roue-roue" true] [
             outerWheel,
             innerWheel size,
@@ -120,7 +121,10 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
                 click $ lens 🔍 checkA
             ] [text "Valider"],
             div' [class' "roue-valid-rotation" true] [
-                if valid then span [class' "valid" true] [text "✓"] else span [class' "invalid" true] [text "✗"]
+                if valid then
+                    span [class' "valid" true] [text "✓"]
+                else
+                    span [class' "invalid" true] [text "✗"]
             ]
         ],
         maybeN $ cursor <$> state^._pointer <*> draggedColor

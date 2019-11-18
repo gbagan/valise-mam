@@ -2,8 +2,8 @@ module Game.Jetons.Model where
 
 import MyPrelude
 import Lib.Util ((..), dCoords)
-import Game.Core (class Game, class ScoreGame, GState(..), SizeLimit (..), Objective(..), ShowWinStrategy(..),
-                  genState, updateScore', _position, _nbColumns, _nbRows, defaultOnNewGame)
+import Game.Core (class Game, class ScoreGame, GState, SizeLimit (..), Objective(..), ShowWinStrategy(..),
+                  _ext, genState, updateScore', _position, _nbColumns, _nbRows, defaultOnNewGame)
 
 type Position = Array Int
 type Ext' = { dragged :: Maybe Int }
@@ -11,10 +11,10 @@ newtype Ext = Ext Ext'
 type State = GState Position Ext
 
 -- lenses
-_ext :: Lens' State Ext'
-_ext = lens (\(State _ (Ext a)) -> a) (\(State s _) x -> State s (Ext x))
+_ext' :: Lens' State Ext'
+_ext' = _ext ∘ iso (\(Ext a) -> a) Ext
 _dragged :: Lens' State (Maybe Int)
-_dragged = _ext ∘ lens _.dragged _{dragged = _}
+_dragged = _ext' ∘ lens _.dragged _{dragged = _}
 
 -- état initial
 istate :: State

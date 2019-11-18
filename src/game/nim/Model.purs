@@ -6,7 +6,7 @@ import Pha.Action (Action)
 import Lib.Random (randomInt)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class TwoPlayersGame, GState(..), Mode(..), Turn(..),
-                genState, newGame', canPlay, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
+                _ext, genState, newGame', canPlay, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
 
 data Move = Move Int Int  --- pile et position dans la pile
 type Ext' = { 
@@ -21,17 +21,18 @@ istate :: State
 istate = genState [] _{mode = ExpertMode } (Ext { length: 10, nbPiles: 4 })
 
 -- lenses
-_ext :: Lens' State Ext'
-_ext = lens (\(State _ (Ext a)) -> a) \(State s _) x -> State s (Ext x)
+_ext' :: Lens' State Ext'
+_ext' = _ext ∘ iso (\(Ext a) -> a) Ext
 _length :: Lens' State Int
-_length = _ext ∘ lens _.length _{length = _}
+_length = _ext' ∘ lens _.length _{length = _}
 _nbPiles :: Lens' State Int
-_nbPiles = _ext ∘ lens _.nbPiles _{nbPiles = _}
+_nbPiles = _ext' ∘ lens _.nbPiles _{nbPiles = _}
 
 instance nimGame :: Game (Array (Tuple Int Int)) ExtState Move where
     canPlay state (Move pile pos) =
-        state^._position !! pile # maybe false 
-            \(p1 ~ p2) -> pos /= p1 && pos /= p2 && if state^._turn == Turn1 then pos < p2 else pos > p1
+        case state^._position !! pile of
+            Nothing -> false 
+            Just (p1 ~ p2) -> pos /= p1 && pos /= p2 && if state^._turn == Turn1 then pos < p2 else pos > p1
 
     play state (Move pile pos) = 
         state ^. _position # ix pile %~

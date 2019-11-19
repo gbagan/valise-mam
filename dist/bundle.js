@@ -5136,11 +5136,6 @@ var PS = {};
           });
       });
   };
-  var setState$prime = function (fn) {
-      return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(setState(fn))(function () {
-          return getState;
-      });
-  };
   var lensVariant = function (lens) {
       return Data_Functor_Variant.onMatch()()()({
           getState: function (v) {
@@ -5188,7 +5183,6 @@ var PS = {};
   exports["getState"] = getState;
   exports["setState"] = setState;
   exports["getEvent"] = getEvent;
-  exports["setState'"] = setState$prime;
   exports["zoomAt"] = zoomAt;
   exports["delay"] = delay;
   exports["runRng"] = runRng;
@@ -6218,7 +6212,7 @@ var PS = {};
                               return Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit);
                           });
                       };
-                      throw new Error("Failed pattern match at Game.Core (line 317, column 5 - line 321, column 71): " + [ v1.constructor.name ]);
+                      throw new Error("Failed pattern match at Game.Core (line 315, column 5 - line 319, column 71): " + [ v1.constructor.name ]);
                   });
               };
           };
@@ -9372,7 +9366,6 @@ var PS = {};
   var Data_Lens_Setter = $PS["Data.Lens.Setter"];
   var Data_Profunctor_Strong = $PS["Data.Profunctor.Strong"];
   var Data_String_Common = $PS["Data.String.Common"];
-  var Data_Unit = $PS["Data.Unit"];
   var Pha_Action = $PS["Pha.Action"];
   var Run = $PS["Run"];                
   var codeSequence = "ArrowUp ArrowUp ArrowDown ArrowDown ArrowLeft ArrowRight ArrowLeft ArrowRight b a";
@@ -9381,12 +9374,8 @@ var PS = {};
           return function (key) {
               return Control_Bind.bind(Run.bindRun)(Pha_Action.getState)(function (v) {
                   var seq = Data_Array.takeEnd(10)(Data_Function.flip(Data_Array.snoc)(key)(Data_Lens_Getter.viewOn(v)(lens(Data_Lens_Internal_Forget.strongForget))));
-                  return Control_Bind.bind(Run.bindRun)(Pha_Action["setState'"](Data_Lens_Setter.set(lens(Data_Profunctor_Strong.strongFn))(seq)))(function (v1) {
-                      var $4 = Data_String_Common.joinWith(" ")(seq) === codeSequence;
-                      if ($4) {
-                          return onActivation;
-                      };
-                      return Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit);
+                  return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Action.setState(Data_Lens_Setter.set(lens(Data_Profunctor_Strong.strongFn))(seq)))(function () {
+                      return Control_Applicative.when(Run.applicativeRun)(Data_String_Common.joinWith(" ")(seq) === codeSequence)(onActivation);
                   });
               });
           };
@@ -12922,7 +12911,7 @@ var PS = {};
               if ($30) {
                   return [  ];
               };
-              return [ Pha_Html.svg([ Pha_Html.width(Pha_Html.unittoStr)("100%"), Pha_Html.height(Pha_Html.unittoStr)("100%") ])([ Pha_Html.use(Pha_Html.unittoStr)(Pha_Html.unittoStr)(Pha_Html.unittoStr)(Pha_Html.unittoStr)("10%")("10%")("80%")("80%")("#piece-" + Data_Show.show(Game_Queens_Model.showPiece)(v.piece))([  ]) ]) ];
+              return [ Pha_Html.svg([ Pha_Html.width(Pha_Html.unittoStr)("100%"), Pha_Html.height(Pha_Html.unittoStr)("100%"), Pha_Html["class'"]("queens-piece")(true) ])([ Pha_Html.use(Pha_Html.unittoStr)(Pha_Html.unittoStr)(Pha_Html.unittoStr)(Pha_Html.unittoStr)("10%")("10%")("80%")("80%")("#piece-" + Data_Show.show(Game_Queens_Model.showPiece)(v.piece))([  ]) ]) ];
           })());
       };
   };
@@ -15056,7 +15045,7 @@ var PS = {};
       if (v instanceof Data_Maybe.Just) {
           return Data_Eq.notEq(Data_Maybe.eqMaybe(Data_Eq.eqInt))(Data_Array.index(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget)))(v.value0))(new Data_Maybe.Just(0)) || !Game_Core.canPlay(tilingGame)(state)(v.value0);
       };
-      throw new Error("Failed pattern match at Game.Tiling.Model (line 140, column 20 - line 142, column 77): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Tiling.Model (line 93, column 20 - line 95, column 77): " + [ v.constructor.name ]);
   };
   var setNbSinksA = Game_Core["newGame'"](tilingGame)(Data_Lens_Setter.set(_nbSinks(Data_Profunctor_Strong.strongFn)));
   var setTileA = function (ttype) {
@@ -15084,12 +15073,12 @@ var PS = {};
   exports["_tileType"] = _tileType;
   exports["_nbSinks"] = _nbSinks;
   exports["sinks"] = sinks;
+  exports["inConflict"] = inConflict;
   exports["setNbSinksA"] = setNbSinksA;
   exports["setTileA"] = setTileA;
   exports["clickOnCellA"] = clickOnCellA;
   exports["rotateA"] = rotateA;
   exports["setHoverSquareA"] = setHoverSquareA;
-  exports["inConflict"] = inConflict;
   exports["onKeyDown"] = onKeyDown;
   exports["flipTileA"] = flipTileA;
   exports["eqTileType"] = eqTileType;

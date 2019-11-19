@@ -211,8 +211,6 @@ playA move = lockAction $ do
             else 
                 pure unit
 
-
-
 -- affecte à true l'attribut locked avant le début de l'action act et l'affecte à false à la fin de l'action
 -- fonctionne sur toute la durée d'une action asynchrone
 -- ne fait rien si locked est déjà à true

@@ -32,7 +32,7 @@ square { piece, capturable, selected, nonavailable} props =
         class' "queens-square-nonavailable" nonavailable,
         class' "queens-square-selected" selected
     ]) $ if piece == Empty then [] else [
-        svg [width "100%", height "100%"] [
+        svg [width "100%", height "100%", class' "queens-piece" true] [
             use "10%" "10%" "80%" "80%" ("#piece-" <> show piece) []
         ]
     ]

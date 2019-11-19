@@ -88,6 +88,13 @@ canPutTile state = all \index -> state^._position !! index == Just 0
 sinks :: State -> Array Int
 sinks state = state^._position # mapWithIndex (\i v -> if v == -1 then Just i else Nothing) # catMaybes
 
+-- teste si la tuile que l'on souhaite poser à la position du pointeur est en conflit avec les pièces déjà posées
+inConflict :: State -> Boolean
+inConflict state = case state^._hoverSquare of
+    Nothing -> false
+    Just sqr -> state^._position !! sqr /= Just 0 || not (canPlay state sqr)
+
+
 instance tilingGame :: Game (Array Int) ExtState Int where
     canPlay state index = canPutTile state (placeTile state index) || (state^._position !! index # maybe false (_ > 0))
 
@@ -134,12 +141,6 @@ rotateA = setState (_rotation %~ add 1)
 
 setHoverSquareA :: ∀effs. Maybe Int -> Action State effs
 setHoverSquareA a = setState (_hoverSquare .~ a)
-
--- teste si la tuile que l'on souhaite poser à la position du pointeur est en conflit avec les pièces déjà posées
-inConflict :: State -> Boolean
-inConflict state = case state^._hoverSquare of
-    Nothing -> false
-    Just sqr -> state^._position !! sqr /= Just 0 || not (canPlay state sqr)
 
 onKeyDown :: ∀effs. String -> Action State effs
 onKeyDown " " = rotateA

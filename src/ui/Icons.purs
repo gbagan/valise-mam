@@ -49,7 +49,7 @@ iredo lens state =
         _{icon = I.IconSymbol "#undo",
             tooltip = Just "Rejoue le coup annulé",
             disabled = L.null (state^._redoHistory),
-            style = ["transform" ~ "scaleX(-1)"]}
+            style = ["transform" ∧ "scaleX(-1)"]}
         [click $ lens 🔍 redoA]
 
 ireset :: ∀pos ext a. Lens' a (GState pos ext) -> GState pos ext -> VDom a EFFS
@@ -102,7 +102,7 @@ iconSizesGroup :: ∀a pos ext mov. Game pos ext mov =>
     Lens' a (GState pos ext) -> GState pos ext -> Array (Tuple Int Int) -> Boolean -> VDom a EFFS
 iconSizesGroup lens state sizeList customSize =
     icongroup "Dimensions de la grille" $
-        (sizeList <#> \(rows ~ cols) ->
+        (sizeList <#> \(rows ∧ cols) ->
             iconbutton state _{
                 icon = I.IconText $ show rows <> "x" <> show cols,
                 selected = rows == crows && cols == ccols && not csize

@@ -84,7 +84,7 @@ istate = genState [] identity (Ext { graphIndex: 0, graph: house})
 -- l'ensemble des arêtes composoant un chemin contenant potentiellement des levés de crayon
 edgesOf :: Array (Maybe Int) -> Array Edge
 edgesOf = mapMaybe toEdge ∘ pairwise where
-    toEdge (Just u ~ Just v) = Just (u ↔ v)
+    toEdge (Just u ∧ Just v) = Just (u ↔ v)
     toEdge _ = Nothing
 
 instance gameDessin :: Game (Array (Maybe Int)) ExtState (Maybe Int) where
@@ -101,7 +101,7 @@ instance gameDessin :: Game (Array (Maybe Int)) ExtState (Maybe Int) where
     isLevelFinished state = length (edgesOf (state^._position)) == length (state^._graph).edges
     computerMove _ = Nothing
     sizeLimit = defaultSizeLimit
-    updateScore st = st ~ true
+    updateScore st = st ∧ true
 
 -- nombre de levés de crayon déjà effectués
 nbRaises :: State -> Int

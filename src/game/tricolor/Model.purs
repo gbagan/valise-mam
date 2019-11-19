@@ -49,7 +49,7 @@ instance tricolorGame :: Game (Array Int) ExtState Int where
     onNewGame = pure
     computerMove = const Nothing
     sizeLimit = defaultSizeLimit
-    updateScore st = st ~ true 
+    updateScore st = st ∧ true 
     
 setSizeA :: ∀effs. Int -> Action State (rng :: RNG | effs)
 setSizeA = newGame' (set _size)

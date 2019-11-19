@@ -89,7 +89,7 @@ instance solitaireGame :: Game (Array Boolean) ExtState {from :: Int, to :: Int}
 
     play state move@{from, to} = case betweenMove2 state move of
         Nothing -> state^._position
-        Just between -> state^._position # updateAtIndices [from ~ false, between ~ false, to ~ true]
+        Just between -> state^._position # updateAtIndices [from ∧ false, between ∧ false, to ∧ true]
 
     initialPosition = pure ∘ view _position
 

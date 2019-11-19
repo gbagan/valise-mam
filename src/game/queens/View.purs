@@ -44,7 +44,7 @@ view lens state = template lens _{config=config, board=board, rules=rules, custo
     columns = state^._nbColumns
         
     config = card "Les reines" [
-        iconSizesGroup lens state [4~4, 5~5, 7~7, 8~8] true,
+        iconSizesGroup lens state [4∧4, 5∧5, 7∧7, 8∧8] true,
         iconSelectGroupM lens state "Pièces disponibles" piecesList (state^._allowedPieces) selectAllowedPieceA \piece ->
             _{icon = IconSymbol $ "#piece-" <> show piece, tooltip = Just $ tooltip piece},
         icongroup "Options" $ [
@@ -118,7 +118,7 @@ view lens state = template lens _{config=config, board=board, rules=rules, custo
                     iconbutton state _{
                         selected = selected,
                         icon = if i == 4 then IconNone else IconSymbol "#arrow",
-                        style = ["transform" ~ ("rotate(" <> show angle <> "deg)")]
+                        style = ["transform" ∧ ("rotate(" <> show angle <> "deg)")]
                     } [
                         key $ show i,
                         click $ if i /= 4 then lens 🔍 flipDirectionA i else pure unit

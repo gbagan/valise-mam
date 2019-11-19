@@ -62,6 +62,6 @@ moveObjectA :: ∀effs. Action State (pointer :: POINTER | effs)
 moveObjectA = do
     state <- getState
     pos <- getPointerPosition
-    case state.drag ~ pos of
-        Just {name, x: x2, y: y2} ~ Just {x, y} -> setState $ _positions ∘ at name .~ Just {x: x-x2, y:y-y2}
+    case state.drag ∧ pos of
+        Just {name, x: x2, y: y2} ∧ Just {x, y} -> setState $ _positions ∘ at name .~ Just {x: x-x2, y:y-y2}
         _ -> pure unit

@@ -39,7 +39,7 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
 
 
     config = card "Carrelage" [
-        iconSizesGroup lens state [4~5, 5~5, 5~6, 7~7] true,
+        iconSizesGroup lens state [4∧5, 5∧5, 5∧6, 7∧7] true,
         iconSelectGroup lens state "Motif du pavé" [Type1, Type2, Type3, CustomTile] (state^._tileType) setTileA \t ->
             _{icon = IconSymbol ("#" <> show t)},  --- custom
         iconSelectGroup lens state "Nombre d'éviers" [0, 1, 2] (state^._nbSinks) setNbSinksA (const identity),

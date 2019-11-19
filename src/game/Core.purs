@@ -197,7 +197,7 @@ playA move = lockAction $
     whenM (getState <#> flip canPlay move) do
         st2 <- setState' (playAux move ∘ pushToHistory)
         if isLevelFinished st2 then do
-            let st3 ~ isNewRecord = updateScore st2
+            let st3 ∧ isNewRecord = updateScore st2
             setState \_ -> st3
             when isNewRecord showVictory
         else if st2^._mode == ExpertMode || st2^._mode == RandomMode then do
@@ -302,8 +302,8 @@ updateScore' strat state =
         oldScore = bestScore state
         isNewRecord = maybe true (cmp score ∘ fst) oldScore
         isNewRecord' = isNewRecord && strat == ShowWinOnNewRecord || strat == AlwaysShowWin
-        st2 = state # (_scores <<< at hash) %~ if isNewRecord then \_ -> Just (score ~ (state^._position)) else identity
-    in st2 ~ isNewRecord'
+        st2 = state # (_scores <<< at hash) %~ if isNewRecord then \_ -> Just (score ∧ (state^._position)) else identity
+    in st2 ∧ isNewRecord'
 
 bestScore :: ∀pos ext mov. ScoreGame pos ext mov => GState pos ext -> Maybe (Tuple Int pos)
 bestScore state = state ^. (_scores ∘ at (scoreHash' state))

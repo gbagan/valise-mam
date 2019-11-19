@@ -17,7 +17,7 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
     rows = state^._nbRows
 
     config = card "Jeu des jetons" [
-        iconSizesGroup lens state [2~2, 4~4, 5~5, 6~6] true,
+        iconSizesGroup lens state [2∧2, 4∧4, 5∧5, 6∧6] true,
         icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x lens state,
         iconBestScore lens state
     ]

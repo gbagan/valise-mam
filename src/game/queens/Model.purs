@@ -88,7 +88,7 @@ attackedBy state piece index =
 capturableSquares :: State -> Array Boolean
 capturableSquares state = state^._position # mapWithIndex Tuple
     # foldr
-        (\(index ~ piece) -> if piece == Empty then identity else zipWith disj (attackedBy state piece index))
+        (\(index ∧ piece) -> if piece == Empty then identity else zipWith disj (attackedBy state piece index))
         (replicate (state^._nbRows * state^._nbColumns) false)
 
 attackedBySelected :: State -> Array Boolean

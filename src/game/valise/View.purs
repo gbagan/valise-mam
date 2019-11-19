@@ -93,8 +93,8 @@ valise lens state = svg [
     object {drag, link, help, symbol} x' y' w' h' props children =
         let defaultTranslate = translate (pc $ toNumber x' / 850.0)  (pc $ toNumber y' / 690.0) in
         g [style "transform" $ 
-            case drag ~ (state ^. _positions ^. at symbol) of
-                true ~ Just {x: x2, y: y2} -> translate (pc x2) (pc y2)    
+            case drag ∧ (state ^. _positions ^. at symbol) of
+                true ∧ Just {x: x2, y: y2} -> translate (pc x2) (pc y2)    
                 _ -> defaultTranslate
         ] [
             g props [

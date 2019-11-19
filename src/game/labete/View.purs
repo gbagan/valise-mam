@@ -74,16 +74,16 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
             CylinderMode -> _{icon = IconSymbol "#grid-cylinder", tooltip = Just "Cylindrique"}
             TorusMode -> _{icon = IconSymbol "#grid-torus", tooltip = Just "Torique"},
 
-        iconSizesGroup lens state [3~3, 5~5, 6~6] true,
+        iconSizesGroup lens state [3∧3, 5∧5, 6∧6] true,
 
         icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state,
         iconBestScore lens state
     ]
 
     rules = [
-        text "Place le moins de pièges possible pour empécher la bête d\'abimer ta belle pelouse!", br,
+        text "Place le moins de pièges possible pour empécher la bête d'abimer ta belle pelouse!", br,
         text "Tu peux choisir de jouer avec des bêtes de différentes formes comme celles préfinies dans 'Forme de la bête'", br,
-        text "Dans le dernier choix, la bête peut prendre soit une ou l\'autre des formes indiquées.", br,
+        text "Dans le dernier choix, la bête peut prendre soit une ou l'autre des formes indiquées.", br,
         text "Le plateau de jeu peut prendre une grille, un cylindre ou un tore"
     ]
 

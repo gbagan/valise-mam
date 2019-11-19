@@ -85,7 +85,7 @@ instance pathGame :: Game (Array Int) Ext Int where
 
     computerMove _ = Nothing
     sizeLimit _ = SizeLimit 2 2 9 9
-    updateScore st = st ~ true
+    updateScore st = st ∧ true
 
 selectVertexA :: ∀effs. Int -> Action State (rng :: RNG, delay :: DELAY | effs)
 selectVertexA v = do

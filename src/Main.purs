@@ -212,8 +212,8 @@ main = app {
     init,
     node: "root",
     events: [
-        "keydown" ~ onKeyDown,
-        "hashchange" ~ hashChange
+        "keydown" ∧ onKeyDown,
+        "hashchange" ∧ hashChange
     ],
     effects: interpretEffects
 }

@@ -10575,7 +10575,7 @@ var PS = {};
                   col2: v2.col
               }))(state)));
           };
-          throw new Error("Failed pattern match at Game.Labete.Model (line 211, column 41 - line 218, column 44): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Labete.Model (line 212, column 41 - line 219, column 44): " + [ v.constructor.name ]);
       });
   };
   var startZoneA = function (pos) {

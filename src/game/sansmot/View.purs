@@ -15,7 +15,7 @@ defaultStyle :: ∀a effs. Array (Prop a effs)
 defaultStyle = [style "transform" "translate(0px, 0px)"]
 
 compStyle :: ∀a effs. Number -> Number -> {rotation :: Int, translation :: Tuple Int Int, duration :: Int} -> Array (Prop a effs)
-compStyle width height { rotation, translation: x ~ y, duration} = [
+compStyle width height { rotation, translation: x ∧ y, duration} = [
     style "transform" $ 
         translate (pc $ toNumber x / width) (pc $ toNumber y / height),
     style "transition" $ "transform linear " <> show duration <> "ms"
@@ -23,20 +23,20 @@ compStyle width height { rotation, translation: x ~ y, duration} = [
 
 pythaStyles :: ∀a effs. M.Map String (Array (Array (Prop a effs)))
 pythaStyles = M.fromFoldable [
-    "a" ~ [[opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 400 ~ (-100), rotation: 0, duration: 600 }],
-    "b" ~ [[opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 600 ~ 0,      rotation: 0, duration: 600 }],
-    "c" ~ [[opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 400 ~ 0,      rotation: 0, duration: 600 }],
-    "d" ~ [[opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 300 ~ 200,    rotation: 0, duration: 600 }],
-    "e" ~ [[opacity "0"], []]
+    "a" ∧ [[opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 400 ∧ (-100), rotation: 0, duration: 600 }],
+    "b" ∧ [[opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 600 ∧ 0,      rotation: 0, duration: 600 }],
+    "c" ∧ [[opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 400 ∧ 0,      rotation: 0, duration: 600 }],
+    "d" ∧ [[opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 300 ∧ 200,    rotation: 0, duration: 600 }],
+    "e" ∧ [[opacity "0"], []]
 ]
 
 carollStyles :: ∀a effs. M.Map String (Array (Array (Prop a effs)))
 carollStyles = M.fromFoldable [
-    "a" ~ [defaultStyle, compStyle 1370.0 270.0 { translation: 300 ~ 150, rotation: 0, duration: 600 }],
-    "b" ~ [defaultStyle, compStyle 1370.0 270.0 { translation: 550 ~ 50,   rotation: 0, duration: 600 }],
-    "c" ~ [defaultStyle, compStyle 1370.0 270.0 { translation: 700 ~ 0,       rotation: 0, duration: 600 }],
-    "d" ~ [defaultStyle, compStyle 1370.0 270.0 { translation: 950 ~ (-100),     rotation: 0, duration: 600 }],
-    "e" ~ [[opacity "0"], []]
+    "a" ∧ [defaultStyle, compStyle 1370.0 270.0 { translation: 300 ∧ 150, rotation: 0, duration: 600 }],
+    "b" ∧ [defaultStyle, compStyle 1370.0 270.0 { translation: 550 ∧ 50,   rotation: 0, duration: 600 }],
+    "c" ∧ [defaultStyle, compStyle 1370.0 270.0 { translation: 700 ∧ 0,       rotation: 0, duration: 600 }],
+    "d" ∧ [defaultStyle, compStyle 1370.0 270.0 { translation: 950 ∧ (-100),     rotation: 0, duration: 600 }],
+    "e" ∧ [[opacity "0"], []]
 ]
 
 

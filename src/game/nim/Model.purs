@@ -32,28 +32,28 @@ instance nimGame :: Game (Array (Tuple Int Int)) ExtState Move where
     canPlay state (Move pile pos) =
         case state^._position !! pile of
             Nothing -> false 
-            Just (p1 ~ p2) -> pos /= p1 && pos /= p2 && if state^._turn == Turn1 then pos < p2 else pos > p1
+            Just (p1 ∧ p2) -> pos /= p1 && pos /= p2 && if state^._turn == Turn1 then pos < p2 else pos > p1
 
     play state (Move pile pos) = 
         state ^. _position # ix pile %~
-            \(p1 ~ p2) -> if state^._turn == Turn1 then pos ~ p2 else p1 ~ pos
+            \(p1 ∧ p2) -> if state^._turn == Turn1 then pos ∧ p2 else p1 ∧ pos
     
     isLevelFinished state = state^._position # all
-        \(p1 ~ p2) -> p2 - p1 == 1 && p1 == (if state^._turn == Turn2 then state^._length - 2 else 0)
+        \(p1 ∧ p2) -> p2 - p1 == 1 && p1 == (if state^._turn == Turn2 then state^._length - 2 else 0)
 
     initialPosition state = 
         sequence $ replicate (state^._nbPiles) $
             if state^._length == 5 then
-                pure (0 ~ 4)
+                pure (0 ∧ 4)
             else do 
                 x <- randomInt 5
                 y <- randomInt 5
-                pure (x ~ y + 5)
+                pure (x ∧ (y + 5))
 
     computerMove = computerMove'
     sizeLimit = defaultSizeLimit
     onNewGame = defaultOnNewGame
-    updateScore st = st ~ true
+    updateScore st = st ∧ true
 
 instance nimGame2 :: TwoPlayersGame (Array (Tuple Int Int)) ExtState Move where
     possibleMoves state =

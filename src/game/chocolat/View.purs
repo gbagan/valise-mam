@@ -24,7 +24,7 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
     {col: soapCol, row: soapRow} = state^._soap
 
     config = card "Barre de chocolat" [
-        iconSizesGroup lens state [6~7] true,
+        iconSizesGroup lens state [6∧7] true,
         iconSelectGroup lens state "Emplacement du savon" [CornerMode, BorderMode, StandardMode] 
             (state^._soapMode) setSoapModeA \mode opt -> case mode of
                 CornerMode -> opt{icon = IconSymbol "#choc-mode0", tooltip = Just "Dans le coin"}

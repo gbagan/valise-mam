@@ -33,7 +33,7 @@ spiral center startRadius radiusStep startTheta endTheta thetaStep =
         in { point, slope, intercept }
     )
     # pairwise
-    # mapWithIndex (\i (a ~ b) ->
+    # mapWithIndex (\i (a ∧ b) ->
         let { x, y } = lineIntersection a.slope a.intercept b.slope b.intercept
             p = ["Q", show $ x + center.x, show $ y + center.y, show $ b.point.x, show b.point.y]
         in

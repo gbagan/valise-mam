@@ -46,7 +46,7 @@ view lens state = template lens _{config=config, board=board, rules=rules} state
         iconSelectGroup lens state "Mode de jeu" [Mode1, Mode2] (state^._mode) selectModeA case _ of
             Mode1 -> _{icon = IconSymbol "#paths-mode0", tooltip = Just "Mode 1"}
             Mode2 -> _{icon = IconSymbol "#paths-mode1", tooltip = Just "Mode 2"},
-        iconSizesGroup lens state [4~6, 5~5, 3~8] true,
+        iconSizesGroup lens state [4∧6, 5∧5, 3∧8] true,
         icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x lens state
     ]
 

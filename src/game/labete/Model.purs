@@ -187,7 +187,7 @@ zoneposition columns {row1, col1, row2, col2} =
 colorZone :: State -> Zone -> Array Int
 colorZone state zone = state^._squareColors # updateAtIndices ( 
     zoneposition (state^._nbColumns) zone
-    <#> \i -> i ~ (state^._selectedColor)
+    <#> \i -> i ∧ (state^._selectedColor)
 )
 
 incSelectedColorA :: ∀effs. Int -> Action State effs
@@ -200,10 +200,11 @@ onKeyDown _ = pure unit
 
 -- le début d'une zone est décomposé en deux actions
 -- startZoneA est activé lors  du pointerdown sur l'élément html réprésentant le carré
--- et startZone2A est appliqué lors du pointerdown sur l'élément html réprésentant le plateu
+
 startZoneA :: ∀effs. Int -> Action State effs
 startZoneA pos = setState (_startSquare .~ Just pos)
 
+-- startZone2A est appliqué lors du pointerdown sur l'élément html réprésentant le plateu
 startZone2A :: ∀effs. Action State (pointer :: POINTER | effs)
 startZone2A = getPointerPosition >>= \pos -> setState (_startPointer .~ pos)
 

@@ -1,4 +1,4 @@
-module Game.Baseball where
+module Game.Baseball (State, state) where
 import MyPrelude
 import Pha.Action ((🔍))
 import Game (class CGame)

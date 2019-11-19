@@ -1,4 +1,4 @@
-module Game.Chocolat where
+module Game.Chocolat (State, state) where
 import MyPrelude
 import Pha.Action ((🔍))
 import Game (class CGame)

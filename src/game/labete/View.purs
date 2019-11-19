@@ -1,4 +1,4 @@
-module Game.Labete.View where
+module Game.Labete.View (view) where
 
 import MyPrelude
 import Lib.Util (coords, map3)

@@ -1,4 +1,4 @@
-module Game.Frog.View where
+module Game.Frog.View (view) where
 
 import MyPrelude
 import Lib.Util (map2, tabulate, pairwise, floatRange)

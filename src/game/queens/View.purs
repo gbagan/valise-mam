@@ -1,4 +1,4 @@
-module Game.Queens.View where
+module Game.Queens.View (view) where
 
 import MyPrelude
 import Lib.Util (map2, map3)

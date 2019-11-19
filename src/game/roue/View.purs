@@ -6,7 +6,7 @@ import Game.Effs (EFFS)
 import Game.Core (PointerPosition, _position, _pointer, _locked)
 import Game.Roue.Model (State, Location(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, deleteDraggedA,
                         aligned, validRotation, validRotation')
-import Pha (VDom, text, maybeN)
+import Pha (VDom, text, ifN, maybeN)
 import Pha.Action ((🔍))
 import Pha.Html (div', button, span, svg, path, key, class', pc, click, pointerup, style, disabled, viewBox, fill, stroke)
 import UI.Template (template, card, dndBoardProps, dndItemProps)
@@ -101,11 +101,13 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
                 click $ lens 🔍 rotateA (-1)
             ] [text "↶"]],
             take size colors # mapWithIndex \i color ->
-                    div' ([
-                        class' "roue-select-color ui-flex-center" true,
-                        style "background-color" color
-                    ] <> dndItemProps lens _dragged true false (Panel i) state)
-                        (if elem (Just i) position then [span [] $ [text "✓"]] else []),
+                div' ([
+                    class' "roue-select-color ui-flex-center" true,
+                    style "background-color" color
+                ] <> dndItemProps lens _dragged true false (Panel i) state) [
+                    ifN (elem (Just i) position) \_ ->
+                        span [] [text "✓"]
+                ],
             [button [
                 class' "ui-button ui-button-primary roue-button" true,
                     disabled $ state^._locked,

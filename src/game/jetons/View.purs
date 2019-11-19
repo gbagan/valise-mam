@@ -1,4 +1,4 @@
-module Game.Jetons.View where
+module Game.Jetons.View (view) where
 
 import MyPrelude
 import Pha (VDom, text, ifN, maybeN)

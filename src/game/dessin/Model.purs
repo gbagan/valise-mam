@@ -81,7 +81,7 @@ _graph = _ext' ∘ lens _.graph _{graph = _}
 istate :: State
 istate = genState [] identity (Ext { graphIndex: 0, graph: house})
 
--- l'ensemble des arêtes composoant un chemin contenant potentiellement des levés de crayon
+-- l'ensemble des arêtes compososant un chemin contenant potentiellement des levés de crayon
 edgesOf :: Array (Maybe Int) -> Array Edge
 edgesOf = mapMaybe toEdge ∘ pairwise where
     toEdge (Just u ∧ Just v) = Just (u ↔ v)

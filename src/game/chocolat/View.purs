@@ -1,4 +1,4 @@
-module Game.Chocolat.View where
+module Game.Chocolat.View  (view) where
   
 import MyPrelude
 import Lib.Util (tabulate2)

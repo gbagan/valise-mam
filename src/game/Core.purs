@@ -5,7 +5,7 @@ import Data.List (last, null) as L
 import Data.Array.NonEmpty (fromArray, toArray) as N
 import Data.Map (Map, empty) as M
 import Lib.Random (Random, randomPick)
-import Pha.Action (Action, delay, DELAY, RNG, getState, setState, setState', randomAction, randomAction')
+import Pha.Action (Action, delay, DELAY, RNG, getState, setState, randomAction, runRng)
 import Control.Alt ((<|>))
 
 -- ConfirmNewGame contient le futur state si l'utilisateur valide de commencer une nouvelle partie
@@ -56,6 +56,7 @@ defaultCoreState p = {
     pointer: Nothing
 }
 
+-- fonction pour faciliter la création d'un état initial
 genState :: ∀pos ext. pos -> (CoreState pos ext -> CoreState pos ext) -> ext -> GState pos ext
 genState p f ext = State (f $ defaultCoreState p) ext
 
@@ -161,14 +162,13 @@ resetA = setState \state -> case L.last (state^._history) of
 toggleHelpA :: ∀pos ext effs. Action (GState pos ext) effs
 toggleHelpA = setState (_help %~ not)
 
-playAux :: ∀pos ext mov. Game pos ext mov => mov -> GState pos ext -> GState pos ext
+playAux :: ∀pos ext mov. Game pos ext mov => mov -> GState pos ext -> Maybe (GState pos ext)
 playAux move state =
     if canPlay state move then
-        let position = state^._position in
-        state # _position .~ play state move
-              # _turn %~ oppositeTurn
+        Just $ state # _position .~ play state move
+                     # _turn %~ oppositeTurn
     else
-        state
+        Nothing
 
 -- met dans l'historique la position actuelle
 pushToHistory :: ∀pos ext. GState pos ext -> GState pos ext
@@ -185,40 +185,46 @@ computerPlay = do
     state <- getState
     case computerMove state of
         Nothing -> pure unit
-        Just move -> do
-            st2 <- randomAction' (\st -> move <#> flip playAux st)
-            when (isLevelFinished st2) showVictory
+        Just rndmove ->
+            runRng (flip playAux state <$> rndmove) >>= case _ of
+                Nothing -> pure unit
+                Just st2 -> do
+                    setState \_ -> st2
+                    when (isLevelFinished st2) showVictory
 
 computerStartsA :: ∀pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
 computerStartsA = setState (pushToHistory ∘ (_turn %~ oppositeTurn)) *> computerPlay
 
 playA :: ∀pos ext mov effs. Game pos ext mov => mov -> Action (GState pos ext) (delay :: DELAY, rng :: RNG | effs)
-playA move = lockAction $
-    whenM (getState <#> flip canPlay move) do
-        st2 <- setState' (playAux move ∘ pushToHistory)
-        if isLevelFinished st2 then do
-            let st3 ∧ isNewRecord = updateScore st2
-            setState \_ -> st3
-            when isNewRecord showVictory
-        else if st2^._mode == ExpertMode || st2^._mode == RandomMode then do
-            delay 1000
-            computerPlay
-        else 
-            pure unit
+playA move = lockAction $ do
+    state <- getState
+    case playAux move $ pushToHistory $ state of
+        Nothing -> pure unit
+        Just st2 -> do
+            setState \_ -> st2
+            if isLevelFinished st2 then do
+                let st3 ∧ isNewRecord = updateScore st2
+                setState \_ -> st3
+                when isNewRecord showVictory
+            else if st2^._mode == ExpertMode || st2^._mode == RandomMode then
+                delay 1000 *> computerPlay
+            else 
+                pure unit
 
 
 
 -- affecte à true l'attribut locked avant le début de l'action act et l'affecte à false à la fin de l'action
 -- fonctionne sur toute la durée d'une action asynchrone
+-- ne fait rien si locked est déjà à true
 lockAction :: ∀pos ext effs. Action (GState pos ext) effs -> Action (GState pos ext) effs 
 lockAction act = unlessM (view _locked <$> getState) do
         setState (_locked .~ true)
         act
         setState (_locked .~ false)
 
-newGameAux :: ∀pos ext mov. Game pos ext mov =>
-    (GState pos ext -> GState pos ext) -> (GState pos ext) -> Random (GState pos ext)
-newGameAux f state = do
+newGame :: ∀pos ext mov effs. Game pos ext mov =>
+    (GState pos ext -> GState pos ext) -> Action (GState pos ext) (rng :: RNG | effs)
+newGame f = randomAction \state -> do
     let state2 = f state
     state3 <- onNewGame state2
     position <- initialPosition state3
@@ -234,13 +240,9 @@ newGameAux f state = do
     else
         pure $ _dialog .~ ConfirmNewGame state4 $ state
 
-newGame :: ∀pos ext mov effs. Game pos ext mov =>
-    (GState pos ext -> GState pos ext) -> Action (GState pos ext) (rng :: RNG | effs)
-newGame f = randomAction $ newGameAux f
-
 newGame' :: ∀a pos ext mov effs. Game pos ext mov =>
     (a -> GState pos ext -> GState pos ext) -> a -> Action (GState pos ext) (rng :: RNG | effs)
-newGame' f val = newGame $ f val
+newGame' f val = newGame (f val)
 
 init :: ∀pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG | effs)
 init = newGame identity
@@ -276,7 +278,7 @@ computerMove' state =
                     if state^._mode == RandomMode then
                         Nothing
                     else
-                        moves # N.toArray # find (isLosingPosition ∘ flip playAux state)
+                        moves # N.toArray # find (maybe false isLosingPosition <<< flip playAux state)
                 ) in
                     (bestMove <#> pure) <|> Just (randomPick moves)
 

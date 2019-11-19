@@ -1,4 +1,4 @@
-module Game.Noirblanc where
+module Game.Noirblanc (State, state) where
 import MyPrelude
 import Pha.Action ((🔍))
 import Game (class CGame)

@@ -135,6 +135,7 @@ rotateA = setState (_rotation %~ add 1)
 setHoverSquareA :: ∀effs. Maybe Int -> Action State effs
 setHoverSquareA a = setState (_hoverSquare .~ a)
 
+-- teste si la tuile que l'on souhaite poser à la position du pointeur est en conflit avec les pièces déjà posées
 inConflict :: State -> Boolean
 inConflict state = case state^._hoverSquare of
     Nothing -> false
@@ -145,7 +146,7 @@ onKeyDown " " = rotateA
 onKeyDown _ = pure unit
 
 flipTileA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-flipTileA index = newGame $ (_tile ∘ _isoCustom ∘ ix index) %~ not
+flipTileA index = newGame $ _tile ∘ _isoCustom ∘ ix index %~ not
 
 {-            
 const configHash = state => `${state.rows}-${state.columns}-${state.tileIndex}-${state.nbSinks}`

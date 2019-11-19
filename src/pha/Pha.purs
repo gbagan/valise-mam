@@ -2,7 +2,7 @@ module Pha where
 
 import Prelude
 import Effect (Effect)
-import Pha.Action (Action, Event, GetStateF(..), SetStateF(..))
+import Pha.Action (Action, Event, GetState(..), SetState(..))
 import Data.Maybe (Maybe, fromMaybe)
 import Data.Tuple (Tuple)
 import Run (VariantF, runCont, onMatch)

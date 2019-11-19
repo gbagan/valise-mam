@@ -5,7 +5,7 @@ import Lib.Util (tabulate2)
 import Pha.Action (Action)
 import Lib.Random (randomInt)
 import Game.Effs (EFFS)
-import Game.Core (class Game, class TwoPlayersGame, GState(..), Mode(..), Turn(..),
+import Game.Core (class Game, class TwoPlayersGame, GState, Mode(..), Turn(..),
                 _ext, genState, newGame', canPlay, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
 
 data Move = Move Int Int  --- pile et position dans la pile

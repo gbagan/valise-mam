@@ -1,4 +1,4 @@
-module Game.Paths where
+module Game.Paths (State, state) where
 import MyPrelude
 import Pha.Action ((🔍))
 import Game (class CGame)

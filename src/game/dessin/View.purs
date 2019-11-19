@@ -1,4 +1,4 @@
-module Game.Dessin.View where
+module Game.Dessin.View (view) where
 import MyPrelude
 import Pha (VDom, text, maybeN)
 import Pha.Action ((🔍))

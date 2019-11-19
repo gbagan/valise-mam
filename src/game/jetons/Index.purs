@@ -1,4 +1,4 @@
-module Game.Jetons where
+module Game.Jetons (State, state) where
 import MyPrelude
 import Pha.Action ((🔍))
 import Game (class CGame)

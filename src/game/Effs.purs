@@ -1,11 +1,11 @@
-module Game.Effs (EFFS, LOCATION, Location, getLoc, getLocation, GetLocationF, GetPointerF, POINTER, Position, getPointerPosition,
-                  EVENTEFF, EventEffF, preventDefault, releasePointerCapture, interpretEffects, module A) where
+module Game.Effs (EFFS, LOCATION, Location, getLocation, GetLocation, GetPointer, POINTER, Position, getPointerPosition,
+                  EVENTEFF, EventEff, preventDefault, releasePointerCapture, interpretEffects, module A) where
 import MyPrelude
 import Effect (Effect)
 import Lib.Random (genSeed)
 import Run (FProxy, Run, SProxy(..), lift, match)
 import Pha (InterpretEffs)
-import Pha.Action (DELAY, DelayF(..), RNG, RngF(..), GetEventF(..), getEvent, EVENT, delay, getState, setState, setState', Event) as A
+import Pha.Action (DELAY, Delay(..), RNG, Rng(..), GetEvent(..), getEvent, EVENT, delay, getState, setState, setState', Event) as A
 import Pha.Event (preventDefault) as E
 
 type Location = {
@@ -21,25 +21,25 @@ type Location = {
     origin :: String
 }
 
-data GetLocationF a = GetLocation (Location -> a)
-derive instance functorLoc :: Functor GetLocationF
-type LOCATION = FProxy GetLocationF
+data GetLocation a = GetLocation (Location -> a)
+derive instance functorLoc :: Functor GetLocation
+type LOCATION = FProxy GetLocation
 getLocation :: ∀r. Run (location :: LOCATION | r) Location
 getLocation = lift (SProxy :: SProxy "location") (GetLocation identity)
 
 type Position = {x :: Number, y :: Number}
 
-data GetPointerF a = GetPointer (Maybe Position -> a)
-derive instance functorPointer :: Functor GetPointerF
-type POINTER = FProxy GetPointerF
+data GetPointer a = GetPointer (Maybe Position -> a)
+derive instance functorPointer :: Functor GetPointer
+type POINTER = FProxy GetPointer
 getPointerPosition :: ∀r. Run (pointer :: POINTER | r) (Maybe Position)
 getPointerPosition = lift (SProxy :: SProxy "pointer") (GetPointer identity)
 
 data EventEffect = PreventDefault | ReleasePointerCapture
 
-data EventEffF a = EventEff EventEffect a
-derive instance functorEvEff :: Functor EventEffF
-type EVENTEFF = FProxy EventEffF
+data EventEff a = EventEff EventEffect a
+derive instance functorEvEff :: Functor EventEff
+type EVENTEFF = FProxy EventEff
 eventEff :: ∀r. EventEffect -> Run (eventEff :: EVENTEFF | r) Unit
 eventEff e = lift (SProxy :: SProxy "eventEff") (EventEff e unit)
 

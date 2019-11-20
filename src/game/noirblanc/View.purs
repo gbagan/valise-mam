@@ -7,7 +7,7 @@ import Pha.Action ((🔍))
 import Pha.Html (div', svguse, class', pc, key, style, click)
 import Game.Core (_position, _nbRows, _nbColumns, _help)
 import Game.Effs (EFFS)
-import Game.Noirblanc.Model (State, _level, _mode2, _maxLevels, play2A, selectLevelA, selectModeA)
+import Game.Noirblanc.Model (State, _level, _mode, _maxLevels, play2A, selectLevelA, selectModeA)
 import UI.Icon (Icon(..), Options)
 import UI.Icons (icongroup, ihelp, ireset, irules, iconSelectGroup)
 import UI.Template (template, card, incDecGrid, gridStyle)
@@ -42,19 +42,17 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
     position = state^._position
 
     config = card "Tout noir tout blanc" [
-        iconSelectGroup lens state "Mode jeu" [0, 1, 2, 3] (state^._mode2) selectModeA \i ->
+        iconSelectGroup lens state "Mode jeu" [0, 1, 2, 3] (state^._mode) selectModeA \i ->
             _{icon = IconSymbol $ "#lo-mode" <> show (i + 1)},
         iconSelectGroup lens state "Difficulté" [0, 1, 2, 3, 4, 5, 6] (state^._level) selectLevelA \i ->
-            levelOptions i (Just i > (state^._maxLevels) !! (state^._mode2)),
+            levelOptions i (Just i > (state^._maxLevels) !! (state^._mode)),
         icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state
     ]
 
     grid = div' ([class' "ui-board" true] <> gridStyle rows columns 4) $
         map2 position.light position.played \index light played ->
             let {row, col} = coords columns index in
-            square 
-                light
-                (state^._help && played) [
+            square light (state^._help && played) [
                 key $ show index,
                 style "height" $ pc (0.86 / toNumber rows),
                 style "width" $ pc (0.86 / toNumber columns),

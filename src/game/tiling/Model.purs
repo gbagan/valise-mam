@@ -104,7 +104,7 @@ instance tilingGame :: Game (Array Int) ExtState Int where
         in
         if canPutTile state tilePos then
             let m = (foldr max 0 pos) + 1 in
-            pos # mapWithIndex \i x -> if elem i tilePos then m else x
+            pos # updateAtIndices (tilePos <#> (_ ∧ m))
         else
             pos <#> \x -> if Just x == pos !! index then 0 else x
 
@@ -120,7 +120,7 @@ instance tilingGame :: Game (Array Int) ExtState Int where
   
 
 putSinkA :: ∀effs. Int -> Action State effs
-putSinkA i = setState $ (_position ∘ ix i) .~ (-1)
+putSinkA i = setState $ _position ∘ ix i .~ (-1)
 
 setNbSinksA :: ∀effs. Int -> Action State (rng :: RNG | effs)
 setNbSinksA = newGame' (set _nbSinks)

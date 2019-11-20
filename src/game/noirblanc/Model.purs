@@ -1,6 +1,5 @@
 module Game.Noirblanc.Model where
 import MyPrelude
-import Data.Array (modifyAtIndices)
 import Lib.Random (Random, randomInt)
 import Lib.Util (dCoords)
 import Lib.KonamiCode (konamiCode)
@@ -26,14 +25,18 @@ istate = genState {light: [], played: []} identity (Ext { level: 0, mode: 0, max
 -- lenses
 _ext' :: Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) -> a) Ext
-_mode2 :: Lens' State Int
-_mode2 = _ext' ∘ lens _.mode _{mode = _}
+_mode :: Lens' State Int
+_mode = _ext' ∘ lens _.mode _{mode = _}
 _level :: Lens' State Int
 _level = _ext' ∘ lens _.level _{level = _}
 _maxLevels :: Lens' State (Array Int)
 _maxLevels = _ext' ∘ lens _.maxLevels _{maxLevels = _}
 _keySequence :: Lens' State (Array String)
 _keySequence = _ext' ∘ lens _.keySequence _{keySequence = _}
+_light :: Lens' Position (Array Boolean)
+_light = lens _.light _{light = _}
+_played :: Lens' Position (Array Boolean)
+_played = lens _.played _{played = _}
 
 neighbor :: State -> Int -> Int -> Boolean
 neighbor state index1 index2 =
@@ -41,7 +44,7 @@ neighbor state index1 index2 =
     || mode `mod` 3 == 0 && index1 == index2 
     || mode >= 2 && index1 /= index2 && row * col == 0
     where
-        mode = state^._mode2
+        mode = state^._mode
         {row, col} = dCoords (state^._nbColumns) index1 index2
     
 toggleCell :: State -> Int -> Array Boolean -> Array Boolean
@@ -56,8 +59,9 @@ genRandomBoard state = do
 
 
 instance noirblancGame :: Game { light :: Array Boolean, played :: Array Boolean } ExtState Int where
-    play state index = { light: toggleCell state index light, played: modifyAtIndices [index] not played }
-        where {light, played} = state^._position
+    play state index = state^._position 
+                        # _light %~ toggleCell state index 
+                        # _played ∘ ix index %~ not
     canPlay _ _ = true
 
     initialPosition state = do
@@ -80,7 +84,7 @@ sizes :: Array (Tuple Int Int)
 sizes = [3∧3, 4∧4, 2∧10, 3∧10, 5∧5, 8∧8, 8∧8]
 
 selectModeA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-selectModeA mode = newGame (set _mode2 mode ∘ set _level 0)
+selectModeA mode = newGame $ (_mode .~ mode) ∘ (_level .~ 0)
 selectLevelA :: ∀effs. Int -> Action State (rng :: RNG | effs)
 selectLevelA = newGame' (set _level)
 
@@ -88,7 +92,7 @@ selectLevelA = newGame' (set _level)
 afterPlay :: ∀effs. Action State (rng :: RNG, delay :: DELAY | effs)
 afterPlay = do
     state <- getState
-    let mode = state^._mode2
+    let mode = state^._mode
     when (isLevelFinished state) do
         let nextLevel = if state^._level >= 4 then
                         6

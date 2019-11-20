@@ -37,7 +37,7 @@ istate :: State
 istate = genState {left: 0, top: 0, right: 0, bottom: 0} _{nbRows = 6, nbColumns = 7, mode = RandomMode}
         (Ext { soap: {row: 0, col: 0}, soapMode: CornerMode, moveWhenHover: Nothing})
 
-instance chocolatGame :: Game {left :: Int, top :: Int, right :: Int, bottom :: Int} ExtState Move where
+instance gameChocolat :: Game {left :: Int, top :: Int, right :: Int, bottom :: Int} ExtState Move where
     play st = case _ of
             FromLeft x -> p{left = x}
             FromTop x -> p{top = x}

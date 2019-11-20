@@ -186,12 +186,11 @@ zoneposition columns {row1, col1, row2, col2} =
           
 colorZone :: State -> Zone -> Array Int
 colorZone state zone = state^._squareColors # updateAtIndices ( 
-    zoneposition (state^._nbColumns) zone
-    <#> \i -> i ∧ (state^._selectedColor)
+    zoneposition (state^._nbColumns) zone <#> \i -> i ∧ (state^._selectedColor)
 )
 
 incSelectedColorA :: ∀effs. Int -> Action State effs
-incSelectedColorA x = setState $ _selectedColor %~ \y -> (x + y + 9) `mod` 9
+incSelectedColorA x = setState $ _selectedColor %~ \y -> (x + y) `mod` 9
 
 onKeyDown :: ∀effs. String -> Action State effs
 onKeyDown "o" = incSelectedColorA (-1)

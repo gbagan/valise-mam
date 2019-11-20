@@ -46,7 +46,6 @@ instance gameChocolat :: Game {left :: Int, top :: Int, right :: Int, bottom :: 
             FromBottom x -> Just p{bottom = x}
         where p = st^._position
 
-
     isLevelFinished = view _position >>> \{left, right, top, bottom} -> left == right - 1 && top == bottom - 1
 
     initialPosition st = pure { left: 0, right: st^._nbColumns, top: 0, bottom: st^._nbRows }

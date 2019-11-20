@@ -1,14 +1,13 @@
 module Lib.Random where
 import Prelude
 import Math (sin)
+import Data.Maybe (Maybe(..), fromMaybe)
 import Effect (Effect)
 import Data.Int (floor, toNumber)
-import Data.Tuple (Tuple(Tuple), fst, uncurry)
-import Data.Array.NonEmpty (NonEmptyArray, unsafeIndex, length) as N
+import Data.Tuple (Tuple(Tuple), fst)
 import Data.Traversable (sequence)
-import Data.Array (length, mapWithIndex, foldr)
+import Data.Array (length, mapWithIndex, foldr, unsafeIndex, insertAt)
 import Partial.Unsafe (unsafePartial)
-import Lib.Util (tabulate, swap)
 
 newtype Seed = Seed Number
 newtype Random a = Random  (Seed -> Tuple a Seed)
@@ -47,16 +46,14 @@ randomBool = randomInt 2 <#> eq 0
 
 shuffle :: ∀a. Array a -> Random (Array a)
 shuffle array = do
-    rnds <- sequence $ tabulate (n - 1) (\x -> randomInt $ n - x)
-    pure (rnds 
-        # mapWithIndex (\i j -> Tuple i (i + j))
-        # foldr (uncurry swap) array
-    )
-    where n = length array
+    rnds <- sequence $ array # mapWithIndex \i x -> Tuple x <$> randomInt (i + 1)
+    pure $ rnds # foldr (\(Tuple x i) t -> t # insertAt i x # fromMaybe t) []
 
-randomPick :: ∀a. N.NonEmptyArray a -> Random a
-randomPick t =
-    unsafePartial $ N.unsafeIndex t <$> (randomInt $ N.length t)
+randomPick :: ∀a. Array a -> Maybe (Random a)
+randomPick [] = Nothing
+randomPick t = Just $ unsafePartial $ unsafeIndex t <$> (randomInt $ length t)
+-- randomPick t = pure =<< index t <$> (randomInt $ length t)
+-- todo
 
 runRnd :: ∀a. Seed -> Random a -> a
 runRnd seed (Random m) = fst $ m seed

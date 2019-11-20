@@ -38,7 +38,7 @@ canPlay state (Move pile pos) =
 instance nimGame :: Game (Array (Tuple Int Int)) ExtState Move where
     play state move@(Move pile pos) = 
         if canPlay state move then
-            Just $ state ^. _position # ix pile %~
+            state^._position # modifyAt pile
                 \(p1 ∧ p2) -> if state^._turn == Turn1 then pos ∧ p2 else p1 ∧ pos
         else
             Nothing

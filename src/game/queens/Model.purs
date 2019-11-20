@@ -99,7 +99,7 @@ attackedBySelected state = case state^._selectedSquare of
 instance queensGame :: Game (Array Piece) Ext Int where 
     play state index = 
         let selectedPiece = state^._selectedPiece
-        in Just $ state^._position # ix index %~ \t -> if t == selectedPiece then Empty else selectedPiece
+        in state^._position # modifyAt index \t -> if t == selectedPiece then Empty else selectedPiece
 
     initialPosition state = pure $ replicate (state^._nbRows * state^._nbColumns) Empty
 

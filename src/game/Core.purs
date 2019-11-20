@@ -2,11 +2,9 @@ module Game.Core where
 import MyPrelude
 import Data.List (List(..))
 import Data.List (last, null) as L
-import Data.Array.NonEmpty (fromArray, toArray) as N
 import Data.Map (Map, empty) as M
 import Lib.Random (Random, randomPick)
 import Pha.Action (Action, delay, DELAY, RNG, getState, setState, randomAction, runRng)
-import Control.Alt ((<|>))
 
 -- ConfirmNewGame contient le futur state si l'utilisateur valide de commencer une nouvelle partie
 data Dialog a = Rules | NoDialog | ConfirmNewGame a | ScoreDialog | CustomDialog
@@ -270,15 +268,14 @@ computerMove' state =
     if isLevelFinished state then
         Nothing
     else
-        N.fromArray (possibleMoves state) >>=
-            \moves ->
-                let bestMove = (
-                    if state^._mode == RandomMode then
-                        Nothing
-                    else
-                        moves # N.toArray # find (maybe false isLosingPosition <<< flip playAux state)
-                ) in
-                    (bestMove <#> pure) <|> Just (randomPick moves)
+        let moves = possibleMoves state in
+        let bestMove = (
+            if state^._mode == RandomMode then
+                Nothing
+            else
+                moves # find (maybe false isLosingPosition ∘ flip playAux state)
+        ) in
+            (pure <$> bestMove) <|> randomPick moves
 
 data Objective = Minimize | Maximize
 derive instance eqObjective :: Eq Objective 

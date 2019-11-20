@@ -5,9 +5,9 @@ import Data.Lazy (defer, force)
 import Lib.Util (tabulate, (..))
 import Data.Array.NonEmpty (NonEmptyArray, singleton, fromArray, cons) as N
 import Lib.KonamiCode (konamiCode)
-import Pha.Action (Action, RNG, DELAY, setState, delay)
+import Pha.Action (Action, RNG, setState)
 import Game.Core (class Game, class TwoPlayersGame, Mode(..), GState, SizeLimit(..),
-                _ext, playA, lockAction, newGame', computerMove', genState, _position, _nbRows)
+                _ext, newGame', computerMove', genState, _position, _nbRows)
 
 type Ext' = {
     moves :: N.NonEmptyArray Int,  -- la liste des mouvements autorisées (en nombre de cases)

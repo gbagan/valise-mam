@@ -15,11 +15,12 @@
     fill: url(#lilyg);
 
     &.reachable {
-        transition: opacity 0.3s linear;
+        transition: opacity 0.3s linear 0.5s;
         fill: url(#lilyh);
     }
 
-    &.hidden {
+    &.reachable.hidden {
+        transition: opacity 0.3s linear;
         opacity: 0;
     }
 }

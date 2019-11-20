@@ -9,9 +9,9 @@ import Pha.Html (div', span, br, svg, viewBox, g, use, line, path, text', px,
 import Pha.Event (shiftKey)
 import UI.Template (template, card, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icons (icongroup, iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
-import Game.Core (_nbRows, _position, _help, _locked)
+import Game.Core (_nbRows, _position, _help, _locked, playA)
 import Game.Effs (EFFS)
-import Game.Frog.Model (State, _moves, _marked, selectMoveA, reachableArray, markA, playA')
+import Game.Frog.Model (State, _moves, _marked, selectMoveA, reachableArray, markA)
 
 type Cartesian = { x :: Number, y :: Number}
 type Polar = { radius :: Number, theta :: Number }
@@ -90,7 +90,7 @@ view lens state = template lens _{config = config, board = board, rules = rules,
                 map2 spoints reachable \i {x, y} reach ->
                     g [
                         key $ "lily" <> show i,
-                        click $ lens 🔍 ifM (shiftKey <$> getEvent) (markA i) (playA' i)
+                        click $ lens 🔍 ifM (shiftKey <$> getEvent) (markA i) (playA i)
                     ] [
                         lily i x y false false,
                         lily i x y true (not reach || state^._locked),

@@ -77,10 +77,6 @@ selectMoveA = newGame' $ over _moves ∘ selectMove where
         # N.fromArray
         # fromMaybe moves
 
--- ajoute une pause de 500ms après un mouvement pour retarder l'affichage des positions accessibles
-playA' :: ∀effs. Int -> Action State (delay :: DELAY, rng :: RNG | effs)
-playA' i = playA i *> lockAction (delay 500)
-
 -- place/retire une marque à la position i
 markA :: ∀effs. Int -> Action State effs
 markA i = setState (_marked ∘ ix i %~ not)

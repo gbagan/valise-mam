@@ -9326,7 +9326,6 @@ var PS = {};
   $PS["Game.Frog.Model"] = $PS["Game.Frog.Model"] || {};
   var exports = $PS["Game.Frog.Model"];
   var Control_Applicative = $PS["Control.Applicative"];
-  var Control_Apply = $PS["Control.Apply"];
   var Data_Array = $PS["Data.Array"];
   var Data_Array_NonEmpty = $PS["Data.Array.NonEmpty"];
   var Data_Array_NonEmpty_Internal = $PS["Data.Array.NonEmpty.Internal"];
@@ -9350,8 +9349,7 @@ var PS = {};
   var Lib_KonamiCode = $PS["Lib.KonamiCode"];
   var Lib_Random = $PS["Lib.Random"];
   var Lib_Util = $PS["Lib.Util"];
-  var Pha_Action = $PS["Pha.Action"];
-  var Run = $PS["Run"];                
+  var Pha_Action = $PS["Pha.Action"];                
   var Ext = function (x) {
       return x;
   };
@@ -9524,9 +9522,6 @@ var PS = {};
   }, function (st) {
       return new Data_Tuple.Tuple(st, true);
   });
-  var playA$prime = function (i) {
-      return Control_Apply.applySecond(Run.applyRun)(Game_Core.playA(frogGame)(i))(Game_Core.lockAction(Pha_Action.delay(500)));
-  };
   var selectMoveA = (function () {
       var selectMove = function (move) {
           return function (moves) {
@@ -9552,7 +9547,6 @@ var PS = {};
   exports["istate"] = istate;
   exports["reachableArray"] = reachableArray;
   exports["selectMoveA"] = selectMoveA;
-  exports["playA'"] = playA$prime;
   exports["markA"] = markA;
   exports["onKeyDown"] = onKeyDown;
   exports["frogGame"] = frogGame;
@@ -9696,7 +9690,7 @@ var PS = {};
                   return function (reach) {
                       return Pha_Html.g([ Pha_Html.key("lily" + Data_Show.show(Data_Show.showInt)(i)), Pha_Html.click(Pha_Action.zoomAt(function (dictStrong) {
                           return lens(dictStrong);
-                      })(Control_Bind.ifM(Run.bindRun)(Data_Functor.map(Run.functorRun)(Pha_Event.shiftKey)(Pha_Action.getEvent))(Game_Frog_Model.markA(i))(Game_Frog_Model["playA'"](i)))) ])([ lily(i)(v.x)(v.y)(false)(false), lily(i)(v.x)(v.y)(true)(!reach || Data_Lens_Getter.viewOn(state)(Game_Core["_locked"](Data_Lens_Internal_Forget.strongForget))), Pha_Html["text'"](Pha_Html.unitNumber)(v.x)(v.y)((function () {
+                      })(Control_Bind.ifM(Run.bindRun)(Data_Functor.map(Run.functorRun)(Pha_Event.shiftKey)(Pha_Action.getEvent))(Game_Frog_Model.markA(i))(Game_Core.playA(Game_Frog_Model.frogGame)(i)))) ])([ lily(i)(v.x)(v.y)(false)(false), lily(i)(v.x)(v.y)(true)(!reach || Data_Lens_Getter.viewOn(state)(Game_Core["_locked"](Data_Lens_Internal_Forget.strongForget))), Pha_Html["text'"](Pha_Html.unitNumber)(v.x)(v.y)((function () {
                           var $27 = Data_Lens_Getter.viewOn(state)(Game_Core["_help"](Data_Lens_Internal_Forget.strongForget));
                           if ($27) {
                               return Data_Show.show(Data_Show.showInt)(Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)) - i | 0);

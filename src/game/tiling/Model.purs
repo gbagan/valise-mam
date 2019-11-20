@@ -96,7 +96,7 @@ inConflict state = case state^._hoverSquare of
 
 
 instance tilingGame :: Game (Array Int) ExtState Int where
-    canPlay state index = canPutTile state (placeTile state index) || (state^._position !! index # maybe false (_ > 0))
+    canPlay state index = canPutTile state (placeTile state index) || state^._position !! index > Just 0
 
     play state index =
         let pos = state^._position 

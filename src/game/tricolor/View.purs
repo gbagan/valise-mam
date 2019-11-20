@@ -47,15 +47,16 @@ view lens state = template lens _{config=config, board=board, rules=rules} state
                 ],
 
             concat $ take nbColors colors # mapWithIndex \i color -> [
-                circle (102.0 + 15.0 * toNumber (i - nbColors)) 95.0 3.0 [
+                circle (95.0 + 15.0 * toNumber (i - nbColors)) 95.0 3.0 [
                     key $ "c" <> show i,
                     fill color
                 ],
-                text' (106.0 + 15.0 * toNumber (i - nbColors)) 97.0  "➡" [
+                text' (99.0 + 15.0 * toNumber (i - nbColors)) 97.0  "➡" [
                     key $ "t" <> show i,
                     attr "font-size" "7"
                 ]
-            ]
+            ],
+            [circle 95.0 95.0 3.0 [key $ "fc", fill "green"]]
         ]
     ]
 

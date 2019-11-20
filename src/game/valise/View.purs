@@ -32,12 +32,12 @@ valise lens state = svg [
                         ] [],
 
         object { symbol: "bulboff", link: Nothing, help: "Trouve un moyen d'allumer l'ampoule", drag: false}
-            477 280 48 48 [] [],
+            477 280 48 48 [] [style "pointer-events" "all"],
 
         object { symbol: "bulbon", link: Just "noirblanc", help: "Jeu: tour noir, tout blanc", drag: false } 
             477 280 48 48 [ attr "transition" "opacity 0.5s",
                             attr "opacity" $ if state.isSwitchOn then "1" else "0",
-                            attr "pointer-events" if state.isSwitchOn then "auto" else "none"
+                            style "pointer-events" $ if state.isSwitchOn then "all" else "none"
                          ] [],
 
         object { symbol: "frog2", link: Just "frog", help: "Jeu: la grenouille", drag: false}

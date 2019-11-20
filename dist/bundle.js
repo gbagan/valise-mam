@@ -15814,7 +15814,7 @@ var PS = {};
               link: Data_Maybe.Nothing.value,
               help: "Trouve un moyen d'allumer l'ampoule",
               drag: false
-          })(477)(280)(48)(48)([  ])([  ]), object({
+          })(477)(280)(48)(48)([  ])([ Pha_Html.style(Pha_Html.unittoStr)("pointer-events")("all") ]), object({
               symbol: "bulbon",
               link: new Data_Maybe.Just("noirblanc"),
               help: "Jeu: tour noir, tout blanc",
@@ -15824,9 +15824,9 @@ var PS = {};
                   return "1";
               };
               return "0";
-          })()), Pha_Html.attr(Pha_Html.unittoStr)("pointer-events")((function () {
+          })()), Pha_Html.style(Pha_Html.unittoStr)("pointer-events")((function () {
               if (state.isSwitchOn) {
-                  return "auto";
+                  return "all";
               };
               return "none";
           })()) ])([  ]), object({

@@ -27,7 +27,7 @@
 }
 
 .valise-object {
-    pointer-events: all;
+    pointer-events: inherit;
     &.draggable {
         cursor: -webkit-grab;
         cursor: grab;

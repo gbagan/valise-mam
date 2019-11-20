@@ -52,14 +52,12 @@ validRotation state = validRotation' state && (all isJust $ state^._position )
 
 
 instance roueGame :: Game (Array (Maybe Int)) Ext {from :: Location, to :: Location} where
-    play state move = act (state^._position) where
+    play state move = Just $ act (state^._position) where
         act = case move of 
             {from: Panel from, to: Wheel to} -> ix to .~ Just from
             {from: Wheel from, to: Wheel to } -> swap from to
             {from: Wheel from, to: Board} -> ix from .~ Nothing
             _ -> identity
-    
-    canPlay _ _ = true
     
     initialPosition state = pure $ replicate (state^._size) Nothing
 

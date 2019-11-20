@@ -37,12 +37,11 @@ inRange state i i' = min diff (state^._size - diff) <= state^._range
     where diff = abs (i - i')
     
 instance tricolorGame :: Game (Array Int) ExtState Int where
-    play state i = state^._position # mapWithIndex \i' color ->
+    play state i = Just $ state^._position # mapWithIndex \i' color ->
         if inRange state i i' then
             (color + 1) `mod` (state^._nbColors)
         else
             color
-    canPlay _ _ = true
     initialPosition state = sequence $ replicate (state^._size) $ randomInt (state^._nbColors)
     isLevelFinished state = state^._position # all (eq 0)
 

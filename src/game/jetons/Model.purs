@@ -21,18 +21,15 @@ istate :: State
 istate = genState [] _{nbRows = 4, nbColumns = 4} (Ext { dragged: Nothing })
 
 instance jetonsGame :: Game (Array Int) Ext { from :: Int, to :: Int } where
-    play state {from, to} =
-        let position = state^._position in
-        position !! from # maybe position \pfrom ->
-            position # ix from .~ 0 # ix to %~ (_ + pfrom)
-    
-    canPlay state {from, to} =
+    play state {from, to} = do
         let position = state^._position
-            {row, col} = dCoords (state^._nbColumns) from to in
-        fromMaybe false $ do
-            pfrom <- position !! from
-            pto <- position !! to
-            pure $ pfrom > 0 && pfrom <= pto && row * row + col * col == 1
+        let {row, col} = dCoords (state^._nbColumns) from to
+        pfrom <- position !! from
+        pto <- position !! to
+        if pfrom > 0 && pfrom <= pto && row * row + col * col == 1 then
+            Just $ position # ix from .~ 0 # ix to %~ (_ + pfrom)
+        else
+            Nothing
     
     initialPosition state = pure $ replicate (state^._nbRows * state^._nbColumns) 1
 

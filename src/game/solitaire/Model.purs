@@ -78,18 +78,17 @@ generateBoard rows columns startingHole holeFilter = {holes, position, customSiz
     position = pure $ holes # ix startingHole .~ false
 
 instance solitaireGame :: Game (Array Boolean) ExtState {from :: Int, to :: Int} where
-    canPlay state move@{from, to} = fromMaybe false $ do
+    play state move@{from, to} = do
         let position = state^._position
         between <- betweenMove2 state move
         pfrom <- position !! from
         pbetween <- position !! between
         pto <- position !! to
         hto <- state^._holes !! to
-        pure $ pfrom && pbetween && hto && not pto
-
-    play state move@{from, to} = case betweenMove2 state move of
-        Nothing -> state^._position
-        Just between -> state^._position # updateAtIndices [from ∧ false, between ∧ false, to ∧ true]
+        if pfrom && pbetween && hto && not pto then
+            Just $ position # updateAtIndices [from ∧ false, between ∧ false, to ∧ true]
+        else
+            Nothing
 
     initialPosition = pure ∘ view _position
 

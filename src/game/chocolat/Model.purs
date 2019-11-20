@@ -38,15 +38,14 @@ istate = genState {left: 0, top: 0, right: 0, bottom: 0} _{nbRows = 6, nbColumns
         (Ext { soap: {row: 0, col: 0}, soapMode: CornerMode, moveWhenHover: Nothing})
 
 instance gameChocolat :: Game {left :: Int, top :: Int, right :: Int, bottom :: Int} ExtState Move where
+    -- les coups proposées par la vue sont toujours valides
     play st = case _ of
-            FromLeft x -> p{left = x}
-            FromTop x -> p{top = x}
-            FromRight x -> p{right = x}
-            FromBottom x -> p{bottom = x}
+            FromLeft x -> Just p{left = x}
+            FromTop x -> Just p{top = x}
+            FromRight x -> Just p{right = x}
+            FromBottom x -> Just p{bottom = x}
         where p = st^._position
 
-    -- les coups proposées par la vue sont toujours valides
-    canPlay _ _ = true
 
     isLevelFinished = view _position >>> \{left, right, top, bottom} -> left == right - 1 && top == bottom - 1
 

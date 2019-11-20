@@ -88,13 +88,18 @@ edgesOf = mapMaybe toEdge ∘ pairwise where
     toEdge _ = Nothing
 
 instance gameDessin :: Game (Array (Maybe Int)) ExtState (Maybe Int) where
-    play state v = (state^._position) `snoc` v
-    canPlay state x = let position = state^._position in 
-        case x of
-            Nothing -> not (null position) && isJust (join (last position))
-            Just v -> case last position of
-                Just (Just u) -> not (elem (u↔v) (edgesOf position)) && elem (u↔v) (state^._graph).edges
-                _ -> true
+    -- todo
+    play state x = 
+        let position = state^._position in 
+        case x ∧ last position of
+            Nothing ∧ Just (Just _) -> Just (position `snoc` x)
+            Nothing ∧ _ -> Nothing
+            Just u ∧ Just (Just v) ->
+                    if not (elem (u↔v) (edgesOf position)) && elem (u↔v) (state^._graph).edges then
+                        Just (position `snoc` x)
+                    else
+                        Nothing
+            _ -> Just (position `snoc` x)
 
     initialPosition _ = pure []
     onNewGame state = pure $ state # _graph .~ (graphs !! (state^._graphIndex) # fromMaybe house)

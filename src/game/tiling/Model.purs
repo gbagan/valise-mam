@@ -96,17 +96,17 @@ inConflict state = case state^._hoverSquare of
 
 
 instance tilingGame :: Game (Array Int) ExtState Int where
-    canPlay state index = canPutTile state (placeTile state index) || state^._position !! index > Just 0
-
     play state index =
         let pos = state^._position 
             tilePos = placeTile state index
         in
         if canPutTile state tilePos then
             let m = (foldr max 0 pos) + 1 in
-            pos # updateAtIndices (tilePos <#> (_ ∧ m))
+            Just $ pos # updateAtIndices (tilePos <#> (_ ∧ m))
+        else if state^._position !! index > Just 0 then
+            Just $ pos <#> \x -> if Just x == pos !! index then 0 else x
         else
-            pos <#> \x -> if Just x == pos !! index then 0 else x
+            Nothing
 
     isLevelFinished = all (_ /= 0) ∘ view _position
 

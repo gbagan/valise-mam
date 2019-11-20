@@ -111,14 +111,16 @@ _scores = _core ∘ lens  _.scores _{scores = _}
 data SizeLimit = SizeLimit Int Int Int Int
 
 class Game pos ext mov | ext -> pos mov where
-    play :: GState pos ext -> mov -> pos
-    canPlay :: GState pos ext -> mov -> Boolean
+    play :: GState pos ext -> mov -> Maybe pos
     initialPosition :: GState pos ext -> Random pos
     isLevelFinished :: GState pos ext -> Boolean
     sizeLimit ::  GState pos ext -> SizeLimit
     computerMove :: GState pos ext -> Maybe (Random mov)
     onNewGame :: GState pos ext -> Random (GState pos ext)
     updateScore :: GState pos ext -> Tuple (GState pos ext) Boolean
+
+canPlay :: ∀pos ext mov. Game pos ext mov => GState pos ext -> mov -> Boolean
+canPlay st mov = isJust (play st mov)
 
 defaultSizeLimit :: ∀a. a -> SizeLimit
 defaultSizeLimit _ = SizeLimit 0 0 0 0
@@ -164,11 +166,9 @@ toggleHelpA = setState (_help %~ not)
 
 playAux :: ∀pos ext mov. Game pos ext mov => mov -> GState pos ext -> Maybe (GState pos ext)
 playAux move state =
-    if canPlay state move then
-        Just $ state # _position .~ play state move
-                     # _turn %~ oppositeTurn
-    else
-        Nothing
+    play state move <#> \pos ->
+        state # _position .~ pos
+              # _turn %~ oppositeTurn
 
 -- met dans l'historique la position actuelle
 pushToHistory :: ∀pos ext. GState pos ext -> GState pos ext

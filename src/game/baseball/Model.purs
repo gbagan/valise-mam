@@ -2,7 +2,7 @@ module Game.Baseball.Model where
 
 import MyPrelude
 import Data.FoldableWithIndex (allWithIndex)
-import Lib.Util (swap, (..))
+import Lib.Util ((..))
 import Lib.Random (shuffle, randomInt)
 import Pha.Action (Action, RNG)
 import Game.Core (class Game, GState, _ext, genState, newGame', _position, defaultSizeLimit)
@@ -24,14 +24,16 @@ istate :: State
 istate = genState [] identity (Ext { nbBases: 5, missingPeg: 0 })
 
 instance baseballGame :: Game (Array Int) ExtState Int where
-    play state i = state^._position # swap (state^._missingPeg) i
-    canPlay state i = fromMaybe false $ do
+    play state i = do
         let position = state^._position
         let nbBases = state^._nbBases
-        x <- position !! (state^._missingPeg)
-        y <- position !! i
-        let diff = x / 2 - y / 2
-        pure $ elem diff [1, nbBases-1, -1, 1-nbBases]
+        let j = state^._missingPeg
+        x <- position !! i
+        y <- position !! j
+        if elem (x / 2 - y / 2) [1, nbBases-1, -1, 1-nbBases] then
+            Just $ position # updateAtIndices [i ∧ y, j ∧ x]
+        else 
+            Nothing
 
     initialPosition state = shuffle $ 0 .. (2 * state^._nbBases - 1)
     isLevelFinished state = state^._position # allWithIndex \i j -> i / 2 == j / 2

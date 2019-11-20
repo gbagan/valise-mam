@@ -59,10 +59,9 @@ genRandomBoard state = do
 
 
 instance noirblancGame :: Game { light :: Array Boolean, played :: Array Boolean } ExtState Int where
-    play state index = state^._position 
+    play state index = Just $ state^._position 
                         # _light %~ toggleCell state index 
                         # _played ∘ ix index %~ not
-    canPlay _ _ = true
 
     initialPosition state = do
         let size = state^._nbRows * state^._nbColumns

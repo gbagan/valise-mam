@@ -53,22 +53,15 @@ isValidPath state path = fromMaybe true $ do
     )
 
 instance pathGame :: Game (Array Int) Ext Int where
-    canPlay state v =
-        case N.fromArray (state^._position) of
-            Nothing -> state^._mode == Mode2
-            Just path ->
-                case pathBetween (state^._nbColumns) (N.last path) v of
-                    Nothing -> false 
-                    Just p -> not (null p) && isValidPath state (state^._position <> p)
-
     play state v =
-        let path = state^._position in
-        if null path then
-            [v]
-        else fromMaybe path $ do -- la sequence ne peut échouer si canPlay a réussi
-            l <- last path
-            p2 <- pathBetween (state^._nbColumns) l v
-            pure $ path <> p2
+        case last (state^._position) of
+            Nothing -> if state^._mode == Mode2 then Just [v] else Nothing
+            Just last -> do
+                p <- pathBetween (state^._nbColumns) last v 
+                if not (null p) && isValidPath state (state^._position <> p) then
+                    Just (state^._position <> p)
+                else
+                    Nothing
 
     isLevelFinished state =
         length (state^._position) == state^._nbColumns * state^._nbRows + (if state^._exit == head (state^._position) then 1 else 0)

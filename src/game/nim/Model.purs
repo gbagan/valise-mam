@@ -6,7 +6,7 @@ import Pha.Action (Action)
 import Lib.Random (randomInt)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class TwoPlayersGame, GState, Mode(..), Turn(..),
-                _ext, genState, newGame', canPlay, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
+                _ext, genState, newGame', _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
 
 data Move = Move Int Int  --- pile et position dans la pile
 type Ext' = { 
@@ -28,15 +28,20 @@ _length = _ext' ∘ lens _.length _{length = _}
 _nbPiles :: Lens' State Int
 _nbPiles = _ext' ∘ lens _.nbPiles _{nbPiles = _}
 
-instance nimGame :: Game (Array (Tuple Int Int)) ExtState Move where
-    canPlay state (Move pile pos) =
-        case state^._position !! pile of
-            Nothing -> false 
-            Just (p1 ∧ p2) -> pos /= p1 && pos /= p2 && if state^._turn == Turn1 then pos < p2 else pos > p1
+canPlay :: State -> Move -> Boolean
+canPlay state (Move pile pos) =
+    case state^._position !! pile of
+        Nothing -> false 
+        Just (p1 ∧ p2) -> pos /= p1 && pos /= p2 && if state^._turn == Turn1 then pos < p2 else pos > p1
 
-    play state (Move pile pos) = 
-        state ^. _position # ix pile %~
-            \(p1 ∧ p2) -> if state^._turn == Turn1 then pos ∧ p2 else p1 ∧ pos
+
+instance nimGame :: Game (Array (Tuple Int Int)) ExtState Move where
+    play state move@(Move pile pos) = 
+        if canPlay state move then
+            Just $ state ^. _position # ix pile %~
+                \(p1 ∧ p2) -> if state^._turn == Turn1 then pos ∧ p2 else p1 ∧ pos
+        else
+            Nothing
     
     isLevelFinished state = state^._position # all
         \(p1 ∧ p2) -> p2 - p1 == 1 && p1 == (if state^._turn == Turn2 then state^._length - 2 else 0)

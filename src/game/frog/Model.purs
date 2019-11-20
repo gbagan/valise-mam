@@ -7,7 +7,7 @@ import Data.Array.NonEmpty (NonEmptyArray, singleton, fromArray, cons) as N
 import Lib.KonamiCode (konamiCode)
 import Pha.Action (Action, RNG, DELAY, setState, delay)
 import Game.Core (class Game, class TwoPlayersGame, Mode(..), GState, SizeLimit(..),
-                _ext, canPlay, playA, lockAction, newGame', computerMove', genState, _position, _nbRows)
+                _ext, playA, lockAction, newGame', computerMove', genState, _position, _nbRows)
 
 type Ext' = {
     moves :: N.NonEmptyArray Int,  -- la liste des mouvements autorisées (en nombre de cases)
@@ -36,13 +36,14 @@ istate :: State
 istate = genState 20 _{nbRows = 20, mode = ExpertMode, customSize = true} (Ext { moves: 1 `N.cons` (2 `N.cons` N.singleton 3),
                                                             winning: [], marked: [], keySequence: [] })
 
-instance frogGame :: Game Int ExtState Int where
-    play state v = v
-    canPlay state v = elem (position - v) moves || position > 0 && v == 0 && position <= maximum where
-        position = state^._position
-        moves = state^._moves
-        maximum = foldr max 0 moves
+canPlay :: State -> Int -> Boolean
+canPlay state v = elem (position - v) moves || position > 0 && v == 0 && position <= maximum where
+    position = state^._position
+    moves = state^._moves
+    maximum = foldr max 0 moves
 
+instance frogGame :: Game Int ExtState Int where
+    play state v = if canPlay state v then Just v else Nothing
     initialPosition state = pure $ state^._nbRows
     onNewGame state = pure $ state
                         # _winning .~ winningPositions (state^._nbRows + 1) (state^._moves)

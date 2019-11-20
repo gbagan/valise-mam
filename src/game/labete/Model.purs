@@ -144,8 +144,7 @@ getNewBeast state = case state^._beastType of
     CustomBeast -> take 1 (state^._beast)
 
 instance labeteGame :: Game (Array Boolean) ExtState Int where
-    play state index = state^._position # ix index %~ not
-    canPlay _ _ = true
+    play state index = Just $ state^._position # ix index %~ not
     isLevelFinished = null ∘ nonTrappedBeasts
     initialPosition st = pure $ replicate (st^._nbRows * st^._nbColumns) false
     onNewGame st = pure $ st

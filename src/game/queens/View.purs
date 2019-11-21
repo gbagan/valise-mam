@@ -4,7 +4,6 @@ import MyPrelude
 import Lib.Util (map2, map3)
 import Data.Array.NonEmpty (toArray, head) as N
 import Pha (VDom, Prop, text, maybeN)
-import Pha.Action ((🔍))
 import Pha.Html (div', br, class', svg, use, svguse, key, style, pc, width, height, click, pointerenter, pointerleave)
 import Game.Effs (EFFS)
 import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer, playA)
@@ -37,27 +36,27 @@ square { piece, capturable, selected, nonavailable} props =
         ]
     ]
 
-view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens _{config=config, board=board, rules=rules, customDialog=customDialog, scoreDialog=scoreDialog} state where
+view :: State -> VDom State EFFS
+view state = template _{config=config, board=board, rules=rules, customDialog=customDialog, scoreDialog=scoreDialog} state where
     position = state^._position
     rows = state^._nbRows
     columns = state^._nbColumns
         
     config = card "Les reines" [
-        iconSizesGroup lens state [4∧4, 5∧5, 7∧7, 8∧8] true,
-        iconSelectGroupM lens state "Pièces disponibles" piecesList (state^._allowedPieces) selectAllowedPieceA \piece ->
+        iconSizesGroup state [4∧4, 5∧5, 7∧7, 8∧8] true,
+        iconSelectGroupM state "Pièces disponibles" piecesList (state^._allowedPieces) selectAllowedPieceA \piece ->
             _{icon = IconSymbol $ "#piece-" <> show piece, tooltip = Just $ tooltip piece},
         icongroup "Options" $ [
             iconbutton state _{icon = IconSymbol "#customize",
                                selected = N.head (state^._allowedPieces) == Custom,
                                tooltip = Just "Crée ta propre propre pièce"} [
-                                  click $ lens 🔍 customizeA
+                                  click customizeA
                               ],
             iconbutton state _{icon = IconSymbol "#piece-mix", selected = state^._multiPieces, tooltip = Just "Mode mixte"} [
-                click $ lens 🔍 toggleMultiPiecesA
+                click toggleMultiPiecesA
             ]
-        ] <> ([ihelp, ireset, irules] <#> \x -> x lens state),
-        iconBestScore lens state
+        ] <> [ihelp state, ireset state, irules state],
+        iconBestScore state
     ]   
 
     pieceSelector = div' [class' "ui-flex-center gutter2 queens-pieceselector" true] $
@@ -68,7 +67,7 @@ view lens state = template lens _{config=config, board=board, rules=rules, custo
                     icon = IconSymbol $ "#piece-" <> name
                 } [
                     key name,
-                    click $ lens 🔍 selectPieceA piece
+                    click $ selectPieceA piece
                 ]
         
 
@@ -76,7 +75,7 @@ view lens state = template lens _{config=config, board=board, rules=rules, custo
         svguse ("#piece-" <> show (state^._selectedPiece)) []
     ]
 
-    grid = div' ([class' "ui-board" true] <> gridStyle rows columns 5 <> trackPointer lens) $ concat [  
+    grid = div' ([class' "ui-board" true] <> gridStyle rows columns 5 <> trackPointer) $ concat [  
         map3 position (attackedBySelected state) (capturableSquares state) \index piece attacked capturable ->
             square {piece,
                 selected: attacked || state^._selectedSquare == Just index,
@@ -85,21 +84,21 @@ view lens state = template lens _{config=config, board=board, rules=rules, custo
             } [
                 style "width" $ pc (1.0 / toNumber columns),
                 style "height" $ pc (1.0 / toNumber rows),
-                click $ lens 🔍 playA index,
-                pointerenter $ lens 🔍 selectSquareA (Just index),
-                pointerleave $ lens 🔍 selectSquareA Nothing
+                click $ playA index,
+                pointerenter $ selectSquareA (Just index),
+                pointerleave $ selectSquareA Nothing
             ],
         [maybeN $ cursor <$> state^._pointer]
     ]
 
     board = div' [] [
         pieceSelector,
-        incDecGrid lens state [grid]
+        incDecGrid state [grid]
     ]
 
     angles = [45, 90, 135, 0, 0, 180, -45, -90, -135]
 
-    customDialog _ = dialog lens "Personnalise ta pièce" [
+    customDialog _ = dialog "Personnalise ta pièce" [
         div' [class' "flex queens-custompiece" true] [
             div' [class' "queens-grid queens-custompiece-grid" true] (
                 state^._customLocalMoves # mapWithIndex \index selected ->
@@ -110,7 +109,7 @@ view lens state = template lens _{config=config, board=board, rules=rules, custo
                             nonavailable: false
                     } [key $ show index, 
                         style "width" "20%", style "height" "20%",
-                        click if index /= 12 then lens 🔍 flipLocalMoveA index else pure unit
+                        click if index /= 12 then flipLocalMoveA index else pure unit
                     ]
             ),
             div' [class' "flex queens-custompiece-directions" true] (
@@ -121,13 +120,13 @@ view lens state = template lens _{config=config, board=board, rules=rules, custo
                         style = ["transform" ∧ ("rotate(" <> show angle <> "deg)")]
                     } [
                         key $ show i,
-                        click $ if i /= 4 then lens 🔍 flipDirectionA i else pure unit
+                        click $ if i /= 4 then flipDirectionA i else pure unit
                     ]
             )
         ]
     ]    
         
-    scoreDialog _ = bestScoreDialog lens state \pos -> [
+    scoreDialog _ = bestScoreDialog state \pos -> [
         div' [class' "ui-flex-center queens-bestscore-container" true] [
             div' (gridStyle rows columns 5 <> [class' "ui-board queens-grid" true]) (
                 pos <#> \piece ->

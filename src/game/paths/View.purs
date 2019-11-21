@@ -5,7 +5,6 @@ import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _point
 import Game.Effs (EFFS)
 import Game.Paths.Model (State, Mode(..), _exit, _mode, selectVertexA, selectModeA)
 import Pha (VDom, Prop, text, emptyNode, maybeN, ifN)
-import Pha.Action ((🔍))
 import Pha.Html (div', p, br, g, svg, use, path, key, class', attr, click, style, viewBox, translate, pc)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, iconSelectGroup, ihelp, iundo, iredo, ireset, irules)
@@ -36,18 +35,18 @@ heroCursor pp =
         attr "pointer-events" "none"
     ] <> svgCursorStyle pp
 
-view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens _{config=config, board=board, rules=rules} state where
+view :: State -> VDom State EFFS
+view state = template _{config=config, board=board, rules=rules} state where
     position = state^._position
     rows = state^._nbRows
     columns = state^._nbColumns
     
     config = card "Chemins" [
-        iconSelectGroup lens state "Mode de jeu" [Mode1, Mode2] (state^._mode) selectModeA case _ of
+        iconSelectGroup state "Mode de jeu" [Mode1, Mode2] (state^._mode) selectModeA case _ of
             Mode1 -> _{icon = IconSymbol "#paths-mode0", tooltip = Just "Mode 1"}
             Mode2 -> _{icon = IconSymbol "#paths-mode1", tooltip = Just "Mode 2"},
-        iconSizesGroup lens state [4∧6, 5∧5, 3∧8] true,
-        icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x lens state
+        iconSizesGroup state [4∧6, 5∧5, 3∧8] true,
+        icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x state
     ]
 
     hero = 
@@ -63,7 +62,7 @@ view lens state = template lens _{config=config, board=board, rules=rules} state
     pathdec = joinWith " " $ concat $ position # mapWithIndex \i v ->
         let {row, col} = coords columns v in [if i == 0 then "M" else "L", show $ 100 * col + 50, show $ 100 * row + 50]
     
-    grid = div' (gridStyle rows columns 5 <> trackPointer lens) [
+    grid = div' (gridStyle rows columns 5 <> trackPointer) [
         svg [viewBox 0 0 (100 * columns) (100 * rows)] $
             (tabulate (rows * columns) \index ->
                 let {row, col} = coords columns index in
@@ -75,7 +74,7 @@ view lens state = template lens _{config=config, board=board, rules=rules} state
                     y: toNumber (100 * row)
                 } [
                     key $ show index,
-                    click $ lens 🔍 selectVertexA index
+                    click $ selectVertexA index
                 ]
             ) <> [
                 path pathdec [class' "paths-path" true],
@@ -90,7 +89,7 @@ view lens state = template lens _{config=config, board=board, rules=rules} state
             ]
     ]
 
-    board = incDecGrid lens state [grid]
+    board = incDecGrid state [grid]
 
     rules = [
         p [] [

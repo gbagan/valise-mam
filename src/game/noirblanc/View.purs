@@ -3,7 +3,6 @@ module Game.Noirblanc.View where
 import MyPrelude
 import Lib.Util (coords, map2)
 import Pha (Prop, VDom, text)
-import Pha.Action ((🔍))
 import Pha.Html (div', svguse, class', pc, key, style, click)
 import Game.Core (_position, _nbRows, _nbColumns, _help)
 import Game.Effs (EFFS)
@@ -35,18 +34,18 @@ square light cross props =
         ]
     ]
 
-view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens _{config=config, board=board, rules=rules, winTitle=winTitle} state where
+view :: State -> VDom State EFFS
+view state = template _{config=config, board=board, rules=rules, winTitle=winTitle} state where
     rows = state^._nbRows
     columns = state^._nbColumns
     position = state^._position
 
     config = card "Tout noir tout blanc" [
-        iconSelectGroup lens state "Mode jeu" [0, 1, 2, 3] (state^._mode) selectModeA \i ->
+        iconSelectGroup state "Mode jeu" [0, 1, 2, 3] (state^._mode) selectModeA \i ->
             _{icon = IconSymbol $ "#lo-mode" <> show (i + 1)},
-        iconSelectGroup lens state "Difficulté" [0, 1, 2, 3, 4, 5, 6] (state^._level) selectLevelA \i ->
+        iconSelectGroup state "Difficulté" [0, 1, 2, 3, 4, 5, 6] (state^._level) selectLevelA \i ->
             levelOptions i (Just i > (state^._maxLevels) !! (state^._mode)),
-        icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state
+        icongroup "Options" $ [ihelp state, ireset state, irules state]
     ]
 
     grid = div' ([class' "ui-board" true] <> gridStyle rows columns 4) $
@@ -58,10 +57,10 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
                 style "width" $ pc (0.86 / toNumber columns),
                 style "left" $ pc ((toNumber col + 0.07) / toNumber columns),
                 style "top" $ pc ((toNumber row + 0.07) / toNumber rows),
-                click $ lens 🔍 play2A index
+                click $ play2A index
             ]
 
-    board = incDecGrid lens state [grid]
+    board = incDecGrid state [grid]
 
     rules = [text "blablahblah"]
 

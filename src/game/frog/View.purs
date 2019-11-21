@@ -3,14 +3,13 @@ module Game.Frog.View (view) where
 import MyPrelude
 import Lib.Util (map2, tabulate, pairwise, floatRange)
 import Pha (VDom, text, ifN, maybeN)
-import Pha.Action ((🔍), getEvent)
 import Pha.Html (div', span, br, svg, viewBox, g, use, line, path, text', px,
                 class', key, click, style, stroke, fill, strokeDasharray, strokeWidth, translate)
 import Pha.Event (shiftKey)
 import UI.Template (template, card, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icons (icongroup, iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
 import Game.Core (_nbRows, _position, _help, _locked, playA)
-import Game.Effs (EFFS)
+import Game.Effs (EFFS, getEvent)
 import Game.Frog.Model (State, _moves, _marked, selectMoveA, reachableArray, markA)
 
 type Cartesian = { x :: Number, y :: Number}
@@ -67,16 +66,16 @@ lily i x y reachable hidden =
         class' "hidden" hidden
     ]
 
-view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens _{config = config, board = board, rules = rules, winTitle = winTitle} state where
+view :: State -> VDom State EFFS
+view state = template _{config = config, board = board, rules = rules, winTitle = winTitle} state where
     position = state^._position
     reachable = reachableArray state
     spoints = spiralPoints (state^._nbRows)
     pointsPolar = spiralPointsPolar $ state^._nbRows
     config = card "La grenouille" [
-        iconSelectGroupM lens state "Déplacements autorisés" [1, 2, 3, 4, 5] (state^._moves) selectMoveA (const identity),
-        icons2Players lens state,
-        icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x lens state
+        iconSelectGroupM state "Déplacements autorisés" [1, 2, 3, 4, 5] (state^._moves) selectMoveA (const identity),
+        icons2Players state,
+        icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x state
     ]
     grid = 
         div' [class' "ui-board frog-board" true] [
@@ -90,7 +89,7 @@ view lens state = template lens _{config = config, board = board, rules = rules,
                 map2 spoints reachable \i {x, y} reach ->
                     g [
                         key $ "lily" <> show i,
-                        click $ lens 🔍 ifM (shiftKey <$> getEvent) (markA i) (playA i)
+                        click $ ifM (shiftKey <$> getEvent) (markA i) (playA i)
                     ] [
                         lily i x y false false,
                         lily i x y true (not reach || state^._locked),
@@ -123,7 +122,7 @@ view lens state = template lens _{config = config, board = board, rules = rules,
             span [] [text (turnMessage state)]
         ]
 
-    board = incDecGrid lens state [grid]
+    board = incDecGrid state [grid]
 
     rules = [
         text "Jeu de la grenouille", br,

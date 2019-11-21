@@ -3,7 +3,6 @@ module Game.Solitaire.View where
 import MyPrelude
 import Lib.Util (coords)
 import Pha (VDom, text, ifN, maybeN)
-import Pha.Action ((🔍))
 import Pha.Html (div', br, svg, rect, circle, key, attr, class', style, click, 
                     viewBox, fill, stroke, strokeWidth, translate, px)
 import Game.Effs (EFFS)
@@ -23,8 +22,8 @@ tricolor i columns help =
 cursor :: ∀a b. PointerPosition -> b -> VDom a EFFS
 cursor pp _ = circle 0.0 0.0 20.0 ([attr "pointer-events" "none", fill "url(#soli-peg)"] <> svgCursorStyle pp)
 
-view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens _{config=config, board=board, rules=rules, winTitle=winTitle, scoreDialog=scoreDialog} state where
+view :: State -> VDom State EFFS
+view state = template _{config=config, board=board, rules=rules, winTitle=winTitle, scoreDialog=scoreDialog} state where
     columns = state^._nbColumns
     rows = state^._nbRows
     isCircleBoard = state^._board == CircleBoard
@@ -41,22 +40,22 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
     config =
         let boards = [CircleBoard, Grid3Board, RandomBoard, EnglishBoard, FrenchBoard]
             ihelp = iconbutton state _{icon = IconSymbol "#help", selected = state^._help > 0, tooltip = Just "Aide"}
-                    [click $ lens 🔍 toggleHelpA]
+                    [click toggleHelpA]
         in        
         card "Jeu du solitaire" [
-            iconSelectGroup lens state "Plateau" boards (state^._board) setBoardA \i opt -> case i of
+            iconSelectGroup state "Plateau" boards (state^._board) setBoardA \i opt -> case i of
                 CircleBoard -> opt{icon = IconSymbol "#circle", tooltip = Just "Cercle"}
                 Grid3Board -> opt{icon = IconText "3xN", tooltip = Just "3xN"}
                 RandomBoard -> opt{icon = IconSymbol "#shuffle", tooltip = Just "Aléatoire"}
                 EnglishBoard -> opt{icon = IconSymbol "#tea", tooltip = Just "Anglais"}
                 FrenchBoard ->  opt{icon = IconSymbol "#bread", tooltip = Just "Français"},
-            icongroup "Options" $ [ihelp] <> ([iundo, iredo, ireset, irules] <#> \x -> x lens state),
-            iconBestScore lens state
+            icongroup "Options" $ [ihelp] <> ([iundo, iredo, ireset, irules] <#> \x -> x state),
+            iconBestScore state
         ] 
 
     grid = div' ([
         class' "ui-board" true
-    ] <> dndBoardProps lens _dragged <> (if isCircleBoard then
+    ] <> dndBoardProps _dragged <> (if isCircleBoard then
                             [style "width" "100%", style "height" "100%"] 
                         else 
                             gridStyle rows columns 5
@@ -77,7 +76,7 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
                     fill "url(#soli-hole)",
                     class' "solitaire-hole" true,
                     style "transform" $ itemStyle i
-                ] <> dndItemProps lens _dragged false true i state)
+                ] <> dndItemProps _dragged false true i state)
             ],
             state^._position # mapWithIndex \i val -> ifN val \_ ->
                 circle 0.0 0.0 20.0 ([
@@ -85,14 +84,14 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
                     fill "url(#soli-peg)",
                     class' "solitaire-peg" true,
                     style "transform" $ itemStyle i
-                ] <> dndItemProps lens _dragged true false i state),
+                ] <> dndItemProps _dragged true false i state),
             [maybeN $ cursor <$> state^._pointer <*> state^._dragged]
         ]
     ]
 
-    board = incDecGrid lens state [grid]
+    board = incDecGrid state [grid]
 
-    scoreDialog _ = bestScoreDialog lens state \position -> [
+    scoreDialog _ = bestScoreDialog state \position -> [
         div' [class' "ui-flex-center solitaire-scoredialog" true] [
             div'([class' "ui-board" true] <> (if isCircleBoard then 
                                     [style "width" "100%", style "height" "100%"] 

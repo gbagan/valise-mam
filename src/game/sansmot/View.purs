@@ -5,7 +5,6 @@ import Data.Map (Map, fromFoldable) as M
 import Lib.Util (tabulate)
 import Game.Effs (EFFS)
 import Pha (VDom, Prop, text)
-import Pha.Action ((🔍))
 import Pha.Html (div', p, h1, h2, svg, path, line, text',
                 key, class', attr, style, stroke, fill, viewBox, pc, opacity, width, height, translate, click)
 import Game.Sansmot.Model (State, Page(..), pythaAnimation, carollAnimation, animateA, setPageA)
@@ -66,7 +65,7 @@ animPytha {anim} =
         text' 595 80 "c" $ [style "font-size" 20] <> f "e"
     ]
 
-animCaroll :: ∀a effs. State -> VDom a effs
+animCaroll :: ∀effs. State -> VDom State effs
 animCaroll {anim} =
     let f key = 
                 let phase = anim ^. at key # fromMaybe 0 in
@@ -89,12 +88,12 @@ animCaroll {anim} =
             line (-10) (50 * i) 1360 (50 * i) [class' "sansmot-grid" true]
     ]
 
-view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = 
+view :: State -> VDom State EFFS
+view state = 
     div' [class' "sansmot-main" true] [
         div' [class' "sansmot-menu" true] [
-            div' [class' "sansmot-pagelink" true, click $ lens 🔍 setPageA PythaPage] [text "1"],
-            div' [class' "sansmot-pagelink" true, click $ lens 🔍 setPageA CarollPage] [text "2"]
+            div' [class' "sansmot-pagelink" true, click $ setPageA PythaPage] [text "1"],
+            div' [class' "sansmot-pagelink" true, click $ setPageA CarollPage] [text "2"]
         ],
         main state.page
     ] where
@@ -119,7 +118,7 @@ view lens state =
         p [class' "sansmot-center" true] [
             animPytha state
         ],
-        p [class' "sansmot-center sansmot-link" true, click $ lens 🔍 animateA pythaAnimation] [text "Lancer l'animation"]
+        p [class' "sansmot-center sansmot-link" true, click $ animateA pythaAnimation] [text "Lancer l'animation"]
     ]
 
     main CarollPage = div' [key "caroll"] [
@@ -128,6 +127,5 @@ view lens state =
         p [class' "sansmot-center" true] [
             animCaroll state
         ],
-        p [class' "sansmot-center sansmot-link" true, click $ lens 🔍 animateA carollAnimation] [text "Lancer l'animation"]
+        p [class' "sansmot-center sansmot-link" true, click $ animateA carollAnimation] [text "Lancer l'animation"]
     ]
-

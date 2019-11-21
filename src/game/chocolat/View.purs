@@ -6,7 +6,6 @@ import Game.Effs (EFFS)
 import Game.Core (_position, _nbRows, _nbColumns, possibleMoves, playA)
 import Game.Chocolat.Model (State, Move(..), SoapMode(..), _soap, _soapMode, _moveWhenHover, cutLine, setSoapModeA, setHoverA) 
 import Pha (VDom, text, maybeN)
-import Pha.Action ((🔍))
 import Pha.Html (div', span, svg, br, rect, line, circle, use, key, class', click, pointerenter, pointerleave, viewBox, fill)
 import UI.Template (template, card, gridStyle, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icon (Icon(..))
@@ -16,30 +15,30 @@ inside :: State -> Int -> Int -> Boolean
 inside state row col = col >= left && col <= right - 1 && row >= top && row <= bottom - 1
     where {left, right, top, bottom} = state^._position
     
-view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens _{config=config, board=board, rules=rules, winTitle=winTitle} state where
+view :: State -> VDom State EFFS
+view state = template _{config=config, board=board, rules=rules, winTitle=winTitle} state where
     pos = state^._position
     rows = state^._nbRows
     columns = state^._nbColumns
     {col: soapCol, row: soapRow} = state^._soap
 
     config = card "Barre de chocolat" [
-        iconSizesGroup lens state [6∧7] true,
-        iconSelectGroup lens state "Emplacement du savon" [CornerMode, BorderMode, StandardMode] 
+        iconSizesGroup state [6∧7] true,
+        iconSelectGroup state "Emplacement du savon" [CornerMode, BorderMode, StandardMode] 
             (state^._soapMode) setSoapModeA \mode opt -> case mode of
                 CornerMode -> opt{icon = IconSymbol "#choc-mode0", tooltip = Just "Dans le coin"}
                 BorderMode -> opt{icon = IconSymbol "#choc-mode1", tooltip = Just "Sur un bord"}
                 StandardMode -> opt{icon = IconSymbol "#choc-mode2", tooltip = Just "N'importe où"},
-        icons2Players lens state,
-        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x lens state
+        icons2Players state,
+        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x state
     ]
 
     cutter row col move = circle (50.0 * toNumber col) (50.0 * toNumber row) 7.0 [
         key $ "c" <> show (row * (columns + 1) + col), 
         class' "chocolat-cutter" true,
-        pointerenter $ lens 🔍 setHoverA (Just move),
-        pointerleave $ lens 🔍 setHoverA Nothing,
-        click $ lens 🔍 (setHoverA Nothing *> playA move)
+        pointerenter $ setHoverA (Just move),
+        pointerleave $ setHoverA Nothing,
+        click $ setHoverA Nothing *> playA move
     ]
 
     grid = div' (gridStyle rows columns 3 <> [class' "ui-board" true]) [
@@ -70,7 +69,7 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
         )
     ]
 
-    board = incDecGrid lens state [
+    board = incDecGrid state [
         grid,
         span [class' "frog-turn-message" true] [text (turnMessage state)]
     ]

@@ -135,7 +135,7 @@ init = do
     _solitaire 🔍 G.init
     _tiling 🔍 G.init
     _tricolor 🔍 G.init
-    _valise 🔍 G.init  
+    _valise 🔍 G.init
     hashChange
 
 sliceFn :: ∀a. RootState -> (∀b. G.CGame b => (Lens' RootState b) -> a)  -> a
@@ -185,7 +185,7 @@ viewGame st = sliceFn st \lens -> G.view lens (st ^. lens)
 
 state :: RootState
 state = {
-    baseball: Baseball.state, 
+    baseball: Baseball.state,
     chocolat: Chocolat.state,
     dessin: Dessin.state,
     frog: Frog.state,

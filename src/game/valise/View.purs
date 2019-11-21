@@ -3,7 +3,6 @@ import MyPrelude
 import Game.Effs (EFFS)
 import Game.Valise.Model (State, showHelpA, setDragA, moveObjectA, toggleSwitchA, _positions)
 import Pha (VDom, Prop, h, text, maybeN)
-import Pha.Action ((🔍))
 import Pha.Html (div', a, svg, g, class', svguse, rect, attr, style, href, width, height, viewBox, fill, transform, translate, x, y, pc,
     click, pointermove, pointerenter, pointerleave, pointerup, pointerdown)
 
@@ -15,11 +14,11 @@ pos x' y' w h = [
     y (show y')
 ]
 
-valise :: ∀a. Lens' a State -> State -> VDom a EFFS
-valise lens state = svg [
+valise :: State -> VDom State EFFS
+valise state = svg [
     viewBox 0 0 825 690,
-    pointermove $ lens 🔍 moveObjectA,
-    pointerup $ lens 🔍 setDragA Nothing
+    pointermove moveObjectA,
+    pointerup $ setDragA Nothing
 ][
     h "use" [href "#valise", class' "valise-close" true, width "100%", height "100%"] [], 
 
@@ -27,7 +26,7 @@ valise lens state = svg [
         h "use" [href "#openvalise"] [],
 
         object { symbol: "switch", link: Nothing, help: "", drag: false } 
-            300 460 42 60 [click $ lens 🔍 toggleSwitchA,
+            300 460 42 60 [click toggleSwitchA,
                           style "transform" (if state.isSwitchOn then "scale(1,-1) translateY(-8%)" else "scale(1,1)")
                         ] [],
 
@@ -105,12 +104,12 @@ valise lens state = svg [
                     width w',
                     height h',
                     pointerdown $ if drag then 
-                            lens 🔍 setDragA (Just {name: symbol, x: toNumber w' / 1650.0, y: toNumber h' / 1380.0})
+                            setDragA (Just {name: symbol, x: toNumber w' / 1650.0, y: toNumber h' / 1380.0})
                         else
                             pure unit
                 ] <> if isJust link then [] else [
-                        pointerenter $ lens 🔍 showHelpA help,
-                        pointerleave $ lens 🔍 showHelpA ""
+                        pointerenter $ showHelpA help,
+                        pointerleave $ showHelpA ""
                 ]) [ 
                     h "use" [
                         href $ "#" <> symbol, class' "valise-symbol" true
@@ -119,23 +118,23 @@ valise lens state = svg [
                         rect "0" "0" "100%" "100%" ([
                             class' "valise-object-link" true, 
                             fill "transparent",
-                            pointerenter $ lens 🔍 showHelpA help,
-                            pointerleave $ lens 🔍 showHelpA ""
+                            pointerenter $ showHelpA help,
+                            pointerleave $ showHelpA ""
                         ] <> children)
                     ]
                 ]
             ]
         ]
 
-view :: ∀a. Lens' a State -> State -> VDom a EFFS 
-view lens state = div' [
+view :: State -> VDom State EFFS 
+view state = div' [
     class' "ui-flex-center valise-main-container" true,
     class' "open" state.isOpen
 ] [
     div' [] [
         div' [class' "valise-logo" true] [svguse "#logo" []],
         div' [class' "valise-container" true] [
-            valise lens state,
+            valise state,
             div' [
                 class' "valise-help" true,
                 class' "visible" (state.helpVisible && state.help /= "")

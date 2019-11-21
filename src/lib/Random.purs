@@ -6,8 +6,9 @@ import Effect (Effect)
 import Data.Int (floor, toNumber)
 import Data.Tuple (Tuple(Tuple), fst)
 import Data.Traversable (sequence)
-import Data.Array (length, mapWithIndex, foldr, unsafeIndex, insertAt)
+import Data.Array (length, mapWithIndex, foldl, unsafeIndex, insertAt)
 import Partial.Unsafe (unsafePartial)
+import Debug.Trace (traceM)
 
 newtype Seed = Seed Number
 newtype Random a = Random  (Seed -> Tuple a Seed)
@@ -46,8 +47,9 @@ randomBool = randomInt 2 <#> eq 0
 
 shuffle :: ∀a. Array a -> Random (Array a)
 shuffle array = do
-    rnds <- sequence $ array # mapWithIndex \i x -> Tuple x <$> randomInt (i + 1)
-    pure $ rnds # foldr (\(Tuple x i) t -> t # insertAt i x # fromMaybe t) []
+    rnds <- sequence $ array # mapWithIndex \i x -> Tuple x <$> randomInt (i+1)
+    traceM rnds
+    pure $ rnds # foldl (\t (Tuple x i) -> t # insertAt i x # fromMaybe []) []
 
 randomPick :: ∀a. Array a -> Maybe (Random a)
 randomPick [] = Nothing

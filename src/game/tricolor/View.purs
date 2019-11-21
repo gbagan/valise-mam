@@ -2,7 +2,6 @@ module Game.Tricolor.View where
 
 import MyPrelude
 import Pha (VDom, text)
-import Pha.Action ((🔍))
 import Pha.Html (div', svg, circle, text', class', attr, key, style, click, pointerenter, pointerleave, pc, stroke, fill, viewBox, translate)
 import Game.Effs (EFFS)
 import Game.Core (playA, isLevelFinished, _position)
@@ -18,17 +17,17 @@ translateCell i size = translate (pc x) (pc y) where
     x = 0.50 + 0.35 * cos (toNumber i * 2.0 * pi / toNumber size)
     y = 0.45 + 0.35 * sin (toNumber i * 2.0 * pi / toNumber size)
 
-view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens _{config=config, board=board, rules=rules} state where
+view :: State -> VDom State EFFS
+view state = template _{config=config, board=board, rules=rules} state where
     size = state^._size
     nbColors = state^._nbColors
     levelFinished = isLevelFinished state
 
     config = card "Feux tricolores" [
-        iconSelectGroup lens state "Nombre de lumières" [4, 5, 6, 7, 8] size setSizeA (const identity),
-        iconSelectGroup lens state "Nombre de couleurs" [2, 3, 4, 5] nbColors setNbColorsA (const identity),
-        iconSelectGroup lens state "Portée" [1, 2, 3] (state^._range) setRangeA (const identity),
-        icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> \x -> x lens state
+        iconSelectGroup state "Nombre de lumières" [4, 5, 6, 7, 8] size setSizeA (const identity),
+        iconSelectGroup state "Nombre de couleurs" [2, 3, 4, 5] nbColors setNbColorsA (const identity),
+        iconSelectGroup state "Portée" [1, 2, 3] (state^._range) setRangeA (const identity),
+        icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> \x -> x state
     ]
 
     board = div' [class' "ui-board tricolor-board" true] [
@@ -41,9 +40,9 @@ view lens state = template lens _{config=config, board=board, rules=rules} state
                     key $ "b" <> show i,
                     style "fill" $ if levelFinished then "" else colors !! color # fromMaybe "",
                     style "transform" (translateCell i size),
-                    click $ lens 🔍 playA i,
-                    pointerenter $ lens 🔍 setHoverCellA (Just i),
-                    pointerleave $ lens 🔍 setHoverCellA Nothing
+                    click $ playA i,
+                    pointerenter $ setHoverCellA (Just i),
+                    pointerleave $ setHoverCellA Nothing
                 ],
 
             concat $ take nbColors colors # mapWithIndex \i color -> [

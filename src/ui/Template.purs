@@ -1,7 +1,7 @@
 module UI.Template where
 import MyPrelude
 import Pha (VDom, Prop, text, emptyNode, maybeN)
-import Pha.Action (Action, setState, (🔍))
+import Pha.Action (Action, setState)
 import Pha.Html (div', class', style, translate, pc, pointerup, pointerdown, pointerleave, pointermove)
 import Game.Core (class Game, class ScoreGame, GState, Mode(..), Turn(..), SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointer, _locked, 
@@ -27,16 +27,15 @@ card title children =
         div' [class' "ui-card-body" true] children
     ]
 
-incDecGrid :: ∀pos ext mov d. Game pos ext mov => Lens' d (GState pos ext) -> GState pos ext -> Array (VDom d EFFS) 
-                        -> VDom d EFFS
-incDecGrid lens state = U.incDecGrid {
+incDecGrid :: ∀pos ext mov. Game pos ext mov => GState pos ext -> Array (VDom (GState pos ext) EFFS) -> VDom (GState pos ext) EFFS
+incDecGrid state = U.incDecGrid {
     locked: state^._locked,
     nbRows: state^._nbRows,
     nbColumns: state^._nbColumns,
     showRowButtons: minRows < maxRows,
     showColButtons: minCols < maxCols,
     customSize: state^._customSize,
-    onResize: \x y -> lens 🔍 setGridSizeA x y true
+    onResize: \x y -> setGridSizeA x y true
 } where
     SizeLimit minRows minCols maxRows maxCols = sizeLimit state 
 
@@ -59,17 +58,18 @@ defaultElements = {
     scoreDialog: \_ -> emptyNode
 }
 
-dialog :: ∀a pos aux effs. Lens' a (GState pos aux) -> String -> Array (VDom a effs) -> VDom a effs
-dialog lens title = D.dialog {title, onCancel: Nothing, onOk: Just $ lens 🔍 setState (_dialog .~ NoDialog)}
+dialog :: ∀pos ext effs. String -> Array (VDom (GState pos ext) effs) -> VDom (GState pos ext) effs
+dialog title = D.dialog {title, onCancel: Nothing, onOk: Just $ setState (_dialog .~ NoDialog)}
 
-bestScoreDialog :: ∀a pos aux mov effs. ScoreGame pos aux mov => Lens' a (GState pos aux) -> GState pos aux
-                                  -> (pos -> Array (VDom a effs)) -> VDom a effs
-bestScoreDialog lens state children = maybeN $ bestScore state <#> snd <#> \pos ->
-    dialog lens "Meilleur score" (children pos)
+bestScoreDialog :: ∀pos ext mov effs. ScoreGame pos ext mov => GState pos ext
+                                  -> (pos -> Array (VDom (GState pos ext) effs)) -> VDom (GState pos ext) effs
+bestScoreDialog state children = maybeN $ bestScore state <#> snd <#> \pos ->
+    dialog "Meilleur score" (children pos)
 
-template :: ∀a pos aux mov. Game pos aux mov =>
-                Lens' a (GState pos aux) -> (Elements a EFFS -> Elements a EFFS) -> GState pos aux  -> VDom a EFFS
-template lens elemFn state =
+template :: ∀pos ext mov. Game pos ext mov =>
+            (Elements (GState pos ext) EFFS -> Elements (GState pos ext) EFFS) 
+            -> GState pos ext -> VDom (GState pos ext) EFFS
+template elemFn state =
     div' [] [
         div' [class' "main-container" true] [
             div' [] [board, winPanel winTitle (state^._showWin)],
@@ -79,12 +79,12 @@ template lens elemFn state =
     ]
     where
         {board, config, rules, winTitle, customDialog, scoreDialog} = elemFn defaultElements
-        dialog' Rules = dialog lens "Règles du jeu" rules
+        dialog' Rules = dialog "Règles du jeu" rules
         dialog' (ConfirmNewGame s) =
             D.dialog {
                 title: "Nouvelle partie", 
-                onCancel: Just $ lens 🔍 setState (_dialog .~ NoDialog), 
-                onOk: Just (lens 🔍 confirmNewGameA s)
+                onCancel: Just $ setState (_dialog .~ NoDialog), 
+                onOk: Just $ confirmNewGameA s
             } [
                 text "Tu es sur le point de créer une nouvelle partie. Ta partie en cours sera perdue. Es-tu sûr(e)?"
             ]
@@ -116,35 +116,35 @@ svgCursorStyle {x, y} = [
 
 -- style à appliquer sur l'élément DOM représentant le plateau
 -- permet de mémoriser la position du pointeur
-trackPointer :: ∀pos ext a. Lens' a (GState pos ext) -> Array (Prop a EFFS)
-trackPointer lens = [
+trackPointer :: ∀pos ext. Array (Prop (GState pos ext) EFFS)
+trackPointer = [
     style "touch-action" "none",
-    pointermove $ lens 🔍 move,
-    pointerleave $ lens 🔍 setState (_pointer .~ Nothing),
-    pointerdown $ lens 🔍 move
+    pointermove move,
+    pointerleave $ setState (_pointer .~ Nothing),
+    pointerdown move
 ] where
     move = getPointerPosition >>= setPointerPositionA
 
 -- même chose que trackPointer mais gère le drag and drop par l'intermédiaire d'un lens
-dndBoardProps :: ∀pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>
-    Lens' a (GState pos ext) -> Lens' (GState pos ext) (Maybe dnd) -> Array (Prop a EFFS)
-dndBoardProps lens dragLens = [
+dndBoardProps :: ∀pos ext dnd. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>
+    Lens' (GState pos ext) (Maybe dnd) -> Array (Prop (GState pos ext) EFFS)
+dndBoardProps dragLens = [
     style "touch-action" "none", 
-    pointermove $ lens 🔍 move,
-    pointerup $ lens 🔍 setState (dragLens .~ Nothing),
-    pointerleave $ lens 🔍 leave,
-    pointerdown $ lens 🔍 move
+    pointermove move,
+    pointerup $ setState (dragLens .~ Nothing),
+    pointerleave leave,
+    pointerdown move
 ] where
     move = getPointerPosition >>= setPointerPositionA
     leave = setState $ (_pointer .~ Nothing) ∘ (dragLens .~ Nothing)
 
-dndItemProps :: ∀pos ext dnd a. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>
-    Lens' a (GState pos ext) -> Lens' (GState pos ext) (Maybe dnd) -> Boolean -> Boolean -> dnd -> (GState pos ext) -> Array (Prop a EFFS)
-dndItemProps lens dragLens draggable droppable id state = [
+dndItemProps :: ∀pos ext dnd. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>
+    Lens' (GState pos ext) (Maybe dnd) -> Boolean -> Boolean -> dnd -> (GState pos ext) -> Array (Prop (GState pos ext) EFFS)
+dndItemProps dragLens draggable droppable id state = [
     class' "dragged" dragged,
     class' "candrop" candrop,
-    pointerdown $ when draggable $ releasePointerCapture *> (lens 🔍 setState (dragLens .~ Just id)),
-    pointerup $ lens 🔍 (if candrop then dropA dragLens id else setState (dragLens .~ Nothing))  -- stopPropagation
+    pointerdown $ when draggable $ releasePointerCapture *> setState (dragLens .~ Just id),
+    pointerup $ if candrop then dropA dragLens id else setState (dragLens .~ Nothing)  -- stopPropagation
 ] where
     draggedItem = state ^. dragLens
     candrop = droppable && (draggedItem # maybe false (\x -> canPlay state { from: x, to: id }))

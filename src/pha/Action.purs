@@ -49,8 +49,6 @@ zoomAt lens (Run f) = Run $ hoistFree (lensVariant lens) f
 
 infix 3 zoomAt as 🔍
 
-
-
 data Rng a = Rng (Seed -> a)
 derive instance functorRng :: Functor Rng
 type RNG = FProxy Rng

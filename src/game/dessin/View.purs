@@ -1,7 +1,6 @@
 module Game.Dessin.View (view) where
 import MyPrelude
 import Pha (VDom, text, maybeN)
-import Pha.Action ((🔍))
 import Pha.Html (div', button, svg, line, circle, span, br, class', click, contextmenu,
                  disabled, viewBox, stroke, fill, strokeWidth, strokeDasharray)
 import Game.Core (canPlay, playA, _position, _pointer)
@@ -22,21 +21,21 @@ getCoordsOfEdge graph (u ↔ v) = {x1, x2, y1, y2} where
     {x: x1, y: y1} = getCoords graph u
     {x: x2, y: y2} = getCoords graph v
 
-view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens _{config=config, board=board, rules=rules, winTitle=winTitle} state where
+view :: State -> VDom State EFFS
+view state = template _{config=config, board=board, rules=rules, winTitle=winTitle} state where
     position = state^._position
     graph = state^._graph
     raises = nbRaises state
     s = if raises > 1 then "s" else ""
 
     config = card "Dessin" [
-        iconSelectGroup lens state "Dessin" [0, 1, 2, 3, 4] (state^._graphIndex) setGraphIndexA \i -> _{icon = IconText (show (i + 1)) },
-        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x lens state
+        iconSelectGroup state "Dessin" [0, 1, 2, 3, 4] (state^._graphIndex) setGraphIndexA \i -> _{icon = IconText (show (i + 1)) },
+        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x state
     ]
 
-    board = div' (trackPointer lens <> [
+    board = div' (trackPointer <> [
                 class' "ui-board dessin-board" true,
-                contextmenu $ preventDefault *> (lens 🔍 playA Nothing)]) [
+                contextmenu $ preventDefault *> playA Nothing]) [
         svg [class' "dessin-svg" true, viewBox 0 0 100 100] $ concat [
             graph.edges <#> \edge ->
                 let {x1, x2, y1, y2} = getCoordsOfEdge graph edge
@@ -48,7 +47,7 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
                 circle (20.0 * x) (20.0 * y) 3.0 [
                     stroke $ if Just (Just i) == last position then "red" else "blue",
                     fill "blue",
-                    click $ lens 🔍 playA (Just i)
+                    click $ playA (Just i)
                 ],
             [maybeN $ currentLine <$> (state^._pointer) <*> (getCoords graph <$> join (last position))]
         ],
@@ -58,7 +57,7 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
         button [
             class' "ui-button ui-button-primary dessin-raise" true,
             disabled $ not (canPlay state Nothing),
-            click $ lens 🔍 playA Nothing
+            click $ playA Nothing
         ] [text "Lever le crayon"]
     ]
 
@@ -66,6 +65,5 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
         text "blah blah blah blah blah blah blah blah", br,
         text "blah blah blah blah blah blah blah blah"
     ]
-
 
     winTitle = "Tu as réussi en " <> show raises <> " levé" <> s

@@ -1,7 +1,6 @@
 module Game.Nim.View where
 import MyPrelude
 import Pha (VDom, text)
-import Pha.Action ((🔍))
 import Pha.Html (div', span, br, svg, rect, use, class', key, style, click, fill, viewBox, translate, px)
 import Lib.Util (tabulate)
 import Game.Effs (EFFS)
@@ -10,16 +9,16 @@ import Game.Nim.Model (State, Move(..), _nbPiles, _length, setLengthA, setNbPile
 import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset, irules)
 
-view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens _{config=config, board=board, rules=rules, winTitle=winTitle} state where
+view :: State -> VDom State EFFS
+view state = template _{config=config, board=board, rules=rules, winTitle=winTitle} state where
     nbPiles = state^._nbPiles
     length = state^._length
 
     config = card "Poker Nim" [
-        iconSelectGroup lens state "Nombre de rangées" [1, 2, 3, 4, 5] nbPiles setNbPilesA (const identity),
-        iconSelectGroup lens state "Taille des rangées" [10, 5] length setLengthA (const identity),
-        icons2Players lens state,
-        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x lens state
+        iconSelectGroup state "Nombre de rangées" [1, 2, 3, 4, 5] nbPiles setNbPilesA (const identity),
+        iconSelectGroup state "Taille des rangées" [10, 5] length setLengthA (const identity),
+        icons2Players state,
+        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x state
     ]
 
     board = div' [class' "ui-board nim-board" true] [
@@ -37,7 +36,7 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
                     rect (-2.5) (-2.5) 5.0 5.0 [
                         key $ "base-" <> show i <> "-" <> show j,
                         fill "gray",
-                        click $ lens 🔍 playA (Move i j),
+                        click $ playA (Move i j),
                         style "transform" $
                             translate (px $ (if length == 5 then 30 else 5) + 10 * j) (px $ 15 + 19 * i) <>
                             " rotate(45deg)",

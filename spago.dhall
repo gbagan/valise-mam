@@ -2,10 +2,10 @@
 Welcome to a Spago project!
 You can edit this file as you like.
 -}
-{ name =
-    "purescript"
+{ name = "purescript"
 , dependencies =
     [ "arrays"
+    , "debug"
     , "effect"
     , "maybe"
     , "prelude"
@@ -13,8 +13,6 @@ You can edit this file as you like.
     , "run"
     , "strings"
     ]
-, packages =
-    ./packages.dhall
-, sources =
-    [ "src/**/*.purs" ]
+, packages = ./packages.dhall
+, sources = [ "src/**/*.purs" ]
 }

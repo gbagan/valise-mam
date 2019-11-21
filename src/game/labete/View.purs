@@ -4,7 +4,6 @@ import MyPrelude
 import Lib.Util (coords, map3)
 import Math (abs)
 import Pha (VDom, Prop, text, ifN, maybeN)
-import Pha.Action ((🔍))
 import Pha.Event (shiftKey)
 import Pha.Html (div', br, svg, g, rect, use, key, attr, class', style, click, pointerdown, pointerup, pointerleave,
                 pc, translate, fill, stroke, strokeWidth, transform, viewBox)
@@ -44,17 +43,17 @@ square { color, hasTrap, hasBeast, row, col } props =
             use 5.0 5.0 40.0 40.0 "#trap" []
     ]
 
-ihelp :: ∀a. Lens' a State -> State -> VDom a EFFS
-ihelp lens state =
+ihelp :: State -> VDom State EFFS
+ihelp state =
     iconbutton
         state _{icon = IconSymbol "#help", tooltip = Just "Aide", selected = state^._help} [
-            pointerdown $ lens 🔍 setHelpA true,
-            pointerup $ lens 🔍 setHelpA false,
-            pointerleave $ lens 🔍 setHelpA false
+            pointerdown $ setHelpA true,
+            pointerup $ setHelpA false,
+            pointerleave $ setHelpA false
         ]
 
-view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens _{config=config, board=board, rules=rules, winTitle=winTitle, 
+view :: State -> VDom State EFFS
+view state = template _{config=config, board=board, rules=rules, winTitle=winTitle, 
                                 customDialog=customDialog, scoreDialog=scoreDialog} state where
     rows = state^._nbRows
     columns = state^._nbColumns
@@ -62,22 +61,22 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
     beastTypes = [Type1, Type2, Type3, Type4, CustomBeast]
 
     config = card "La bête" [
-        iconSelectGroup lens state "Forme de la bête" beastTypes (state^._beastType) setBeastA case _ of
+        iconSelectGroup state "Forme de la bête" beastTypes (state^._beastType) setBeastA case _ of
             Type1 -> _{icon = IconSymbol "#beast1"}
             Type2 -> _{icon = IconSymbol "#beast2"}
             Type3 -> _{icon = IconSymbol "#beast3"}
             Type4 -> _{icon = IconSymbol "#beast23"}
             CustomBeast -> _{icon = IconSymbol "#customize"}
         ,
-        iconSelectGroup lens state "Type de la grille" modes (state^._mode) setModeA case _ of
+        iconSelectGroup state "Type de la grille" modes (state^._mode) setModeA case _ of
             StandardMode -> _{icon = IconSymbol "#grid-normal", tooltip = Just "Normale"}
             CylinderMode -> _{icon = IconSymbol "#grid-cylinder", tooltip = Just "Cylindrique"}
             TorusMode -> _{icon = IconSymbol "#grid-torus", tooltip = Just "Torique"},
 
-        iconSizesGroup lens state [3∧3, 5∧5, 6∧6] true,
+        iconSizesGroup state [3∧3, 5∧5, 6∧6] true,
 
-        icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state,
-        iconBestScore lens state
+        icongroup "Options" $ [ihelp state, ireset state, irules state],
+        iconBestScore state
     ]
 
     rules = [
@@ -93,19 +92,19 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
         attr "pointer-events" "none"
     ])
 
-    grid = div' (gridStyle rows columns 5 <> trackPointer lens <> [class' "ui-board" true,
-            pointerdown $ lens 🔍 whenM (shiftKey <$> getEvent) startZone2A
+    grid = div' (gridStyle rows columns 5 <> trackPointer <> [class' "ui-board" true,
+            pointerdown $ whenM (shiftKey <$> getEvent) startZone2A
     ]) [
         svg [viewBox 0 0 (50 * columns) (50 * rows)] (
             (map3 (state^._position) nonTrappedBeast  (state^._squareColors) \index hasTrap hasBeast color ->
                 let {row, col} = coords columns index in
                 square { color, row, col, hasTrap, hasBeast: hasBeast && state^._help } [
                     key $ show index,
-                    click $ lens 🔍unlessM (shiftKey <$> getEvent) (playA index),
+                    click $ unlessM (shiftKey <$> getEvent) (playA index),
                     -- pointerenter: [actions.setSquareHover, index], todo
                     -- ponterleave: [actions.setSquareHover, null],
-                    pointerup $ lens 🔍 finishZoneA index,
-                    pointerdown $ lens 🔍 whenM (shiftKey <$> getEvent) (startZoneA index)
+                    pointerup $ finishZoneA index,
+                    pointerdown $ whenM (shiftKey <$> getEvent) (startZoneA index)
                 ]
             ) <> [
                 maybeN $ case state^._startPointer of
@@ -115,7 +114,7 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
         )
     ]
 
-    board = incDecGrid lens state [
+    board = incDecGrid state [
         grid,
         ifN (state^._selectedColor > 0) \_ ->
             div' [
@@ -124,7 +123,7 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
             ][]
     ]
 
-    customDialog _ = dialog lens "Personnalise ta bête" [
+    customDialog _ = dialog "Personnalise ta bête" [
         div' [class' "labete-custombeast-grid-container" true] [ 
             svg [viewBox 0 0 250 250] (
                 state ^. (_beast ∘ ix 0 ∘ _isoCustom) #
@@ -132,13 +131,13 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
                         let {row, col} = coords 5 index in
                         square {row, col, hasBeast, hasTrap: false, color: 0} [
                             key $ show index,
-                            click $ lens  🔍 flipCustomBeastA index
+                            click $ flipCustomBeastA index
                         ]
             )
         ]
     ]
 
-    scoreDialog _ = bestScoreDialog lens state \position -> [
+    scoreDialog _ = bestScoreDialog state \position -> [
         div' [class' "ui-flex-center labete-bestscore-grid-container" true] [
             div' (gridStyle rows columns 5 <> [class' "ui-board" true])  [
                 svg [viewBox 0 0 (50 * columns) (50 * rows)] (

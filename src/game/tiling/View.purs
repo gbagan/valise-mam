@@ -2,7 +2,6 @@ module Game.Tiling.View (view) where
 import MyPrelude
 import Lib.Util (coords)
 import Pha (VDom, Prop, text, ifN, maybeN)
-import Pha.Action ((🔍))
 import Pha.Html (div', g, rect, line, use, key, attr, style, svg, class', click, contextmenu, pointerenter, pointerleave,
                  translate, viewBox, fill, stroke, strokeWidth, transform)
 import Game.Effs (EFFS, preventDefault)
@@ -29,8 +28,8 @@ square {isDark, hasBlock, hasSink, row, col} props =
             use 0.0 0.0 50.0 50.0 "#sink" [key "sink"]
     ]
     
-view :: ∀a. Lens' a State -> State -> VDom a EFFS
-view lens state = template lens _{config=config, board=board, rules=rules, winTitle=winTitle, customDialog=customDialog} state where
+view :: State -> VDom State EFFS
+view state = template _{config=config, board=board, rules=rules, winTitle=winTitle, customDialog=customDialog} state where
     position = state^._position
     rows = state^._nbRows
     columns = state^._nbColumns
@@ -39,11 +38,11 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
 
 
     config = card "Carrelage" [
-        iconSizesGroup lens state [4∧5, 5∧5, 5∧6, 7∧7] true,
-        iconSelectGroup lens state "Motif du pavé" [Type1, Type2, Type3, CustomTile] (state^._tileType) setTileA \t ->
+        iconSizesGroup state [4∧5, 5∧5, 5∧6, 7∧7] true,
+        iconSelectGroup state "Motif du pavé" [Type1, Type2, Type3, CustomTile] (state^._tileType) setTileA \t ->
             _{icon = IconSymbol ("#" <> show t)},  --- custom
-        iconSelectGroup lens state "Nombre d'éviers" [0, 1, 2] (state^._nbSinks) setNbSinksA (const identity),
-        icongroup "Options" $ [ihelp, ireset, irules] <#> \x -> x lens state
+        iconSelectGroup state "Nombre d'éviers" [0, 1, 2] (state^._nbSinks) setNbSinksA (const identity),
+        icongroup "Options" [ihelp state, ireset state, irules state]
     ]
 
     tileCursor pp =
@@ -63,9 +62,9 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
             attr "pointer-events" "none"
         ] <> svgCursorStyle pp)
 
-    grid = div' (gridStyle rows columns 5 <> trackPointer lens <> [
+    grid = div' (gridStyle rows columns 5 <> trackPointer <> [
         class' "ui-board" true,
-        contextmenu $ preventDefault *> (lens 🔍 rotateA)
+        contextmenu $ preventDefault *> rotateA
     ]) [
         svg [viewBox 0 0 (50 * columns) (50 * rows)] $
             (position # mapWithIndex \index pos ->
@@ -76,9 +75,9 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
                     hasSink: pos == -1,
                     row, col
                 } [
-                    click $ lens 🔍 clickOnCellA index,
-                    pointerenter $ lens 🔍 setHoverSquareA (Just index),
-                    pointerleave $ lens 🔍 setHoverSquareA Nothing
+                    click $ clickOnCellA index,
+                    pointerenter $ setHoverSquareA (Just index),
+                    pointerleave $ setHoverSquareA Nothing
                 ]
             ) <> (position # mapWithIndex \index pos ->
                 let {row, col} = coords columns index in
@@ -95,19 +94,19 @@ view lens state = template lens _{config=config, board=board, rules=rules, winTi
             ) <> [maybeN $ (if length (sinks state) < state^._nbSinks then sinkCursor else tileCursor) <$> state^._pointer]
     ]
 
-    board = incDecGrid lens state [grid]
+    board = incDecGrid state [grid]
 
     rules = [text "blah blah"]
     winTitle = "GAGNÉ"
 
-    customDialog _ = dialog lens "Personnalise ta tuile" [
+    customDialog _ = dialog "Personnalise ta tuile" [
         div' [class' "tiling-customtile-grid-container" true] [
             div' [class' "tiling-grid" true] [
                 svg [viewBox 0 0 250 250] (
                     state^. (_tile ∘ _isoCustom) # mapWithIndex \index hasBlock ->
                         let {row, col} = coords 5 index
                         in square {hasBlock, row, col, hasSink: false, isDark: false}
-                            [key (show index), click $ lens 🔍 flipTileA index]
+                            [key (show index), click $ flipTileA index]
                 )
             ]
         ]

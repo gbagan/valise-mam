@@ -1,6 +1,7 @@
 module Game.Solitaire where
 import MyPrelude
 import Pha.Action ((🔍))
+import Pha.Lens (viewOver)
 import Game (class CGame)
 import Game.Core (init) as C
 import Game.Solitaire.Model (State, istate) as M
@@ -12,7 +13,7 @@ _iso = iso (\(State a) -> a) State
 
 instance cgame :: CGame State where
     init = _iso 🔍 C.init
-    view lens (State st) = V.view (lens ∘ _iso) st
+    view lens (State st) = viewOver (lens ∘ _iso) (V.view st)
     onKeyDown _ = pure unit
 
 state :: State

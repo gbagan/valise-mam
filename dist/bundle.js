@@ -4907,7 +4907,7 @@ var PS = {};
           if (m instanceof RngNumber) {
               return new RngNumber(Data_Functor.map(Data_Functor.functorFn)(f)(m.value0));
           };
-          throw new Error("Failed pattern match at Pha.Random (line 14, column 1 - line 14, column 42): " + [ m.constructor.name ]);
+          throw new Error("Failed pattern match at Pha.Random (line 11, column 1 - line 11, column 42): " + [ m.constructor.name ]);
       };
   });
   var randomInt = function (max) {

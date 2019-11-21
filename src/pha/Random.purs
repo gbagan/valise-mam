@@ -1,10 +1,7 @@
 module Pha.Random where
 import Prelude
-import Math (sin)
 import Data.Maybe (Maybe(..), fromMaybe)
-import Effect (Effect)
-import Data.Int (floor, toNumber)
-import Data.Tuple (Tuple(Tuple), fst)
+import Data.Tuple (Tuple(Tuple))
 import Data.Traversable (sequence)
 import Data.Array (length, mapWithIndex, foldl, unsafeIndex, insertAt)
 import Partial.Unsafe (unsafePartial)
@@ -28,6 +25,6 @@ shuffle array = do
     rnds <- sequence $ array # mapWithIndex \i x -> Tuple x <$> randomInt (i+1)
     pure $ rnds # foldl (\t (Tuple x i) -> t # insertAt i x # fromMaybe []) []
 
-randomPick :: ∀a r. Array a -> Maybe (Run (rng :: RNG | r) a)
+randomPick :: ∀a r. Array a -> Maybe (Random' r a)
 randomPick [] = Nothing
 randomPick t = Just $ unsafePartial $ unsafeIndex t <$> (randomInt $ length t)

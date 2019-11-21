@@ -111,9 +111,9 @@ hashChange = do
         setState _{location = location, anim = true}
         delay 100
         setState _{anim = false}
-        actionOver (_valise <<< Valise._iso) ValiseM.enterA
+        actionOver (_valise ∘ Valise._iso) ValiseM.enterA
     else do
-        actionOver (_valise <<< Valise._iso) ValiseM.leaveA
+        actionOver (_valise ∘ Valise._iso) ValiseM.leaveA
         setState _{location = location, anim = true}
         delay 100
         setState _{anim = false}

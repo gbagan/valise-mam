@@ -302,7 +302,7 @@ updateScore' strat state =
         oldScore = bestScore state
         isNewRecord = maybe true (cmp score ∘ fst) oldScore
         isNewRecord' = isNewRecord && strat == ShowWinOnNewRecord || strat == AlwaysShowWin
-        st2 = state # (_scores <<< at hash) %~ if isNewRecord then \_ -> Just (score ∧ (state^._position)) else identity
+        st2 = state # _scores ∘ at hash %~ if isNewRecord then \_ -> Just (score ∧ (state^._position)) else identity
     in st2 ∧ isNewRecord'
 
 bestScore :: ∀pos ext mov. ScoreGame pos ext mov => GState pos ext -> Maybe (Tuple Int pos)

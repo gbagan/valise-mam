@@ -139,7 +139,7 @@ icons2Players state =
 
 iconBestScore :: ∀pos ext mov. ScoreGame pos ext mov => GState pos ext -> VDom (GState pos ext) EFFS
 iconBestScore state =
-    icongroup ("Meilleur score (" <> maybe "∅" (show <<< fst) (bestScore state) <> ")") [
+    icongroup ("Meilleur score (" <> maybe "∅" (show ∘ fst) (bestScore state) <> ")") [
         iconbutton
             state
             _{icon = I.IconSymbol "#cup", disabled = isNothing (bestScore state), tooltip = Just "Meilleur score"}

@@ -6150,11 +6150,11 @@ var PS = {};
   var swap = function (i) {
       return function (j) {
           return function (array) {
-              return Data_Maybe.fromMaybe(array)(Control_Bind.bind(Data_Maybe.bindMaybe)(Data_Array.index(array)(i))(function (v) {
+              return Control_Bind.bind(Data_Maybe.bindMaybe)(Data_Array.index(array)(i))(function (v) {
                   return Control_Bind.bind(Data_Maybe.bindMaybe)(Data_Array.index(array)(j))(function (v1) {
                       return Control_Bind.bind(Data_Maybe.bindMaybe)(Data_Array.updateAt(i)(v1)(array))(Data_Array.updateAt(j)(v));
                   });
-              }));
+              });
           };
       };
   };
@@ -13125,6 +13125,7 @@ var PS = {};
   var Data_Eq = $PS["Data.Eq"];
   var Data_EuclideanRing = $PS["Data.EuclideanRing"];
   var Data_Foldable = $PS["Data.Foldable"];
+  var Data_Function = $PS["Data.Function"];
   var Data_HeytingAlgebra = $PS["Data.HeytingAlgebra"];
   var Data_Lens_Getter = $PS["Data.Lens.Getter"];
   var Data_Lens_Index = $PS["Data.Lens.Index"];
@@ -13303,17 +13304,17 @@ var PS = {};
       return function (move) {
           var act = (function () {
               if (move.from instanceof Panel && move.to instanceof Wheel) {
-                  return Data_Lens_Setter.set(Data_Lens_Index.ix(Data_Lens_Index.indexArray)(move.to.value0)(Data_Lens_Internal_Wander.wanderFunction))(new Data_Maybe.Just(move.from.value0));
+                  return Data_Array.updateAt(move.to.value0)(new Data_Maybe.Just(move.from.value0));
               };
               if (move.from instanceof Wheel && move.to instanceof Wheel) {
                   return Lib_Util.swap(move.from.value0)(move.to.value0);
               };
               if (move.from instanceof Wheel && move.to instanceof Board) {
-                  return Data_Lens_Setter.set(Data_Lens_Index.ix(Data_Lens_Index.indexArray)(move.from.value0)(Data_Lens_Internal_Wander.wanderFunction))(Data_Maybe.Nothing.value);
+                  return Data_Array.updateAt(move.from.value0)(Data_Maybe.Nothing.value);
               };
-              return Control_Category.identity(Control_Category.categoryFn);
+              return Data_Function["const"](Data_Maybe.Nothing.value);
           })();
-          return Data_Maybe.Just.create(act(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))));
+          return act(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget)));
       };
   }, Game_Core.defaultSizeLimit, function (st) {
       return new Data_Tuple.Tuple(st, true);

@@ -1,7 +1,7 @@
 module Lib.Util where
 
 import Prelude
-import Data.Maybe (fromMaybe, maybe)
+import Data.Maybe (Maybe, maybe)
 import Data.Tuple (Tuple)
 import Data.Array (range, (!!), mapWithIndex, updateAt, tail, zip, zipWith)
 import Data.Int (toNumber, floor)
@@ -35,9 +35,9 @@ floatRange begin end step = tabulate (max 0 (floor $ 1.0 + (end - begin) / step)
 pairwise :: ∀a. Array a -> Array (Tuple a a)
 pairwise list =  maybe [] (zip list) (tail list)
 
--- échange les éléments à la position i et j, retourne array si une des positions est hors du tableau  
-swap :: ∀a. Int -> Int -> Array a -> Array a
-swap i j array = fromMaybe array $ do
+-- échange les éléments à la position i et j
+swap :: ∀a. Int -> Int -> Array a -> Maybe (Array a)
+swap i j array = do
     x <- array !! i
     y <- array !! j
     array # updateAt i y >>= updateAt j x

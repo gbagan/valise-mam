@@ -2,17 +2,9 @@ module Game.Valise.View where
 import MyPrelude
 import Game.Effs (EFFS)
 import Game.Valise.Model (State, showHelpA, setDragA, moveObjectA, toggleSwitchA, _positions)
-import Pha (VDom, Prop, h, text, maybeN)
-import Pha.Html (div', a, svg, g, class', svguse, rect, attr, style, href, width, height, viewBox, fill, transform, translate, x, y, pc,
+import Pha (VDom, h, text, maybeN)
+import Pha.Html (div', a, svg, g, class', svguse, rect, attr, style, href, width, height, x, y, viewBox, fill, transform, translate, pc,
     click, pointermove, pointerenter, pointerleave, pointerup, pointerdown)
-
-pos :: ∀a effs. Int -> Int -> Int -> Int -> Array (Prop a effs)
-pos x' y' w h = [
-    width (show w),
-    height (show h),
-    x (show x'),
-    y (show y')
-]
 
 valise :: State -> VDom State EFFS
 valise state = svg [

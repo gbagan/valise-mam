@@ -6828,9 +6828,9 @@ var PS = {};
   };
   var translate = function (dictEUnit) {
       return function (dictEUnit1) {
-          return function (x1) {
-              return function (y1) {
-                  return "translate(" + (toStr(dictEUnit)(x1) + ("," + (toStr(dictEUnit1)(y1) + ")")));
+          return function (x$prime) {
+              return function (y$prime) {
+                  return "translate(" + (toStr(dictEUnit)(x$prime) + ("," + (toStr(dictEUnit1)(y$prime) + ")")));
               };
           };
       };
@@ -6838,8 +6838,8 @@ var PS = {};
   var svg = Pha.h("svg");
   var style = function (dictEUnit) {
       return function (n) {
-          return function (x1) {
-              return new Pha.Style(n, toStr(dictEUnit)(x1));
+          return function (x$prime) {
+              return new Pha.Style(n, toStr(dictEUnit)(x$prime));
           };
       };
   };
@@ -6879,8 +6879,8 @@ var PS = {};
   var br = Pha.h("br")([  ])([  ]);
   var attr = function (dictEUnit) {
       return function (n) {
-          return function (x1) {
-              return new Pha.Attr(n, toStr(dictEUnit)(x1));
+          return function (x$prime) {
+              return new Pha.Attr(n, toStr(dictEUnit)(x$prime));
           };
       };
   };
@@ -6954,11 +6954,11 @@ var PS = {};
   var strokeDasharray = attr(unittoStr)("stroke-dasharray");
   var strokeWidth = attr(unittoStr)("stroke-width");
   var text$prime = function (dictEUnit) {
-      return function (x1) {
-          return function (y1) {
+      return function (x$prime) {
+          return function (y$prime) {
               return function (t) {
                   return function (props) {
-                      return Pha.h("text")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ attr(dictEUnit)("x")(x1), attr(dictEUnit)("y")(y1) ])(props))([ Pha.text(t) ]);
+                      return Pha.h("text")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ attr(dictEUnit)("x")(x$prime), attr(dictEUnit)("y")(y$prime) ])(props))([ Pha.text(t) ]);
                   };
               };
           };
@@ -6969,13 +6969,13 @@ var PS = {};
       return function (dictEUnit1) {
           return function (dictEUnit2) {
               return function (dictEUnit3) {
-                  return function (x1) {
-                      return function (y1) {
+                  return function (x$prime) {
+                      return function (y$prime) {
                           return function (w) {
                               return function (h$prime) {
                                   return function (href$prime) {
                                       return function (props) {
-                                          return Pha.h("use")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ attr(dictEUnit)("x")(x1), attr(dictEUnit1)("y")(y1), attr(dictEUnit2)("width")(w), attr(dictEUnit3)("height")(h$prime), attr(unittoStr)("href")(href$prime) ])(props))([  ]);
+                                          return Pha.h("use")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ attr(dictEUnit)("x")(x$prime), attr(dictEUnit1)("y")(y$prime), attr(dictEUnit2)("width")(w), attr(dictEUnit3)("height")(h$prime), attr(unittoStr)("href")(href$prime) ])(props))([  ]);
                                       };
                                   };
                               };
@@ -6986,11 +6986,11 @@ var PS = {};
           };
       };
   };
-  var viewBox = function (a1) {
-      return function (b) {
-          return function (c) {
-              return function (d) {
-                  return attr(unittoStr)("viewBox")(Data_Show.show(Data_Show.showInt)(a1) + (" " + (Data_Show.show(Data_Show.showInt)(b) + (" " + (Data_Show.show(Data_Show.showInt)(c) + (" " + Data_Show.show(Data_Show.showInt)(d)))))));
+  var viewBox = function (x1) {
+      return function (x2) {
+          return function (x3) {
+              return function (x4) {
+                  return attr(unittoStr)("viewBox")(Data_Show.show(Data_Show.showInt)(x1) + (" " + (Data_Show.show(Data_Show.showInt)(x2) + (" " + (Data_Show.show(Data_Show.showInt)(x3) + (" " + Data_Show.show(Data_Show.showInt)(x4)))))));
               };
           };
       };

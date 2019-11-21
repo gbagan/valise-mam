@@ -11,9 +11,9 @@ newtype Percent a = Percent a
 instance unittoStr :: EUnit String where toStr = identity
 instance unitInt :: EUnit Int where toStr = show
 instance unitNumber :: EUnit Number where toStr = show 
-instance unitPx :: EUnit (Px Number) where toStr (Px x) = show x <> "px"
-instance unitPx2 :: EUnit (Px Int) where toStr (Px x) = show x <> "px"    
-instance unitPc :: EUnit (Percent Number) where toStr (Percent x) = show (100.0 * x) <> "%"
+instance unitPx :: EUnit (Px Number) where toStr (Px x') = show x' <> "px"
+instance unitPx2 :: EUnit (Px Int) where toStr (Px x') = show x' <> "px"    
+instance unitPc :: EUnit (Percent Number) where toStr (Percent x') = show (100.0 * x') <> "%"
 
 px :: ∀a. a -> Px a
 px = Px
@@ -24,13 +24,13 @@ key :: ∀a effs. String -> Prop a effs
 key = Key
 
 attr :: ∀a effs u. EUnit u  => String -> u -> Prop a effs
-attr n x = Attr n (toStr x)
+attr n x' = Attr n (toStr x')
 
 class' :: ∀a effs. String -> Boolean -> Prop a effs
 class' = Class
 
 style :: ∀a effs u. EUnit u => String -> u -> Prop a effs
-style n x = Style n (toStr x)
+style n x' = Style n (toStr x')
 
 click :: ∀a effs. Action a effs -> Prop a effs
 click = Event "click"
@@ -105,7 +105,7 @@ opacity = attr "opacity"
 fill :: ∀a effs. String -> Prop a effs
 fill = attr "fill"
 viewBox :: ∀a effs. Int -> Int -> Int -> Int -> Prop a effs
-viewBox a b c d = attr "viewBox" $ show a <> " " <> show b <> " " <> show c <> " " <> show d
+viewBox x1 x2 x3 x4 = attr "viewBox" $ show x1 <> " " <> show x2 <> " " <> show x3 <> " " <> show x4
 transform :: ∀a effs. String -> Prop a effs
 transform = attr "transform"
 strokeWidth :: ∀a effs. String -> Prop a effs
@@ -133,18 +133,17 @@ circle cx cy r props = h "circle" ([attr "cx" $ show cx, attr "cy" $ show cy, at
 
 use :: ∀a effs u1 u2 u3 u4. EUnit u1 => EUnit u2 => EUnit u3 => EUnit u4 =>
             u1 -> u2 -> u3 -> u4 -> String -> Array (Prop a effs) -> VDom a effs
-use x y w h' href' props =
-    h "use" ([attr "x" x, attr "y" y, attr "width" w, attr "height" h', attr "href" href'] <> props) []
+use x' y' w h' href' props =
+    h "use" ([attr "x" x', attr "y" y', attr "width" w, attr "height" h', attr "href" href'] <> props) []
 
 text' :: ∀a effs u. EUnit u => u -> u -> String -> Array (Prop a effs) -> VDom a effs
-text' x y t props = h "text" ([attr "x" x, attr "y" y] <> props) [text t]
+text' x' y' t props = h "text" ([attr "x" x', attr "y" y'] <> props) [text t]
 
 translate :: ∀u1 u2. EUnit u1 => EUnit u2 => u1 -> u2 -> String
-translate x y = "translate(" <> toStr x <> "," <> toStr y <> ")"
+translate x' y' = "translate(" <> toStr x' <> "," <> toStr y' <> ")"
 
 svguse :: ∀a effs. String -> Array (Prop a effs) -> VDom a effs
 svguse symbol props = svg ([width "100%", height "100%"]  <> props) [h "use" [attr "href" symbol] []]
 
 rgbColor :: Int -> Int -> Int -> String
 rgbColor r g' b = "rgb(" <> show r <> "," <> show g' <> "," <> show b <> ")"
-

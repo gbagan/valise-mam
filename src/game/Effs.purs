@@ -2,10 +2,10 @@ module Game.Effs (EFFS, LOCATION, Location, getLocation, GetLocation, GetPointer
                   EVENTEFF, EventEff, preventDefault, releasePointerCapture, interpretEffects, module A) where
 import MyPrelude
 import Effect (Effect)
-import Lib.Random (genSeed)
 import Run (FProxy, Run, SProxy(..), lift, match)
 import Pha (InterpretEffs)
-import Pha.Action (DELAY, Delay(..), RNG, Rng(..), GetEvent(..), getEvent, EVENT, delay, getState, setState, setState', Event) as A
+import Pha.Action (DELAY, Delay(..), GetEvent(..), getEvent, EVENT, delay, getState, setState, setState', Event) as A
+import Pha.Random (RNG, Rng(..))
 import Pha.Event (preventDefault) as E
 
 type Location = {
@@ -35,23 +35,21 @@ type POINTER = FProxy GetPointer
 getPointerPosition :: ∀r. Run (pointer :: POINTER | r) (Maybe Position)
 getPointerPosition = lift (SProxy :: SProxy "pointer") (GetPointer identity)
 
-data EventEffect = PreventDefault | ReleasePointerCapture
-
-data EventEff a = EventEff EventEffect a
+data EventEff a = PreventDefault a | ReleasePointerCapture a
 derive instance functorEvEff :: Functor EventEff
 type EVENTEFF = FProxy EventEff
-eventEff :: ∀r. EventEffect -> Run (eventEff :: EVENTEFF | r) Unit
-eventEff e = lift (SProxy :: SProxy "eventEff") (EventEff e unit)
 
 preventDefault :: ∀r. Run (eventEff :: EVENTEFF | r) Unit
-preventDefault = eventEff PreventDefault
-releasePointerCapture :: ∀r. Run (eventEff :: EVENTEFF | r) Unit
-releasePointerCapture = eventEff ReleasePointerCapture
+preventDefault = lift (SProxy :: SProxy "eventEff") (PreventDefault unit)
 
-type EFFS = (rng :: A.RNG, delay :: A.DELAY, event :: A.EVENT, location :: LOCATION, pointer :: POINTER, eventEff :: EVENTEFF)
+releasePointerCapture :: ∀r. Run (eventEff :: EVENTEFF | r) Unit
+releasePointerCapture = lift (SProxy :: SProxy "eventEff") (ReleasePointerCapture unit)
+
+type EFFS = (rng :: RNG, delay :: A.DELAY, event :: A.EVENT, location :: LOCATION, pointer :: POINTER, eventEff :: EVENTEFF)
 
 foreign import getLoc :: Effect Location
 foreign import setTimeout :: Int -> Effect Unit -> Effect Unit
+foreign import genNumber :: Effect Number
 
 foreign import relativePointerPositionAux :: Maybe Position -> (Position -> Maybe Position) 
                                             -> A.Event -> Effect (Maybe Position)
@@ -63,11 +61,13 @@ foreign import releasePointerCaptureAux :: A.Event -> Effect Unit
 interpretEffects :: A.Event -> InterpretEffs EFFS
 interpretEffects ev = match {
     delay: \(A.Delay ms cont) -> setTimeout ms cont,
-    rng: \(A.Rng cont) -> genSeed >>= cont,
+    rng: case _ of
+            RngInt m cont -> genNumber >>= \r -> cont (floor(r * toNumber m))
+            RngNumber cont -> genNumber >>= cont,
     event: \(A.GetEvent cont) -> cont ev,
     location: \(GetLocation cont) -> getLoc >>= cont,
     pointer: \(GetPointer cont) -> relativePointerPosition ev >>= cont,
-    eventEff: \(EventEff eff cont) -> case eff of
-        PreventDefault -> E.preventDefault ev *> cont
-        ReleasePointerCapture -> releasePointerCaptureAux ev *> cont
+    eventEff: case _ of
+            PreventDefault cont -> E.preventDefault ev *> cont
+            ReleasePointerCapture cont -> releasePointerCaptureAux ev *> cont
 }

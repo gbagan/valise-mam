@@ -1,6 +1,6 @@
+exports.genNumber = Math.random;
 exports.getLoc = () => Object.assign({}, window.location);
 exports.setTimeout = ms => fn => () => setTimeout (fn, ms);
-
 exports.relativePointerPositionAux = nothing => just => e => () => {
     const rect = e.currentTarget.getBoundingClientRect();
     if (!rect) return nothing;
@@ -13,3 +13,4 @@ exports.relativePointerPositionAux = nothing => just => e => () => {
 
 exports.releasePointerCaptureAux = ev => () => ev && ev.target && ev.pointerId != null &&
                         ev.target.releasePointerCapture && ev.target.releasePointerCapture(ev.pointerId);
+

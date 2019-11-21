@@ -3,7 +3,7 @@ import MyPrelude
 import Data.Int.Bits (xor)
 import Lib.Util (tabulate2)
 import Pha.Action (Action)
-import Lib.Random (randomInt)
+import Pha.Random (randomInt)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class TwoPlayersGame, GState, Mode(..), Turn(..),
                 _ext, genState, newGame', _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
@@ -33,7 +33,6 @@ canPlay state (Move pile pos) =
     case state^._position !! pile of
         Nothing -> false 
         Just (p1 ∧ p2) -> pos /= p1 && pos /= p2 && if state^._turn == Turn1 then pos < p2 else pos > p1
-
 
 instance nimGame :: Game (Array (Tuple Int Int)) ExtState Move where
     play state move@(Move pile pos) = 

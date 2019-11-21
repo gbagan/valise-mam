@@ -1,10 +1,9 @@
 module Game.Noirblanc.Model where
 import MyPrelude
-import Lib.Random (Random, randomInt)
+import Pha.Random (Random, randomInt)
 import Lib.Util (dCoords)
 import Lib.KonamiCode (konamiCode)
-import Pha.Action (Action)
-import Game.Effs (RNG, DELAY, getState, setState)
+import Pha.Action (Action, RNG, DELAY, getState, setState)
 import Game.Core (class Game, GState, SizeLimit(..), 
          _ext, playA, isLevelFinished, _position, _nbColumns, _nbRows, newGame, newGame', genState)
 

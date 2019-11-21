@@ -3,8 +3,9 @@ import MyPrelude
 import Data.List (List(..))
 import Data.List (last, null) as L
 import Data.Map (Map, empty) as M
-import Lib.Random (Random, randomPick)
-import Pha.Action (Action, delay, DELAY, RNG, getState, setState, randomAction, runRng)
+import Pha.Random (RNG, randomPick, Random, Random')
+import Run (Run)
+import Pha.Action (Action, delay, DELAY, getState, setState)
 
 -- ConfirmNewGame contient le futur state si l'utilisateur valide de commencer une nouvelle partie
 data Dialog a = Rules | NoDialog | ConfirmNewGame a | ScoreDialog | CustomDialog
@@ -110,11 +111,11 @@ data SizeLimit = SizeLimit Int Int Int Int
 
 class Game pos ext mov | ext -> pos mov where
     play :: GState pos ext -> mov -> Maybe pos
-    initialPosition :: GState pos ext -> Random pos
+    initialPosition :: forall t. GState pos ext -> Random' t pos
     isLevelFinished :: GState pos ext -> Boolean
     sizeLimit ::  GState pos ext -> SizeLimit
-    computerMove :: GState pos ext -> Maybe (Random mov)
-    onNewGame :: GState pos ext -> Random (GState pos ext)
+    computerMove :: forall t. GState pos ext -> Maybe (Random' t mov)
+    onNewGame :: forall t. GState pos ext -> Random' t (GState pos ext)
     updateScore :: GState pos ext -> Tuple (GState pos ext) Boolean
 
 canPlay :: ∀pos ext mov. Game pos ext mov => GState pos ext -> mov -> Boolean
@@ -184,10 +185,10 @@ computerPlay = do
     case computerMove state of
         Nothing -> pure unit
         Just rndmove ->
-            runRng (flip playAux state <$> rndmove) >>= case _ of
+            flip playAux state <$> rndmove >>= case _ of
                 Nothing -> pure unit
                 Just st2 -> do
-                    setState \_ -> st2
+                    setState (const st2)
                     when (isLevelFinished st2) showVictory
 
 computerStartsA :: ∀pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
@@ -220,7 +221,8 @@ lockAction act = unlessM (view _locked <$> getState) do
 
 newGame :: ∀pos ext mov effs. Game pos ext mov =>
     (GState pos ext -> GState pos ext) -> Action (GState pos ext) (rng :: RNG | effs)
-newGame f = randomAction \state -> do
+newGame f = do
+    state <- getState
     let state2 = f state
     state3 <- onNewGame state2
     position <- initialPosition state3
@@ -231,10 +233,11 @@ newGame f = randomAction \state -> do
                 # _help .~ false
                 # _scores ∘ at "custom" .~ Nothing
         
-    if L.null (state2^._history) || isLevelFinished state then
-        pure state4
-    else
-        pure $ _dialog .~ ConfirmNewGame state4 $ state
+    setState $
+        if L.null (state2^._history) || isLevelFinished state then
+            const state4
+        else
+            _dialog .~ ConfirmNewGame state4
 
 newGame' :: ∀a pos ext mov effs. Game pos ext mov =>
     (a -> GState pos ext -> GState pos ext) -> a -> Action (GState pos ext) (rng :: RNG | effs)
@@ -263,7 +266,7 @@ class Game pos ext mov <= TwoPlayersGame pos ext mov | ext -> pos mov  where
     possibleMoves :: GState pos ext -> Array mov
 
 
-computerMove' :: ∀pos ext mov. TwoPlayersGame pos ext mov => GState pos ext -> Maybe (Random mov)
+computerMove' :: ∀pos ext mov r. TwoPlayersGame pos ext mov => GState pos ext -> Maybe (Run (rng :: RNG | r) mov)
 computerMove' state =
     if isLevelFinished state then
         Nothing

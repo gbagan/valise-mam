@@ -1,1 +1,0 @@
-exports.genSeed = Math.random;

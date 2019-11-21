@@ -2,7 +2,7 @@ module Game.Paths.Model where
 import MyPrelude
 import Data.Array (nub)
 import Data.Array.NonEmpty (fromArray, head, last, init, tail) as N
-import Lib.Random (randomInt)
+import Pha.Random (randomInt)
 import Lib.Util (dCoords, rangeStep)
 import Game.Core (GState, class Game, SizeLimit(..), _ext, newGame', genState, _nbRows, _nbColumns, _position, playA)
 import Pha.Action (Action, DELAY, RNG, getState, setState)

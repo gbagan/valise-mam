@@ -1,7 +1,8 @@
-module Pha.Action where
+module Pha.Action (getState, setState, setState', GetState(..), SetState(..), GETSTATE, SETSTATE, 
+    delay, Delay(..), DELAY, Action, Action', Event, EVENT, getEvent, GetEvent(..), module R) where
 import MyPrelude
 import Run (FProxy, Run, SProxy(..), lift)
-import Lib.Random (Random, Seed, runRnd)
+import Pha.Random (RNG) as R
 
 foreign import data Event :: Type
 
@@ -32,28 +33,11 @@ setState' fn = do
     getState
 
 
-data Rng a = Rng (Seed -> a)
-derive instance functorRng :: Functor Rng
-type RNG = FProxy Rng
-rng :: ∀r. Run (rng :: RNG | r) Seed
-rng = lift (SProxy :: SProxy "rng") (Rng identity)
-
 data Delay a = Delay Int a
 derive instance functorDelay :: Functor Delay
 type DELAY = FProxy Delay
 delay :: ∀r. Int -> Run (delay :: DELAY | r) Unit
 delay ms = lift (SProxy :: SProxy "delay") (Delay ms unit)
 
-runRng :: ∀effs st a. (Random a) -> Action' st (rng :: RNG | effs) a
-runRng a = rng <#> \x -> runRnd x a
-
-randomAction :: ∀effs st. (st -> Random st) -> Action st (rng :: RNG | effs)
-randomAction fn = do
-    st <- getState
-    st2 <- runRng (fn st)
-    setState (\_ -> st2)
-
-randomAction' :: ∀effs st. (st -> Random st) ->  Run (getState :: GETSTATE st, setState :: SETSTATE st, rng :: RNG | effs) st
-randomAction' fn = do
-    randomAction fn
-    getState
+--runRng :: ∀effs st a. (Random a) -> Action' st (rng :: RNG | effs) a
+--runRng a = rng <#> \x -> runRnd x a

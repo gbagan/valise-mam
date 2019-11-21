@@ -2,7 +2,7 @@ module Game.Tricolor.Model where
 
 import MyPrelude
 import Lib.Util (abs)
-import Lib.Random (randomInt)
+import Pha.Random (randomInt)
 import Pha.Action (Action, RNG, setState)
 import Game.Core (class Game, GState, _ext, genState, newGame', _position, defaultSizeLimit)
 

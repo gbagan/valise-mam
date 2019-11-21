@@ -2,7 +2,7 @@ module Game.Solitaire.Model where
 import MyPrelude
 import Data.FoldableWithIndex (allWithIndex)
 import Pha.Action (Action, RNG, setState)
-import Lib.Random (Random, randomInt, randomBool)
+import Pha.Random (Random', randomInt, randomBool)
 import Lib.Util (tabulate, tabulate2, dCoords)
 import Game.Core (class Game, class ScoreGame, GState, SizeLimit(..), Objective(..), ShowWinStrategy(..),
                   _ext, genState, canPlay, _nbColumns, _nbRows, _customSize, _position, newGame, updateScore')
@@ -71,8 +71,8 @@ betweenMove2 state move@{from, to} =
         betweenMove state move
 
 -- fonction auxilaire pour onNewGame
-generateBoard :: Int -> Int -> Int -> (Int -> Int -> Boolean) ->
-    {holes :: Array Boolean, position :: Random (Array Boolean), customSize :: Boolean}
+generateBoard :: forall r. Int -> Int -> Int -> (Int -> Int -> Boolean) ->
+    {holes :: Array Boolean, position :: Random' r (Array Boolean), customSize :: Boolean}
 generateBoard rows columns startingHole holeFilter = {holes, position, customSize: false} where
     holes = tabulate2 rows columns holeFilter
     position = pure $ holes # ix startingHole .~ false

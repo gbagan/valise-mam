@@ -3,7 +3,7 @@ module Game.Baseball.Model where
 import MyPrelude
 import Data.FoldableWithIndex (allWithIndex)
 import Lib.Util ((..))
-import Lib.Random (shuffle, randomInt)
+import Pha.Random (shuffle, randomInt)
 import Pha.Action (Action, RNG)
 import Game.Core (class Game, GState, _ext, genState, newGame', _position, defaultSizeLimit)
 

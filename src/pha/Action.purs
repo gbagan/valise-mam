@@ -1,9 +1,6 @@
 module Pha.Action where
 import MyPrelude
-import Run (FProxy, Run(Run), SProxy(..), lift, onMatch)
-import Control.Monad.Free (hoistFree)
-import Data.Functor.Variant (VariantF, inj)
-import Unsafe.Coerce (unsafeCoerce)
+import Run (FProxy, Run, SProxy(..), lift)
 import Lib.Random (Random, Seed, runRnd)
 
 foreign import data Event :: Type
@@ -34,20 +31,6 @@ setState' fn = do
     setState fn
     getState
 
-
-lensVariant :: ∀st1 st2 v. Lens' st1 st2 -> VariantF (getState :: GETSTATE st2, setState :: SETSTATE st2 | v) ~>
-                                                   VariantF (getState :: GETSTATE st1, setState :: SETSTATE st1 | v)
-lensVariant lens = 
-    onMatch {
-        getState: \(GetState cont) -> inj (SProxy :: SProxy "getState") (GetState (cont ∘ view lens)),
-        setState: \(SetState fn cont) -> inj (SProxy :: SProxy "setState") (SetState (lens %~ fn) cont)
-    } unsafeCoerce
-    
-
-zoomAt :: ∀st1 st2 effs. Lens' st1 st2 -> Action st2 effs -> Action st1 effs
-zoomAt lens (Run f) = Run $ hoistFree (lensVariant lens) f
-
-infix 3 zoomAt as 🔍
 
 data Rng a = Rng (Seed -> a)
 derive instance functorRng :: Functor Rng

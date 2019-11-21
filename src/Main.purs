@@ -5,7 +5,8 @@ import Data.String (drop, indexOf) as S
 import Data.String.Pattern (Pattern (..))
 import Effect (Effect)
 import Pha (VDom, app, ifN)
-import Pha.Action (Action, (🔍))
+import Pha.Action (Action)
+import Pha.Lens (actionOver)
 import Pha.Html (div', a, svguse, key, class', href)
 import Pha.Event (key) as E
 import Game (class CGame, init, view, onKeyDown) as G
@@ -110,9 +111,9 @@ hashChange = do
         setState _{location = location, anim = true}
         delay 100
         setState _{anim = false}
-        _valise <<< Valise._iso 🔍 ValiseM.enterA
+        actionOver (_valise <<< Valise._iso) ValiseM.enterA
     else do
-        _valise <<< Valise._iso 🔍 ValiseM.leaveA
+        actionOver (_valise <<< Valise._iso) ValiseM.leaveA
         setState _{location = location, anim = true}
         delay 100
         setState _{anim = false}
@@ -120,22 +121,22 @@ hashChange = do
 
 init :: Action RootState EFFS
 init = do
-    _baseball 🔍 G.init
-    _chocolat 🔍 G.init
-    _dessin 🔍 G.init
-    _frog 🔍 G.init
-    _jetons 🔍 G.init
-    _labete 🔍 G.init
-    _nim 🔍 G.init
-    _noirblanc 🔍 G.init
-    _paths 🔍 G.init
-    _queens 🔍 G.init
-    _roue 🔍 G.init
-    _sansmot 🔍 G.init
-    _solitaire 🔍 G.init
-    _tiling 🔍 G.init
-    _tricolor 🔍 G.init
-    _valise 🔍 G.init
+    actionOver _baseball G.init
+    actionOver _chocolat G.init
+    actionOver _dessin G.init
+    actionOver _frog G.init
+    actionOver _jetons G.init
+    actionOver _labete G.init
+    actionOver _nim G.init
+    actionOver _noirblanc G.init
+    actionOver _paths G.init
+    actionOver _queens G.init
+    actionOver _roue G.init
+    actionOver _sansmot G.init
+    actionOver _solitaire G.init
+    actionOver _tiling G.init
+    actionOver _tricolor G.init
+    actionOver _valise G.init
     hashChange
 
 sliceFn :: ∀a. RootState -> (∀b. G.CGame b => (Lens' RootState b) -> a)  -> a
@@ -163,7 +164,7 @@ onKeyDown = do
     st <- getState
     case E.key ev of
         Nothing  -> pure unit
-        Just k -> sliceFn st \lens -> lens 🔍 G.onKeyDown k
+        Just k -> sliceFn st \lens -> actionOver lens (G.onKeyDown k)
 
 view :: RootState -> VDom RootState EFFS
 view st = div' [

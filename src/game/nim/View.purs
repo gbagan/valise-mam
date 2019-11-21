@@ -22,8 +22,8 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     ]
 
     board = div' [class' "ui-board nim-board" true] [
-        svg [viewBox 0 0 100 100] $
-            concat $ state^._position # mapWithIndex \i pile ->
+        svg [viewBox 0 0 100 100] (
+            concat $ state^._position # mapWithIndex \i pile -> concat [
                 [rect
                     (if length == 5 then 25.0 else 0.0)
                     (toNumber $ 10 + 19 * i)
@@ -32,7 +32,8 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                         key $ "pile" <> show i,
                         fill "snow"
                     ]
-                ] <> (tabulate length \j ->
+                ],
+                tabulate length \j ->
                     rect (-2.5) (-2.5) 5.0 5.0 [
                         key $ "base-" <> show i <> "-" <> show j,
                         fill "gray",
@@ -41,15 +42,16 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                             translate (px $ (if length == 5 then 30 else 5) + 10 * j) (px $ 15 + 19 * i) <>
                             " rotate(45deg)",
                         style "cursor" $ if canPlay state (Move i j) then "pointer" else "not-allowed"
-                    ]
-                ) <> ([fst pile, snd pile] # mapWithIndex \j peg ->
+                    ],
+                [fst pile, snd pile] # mapWithIndex \j peg ->
                     use 0.0 0.0 8.0 8.0 "#meeple" [
                         key $ "p-" <> show i <> "-" <> show j,
                         class' "nim-player" true,
                         fill $ if j == 0 then "blue" else "red",
                         style "transform" $ translate (px $ (if length == 5 then 26 else 1) + 10 * peg) (px $ 11 + 19 * i)
                     ]
-                ),
+            ]
+        ),
         span [class' "nim-turn-message" true] [
             text (if isLevelFinished state then
                 "Partie finie"

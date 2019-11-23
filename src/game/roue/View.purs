@@ -7,7 +7,7 @@ import Game.Core (PointerPosition, _position, _pointer, _locked)
 import Game.Roue.Model (State, Location(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, deleteDraggedA,
                         aligned, validRotation, validRotation')
 import Pha (VDom, text, ifN, maybeN)
-import Pha.Html (div', button, span, key, class', pc, onclick, onpointerup, style, disabled)
+import Pha.Html (div, button, span, key, class', pc, onclick, onpointerup, style, disabled)
 import Pha.Svg (svg, path, viewBox, fill, stroke)
 import UI.Template (template, card, dndBoardProps, dndItemProps)
 import UI.Icons (icongroup, iconSelectGroup, ireset, irules)
@@ -33,7 +33,7 @@ pizza cx cy radius startAngle endAngle =
         e = polarToCartesian cx cy radius endAngle
 
 innerWheel :: ∀a. Int -> VDom a EFFS
-innerWheel size = div' [class' "roue-inner" true] [
+innerWheel size = div [class' "roue-inner" true] [
     svg [viewBox 0 0 100 100] $ take size colors # mapWithIndex \i color ->
         path (pizza 50.0 50.0 50.0 (2.0 * pi * (toNumber i - 0.5) / toNumber size) (2.0 * pi * (toNumber i + 0.5) / toNumber size)) [
             fill color,
@@ -42,7 +42,7 @@ innerWheel size = div' [class' "roue-inner" true] [
 ]
 
 cursor :: ∀a. PointerPosition -> String -> VDom a EFFS
-cursor {x, y} color = div' [
+cursor {x, y} color = div [
     class' "ui-cursor roue-select-color roue-cursor" true,
     style "left" $ pc x,
     style "top" $ pc y,
@@ -71,7 +71,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                             _ -> -1
         in colors !! colorIndex
 
-    outerWheel = div' [
+    outerWheel = div [
         class' "roue-outer" true,
         style "transform" $ "rotate(" <> show (360.0 * toNumber (state^._rotation) / toNumber size) <> "deg)"
     ] $
@@ -81,7 +81,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                 fill $ if not align then  "#F0B27A" else if validRotation' state then "lightgreen" else "#F5B7B1"
             ] <> dndItemProps _dragged (isJust pos) true (Wheel i) state)
         ] <> (catMaybes $ position # mapWithIndex \index c -> c <#> \color -> 
-            div' [
+            div [
                 class' "roue-outer-piece" true,
                 key $ show index,
                 style "left" $ pc $ 0.44 + 0.4 * cos(toNumber index * 2.0 * pi / toNumber size),
@@ -90,18 +90,18 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
             ] []
         )
 
-    board = div' (dndBoardProps _dragged <> [
+    board = div (dndBoardProps _dragged <> [
         class' "roue-board" true,
         onpointerup deleteDraggedA
     ]) [
-        div' [class' "roue-buttons" true] $ concat [
+        div [class' "roue-buttons" true] $ concat [
             [button [
                 class' "ui-button ui-button-primary roue-button" true,
                 disabled $ state^._locked,
                 onclick $ rotateA (-1)
             ] [text "↶"]],
             take size colors # mapWithIndex \i color ->
-                div' ([
+                div ([
                     class' "roue-select-color ui-flex-center" true,
                     style "background-color" color
                 ] <> dndItemProps _dragged true false (Panel i) state) [
@@ -114,7 +114,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                     onclick $ rotateA 1 -- lockAction n'est pas nécessaire
             ] [text "↷"]]
         ],
-        div' [class' "roue-roue" true] [
+        div [class' "roue-roue" true] [
             outerWheel,
             innerWheel size,
             button [
@@ -122,7 +122,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                 disabled $ not valid || state^._locked,
                 onclick checkA
             ] [text "Valider"],
-            div' [class' "roue-valid-rotation" true] [
+            div [class' "roue-valid-rotation" true] [
                 if valid then
                     span [class' "valid" true] [text "✓"]
                 else

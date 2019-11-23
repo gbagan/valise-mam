@@ -39,7 +39,7 @@ instance baseballGame :: Game (Array Int) ExtState Int where
     isLevelFinished state = state^._position # allWithIndex \i j -> i / 2 == j / 2
     onNewGame state = randomInt (2 * state^._nbBases) <#> \i -> state # _missingPeg .~ i
     
-    computerMove = const Nothing
+    computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
     updateScore st = st ∧ true 
     

@@ -4,8 +4,8 @@ import MyPrelude
 import Effect (Effect)
 import Run (FProxy, Run, SProxy(..), lift, match)
 import Pha (InterpretEffs, Event)
-import Pha.Action (DELAY, RNG, rngInterpret, delayInterpret)
-import Pha.Event (EVENT, eventInterpret)
+import Pha.Action (DELAY, RNG, interpretRng, interpretDelay)
+import Pha.Event (EVENT, interpretEvent)
 
 type Location = {
     hash :: String,
@@ -56,11 +56,11 @@ foreign import releasePointerCaptureAux :: Event -> Effect Unit
 
 interpretEffects :: InterpretEffs EFFS
 interpretEffects = match {
-    delay: delayInterpret,
-    rng: rngInterpret,
+    delay: interpretDelay,
+    rng: interpretRng,
     location: \(GetLocation cont) -> getLoc >>= cont,
     pointer: \(GetPointer ev cont) -> relativePointerPosition ev >>= cont,
-    event: eventInterpret,
+    event: interpretEvent,
     eventEff: case _ of
             ReleasePointerCapture ev cont -> releasePointerCaptureAux ev *> cont
 }

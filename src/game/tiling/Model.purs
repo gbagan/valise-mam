@@ -116,7 +116,7 @@ instance tilingGame :: Game (Array Int) ExtState Int where
     sizeLimit = const (SizeLimit 3 3 10 10)
 
     onNewGame state = pure $ state # _tile .~ getTile state # _rotation .~ 0
-    computerMove _ = Nothing
+    computerMove _ = pure Nothing
     updateScore st = st ∧ true 
   
 

@@ -3,7 +3,7 @@ import MyPrelude
 import Data.List (null) as L
 import Pha (VDom, Prop)
 import Pha.Action (Action, setState)
-import Pha.Html (div', h2, class', onclick)
+import Pha.Html (div, h2, class', onclick)
 import Game.Core (GState, class Game, class ScoreGame, Dialog(..), Mode(..), bestScore,
                 undoA, redoA, resetA, toggleHelpA, setModeA, computerStartsA, setGridSizeA,
                 _help, _dialog, _history, _redoHistory, _mode, _nbRows, _nbColumns, _locked, _customSize)
@@ -20,9 +20,9 @@ iconbutton state optionFn props =
 
 icongroup :: ∀a. String -> Array (VDom a EFFS) -> VDom a EFFS
 icongroup title children =
-    div' [] [
+    div [] [
         h2 [] title,
-        div' [class' "ui-icon-grid" true] children
+        div [class' "ui-icon-grid" true] children
     ]
 
 {-

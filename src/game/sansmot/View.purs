@@ -5,7 +5,7 @@ import Data.Map (Map, fromFoldable) as M
 import Lib.Util (tabulate)
 import Game.Effs (EFFS)
 import Pha (VDom, Prop, text)
-import Pha.Html (div', p, h1, h2, key, class', attr, style, pc, onclick)
+import Pha.Html (div, p, h1, h2, key, class', attr, style, pc, onclick)
 import Pha.Svg (svg, path, line, text', stroke, fill, viewBox, width, height, opacity)
 import Pha.Util (translate)
 import Game.Sansmot.Model (State, Page(..), pythaAnimation, carollAnimation, animateA, setPageA)
@@ -91,15 +91,15 @@ animCaroll {anim} =
 
 view :: State -> VDom State EFFS
 view state = 
-    div' [class' "sansmot-main" true] [
-        div' [class' "sansmot-menu" true] [
-            div' [class' "sansmot-pagelink" true, onclick $ setPageA PythaPage] [text "1"],
-            div' [class' "sansmot-pagelink" true, onclick $ setPageA CarollPage] [text "2"]
+    div [class' "sansmot-main" true] [
+        div [class' "sansmot-menu" true] [
+            div [class' "sansmot-pagelink" true, onclick $ setPageA PythaPage] [text "1"],
+            div [class' "sansmot-pagelink" true, onclick $ setPageA CarollPage] [text "2"]
         ],
         main state.page
     ] where
     
-    main PythaPage = div' [key "pytha"] [
+    main PythaPage = div [key "pytha"] [
         h1 [class' "sansmot-title" true] "Preuve sans mot",
 
         h2 [class' "sansmot-h2" true] "Que raconte le théorème de Pythagore ?",
@@ -122,7 +122,7 @@ view state =
         p [class' "sansmot-center sansmot-link" true, onclick $ animateA pythaAnimation] [text "Lancer l'animation"]
     ]
 
-    main CarollPage = div' [key "caroll"] [
+    main CarollPage = div [key "caroll"] [
         h1 [class' "sansmot-title" true] "Preuve sans mot",
         h2 [class' "sansmot-h2" true] "Où est passé le carré manquant ?",
         p [class' "sansmot-center" true] [

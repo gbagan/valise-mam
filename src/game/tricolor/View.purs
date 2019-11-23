@@ -2,7 +2,7 @@ module Game.Tricolor.View where
 
 import MyPrelude
 import Pha (VDom, text)
-import Pha.Html (div', class', attr, key, style, onclick, onpointerenter, onpointerleave, pc)
+import Pha.Html (div, class', attr, key, style, onclick, onpointerenter, onpointerleave, pc)
 import Pha.Svg (svg, circle, text', stroke, fill, viewBox)
 import Pha.Util (translate)
 import Game.Effs (EFFS)
@@ -32,7 +32,7 @@ view state = template _{config=config, board=board, rules=rules} state where
         icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> \x -> x state
     ]
 
-    board = div' [class' "ui-board tricolor-board" true] [
+    board = div [class' "ui-board tricolor-board" true] [
         svg [viewBox 0 0 100 100] $ concat [
             state^._position # mapWithIndex \i color ->
                 circle 0.0 0.0 7.5 [

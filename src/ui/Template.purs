@@ -2,7 +2,7 @@ module UI.Template where
 import MyPrelude
 import Pha (VDom, Prop, text, emptyNode, maybeN)
 import Pha.Action (Action, setState)
-import Pha.Html (div', class', style, pc, onpointerup, onpointerdown', onpointerleave, onpointermove')
+import Pha.Html (div, class', style, pc, onpointerup, onpointerdown', onpointerleave, onpointermove')
 import Pha.Util (translate)
 import Game.Core (class Game, class ScoreGame, GState, Mode(..), Turn(..), SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointer, _locked, 
@@ -13,19 +13,19 @@ import Game.Effs (EFFS, getPointerPosition, releasePointerCapture, Position)
 
 winPanel :: ∀a effs. String -> Boolean -> VDom a effs
 winPanel title visible =
-    div' [class' "ui-flex-center ui-absolute component-win-container" true] [
-        div' [class' "component-win" true, class' "visible" visible] [
+    div [class' "ui-flex-center ui-absolute component-win-container" true] [
+        div [class' "component-win" true, class' "visible" visible] [
             text title
         ]
     ]
 
 card :: ∀a effs. String -> Array (VDom a effs) -> VDom a effs
 card title children =
-    div' [class' "ui-card" true] [
-        div' [class' "ui-card-head ui-flex-center" true] [
-            div' [class' "ui-card-title" true] [text title]
+    div [class' "ui-card" true] [
+        div [class' "ui-card-head ui-flex-center" true] [
+            div [class' "ui-card-title" true] [text title]
         ],
-        div' [class' "ui-card-body" true] children
+        div [class' "ui-card-body" true] children
     ]
 
 incDecGrid :: ∀pos ext mov. Game pos ext mov => GState pos ext -> Array (VDom (GState pos ext) EFFS) -> VDom (GState pos ext) EFFS
@@ -71,9 +71,9 @@ template :: ∀pos ext mov. Game pos ext mov =>
             (Elements (GState pos ext) EFFS -> Elements (GState pos ext) EFFS) 
             -> GState pos ext -> VDom (GState pos ext) EFFS
 template elemFn state =
-    div' [] [
-        div' [class' "main-container" true] [
-            div' [] [board, winPanel winTitle (state^._showWin)],
+    div [] [
+        div [class' "main-container" true] [
+            div [] [board, winPanel winTitle (state^._showWin)],
             config
         ],
         dialog' (state^._dialog)

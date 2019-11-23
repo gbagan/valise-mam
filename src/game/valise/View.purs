@@ -3,7 +3,7 @@ import MyPrelude
 import Game.Effs (EFFS)
 import Game.Valise.Model (State, showHelpA, setDragA, moveObjectA, toggleSwitchA, _positions)
 import Pha (VDom, h, text, maybeN)
-import Pha.Html (div', a, class', attr, style, href, pc,
+import Pha.Html (div, a, class', attr, style, href, pc,
     onclick, onpointermove', onpointerenter, onpointerleave, onpointerup, onpointerdown)
 import Pha.Util (translate)
 import Pha.Svg (svg, svguse, g, rect, width, height, x, y, viewBox, fill, transform)
@@ -121,15 +121,15 @@ valise state = svg [
         ]
 
 view :: State -> VDom State EFFS 
-view state = div' [
+view state = div [
     class' "ui-flex-center valise-main-container" true,
     class' "open" state.isOpen
 ] [
-    div' [] [
-        div' [class' "valise-logo" true] [svguse "#logo" []],
-        div' [class' "valise-container" true] [
+    div [] [
+        div [class' "valise-logo" true] [svguse "#logo" []],
+        div [class' "valise-container" true] [
             valise state,
-            div' [
+            div [
                 class' "valise-help" true,
                 class' "visible" (state.helpVisible && state.help /= "")
             ] [text state.help] 

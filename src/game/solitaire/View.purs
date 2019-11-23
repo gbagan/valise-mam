@@ -3,7 +3,7 @@ module Game.Solitaire.View where
 import MyPrelude
 import Lib.Util (coords)
 import Pha (VDom, text, ifN, maybeN)
-import Pha.Html (div', br, key, attr, class', style, onclick, px)
+import Pha.Html (div, br, key, attr, class', style, onclick, px)
 import Pha.Svg (svg, rect, circle, viewBox, fill, stroke, strokeWidth)
 import Pha.Util (translate)
 import Game.Effs (EFFS)
@@ -54,7 +54,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
             iconBestScore state
         ] 
 
-    grid = div' ([
+    grid = div ([
         class' "ui-board" true
     ] <> dndBoardProps _dragged <> (if isCircleBoard then
                             [style "width" "100%", style "height" "100%"] 
@@ -93,8 +93,8 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     board = incDecGrid state [grid]
 
     scoreDialog _ = bestScoreDialog state \position -> [
-        div' [class' "ui-flex-center solitaire-scoredialog" true] [
-            div'([class' "ui-board" true] <> (if isCircleBoard then 
+        div [class' "ui-flex-center solitaire-scoredialog" true] [
+            div([class' "ui-board" true] <> (if isCircleBoard then 
                                     [style "width" "100%", style "height" "100%"] 
                                 else 
                                     gridStyle rows columns 5

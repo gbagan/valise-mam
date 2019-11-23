@@ -5,7 +5,7 @@ import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _point
 import Game.Effs (EFFS)
 import Game.Paths.Model (State, Mode(..), _exit, _mode, selectVertexA, selectModeA)
 import Pha (VDom, Prop, text, emptyNode, maybeN, ifN)
-import Pha.Html (div', p, br, key, class', attr, onclick, style, pc)
+import Pha.Html (div, p, br, key, class', attr, onclick, style, pc)
 import Pha.Svg (svg, g, path, use, viewBox)
 import Pha.Util (translate)
 import UI.Icon (Icon(..))
@@ -64,7 +64,7 @@ view state = template _{config=config, board=board, rules=rules} state where
     pathdec = joinWith " " $ concat $ position # mapWithIndex \i v ->
         let {row, col} = coords columns v in [if i == 0 then "M" else "L", show $ 100 * col + 50, show $ 100 * row + 50]
     
-    grid = div' (gridStyle rows columns 5 <> trackPointer) [
+    grid = div (gridStyle rows columns 5 <> trackPointer) [
         svg [viewBox 0 0 (100 * columns) (100 * rows)] $
             (tabulate (rows * columns) \index ->
                 let {row, col} = coords columns index in

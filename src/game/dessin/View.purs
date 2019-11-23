@@ -1,7 +1,7 @@
 module Game.Dessin.View (view) where
 import MyPrelude
 import Pha (VDom, text, maybeN)
-import Pha.Html (div', button, span, br, class', onclick, oncontextmenu', disabled)
+import Pha.Html (div, button, span, br, class', onclick, oncontextmenu', disabled)
 import Pha.Svg (svg, line, circle, viewBox, stroke, fill, strokeWidth, strokeDasharray)
 import Pha.Event (preventDefault)
 import Game.Core (canPlay, playA, _position, _pointer)
@@ -34,7 +34,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
         icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x state
     ]
 
-    board = div' (trackPointer <> [
+    board = div (trackPointer <> [
                 class' "ui-board dessin-board" true,
                 -- todo
                 oncontextmenu' \ev -> preventDefault ev *> playA Nothing]) [

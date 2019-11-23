@@ -65,7 +65,7 @@ instance roueGame :: Game (Array (Maybe Int)) Ext {from :: Location, to :: Locat
     
     onNewGame = pure ∘ (_rotation .~ 0)
 
-    computerMove _ = Nothing
+    computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
     updateScore st = st ∧ true
 

@@ -5,7 +5,7 @@ import Lib.Util (coords, map3)
 import Math (abs)
 import Pha (VDom, Prop, text, ifN, maybeN)
 import Pha.Event (shiftKey)
-import Pha.Html (div', br, key, attr, class', style, onclick, onclick', onpointerdown, onpointerdown', onpointerup, onpointerleave, pc)
+import Pha.Html (div, br, key, attr, class', style, onclick, onclick', onpointerdown, onpointerdown', onpointerup, onpointerleave, pc)
 import Pha.Svg (svg, g, rect, use, fill, stroke, strokeWidth, transform, viewBox)
 import Pha.Util (translate)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, playA, scoreFn)
@@ -93,7 +93,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
         attr "pointer-events" "none"
     ])
 
-    grid = div' (gridStyle rows columns 5 <> trackPointer <> [class' "ui-board" true,
+    grid = div (gridStyle rows columns 5 <> trackPointer <> [class' "ui-board" true,
             onpointerdown' \ev -> when (shiftKey ev) (startZone2A ev)
     ]) [
         svg [viewBox 0 0 (50 * columns) (50 * rows)] (
@@ -118,14 +118,14 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     board = incDecGrid state [
         grid,
         ifN (state^._selectedColor > 0) \_ ->
-            div' [
+            div [
                 class' "labete-color" true,
                 style "background-color" $ colors !! (state^._selectedColor) # fromMaybe ""
             ][]
     ]
 
     customDialog _ = dialog "Personnalise ta bête" [
-        div' [class' "labete-custombeast-grid-container" true] [ 
+        div [class' "labete-custombeast-grid-container" true] [ 
             svg [viewBox 0 0 250 250] (
                 state ^. (_beast ∘ ix 0 ∘ _isoCustom) #
                     mapWithIndex \index hasBeast ->
@@ -139,8 +139,8 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     ]
 
     scoreDialog _ = bestScoreDialog state \position -> [
-        div' [class' "ui-flex-center labete-bestscore-grid-container" true] [
-            div' (gridStyle rows columns 5 <> [class' "ui-board" true])  [
+        div [class' "ui-flex-center labete-bestscore-grid-container" true] [
+            div (gridStyle rows columns 5 <> [class' "ui-board" true])  [
                 svg [viewBox 0 0 (50 * columns) (50 * rows)] (
                     position # mapWithIndex \index hasTrap ->
                         let {row, col} = coords columns index in

@@ -103,7 +103,7 @@ instance gameDessin :: Game (Array (Maybe Int)) ExtState (Maybe Int) where
     initialPosition _ = pure []
     onNewGame state = pure $ state # _graph .~ (graphs !! (state^._graphIndex) # fromMaybe house)
     isLevelFinished state = length (edgesOf (state^._position)) == length (state^._graph).edges
-    computerMove _ = Nothing
+    computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
     updateScore st = st ∧ true
 

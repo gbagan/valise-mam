@@ -74,7 +74,7 @@ instance noirblancGame :: Game { light :: Array Boolean, played :: Array Boolean
         let rows ∧ columns = fromMaybe (8∧8) (sizes !! (state^._level)) in
         pure $ state # _nbRows .~ rows # _nbColumns .~ columns
 
-    computerMove _ = Nothing
+    computerMove _ = pure Nothing
     sizeLimit _ = SizeLimit 3 3 10 10
 
     updateScore st = st ∧ true

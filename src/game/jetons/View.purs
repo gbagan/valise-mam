@@ -2,7 +2,7 @@ module Game.Jetons.View (view) where
 
 import MyPrelude
 import Pha (VDom, text, ifN, maybeN)
-import Pha.Html (div', span, br, pc, key, class', style)
+import Pha.Html (div, span, br, pc, key, class', style)
 import Pha.Util (rgbColor)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, scoreFn)
 import Game.Effs (EFFS)
@@ -23,11 +23,11 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
         iconBestScore state
     ]
 
-    cursor pp _ = div' ([class' "ui-cursor jetons-cursor" true] <> cursorStyle pp rows columns 0.6) []
+    cursor pp _ = div ([class' "ui-cursor jetons-cursor" true] <> cursorStyle pp rows columns 0.6) []
 
     piece i val props =
         let {row, col} = coords columns i in
-        div' ([
+        div ([
             class' "jetons-peg" true,
             class' "small" $ columns >= 8,
             style "background-color" $ rgbColor 255 (floor $ 255.0 * (1.0 - sqrt (toNumber val / toNumber (rows * columns)))) 0,
@@ -39,7 +39,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
         ] <> props) [ span [] [text $ show val] ]
 
     board = incDecGrid state [
-        div' ([class' "ui-board" true] <> dndBoardProps _dragged <> gridStyle rows columns 3) $
+        div ([class' "ui-board" true] <> dndBoardProps _dragged <> gridStyle rows columns 3) $
             (position # mapWithIndex \i val ->
                 ifN (val /= 0) \_ ->
                     piece i val ([key $ show i] <> dndItemProps _dragged true true i state)
@@ -47,8 +47,8 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     ]
 
     scoreDialog _ = bestScoreDialog state \pos -> [
-        div' [class' "ui-flex-center jetons-bestscore-grid-container" true] [ 
-            div' (gridStyle rows columns 3 <> [class' "ui-board" true]) (
+        div [class' "ui-flex-center jetons-bestscore-grid-container" true] [ 
+            div (gridStyle rows columns 3 <> [class' "ui-board" true]) (
                 pos # mapWithIndex \i val -> ifN (val /= 0) \_ ->
                     piece i val [key $ show i]
             )

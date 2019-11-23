@@ -7,7 +7,7 @@ import Effect (Effect)
 import Pha (VDom, Event, app, ifN)
 import Pha.Action (Action, delay, getState, setState)
 import Pha.Lens (actionOver)
-import Pha.Html (div', a, key, class', href)
+import Pha.Html (div, a, key, class', href)
 import Pha.Svg (svguse)
 import Pha.Event (key) as E
 import Game (class CGame, init, view, onKeyDown) as G
@@ -167,7 +167,7 @@ onKeyDown ev = do
         Just k -> sliceFn st \lens -> actionOver lens (G.onKeyDown k)
 
 view :: RootState -> VDom RootState EFFS
-view st = div' [
+view st = div [
     key st.location,
     class' "main-main-container" true,
     class' "valise" $ st.location == "valise",

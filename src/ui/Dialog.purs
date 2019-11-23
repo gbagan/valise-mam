@@ -2,7 +2,7 @@ module UI.Dialog where
 import MyPrelude
 import Pha.Action (Action)
 import Pha (VDom, text)
-import Pha.Html (div', button, class', onclick)
+import Pha.Html (div, button, class', onclick)
 
 type DialogOptions a effs = {
     title :: String,
@@ -12,13 +12,13 @@ type DialogOptions a effs = {
 
 dialog :: ∀a effs. DialogOptions a effs -> Array (VDom a effs) -> VDom a effs
 dialog {title, onOk, onCancel} children =
-    div' [class' "ui-absolute ui-flex-center ui-dialog-container" true] [
-        div' [class' "ui-dialog" true] [
-            div' [class' "ui-dialog-head" true] [
-                div' [class' "ui-dialog-title" true] [text title]
+    div [class' "ui-absolute ui-flex-center ui-dialog-container" true] [
+        div [class' "ui-dialog" true] [
+            div [class' "ui-dialog-head" true] [
+                div [class' "ui-dialog-title" true] [text title]
             ],
-            div' [class' "ui-dialog-body" true] children,
-            div' [class' "ui-dialog-buttons" true] $ catMaybes [
+            div [class' "ui-dialog-body" true] children,
+            div [class' "ui-dialog-buttons" true] $ catMaybes [
                 onCancel <#> \action ->
                     button [
                         class' "ui-button ui-button-primary" true, 

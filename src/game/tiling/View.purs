@@ -2,7 +2,7 @@ module Game.Tiling.View (view) where
 import MyPrelude
 import Lib.Util (coords)
 import Pha (VDom, Prop, text, ifN, maybeN)
-import Pha.Html (div', key, attr, style, class', onclick, oncontextmenu', onpointerenter, onpointerleave)
+import Pha.Html (div, key, attr, style, class', onclick, oncontextmenu', onpointerenter, onpointerleave)
 import Pha.Event (preventDefault)
 import Pha.Svg (svg, g, rect, line, use, viewBox, fill, stroke, strokeWidth, transform)
 import Pha.Util (translate)
@@ -64,7 +64,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
             attr "pointer-events" "none"
         ] <> svgCursorStyle pp)
 
-    grid = div' (gridStyle rows columns 5 <> trackPointer <> [
+    grid = div (gridStyle rows columns 5 <> trackPointer <> [
         class' "ui-board" true,
         -- todo
         oncontextmenu' \ev -> preventDefault ev *> rotateA
@@ -103,8 +103,8 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     winTitle = "GAGNÉ"
 
     customDialog _ = dialog "Personnalise ta tuile" [
-        div' [class' "tiling-customtile-grid-container" true] [
-            div' [class' "tiling-grid" true] [
+        div [class' "tiling-customtile-grid-container" true] [
+            div [class' "tiling-grid" true] [
                 svg [viewBox 0 0 250 250] (
                     state^. (_tile ∘ _isoCustom) # mapWithIndex \index hasBlock ->
                         let {row, col} = coords 5 index

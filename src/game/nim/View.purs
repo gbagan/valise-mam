@@ -1,7 +1,7 @@
 module Game.Nim.View where
 import MyPrelude
 import Pha (VDom, text)
-import Pha.Html (div', span, br, class', key, style, onclick, px)
+import Pha.Html (div, span, br, class', key, style, onclick, px)
 import Pha.Svg (svg, rect, use, fill, viewBox)
 import Pha.Util (translate)
 import Lib.Util (tabulate)
@@ -23,7 +23,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
         icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x state
     ]
 
-    board = div' [class' "ui-board nim-board" true] [
+    board = div [class' "ui-board nim-board" true] [
         svg [viewBox 0 0 100 100] (
             concat $ state^._position # mapWithIndex \i pile -> concat [
                 [rect

@@ -76,7 +76,7 @@ instance pathGame :: Game (Array Int) Ext Int where
         else
             pure Nothing
 
-    computerMove _ = Nothing
+    computerMove _ = pure Nothing
     sizeLimit _ = SizeLimit 2 2 9 9
     updateScore st = st ∧ true
 

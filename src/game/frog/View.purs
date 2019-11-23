@@ -3,7 +3,7 @@ module Game.Frog.View (view) where
 import MyPrelude
 import Lib.Util (map2, tabulate, pairwise, floatRange)
 import Pha (VDom, text, ifN, maybeN)
-import Pha.Html (div', span, br, px, class', key, onclick', style)
+import Pha.Html (div, span, br, px, class', key, onclick', style)
 import Pha.Svg (svg, g, use, line, path, text', viewBox, stroke, fill, strokeDasharray, strokeWidth)
 import Pha.Util (translate)
 import Pha.Event (shiftKey)
@@ -79,7 +79,7 @@ view state = template _{config = config, board = board, rules = rules, winTitle 
         icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x state
     ]
     grid = 
-        div' [class' "ui-board frog-board" true] [
+        div [class' "ui-board frog-board" true] [
             svg [viewBox (-190) (-200) 400 400] $ concat [
                 [
                     path spiralPath [fill "none", stroke "black", strokeWidth "3"],

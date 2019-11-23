@@ -45,7 +45,7 @@ instance jetonsGame :: Game (Array Int) Ext { from :: Int, to :: Int } where
 
     sizeLimit _ = SizeLimit 1 2 6 12
 
-    computerMove _ = Nothing
+    computerMove _ = pure Nothing
     onNewGame = defaultOnNewGame
     updateScore = updateScore' AlwaysShowWin
 

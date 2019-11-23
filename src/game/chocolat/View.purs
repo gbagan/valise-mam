@@ -6,7 +6,7 @@ import Game.Effs (EFFS)
 import Game.Core (_position, _nbRows, _nbColumns, possibleMoves, playA)
 import Game.Chocolat.Model (State, Move(..), SoapMode(..), _soap, _soapMode, _moveWhenHover, cutLine, setSoapModeA, setHoverA) 
 import Pha (VDom, text, maybeN)
-import Pha.Html (div', span, br, key, class', onclick, onpointerenter, onpointerleave)
+import Pha.Html (div, span, br, key, class', onclick, onpointerenter, onpointerleave)
 import Pha.Svg (svg, rect, line, circle, use, viewBox, fill)
 import UI.Template (template, card, gridStyle, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icon (Icon(..))
@@ -42,7 +42,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
         onclick $ setHoverA Nothing *> playA move
     ]
 
-    grid = div' (gridStyle rows columns 3 <> [class' "ui-board" true]) [
+    grid = div (gridStyle rows columns 3 <> [class' "ui-board" true]) [
         svg [viewBox (-7) (-7) (50 * columns + 14) (50 * rows + 14)] (
             concat [
                 tabulate2 rows columns \row col ->

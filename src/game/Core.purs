@@ -114,7 +114,7 @@ class Game pos ext mov | ext -> pos mov where
     initialPosition :: forall r. GState pos ext -> Run (rng :: RNG | r) pos
     isLevelFinished :: GState pos ext -> Boolean
     sizeLimit ::  GState pos ext -> SizeLimit
-    computerMove :: forall r. GState pos ext -> Maybe (Run (rng :: RNG | r) mov)
+    computerMove :: forall r. GState pos ext -> Run (rng :: RNG | r) (Maybe mov)
     onNewGame :: forall r. GState pos ext -> Run (rng :: RNG | r) (GState pos ext)
     updateScore :: GState pos ext -> Tuple (GState pos ext) Boolean
 
@@ -182,14 +182,12 @@ showVictory = do
 computerPlay :: ∀pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
 computerPlay = do
     state <- getState
-    case computerMove state of
+    move <- computerMove state
+    case flip playAux state =<< move of
         Nothing -> pure unit
-        Just rndmove ->
-            flip playAux state <$> rndmove >>= case _ of
-                Nothing -> pure unit
-                Just st2 -> do
-                    setState (const st2)
-                    when (isLevelFinished st2) showVictory
+        Just st2 -> do
+            setState (const st2)
+            when (isLevelFinished st2) showVictory
 
 computerStartsA :: ∀pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
 computerStartsA = setState (pushToHistory ∘ (_turn %~ oppositeTurn)) *> computerPlay
@@ -265,11 +263,10 @@ class Game pos ext mov <= TwoPlayersGame pos ext mov | ext -> pos mov  where
     isLosingPosition :: GState pos ext -> Boolean
     possibleMoves :: GState pos ext -> Array mov
 
-
-computerMove' :: ∀pos ext mov r. TwoPlayersGame pos ext mov => GState pos ext -> Maybe (Run (rng :: RNG | r) mov)
+computerMove' :: ∀pos ext mov r. TwoPlayersGame pos ext mov => GState pos ext -> Run (rng :: RNG | r) (Maybe mov)
 computerMove' state =
     if isLevelFinished state then
-        Nothing
+        pure Nothing
     else
         let moves = possibleMoves state in
         let bestMove = (
@@ -278,7 +275,9 @@ computerMove' state =
             else
                 moves # find (maybe false isLosingPosition ∘ flip playAux state)
         ) in
-            (pure <$> bestMove) <|> randomPick moves
+            case bestMove of
+                Just _ -> pure bestMove
+                Nothing -> randomPick moves 
 
 data Objective = Minimize | Maximize
 derive instance eqObjective :: Eq Objective 

@@ -129,7 +129,7 @@ instance solitaireGame :: Game (Array Boolean) ExtState {from :: Int, to :: Int}
         RandomBoard -> SizeLimit 3 1 3 9
         _ -> SizeLimit 7 7 7 7
 
-    computerMove _ = Nothing
+    computerMove _ = pure Nothing
     updateScore = updateScore' AlwaysShowWin
 
 instance scoregame :: ScoreGame (Array Boolean) ExtState {from :: Int, to :: Int} where

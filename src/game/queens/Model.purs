@@ -108,7 +108,7 @@ instance queensGame :: Game (Array Piece) Ext Int where
     
     onNewGame state = pure $ state # _selectedPiece .~ N.head (state^._allowedPieces)
     sizeLimit _ = SizeLimit 3 3 9 9
-    computerMove _ = Nothing
+    computerMove _ = pure Nothing
     updateScore = updateScore' NeverShowWin 
 
 instance queensScoreGame :: ScoreGame (Array Piece) Ext Int where 

@@ -3,7 +3,7 @@ module Game.Baseball.View (view) where
 import MyPrelude
 import Lib.Util (map2)
 import Pha (VDom, text, ifN)
-import Pha.Html (div', class', key, style, onclick, pc)
+import Pha.Html (div, class', key, style, onclick, pc)
 import Pha.Svg (svg, g, rect, use, stroke, fill, viewBox)
 import Pha.Util (translate)
 import Game.Effs (EFFS)
@@ -38,7 +38,7 @@ view state = template _{config=config, board=board, rules=rules} state where
         icongroup "Options" $ [iundo state, iredo state, ireset state, irules state]
     ]
 
-    board = div' [class' "ui-board baseball-board" true] [
+    board = div [class' "ui-board baseball-board" true] [
         svg [viewBox 0 0 100 100] $ concat [
             take nbBases colors # mapWithIndex \i color ->
                 rect (-10.0) (-10.0) 20.0 20.0 [

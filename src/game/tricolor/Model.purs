@@ -46,7 +46,7 @@ instance tricolorGame :: Game (Array Int) ExtState Int where
     isLevelFinished state = state^._position # all (eq 0)
 
     onNewGame = pure
-    computerMove = const Nothing
+    computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
     updateScore st = st ∧ true 
     

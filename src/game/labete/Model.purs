@@ -153,7 +153,7 @@ instance labeteGame :: Game (Array Boolean) ExtState Int where
                         # _squareColors .~ replicate (st^._nbRows * st^._nbColumns) 0
 
     sizeLimit _ = SizeLimit 2 2 9 9
-    computerMove _ = Nothing
+    computerMove _ = pure Nothing
     updateScore = updateScore' ShowWinOnNewRecord
 
 instance scoregameLabete :: ScoreGame (Array Boolean) ExtState Int where

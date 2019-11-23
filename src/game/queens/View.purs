@@ -4,7 +4,7 @@ import MyPrelude
 import Lib.Util (map2, map3)
 import Data.Array.NonEmpty (toArray, head) as N
 import Pha (VDom, Prop, text, maybeN)
-import Pha.Html (div', br, class', key, style, pc, onclick, onpointerenter, onpointerleave)
+import Pha.Html (div, br, class', key, style, pc, onclick, onpointerenter, onpointerleave)
 import Pha.Svg (svg, use, svguse, width, height)
 import Game.Effs (EFFS)
 import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer, playA)
@@ -26,7 +26,7 @@ tooltip _ = "Pièce personnalisée"
 
 square :: ∀a. { piece :: Piece, capturable :: Boolean, selected :: Boolean, nonavailable :: Boolean} -> Array (Prop a EFFS) -> VDom a EFFS
 square { piece, capturable, selected, nonavailable} props =
-    div' (props <> [
+    div (props <> [
         class' "queens-square" true,
         class' "queens-square-capturable" capturable,
         class' "queens-square-nonavailable" nonavailable,
@@ -60,7 +60,7 @@ view state = template _{config=config, board=board, rules=rules, customDialog=cu
         iconBestScore state
     ]   
 
-    pieceSelector = div' [class' "ui-flex-center gutter2 queens-pieceselector" true] $
+    pieceSelector = div [class' "ui-flex-center gutter2 queens-pieceselector" true] $
         N.toArray (state^._allowedPieces) <#> \piece ->
             let name = show piece in
             iconbutton state _{
@@ -72,11 +72,11 @@ view state = template _{config=config, board=board, rules=rules, customDialog=cu
                 ]
         
 
-    cursor pp = div' ([class' "ui-cursor" true] <> cursorStyle pp rows columns 0.8) [
+    cursor pp = div ([class' "ui-cursor" true] <> cursorStyle pp rows columns 0.8) [
         svguse ("#piece-" <> show (state^._selectedPiece)) []
     ]
 
-    grid = div' ([class' "ui-board" true] <> gridStyle rows columns 5 <> trackPointer) $ concat [  
+    grid = div ([class' "ui-board" true] <> gridStyle rows columns 5 <> trackPointer) $ concat [  
         map3 position (attackedBySelected state) (capturableSquares state) \index piece attacked capturable ->
             square {piece,
                 selected: attacked || state^._selectedSquare == Just index,
@@ -92,7 +92,7 @@ view state = template _{config=config, board=board, rules=rules, customDialog=cu
         [maybeN $ cursor <$> state^._pointer]
     ]
 
-    board = div' [] [
+    board = div [] [
         pieceSelector,
         incDecGrid state [grid]
     ]
@@ -100,8 +100,8 @@ view state = template _{config=config, board=board, rules=rules, customDialog=cu
     angles = [45, 90, 135, 0, 0, 180, -45, -90, -135]
 
     customDialog _ = dialog "Personnalise ta pièce" [
-        div' [class' "flex queens-custompiece" true] [
-            div' [class' "queens-grid queens-custompiece-grid" true] (
+        div [class' "flex queens-custompiece" true] [
+            div [class' "queens-grid queens-custompiece-grid" true] (
                 state^._customLocalMoves # mapWithIndex \index selected ->
                     square {
                             piece: if index == 12 then Custom else Empty,
@@ -113,7 +113,7 @@ view state = template _{config=config, board=board, rules=rules, customDialog=cu
                         onclick if index /= 12 then flipLocalMoveA index else pure unit
                     ]
             ),
-            div' [class' "flex queens-custompiece-directions" true] (
+            div [class' "flex queens-custompiece-directions" true] (
                 map2 (state^._customDirections) angles \i selected angle ->
                     iconbutton state _{
                         selected = selected,
@@ -128,8 +128,8 @@ view state = template _{config=config, board=board, rules=rules, customDialog=cu
     ]    
         
     scoreDialog _ = bestScoreDialog state \pos -> [
-        div' [class' "ui-flex-center queens-bestscore-container" true] [
-            div' (gridStyle rows columns 5 <> [class' "ui-board queens-grid" true]) (
+        div [class' "ui-flex-center queens-bestscore-container" true] [
+            div (gridStyle rows columns 5 <> [class' "ui-board queens-grid" true]) (
                 pos <#> \piece ->
                     square { piece, capturable: false, selected: false, nonavailable: false} [
                         style "width" $ pc (1.0 / toNumber columns),

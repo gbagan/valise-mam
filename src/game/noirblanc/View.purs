@@ -3,7 +3,7 @@ module Game.Noirblanc.View where
 import MyPrelude
 import Lib.Util (coords, map2)
 import Pha (Prop, VDom, text)
-import Pha.Html (div', class', pc, key, style, onclick)
+import Pha.Html (div, class', pc, key, style, onclick)
 import Pha.Svg (svguse)
 import Game.Core (_position, _nbRows, _nbColumns, _help)
 import Game.Effs (EFFS)
@@ -25,12 +25,12 @@ levelOptions level _ opt = case level of
 
 square :: ∀a. Boolean -> Boolean -> Array (Prop a EFFS) -> VDom a EFFS
 square light cross props = 
-    div' ([class' "noirblanc-square" true] <> props) [
-        div' [class' "noirblanc-square-inner" true, class' "blanc" light] [
-            div' [class' "noirblanc-square-blanc" true] $ 
+    div ([class' "noirblanc-square" true] <> props) [
+        div [class' "noirblanc-square-inner" true, class' "blanc" light] [
+            div [class' "noirblanc-square-blanc" true] $ 
                 if cross then [svguse "#cross" [class' "ui-absolute noirblanc-cross" true]] else [],
 
-            div' [class' "noirblanc-square-noir" true] $
+            div [class' "noirblanc-square-noir" true] $
                 if cross then [svguse "#cross" [class' "ui-absolute noirblanc-cross" true]] else []
         ]
     ]
@@ -49,7 +49,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
         icongroup "Options" $ [ihelp state, ireset state, irules state]
     ]
 
-    grid = div' ([class' "ui-board" true] <> gridStyle rows columns 4) $
+    grid = div ([class' "ui-board" true] <> gridStyle rows columns 4) $
         map2 position.light position.played \index light played ->
             let {row, col} = coords columns index in
             square light (state^._help && played) [

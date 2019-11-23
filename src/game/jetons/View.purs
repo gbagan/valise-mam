@@ -2,7 +2,8 @@ module Game.Jetons.View (view) where
 
 import MyPrelude
 import Pha (VDom, text, ifN, maybeN)
-import Pha.Html (div', span, br, pc, key, class', style, rgbColor)
+import Pha.Html (div', span, br, pc, key, class', style)
+import Pha.Util (rgbColor)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, scoreFn)
 import Game.Effs (EFFS)
 import Game.Jetons.Model (State, _dragged)

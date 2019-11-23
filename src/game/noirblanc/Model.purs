@@ -1,6 +1,7 @@
 module Game.Noirblanc.Model where
 import MyPrelude
-import Pha.Random (Random, randomInt)
+import Pha.Random (randomInt)
+import Run (Run)
 import Lib.Util (dCoords)
 import Lib.KonamiCode (konamiCode)
 import Pha.Action (Action, RNG, DELAY, getState, setState)
@@ -49,7 +50,7 @@ neighbor state index1 index2 =
 toggleCell :: State -> Int -> Array Boolean -> Array Boolean
 toggleCell state index = mapWithIndex \i color -> color /= neighbor state index i
 
-genRandomBoard :: State -> Random (Array Boolean)
+genRandomBoard :: ∀r. State -> Run (rng :: RNG | r) (Array Boolean)
 genRandomBoard state = do
     let size = state^._nbRows * state^._nbColumns
     nbMoves <- randomInt (size + 1)

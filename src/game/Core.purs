@@ -3,9 +3,9 @@ import MyPrelude
 import Data.List (List(..))
 import Data.List (last, null) as L
 import Data.Map (Map, empty) as M
-import Pha.Random (RNG, randomPick, Random, Random')
+import Pha.Random (randomPick)
 import Run (Run)
-import Pha.Action (Action, delay, DELAY, getState, setState)
+import Pha.Action (Action, delay, DELAY, RNG, getState, setState)
 
 -- ConfirmNewGame contient le futur state si l'utilisateur valide de commencer une nouvelle partie
 data Dialog a = Rules | NoDialog | ConfirmNewGame a | ScoreDialog | CustomDialog
@@ -111,11 +111,11 @@ data SizeLimit = SizeLimit Int Int Int Int
 
 class Game pos ext mov | ext -> pos mov where
     play :: GState pos ext -> mov -> Maybe pos
-    initialPosition :: forall t. GState pos ext -> Random' t pos
+    initialPosition :: forall r. GState pos ext -> Run (rng :: RNG | r) pos
     isLevelFinished :: GState pos ext -> Boolean
     sizeLimit ::  GState pos ext -> SizeLimit
-    computerMove :: forall t. GState pos ext -> Maybe (Random' t mov)
-    onNewGame :: forall t. GState pos ext -> Random' t (GState pos ext)
+    computerMove :: forall r. GState pos ext -> Maybe (Run (rng :: RNG | r) mov)
+    onNewGame :: forall r. GState pos ext -> Run (rng :: RNG | r) (GState pos ext)
     updateScore :: GState pos ext -> Tuple (GState pos ext) Boolean
 
 canPlay :: ∀pos ext mov. Game pos ext mov => GState pos ext -> mov -> Boolean
@@ -124,7 +124,7 @@ canPlay st mov = isJust (play st mov)
 defaultSizeLimit :: ∀a. a -> SizeLimit
 defaultSizeLimit _ = SizeLimit 0 0 0 0
 
-defaultOnNewGame :: ∀a. a -> Random a
+defaultOnNewGame :: ∀a r. a -> Run (rng :: RNG | r) a
 defaultOnNewGame = pure
 
 oppositeTurn :: Turn -> Turn

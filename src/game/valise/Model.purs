@@ -1,5 +1,6 @@
 module Game.Valise.Model where
 import MyPrelude
+import Pha (Event) 
 import Pha.Action (Action, DELAY, delay, getState, setState)
 import Game.Effs (getPointerPosition, POINTER)
 import Data.Map (Map, empty) as M
@@ -58,10 +59,10 @@ leaveA = setState (\_ -> istate)
 setDragA :: ∀effs. Maybe { name :: String, x :: Number, y :: Number } -> Action State effs
 setDragA d = setState _{drag = d}
 
-moveObjectA :: ∀effs. Action State (pointer :: POINTER | effs)
-moveObjectA = do
+moveObjectA :: ∀effs. Event -> Action State (pointer :: POINTER | effs)
+moveObjectA ev = do
     state <- getState
-    pos <- getPointerPosition
+    pos <- getPointerPosition ev
     case state.drag ∧ pos of
         Just {name, x: x2, y: y2} ∧ Just {x, y} -> setState $ _positions ∘ at name .~ Just {x: x-x2, y:y-y2}
         _ -> pure unit

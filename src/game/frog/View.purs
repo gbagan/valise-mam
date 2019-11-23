@@ -3,13 +3,14 @@ module Game.Frog.View (view) where
 import MyPrelude
 import Lib.Util (map2, tabulate, pairwise, floatRange)
 import Pha (VDom, text, ifN, maybeN)
-import Pha.Html (div', span, br, svg, viewBox, g, use, line, path, text', px,
-                class', key, click, style, stroke, fill, strokeDasharray, strokeWidth, translate)
+import Pha.Html (div', span, br, px, class', key, click', style)
+import Pha.Svg (svg, g, use, line, path, text', viewBox, stroke, fill, strokeDasharray, strokeWidth)
+import Pha.Util (translate)
 import Pha.Event (shiftKey)
 import UI.Template (template, card, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icons (icongroup, iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
 import Game.Core (_nbRows, _position, _help, _locked, playA)
-import Game.Effs (EFFS, getEvent)
+import Game.Effs (EFFS)
 import Game.Frog.Model (State, _moves, _marked, selectMoveA, reachableArray, markA)
 
 type Cartesian = { x :: Number, y :: Number}
@@ -89,7 +90,7 @@ view state = template _{config = config, board = board, rules = rules, winTitle 
                 map2 spoints reachable \i {x, y} reach ->
                     g [
                         key $ "lily" <> show i,
-                        click $ ifM (shiftKey <$> getEvent) (markA i) (playA i)
+                        click' \ev -> if shiftKey ev then markA i else playA i
                     ] [
                         lily i x y false false,
                         lily i x y true (not reach || state^._locked),

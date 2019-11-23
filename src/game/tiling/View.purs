@@ -2,8 +2,9 @@ module Game.Tiling.View (view) where
 import MyPrelude
 import Lib.Util (coords)
 import Pha (VDom, Prop, text, ifN, maybeN)
-import Pha.Html (div', g, rect, line, use, key, attr, style, svg, class', click, contextmenu, pointerenter, pointerleave,
-                 translate, viewBox, fill, stroke, strokeWidth, transform)
+import Pha.Html (div', key, attr, style, class', click, contextmenu', pointerenter, pointerleave)
+import Pha.Svg (svg, g, rect, line, use, viewBox, fill, stroke, strokeWidth, transform)
+import Pha.Util (translate)
 import Game.Effs (EFFS, preventDefault)
 import Game.Common (_isoCustom)
 import Game.Core (_position, _nbRows, _nbColumns, _pointer, _help)
@@ -64,7 +65,8 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
 
     grid = div' (gridStyle rows columns 5 <> trackPointer <> [
         class' "ui-board" true,
-        contextmenu $ preventDefault *> rotateA
+        -- todo
+        contextmenu' \ev -> preventDefault ev *> rotateA
     ]) [
         svg [viewBox 0 0 (50 * columns) (50 * rows)] $
             (position # mapWithIndex \index pos ->

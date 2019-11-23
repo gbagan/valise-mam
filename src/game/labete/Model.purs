@@ -1,6 +1,7 @@
 module Game.Labete.Model where
 import MyPrelude
 import Lib.Util (coords, tabulate2, abs)
+import Pha (Event)
 import Pha.Action (Action, setState, RNG)
 import Game.Common (_isoCustom)
 import Game.Core (class Game, class ScoreGame, SizeLimit(..), GState, Objective(..), ShowWinStrategy(..), PointerPosition, Dialog(..),
@@ -203,8 +204,8 @@ startZoneA :: ∀effs. Int -> Action State effs
 startZoneA pos = setState (_startSquare .~ Just pos)
 
 -- startZone2A est appliqué lors du pointerdown sur l'élément html réprésentant le plateu
-startZone2A :: ∀effs. Action State (pointer :: POINTER | effs)
-startZone2A = getPointerPosition >>= \pos -> setState (_startPointer .~ pos)
+startZone2A :: ∀effs. Event -> Action State (pointer :: POINTER | effs)
+startZone2A ev = getPointerPosition ev >>= \pos -> setState (_startPointer .~ pos)
 
 finishZoneA :: ∀effs. Int -> Action State effs
 finishZoneA index1 = setState \state -> case state^._startSquare of

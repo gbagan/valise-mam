@@ -119,10 +119,15 @@ let additions =
 
 
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.13.3-20190920/packages.dhall sha256:53873cf2fc4a343a41f335ee47c1706ecf755ac7c5a336e8eb03ad23165dfd28
+      https://github.com/purescript/package-sets/releases/download/psc-0.13.4-20191110/packages.dhall sha256:563a7f694e18e6399f7f6d01f5b7e3c3345781655d99945768f48e458feb93a4
 
 let overrides = {=}
 
-let additions = {=}
+let additions =  { pha =
+       { dependencies = ["run"]
+       , repo = "git://github.com/gbagan/purescript-pha.git"
+       , version = "master"
+       }
+}
 
 in  upstream // overrides // additions

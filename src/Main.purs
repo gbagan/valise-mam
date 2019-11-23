@@ -4,13 +4,14 @@ import MyPrelude hiding (view)
 import Data.String (drop, indexOf) as S
 import Data.String.Pattern (Pattern (..))
 import Effect (Effect)
-import Pha (VDom, app, ifN)
-import Pha.Action (Action)
+import Pha (VDom, Event, app, ifN)
+import Pha.Action (Action, delay, getState, setState)
 import Pha.Lens (actionOver)
-import Pha.Html (div', a, svguse, key, class', href)
+import Pha.Html (div', a, key, class', href)
+import Pha.Svg (svguse)
 import Pha.Event (key) as E
 import Game (class CGame, init, view, onKeyDown) as G
-import Game.Effs (EFFS, delay, getLocation, getEvent, getState, setState, interpretEffects)
+import Game.Effs (EFFS, getLocation, interpretEffects)
 import Game.Baseball (State, state) as Baseball
 import Game.Chocolat (State, state) as Chocolat
 import Game.Dessin (State, state) as Dessin
@@ -103,8 +104,8 @@ _tricolor = lens _.tricolor _{tricolor = _}
 _valise :: Lens' RootState Valise.State
 _valise = lens _.valise _{valise = _}
 
-hashChange :: Action RootState EFFS
-hashChange = do
+hashChange :: forall a. a -> Action RootState EFFS
+hashChange _ = do
     loc <- getLocation
     let location = extractLocation loc.hash "valise"
     if location == "valise" || location == "" then do
@@ -137,7 +138,7 @@ init = do
     actionOver _tiling G.init
     actionOver _tricolor G.init
     actionOver _valise G.init
-    hashChange
+    hashChange unit
 
 sliceFn :: ∀a. RootState -> (∀b. G.CGame b => (Lens' RootState b) -> a)  -> a
 sliceFn st fn = case st.location of
@@ -158,9 +159,8 @@ sliceFn st fn = case st.location of
     "tricolor" -> fn _tricolor
     _ -> fn _valise
 
-onKeyDown :: Action RootState EFFS
-onKeyDown = do
-    ev <- getEvent
+onKeyDown :: Event -> Action RootState EFFS
+onKeyDown ev = do
     st <- getState
     case E.key ev of
         Nothing  -> pure unit

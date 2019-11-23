@@ -5,8 +5,9 @@ import Data.Map (Map, fromFoldable) as M
 import Lib.Util (tabulate)
 import Game.Effs (EFFS)
 import Pha (VDom, Prop, text)
-import Pha.Html (div', p, h1, h2, svg, path, line, text',
-                key, class', attr, style, stroke, fill, viewBox, pc, opacity, width, height, translate, click)
+import Pha.Html (div', p, h1, h2, key, class', attr, style, pc, click)
+import Pha.Svg (svg, path, line, text', stroke, fill, viewBox, width, height, opacity)
+import Pha.Util (translate)
 import Game.Sansmot.Model (State, Page(..), pythaAnimation, carollAnimation, animateA, setPageA)
 
 -- besoin d'un transform par défault pour empécher un bug sous safari

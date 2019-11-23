@@ -3,7 +3,8 @@ module Game.Noirblanc.View where
 import MyPrelude
 import Lib.Util (coords, map2)
 import Pha (Prop, VDom, text)
-import Pha.Html (div', svguse, class', pc, key, style, click)
+import Pha.Html (div', class', pc, key, style, click)
+import Pha.Svg (svguse)
 import Game.Core (_position, _nbRows, _nbColumns, _help)
 import Game.Effs (EFFS)
 import Game.Noirblanc.Model (State, _level, _mode, _maxLevels, play2A, selectLevelA, selectModeA)

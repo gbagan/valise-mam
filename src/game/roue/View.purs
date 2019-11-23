@@ -7,7 +7,8 @@ import Game.Core (PointerPosition, _position, _pointer, _locked)
 import Game.Roue.Model (State, Location(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, deleteDraggedA,
                         aligned, validRotation, validRotation')
 import Pha (VDom, text, ifN, maybeN)
-import Pha.Html (div', button, span, svg, path, key, class', pc, click, pointerup, style, disabled, viewBox, fill, stroke)
+import Pha.Html (div', button, span, key, class', pc, click, pointerup, style, disabled)
+import Pha.Svg (svg, path, viewBox, fill, stroke)
 import UI.Template (template, card, dndBoardProps, dndItemProps)
 import UI.Icons (icongroup, iconSelectGroup, ireset, irules)
 

@@ -3,13 +3,15 @@ import MyPrelude
 import Game.Effs (EFFS)
 import Game.Valise.Model (State, showHelpA, setDragA, moveObjectA, toggleSwitchA, _positions)
 import Pha (VDom, h, text, maybeN)
-import Pha.Html (div', a, svg, g, class', svguse, rect, attr, style, href, width, height, x, y, viewBox, fill, transform, translate, pc,
-    click, pointermove, pointerenter, pointerleave, pointerup, pointerdown)
+import Pha.Html (div', a, class', attr, style, href, pc,
+    click, pointermove', pointerenter, pointerleave, pointerup, pointerdown)
+import Pha.Util (translate)
+import Pha.Svg (svg, svguse, g, rect, width, height, x, y, viewBox, fill, transform)
 
 valise :: State -> VDom State EFFS
 valise state = svg [
     viewBox 0 0 825 690,
-    pointermove moveObjectA,
+    pointermove' moveObjectA,
     pointerup $ setDragA Nothing
 ][
     h "use" [href "#valise", class' "valise-close" true, width "100%", height "100%"] [], 

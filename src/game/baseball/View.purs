@@ -3,7 +3,9 @@ module Game.Baseball.View (view) where
 import MyPrelude
 import Lib.Util (map2)
 import Pha (VDom, text, ifN)
-import Pha.Html (div', svg, g, rect, use, class', key, style, click, pc, stroke, fill, viewBox, translate)
+import Pha.Html (div', class', key, style, click, pc)
+import Pha.Svg (svg, g, rect, use, stroke, fill, viewBox)
+import Pha.Util (translate)
 import Game.Effs (EFFS)
 import Game.Core (canPlay, playA, isLevelFinished, _position)
 import Game.Baseball.Model (State, setNbBasesA, _nbBases, _missingPeg)

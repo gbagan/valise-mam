@@ -5,10 +5,11 @@ import Lib.Util (coords, map3)
 import Math (abs)
 import Pha (VDom, Prop, text, ifN, maybeN)
 import Pha.Event (shiftKey)
-import Pha.Html (div', br, svg, g, rect, use, key, attr, class', style, click, pointerdown, pointerup, pointerleave,
-                pc, translate, fill, stroke, strokeWidth, transform, viewBox)
+import Pha.Html (div', br, key, attr, class', style, click, click', pointerdown, pointerdown', pointerup, pointerleave, pc)
+import Pha.Svg (svg, g, rect, use, fill, stroke, strokeWidth, transform, viewBox)
+import Pha.Util (translate)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, playA, scoreFn)
-import Game.Effs (EFFS, getEvent)
+import Game.Effs (EFFS)
 import Game.Common (_isoCustom)
 import Game.Labete.Model (State, Mode(..), BeastType(..), 
                           _mode, _beast, _beastType, _selectedColor, _startPointer, _squareColors,
@@ -93,18 +94,18 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     ])
 
     grid = div' (gridStyle rows columns 5 <> trackPointer <> [class' "ui-board" true,
-            pointerdown $ whenM (shiftKey <$> getEvent) startZone2A
+            pointerdown' \ev -> when (shiftKey ev) (startZone2A ev)
     ]) [
         svg [viewBox 0 0 (50 * columns) (50 * rows)] (
             (map3 (state^._position) nonTrappedBeast  (state^._squareColors) \index hasTrap hasBeast color ->
                 let {row, col} = coords columns index in
                 square { color, row, col, hasTrap, hasBeast: hasBeast && state^._help } [
                     key $ show index,
-                    click $ unlessM (shiftKey <$> getEvent) (playA index),
+                    click' \ev -> unless (shiftKey ev) (playA index),
                     -- pointerenter: [actions.setSquareHover, index], todo
                     -- ponterleave: [actions.setSquareHover, null],
                     pointerup $ finishZoneA index,
-                    pointerdown $ whenM (shiftKey <$> getEvent) (startZoneA index)
+                    pointerdown' \ev -> when (shiftKey ev) (startZoneA index)
                 ]
             ) <> [
                 maybeN $ case state^._startPointer of

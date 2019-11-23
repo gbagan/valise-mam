@@ -2,7 +2,9 @@ module Game.Tricolor.View where
 
 import MyPrelude
 import Pha (VDom, text)
-import Pha.Html (div', svg, circle, text', class', attr, key, style, click, pointerenter, pointerleave, pc, stroke, fill, viewBox, translate)
+import Pha.Html (div', class', attr, key, style, click, pointerenter, pointerleave, pc)
+import Pha.Svg (svg, circle, text', stroke, fill, viewBox)
+import Pha.Util (translate)
 import Game.Effs (EFFS)
 import Game.Core (playA, isLevelFinished, _position)
 import Game.Tricolor.Model (State, setSizeA, setNbColorsA, setRangeA, setHoverCellA, _size, _nbColors, _range, _hoverCell, inRange)

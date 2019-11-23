@@ -1,11 +1,10 @@
 module Game.Effs (EFFS, LOCATION, Location, getLocation, GetLocation, GetPointer, POINTER, Position, getPointerPosition,
-                  EVENTEFF, EventEff, preventDefault, releasePointerCapture, interpretEffects, module A) where
+                  EVENTEFF, EventEff, preventDefault, releasePointerCapture, interpretEffects) where
 import MyPrelude
 import Effect (Effect)
 import Run (FProxy, Run, SProxy(..), lift, match)
-import Pha (InterpretEffs)
-import Pha.Action (DELAY, Delay(..), GetEvent(..), getEvent, EVENT, delay, getState, setState, setState', Event) as A
-import Pha.Random (RNG, Rng(..))
+import Pha (InterpretEffs, Event)
+import Pha.Action (DELAY, RNG, rngEffect, delayEffect)
 import Pha.Event (preventDefault) as E
 
 type Location = {
@@ -29,45 +28,42 @@ getLocation = lift (SProxy :: SProxy "location") (GetLocation identity)
 
 type Position = {x :: Number, y :: Number}
 
-data GetPointer a = GetPointer (Maybe Position -> a)
+data GetPointer a = GetPointer Event (Maybe Position -> a)
 derive instance functorPointer :: Functor GetPointer
 type POINTER = FProxy GetPointer
-getPointerPosition :: ∀r. Run (pointer :: POINTER | r) (Maybe Position)
-getPointerPosition = lift (SProxy :: SProxy "pointer") (GetPointer identity)
+getPointerPosition :: ∀r. Event -> Run (pointer :: POINTER | r) (Maybe Position)
+getPointerPosition ev = lift (SProxy :: SProxy "pointer") (GetPointer ev identity)
 
-data EventEff a = PreventDefault a | ReleasePointerCapture a
+data EventEff a = PreventDefault Event a | ReleasePointerCapture Event a
 derive instance functorEvEff :: Functor EventEff
 type EVENTEFF = FProxy EventEff
 
-preventDefault :: ∀r. Run (eventEff :: EVENTEFF | r) Unit
-preventDefault = lift (SProxy :: SProxy "eventEff") (PreventDefault unit)
+preventDefault :: ∀r. Event -> Run (eventEff :: EVENTEFF | r) Unit
+preventDefault ev = lift (SProxy :: SProxy "eventEff") (PreventDefault ev unit)
 
-releasePointerCapture :: ∀r. Run (eventEff :: EVENTEFF | r) Unit
-releasePointerCapture = lift (SProxy :: SProxy "eventEff") (ReleasePointerCapture unit)
+releasePointerCapture :: ∀r. Event -> Run (eventEff :: EVENTEFF | r) Unit
+releasePointerCapture ev = lift (SProxy :: SProxy "eventEff") (ReleasePointerCapture ev unit)
 
-type EFFS = (rng :: RNG, delay :: A.DELAY, event :: A.EVENT, location :: LOCATION, pointer :: POINTER, eventEff :: EVENTEFF)
+type EFFS = (rng :: RNG, delay :: DELAY, location :: LOCATION, pointer :: POINTER, eventEff :: EVENTEFF)
 
 foreign import getLoc :: Effect Location
 foreign import setTimeout :: Int -> Effect Unit -> Effect Unit
 foreign import genNumber :: Effect Number
 
 foreign import relativePointerPositionAux :: Maybe Position -> (Position -> Maybe Position) 
-                                            -> A.Event -> Effect (Maybe Position)
-relativePointerPosition :: A.Event -> Effect (Maybe Position)
+                                            -> Event -> Effect (Maybe Position)
+relativePointerPosition :: Event -> Effect (Maybe Position)
 relativePointerPosition = relativePointerPositionAux Nothing Just
 
-foreign import releasePointerCaptureAux :: A.Event -> Effect Unit
+foreign import releasePointerCaptureAux :: Event -> Effect Unit
 
-interpretEffects :: A.Event -> InterpretEffs EFFS
-interpretEffects ev = match {
-    delay: \(A.Delay ms cont) -> setTimeout ms cont,
-    rng: case _ of
-            RngInt m cont -> genNumber >>= \r -> cont (floor(r * toNumber m))
-            RngNumber cont -> genNumber >>= cont,
-    event: \(A.GetEvent cont) -> cont ev,
+interpretEffects :: InterpretEffs EFFS
+interpretEffects = match {
+    delay: delayEffect,
+    rng: rngEffect,
     location: \(GetLocation cont) -> getLoc >>= cont,
-    pointer: \(GetPointer cont) -> relativePointerPosition ev >>= cont,
+    pointer: \(GetPointer ev cont) -> relativePointerPosition ev >>= cont,
     eventEff: case _ of
-            PreventDefault cont -> E.preventDefault ev *> cont
-            ReleasePointerCapture cont -> releasePointerCaptureAux ev *> cont
+            PreventDefault ev cont -> E.preventDefault ev *> cont
+            ReleasePointerCapture ev cont -> releasePointerCaptureAux ev *> cont
 }

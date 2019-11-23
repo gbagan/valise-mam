@@ -3,8 +3,9 @@ module Game.Solitaire.View where
 import MyPrelude
 import Lib.Util (coords)
 import Pha (VDom, text, ifN, maybeN)
-import Pha.Html (div', br, svg, rect, circle, key, attr, class', style, click, 
-                    viewBox, fill, stroke, strokeWidth, translate, px)
+import Pha.Html (div', br, key, attr, class', style, click, px)
+import Pha.Svg (svg, rect, circle, viewBox, fill, stroke, strokeWidth)
+import Pha.Util (translate)
 import Game.Effs (EFFS)
 import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointer, scoreFn)
 import Game.Solitaire.Model (State, Board(..), _board, _holes, _dragged, _help, setBoardA, toggleHelpA)

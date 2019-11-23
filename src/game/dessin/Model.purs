@@ -88,7 +88,6 @@ edgesOf = mapMaybe toEdge ∘ pairwise where
     toEdge _ = Nothing
 
 instance gameDessin :: Game (Array (Maybe Int)) ExtState (Maybe Int) where
-    -- todo
     play state x = 
         let position = state^._position in 
         case x ∧ last position of

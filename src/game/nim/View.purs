@@ -1,7 +1,9 @@
 module Game.Nim.View where
 import MyPrelude
 import Pha (VDom, text)
-import Pha.Html (div', span, br, svg, rect, use, class', key, style, click, fill, viewBox, translate, px)
+import Pha.Html (div', span, br, class', key, style, click, px)
+import Pha.Svg (svg, rect, use, fill, viewBox)
+import Pha.Util (translate)
 import Lib.Util (tabulate)
 import Game.Effs (EFFS)
 import Game.Core (Turn(..), canPlay, playA, isLevelFinished, _position, _turn)

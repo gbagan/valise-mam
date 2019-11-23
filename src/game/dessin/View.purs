@@ -1,8 +1,8 @@
 module Game.Dessin.View (view) where
 import MyPrelude
 import Pha (VDom, text, maybeN)
-import Pha.Html (div', button, svg, line, circle, span, br, class', click, contextmenu,
-                 disabled, viewBox, stroke, fill, strokeWidth, strokeDasharray)
+import Pha.Html (div', button, span, br, class', click, contextmenu', disabled)
+import Pha.Svg (svg, line, circle, viewBox, stroke, fill, strokeWidth, strokeDasharray)
 import Game.Core (canPlay, playA, _position, _pointer)
 import Game.Effs (EFFS, preventDefault)
 import Game.Dessin.Model (State, Graph, Position, Edge, (↔), edgesOf, nbRaises, setGraphIndexA, _graph, _graphIndex)
@@ -35,7 +35,8 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
 
     board = div' (trackPointer <> [
                 class' "ui-board dessin-board" true,
-                contextmenu $ preventDefault *> playA Nothing]) [
+                -- todo
+                contextmenu' \ev -> preventDefault ev *> playA Nothing]) [
         svg [class' "dessin-svg" true, viewBox 0 0 100 100] $ concat [
             graph.edges <#> \edge ->
                 let {x1, x2, y1, y2} = getCoordsOfEdge graph edge

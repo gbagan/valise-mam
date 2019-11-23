@@ -4,7 +4,8 @@ import MyPrelude
 import Lib.Util (map2, map3)
 import Data.Array.NonEmpty (toArray, head) as N
 import Pha (VDom, Prop, text, maybeN)
-import Pha.Html (div', br, class', svg, use, svguse, key, style, pc, width, height, click, pointerenter, pointerleave)
+import Pha.Html (div', br, class', key, style, pc, click, pointerenter, pointerleave)
+import Pha.Svg (svg, use, svguse, width, height)
 import Game.Effs (EFFS)
 import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer, playA)
 import Game.Queens.Model (State, Piece(..),

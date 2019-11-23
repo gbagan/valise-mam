@@ -3,7 +3,7 @@ import MyPrelude
 import Data.List (null) as L
 import Pha (VDom, Prop)
 import Pha.Action (Action, setState)
-import Pha.Html (div', h2, class', click)
+import Pha.Html (div', h2, class', onclick)
 import Game.Core (GState, class Game, class ScoreGame, Dialog(..), Mode(..), bestScore,
                 undoA, redoA, resetA, toggleHelpA, setModeA, computerStartsA, setGridSizeA,
                 _help, _dialog, _history, _redoHistory, _mode, _nbRows, _nbColumns, _locked, _customSize)
@@ -40,7 +40,7 @@ iundo state =
         _{icon = I.IconSymbol "#undo",
            tooltip = Just "Annule le dernier coup effectué",
            disabled = L.null (state^._history)}
-        [click undoA]
+        [onclick undoA]
 
 iredo :: ∀pos ext. GState pos ext -> VDom (GState pos ext) EFFS
 iredo state =
@@ -50,28 +50,28 @@ iredo state =
             tooltip = Just "Rejoue le coup annulé",
             disabled = L.null (state^._redoHistory),
             style = ["transform" ∧ "scaleX(-1)"]}
-        [click redoA]
+        [onclick redoA]
 
 ireset :: ∀pos ext. GState pos ext -> VDom (GState pos ext) EFFS
 ireset state =
     iconbutton
         state
         _{icon = I.IconSymbol "#reset", tooltip = Just "Recommence la partie", disabled = L.null (state^._history)}
-        [click resetA]
+        [onclick resetA]
 
 ihelp :: ∀pos ext. GState pos ext -> VDom (GState pos ext) EFFS
 ihelp state =
     iconbutton
         state
         _{icon = I.IconSymbol "#help", tooltip = Just "Aide", selected = state^._help}
-        [click toggleHelpA]
+        [onclick toggleHelpA]
 
 irules :: ∀pos ext. GState pos ext -> VDom (GState pos ext) EFFS
 irules state =
     iconbutton
         state
         _{icon = I.IconSymbol "#rules", tooltip = Just "Règles", selected = selected}
-        [click $ setState (_dialog .~ Rules)]
+        [onclick $ setState (_dialog .~ Rules)]
     where
         selected = case state^._dialog of
             Rules -> true
@@ -85,7 +85,7 @@ iconSelectGroup state title values selected action optionFn =
         iconbutton state (optionFn val ∘ _{
             icon = I.IconText $ show val,
             selected = val == selected
-        }) [click (action val)]
+        }) [onclick (action val)]
 
 iconSelectGroupM :: ∀pos ext t sel.
     Show sel => Eq sel => Foldable t =>
@@ -96,7 +96,7 @@ iconSelectGroupM state title values selected action optionFn =
         iconbutton state (optionFn val ∘ _{
             icon = I.IconText $ show val,
             selected = elem val selected
-        }) [click (action val)]
+        }) [onclick (action val)]
 
 iconSizesGroup :: ∀pos ext mov. Game pos ext mov =>
     GState pos ext -> Array (Tuple Int Int) -> Boolean -> VDom (GState pos ext) EFFS
@@ -106,10 +106,10 @@ iconSizesGroup state sizeList customSize =
             iconbutton state _{
                 icon = I.IconText $ show rows <> "x" <> show cols,
                 selected = rows == crows && cols == ccols && not csize
-            } [click $ setGridSizeA rows cols false]
+            } [onclick $ setGridSizeA rows cols false]
         ) <> (if customSize then [
             iconbutton state _{icon = I.IconText "NxM", tooltip = Just "Taille personnalisée", selected = csize}
-                            [click $ setState (_customSize .~ true)]
+                            [onclick $ setState (_customSize .~ true)]
         ] else [])
     where
     crows = state^._nbRows
@@ -122,19 +122,19 @@ icons2Players state =
         iconbutton
             state
             _{icon = I.IconSymbol "#school", selected = state^._mode == RandomMode, tooltip = Just "IA mode facile"}
-            [click $ setModeA RandomMode],
+            [onclick $ setModeA RandomMode],
         iconbutton
             state
             _{icon = I.IconSymbol "#enstein", selected = state^._mode == ExpertMode, tooltip = Just "IA mode expert"}
-            [click $ setModeA ExpertMode],
+            [onclick $ setModeA ExpertMode],
         iconbutton
             state
             _{icon = I.IconSymbol "#duel", selected = state^._mode == DuelMode, tooltip = Just "Affronte un autre joueur"}
-            [click $ setModeA DuelMode],
+            [onclick $ setModeA DuelMode],
         iconbutton
             state
             _{icon = I.IconText "2P⇨", disabled = not (L.null $ state^._history) || state^._mode == DuelMode, tooltip = Just "L'IA commence"}
-            [click computerStartsA]
+            [onclick computerStartsA]
     ]
 
 iconBestScore :: ∀pos ext mov. ScoreGame pos ext mov => GState pos ext -> VDom (GState pos ext) EFFS
@@ -143,5 +143,5 @@ iconBestScore state =
         iconbutton
             state
             _{icon = I.IconSymbol "#cup", disabled = isNothing (bestScore state), tooltip = Just "Meilleur score"}
-            [click $ setState (_dialog .~ ScoreDialog)]
+            [onclick $ setState (_dialog .~ ScoreDialog)]
     ]

@@ -2,7 +2,7 @@ module Game.Tricolor.View where
 
 import MyPrelude
 import Pha (VDom, text)
-import Pha.Html (div', class', attr, key, style, click, pointerenter, pointerleave, pc)
+import Pha.Html (div', class', attr, key, style, onclick, onpointerenter, onpointerleave, pc)
 import Pha.Svg (svg, circle, text', stroke, fill, viewBox)
 import Pha.Util (translate)
 import Game.Effs (EFFS)
@@ -42,9 +42,9 @@ view state = template _{config=config, board=board, rules=rules} state where
                     key $ "b" <> show i,
                     style "fill" $ if levelFinished then "" else colors !! color # fromMaybe "",
                     style "transform" (translateCell i size),
-                    click $ playA i,
-                    pointerenter $ setHoverCellA (Just i),
-                    pointerleave $ setHoverCellA Nothing
+                    onclick $ playA i,
+                    onpointerenter $ setHoverCellA (Just i),
+                    onpointerleave $ setHoverCellA Nothing
                 ],
 
             concat $ take nbColors colors # mapWithIndex \i color -> [

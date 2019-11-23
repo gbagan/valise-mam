@@ -5,7 +5,7 @@ import Lib.Util (coords, map3)
 import Math (abs)
 import Pha (VDom, Prop, text, ifN, maybeN)
 import Pha.Event (shiftKey)
-import Pha.Html (div', br, key, attr, class', style, click, click', pointerdown, pointerdown', pointerup, pointerleave, pc)
+import Pha.Html (div', br, key, attr, class', style, onclick, onclick', onpointerdown, onpointerdown', onpointerup, onpointerleave, pc)
 import Pha.Svg (svg, g, rect, use, fill, stroke, strokeWidth, transform, viewBox)
 import Pha.Util (translate)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, playA, scoreFn)
@@ -48,9 +48,9 @@ ihelp :: State -> VDom State EFFS
 ihelp state =
     iconbutton
         state _{icon = IconSymbol "#help", tooltip = Just "Aide", selected = state^._help} [
-            pointerdown $ setHelpA true,
-            pointerup $ setHelpA false,
-            pointerleave $ setHelpA false
+            onpointerdown $ setHelpA true,
+            onpointerup $ setHelpA false,
+            onpointerleave $ setHelpA false
         ]
 
 view :: State -> VDom State EFFS
@@ -94,18 +94,18 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     ])
 
     grid = div' (gridStyle rows columns 5 <> trackPointer <> [class' "ui-board" true,
-            pointerdown' \ev -> when (shiftKey ev) (startZone2A ev)
+            onpointerdown' \ev -> when (shiftKey ev) (startZone2A ev)
     ]) [
         svg [viewBox 0 0 (50 * columns) (50 * rows)] (
             (map3 (state^._position) nonTrappedBeast  (state^._squareColors) \index hasTrap hasBeast color ->
                 let {row, col} = coords columns index in
                 square { color, row, col, hasTrap, hasBeast: hasBeast && state^._help } [
                     key $ show index,
-                    click' \ev -> unless (shiftKey ev) (playA index),
+                    onclick' \ev -> unless (shiftKey ev) (playA index),
                     -- pointerenter: [actions.setSquareHover, index], todo
                     -- ponterleave: [actions.setSquareHover, null],
-                    pointerup $ finishZoneA index,
-                    pointerdown' \ev -> when (shiftKey ev) (startZoneA index)
+                    onpointerup $ finishZoneA index,
+                    onpointerdown' \ev -> when (shiftKey ev) (startZoneA index)
                 ]
             ) <> [
                 maybeN $ case state^._startPointer of
@@ -132,7 +132,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                         let {row, col} = coords 5 index in
                         square {row, col, hasBeast, hasTrap: false, color: 0} [
                             key $ show index,
-                            click $ flipCustomBeastA index
+                            onclick $ flipCustomBeastA index
                         ]
             )
         ]

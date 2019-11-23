@@ -3,7 +3,7 @@ module UI.IncDecGrid where
 import Prelude
 import Pha (VDom, text, ifN)
 import Pha.Action (Action)
-import Pha.Html (div', span, class', click)
+import Pha.Html (div', span, class', onclick)
 import UI.Icon (iconbutton, Icon(..))
 
 type IncDecGridOptions a effs = {
@@ -25,22 +25,22 @@ incDecGrid {locked, nbRows, nbColumns, customSize, showRowButtons, showColButton
                 div' [class' "ui-flex-center ui-incdecgrid-rows" true] [
                     iconbutton
                         _{round = true, icon = IconSymbol "#plus", disabled = locked, hidden = not customSize}
-                        [click $ onResize (nbRows + 1) nbColumns],
+                        [onclick $ onResize (nbRows + 1) nbColumns],
                     div' [class' "ui-incdecgrid-text" true] [ span [] [ text $ show nbRows ] ],
                     iconbutton
                         _{round = true, icon = IconSymbol "#minus", disabled = locked, hidden = not customSize}
-                        [click $ onResize (nbRows - 1) nbColumns]
+                        [onclick $ onResize (nbRows - 1) nbColumns]
                 ]
         ],
         ifN showColButtons \_ ->
             div' [class' "ui-flex-center ui-incdecgrid-cols" true] [ 
                 iconbutton
                     _{round = true, icon = IconSymbol "#minus", disabled = locked, hidden = not customSize}
-                    [click $ onResize nbRows (nbColumns - 1)],
+                    [onclick $ onResize nbRows (nbColumns - 1)],
                 div' [class' "ui-incdecgrid-text" true] [ span [] [ text $ show nbColumns ] ],
                 iconbutton
                     _{round = true, icon = IconSymbol "#plus", disabled = locked, hidden = not customSize}
-                    [click $ onResize nbRows (nbColumns + 1)]
+                    [onclick $ onResize nbRows (nbColumns + 1)]
             ]
     ]
     

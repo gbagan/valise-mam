@@ -2,10 +2,11 @@ module Game.Tiling.View (view) where
 import MyPrelude
 import Lib.Util (coords)
 import Pha (VDom, Prop, text, ifN, maybeN)
-import Pha.Html (div', key, attr, style, class', click, contextmenu', pointerenter, pointerleave)
+import Pha.Html (div', key, attr, style, class', onclick, oncontextmenu', onpointerenter, onpointerleave)
+import Pha.Event (preventDefault)
 import Pha.Svg (svg, g, rect, line, use, viewBox, fill, stroke, strokeWidth, transform)
 import Pha.Util (translate)
-import Game.Effs (EFFS, preventDefault)
+import Game.Effs (EFFS)
 import Game.Common (_isoCustom)
 import Game.Core (_position, _nbRows, _nbColumns, _pointer, _help)
 import Game.Tiling.Model (State, TileType(..), _nbSinks, _rotation, _tile, _tileType,
@@ -66,7 +67,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     grid = div' (gridStyle rows columns 5 <> trackPointer <> [
         class' "ui-board" true,
         -- todo
-        contextmenu' \ev -> preventDefault ev *> rotateA
+        oncontextmenu' \ev -> preventDefault ev *> rotateA
     ]) [
         svg [viewBox 0 0 (50 * columns) (50 * rows)] $
             (position # mapWithIndex \index pos ->
@@ -77,9 +78,9 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                     hasSink: pos == -1,
                     row, col
                 } [
-                    click $ clickOnCellA index,
-                    pointerenter $ setHoverSquareA (Just index),
-                    pointerleave $ setHoverSquareA Nothing
+                    onclick $ clickOnCellA index,
+                    onpointerenter $ setHoverSquareA (Just index),
+                    onpointerleave $ setHoverSquareA Nothing
                 ]
             ) <> (position # mapWithIndex \index pos ->
                 let {row, col} = coords columns index in
@@ -108,7 +109,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                     state^. (_tile ∘ _isoCustom) # mapWithIndex \index hasBlock ->
                         let {row, col} = coords 5 index
                         in square {hasBlock, row, col, hasSink: false, isDark: false}
-                            [key (show index), click $ flipTileA index]
+                            [key (show index), onclick $ flipTileA index]
                 )
             ]
         ]

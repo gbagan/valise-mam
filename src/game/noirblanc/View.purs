@@ -3,7 +3,7 @@ module Game.Noirblanc.View where
 import MyPrelude
 import Lib.Util (coords, map2)
 import Pha (Prop, VDom, text)
-import Pha.Html (div', class', pc, key, style, click)
+import Pha.Html (div', class', pc, key, style, onclick)
 import Pha.Svg (svguse)
 import Game.Core (_position, _nbRows, _nbColumns, _help)
 import Game.Effs (EFFS)
@@ -58,7 +58,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                 style "width" $ pc (0.86 / toNumber columns),
                 style "left" $ pc ((toNumber col + 0.07) / toNumber columns),
                 style "top" $ pc ((toNumber row + 0.07) / toNumber rows),
-                click $ play2A index
+                onclick $ play2A index
             ]
 
     board = incDecGrid state [grid]

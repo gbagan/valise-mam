@@ -2,7 +2,7 @@ module UI.Dialog where
 import MyPrelude
 import Pha.Action (Action)
 import Pha (VDom, text)
-import Pha.Html (div', button, class', click)
+import Pha.Html (div', button, class', onclick)
 
 type DialogOptions a effs = {
     title :: String,
@@ -22,14 +22,13 @@ dialog {title, onOk, onCancel} children =
                 onCancel <#> \action ->
                     button [
                         class' "ui-button ui-button-primary" true, 
-                        click action
+                        onclick action
                     ] [text "Annuler"],
                 onOk <#> \action ->
                     button [
                         class' "ui-button ui-button-primary" true,
-                        click action
+                        onclick action
                     ] [text "Ok"]
             ]
         ]
     ]
-

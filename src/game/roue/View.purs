@@ -7,7 +7,7 @@ import Game.Core (PointerPosition, _position, _pointer, _locked)
 import Game.Roue.Model (State, Location(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, deleteDraggedA,
                         aligned, validRotation, validRotation')
 import Pha (VDom, text, ifN, maybeN)
-import Pha.Html (div', button, span, key, class', pc, click, pointerup, style, disabled)
+import Pha.Html (div', button, span, key, class', pc, onclick, onpointerup, style, disabled)
 import Pha.Svg (svg, path, viewBox, fill, stroke)
 import UI.Template (template, card, dndBoardProps, dndItemProps)
 import UI.Icons (icongroup, iconSelectGroup, ireset, irules)
@@ -92,13 +92,13 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
 
     board = div' (dndBoardProps _dragged <> [
         class' "roue-board" true,
-        pointerup deleteDraggedA
+        onpointerup deleteDraggedA
     ]) [
         div' [class' "roue-buttons" true] $ concat [
             [button [
                 class' "ui-button ui-button-primary roue-button" true,
                 disabled $ state^._locked,
-                click $ rotateA (-1)
+                onclick $ rotateA (-1)
             ] [text "↶"]],
             take size colors # mapWithIndex \i color ->
                 div' ([
@@ -111,7 +111,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
             [button [
                 class' "ui-button ui-button-primary roue-button" true,
                     disabled $ state^._locked,
-                    click $ rotateA 1 -- lockAction n'est pas nécessaire
+                    onclick $ rotateA 1 -- lockAction n'est pas nécessaire
             ] [text "↷"]]
         ],
         div' [class' "roue-roue" true] [
@@ -120,7 +120,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
             button [
                 class' "ui-button ui-button-primary roue-validate" true,
                 disabled $ not valid || state^._locked,
-                click checkA
+                onclick checkA
             ] [text "Valider"],
             div' [class' "roue-valid-rotation" true] [
                 if valid then

@@ -3,7 +3,7 @@ module Game.Frog.View (view) where
 import MyPrelude
 import Lib.Util (map2, tabulate, pairwise, floatRange)
 import Pha (VDom, text, ifN, maybeN)
-import Pha.Html (div', span, br, px, class', key, click', style)
+import Pha.Html (div', span, br, px, class', key, onclick', style)
 import Pha.Svg (svg, g, use, line, path, text', viewBox, stroke, fill, strokeDasharray, strokeWidth)
 import Pha.Util (translate)
 import Pha.Event (shiftKey)
@@ -90,7 +90,7 @@ view state = template _{config = config, board = board, rules = rules, winTitle 
                 map2 spoints reachable \i {x, y} reach ->
                     g [
                         key $ "lily" <> show i,
-                        click' \ev -> if shiftKey ev then markA i else playA i
+                        onclick' \ev -> if shiftKey ev then markA i else playA i
                     ] [
                         lily i x y false false,
                         lily i x y true (not reach || state^._locked),

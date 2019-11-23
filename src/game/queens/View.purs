@@ -4,7 +4,7 @@ import MyPrelude
 import Lib.Util (map2, map3)
 import Data.Array.NonEmpty (toArray, head) as N
 import Pha (VDom, Prop, text, maybeN)
-import Pha.Html (div', br, class', key, style, pc, click, pointerenter, pointerleave)
+import Pha.Html (div', br, class', key, style, pc, onclick, onpointerenter, onpointerleave)
 import Pha.Svg (svg, use, svguse, width, height)
 import Game.Effs (EFFS)
 import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer, playA)
@@ -51,10 +51,10 @@ view state = template _{config=config, board=board, rules=rules, customDialog=cu
             iconbutton state _{icon = IconSymbol "#customize",
                                selected = N.head (state^._allowedPieces) == Custom,
                                tooltip = Just "Crée ta propre propre pièce"} [
-                                  click customizeA
+                                  onclick customizeA
                               ],
             iconbutton state _{icon = IconSymbol "#piece-mix", selected = state^._multiPieces, tooltip = Just "Mode mixte"} [
-                click toggleMultiPiecesA
+                onclick toggleMultiPiecesA
             ]
         ] <> [ihelp state, ireset state, irules state],
         iconBestScore state
@@ -68,7 +68,7 @@ view state = template _{config=config, board=board, rules=rules, customDialog=cu
                     icon = IconSymbol $ "#piece-" <> name
                 } [
                     key name,
-                    click $ selectPieceA piece
+                    onclick $ selectPieceA piece
                 ]
         
 
@@ -85,9 +85,9 @@ view state = template _{config=config, board=board, rules=rules, customDialog=cu
             } [
                 style "width" $ pc (1.0 / toNumber columns),
                 style "height" $ pc (1.0 / toNumber rows),
-                click $ playA index,
-                pointerenter $ selectSquareA (Just index),
-                pointerleave $ selectSquareA Nothing
+                onclick $ playA index,
+                onpointerenter $ selectSquareA (Just index),
+                onpointerleave $ selectSquareA Nothing
             ],
         [maybeN $ cursor <$> state^._pointer]
     ]
@@ -110,7 +110,7 @@ view state = template _{config=config, board=board, rules=rules, customDialog=cu
                             nonavailable: false
                     } [key $ show index, 
                         style "width" "20%", style "height" "20%",
-                        click if index /= 12 then flipLocalMoveA index else pure unit
+                        onclick if index /= 12 then flipLocalMoveA index else pure unit
                     ]
             ),
             div' [class' "flex queens-custompiece-directions" true] (
@@ -121,7 +121,7 @@ view state = template _{config=config, board=board, rules=rules, customDialog=cu
                         style = ["transform" ∧ ("rotate(" <> show angle <> "deg)")]
                     } [
                         key $ show i,
-                        click $ if i /= 4 then flipDirectionA i else pure unit
+                        onclick $ if i /= 4 then flipDirectionA i else pure unit
                     ]
             )
         ]

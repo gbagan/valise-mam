@@ -3,7 +3,7 @@ module Game.Baseball.View (view) where
 import MyPrelude
 import Lib.Util (map2)
 import Pha (VDom, text, ifN)
-import Pha.Html (div', class', key, style, click, pc)
+import Pha.Html (div', class', key, style, onclick, pc)
 import Pha.Svg (svg, g, rect, use, stroke, fill, viewBox)
 import Pha.Util (translate)
 import Game.Effs (EFFS)
@@ -55,7 +55,7 @@ view state = template _{config=config, board=board, rules=rules} state where
                         key $ "p" <> show peg
                     ] [ 
                         use 0.0 0.0 7.0 7.0 "#meeple" [
-                            click $ playA peg,
+                            onclick $ playA peg,
                             fill color,
                             style "animation"
                                 if levelFinished then

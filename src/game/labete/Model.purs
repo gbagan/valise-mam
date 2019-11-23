@@ -198,12 +198,12 @@ onKeyDown "p" = incSelectedColorA 1
 onKeyDown _ = pure unit
 
 -- le début d'une zone est décomposé en deux actions
--- startZoneA est activé lors  du pointerdown sur l'élément html réprésentant le carré
+-- startZoneA est activé lors  du onpointerdown sur l'élément html réprésentant le carré
 
 startZoneA :: ∀effs. Int -> Action State effs
 startZoneA pos = setState (_startSquare .~ Just pos)
 
--- startZone2A est appliqué lors du pointerdown sur l'élément html réprésentant le plateu
+-- startZone2A est appliqué lors du onpointerdown sur l'élément html réprésentant le plateu
 startZone2A :: ∀effs. Event -> Action State (pointer :: POINTER | effs)
 startZone2A ev = getPointerPosition ev >>= \pos -> setState (_startPointer .~ pos)
 

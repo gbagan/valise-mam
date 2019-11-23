@@ -3,7 +3,7 @@ module Game.Solitaire.View where
 import MyPrelude
 import Lib.Util (coords)
 import Pha (VDom, text, ifN, maybeN)
-import Pha.Html (div', br, key, attr, class', style, click, px)
+import Pha.Html (div', br, key, attr, class', style, onclick, px)
 import Pha.Svg (svg, rect, circle, viewBox, fill, stroke, strokeWidth)
 import Pha.Util (translate)
 import Game.Effs (EFFS)
@@ -41,7 +41,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     config =
         let boards = [CircleBoard, Grid3Board, RandomBoard, EnglishBoard, FrenchBoard]
             ihelp = iconbutton state _{icon = IconSymbol "#help", selected = state^._help > 0, tooltip = Just "Aide"}
-                    [click toggleHelpA]
+                    [onclick toggleHelpA]
         in        
         card "Jeu du solitaire" [
             iconSelectGroup state "Plateau" boards (state^._board) setBoardA \i opt -> case i of

@@ -1,7 +1,7 @@
 module Game.Nim.View where
 import MyPrelude
 import Pha (VDom, text)
-import Pha.Html (div', span, br, class', key, style, click, px)
+import Pha.Html (div', span, br, class', key, style, onclick, px)
 import Pha.Svg (svg, rect, use, fill, viewBox)
 import Pha.Util (translate)
 import Lib.Util (tabulate)
@@ -39,7 +39,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                     rect (-2.5) (-2.5) 5.0 5.0 [
                         key $ "base-" <> show i <> "-" <> show j,
                         fill "gray",
-                        click $ playA (Move i j),
+                        onclick $ playA (Move i j),
                         style "transform" $
                             translate (px $ (if length == 5 then 30 else 5) + 10 * j) (px $ 15 + 19 * i) <>
                             " rotate(45deg)",

@@ -1,10 +1,11 @@
 module Game.Dessin.View (view) where
 import MyPrelude
 import Pha (VDom, text, maybeN)
-import Pha.Html (div', button, span, br, class', click, contextmenu', disabled)
+import Pha.Html (div', button, span, br, class', onclick, oncontextmenu', disabled)
 import Pha.Svg (svg, line, circle, viewBox, stroke, fill, strokeWidth, strokeDasharray)
+import Pha.Event (preventDefault)
 import Game.Core (canPlay, playA, _position, _pointer)
-import Game.Effs (EFFS, preventDefault)
+import Game.Effs (EFFS)
 import Game.Dessin.Model (State, Graph, Position, Edge, (↔), edgesOf, nbRaises, setGraphIndexA, _graph, _graphIndex)
 import UI.Template (template, card, trackPointer)
 import UI.Icon (Icon(..))
@@ -36,7 +37,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     board = div' (trackPointer <> [
                 class' "ui-board dessin-board" true,
                 -- todo
-                contextmenu' \ev -> preventDefault ev *> playA Nothing]) [
+                oncontextmenu' \ev -> preventDefault ev *> playA Nothing]) [
         svg [class' "dessin-svg" true, viewBox 0 0 100 100] $ concat [
             graph.edges <#> \edge ->
                 let {x1, x2, y1, y2} = getCoordsOfEdge graph edge
@@ -48,7 +49,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                 circle (20.0 * x) (20.0 * y) 3.0 [
                     stroke $ if Just (Just i) == last position then "red" else "blue",
                     fill "blue",
-                    click $ playA (Just i)
+                    onclick $ playA (Just i)
                 ],
             [maybeN $ currentLine <$> (state^._pointer) <*> (getCoords graph <$> join (last position))]
         ],
@@ -58,7 +59,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
         button [
             class' "ui-button ui-button-primary dessin-raise" true,
             disabled $ not (canPlay state Nothing),
-            click $ playA Nothing
+            onclick $ playA Nothing
         ] [text "Lever le crayon"]
     ]
 

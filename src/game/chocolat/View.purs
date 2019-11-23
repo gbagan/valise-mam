@@ -6,7 +6,7 @@ import Game.Effs (EFFS)
 import Game.Core (_position, _nbRows, _nbColumns, possibleMoves, playA)
 import Game.Chocolat.Model (State, Move(..), SoapMode(..), _soap, _soapMode, _moveWhenHover, cutLine, setSoapModeA, setHoverA) 
 import Pha (VDom, text, maybeN)
-import Pha.Html (div', span, br, key, class', click, pointerenter, pointerleave)
+import Pha.Html (div', span, br, key, class', onclick, onpointerenter, onpointerleave)
 import Pha.Svg (svg, rect, line, circle, use, viewBox, fill)
 import UI.Template (template, card, gridStyle, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icon (Icon(..))
@@ -37,9 +37,9 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     cutter row col move = circle (50.0 * toNumber col) (50.0 * toNumber row) 7.0 [
         key $ "c" <> show (row * (columns + 1) + col), 
         class' "chocolat-cutter" true,
-        pointerenter $ setHoverA (Just move),
-        pointerleave $ setHoverA Nothing,
-        click $ setHoverA Nothing *> playA move
+        onpointerenter $ setHoverA (Just move),
+        onpointerleave $ setHoverA Nothing,
+        onclick $ setHoverA Nothing *> playA move
     ]
 
     grid = div' (gridStyle rows columns 3 <> [class' "ui-board" true]) [

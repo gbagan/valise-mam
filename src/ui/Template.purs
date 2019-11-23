@@ -2,7 +2,7 @@ module UI.Template where
 import MyPrelude
 import Pha (VDom, Prop, text, emptyNode, maybeN)
 import Pha.Action (Action, setState)
-import Pha.Html (div', class', style, pc, pointerup, pointerdown', pointerleave, pointermove')
+import Pha.Html (div', class', style, pc, onpointerup, onpointerdown', onpointerleave, onpointermove')
 import Pha.Util (translate)
 import Game.Core (class Game, class ScoreGame, GState, Mode(..), Turn(..), SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointer, _locked, 
@@ -120,9 +120,9 @@ svgCursorStyle {x, y} = [
 trackPointer :: ∀pos ext. Array (Prop (GState pos ext) EFFS)
 trackPointer = [
     style "touch-action" "none",
-    pointermove' move,
-    pointerleave $ setState (_pointer .~ Nothing),
-    pointerdown' move
+    onpointermove' move,
+    onpointerleave $ setState (_pointer .~ Nothing),
+    onpointerdown' move
 ] where
     move ev = getPointerPosition ev >>= setPointerPositionA
 
@@ -131,10 +131,10 @@ dndBoardProps :: ∀pos ext dnd. Eq dnd => Game pos ext {from :: dnd, to :: dnd}
     Lens' (GState pos ext) (Maybe dnd) -> Array (Prop (GState pos ext) EFFS)
 dndBoardProps dragLens = [
     style "touch-action" "none", 
-    pointermove' move,
-    pointerup $ setState (dragLens .~ Nothing),
-    pointerleave leave,
-    pointerdown' move
+    onpointermove' move,
+    onpointerup $ setState (dragLens .~ Nothing),
+    onpointerleave leave,
+    onpointerdown' move
 ] where
     move ev = getPointerPosition ev >>= setPointerPositionA
     leave = setState $ (_pointer .~ Nothing) ∘ (dragLens .~ Nothing)
@@ -144,8 +144,8 @@ dndItemProps :: ∀pos ext dnd. Eq dnd => Game pos ext {from :: dnd, to :: dnd} 
 dndItemProps dragLens draggable droppable id state = [
     class' "dragged" dragged,
     class' "candrop" candrop,
-    pointerdown' $ \ev -> when draggable $ releasePointerCapture ev *> setState (dragLens .~ Just id),
-    pointerup $ if candrop then dropA dragLens id else setState (dragLens .~ Nothing)  -- stopPropagation
+    onpointerdown' $ \ev -> when draggable $ releasePointerCapture ev *> setState (dragLens .~ Just id),
+    onpointerup $ if candrop then dropA dragLens id else setState (dragLens .~ Nothing)  -- stopPropagation
 ] where
     draggedItem = state ^. dragLens
     candrop = droppable && (draggedItem # maybe false (\x -> canPlay state { from: x, to: id }))

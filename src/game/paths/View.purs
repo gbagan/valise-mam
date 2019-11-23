@@ -5,7 +5,7 @@ import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _point
 import Game.Effs (EFFS)
 import Game.Paths.Model (State, Mode(..), _exit, _mode, selectVertexA, selectModeA)
 import Pha (VDom, Prop, text, emptyNode, maybeN, ifN)
-import Pha.Html (div', p, br, key, class', attr, click, style, pc)
+import Pha.Html (div', p, br, key, class', attr, onclick, style, pc)
 import Pha.Svg (svg, g, path, use, viewBox)
 import Pha.Util (translate)
 import UI.Icon (Icon(..))
@@ -76,7 +76,7 @@ view state = template _{config=config, board=board, rules=rules} state where
                     y: toNumber (100 * row)
                 } [
                     key $ show index,
-                    click $ selectVertexA index
+                    onclick $ selectVertexA index
                 ]
             ) <> [
                 path pathdec [class' "paths-path" true],

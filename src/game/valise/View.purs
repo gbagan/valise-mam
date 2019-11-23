@@ -4,15 +4,15 @@ import Game.Effs (EFFS)
 import Game.Valise.Model (State, showHelpA, setDragA, moveObjectA, toggleSwitchA, _positions)
 import Pha (VDom, h, text, maybeN)
 import Pha.Html (div', a, class', attr, style, href, pc,
-    click, pointermove', pointerenter, pointerleave, pointerup, pointerdown)
+    onclick, onpointermove', onpointerenter, onpointerleave, onpointerup, onpointerdown)
 import Pha.Util (translate)
 import Pha.Svg (svg, svguse, g, rect, width, height, x, y, viewBox, fill, transform)
 
 valise :: State -> VDom State EFFS
 valise state = svg [
     viewBox 0 0 825 690,
-    pointermove' moveObjectA,
-    pointerup $ setDragA Nothing
+    onpointermove' moveObjectA,
+    onpointerup $ setDragA Nothing
 ][
     h "use" [href "#valise", class' "valise-close" true, width "100%", height "100%"] [], 
 
@@ -20,7 +20,7 @@ valise state = svg [
         h "use" [href "#openvalise"] [],
 
         object { symbol: "switch", link: Nothing, help: "", drag: false } 
-            300 460 42 60 [click toggleSwitchA,
+            300 460 42 60 [onclick toggleSwitchA,
                           style "transform" (if state.isSwitchOn then "scale(1,-1) translateY(-8%)" else "scale(1,1)")
                         ] [],
 
@@ -97,13 +97,13 @@ valise state = svg [
                     class' "draggable" drag,
                     width w',
                     height h',
-                    pointerdown $ if drag then 
+                    onpointerdown $ if drag then 
                             setDragA (Just {name: symbol, x: toNumber w' / 1650.0, y: toNumber h' / 1380.0})
                         else
                             pure unit
                 ] <> if isJust link then [] else [
-                        pointerenter $ showHelpA help,
-                        pointerleave $ showHelpA ""
+                        onpointerenter $ showHelpA help,
+                        onpointerleave $ showHelpA ""
                 ]) [ 
                     h "use" [
                         href $ "#" <> symbol, class' "valise-symbol" true
@@ -112,8 +112,8 @@ valise state = svg [
                         rect "0" "0" "100%" "100%" ([
                             class' "valise-object-link" true, 
                             fill "transparent",
-                            pointerenter $ showHelpA help,
-                            pointerleave $ showHelpA ""
+                            onpointerenter $ showHelpA help,
+                            onpointerleave $ showHelpA ""
                         ] <> children)
                     ]
                 ]

@@ -5,7 +5,7 @@ import Data.Map (Map, fromFoldable) as M
 import Lib.Util (tabulate)
 import Game.Effs (EFFS)
 import Pha (VDom, Prop, text)
-import Pha.Html (div', p, h1, h2, key, class', attr, style, pc, click)
+import Pha.Html (div', p, h1, h2, key, class', attr, style, pc, onclick)
 import Pha.Svg (svg, path, line, text', stroke, fill, viewBox, width, height, opacity)
 import Pha.Util (translate)
 import Game.Sansmot.Model (State, Page(..), pythaAnimation, carollAnimation, animateA, setPageA)
@@ -93,8 +93,8 @@ view :: State -> VDom State EFFS
 view state = 
     div' [class' "sansmot-main" true] [
         div' [class' "sansmot-menu" true] [
-            div' [class' "sansmot-pagelink" true, click $ setPageA PythaPage] [text "1"],
-            div' [class' "sansmot-pagelink" true, click $ setPageA CarollPage] [text "2"]
+            div' [class' "sansmot-pagelink" true, onclick $ setPageA PythaPage] [text "1"],
+            div' [class' "sansmot-pagelink" true, onclick $ setPageA CarollPage] [text "2"]
         ],
         main state.page
     ] where
@@ -119,7 +119,7 @@ view state =
         p [class' "sansmot-center" true] [
             animPytha state
         ],
-        p [class' "sansmot-center sansmot-link" true, click $ animateA pythaAnimation] [text "Lancer l'animation"]
+        p [class' "sansmot-center sansmot-link" true, onclick $ animateA pythaAnimation] [text "Lancer l'animation"]
     ]
 
     main CarollPage = div' [key "caroll"] [
@@ -128,5 +128,5 @@ view state =
         p [class' "sansmot-center" true] [
             animCaroll state
         ],
-        p [class' "sansmot-center sansmot-link" true, click $ animateA carollAnimation] [text "Lancer l'animation"]
+        p [class' "sansmot-center sansmot-link" true, onclick $ animateA carollAnimation] [text "Lancer l'animation"]
     ]

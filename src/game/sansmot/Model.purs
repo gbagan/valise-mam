@@ -1,7 +1,8 @@
 module Game.Sansmot.Model where
 import MyPrelude
 import Data.Map(Map, empty) as M
-import Pha.Action (Action, setState, getState, delay, DELAY)
+import Pha.Action (Action, setState, getState)
+import Pha.Effects.Delay (DELAY, delay)
 
 data Page = PythaPage | CarollPage
 

@@ -1,10 +1,12 @@
 module Game.Tiling.View (view) where
 import MyPrelude
 import Lib.Util (coords)
-import Pha (VDom, Prop, text, ifN, maybeN)
-import Pha.Html (div, key, attr, style, class', onclick, oncontextmenu', onpointerenter, onpointerleave)
+import Pha (VDom, Prop, text, ifN, maybeN, key, attr, style, class')
+import Pha.Elements (div)
+import Pha.Attributes (onclick, oncontextmenu', onpointerenter, onpointerleave)
 import Pha.Event (preventDefault)
-import Pha.Svg (svg, g, rect, line, use, viewBox, fill, stroke, strokeWidth, transform)
+import Pha.Svg (svg, g, rect, line, use,
+                viewBox, fill, stroke, x_, y_, x1, x2, y1, y2, width, height, strokeWidth, transform)
 import Pha.Util (translate)
 import Game.Effs (EFFS)
 import Game.Common (_isoCustom)
@@ -21,13 +23,13 @@ square :: ∀a effs. {isDark :: Boolean, hasBlock :: Boolean, hasSink :: Boolean
 square {isDark, hasBlock, hasSink, row, col} props =
     g ([
         class' "tiling-darken" isDark,
-        transform $ translate (50 * col) (50 * row)
+        transform $ translate (show $ 50 * col) (show $ 50 * row)
     ] <> props) [
-        rect 0.0 0.0 50.0 50.0 [key "conc", fill "url(#concrete)"],
+        rect [width "50", height "50", key "conc", fill "url(#concrete)"],
         ifN hasBlock \_ ->
-            use 0.0 0.0 50.0 50.0 "#tile2" [key "tile"],
+            use "#tile2" [width "50", height "50", key "tile"],
         ifN hasSink \_ ->
-            use 0.0 0.0 50.0 50.0 "#sink" [key "sink"]
+            use "#sink" [width "50", height "50", key "sink"]
     ]
     
 view :: State -> VDom State EFFS
@@ -53,14 +55,19 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                 class' "tiling-cursor" true,
                 style "transform" $ "rotate(" <> show (90 * state^._rotation) <> "deg)"
             ] $ state^._tile <#> \{row, col} ->
-                use (50.0 * toNumber col - 25.0) (50.0 * toNumber row - 25.0) 50.0 50.0 "#tile2" [
+                use "#tile2" [
+                    x_ $ show (50.0 * toNumber col - 25.0),
+                    y_ $ show (50.0 * toNumber row - 25.0),
+                    width "50",
+                    height "50",
                     attr "pointer-events" "none",
                     attr "opacity" (if inConflict state then "0.3" else "0.8")
                 ]
         ]
         
     sinkCursor pp =
-        use (-25.0) (-25.0) (50.0) (50.0) "#sink" ([
+        use "#sink" ([
+            x_ "-25", y_ "-25", width "50", height "50",
             attr "pointer-events" "none"
         ] <> svgCursorStyle pp)
 
@@ -84,15 +91,15 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                 ]
             ) <> (position # mapWithIndex \index pos ->
                 let {row, col} = coords columns index in
-                g [transform $ translate (50 * col) (50 * row)] [
+                g [transform $ translate (show $ 50 * col) (show $ 50 * row)] [
                     ifN (pos > 0 && border index (-1)) \_ ->
-                        line 0.0 0.0 0.0 50.0 [stroke "#000", strokeWidth "2"],
+                        line [x1 "0", y1 "0", x2 "0", y2 "50", stroke "#000", strokeWidth "2"],
                     ifN (pos > 0 && border index 1) \_ ->
-                        line 50.0 0.0 50.0 50.0 [stroke "#000", strokeWidth "2"],
+                        line [x1 "50", y1 "0", x2 "50", y2 "50", stroke "#000", strokeWidth "2"],
                     ifN (pos > 0 && border index (-columns)) \_ ->
-                        line 0.0 0.0 50.0 0.0 [stroke "#000", strokeWidth "2"],
+                        line [x1 "0", y1 "0", x2 "50", y2 "0", stroke "#000", strokeWidth "2"],
                     ifN (pos > 0 && border index columns) \_ ->
-                        line 0.0 50.0 50.0 50.0 [stroke "#000", strokeWidth "2"]    
+                        line [x1 "0", y1 "50", x2 "50", y2 "50", stroke "#000", strokeWidth "2"]    
                 ]
             ) <> [maybeN $ (if length (sinks state) < state^._nbSinks then sinkCursor else tileCursor) <$> state^._pointer]
     ]

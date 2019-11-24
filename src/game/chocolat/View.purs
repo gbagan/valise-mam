@@ -5,9 +5,10 @@ import Lib.Util (tabulate2)
 import Game.Effs (EFFS)
 import Game.Core (_position, _nbRows, _nbColumns, possibleMoves, playA)
 import Game.Chocolat.Model (State, Move(..), SoapMode(..), _soap, _soapMode, _moveWhenHover, cutLine, setSoapModeA, setHoverA) 
-import Pha (VDom, text, maybeN)
-import Pha.Html (div, span, br, key, class', onclick, onpointerenter, onpointerleave)
-import Pha.Svg (svg, rect, line, circle, use, viewBox, fill)
+import Pha (VDom, text, maybeN, key, class_, class')
+import Pha.Elements (div, span, br)
+import Pha.Attributes (onclick, onpointerenter, onpointerleave)
+import Pha.Svg (svg, rect, line, circle, use, viewBox, fill, width, height, x_, y_, cx, cy, r, x1, x2, y1, y2)
 import UI.Template (template, card, gridStyle, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, icons2Players, iconSelectGroup, iundo, iredo, ireset, irules)
@@ -34,7 +35,10 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
         icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x state
     ]
 
-    cutter row col move = circle (50.0 * toNumber col) (50.0 * toNumber row) 7.0 [
+    cutter row col move = circle [
+        cx $ show (50.0 * toNumber col),
+        cy $ show (50.0 * toNumber row),
+        r "7",
         key $ "c" <> show (row * (columns + 1) + col), 
         class' "chocolat-cutter" true,
         onpointerenter $ setHoverA (Just move),
@@ -46,7 +50,11 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
         svg [viewBox (-7) (-7) (50 * columns + 14) (50 * rows + 14)] (
             concat [
                 tabulate2 rows columns \row col ->
-                    rect (50.0 * toNumber col + 7.0) (50.0 * toNumber row + 7.0) 36.0 36.0 [
+                    rect [
+                        x_ $ show (50.0 * toNumber col + 7.0),
+                        y_ $ show (50.0 * toNumber row + 7.0),
+                        width "36",
+                        height "36",
                         key $ "choc" <> show (row * columns + col),
                         class' "chocolat-square" true,
                         class' "soap" (row == soapRow && col == soapCol),
@@ -58,13 +66,23 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                     FromTop i -> [cutter i pos.left (FromTop i), cutter i pos.right (FromTop i)]
                     FromBottom i -> [cutter i pos.left (FromBottom i), cutter i pos.right (FromBottom i)],
                 [
-                    use (50.0 * toNumber soapCol + 12.0) (50.0 * toNumber soapRow + 12.0) 26.0 26.0 "#skull" [
+                    use "#skull" [
+                        x_ $ show (50 * soapCol + 12),
+                        y_ $ show (50 * soapRow + 12),
+                        width "26", height "26",
                         key "skull",
                         fill "#20AF20"
                     ],
                     maybeN $ state^._moveWhenHover <#> \m ->
-                        let {x1, x2, y1, y2} = cutLine state m
-                        in line (50 * x1) (50 * y1) (50 * x2) (50 * y2) [key "line", class' "chocolat-line-to-pointer" true]
+                        let {x1: px1, x2: px2, y1: py1, y2: py2} = cutLine state m
+                        in line [
+                            x1 $ show (50 * px1),
+                            y1 $ show (50 * py1),
+                            x2 $ show (50 * px2),
+                            y2 $ show (50 * py2),
+                            key "line",
+                            class_ "chocolat-line-to-pointer"
+                        ]
                 ]
             ]
         )

@@ -2,9 +2,10 @@ module UI.Icon where
 
 import MyPrelude
 import Data.Tuple (uncurry)
-import Pha (VDom, Prop, text, emptyNode, maybeN)
-import Pha.Html (button, span, class', style, disabled)
-import Pha.Svg (svguse)
+import Pha (VDom, Prop, text, emptyNode, maybeN, class_, class', style)
+import Pha.Elements (button, span)
+import Pha.Attributes (disabled)
+import Pha.Svg (svg, use, width, height)
 
 data Icon = IconText String | IconSymbol String | IconNone
 
@@ -35,15 +36,17 @@ iconbutton :: ∀a effs. (Options -> Options) -> Array (Prop a effs) -> VDom a e
 iconbutton optionFn props =
     let {icon, selected, tooltip, round, large, hidden, disabled: d, style: st} = optionFn defaultOptions in
     button ([
-        class' "ui-icon" true,
+        class_ "ui-icon",
         class' "selected" selected,
         class' "round" large,
         class' "hidden" hidden,
         disabled d
     ] <> props) $ [
         case icon of
-            IconSymbol symbol -> svguse symbol $ [class' "ui-icon-symbol" true] <> (st <#> uncurry style)
-            IconText t -> span [class' "ui-icon-text" true] [text t]
+            IconSymbol symbol -> svg ((uncurry style <$> st) <> [width "100%", height "100%"]) [
+                use symbol [class_ "ui-icon-symbol"]
+            ]
+            IconText t -> span [class_ "ui-icon-text"] [text t]
             IconNone -> emptyNode,
-        maybeN $ tooltip <#> \t -> span [class' "ui-icon-tooltip" true] [text t]
+        maybeN $ tooltip <#> \t -> span [class_ "ui-icon-tooltip"] [text t]
     ]

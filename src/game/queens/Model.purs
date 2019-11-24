@@ -4,7 +4,9 @@ import Lib.Util (tabulate, dCoords, map2)
 import Data.Array.NonEmpty (NonEmptyArray, fromArray, head, singleton) as N
 import Game.Core (GState, class Game, class ScoreGame, Objective(..), Dialog(..), SizeLimit(..), ShowWinStrategy(..),
                   _ext, updateScore', genState, newGame, _dialog, _position, _nbRows, _nbColumns)
-import Pha.Action (Action, setState, RNG, DELAY)
+import Pha.Action (Action, setState)
+import Pha.Effects.Random (RNG)
+import Pha.Effects.Delay (DELAY)
 
 piecesList :: Array Piece
 piecesList = [Rook, Bishop, King, Knight, Queen]

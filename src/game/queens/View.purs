@@ -3,9 +3,11 @@ module Game.Queens.View (view) where
 import MyPrelude
 import Lib.Util (map2, map3)
 import Data.Array.NonEmpty (toArray, head) as N
-import Pha (VDom, Prop, text, maybeN)
-import Pha.Html (div, br, class', key, style, pc, onclick, onpointerenter, onpointerleave)
-import Pha.Svg (svg, use, svguse, width, height)
+import Pha (VDom, Prop, text, maybeN, class', key, style)
+import Pha.Elements (div, br)
+import Pha.Attributes (onclick, onpointerenter, onpointerleave)
+import Pha.Svg (svg, use, x_, y_, width, height)
+import Pha.Util (pc)
 import Game.Effs (EFFS)
 import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer, playA)
 import Game.Queens.Model (State, Piece(..),
@@ -33,7 +35,7 @@ square { piece, capturable, selected, nonavailable} props =
         class' "queens-square-selected" selected
     ]) $ if piece == Empty then [] else [
         svg [width "100%", height "100%", class' "queens-piece" true] [
-            use "10%" "10%" "80%" "80%" ("#piece-" <> show piece) []
+            use ("#piece-" <> show piece) [x_ "10%", y_ "10%", width "80%", height "80%"]
         ]
     ]
 
@@ -73,7 +75,7 @@ view state = template _{config=config, board=board, rules=rules, customDialog=cu
         
 
     cursor pp = div ([class' "ui-cursor" true] <> cursorStyle pp rows columns 0.8) [
-        svguse ("#piece-" <> show (state^._selectedPiece)) []
+        svg [width "100%", height "100%"] [use ("#piece-" <> show (state^._selectedPiece)) []]
     ]
 
     grid = div ([class' "ui-board" true] <> gridStyle rows columns 5 <> trackPointer) $ concat [  

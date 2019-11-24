@@ -4,11 +4,13 @@ import MyPrelude hiding (view)
 import Data.String (drop, indexOf) as S
 import Data.String.Pattern (Pattern (..))
 import Effect (Effect)
-import Pha (VDom, Event, app, ifN)
-import Pha.Action (Action, delay, getState, setState)
+import Pha (VDom, Event, app, ifN, key, class')
+import Pha.Action (Action, getState, setState)
+import Pha.Effects.Delay (delay)
 import Pha.Lens (actionOver)
-import Pha.Html (div, a, key, class', href)
-import Pha.Svg (svguse)
+import Pha.Elements (div, a)
+import Pha.Attributes (href)
+import Pha.Svg (svg, use, width, height)
 import Pha.Event (key) as E
 import Game (class CGame, init, view, onKeyDown) as G
 import Game.Effs (EFFS, getLocation, interpretEffects)
@@ -177,7 +179,7 @@ view st = div [
         a [
             class' "main-minivalise-link" true,
             href "#valise"
-        ] [svguse "#valise" []],
+        ] [svg [width "100%", height "100%"] [use "#valise" []]],
     viewGame st
 ]
 

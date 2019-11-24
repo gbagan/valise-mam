@@ -1,7 +1,8 @@
 module Game.Valise.Model where
 import MyPrelude
 import Pha (Event) 
-import Pha.Action (Action, DELAY, delay, getState, setState)
+import Pha.Action (Action, getState, setState)
+import Pha.Effects.Delay (DELAY, delay)
 import Game.Effs (getPointerPosition, POINTER)
 import Data.Map (Map, empty) as M
 

@@ -1,7 +1,8 @@
 module Game.Dessin.Model where
 import MyPrelude
 import Lib.Util (pairwise)
-import Pha.Action (Action, RNG)
+import Pha.Action (Action)
+import Pha.Effects.Random (RNG)
 import Game.Core (class Game, GState, _ext, genState, newGame', _position, defaultSizeLimit)
 
 data Edge = Edge Int Int

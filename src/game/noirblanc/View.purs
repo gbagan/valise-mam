@@ -2,9 +2,11 @@ module Game.Noirblanc.View where
 
 import MyPrelude
 import Lib.Util (coords, map2)
-import Pha (Prop, VDom, text)
-import Pha.Html (div, class', pc, key, style, onclick)
-import Pha.Svg (svguse)
+import Pha (Prop, VDom, text, class_, class', key, style)
+import Pha.Elements (div)
+import Pha.Attributes (onclick)
+import Pha.Svg (svg, use, width, height)
+import Pha.Util (pc)
 import Game.Core (_position, _nbRows, _nbColumns, _help)
 import Game.Effs (EFFS)
 import Game.Noirblanc.Model (State, _level, _mode, _maxLevels, play2A, selectLevelA, selectModeA)
@@ -25,13 +27,17 @@ levelOptions level _ opt = case level of
 
 square :: ∀a. Boolean -> Boolean -> Array (Prop a EFFS) -> VDom a EFFS
 square light cross props = 
-    div ([class' "noirblanc-square" true] <> props) [
-        div [class' "noirblanc-square-inner" true, class' "blanc" light] [
-            div [class' "noirblanc-square-blanc" true] $ 
-                if cross then [svguse "#cross" [class' "ui-absolute noirblanc-cross" true]] else [],
+    div ([class_ "noirblanc-square"] <> props) [
+        div [class_ "noirblanc-square-inner", class' "blanc" light] [
+            div [class_ "noirblanc-square-blanc"] $ 
+                if cross then [
+                    svg [width "100%", height "100%", class_ "ui-absolute noirblanc-cross"] [use "#cross" []]
+                ]  else [],
 
-            div [class' "noirblanc-square-noir" true] $
-                if cross then [svguse "#cross" [class' "ui-absolute noirblanc-cross" true]] else []
+            div [class_ "noirblanc-square-noir"] $
+                if cross then [
+                    svg [width "100%", height "100%", class_ "ui-absolute noirblanc-cross"] [use "#cross" []]
+                ] else []
         ]
     ]
 

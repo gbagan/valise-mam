@@ -4,7 +4,9 @@ import MyPrelude
 import Lib.Util (swap)
 import Control.Monad.Rec.Class (tailRecM, Step(..))
 import Game.Core (class Game, GState, genState, newGame', lockAction, _ext, _position, _showWin, defaultSizeLimit)
-import Pha.Action (Action, delay, DELAY, RNG, getState, setState)
+import Pha.Action (Action, getState, setState)
+import Pha.Effects.Delay  (delay, DELAY)
+import Pha.Effects.Random (RNG)
 
 type Position = Array (Maybe Int)
 

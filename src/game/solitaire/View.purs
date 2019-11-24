@@ -2,10 +2,11 @@ module Game.Solitaire.View where
 
 import MyPrelude
 import Lib.Util (coords)
-import Pha (VDom, text, ifN, maybeN)
-import Pha.Html (div, br, key, attr, class', style, onclick, px)
-import Pha.Svg (svg, rect, circle, viewBox, fill, stroke, strokeWidth)
-import Pha.Util (translate)
+import Pha (VDom, text, ifN, maybeN, key, attr, class_, class', style)
+import Pha.Elements (div, br)
+import Pha.Attributes (onclick)
+import Pha.Svg (svg, rect, circle, viewBox, x_, y_, width, height, cx, cy, r, fill, stroke, strokeWidth)
+import Pha.Util (px, translate)
 import Game.Effs (EFFS)
 import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointer, scoreFn)
 import Game.Solitaire.Model (State, Board(..), _board, _holes, _dragged, _help, setBoardA, toggleHelpA)
@@ -21,7 +22,7 @@ tricolor i columns help =
         _ -> "green"
 
 cursor :: ∀a b. PointerPosition -> b -> VDom a EFFS
-cursor pp _ = circle 0.0 0.0 20.0 ([attr "pointer-events" "none", fill "url(#soli-peg)"] <> svgCursorStyle pp)
+cursor pp _ = circle ([r "20", attr "pointer-events" "none", fill "url(#soli-peg)"] <> svgCursorStyle pp)
 
 view :: State -> VDom State EFFS
 view state = template _{config=config, board=board, rules=rules, winTitle=winTitle, scoreDialog=scoreDialog} state where
@@ -63,24 +64,27 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     )) [
         svg [if isCircleBoard then viewBox 0 0 250 250 else viewBox 0 0 (50 * columns) (50 * rows)] $ concat [
             [ifN isCircleBoard \_ ->
-                circle 125.0 125.0 90.0 [stroke "grey", fill "transparent", strokeWidth "5"]
+                circle [cx "125", cy "125", r "90", stroke "grey", fill "transparent", strokeWidth "5"]
             ],
             concat $ state^._holes # mapWithIndex \i val -> if not val then [] else [
                 ifN (state^._help > 0 && not isCircleBoard) \_ ->
-                    rect (-25.0) (-25.0) 50.0 50.0 [
+                    rect [
+                        x_ "-25.0", y_ "-25", width "50", height "50",
                         key $ "rect" <> show i,
                         fill $ tricolor i columns (state^._help),
                         style "transform" $ itemStyle i
                     ],
-                circle 0.0 0.0 17.0 ([
+                circle ([
                     key $ "h" <> show i,
+                    r "17",
                     fill "url(#soli-hole)",
                     class' "solitaire-hole" true,
                     style "transform" $ itemStyle i
                 ] <> dndItemProps _dragged false true i state)
             ],
             state^._position # mapWithIndex \i val -> ifN val \_ ->
-                circle 0.0 0.0 20.0 ([
+                circle ([
+                    r "20",
                     key $ "p" <> show i,
                     fill "url(#soli-peg)",
                     class' "solitaire-peg" true,
@@ -101,20 +105,22 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
             )) [
                 svg [if isCircleBoard then viewBox 0 0 250 250 else viewBox 0 0 (50 * columns) (50 * rows)] $ concat [
                     [ifN isCircleBoard \_ ->
-                        circle 125.0 125.0 90.0 [stroke "grey", fill "transparent", strokeWidth "5"]
+                        circle [cx "125", cy "125", r "90", stroke "grey", fill "transparent", strokeWidth "5"]
                     ],
                     state^._holes # mapWithIndex \i val -> ifN val \_ ->
-                        circle 0.0 0.0 17.0 [
+                        circle [
                             key $ "h" <> show i,
+                            r "17",
                             fill "url(#soli-hole)",
-                            class' "solitaire-hole" true,
+                            class_ "solitaire-hole",
                             style "transform" $ itemStyle i
                         ],
                     position # mapWithIndex \i val -> ifN val \_ ->
-                        circle 0.0 0.0 20.0 [
+                        circle [
                             key $ "p" <> show i,
+                            r "20",
                             fill "url(#soli-peg)",
-                            class' "solitaire-peg" true,
+                            class_ "solitaire-peg",
                             style "transform" $ itemStyle i
                         ]
                 ]

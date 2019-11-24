@@ -3,7 +3,7 @@ import MyPrelude
 import Data.Int.Bits (xor)
 import Lib.Util (tabulate2)
 import Pha.Action (Action)
-import Pha.Random (randomInt)
+import Pha.Effects.Random (randomInt)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class TwoPlayersGame, GState, Mode(..), Turn(..),
                 _ext, genState, newGame', _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)

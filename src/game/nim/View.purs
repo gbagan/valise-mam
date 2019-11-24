@@ -1,8 +1,9 @@
 module Game.Nim.View where
 import MyPrelude
-import Pha (VDom, text)
-import Pha.Html (div, span, br, class', key, style, onclick, px)
-import Pha.Svg (svg, rect, use, fill, viewBox)
+import Pha (VDom, text, class_, class', key, style)
+import Pha.Elements (div, span, br)
+import Pha.Attributes ( onclick)
+import Pha.Svg (svg, rect, use, fill, viewBox, x_, y_, width, height)
 import Pha.Util (translate)
 import Lib.Util (tabulate)
 import Game.Effs (EFFS)
@@ -10,6 +11,10 @@ import Game.Core (Turn(..), canPlay, playA, isLevelFinished, _position, _turn)
 import Game.Nim.Model (State, Move(..), _nbPiles, _length, setLengthA, setNbPilesA)
 import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset, irules)
+
+-- todo
+px' :: Int -> String
+px' a = show a <> "px"
 
 view :: State -> VDom State EFFS
 view state = template _{config=config, board=board, rules=rules, winTitle=winTitle} state where
@@ -26,35 +31,36 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     board = div [class' "ui-board nim-board" true] [
         svg [viewBox 0 0 100 100] (
             concat $ state^._position # mapWithIndex \i pile -> concat [
-                [rect
-                    (if length == 5 then 25.0 else 0.0)
-                    (toNumber $ 10 + 19 * i)
-                    (if length == 5 then 50.0 else 100.0)
-                    10.0 [
-                        key $ "pile" <> show i,
-                        fill "snow"
-                    ]
-                ],
+                [rect [
+                    x_ $ if length == 5 then "25" else "0",
+                    y_ $ show (10 + 19 * i),
+                    width $ if length == 5 then "50" else "100",
+                    height "10",
+                    key $ "pile" <> show i,
+                    fill "snow"
+                ]],
                 tabulate length \j ->
-                    rect (-2.5) (-2.5) 5.0 5.0 [
+                    rect [
+                        x_ "-2.5", y_ "-2.5", width "5", height "5",
                         key $ "base-" <> show i <> "-" <> show j,
                         fill "gray",
                         onclick $ playA (Move i j),
                         style "transform" $
-                            translate (px $ (if length == 5 then 30 else 5) + 10 * j) (px $ 15 + 19 * i) <>
+                            translate (px' $ (if length == 5 then 30 else 5) + 10 * j) (px' $ 15 + 19 * i) <>
                             " rotate(45deg)",
                         style "cursor" $ if canPlay state (Move i j) then "pointer" else "not-allowed"
                     ],
                 [fst pile, snd pile] # mapWithIndex \j peg ->
-                    use 0.0 0.0 8.0 8.0 "#meeple" [
+                    use "#meeple" [
                         key $ "p-" <> show i <> "-" <> show j,
-                        class' "nim-player" true,
+                        width "8", height "8",
+                        class_ "nim-player",
                         fill $ if j == 0 then "blue" else "red",
-                        style "transform" $ translate (px $ (if length == 5 then 26 else 1) + 10 * peg) (px $ 11 + 19 * i)
+                        style "transform" $ translate (px' $ (if length == 5 then 26 else 1) + 10 * peg) (px' $ 11 + 19 * i)
                     ]
             ]
         ),
-        span [class' "nim-turn-message" true] [
+        span [class_ "nim-turn-message"] [
             text (if isLevelFinished state then
                 "Partie finie"
             else if state^._turn == Turn1 then

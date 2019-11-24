@@ -3,9 +3,11 @@ import MyPrelude
 import Data.List (List(..))
 import Data.List (last, null) as L
 import Data.Map (Map, empty) as M
-import Pha.Random (randomPick)
+import Pha.Effects.Random (randomPick)
 import Run (Run)
-import Pha.Action (Action, delay, DELAY, RNG, getState, setState)
+import Pha.Action (Action, getState, setState) 
+import Pha.Effects.Delay (delay, DELAY)
+import Pha.Effects.Random (RNG)
 
 -- ConfirmNewGame contient le futur state si l'utilisateur valide de commencer une nouvelle partie
 data Dialog a = Rules | NoDialog | ConfirmNewGame a | ScoreDialog | CustomDialog

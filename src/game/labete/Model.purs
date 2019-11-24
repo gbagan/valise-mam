@@ -2,7 +2,8 @@ module Game.Labete.Model where
 import MyPrelude
 import Lib.Util (coords, tabulate2, abs)
 import Pha (Event)
-import Pha.Action (Action, setState, RNG)
+import Pha.Action (Action, setState)
+import Pha.Effects.Random (RNG)
 import Game.Common (_isoCustom)
 import Game.Core (class Game, class ScoreGame, SizeLimit(..), GState, Objective(..), ShowWinStrategy(..), PointerPosition, Dialog(..),
                    _ext, genState, newGame, newGame', _position, _nbRows, _nbColumns, _help, _dialog, updateScore')

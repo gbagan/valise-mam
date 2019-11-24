@@ -1,10 +1,11 @@
 module Game.Tricolor.View where
 
 import MyPrelude
-import Pha (VDom, text)
-import Pha.Html (div, class', attr, key, style, onclick, onpointerenter, onpointerleave, pc)
-import Pha.Svg (svg, circle, text', stroke, fill, viewBox)
-import Pha.Util (translate)
+import Pha (VDom, text, class', attr, key, style)
+import Pha.Elements (div)
+import Pha.Attributes (onclick, onpointerenter, onpointerleave)
+import Pha.Svg (svg, circle, text', stroke, fill, viewBox, cx, cy, r)
+import Pha.Util (pc, translate)
 import Game.Effs (EFFS)
 import Game.Core (playA, isLevelFinished, _position)
 import Game.Tricolor.Model (State, setSizeA, setNbColorsA, setRangeA, setHoverCellA, _size, _nbColors, _range, _hoverCell, inRange)
@@ -35,7 +36,8 @@ view state = template _{config=config, board=board, rules=rules} state where
     board = div [class' "ui-board tricolor-board" true] [
         svg [viewBox 0 0 100 100] $ concat [
             state^._position # mapWithIndex \i color ->
-                circle 0.0 0.0 7.5 [
+                circle [
+                    r "7.5",
                     class' "tricolor-cell" true,
                     class' "finished" levelFinished,
                     stroke $ if (inRange state i <$> state^._hoverCell) == Just true then "lightgreen" else "black",
@@ -48,16 +50,21 @@ view state = template _{config=config, board=board, rules=rules} state where
                 ],
 
             concat $ take nbColors colors # mapWithIndex \i color -> [
-                circle (95.0 + 15.0 * toNumber (i - nbColors)) 95.0 3.0 [
+                circle [
+                    cx $ show (95 + 15 * (i - nbColors)),
+                    cy "95",
+                    r "3",
                     key $ "c" <> show i,
                     fill color
                 ],
-                text' (99.0 + 15.0 * toNumber (i - nbColors)) 97.0  "➡" [
+                text' "➡" [
+                    cx $ show (99 + 15 * (i - nbColors)),
+                    cy "97",
                     key $ "t" <> show i,
                     attr "font-size" "7"
                 ]
             ],
-            [circle 95.0 95.0 3.0 [key $ "fc", fill "green"]]
+            [circle [cx "95", cy "95",  r "3", key "fc", fill "green"]]
         ]
     ]
 

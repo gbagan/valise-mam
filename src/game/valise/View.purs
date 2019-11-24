@@ -2,11 +2,11 @@ module Game.Valise.View where
 import MyPrelude
 import Game.Effs (EFFS)
 import Game.Valise.Model (State, showHelpA, setDragA, moveObjectA, toggleSwitchA, _positions)
-import Pha (VDom, h, text, maybeN)
-import Pha.Html (div, a, class', attr, style, href, pc,
-    onclick, onpointermove', onpointerenter, onpointerleave, onpointerup, onpointerdown)
-import Pha.Util (translate)
-import Pha.Svg (svg, svguse, g, rect, width, height, x, y, viewBox, fill, transform)
+import Pha (VDom, h, text, maybeN, class', attr, style)
+import Pha.Elements (div, a)
+import Pha.Attributes (href, onclick, onpointermove', onpointerenter, onpointerleave, onpointerup, onpointerdown)
+import Pha.Util (pc, translate)
+import Pha.Svg (svg, use, g, rect, width, height, x_, y_, viewBox, fill, transform)
 
 valise :: State -> VDom State EFFS
 valise state = svg [
@@ -34,13 +34,13 @@ valise state = svg [
                          ] [],
 
         object { symbol: "frog2", link: Just "frog", help: "Jeu: la grenouille", drag: false}
-            549 320 40 40 [fill "#bcd35f"] [x "10%", y "20%", width "80%", height "80%"],
+            549 320 40 40 [fill "#bcd35f"] [x_ "10%", y_ "20%", width "80%", height "80%"],
 
         object { symbol: "flowerpot", link: Nothing, help: "Quelque chose se cache derrière ce pot", drag: true}
             533 300 64 64 [] [],
 
         object { symbol: "hanoibot", link: Just "solitaire", help: "Jeu: solitaire", drag: false}
-            500 430 75 51 [] [x "30%", y "20%", width "40%", height "40%"],
+            500 430 75 51 [] [x_ "30%", y_ "20%", width "40%", height "40%"],
 
         object { symbol: "hanoitop", link: Nothing, help: "Quelque chose se cache sous cette tour", drag: true}
             507 409 60 57 [] [],
@@ -95,8 +95,8 @@ valise state = svg [
                     class' "valise-object" true,
                     style "touch-action" "none",
                     class' "draggable" drag,
-                    width w',
-                    height h',
+                    width $ show w',
+                    height $ show h',
                     onpointerdown $ if drag then 
                             setDragA (Just {name: symbol, x: toNumber w' / 1650.0, y: toNumber h' / 1380.0})
                         else
@@ -109,7 +109,9 @@ valise state = svg [
                         href $ "#" <> symbol, class' "valise-symbol" true
                     ] [],
                     maybeN $ link <#> \l -> a [ href $ "#" <> l] [
-                        rect "0" "0" "100%" "100%" ([
+                        rect ([
+                            width "100%",
+                            height "100%",
                             class' "valise-object-link" true, 
                             fill "transparent",
                             onpointerenter $ showHelpA help,
@@ -126,7 +128,9 @@ view state = div [
     class' "open" state.isOpen
 ] [
     div [] [
-        div [class' "valise-logo" true] [svguse "#logo" []],
+        div [class' "valise-logo" true] [
+            svg [width "100%", height "100%"] [use "#logo" []]
+        ],
         div [class' "valise-container" true] [
             valise state,
             div [

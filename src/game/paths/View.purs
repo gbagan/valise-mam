@@ -4,10 +4,11 @@ import Lib.Util (coords, tabulate)
 import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _pointer)
 import Game.Effs (EFFS)
 import Game.Paths.Model (State, Mode(..), _exit, _mode, selectVertexA, selectModeA)
-import Pha (VDom, Prop, text, emptyNode, maybeN, ifN)
-import Pha.Html (div, p, br, key, class', attr, onclick, style, pc)
-import Pha.Svg (svg, g, path, use, viewBox)
-import Pha.Util (translate)
+import Pha (VDom, Prop, text, emptyNode, maybeN, ifN, class_, class', attr, key, style)
+import Pha.Elements (div, p, br)
+import Pha.Attributes (onclick)
+import Pha.Svg (svg, g, path, use, viewBox, x_, y_, width, height)
+import Pha.Util (pc, translate)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, iconSelectGroup, ihelp, iundo, iredo, ireset, irules)
 import UI.Template (template, card, incDecGrid, gridStyle, svgCursorStyle, trackPointer)
@@ -15,24 +16,30 @@ import UI.Template (template, card, incDecGrid, gridStyle, svgCursorStyle, track
 square :: ∀a. {darken :: Boolean, trap :: Boolean, door :: Boolean, x :: Number, y :: Number} -> Array (Prop a EFFS) -> VDom a EFFS
 square {darken, trap, door, x, y} props =
     g ([class' "paths-darken" darken] <> props) [
-        use x y 100.0 100.0 "#paths-background" [],
+        use "#paths-background" pos,
         ifN door \_ ->
-            use x y 100.0 100.0 "#paths-door" [],
-        use x y 100.0 100.0 "#paths-trap" [class' "paths-trap" true, class' "visible" $ trap && not door]
+            use "#paths-door" pos,
+        use "#paths-trap" (pos <> [
+            class_ "paths-trap",
+            class' "visible" $ trap && not door
+        ])
     ]
+    where pos = [x_ $ show x, y_ $ show y, width "100", height "100"]
 
 doorCursor :: ∀a. PointerPosition -> VDom a EFFS
 doorCursor pp =
-    use (-50.0) (-50.0) 100.0 100.0 " #paths-door" $ [
+    use " #paths-door" $ [
         key "cdoor",
+        x_ "-50", y_ "-50", width "100", height "100",
         attr "opacity" "0.6",
         attr "pointer-events" "none"
     ] <> svgCursorStyle pp
         
 heroCursor :: ∀a. PointerPosition -> VDom a EFFS
 heroCursor pp =
-    use (-40.0) (-40.0) 80.0 80.0 " #meeplehat" $ [
+    use " #meeplehat" $ [
         key "chero",
+        x_ "-40", y_ "-40", width "80", height "80", 
         attr "opacity" "0.6",
         attr "pointer-events" "none"
     ] <> svgCursorStyle pp
@@ -54,8 +61,9 @@ view state = template _{config=config, board=board, rules=rules} state where
     hero = 
         last position <#> \h ->
             let {row, col} = coords columns h in
-            use 0.0 0.0 80.0 80.0 "#meeplehat" [
+            use "#meeplehat" [
                 key "hero",
+                width "80", height "80",
                 class' "paths-hero" true,
                 style "transform" $ translate (pc $ (toNumber col + 0.1) / toNumber columns)
                                               (pc $ (toNumber row + 0.1) / toNumber rows)

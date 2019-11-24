@@ -4,8 +4,9 @@ import MyPrelude
 import Effect (Effect)
 import Run (FProxy, Run, SProxy(..), lift, match)
 import Pha (InterpretEffs, Event)
-import Pha.Action (DELAY, RNG, interpretRng, interpretDelay)
 import Pha.Event (EVENT, interpretEvent)
+import Pha.Effects.Delay (DELAY, interpretDelay)
+import Pha.Effects.Random (RNG, interpretRng)
 
 type Location = {
     hash :: String,

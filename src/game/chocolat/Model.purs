@@ -2,8 +2,9 @@ module Game.Chocolat.Model where
 import MyPrelude
 import Data.Int.Bits ((.^.))
 import Lib.Util ((..))
-import Pha.Random (randomInt)
-import Pha.Action (Action, RNG, setState)
+import Pha.Effects.Random (randomInt)
+import Pha.Action (Action, setState)
+import Pha.Effects.Random (RNG)
 import Game.Core (class Game, class TwoPlayersGame, SizeLimit(..), GState, Mode(..),
                    _ext, genState, newGame', computerMove', _position, _nbRows, _nbColumns)
 

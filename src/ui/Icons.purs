@@ -1,9 +1,10 @@
 module UI.Icons where
 import MyPrelude
 import Data.List (null) as L
-import Pha (VDom, Prop)
+import Pha (VDom, Prop, text, class_)
 import Pha.Action (Action, setState)
-import Pha.Html (div, h2, class', onclick)
+import Pha.Elements (div, h2)
+import Pha.Attributes (onclick)
 import Game.Core (GState, class Game, class ScoreGame, Dialog(..), Mode(..), bestScore,
                 undoA, redoA, resetA, toggleHelpA, setModeA, computerStartsA, setGridSizeA,
                 _help, _dialog, _history, _redoHistory, _mode, _nbRows, _nbColumns, _locked, _customSize)
@@ -21,8 +22,8 @@ iconbutton state optionFn props =
 icongroup :: ∀a. String -> Array (VDom a EFFS) -> VDom a EFFS
 icongroup title children =
     div [] [
-        h2 [] title,
-        div [class' "ui-icon-grid" true] children
+        h2 [] [text title],
+        div [class_ "ui-icon-grid"] children
     ]
 
 {-

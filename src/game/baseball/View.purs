@@ -2,10 +2,11 @@ module Game.Baseball.View (view) where
 
 import MyPrelude
 import Lib.Util (map2)
-import Pha (VDom, text, ifN)
-import Pha.Html (div, class', key, style, onclick, pc)
-import Pha.Svg (svg, g, rect, use, stroke, fill, viewBox)
-import Pha.Util (translate)
+import Pha (VDom, text, ifN, class', key, style)
+import Pha.Elements (div)
+import Pha.Attributes (onclick)
+import Pha.Svg (svg, g, rect, use, stroke, fill, viewBox, x_, y_, width, height)
+import Pha.Util (pc, translate)
 import Game.Effs (EFFS)
 import Game.Core (canPlay, playA, isLevelFinished, _position)
 import Game.Baseball.Model (State, setNbBasesA, _nbBases, _missingPeg)
@@ -41,7 +42,8 @@ view state = template _{config=config, board=board, rules=rules} state where
     board = div [class' "ui-board baseball-board" true] [
         svg [viewBox 0 0 100 100] $ concat [
             take nbBases colors # mapWithIndex \i color ->
-                rect (-10.0) (-10.0) 20.0 20.0 [
+                rect [
+                    x_ "-10", y_ "10", width "20", height "20",
                     key $ "b" <> show i,
                     class' "baseball-base" true,
                     stroke $ color,
@@ -54,7 +56,9 @@ view state = template _{config=config, board=board, rules=rules} state where
                         style "transform" $ translatePeg pos nbBases,
                         key $ "p" <> show peg
                     ] [ 
-                        use 0.0 0.0 7.0 7.0 "#meeple" [
+                        use "#meeple" [
+                            width "7",
+                            height "7",
                             onclick $ playA peg,
                             fill color,
                             style "animation"

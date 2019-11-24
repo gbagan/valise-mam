@@ -1,9 +1,10 @@
 module Game.Solitaire.Model where
 import MyPrelude
 import Data.FoldableWithIndex (allWithIndex)
-import Pha.Action (Action, RNG, setState)
+import Pha.Action (Action, setState)
+import Pha.Effects.Random (RNG)
 import Run (Run)
-import Pha.Random (randomInt, randomBool)
+import Pha.Effects.Random (randomInt, randomBool)
 import Lib.Util (tabulate, tabulate2, dCoords)
 import Game.Core (class Game, class ScoreGame, GState, SizeLimit(..), Objective(..), ShowWinStrategy(..),
                   _ext, genState, canPlay, _nbColumns, _nbRows, _customSize, _position, newGame, updateScore')

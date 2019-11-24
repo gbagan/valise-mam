@@ -5,8 +5,9 @@ import Lib.Util (coords)
 import Game.Common (_isoCustom)
 import Game.Core (GState, Dialog(..), class Game, SizeLimit(..),
                   _ext, canPlay, genState, newGame, newGame', playA, _position, _nbColumns, _nbRows, _dialog)
-import Pha.Action (Action, DELAY, setState, getState)
-import Pha.Random (RNG)
+import Pha.Action (Action, setState, getState)
+import Pha.Effects.Delay (DELAY)
+import Pha.Effects.Random (RNG)
 
 type Coord = {row :: Int, col :: Int}
 type Tile = Array Coord

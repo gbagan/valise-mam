@@ -2,10 +2,12 @@ module Game.Paths.Model where
 import MyPrelude
 import Data.Array (nub)
 import Data.Array.NonEmpty (fromArray, head, last, init, tail) as N
-import Pha.Random (randomInt)
+import Pha.Effects.Random (randomInt)
 import Lib.Util (dCoords, rangeStep)
 import Game.Core (GState, class Game, SizeLimit(..), _ext, newGame', genState, _nbRows, _nbColumns, _position, playA)
-import Pha.Action (Action, DELAY, RNG, getState, setState)
+import Pha.Action (Action, getState, setState)
+import Pha.Effects.Random (RNG)
+import Pha.Effects.Delay (DELAY)
 
 data Mode = Mode1 | Mode2
 derive instance eqMode :: Eq Mode

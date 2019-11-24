@@ -2,8 +2,9 @@ module Game.Tricolor.Model where
 
 import MyPrelude
 import Lib.Util (abs)
-import Pha.Random (randomInt)
-import Pha.Action (Action, RNG, setState)
+import Pha.Effects.Random (randomInt)
+import Pha.Action (Action, setState)
+import Pha.Effects.Random (RNG)
 import Game.Core (class Game, GState, _ext, genState, newGame', _position, defaultSizeLimit)
 
 type Ext' = { 

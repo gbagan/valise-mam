@@ -2,10 +2,11 @@ module Game.Frog.View (view) where
 
 import MyPrelude
 import Lib.Util (map2, tabulate, pairwise, floatRange)
-import Pha (VDom, text, ifN, maybeN)
-import Pha.Html (div, span, br, px, class', key, onclick', style)
-import Pha.Svg (svg, g, use, line, path, text', viewBox, stroke, fill, strokeDasharray, strokeWidth)
-import Pha.Util (translate)
+import Pha (VDom, text, ifN, maybeN, key, class_, class', style)
+import Pha.Elements (div, span, br) 
+import Pha.Attributes (onclick')
+import Pha.Svg (svg, g, use, line, path, text', x_, y_, width, height, viewBox, stroke, fill, strokeDasharray, strokeWidth)
+import Pha.Util (px, translate)
 import Pha.Event (shiftKey)
 import UI.Template (template, card, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icons (icongroup, iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
@@ -57,15 +58,16 @@ spiralPath = spiral { x: 0.0, y: 0.0 } 0.0 61.0 0.0 (37.0 / 6.0 * pi) (pi / 6.0)
 
 lily :: ∀a. Int -> Number -> Number -> Boolean -> Boolean -> VDom a EFFS
 lily i x y reachable hidden =
-    (if i == 0 then
-        use (x - 30.0) (y - 45.0) 80.0 80.0 
-    else
-        use (x - 24.0) (y - 24.0) 48.0 48.0
-    ) "#lily" [
+    use "#lily" (pos <> [
         class' "frog-lily" true,
         class' "reachable" reachable,
         class' "hidden" hidden
-    ]
+    ]) where
+    pos = if i == 0 then
+            [x_ $ show (x - 30.0), y_ $ show (y - 45.0), width "80", height "80"] 
+        else
+            [x_ $ show (x - 24.0), y_ $ show (y - 24.0), width "48", height "48"]
+        
 
 view :: State -> VDom State EFFS
 view state = template _{config = config, board = board, rules = rules, winTitle = winTitle} state where
@@ -83,9 +85,9 @@ view state = template _{config = config, board = board, rules = rules, winTitle 
             svg [viewBox (-190) (-200) 400 400] $ concat [
                 [
                     path spiralPath [fill "none", stroke "black", strokeWidth "3"],
-                    line 153.0 9.0 207.0 20.0 [stroke "black", strokeDasharray "5", strokeWidth "6"],
-                    line 153.0 7.0 153.0 39.0 [stroke "black", strokeWidth "3"],
-                    line 207.0 18.0 207.0 50.0 [stroke "black", strokeWidth "3"]
+                    line [x_ "153", y_ "9", width "207", height "20", stroke "black", strokeDasharray "5", strokeWidth "6"],
+                    line [x_ "153", y_ "7", width "153", height "39", stroke "black", strokeWidth "3"],
+                    line [x_ "207", y_"18", width "207", height "50", stroke "black", strokeWidth "3"]
                 ],
                 map2 spoints reachable \i {x, y} reach ->
                     g [
@@ -94,11 +96,17 @@ view state = template _{config = config, board = board, rules = rules, winTitle 
                     ] [
                         lily i x y false false,
                         lily i x y true (not reach || state^._locked),
-                        text' x y (if state^._help then show $ (state^._nbRows) - i else "") [class' "frog-index" true]
+                        text' (if state^._help then show $ (state^._nbRows) - i else "") [
+                            x_ $ show x, y_ $ show y, class' "frog-index" true
+                        ]
                     ],
                 map2 (state^._marked) spoints \i mark {x, y} ->
                     ifN (mark && i /= position) \_ ->
-                        use (x - 20.0) (y - 20.0) 32.0 32.0 "#frog2" [
+                        use "#frog2" [
+                            x_ $ show (x - 20.0),
+                            y_ $ show (y - 20.0),
+                            width "32",
+                            height "32",
                             key $ "reach" <> show i,
                             class' "frog-frog marked" true
                         ],
@@ -106,15 +114,16 @@ view state = template _{config = config, board = board, rules = rules, winTitle 
                     g [
                     key "frog",
                     class' "frog-frog-container" true,
-                    style "transform" $ translate (px radius) 0 <> " rotate(" <> show (theta * 180.0 / pi) <> "deg)",
+                    style "transform" $ translate (show $ px radius) "0" <> " rotate(" <> show (theta * 180.0 / pi) <> "deg)",
                     style "transform-origin" $ show (-radius) <> "px 0"
                 ] [
                     g [
                         class' "frog-frog-container" true,
                         style "transform" $ "rotate(" <> show (-theta * 180.0 / pi) <> "deg)"
                     ] [
-                        use (-20.0) (-20.0) 40.0 40.0 "#frog2" [
-                            class' "frog-frog" true,
+                        use "#frog2" [
+                            x_ "-20", y_ "-20", width "40", height "40",
+                            class_ "frog-frog",
                             class' "goal" $ position == 0
                         ]
                     ]

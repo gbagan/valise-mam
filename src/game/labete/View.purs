@@ -3,11 +3,12 @@ module Game.Labete.View (view) where
 import MyPrelude
 import Lib.Util (coords, map3)
 import Math (abs)
-import Pha (VDom, Prop, text, ifN, maybeN)
+import Pha (VDom, Prop, text, ifN, maybeN, key, attr, class_, class', style)
 import Pha.Event (shiftKey)
-import Pha.Html (div, br, key, attr, class', style, onclick, onclick', onpointerdown, onpointerdown', onpointerup, onpointerleave, pc)
-import Pha.Svg (svg, g, rect, use, fill, stroke, strokeWidth, transform, viewBox)
-import Pha.Util (translate)
+import Pha.Elements (div, br)
+import Pha.Attributes (onclick, onclick', onpointerdown, onpointerdown', onpointerup, onpointerleave)
+import Pha.Svg (svg, g, rect, use, fill, stroke, x_, y_, width, height, strokeWidth, transform, viewBox)
+import Pha.Util (pc, translate)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, playA, scoreFn)
 import Game.Effs (EFFS)
 import Game.Common (_isoCustom)
@@ -23,7 +24,11 @@ colors = ["#5aa02c", "blue", "red", "yellow", "magenta", "cyan", "orange", "dark
 
 zone :: ∀a effs. Int -> {x :: Number, y :: Number} -> {x :: Number, y :: Number} -> VDom a effs
 zone color { x: x1, y: y1 }  {x: x2, y: y2 } =
-    rect (pc $ min x1 x2) (pc $ min y1 y2) (pc $ abs (x2 - x1)) (pc $ abs (y2 - y1)) [
+    rect [
+        x_ $ pc (min x1 x2),
+        y_ $ pc (min y1 y2),
+        width $ pc $ abs (x2 - x1),
+        height $ pc $ abs (y2 - y1),
         key "zone",
         stroke "black",
         fill $ colors !! color # fromMaybe "",
@@ -36,12 +41,12 @@ modes = [StandardMode, CylinderMode, TorusMode]
 
 square :: ∀a effs. { color :: Int, hasTrap :: Boolean, hasBeast :: Boolean, row :: Int, col :: Int} -> Array (Prop a effs) -> VDom a effs
 square { color, hasTrap, hasBeast, row, col } props =
-    g ([transform $ translate (50 * col) (50 * row)] <> props) [
-        use 0.0 0.0 50.0 50.0 "#grass" [fill $ colors !! color # fromMaybe ""],
-        rect 0.0 0.0 51.0 51.0 [stroke "black", strokeWidth "0.5", fill "transparent"],
-        use 5.0 5.0 40.0 40.0 "#paw" [class' "labete-beast" true, class' "visible" hasBeast],
+    g ([transform $ translate (show $ 50 * col) (show $ 50 * row)] <> props) [
+        use "#grass" [width "50", height "50", fill $ colors !! color # fromMaybe ""],
+        rect [width "51", height "51", stroke "black", strokeWidth "0.5", fill "transparent"],
+        use "#paw" [x_ "5", y_ "5", width "40", height "40", class_ "labete-beast", class' "visible" hasBeast],
         ifN hasTrap \_ ->
-            use 5.0 5.0 40.0 40.0 "#trap" []
+            use "#trap" [x_ "5", y_ "5", width "40", height "40"]
     ]
 
 ihelp :: State -> VDom State EFFS
@@ -87,8 +92,12 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
         text "Le plateau de jeu peut prendre une grille, un cylindre ou un tore"
     ]
 
-    cursor pp = use (-20.0) (-20.0) 40.0 40.0 "#trap" (svgCursorStyle pp <> [  
+    cursor pp = use "#trap" (svgCursorStyle pp <> [  
         key "cursor",
+        x_ "-20",
+        y_ "-20",
+        width "40",
+        height "40",
         attr "opacity" "0.7", -- state.position[state.squareHover] ? 0.3 : 0.7,
         attr "pointer-events" "none"
     ])

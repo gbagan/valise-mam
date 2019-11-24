@@ -4,11 +4,15 @@ import MyPrelude
 import Data.Map (Map, fromFoldable) as M
 import Lib.Util (tabulate)
 import Game.Effs (EFFS)
-import Pha (VDom, Prop, text)
-import Pha.Html (div, p, h1, h2, key, class', attr, style, pc, onclick)
-import Pha.Svg (svg, path, line, text', stroke, fill, viewBox, width, height, opacity)
-import Pha.Util (translate)
+import Pha (VDom, Prop, text, key, class', attr, style)
+import Pha.Elements (div, p, h1, h2)
+import Pha.Attributes (onclick)
+import Pha.Svg (svg, path, line, text', stroke, fill, viewBox, x_, y_, width, height, opacity)
+import Pha.Util (pc, translate)
 import Game.Sansmot.Model (State, Page(..), pythaAnimation, carollAnimation, animateA, setPageA)
+
+line' :: forall a effs. Int -> Int -> Int -> Int -> Array (Prop a effs) -> VDom a effs
+line' x1_ y1_ x2_ y2_ props = line ([attr "x1" (show x1_), attr "x2" (show x2_), attr "y1" (show y1_), attr "y2" (show y2_)] <> props)
 
 -- besoin d'un transform par défault pour empécher un bug sous safari
 defaultStyle :: ∀a effs. Array (Prop a effs)
@@ -58,12 +62,12 @@ animPytha {anim} =
         path "M 0 300 h 100 v -200 Z" $ [fill "yellow", stroke "#000"] <> f "e",
         path "M 100 0 h 200 v 100 Z" $ [fill "#00FF00", stroke "#000"] <> f "e",
         path "M 100 0 v 100 h 200 0 Z" $ [fill "red", stroke "#000"] <> f "e",
-        text' 5 55 "a" $ [style "font-size" 20] <> f "e",
-        text' 46 12 "a" $ [style "font-size" 20] <> f "e",
-        text' 105 210 "b" $  [style "font-size" 20] <> f "e",
-        text' 198 120 "b" $ [style "font-size" 20] <> f "e",
-        text' 460 98 "c" $ [style "font-size" 20] <> f "e",
-        text' 595 80 "c" $ [style "font-size" 20] <> f "e"
+        text' "a" $ [x_ "5", y_ "55", style "font-size" "20"] <> f "e",
+        text' "a" $ [x_ "46", y_ "12", style "font-size" "20"] <> f "e",
+        text' "b" $  [x_ "105", y_ "210", style "font-size" "20"] <> f "e",
+        text' "b" $ [x_ "198", y_ "210", style "font-size" "20"] <> f "e",
+        text' "c" $ [x_ "450", y_ "98", style "font-size" "20"] <> f "e",
+        text' "c" $ [x_ "595", y_ "80", style "font-size" "20"] <> f "e"
     ]
 
 animCaroll :: ∀effs. State -> VDom State effs
@@ -84,9 +88,9 @@ animCaroll {anim} =
             path "M 0 250 h 400 v -150 Z"                    $ [fill "green"] <> f "e"
         ],
         tabulate 28 \i ->
-            line (50 * i) (-10) (50 * i) 260 [class' "sansmot-grid" true],
+            line' (50 * i) (-10) (50 * i) 260 [class' "sansmot-grid" true],
         tabulate 6 \i ->
-            line (-10) (50 * i) 1360 (50 * i) [class' "sansmot-grid" true]
+            line' (-10) (50 * i) 1360 (50 * i) [class' "sansmot-grid" true]
     ]
 
 view :: State -> VDom State EFFS
@@ -100,22 +104,22 @@ view state =
     ] where
     
     main PythaPage = div [key "pytha"] [
-        h1 [class' "sansmot-title" true] "Preuve sans mot",
+        h1 [class' "sansmot-title" true] [text "Preuve sans mot"],
 
-        h2 [class' "sansmot-h2" true] "Que raconte le théorème de Pythagore ?",
+        h2 [class' "sansmot-h2" true] [text "Que raconte le théorème de Pythagore ?"],
      
         p [class' "sansmot-center" true] [
             svg [class' "sansmot-svg" true, viewBox 0 (-100) 200 250, width "20vmin", height "25vmin"] [
                 path "M 50 50 h 100 v 100 h -100 Z" [fill "yellow", stroke "black"],
                 path "M 0 0 h 50 v 50 h -50 Z" [fill "yellow", stroke "black"],
                 path "M 50 0 l 100 50 l 50 -100 l -100 -50 Z" [fill "#00ff00", stroke "black"],
-                text' 90 105 "a²" [attr "font-size" 35],
-                text' 18 35 "b²" [attr "font-size" 35],
-                text' 110 (-10) "c²" [attr "font-size" 35]
+                text' "a²" [x_ "90", y_ "105", attr "font-size" "35"],
+                text' "b²" [x_ "18", y_ "35", attr "font-size" "35"],
+                text' "c²" [x_ "110", y_ "-10", attr "font-size" "35"]
             ]
         ],
 
-        h2 [class' "sansmot-h2" true] "Preuve sans mot due à un auteur chinois inconnu qui vivait vers 200 avant J.-C.",
+        h2 [class' "sansmot-h2" true] [text "Preuve sans mot due à un auteur chinois inconnu qui vivait vers 200 avant J.-C."],
         p [class' "sansmot-center" true] [
             animPytha state
         ],
@@ -123,8 +127,8 @@ view state =
     ]
 
     main CarollPage = div [key "caroll"] [
-        h1 [class' "sansmot-title" true] "Preuve sans mot",
-        h2 [class' "sansmot-h2" true] "Où est passé le carré manquant ?",
+        h1 [class' "sansmot-title" true] [text "Preuve sans mot"],
+        h2 [class' "sansmot-h2" true] [text "Où est passé le carré manquant ?"],
         p [class' "sansmot-center" true] [
             animCaroll state
         ],

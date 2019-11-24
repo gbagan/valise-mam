@@ -5,7 +5,8 @@ import Data.Lazy (defer, force)
 import Lib.Util (tabulate, (..))
 import Data.Array.NonEmpty (NonEmptyArray, singleton, fromArray, cons) as N
 import Lib.KonamiCode (konamiCode)
-import Pha.Action (Action, RNG, setState)
+import Pha.Action (Action, setState)
+import Pha.Effects.Random (RNG)
 import Game.Core (class Game, class TwoPlayersGame, Mode(..), GState, SizeLimit(..),
                 _ext, newGame', computerMove', genState, _position, _nbRows)
 

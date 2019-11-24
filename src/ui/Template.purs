@@ -1,9 +1,10 @@
 module UI.Template where
 import MyPrelude
-import Pha (VDom, Prop, text, emptyNode, maybeN)
+import Pha (VDom, Prop, text, emptyNode, maybeN, class_, class', style)
 import Pha.Action (Action, setState)
-import Pha.Html (div, class', style, pc, onpointerup, onpointerdown', onpointerleave, onpointermove')
-import Pha.Util (translate)
+import Pha.Elements (div)
+import Pha.Attributes (onpointerup, onpointerdown', onpointerleave, onpointermove')
+import Pha.Util (pc, translate)
 import Game.Core (class Game, class ScoreGame, GState, Mode(..), Turn(..), SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointer, _locked, 
          canPlay, isLevelFinished, sizeLimit, bestScore, setGridSizeA, confirmNewGameA, dropA)
@@ -13,19 +14,19 @@ import Game.Effs (EFFS, getPointerPosition, releasePointerCapture, Position)
 
 winPanel :: ∀a effs. String -> Boolean -> VDom a effs
 winPanel title visible =
-    div [class' "ui-flex-center ui-absolute component-win-container" true] [
-        div [class' "component-win" true, class' "visible" visible] [
+    div [class_ "ui-flex-center ui-absolute component-win-container"] [
+        div [class_ "component-win", class' "visible" visible] [
             text title
         ]
     ]
 
 card :: ∀a effs. String -> Array (VDom a effs) -> VDom a effs
 card title children =
-    div [class' "ui-card" true] [
-        div [class' "ui-card-head ui-flex-center" true] [
-            div [class' "ui-card-title" true] [text title]
+    div [class_ "ui-card"] [
+        div [class_ "ui-card-head ui-flex-center"] [
+            div [class_ "ui-card-title"] [text title]
         ],
-        div [class' "ui-card-body" true] children
+        div [class_ "ui-card-body"] children
     ]
 
 incDecGrid :: ∀pos ext mov. Game pos ext mov => GState pos ext -> Array (VDom (GState pos ext) EFFS) -> VDom (GState pos ext) EFFS

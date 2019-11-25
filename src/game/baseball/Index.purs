@@ -1,19 +1,8 @@
-module Game.Baseball (State, state) where
-import MyPrelude
-import Pha.Lens (actionOver, viewOver)
-import Game (class CGame)
+module Game.Baseball (module M, init) where
+import Game.Baseball.Model (State, Msg, update, istate) as M
+import Game.Baseball.View (view) as M
+import Pha.Action (Action)
+import Game.Effs (EFFS)
 import Game.Core (init) as C
-import Game.Baseball.Model (State, istate) as M
-import Game.Baseball.View (view) as V
-
-newtype State = State M.State
-_iso :: Iso' State M.State
-_iso = iso (\(State a) -> a) State
-
-instance cgame :: CGame State where
-    init = actionOver _iso C.init
-    view lens (State st) = viewOver (lens ∘ _iso) (V.view st)
-    onKeyDown _ = pure unit
-
-state :: State
-state = State M.istate
+init :: Action M.State EFFS
+init = C.init

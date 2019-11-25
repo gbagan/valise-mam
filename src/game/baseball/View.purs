@@ -7,9 +7,8 @@ import Pha.Elements (div)
 import Pha.Attributes (onclick)
 import Pha.Svg (svg, g, rect, use, stroke, fill, viewBox, x_, y_, width, height)
 import Pha.Util (pc, translate)
-import Game.Effs (EFFS)
-import Game.Core (canPlay, playA, isLevelFinished, _position)
-import Game.Baseball.Model (State, setNbBasesA, _nbBases, _missingPeg)
+import Game.Core (canPlay, core, CoreMsg(Play), isLevelFinished, _position)
+import Game.Baseball.Model (State, Msg(..), _nbBases, _missingPeg)
 import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 
@@ -29,13 +28,13 @@ transformBase i nbBases = translate (pc x) (pc y)  <> " rotate(45deg)" where
     x = 0.50 + 0.35 * cos (toNumber i * 2.0 * pi / toNumber nbBases)
     y = 0.50 + 0.35 * sin (toNumber i * 2.0 * pi / toNumber nbBases)
 
-view :: State -> VDom State EFFS
+view :: State -> VDom Msg
 view state = template _{config=config, board=board, rules=rules} state where
     nbBases = state^._nbBases
     levelFinished = isLevelFinished state
 
     config = card "Baseball multicolore" [
-        iconSelectGroup state "Nombres de bases" [4, 5, 6, 7, 8] nbBases setNbBasesA (const identity),
+        iconSelectGroup state "Nombres de bases" [4, 5, 6, 7, 8] nbBases SetNbBases (const identity),
         icongroup "Options" $ [iundo state, iredo state, ireset state, irules state]
     ]
 
@@ -43,7 +42,7 @@ view state = template _{config=config, board=board, rules=rules} state where
         svg [viewBox 0 0 100 100] $ concat [
             take nbBases colors # mapWithIndex \i color ->
                 rect [
-                    x_ "-10", y_ "10", width "20", height "20",
+                    x_ "-10", y_ "-10", width "20", height "20",
                     key $ "b" <> show i,
                     class' "baseball-base" true,
                     stroke $ color,
@@ -59,7 +58,7 @@ view state = template _{config=config, board=board, rules=rules} state where
                         use "#meeple" [
                             width "7",
                             height "7",
-                            onclick $ playA peg,
+                            onclick $ core (Play peg),
                             fill color,
                             style "animation"
                                 if levelFinished then

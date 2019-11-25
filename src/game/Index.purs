@@ -4,7 +4,7 @@ import Pha (VDom)
 import Game.Effs (EFFS)
 import Pha.Action (Action)
 
-class CGame b where
-    init :: Action b EFFS
-    view :: ∀a. Lens' a b -> b -> VDom a EFFS
-    onKeyDown :: String -> Action b EFFS
+class CGame a msg | a -> msg where
+    init :: Action a EFFS
+    view :: a -> VDom msg
+    onKeyDown :: String -> Action a EFFS

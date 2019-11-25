@@ -1,18 +1,19 @@
 module UI.Template where
 import MyPrelude
 import Pha (VDom, Prop, text, emptyNode, maybeN, class_, class', style)
-import Pha.Action (Action, setState)
 import Pha.Elements (div)
-import Pha.Attributes (onpointerup, onpointerdown', onpointerleave, onpointermove')
+--import Pha.Attributes (onpointerup, onpointerdown', onpointerleave, onpointermove')
 import Pha.Util (pc, translate)
 import Game.Core (class Game, class ScoreGame, GState, Mode(..), Turn(..), SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointer, _locked, 
-         canPlay, isLevelFinished, sizeLimit, bestScore, setGridSizeA, confirmNewGameA, dropA)
+         canPlay, isLevelFinished, sizeLimit, bestScore, setGridSizeA, confirmNewGameA, dropA,
+        class MsgWithCore, core, CoreMsg(..)
+        )
 import UI.Dialog (dialog) as D
 import UI.IncDecGrid (incDecGrid) as U
-import Game.Effs (EFFS, getPointerPosition, releasePointerCapture, Position)
+import Game.Effs (Position)
 
-winPanel :: ∀a effs. String -> Boolean -> VDom a effs
+winPanel :: ∀a. String -> Boolean -> VDom a
 winPanel title visible =
     div [class_ "ui-flex-center ui-absolute component-win-container"] [
         div [class_ "component-win", class' "visible" visible] [
@@ -20,7 +21,7 @@ winPanel title visible =
         ]
     ]
 
-card :: ∀a effs. String -> Array (VDom a effs) -> VDom a effs
+card :: ∀a. String -> Array (VDom a) -> VDom a
 card title children =
     div [class_ "ui-card"] [
         div [class_ "ui-card-head ui-flex-center"] [
@@ -29,7 +30,8 @@ card title children =
         div [class_ "ui-card-body"] children
     ]
 
-incDecGrid :: ∀pos ext mov. Game pos ext mov => GState pos ext -> Array (VDom (GState pos ext) EFFS) -> VDom (GState pos ext) EFFS
+incDecGrid :: ∀msg pos ext mov. MsgWithCore msg mov => Game pos ext mov =>
+    GState pos ext -> Array (VDom msg) -> VDom msg
 incDecGrid state = U.incDecGrid {
     locked: state^._locked,
     nbRows: state^._nbRows,
@@ -37,20 +39,20 @@ incDecGrid state = U.incDecGrid {
     showRowButtons: minRows < maxRows,
     showColButtons: minCols < maxCols,
     customSize: state^._customSize,
-    onResize: \x y -> setGridSizeA x y true
+    resize: \x y -> core (SetGridSize x y true)
 } where
     SizeLimit minRows minCols maxRows maxCols = sizeLimit state 
 
-type Elements a effs = {
-    board :: VDom a effs,
-    config :: VDom a effs,
-    rules :: Array (VDom a effs),
+type Elements a = {
+    board :: VDom a,
+    config :: VDom a,
+    rules :: Array (VDom a),
     winTitle :: String,
-    customDialog :: Unit -> VDom a effs,
-    scoreDialog :: Unit -> VDom a effs
+    customDialog :: Unit -> VDom a,
+    scoreDialog :: Unit -> VDom a
 }
 
-defaultElements :: ∀a effs. Elements a effs
+defaultElements :: ∀a. Elements a
 defaultElements = {
     board: emptyNode,
     config: emptyNode,
@@ -60,17 +62,17 @@ defaultElements = {
     scoreDialog: \_ -> emptyNode
 }
 
-dialog :: ∀pos ext effs. String -> Array (VDom (GState pos ext) effs) -> VDom (GState pos ext) effs
-dialog title = D.dialog {title, onCancel: Nothing, onOk: Just $ setState (_dialog .~ NoDialog)}
-
+dialog :: ∀msg mov. MsgWithCore msg mov => String -> Array (VDom msg) -> VDom msg
+dialog title = D.dialog {title, onCancel: Nothing, onOk: Just $ core SetNoDialog}
+{-
 bestScoreDialog :: ∀pos ext mov effs. ScoreGame pos ext mov => GState pos ext
                                   -> (pos -> Array (VDom (GState pos ext) effs)) -> VDom (GState pos ext) effs
 bestScoreDialog state children = maybeN $ bestScore state <#> snd <#> \pos ->
     dialog "Meilleur score" (children pos)
+-}
 
-template :: ∀pos ext mov. Game pos ext mov =>
-            (Elements (GState pos ext) EFFS -> Elements (GState pos ext) EFFS) 
-            -> GState pos ext -> VDom (GState pos ext) EFFS
+template :: ∀msg pos ext mov. MsgWithCore msg mov => Game pos ext mov =>
+            (Elements msg -> Elements msg) -> GState pos ext -> VDom msg
 template elemFn state =
     div [] [
         div [class' "main-container" true] [
@@ -82,11 +84,11 @@ template elemFn state =
     where
         {board, config, rules, winTitle, customDialog, scoreDialog} = elemFn defaultElements
         dialog' Rules = dialog "Règles du jeu" rules
-        dialog' (ConfirmNewGame s) =
+        dialog' (ConfirmNewGameDialog _) =
             D.dialog {
                 title: "Nouvelle partie", 
-                onCancel: Just $ setState (_dialog .~ NoDialog), 
-                onOk: Just $ confirmNewGameA s
+                onCancel: Just $ core SetNoDialog, 
+                onOk: Just $ core ConfirmNewGame
             } [
                 text "Tu es sur le point de créer une nouvelle partie. Ta partie en cours sera perdue. Es-tu sûr(e)?"
             ]
@@ -95,15 +97,15 @@ template elemFn state =
         dialog' _ = emptyNode
 
 
-gridStyle :: ∀a effs. Int -> Int -> Int -> Array (Prop a effs)
+gridStyle :: ∀a. Int -> Int -> Int -> Array (Prop a)
 gridStyle rows columns limit = [style "height" $ pc (toNumber rows / m),
                                 style "width" $ pc (toNumber columns / m)]
     where m = toNumber $ max limit $ max rows columns        
 
-setPointerPositionA :: ∀pos ext effs. (Maybe Position) -> Action (GState pos ext) effs
-setPointerPositionA a = setState (_pointer .~ a)
+--setPointerPositionA :: ∀pos ext effs. (Maybe Position) -> Action (GState pos ext) effs
+--setPointerPositionA a = setState (_pointer .~ a)
 
-cursorStyle :: ∀a effs. Position -> Int -> Int -> Number -> Array (Prop a effs)    
+cursorStyle :: ∀a. Position -> Int -> Int -> Number -> Array (Prop a)
 cursorStyle {x, y} rows columns size = [
     style "left" $ pc x,
     style "top" $ pc y,
@@ -111,11 +113,12 @@ cursorStyle {x, y} rows columns size = [
     style "height" $ pc (size / toNumber rows)
 ]
 
-svgCursorStyle :: ∀a effs. Position -> Array (Prop a effs)
+svgCursorStyle :: ∀a. Position -> Array (Prop a)
 svgCursorStyle {x, y} = [
     style "transform" $ translate (pc x) (pc y)
 ]
 
+{-
 -- style à appliquer sur l'élément DOM représentant le plateau
 -- permet de mémoriser la position du pointeur
 trackPointer :: ∀pos ext. Array (Prop (GState pos ext) EFFS)
@@ -151,6 +154,7 @@ dndItemProps dragLens draggable droppable id state = [
     draggedItem = state ^. dragLens
     candrop = droppable && (draggedItem # maybe false (\x -> canPlay state { from: x, to: id }))
     dragged = draggable && draggedItem == Just id
+-}
 
 turnMessage :: ∀pos ext mov. Game pos ext mov => GState pos ext -> String
 turnMessage state =

@@ -5,8 +5,9 @@ import Data.FoldableWithIndex (allWithIndex)
 import Lib.Util ((..))
 import Pha.Effects.Random (shuffle, randomInt)
 import Pha.Action (Action)
-import Pha.Effects.Random (RNG)
-import Game.Core (class Game, GState, _ext, genState, newGame', _position, defaultSizeLimit)
+import Game.Effs (EFFS)
+import Game.Core (class Game, GState, class MsgWithCore, CoreMsg,
+                 coreUpdate, _ext, genState, newGame, _position, defaultSizeLimit)
 
 type Ext' = { nbBases :: Int, missingPeg :: Int }
 newtype ExtState = Ext Ext'
@@ -43,6 +44,10 @@ instance baseballGame :: Game (Array Int) ExtState Int where
     computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
     updateScore st = st ∧ true 
-    
-setNbBasesA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-setNbBasesA = newGame' (set _nbBases)
+
+data Msg = Core (CoreMsg Int) | SetNbBases Int
+instance withcore :: MsgWithCore Msg Int where core = Core
+
+update :: Msg -> Action State EFFS
+update (Core msg) = coreUpdate msg
+update (SetNbBases n) = newGame (_nbBases .~ n)

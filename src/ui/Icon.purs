@@ -32,7 +32,7 @@ defaultOptions = {
     style: []
 }
 
-iconbutton :: ∀a effs. (Options -> Options) -> Array (Prop a effs) -> VDom a effs
+iconbutton :: ∀a. (Options -> Options) -> Array (Prop a) -> VDom a
 iconbutton optionFn props =
     let {icon, selected, tooltip, round, large, hidden, disabled: d, style: st} = optionFn defaultOptions in
     button ([

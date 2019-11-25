@@ -3,14 +3,14 @@ import MyPrelude
 import Data.List (List(..))
 import Data.List (last, null) as L
 import Data.Map (Map, empty) as M
-import Pha.Effects.Random (randomPick)
+import Pha.Effects.Random (RNG, randomPick)
 import Run (Run)
 import Pha.Action (Action, getState, setState) 
 import Pha.Effects.Delay (delay, DELAY)
-import Pha.Effects.Random (RNG)
+import Game.Effs (EFFS)
 
 -- ConfirmNewGame contient le futur state si l'utilisateur valide de commencer une nouvelle partie
-data Dialog a = Rules | NoDialog | ConfirmNewGame a | ScoreDialog | CustomDialog
+data Dialog a = Rules | NoDialog | ConfirmNewGameDialog a | ScoreDialog | CustomDialog
 
 data Mode = SoloMode | RandomMode | ExpertMode | DuelMode
 derive instance eqMode :: Eq Mode
@@ -136,8 +136,25 @@ oppositeTurn _ = Turn1
 changeTurn :: ∀pos ext. GState pos ext -> GState pos ext
 changeTurn state = state # _turn %~ \x -> if state^._mode == DuelMode then oppositeTurn x else Turn1
 
-undoA :: ∀pos ext effs. Action (GState pos ext) effs
-undoA = setState \state -> case state^._history of
+data CoreMsg mov = 
+      Undo 
+    | Redo 
+    | Reset 
+    | ToggleHelp 
+    | Play mov 
+    | SetMode Mode 
+    | SetGridSize Int Int Boolean
+    | SetCustomSize Boolean 
+    | SetNoDialog 
+    | SetRulesDialog
+    | ConfirmNewGame
+    | ComputerStarts
+
+class MsgWithCore a mov | a -> mov where
+    core :: CoreMsg mov -> a
+
+coreUpdate :: forall pos ext mov. Game pos ext mov => CoreMsg mov -> Action (GState pos ext) EFFS
+coreUpdate Undo = setState \state -> case state^._history of
     Nil -> state
     Cons h rest ->
         state # changeTurn
@@ -145,8 +162,7 @@ undoA = setState \state -> case state^._history of
               # _history .~ rest
               # _redoHistory %~ Cons (state^._position)
 
-redoA :: ∀pos ext effs. Action (GState pos ext) effs
-redoA = setState \state -> case state^._redoHistory of
+coreUpdate Redo = setState \state -> case state^._redoHistory of
     Nil -> state
     Cons h rest ->
         state # changeTurn
@@ -154,16 +170,35 @@ redoA = setState \state -> case state^._redoHistory of
               # _redoHistory .~ rest
               # _history %~ Cons (state^._position)
 
-resetA :: ∀pos ext effs. Action (GState pos ext) effs
-resetA = setState \state -> case L.last (state^._history) of
+coreUpdate Reset = setState \state -> case L.last (state^._history) of
     Nothing -> state
     Just x -> state # _position .~ x
                     # _history .~ Nil
                     # _redoHistory .~ Nil
                     # _turn .~ Turn1
 
-toggleHelpA :: ∀pos ext effs. Action (GState pos ext) effs
-toggleHelpA = setState (_help %~ not)
+coreUpdate ToggleHelp =  setState (_help %~ not)
+coreUpdate (Play move) = playA move
+coreUpdate (SetMode mode) = newGame (_mode .~ mode)
+coreUpdate (SetGridSize nbRows nbColumns customSize) = 
+    newGame $ setSize' ∘ (_customSize .~ customSize) where
+    setSize' state =
+        if nbRows >= minrows && nbRows <= maxrows && nbColumns >= mincols && nbColumns <= maxcols then
+            state # _nbRows .~ nbRows # _nbColumns .~ nbColumns
+        else
+            state
+        where SizeLimit minrows mincols maxrows maxcols = sizeLimit state
+coreUpdate (SetCustomSize b) = setState $ _customSize .~ true
+coreUpdate SetNoDialog = setState $ _dialog .~ NoDialog
+coreUpdate SetRulesDialog = setState $ _dialog .~ Rules
+coreUpdate ConfirmNewGame = setState $ \state ->
+                        case state^._dialog of
+                            ConfirmNewGameDialog st -> st
+                            _ -> state
+coreUpdate ComputerStarts = setState (pushToHistory ∘ (_turn %~ oppositeTurn)) *> computerPlay
+        --coreUpdate (ConfirmNewGame  :: ∀pos ext effs. GState pos ext -> Action (GState pos ext) effs
+--confirmNewGameA st = setState (\_ -> st)
+
 
 playAux :: ∀pos ext mov. Game pos ext mov => mov -> GState pos ext -> Maybe (GState pos ext)
 playAux move state =
@@ -191,9 +226,6 @@ computerPlay = do
             setState (const st2)
             when (isLevelFinished st2) showVictory
 
-computerStartsA :: ∀pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
-computerStartsA = setState (pushToHistory ∘ (_turn %~ oppositeTurn)) *> computerPlay
-
 playA :: ∀pos ext mov effs. Game pos ext mov => mov -> Action (GState pos ext) (delay :: DELAY, rng :: RNG | effs)
 playA move = lockAction $ do
     state <- getState
@@ -209,7 +241,6 @@ playA move = lockAction $ do
                 delay 1000 *> computerPlay
             else 
                 pure unit
-
 -- affecte à true l'attribut locked avant le début de l'action act et l'affecte à false à la fin de l'action
 -- fonctionne sur toute la durée d'une action asynchrone
 -- ne fait rien si locked est déjà à true
@@ -237,7 +268,7 @@ newGame f = do
         if L.null (state2^._history) || isLevelFinished state then
             const state4
         else
-            _dialog .~ ConfirmNewGame state4
+            _dialog .~ ConfirmNewGameDialog state4
 
 newGame' :: ∀a pos ext mov effs. Game pos ext mov =>
     (a -> GState pos ext -> GState pos ext) -> a -> Action (GState pos ext) (rng :: RNG | effs)

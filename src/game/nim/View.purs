@@ -6,9 +6,8 @@ import Pha.Attributes ( onclick)
 import Pha.Svg (svg, rect, use, fill, viewBox, x_, y_, width, height)
 import Pha.Util (translate)
 import Lib.Util (tabulate)
-import Game.Effs (EFFS)
-import Game.Core (Turn(..), canPlay, playA, isLevelFinished, _position, _turn)
-import Game.Nim.Model (State, Move(..), _nbPiles, _length, setLengthA, setNbPilesA)
+import Game.Core (Turn(..), canPlay, core, CoreMsg(Play), isLevelFinished, _position, _turn)
+import Game.Nim.Model (State, Msg(..), Move(..), _nbPiles, _length)
 import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset, irules)
 
@@ -16,14 +15,14 @@ import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset
 px' :: Int -> String
 px' a = show a <> "px"
 
-view :: State -> VDom State EFFS
+view :: State -> VDom Msg
 view state = template _{config=config, board=board, rules=rules, winTitle=winTitle} state where
     nbPiles = state^._nbPiles
     length = state^._length
 
     config = card "Poker Nim" [
-        iconSelectGroup state "Nombre de rangées" [1, 2, 3, 4, 5] nbPiles setNbPilesA (const identity),
-        iconSelectGroup state "Taille des rangées" [10, 5] length setLengthA (const identity),
+        iconSelectGroup state "Nombre de rangées" [1, 2, 3, 4, 5] nbPiles SetNbPiles (const identity),
+        iconSelectGroup state "Taille des rangées" [10, 5] length SetLength (const identity),
         icons2Players state,
         icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x state
     ]
@@ -44,7 +43,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                         x_ "-2.5", y_ "-2.5", width "5", height "5",
                         key $ "base-" <> show i <> "-" <> show j,
                         fill "gray",
-                        onclick $ playA (Move i j),
+                        onclick $ core (Play (Move i j)),
                         style "transform" $
                             translate (px' $ (if length == 5 then 30 else 5) + 10 * j) (px' $ 15 + 19 * i) <>
                             " rotate(45deg)",

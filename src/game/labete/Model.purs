@@ -5,9 +5,12 @@ import Pha (Event)
 import Pha.Action (Action, setState)
 import Pha.Effects.Random (RNG)
 import Game.Common (_isoCustom)
-import Game.Core (class Game, class ScoreGame, SizeLimit(..), GState, Objective(..), ShowWinStrategy(..), PointerPosition, Dialog(..),
-                   _ext, genState, newGame, newGame', _position, _nbRows, _nbColumns, _help, _dialog, updateScore')
-import Game.Effs (POINTER, getPointerPosition)
+import Game.Effs (EFFS)
+import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, 
+                 SizeLimit(..), GState, Objective(..), ShowWinStrategy(..), PointerPosition, Dialog(..),
+               playA, coreUpdate,  _ext, genState, newGame, newGame', _position, _nbRows, _nbColumns, _help, _dialog, updateScore')
+
+type Zone = { row1 :: Int, row2 :: Int, col1 :: Int, col2 :: Int}
 
 data Mode = StandardMode | CylinderMode | TorusMode
 derive instance eqMode :: Eq Mode
@@ -145,6 +148,16 @@ getNewBeast state = case state^._beastType of
     Type4 -> [type2, type3]
     CustomBeast -> take 1 (state^._beast)
 
+zoneposition :: Int -> Zone -> Array Int
+zoneposition columns {row1, col1, row2, col2} =
+    tabulate2 (abs (row1 - row2) + 1) (abs(col1 - col2) + 1) \i j ->
+        (i + min row1 row2) * columns + j + (min col1 col2)
+
+colorZone :: State -> Zone -> Array Int
+colorZone state zone = state^._squareColors # updateAtIndices ( 
+    zoneposition (state^._nbColumns) zone <#> \i -> i ∧ (state^._selectedColor)
+)
+
 instance labeteGame :: Game (Array Boolean) ExtState Int where
     play state index = state^._position # modifyAt index not
     isLevelFinished = null ∘ nonTrappedBeasts
@@ -162,61 +175,43 @@ instance scoregameLabete :: ScoreGame (Array Boolean) ExtState Int where
     scoreFn = length ∘ filter identity ∘ view _position
     scoreHash state = joinWith "-" [show (state^._nbColumns), show (state^._nbRows), show (state^._mode), show (state^._beastType)]
     isCustomGame state = state^._beastType == CustomBeast
+          
 
-setModeA :: ∀effs. Mode -> Action State (rng :: RNG | effs)
-setModeA = newGame' (set _mode)
+data Msg = Core CoreMsg | SetMode Mode | SetHelp Boolean | SetBeast BeastType | Play Int | IncSelectedColor Int
+         | StartZone Int | StartZone2 { x :: Number, y :: Number} | FinishZone Int | FlipCustomBeast Int
+instance withcore :: MsgWithCore Msg where core = Core
 
-setHelpA :: ∀effs. Boolean -> Action State effs
-setHelpA a = setState (_help .~ a)
-
-setBeastA :: ∀effs. BeastType -> Action State (rng :: RNG | effs)
-setBeastA ttype = newGame $ (_beastType .~ ttype) ∘ 
-                          (if ttype == CustomBeast then
+update :: Msg -> Action State EFFS
+update (Core msg) = coreUpdate msg
+update (SetMode m) = newGame (_mode .~ m)
+update (SetHelp a) = setState (_help .~ a)
+update (SetBeast ttype) = newGame ( (_beastType .~ ttype) ∘ 
+                            (if ttype == CustomBeast then
                                 (_dialog .~ CustomDialog) ∘ (_beast %~ take 1)
-                           else
+                            else
                                 identity
+                            )
                         )
-
-          
-type Zone = { row1 :: Int, row2 :: Int, col1 :: Int, col2 :: Int}
-
-zoneposition :: Int -> Zone -> Array Int
-zoneposition columns {row1, col1, row2, col2} =
-    tabulate2 (abs (row1 - row2) + 1) (abs(col1 - col2) + 1) \i j ->
-        (i + min row1 row2) * columns + j + (min col1 col2)
-          
-colorZone :: State -> Zone -> Array Int
-colorZone state zone = state^._squareColors # updateAtIndices ( 
-    zoneposition (state^._nbColumns) zone <#> \i -> i ∧ (state^._selectedColor)
-)
-
-incSelectedColorA :: ∀effs. Int -> Action State effs
-incSelectedColorA x = setState $ _selectedColor %~ \y -> (x + y) `mod` 9
-
-onKeyDown :: ∀effs. String -> Action State effs
-onKeyDown "o" = incSelectedColorA (-1)
-onKeyDown "p" = incSelectedColorA 1
-onKeyDown _ = pure unit
-
+update (IncSelectedColor i) = setState $ _selectedColor %~ \x -> (x + i) `mod` 9
 -- le début d'une zone est décomposé en deux actions
 -- startZoneA est activé lors  du onpointerdown sur l'élément html réprésentant le carré
-
-startZoneA :: ∀effs. Int -> Action State effs
-startZoneA pos = setState (_startSquare .~ Just pos)
-
+update (StartZone s) = setState (_startSquare .~ Just s)
 -- startZone2A est appliqué lors du onpointerdown sur l'élément html réprésentant le plateu
-startZone2A :: ∀effs. Event -> Action State (pointer :: POINTER | effs)
-startZone2A ev = getPointerPosition ev >>= \pos -> setState (_startPointer .~ pos)
-
-finishZoneA :: ∀effs. Int -> Action State effs
-finishZoneA index1 = setState \state -> case state^._startSquare of
-    Nothing -> state 
+update (StartZone2 pos) = setState (_startPointer .~ Just pos)
+update (FinishZone index1) = setState \state -> case state^._startSquare of
+    Nothing -> state
     Just index2 ->
         let {row: row1, col: col1} = coords (state^._nbColumns) index1
             {row: row2, col: col2} = coords (state^._nbColumns) index2
         in state # _squareColors .~ colorZone state {row1, col1, row2, col2}
                  # _startSquare .~ Nothing
                  # _startPointer .~ Nothing
+update (FlipCustomBeast i)  = newGame (_beast <<< ix 0 <<< _isoCustom <<< ix i %~ not)
+update (Play m) = playA m
 
-flipCustomBeastA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-flipCustomBeastA i = newGame (_beast ∘ ix 0 ∘ _isoCustom ∘ ix i %~ not)
+--onKeyDown :: ∀effs. String -> Action State effs
+--onKeyDown "o" = incSelectedColorA (-1)
+--onKeyDown "p" = incSelectedColorA 1
+--onKeyDown _ = pure unit
+
+

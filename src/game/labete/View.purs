@@ -4,25 +4,23 @@ import MyPrelude
 import Lib.Util (coords, map3)
 import Math (abs)
 import Pha (VDom, Prop, text, ifN, maybeN, key, attr, class_, class', style)
-import Pha.Event (shiftKey)
 import Pha.Elements (div, br)
-import Pha.Attributes (onclick, onclick', onpointerdown, onpointerdown', onpointerup, onpointerleave)
+import Pha.Events (on', onclick, onpointerdown, onpointerup, onpointerleave)
+import Pha.Events.Decoder (shiftKey)
 import Pha.Svg (svg, g, rect, use, fill, stroke, x_, y_, width, height, strokeWidth, transform, viewBox)
 import Pha.Util (pc, translate)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, playA, scoreFn)
-import Game.Effs (EFFS)
-import Game.Common (_isoCustom)
-import Game.Labete.Model (State, Mode(..), BeastType(..), 
-                          _mode, _beast, _beastType, _selectedColor, _startPointer, _squareColors,
-                    flipCustomBeastA, nonTrappedBeastOnGrid, setModeA, setHelpA, setBeastA, startZoneA, startZone2A, finishZoneA )
+import Game.Common (pointerDecoder, _isoCustom)
+import Game.Labete.Model (State, Msg(..), Mode(..), BeastType(..), nonTrappedBeastOnGrid,
+                          _mode, _beast, _beastType, _selectedColor, _startPointer, _squareColors)
 import UI.Template (template, card, dialog, bestScoreDialog, incDecGrid, gridStyle, trackPointer, svgCursorStyle)
 import UI.Icon (Icon(..))
-import UI.Icons (iconbutton, icongroup, iconSelectGroup, iconSizesGroup, iconBestScore, ireset, irules)
+import UI.Icons (iconbutton, icongroup, iconSelectGroup, iconSizesGroup, {- iconBestScore, -} ireset, irules)
 
 colors :: Array String
 colors = ["#5aa02c", "blue", "red", "yellow", "magenta", "cyan", "orange", "darkgreen", "grey"]
 
-zone :: ∀a effs. Int -> {x :: Number, y :: Number} -> {x :: Number, y :: Number} -> VDom a effs
+zone :: ∀a. Int -> {x :: Number, y :: Number} -> {x :: Number, y :: Number} -> VDom a
 zone color { x: x1, y: y1 }  {x: x2, y: y2 } =
     rect [
         x_ $ pc (min x1 x2),
@@ -39,7 +37,7 @@ zone color { x: x1, y: y1 }  {x: x2, y: y2 } =
 modes :: Array Mode
 modes = [StandardMode, CylinderMode, TorusMode]
 
-square :: ∀a effs. { color :: Int, hasTrap :: Boolean, hasBeast :: Boolean, row :: Int, col :: Int} -> Array (Prop a effs) -> VDom a effs
+square :: ∀a. { color :: Int, hasTrap :: Boolean, hasBeast :: Boolean, row :: Int, col :: Int} -> Array (Prop a) -> VDom a
 square { color, hasTrap, hasBeast, row, col } props =
     g ([transform $ translate (show $ 50 * col) (show $ 50 * row)] <> props) [
         use "#grass" [width "50", height "50", fill $ colors !! color # fromMaybe ""],
@@ -49,16 +47,16 @@ square { color, hasTrap, hasBeast, row, col } props =
             use "#trap" [x_ "5", y_ "5", width "40", height "40"]
     ]
 
-ihelp :: State -> VDom State EFFS
+ihelp :: State -> VDom Msg
 ihelp state =
     iconbutton
         state _{icon = IconSymbol "#help", tooltip = Just "Aide", selected = state^._help} [
-            onpointerdown $ setHelpA true,
-            onpointerup $ setHelpA false,
-            onpointerleave $ setHelpA false
+            onpointerdown $ SetHelp true,
+            onpointerup $ SetHelp false,
+            onpointerleave $ SetHelp false
         ]
 
-view :: State -> VDom State EFFS
+view :: State -> VDom Msg
 view state = template _{config=config, board=board, rules=rules, winTitle=winTitle, 
                                 customDialog=customDialog, scoreDialog=scoreDialog} state where
     rows = state^._nbRows
@@ -67,22 +65,22 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     beastTypes = [Type1, Type2, Type3, Type4, CustomBeast]
 
     config = card "La bête" [
-        iconSelectGroup state "Forme de la bête" beastTypes (state^._beastType) setBeastA case _ of
+        iconSelectGroup state "Forme de la bête" beastTypes (state^._beastType) SetBeast case _ of
             Type1 -> _{icon = IconSymbol "#beast1"}
             Type2 -> _{icon = IconSymbol "#beast2"}
             Type3 -> _{icon = IconSymbol "#beast3"}
             Type4 -> _{icon = IconSymbol "#beast23"}
             CustomBeast -> _{icon = IconSymbol "#customize"}
         ,
-        iconSelectGroup state "Type de la grille" modes (state^._mode) setModeA case _ of
+        iconSelectGroup state "Type de la grille" modes (state^._mode) SetMode case _ of
             StandardMode -> _{icon = IconSymbol "#grid-normal", tooltip = Just "Normale"}
             CylinderMode -> _{icon = IconSymbol "#grid-cylinder", tooltip = Just "Cylindrique"}
             TorusMode -> _{icon = IconSymbol "#grid-torus", tooltip = Just "Torique"},
 
         iconSizesGroup state [3∧3, 5∧5, 6∧6] true,
 
-        icongroup "Options" $ [ihelp state, ireset state, irules state],
-        iconBestScore state
+        icongroup "Options" $ [ihelp state, ireset state, irules state]
+        --iconBestScore state
     ]
 
     rules = [
@@ -102,19 +100,23 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
         attr "pointer-events" "none"
     ])
 
-    grid = div (gridStyle rows columns 5 <> trackPointer <> [class' "ui-board" true,
-            onpointerdown' \ev -> when (shiftKey ev) (startZone2A ev)
+    grid = div (gridStyle rows columns 5 <> trackPointer <> [class_ "ui-board",
+        on' "onpointerdown" $ \ev -> shiftKey ev >>= (if _ then
+                            Just <$> StartZone2 <$> pointerDecoder ev
+                        else 
+                            pure Nothing
+                        )
     ]) [
         svg [viewBox 0 0 (50 * columns) (50 * rows)] (
             (map3 (state^._position) nonTrappedBeast  (state^._squareColors) \index hasTrap hasBeast color ->
                 let {row, col} = coords columns index in
                 square { color, row, col, hasTrap, hasBeast: hasBeast && state^._help } [
                     key $ show index,
-                    onclick' \ev -> unless (shiftKey ev) (playA index),
+                    on' "click" $ shiftKey >>> map (if _ then Nothing else Just (Play index)),
                     -- pointerenter: [actions.setSquareHover, index], todo
                     -- ponterleave: [actions.setSquareHover, null],
-                    onpointerup $ finishZoneA index,
-                    onpointerdown' \ev -> when (shiftKey ev) (startZoneA index)
+                    onpointerup $ FinishZone index,
+                    on' "pointerdown" $ shiftKey >>> map (if _ then Just (StartZone index) else Nothing)
                 ]
             ) <> [
                 maybeN $ case state^._startPointer of
@@ -141,7 +143,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                         let {row, col} = coords 5 index in
                         square {row, col, hasBeast, hasTrap: false, color: 0} [
                             key $ show index,
-                            onclick $ flipCustomBeastA index
+                            onclick $ FlipCustomBeast index
                         ]
             )
         ]

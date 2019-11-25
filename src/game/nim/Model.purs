@@ -6,7 +6,7 @@ import Pha.Action (Action)
 import Pha.Effects.Random (randomInt)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, GState, Mode(..), Turn(..),
-            coreUpdate,    
+            coreUpdate, playA,
             _ext, genState, newGame, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
 
 data Move = Move Int Int  --- pile et position dans la pile
@@ -69,10 +69,11 @@ instance nimGame2 :: TwoPlayersGame (Array (Tuple Int Int)) ExtState Move where
 
     isLosingPosition = eq 0 ∘ foldr (\t -> xor (snd t - fst t - 1)) 0 ∘ view _position
 
-data Msg = Core (CoreMsg Move) | SetNbPiles Int | SetLength Int
-instance withcore :: MsgWithCore Msg Move where core = Core
+data Msg = Core CoreMsg | SetNbPiles Int | SetLength Int | Play Move
+instance withcore :: MsgWithCore Msg where core = Core
 
 update :: Msg -> Action State EFFS
 update (Core msg) = coreUpdate msg
 update (SetNbPiles n) = newGame (_nbPiles .~ n)
 update (SetLength n) = newGame (_length .~ n)
+update (Play n) = playA n

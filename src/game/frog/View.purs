@@ -3,16 +3,15 @@ module Game.Frog.View (view) where
 import MyPrelude
 import Lib.Util (map2, tabulate, pairwise, floatRange)
 import Pha (VDom, text, ifN, maybeN, key, class_, class', style)
-import Pha.Elements (div, span, br) 
-import Pha.Attributes (onclick')
+import Pha.Elements (div, span, br)
+import Pha.Events (on)
+import Pha.Events.Decoder (shiftKey)
 import Pha.Svg (svg, g, use, line, path, text', x_, y_, width, height, viewBox, stroke, fill, strokeDasharray, strokeWidth)
 import Pha.Util (px, translate)
-import Pha.Event (shiftKey)
 import UI.Template (template, card, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icons (icongroup, iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
-import Game.Core (_nbRows, _position, _help, _locked, playA)
-import Game.Effs (EFFS)
-import Game.Frog.Model (State, _moves, _marked, selectMoveA, reachableArray, markA)
+import Game.Core (_nbRows, _position, _help, _locked)
+import Game.Frog.Model (State, Msg(..), _moves, _marked, reachableArray)
 
 type Cartesian = { x :: Number, y :: Number}
 type Polar = { radius :: Number, theta :: Number }
@@ -56,7 +55,7 @@ spiralPoints n = spiralPointsPolar n <#> polarToCartesian
 spiralPath :: String
 spiralPath = spiral { x: 0.0, y: 0.0 } 0.0 61.0 0.0 (37.0 / 6.0 * pi) (pi / 6.0)
 
-lily :: ∀a. Int -> Number -> Number -> Boolean -> Boolean -> VDom a EFFS
+lily :: ∀a. Int -> Number -> Number -> Boolean -> Boolean -> VDom a
 lily i x y reachable hidden =
     use "#lily" (pos <> [
         class' "frog-lily" true,
@@ -69,14 +68,14 @@ lily i x y reachable hidden =
             [x_ $ show (x - 24.0), y_ $ show (y - 24.0), width "48", height "48"]
         
 
-view :: State -> VDom State EFFS
+view :: State -> VDom Msg
 view state = template _{config = config, board = board, rules = rules, winTitle = winTitle} state where
     position = state^._position
     reachable = reachableArray state
     spoints = spiralPoints (state^._nbRows)
     pointsPolar = spiralPointsPolar $ state^._nbRows
     config = card "La grenouille" [
-        iconSelectGroupM state "Déplacements autorisés" [1, 2, 3, 4, 5] (state^._moves) selectMoveA (const identity),
+        iconSelectGroupM state "Déplacements autorisés" [1, 2, 3, 4, 5] (state^._moves) SelectMove (const identity),
         icons2Players state,
         icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x state
     ]
@@ -92,7 +91,7 @@ view state = template _{config = config, board = board, rules = rules, winTitle 
                 map2 spoints reachable \i {x, y} reach ->
                     g [
                         key $ "lily" <> show i,
-                        onclick' \ev -> if shiftKey ev then markA i else playA i
+                        on "click" $ shiftKey >>> map (if _ then Mark i else Play i)
                     ] [
                         lily i x y false false,
                         lily i x y true (not reach || state^._locked),
@@ -114,8 +113,8 @@ view state = template _{config = config, board = board, rules = rules, winTitle 
                     g [
                     key "frog",
                     class' "frog-frog-container" true,
-                    style "transform" $ translate (show $ px radius) "0" <> " rotate(" <> show (theta * 180.0 / pi) <> "deg)",
-                    style "transform-origin" $ show (-radius) <> "px 0"
+                    style "transform" $ translate (px radius) "0" <> " rotate(" <> show (theta * 180.0 / pi) <> "deg)",
+                    style "transform-origin" $ px (-radius) <> " 0"
                 ] [
                     g [
                         class' "frog-frog-container" true,

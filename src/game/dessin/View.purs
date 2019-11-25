@@ -2,17 +2,17 @@ module Game.Dessin.View (view) where
 import MyPrelude
 import Pha (VDom, text, maybeN, class_, class')
 import Pha.Elements (div, button, span, br)
-import Pha.Attributes (onclick, oncontextmenu', disabled)
+import Pha.Events (onclick, custom)
+import Pha.Events.Decoder (always)
+import Pha.Attributes (disabled)
 import Pha.Svg (svg, line, circle, viewBox, stroke, fill, x1, x2, y1, y2, cx, cy, r, strokeWidth, strokeDasharray)
-import Pha.Event (preventDefault)
 import Game.Core (canPlay, playA, _position, _pointer)
-import Game.Effs (EFFS)
-import Game.Dessin.Model (State, Graph, Position, Edge, (↔), edgesOf, nbRaises, setGraphIndexA, _graph, _graphIndex)
+import Game.Dessin.Model (State, Msg(..), Graph, Position, Edge, (↔), edgesOf, nbRaises, _graph, _graphIndex)
 import UI.Template (template, card, trackPointer)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 
-currentLine :: ∀a e. Position -> Position -> VDom a e
+currentLine :: ∀a. Position -> Position -> VDom a
 currentLine p1 p2 = line [
     x1 $ show (100.0 * p1.x),
     y1 $ show (100.0 * p1.y),
@@ -29,7 +29,7 @@ getCoordsOfEdge graph (u ↔ v) = {px1, px2, py1, py2} where
     {x: px1, y: py1} = getCoords graph u
     {x: px2, y: py2} = getCoords graph v
 
-view :: State -> VDom State EFFS
+view :: State -> VDom Msg
 view state = template _{config=config, board=board, rules=rules, winTitle=winTitle} state where
     position = state^._position
     graph = state^._graph
@@ -37,14 +37,19 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     s = if raises > 1 then "s" else ""
 
     config = card "Dessin" [
-        iconSelectGroup state "Dessin" [0, 1, 2, 3, 4] (state^._graphIndex) setGraphIndexA \i -> _{icon = IconText (show (i + 1)) },
+        iconSelectGroup state "Dessin" [0, 1, 2, 3, 4] (state^._graphIndex) SetGraphIndex \i -> _{icon = IconText (show (i + 1)) },
         icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x state
     ]
 
     board = div (trackPointer <> [
                 class_ "ui-board dessin-board",
                 -- todo
-                oncontextmenu' \ev -> preventDefault ev *> playA Nothing]) [
+                custom "contextmenu" $ always {
+                    message: Just (Play Nothing),
+                    preventDefault: true,
+                    stopPropagation: false
+                }
+    ]) [
         svg [class' "dessin-svg" true, viewBox 0 0 100 100] $ concat [
             graph.edges <#> \edge ->
                 let {px1, px2, py1, py2} = getCoordsOfEdge graph edge
@@ -73,7 +78,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                     r "3",
                     stroke $ if Just (Just i) == last position then "red" else "blue",
                     fill "blue",
-                    onclick $ playA (Just i)
+                    onclick $ Play (Just i)
                 ],
             [maybeN $ currentLine <$> (state^._pointer) <*> (getCoords graph <$> join (last position))]
         ],
@@ -83,7 +88,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
         button [
             class' "ui-button ui-button-primary dessin-raise" true,
             disabled $ not (canPlay state Nothing),
-            onclick $ playA Nothing
+            onclick $ Play Nothing
         ] [text "Lever le crayon"]
     ]
 

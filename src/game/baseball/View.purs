@@ -4,10 +4,10 @@ import MyPrelude
 import Lib.Util (map2)
 import Pha (VDom, text, ifN, class', key, style)
 import Pha.Elements (div)
-import Pha.Attributes (onclick)
+import Pha.Events (onclick)
 import Pha.Svg (svg, g, rect, use, stroke, fill, viewBox, x_, y_, width, height)
 import Pha.Util (pc, translate)
-import Game.Core (canPlay, core, CoreMsg(Play), isLevelFinished, _position)
+import Game.Core (canPlay, isLevelFinished, _position)
 import Game.Baseball.Model (State, Msg(..), _nbBases, _missingPeg)
 import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
@@ -58,7 +58,7 @@ view state = template _{config=config, board=board, rules=rules} state where
                         use "#meeple" [
                             width "7",
                             height "7",
-                            onclick $ core (Play peg),
+                            onclick $ Play peg,
                             fill color,
                             style "animation"
                                 if levelFinished then

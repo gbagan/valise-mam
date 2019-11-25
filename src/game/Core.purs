@@ -136,24 +136,24 @@ oppositeTurn _ = Turn1
 changeTurn :: ∀pos ext. GState pos ext -> GState pos ext
 changeTurn state = state # _turn %~ \x -> if state^._mode == DuelMode then oppositeTurn x else Turn1
 
-data CoreMsg mov = 
+data CoreMsg = 
       Undo 
     | Redo 
     | Reset 
-    | ToggleHelp 
-    | Play mov 
+    | ToggleHelp
     | SetMode Mode 
     | SetGridSize Int Int Boolean
     | SetCustomSize Boolean 
     | SetNoDialog 
     | SetRulesDialog
     | ConfirmNewGame
+    | SetPointer (Maybe { x :: Number, y :: Number })
     | ComputerStarts
 
-class MsgWithCore a mov | a -> mov where
-    core :: CoreMsg mov -> a
+class MsgWithCore a where
+    core :: CoreMsg -> a
 
-coreUpdate :: forall pos ext mov. Game pos ext mov => CoreMsg mov -> Action (GState pos ext) EFFS
+coreUpdate :: forall pos ext mov. Game pos ext mov => CoreMsg -> Action (GState pos ext) EFFS
 coreUpdate Undo = setState \state -> case state^._history of
     Nil -> state
     Cons h rest ->
@@ -178,7 +178,6 @@ coreUpdate Reset = setState \state -> case L.last (state^._history) of
                     # _turn .~ Turn1
 
 coreUpdate ToggleHelp =  setState (_help %~ not)
-coreUpdate (Play move) = playA move
 coreUpdate (SetMode mode) = newGame (_mode .~ mode)
 coreUpdate (SetGridSize nbRows nbColumns customSize) = 
     newGame $ setSize' ∘ (_customSize .~ customSize) where
@@ -195,6 +194,7 @@ coreUpdate ConfirmNewGame = setState $ \state ->
                         case state^._dialog of
                             ConfirmNewGameDialog st -> st
                             _ -> state
+coreUpdate (SetPointer pos) = setState $ _pointer .~ pos
 coreUpdate ComputerStarts = setState (pushToHistory ∘ (_turn %~ oppositeTurn)) *> computerPlay
         --coreUpdate (ConfirmNewGame  :: ∀pos ext effs. GState pos ext -> Action (GState pos ext) effs
 --confirmNewGameA st = setState (\_ -> st)

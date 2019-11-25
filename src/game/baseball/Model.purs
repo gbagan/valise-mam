@@ -7,7 +7,7 @@ import Pha.Effects.Random (shuffle, randomInt)
 import Pha.Action (Action)
 import Game.Effs (EFFS)
 import Game.Core (class Game, GState, class MsgWithCore, CoreMsg,
-                 coreUpdate, _ext, genState, newGame, _position, defaultSizeLimit)
+                 playA, coreUpdate, _ext, genState, newGame, _position, defaultSizeLimit)
 
 type Ext' = { nbBases :: Int, missingPeg :: Int }
 newtype ExtState = Ext Ext'
@@ -45,9 +45,10 @@ instance baseballGame :: Game (Array Int) ExtState Int where
     sizeLimit = defaultSizeLimit
     updateScore st = st ∧ true 
 
-data Msg = Core (CoreMsg Int) | SetNbBases Int
-instance withcore :: MsgWithCore Msg Int where core = Core
+data Msg = Core CoreMsg | SetNbBases Int | Play Int
+instance withcore :: MsgWithCore Msg where core = Core
 
 update :: Msg -> Action State EFFS
 update (Core msg) = coreUpdate msg
 update (SetNbBases n) = newGame (_nbBases .~ n)
+update (Play m) = playA m

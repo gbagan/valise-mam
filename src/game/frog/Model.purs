@@ -7,8 +7,9 @@ import Data.Array.NonEmpty (NonEmptyArray, singleton, fromArray, cons) as N
 import Lib.KonamiCode (konamiCode)
 import Pha.Action (Action, setState)
 import Pha.Effects.Random (RNG)
-import Game.Core (class Game, class TwoPlayersGame, Mode(..), GState, SizeLimit(..),
-                _ext, newGame', computerMove', genState, _position, _nbRows)
+import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, Mode(..), GState, SizeLimit(..),
+              playA,  _ext, coreUpdate, newGame, computerMove', genState, _position, _nbRows)
+import Game.Effs (EFFS)
 
 type Ext' = {
     moves :: N.NonEmptyArray Int,  -- la liste des mouvements autorisées (en nombre de cases)
@@ -69,18 +70,21 @@ winningPositions size moves = t <#> force where
 reachableArray :: State -> Array Boolean
 reachableArray state = tabulate (state^._nbRows + 1) (canPlay state)
 
+data Msg = Core CoreMsg | SelectMove Int | Mark Int | Play Int
+instance withcore :: MsgWithCore Msg where core = Core
+
+update :: Msg -> Action State EFFS
+update (Core msg) = coreUpdate msg
 -- ajoute ou enlève un mouvement dans la liste des mouvements permis
-selectMoveA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-selectMoveA = newGame' $ over _moves ∘ selectMove where
+update (SelectMove move) = newGame $ _moves %~ selectMove move where
     selectMove move moves =
         1 .. 5 
         # filter (\m -> (m == move) /= elem m moves)
         # N.fromArray
         # fromMaybe moves
-
 -- place/retire une marque à la position i
-markA :: ∀effs. Int -> Action State effs
-markA i = setState (_marked ∘ ix i %~ not)
+update (Mark i) = setState (_marked ∘ ix i %~ not)
+update (Play i) = playA i
 
 onKeyDown :: ∀effs. String -> Action State effs
 onKeyDown = konamiCode _keySequence (setState \st -> st # _marked .~ st^._winning)

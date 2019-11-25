@@ -3,7 +3,7 @@ module UI.IncDecGrid where
 import MyPrelude
 import Pha (VDom, text, ifN, class_, class')
 import Pha.Elements (div, span)
-import Pha.Attributes (onclick)
+import Pha.Events (onclick)
 import UI.Icon (iconbutton, Icon(..))
 
 type IncDecGridOptions msg = {

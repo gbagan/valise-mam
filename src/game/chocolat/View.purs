@@ -2,12 +2,11 @@ module Game.Chocolat.View  (view) where
   
 import MyPrelude
 import Lib.Util (tabulate2)
-import Game.Effs (EFFS)
-import Game.Core (_position, _nbRows, _nbColumns, possibleMoves, playA)
-import Game.Chocolat.Model (State, Move(..), SoapMode(..), _soap, _soapMode, _moveWhenHover, cutLine, setSoapModeA, setHoverA) 
+import Game.Core (_position, _nbRows, _nbColumns, possibleMoves)
+import Game.Chocolat.Model (State, Msg(..), Move(..), SoapMode(..), _soap, _soapMode, _moveWhenHover, cutLine) 
 import Pha (VDom, text, maybeN, key, class_, class')
 import Pha.Elements (div, span, br)
-import Pha.Attributes (onclick, onpointerenter, onpointerleave)
+import Pha.Events (onclick, onpointerenter, onpointerleave)
 import Pha.Svg (svg, rect, line, circle, use, viewBox, fill, width, height, x_, y_, cx, cy, r, x1, x2, y1, y2)
 import UI.Template (template, card, gridStyle, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icon (Icon(..))
@@ -17,7 +16,7 @@ inside :: State -> Int -> Int -> Boolean
 inside state row col = col >= left && col <= right - 1 && row >= top && row <= bottom - 1
     where {left, right, top, bottom} = state^._position
     
-view :: State -> VDom State EFFS
+view :: State -> VDom Msg
 view state = template _{config=config, board=board, rules=rules, winTitle=winTitle} state where
     pos = state^._position
     rows = state^._nbRows
@@ -27,7 +26,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     config = card "Barre de chocolat" [
         iconSizesGroup state [6∧7] true,
         iconSelectGroup state "Emplacement du savon" [CornerMode, BorderMode, StandardMode] 
-            (state^._soapMode) setSoapModeA \mode opt -> case mode of
+            (state^._soapMode) SetSoapMode \mode opt -> case mode of
                 CornerMode -> opt{icon = IconSymbol "#choc-mode0", tooltip = Just "Dans le coin"}
                 BorderMode -> opt{icon = IconSymbol "#choc-mode1", tooltip = Just "Sur un bord"}
                 StandardMode -> opt{icon = IconSymbol "#choc-mode2", tooltip = Just "N'importe où"},
@@ -41,9 +40,9 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
         r "7",
         key $ "c" <> show (row * (columns + 1) + col), 
         class' "chocolat-cutter" true,
-        onpointerenter $ setHoverA (Just move),
-        onpointerleave $ setHoverA Nothing,
-        onclick $ setHoverA Nothing *> playA move
+        onpointerenter $ SetHover (Just move),
+        onpointerleave $ SetHover Nothing,
+        onclick $ Play move
     ]
 
     grid = div (gridStyle rows columns 3 <> [class' "ui-board" true]) [

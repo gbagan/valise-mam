@@ -4,12 +4,12 @@ import MyPrelude
 import Lib.Util (coords, map2)
 import Pha (Prop, VDom, text, class_, class', key, style)
 import Pha.Elements (div)
-import Pha.Attributes (onclick)
+import Pha.Events (onclick)
 import Pha.Svg (svg, use, width, height)
 import Pha.Util (pc)
 import Game.Core (_position, _nbRows, _nbColumns, _help)
 import Game.Effs (EFFS)
-import Game.Noirblanc.Model (State, _level, _mode, _maxLevels, play2A, selectLevelA, selectModeA)
+import Game.Noirblanc.Model (State, Msg(..), _level, _mode, _maxLevels)
 import UI.Icon (Icon(..), Options)
 import UI.Icons (icongroup, ihelp, ireset, irules, iconSelectGroup)
 import UI.Template (template, card, incDecGrid, gridStyle)
@@ -25,7 +25,7 @@ levelOptions level _ opt = case level of
     5 -> opt{ icon = IconText "NxM", tooltip = Just "Dimensions personnalisées" }
     _ -> opt{ icon = IconSymbol "#lo-rand", tooltip = Just "Grille aléatoire" }
 
-square :: ∀a. Boolean -> Boolean -> Array (Prop a EFFS) -> VDom a EFFS
+square :: ∀a. Boolean -> Boolean -> Array (Prop a) -> VDom a
 square light cross props = 
     div ([class_ "noirblanc-square"] <> props) [
         div [class_ "noirblanc-square-inner", class' "blanc" light] [
@@ -41,16 +41,16 @@ square light cross props =
         ]
     ]
 
-view :: State -> VDom State EFFS
+view :: State -> VDom Msg
 view state = template _{config=config, board=board, rules=rules, winTitle=winTitle} state where
     rows = state^._nbRows
     columns = state^._nbColumns
     position = state^._position
 
     config = card "Tout noir tout blanc" [
-        iconSelectGroup state "Mode jeu" [0, 1, 2, 3] (state^._mode) selectModeA \i ->
+        iconSelectGroup state "Mode jeu" [0, 1, 2, 3] (state^._mode) SelectMode \i ->
             _{icon = IconSymbol $ "#lo-mode" <> show (i + 1)},
-        iconSelectGroup state "Difficulté" [0, 1, 2, 3, 4, 5, 6] (state^._level) selectLevelA \i ->
+        iconSelectGroup state "Difficulté" [0, 1, 2, 3, 4, 5, 6] (state^._level) SelectLevel \i ->
             levelOptions i (Just i > (state^._maxLevels) !! (state^._mode)),
         icongroup "Options" $ [ihelp state, ireset state, irules state]
     ]
@@ -64,7 +64,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                 style "width" $ pc (0.86 / toNumber columns),
                 style "left" $ pc ((toNumber col + 0.07) / toNumber columns),
                 style "top" $ pc ((toNumber row + 0.07) / toNumber rows),
-                onclick $ play2A index
+                onclick $ Play index
             ]
 
     board = incDecGrid state [grid]

@@ -7,8 +7,9 @@ import Lib.KonamiCode (konamiCode)
 import Pha.Action (Action, getState, setState)
 import Pha.Effects.Random (RNG)
 import Pha.Effects.Delay (DELAY)
-import Game.Core (class Game, GState, SizeLimit(..), 
-         _ext, playA, isLevelFinished, _position, _nbColumns, _nbRows, newGame, newGame', genState)
+import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg, 
+         _ext, coreUpdate, playA, isLevelFinished, _position, _nbColumns, _nbRows, newGame, newGame', genState)
+import Game.Effs (EFFS)
 
 type Position = { light :: Array Boolean, played :: Array Boolean }
 type Ext' = {
@@ -84,11 +85,6 @@ instance noirblancGame :: Game { light :: Array Boolean, played :: Array Boolean
 sizes :: Array (Tuple Int Int)
 sizes = [3∧3, 4∧4, 2∧10, 3∧10, 5∧5, 8∧8, 8∧8]
 
-selectModeA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-selectModeA mode = newGame $ (_mode .~ mode) ∘ (_level .~ 0)
-selectLevelA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-selectLevelA = newGame' (set _level)
-
 -- si le niveau est fini, on met à jour les nivaux débloqués
 afterPlay :: ∀effs. Action State (rng :: RNG, delay :: DELAY | effs)
 afterPlay = do
@@ -105,5 +101,11 @@ afterPlay = do
 onKeyDown :: ∀effs. String -> Action State effs
 onKeyDown = konamiCode _keySequence (setState (_maxLevels .~ [6, 6, 6, 6]))
 
-play2A :: ∀effs. Int -> Action State (rng :: RNG, delay :: DELAY | effs)
-play2A i = playA i *> afterPlay
+data Msg = Core CoreMsg | SelectMode Int | SelectLevel Int | Play Int
+instance withcore :: MsgWithCore Msg where core = Core
+
+update :: Msg -> Action State EFFS
+update (Core msg) = coreUpdate msg
+update (SelectMode mode) = newGame $ (_mode .~ mode) ∘ (_level .~ 0)
+update (SelectLevel level) = newGame (_level .~ level)
+update (Play move) = playA move *> afterPlay

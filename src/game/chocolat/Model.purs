@@ -5,8 +5,9 @@ import Lib.Util ((..))
 import Pha.Effects.Random (randomInt)
 import Pha.Action (Action, setState)
 import Pha.Effects.Random (RNG)
-import Game.Core (class Game, class TwoPlayersGame, SizeLimit(..), GState, Mode(..),
-                   _ext, genState, newGame', computerMove', _position, _nbRows, _nbColumns)
+import Game.Effs (EFFS)
+import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, SizeLimit(..), GState, Mode(..),
+                coreUpdate, playA, _ext, genState, newGame, computerMove', _position, _nbRows, _nbColumns)
 
 data Move = FromLeft Int | FromRight Int | FromTop Int | FromBottom Int
 data SoapMode = CornerMode | BorderMode | StandardMode
@@ -80,8 +81,11 @@ cutLine state = case _ of
     FromBottom i -> {x1: left, y1: i, x2: right, y2: i}
     where {left, right, top, bottom} = state^._position
 
-setHoverA :: ∀effs. Maybe Move -> Action State effs
-setHoverA a = setState (_moveWhenHover .~ a) 
-
-setSoapModeA :: ∀effs. SoapMode -> Action State (rng :: RNG | effs)
-setSoapModeA = newGame' (set _soapMode)
+data Msg = Core CoreMsg | SetHover (Maybe Move) | SetSoapMode SoapMode | Play Move
+instance withcore :: MsgWithCore Msg where core = Core
+    
+update :: Msg -> Action State EFFS
+update (Core msg) = coreUpdate msg
+update (SetHover a) = setState (_moveWhenHover .~ a) 
+update (SetSoapMode m) = newGame (_soapMode .~ m)
+update (Play move) = setState (_moveWhenHover .~ Nothing) *> playA move

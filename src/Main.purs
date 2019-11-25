@@ -14,13 +14,13 @@ import Pha.Svg (svg, use, width, height)
 import Pha.Event (key) as E
 import Game.Effs (EFFS, getLocation, interpretEffects)
 import Game.Baseball as Baseball
---import Game.Chocolat (State, state) as Chocolat
---import Game.Dessin (State, state) as Dessin
---import Game.Frog (State, state) as Frog
+import Game.Chocolat as Chocolat
+import Game.Dessin as Dessin
+import Game.Frog as Frog
 --import Game.Jetons (State, state) as Jetons
 --import Game.Labete (State, state) as Labete
 import Game.Nim as Nim
---import Game.Noirblanc (State, state) as Noirblanc
+import Game.Noirblanc as Noirblanc
 --import Game.Paths (State, state) as Paths
 --import Game.Queens (State, state) as Queens
 --import Game.Roue (State, state) as Roue
@@ -38,13 +38,13 @@ extractLocation url defaultValue =
 
 type RootState = {
     baseball :: Baseball.State,
---    chocolat :: Chocolat.State,
---    dessin :: Dessin.State,
---    frog :: Frog.State,
+    chocolat :: Chocolat.State,
+    dessin :: Dessin.State,
+    frog :: Frog.State,
 --    jetons :: Jetons.State,
 --    labete :: Labete.State,
     nim :: Nim.State,
---    noirblanc :: Noirblanc.State,
+    noirblanc :: Noirblanc.State,
 --    paths :: Paths.State,
 --    queens :: Queens.State,
 --    roue :: Roue.State,
@@ -59,19 +59,23 @@ type RootState = {
 
 data Msg =
       BaseballMsg Baseball.Msg
+    | ChocolatMsg Chocolat.Msg
+    | DessinMsg Dessin.Msg
+    | FrogMsg Frog.Msg
     | NimMsg Nim.Msg
+    | NoirblancMsg Noirblanc.Msg
 
 _baseball :: Lens' RootState Baseball.State
 _baseball = lens _.baseball _{baseball = _}
 
---_chocolat :: Lens' RootState Chocolat.State
---_chocolat = lens _.chocolat _{chocolat = _}
+_chocolat :: Lens' RootState Chocolat.State
+_chocolat = lens _.chocolat _{chocolat = _}
 
---_dessin :: Lens' RootState Dessin.State
---_dessin = lens _.dessin _{dessin = _}
+_dessin :: Lens' RootState Dessin.State
+_dessin = lens _.dessin _{dessin = _}
 
---_frog :: Lens' RootState Frog.State
---_frog = lens _.frog _{frog = _}
+_frog :: Lens' RootState Frog.State
+_frog = lens _.frog _{frog = _}
 
 --_jetons :: Lens' RootState Jetons.State
 --_jetons = lens _.jetons _{jetons = _}
@@ -82,8 +86,8 @@ _baseball = lens _.baseball _{baseball = _}
 _nim :: Lens' RootState Nim.State
 _nim = lens _.nim _{nim = _}
 
---_noirblanc :: Lens' RootState Noirblanc.State
---_noirblanc = lens _.noirblanc _{noirblanc = _}
+_noirblanc :: Lens' RootState Noirblanc.State
+_noirblanc = lens _.noirblanc _{noirblanc = _}
 
 --_paths :: Lens' RootState Paths.State
 --_paths = lens _.paths _{paths = _}
@@ -126,19 +130,23 @@ hashChange _ = do
     
 
 update :: Msg -> Action RootState EFFS
-update (BaseballMsg msg) = actionOver _baseball (Baseball.update msg)
-update (NimMsg msg)      = actionOver _nim (Nim.update msg)
+update (BaseballMsg msg)  = actionOver _baseball (Baseball.update msg)
+update (ChocolatMsg msg)  = actionOver _chocolat (Chocolat.update msg)
+update (DessinMsg msg)    = actionOver _dessin (Dessin.update msg)
+update (FrogMsg msg)      = actionOver _frog (Frog.update msg)
+update (NimMsg msg)       = actionOver _nim (Nim.update msg)
+update (NoirblancMsg msg) = actionOver _noirblanc (Noirblanc.update msg)
 
 init :: Action RootState EFFS
 init = do
     actionOver _baseball Baseball.init
-    --actionOver _chocolat G.init
-    --actionOver _dessin G.init
-    --actionOver _frog G.init
+    actionOver _chocolat Chocolat.init
+    actionOver _dessin Dessin.init
+    actionOver _frog Frog.init
     --actionOver _jetons G.init
     --actionOver _labete G.init
     actionOver _nim Nim.init
-    --actionOver _noirblanc G.init
+    actionOver _noirblanc Noirblanc.init
     --actionOver _paths G.init
     --actionOver _queens G.init
     --actionOver _roue G.init
@@ -195,19 +203,22 @@ view st = div [
 viewGame :: RootState -> VDom Msg
 viewGame st = case st.location of
     "baseball" -> Baseball.view st.baseball <#> BaseballMsg
-    _ -> Nim.view st.nim <#> NimMsg
- --   "dessin" -> fn _dessin
+    "chocolat" -> Chocolat.view st.chocolat <#> ChocolatMsg
+    "dessin" -> Dessin.view st.dessin <#> DessinMsg
+    "frog" -> Frog.view st.frog <#> FrogMsg
+    "nim" -> Nim.view st.nim <#> NimMsg
+    _ -> Noirblanc.view st.noirblanc <#> NoirblancMsg
 
 state :: RootState
 state = {
     baseball: Baseball.istate,
- --   chocolat: Chocolat.state,
- --   dessin: Dessin.state,
---    frog: Frog.state,
+    chocolat: Chocolat.istate,
+    dessin: Dessin.istate,
+    frog: Frog.istate,
 --    jetons: Jetons.state,
 --    labete: Labete.state,
-     nim: Nim.istate,
---    noirblanc: Noirblanc.state,
+    nim: Nim.istate,
+    noirblanc: Noirblanc.istate,
 --    paths: Paths.state,
 --    queens: Queens.state,
 --    roue: Roue.state,

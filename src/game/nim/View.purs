@@ -2,11 +2,11 @@ module Game.Nim.View where
 import MyPrelude
 import Pha (VDom, text, class_, class', key, style)
 import Pha.Elements (div, span, br)
-import Pha.Attributes ( onclick)
+import Pha.Events ( onclick)
 import Pha.Svg (svg, rect, use, fill, viewBox, x_, y_, width, height)
 import Pha.Util (translate)
 import Lib.Util (tabulate)
-import Game.Core (Turn(..), canPlay, core, CoreMsg(Play), isLevelFinished, _position, _turn)
+import Game.Core (Turn(..), canPlay, isLevelFinished, _position, _turn)
 import Game.Nim.Model (State, Msg(..), Move(..), _nbPiles, _length)
 import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset, irules)
@@ -43,7 +43,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                         x_ "-2.5", y_ "-2.5", width "5", height "5",
                         key $ "base-" <> show i <> "-" <> show j,
                         fill "gray",
-                        onclick $ core (Play (Move i j)),
+                        onclick $ Play (Move i j),
                         style "transform" $
                             translate (px' $ (if length == 5 then 30 else 5) + 10 * j) (px' $ 15 + 19 * i) <>
                             " rotate(45deg)",

@@ -3,7 +3,7 @@ import MyPrelude
 import Data.List (null) as L
 import Pha (VDom, Prop, text, class_)
 import Pha.Elements (div, h2)
-import Pha.Attributes (onclick)
+import Pha.Events (onclick)
 import Game.Core (GState, class Game, class ScoreGame, Dialog(..), Mode(..), bestScore,
                 class MsgWithCore, core, CoreMsg(..),
                 _help, _dialog, _history, _redoHistory, _mode, _nbRows, _nbColumns, _locked, _customSize)
@@ -28,7 +28,7 @@ iconSelect lens state selection action value optionFn =
     iconbutton state (\opt -> optionFn $ opt{selected = value == selection}) [click $ lens 🔍 action value]
 -}
 
-iundo :: ∀msg pos ext mov. MsgWithCore msg mov => GState pos ext -> VDom msg
+iundo :: ∀msg pos ext. MsgWithCore msg => GState pos ext -> VDom msg
 iundo state =
     iconbutton
         state
@@ -37,7 +37,7 @@ iundo state =
            disabled = L.null (state^._history)}
         [onclick $ core Undo]
 
-iredo :: ∀msg pos ext mov. MsgWithCore msg mov => GState pos ext -> VDom msg
+iredo :: ∀msg pos ext. MsgWithCore msg => GState pos ext -> VDom msg
 iredo state =
     iconbutton
         state
@@ -47,21 +47,21 @@ iredo state =
             style = ["transform" ∧ "scaleX(-1)"]}
         [onclick $ core Redo]
 
-ireset :: ∀msg pos ext mov. MsgWithCore msg mov => GState pos ext -> VDom msg
+ireset :: ∀msg pos ext. MsgWithCore msg => GState pos ext -> VDom msg
 ireset state =
     iconbutton
         state
         _{icon = I.IconSymbol "#reset", tooltip = Just "Recommence la partie", disabled = L.null (state^._history)}
         [onclick $ core Reset]
 
-ihelp :: ∀msg pos ext mov. MsgWithCore msg mov => GState pos ext -> VDom msg
+ihelp :: ∀msg pos ext. MsgWithCore msg => GState pos ext -> VDom msg
 ihelp state =
     iconbutton
         state
         _{icon = I.IconSymbol "#help", tooltip = Just "Aide", selected = state^._help}
         [onclick $ core ToggleHelp]
 
-irules :: ∀msg pos ext mov. MsgWithCore msg mov => GState pos ext -> VDom msg
+irules :: ∀msg pos ext. MsgWithCore msg => GState pos ext -> VDom msg
 irules state =
     iconbutton
         state
@@ -91,7 +91,7 @@ iconSelectGroupM state title values selected action optionFn =
             selected = elem val selected
         }) [onclick (action val)]
 
-iconSizesGroup :: ∀msg pos ext mov. MsgWithCore msg mov =>
+iconSizesGroup :: ∀msg pos ext. MsgWithCore msg =>
     GState pos ext -> Array (Tuple Int Int) -> Boolean -> VDom msg
 iconSizesGroup state sizeList customSize =
     icongroup "Dimensions de la grille" $
@@ -109,7 +109,7 @@ iconSizesGroup state sizeList customSize =
     ccols = state^._nbColumns
     csize = state^._customSize
 
-icons2Players :: ∀msg pos ext mov. MsgWithCore msg mov => Game pos ext mov => GState pos ext -> VDom msg
+icons2Players :: ∀msg pos ext mov. MsgWithCore msg => Game pos ext mov => GState pos ext -> VDom msg
 icons2Players state =
     icongroup "Mode de jeu" [
         iconbutton

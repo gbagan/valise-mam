@@ -3,7 +3,9 @@ import MyPrelude
 import Lib.Util (pairwise)
 import Pha.Action (Action)
 import Pha.Effects.Random (RNG)
-import Game.Core (class Game, GState, _ext, genState, newGame', _position, defaultSizeLimit)
+import Game.Core (class Game, class MsgWithCore, CoreMsg, GState,
+                  playA, coreUpdate, _ext, genState, newGame, _position, defaultSizeLimit)
+import Game.Effs (EFFS)
 
 data Edge = Edge Int Int
 infix 3 Edge as ↔
@@ -112,5 +114,10 @@ instance gameDessin :: Game (Array (Maybe Int)) ExtState (Maybe Int) where
 nbRaises :: State -> Int
 nbRaises = length ∘ filter isNothing ∘ view _position
 
-setGraphIndexA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-setGraphIndexA = newGame' (set _graphIndex)
+data Msg = Core CoreMsg | SetGraphIndex Int | Play (Maybe Int)
+instance withcore :: MsgWithCore Msg where core = Core
+    
+update :: Msg -> Action State EFFS
+update (Core msg) = coreUpdate msg
+update (SetGraphIndex i) = newGame (_graphIndex .~ i)
+update (Play m) = playA m

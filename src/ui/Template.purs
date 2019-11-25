@@ -2,6 +2,7 @@ module UI.Template where
 import MyPrelude
 import Pha (VDom, Prop, text, emptyNode, maybeN, class_, class', style)
 import Pha.Elements (div)
+import Pha.Events (on, onpointerleave)
 --import Pha.Attributes (onpointerup, onpointerdown', onpointerleave, onpointermove')
 import Pha.Util (pc, translate)
 import Game.Core (class Game, class ScoreGame, GState, Mode(..), Turn(..), SizeLimit(..), Dialog(..),
@@ -9,9 +10,11 @@ import Game.Core (class Game, class ScoreGame, GState, Mode(..), Turn(..), SizeL
          canPlay, isLevelFinished, sizeLimit, bestScore, setGridSizeA, confirmNewGameA, dropA,
         class MsgWithCore, core, CoreMsg(..)
         )
+import Game.Common (pointerDecoder)
 import UI.Dialog (dialog) as D
 import UI.IncDecGrid (incDecGrid) as U
-import Game.Effs (Position)
+type Position = { x :: Number, y :: Number }
+-- import Game.Effs (Position)
 
 winPanel :: ∀a. String -> Boolean -> VDom a
 winPanel title visible =
@@ -30,7 +33,7 @@ card title children =
         div [class_ "ui-card-body"] children
     ]
 
-incDecGrid :: ∀msg pos ext mov. MsgWithCore msg mov => Game pos ext mov =>
+incDecGrid :: ∀msg pos ext mov. MsgWithCore msg => Game pos ext mov =>
     GState pos ext -> Array (VDom msg) -> VDom msg
 incDecGrid state = U.incDecGrid {
     locked: state^._locked,
@@ -62,16 +65,16 @@ defaultElements = {
     scoreDialog: \_ -> emptyNode
 }
 
-dialog :: ∀msg mov. MsgWithCore msg mov => String -> Array (VDom msg) -> VDom msg
+dialog :: ∀msg. MsgWithCore msg => String -> Array (VDom msg) -> VDom msg
 dialog title = D.dialog {title, onCancel: Nothing, onOk: Just $ core SetNoDialog}
-{-
-bestScoreDialog :: ∀pos ext mov effs. ScoreGame pos ext mov => GState pos ext
-                                  -> (pos -> Array (VDom (GState pos ext) effs)) -> VDom (GState pos ext) effs
+
+bestScoreDialog :: ∀msg pos ext mov. MsgWithCore msg => ScoreGame pos ext mov =>  
+            GState pos ext -> (pos -> Array (VDom msg)) -> VDom msg
 bestScoreDialog state children = maybeN $ bestScore state <#> snd <#> \pos ->
     dialog "Meilleur score" (children pos)
--}
 
-template :: ∀msg pos ext mov. MsgWithCore msg mov => Game pos ext mov =>
+
+template :: ∀msg pos ext mov. MsgWithCore msg => Game pos ext mov =>
             (Elements msg -> Elements msg) -> GState pos ext -> VDom msg
 template elemFn state =
     div [] [
@@ -102,9 +105,6 @@ gridStyle rows columns limit = [style "height" $ pc (toNumber rows / m),
                                 style "width" $ pc (toNumber columns / m)]
     where m = toNumber $ max limit $ max rows columns        
 
---setPointerPositionA :: ∀pos ext effs. (Maybe Position) -> Action (GState pos ext) effs
---setPointerPositionA a = setState (_pointer .~ a)
-
 cursorStyle :: ∀a. Position -> Int -> Int -> Number -> Array (Prop a)
 cursorStyle {x, y} rows columns size = [
     style "left" $ pc x,
@@ -118,18 +118,17 @@ svgCursorStyle {x, y} = [
     style "transform" $ translate (pc x) (pc y)
 ]
 
-{-
 -- style à appliquer sur l'élément DOM représentant le plateau
 -- permet de mémoriser la position du pointeur
-trackPointer :: ∀pos ext. Array (Prop (GState pos ext) EFFS)
+trackPointer :: ∀msg. MsgWithCore msg => Array (Prop msg)
 trackPointer = [
     style "touch-action" "none",
-    onpointermove' move,
-    onpointerleave $ setState (_pointer .~ Nothing),
-    onpointerdown' move
+    on "pointermove" move,
+    onpointerleave $ core (SetPointer Nothing),
+    on "pointerdown" move
 ] where
-    move ev = getPointerPosition ev >>= setPointerPositionA
-
+    move e = core <$> (SetPointer <$> Just <$> pointerDecoder e)
+{-
 -- même chose que trackPointer mais gère le drag and drop par l'intermédiaire d'un lens
 dndBoardProps :: ∀pos ext dnd. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>
     Lens' (GState pos ext) (Maybe dnd) -> Array (Prop (GState pos ext) EFFS)

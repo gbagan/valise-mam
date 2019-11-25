@@ -3,7 +3,7 @@ import MyPrelude
 import Pha.Action (Action)
 import Pha (VDom, text, class_)
 import Pha.Elements (div, button)
-import Pha.Attributes (onclick)
+import Pha.Events (onclick)
 
 type DialogOptions a = {
     title :: String,

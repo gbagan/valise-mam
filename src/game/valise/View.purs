@@ -1,26 +1,27 @@
 module Game.Valise.View where
 import MyPrelude
-import Game.Effs (EFFS)
-import Game.Valise.Model (State, showHelpA, setDragA, moveObjectA, toggleSwitchA, _positions)
-import Pha (VDom, h, text, maybeN, class', attr, style)
+import Game.Valise.Model (State, Msg(..), _positions)
+import Pha (VDom, h, text, (<??>), class_, class', attr, style)
 import Pha.Elements (div, a)
-import Pha.Attributes (href, onclick, onpointermove', onpointerenter, onpointerleave, onpointerup, onpointerdown)
+import Pha.Attributes (href)
+import Pha.Events (onclick, on, onpointerenter, onpointerleave, onpointerup, onpointerdown')
 import Pha.Util (pc, translate)
 import Pha.Svg (svg, use, g, rect, width, height, x_, y_, viewBox, fill, transform)
+import Game.Common (pointerDecoder)
 
-valise :: State -> VDom State EFFS
+valise :: State -> VDom Msg
 valise state = svg [
     viewBox 0 0 825 690,
-    onpointermove' moveObjectA,
-    onpointerup $ setDragA Nothing
+    on "pointermove" $ pointerDecoder >>> (map MoveObject),
+    onpointerup $ SetDrag Nothing
 ][
-    h "use" [href "#valise", class' "valise-close" true, width "100%", height "100%"] [], 
+    h "use" [href "#valise", class_ "valise-close", width "100%", height "100%"] [], 
 
-    g [class' "valise-open" true] [
+    g [class_ "valise-open"] [
         h "use" [href "#openvalise"] [],
 
         object { symbol: "switch", link: Nothing, help: "", drag: false } 
-            300 460 42 60 [onclick toggleSwitchA,
+            300 460 42 60 [onclick ToggleSwitch,
                           style "transform" (if state.isSwitchOn then "scale(1,-1) translateY(-8%)" else "scale(1,1)")
                         ] [],
 
@@ -92,49 +93,49 @@ valise state = svg [
         ] [
             g props [
                 svg ([
-                    class' "valise-object" true,
+                    class_ "valise-object",
                     style "touch-action" "none",
                     class' "draggable" drag,
                     width $ show w',
                     height $ show h',
-                    onpointerdown $ if drag then 
-                            setDragA (Just {name: symbol, x: toNumber w' / 1650.0, y: toNumber h' / 1380.0})
+                    onpointerdown' $ if drag then 
+                            Just $ SetDrag (Just {name: symbol, x: toNumber w' / 1650.0, y: toNumber h' / 1380.0})
                         else
-                            pure unit
+                            Nothing
                 ] <> if isJust link then [] else [
-                        onpointerenter $ showHelpA help,
-                        onpointerleave $ showHelpA ""
+                        onpointerenter $ (ShowHelp help),
+                        onpointerleave $ (ShowHelp "")
                 ]) [ 
                     h "use" [
-                        href $ "#" <> symbol, class' "valise-symbol" true
+                        href $ "#" <> symbol, class_ "valise-symbol"
                     ] [],
-                    maybeN $ link <#> \l -> a [ href $ "#" <> l] [
+                    link <??> \l -> a [ href $ "#" <> l] [
                         rect ([
                             width "100%",
                             height "100%",
-                            class' "valise-object-link" true, 
+                            class_ "valise-object-link", 
                             fill "transparent",
-                            onpointerenter $ showHelpA help,
-                            onpointerleave $ showHelpA ""
+                            onpointerenter $ ShowHelp help,
+                            onpointerleave $ ShowHelp ""
                         ] <> children)
                     ]
                 ]
             ]
         ]
 
-view :: State -> VDom State EFFS 
+view :: State -> VDom Msg 
 view state = div [
-    class' "ui-flex-center valise-main-container" true,
+    class_ "ui-flex-center valise-main-container",
     class' "open" state.isOpen
 ] [
     div [] [
-        div [class' "valise-logo" true] [
+        div [class_ "valise-logo"] [
             svg [width "100%", height "100%"] [use "#logo" []]
         ],
-        div [class' "valise-container" true] [
+        div [class_ "valise-container"] [
             valise state,
             div [
-                class' "valise-help" true,
+                class_ "valise-help",
                 class' "visible" (state.helpVisible && state.help /= "")
             ] [text state.help] 
         ]

@@ -1,8 +1,13 @@
-module Game.Baseball (module M, init) where
+module Game.Baseball (module M, game) where
 import Game.Baseball.Model (State, Msg, update, istate) as M
 import Game.Baseball.View (view) as M
-import Pha.Action (Action)
-import Game.Effs (EFFS)
-import Game.Core (init) as C
-init :: Action M.State EFFS
-init = C.init
+import MyPrelude
+import Game.Core (core, CoreMsg(Init))
+import Game.Generic (GenericGame)
+
+game :: GenericGame M.State M.Msg
+game = {
+    init: Just (core Init),
+    view: M.view,
+    onKeydown: const Nothing
+}

@@ -3,19 +3,19 @@ module Game.Labete.View (view) where
 import MyPrelude
 import Lib.Util (coords, map3)
 import Math (abs)
-import Pha (VDom, Prop, text, ifN, maybeN, key, attr, class_, class', style)
+import Pha (VDom, Prop, text, (<?>), maybeN, key, attr, class_, class', style)
 import Pha.Elements (div, br)
 import Pha.Events (on', onclick, onpointerdown, onpointerup, onpointerleave)
 import Pha.Events.Decoder (shiftKey)
 import Pha.Svg (svg, g, rect, use, fill, stroke, x_, y_, width, height, strokeWidth, transform, viewBox)
 import Pha.Util (pc, translate)
-import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, playA, scoreFn)
+import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, scoreFn)
 import Game.Common (pointerDecoder, _isoCustom)
 import Game.Labete.Model (State, Msg(..), Mode(..), BeastType(..), nonTrappedBeastOnGrid,
                           _mode, _beast, _beastType, _selectedColor, _startPointer, _squareColors)
 import UI.Template (template, card, dialog, bestScoreDialog, incDecGrid, gridStyle, trackPointer, svgCursorStyle)
 import UI.Icon (Icon(..))
-import UI.Icons (iconbutton, icongroup, iconSelectGroup, iconSizesGroup, {- iconBestScore, -} ireset, irules)
+import UI.Icons (iconbutton, icongroup, iconSelectGroup, iconSizesGroup, iconBestScore, ireset, irules)
 
 colors :: Array String
 colors = ["#5aa02c", "blue", "red", "yellow", "magenta", "cyan", "orange", "darkgreen", "grey"]
@@ -43,7 +43,7 @@ square { color, hasTrap, hasBeast, row, col } props =
         use "#grass" [width "50", height "50", fill $ colors !! color # fromMaybe ""],
         rect [width "51", height "51", stroke "black", strokeWidth "0.5", fill "transparent"],
         use "#paw" [x_ "5", y_ "5", width "40", height "40", class_ "labete-beast", class' "visible" hasBeast],
-        ifN hasTrap \_ ->
+        hasTrap <?> \_ ->
             use "#trap" [x_ "5", y_ "5", width "40", height "40"]
     ]
 
@@ -79,8 +79,8 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
 
         iconSizesGroup state [3∧3, 5∧5, 6∧6] true,
 
-        icongroup "Options" $ [ihelp state, ireset state, irules state]
-        --iconBestScore state
+        icongroup "Options" $ [ihelp state, ireset state, irules state],
+        iconBestScore state
     ]
 
     rules = [
@@ -103,7 +103,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     grid = div (gridStyle rows columns 5 <> trackPointer <> [class_ "ui-board",
         on' "onpointerdown" $ \ev -> shiftKey ev >>= (if _ then
                             Just <$> StartZone2 <$> pointerDecoder ev
-                        else 
+                        else
                             pure Nothing
                         )
     ]) [
@@ -128,15 +128,15 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
 
     board = incDecGrid state [
         grid,
-        ifN (state^._selectedColor > 0) \_ ->
+        state^._selectedColor > 0 <?> \_ ->
             div [
-                class' "labete-color" true,
+                class_ "labete-color",
                 style "background-color" $ colors !! (state^._selectedColor) # fromMaybe ""
             ][]
     ]
 
     customDialog _ = dialog "Personnalise ta bête" [
-        div [class' "labete-custombeast-grid-container" true] [ 
+        div [class_ "labete-custombeast-grid-container"] [ 
             svg [viewBox 0 0 250 250] (
                 state ^. (_beast ∘ ix 0 ∘ _isoCustom) #
                     mapWithIndex \index hasBeast ->
@@ -150,8 +150,8 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     ]
 
     scoreDialog _ = bestScoreDialog state \position -> [
-        div [class' "ui-flex-center labete-bestscore-grid-container" true] [
-            div (gridStyle rows columns 5 <> [class' "ui-board" true])  [
+        div [class_ "ui-flex-center labete-bestscore-grid-container"] [
+            div (gridStyle rows columns 5 <> [class_ "ui-board"])  [
                 svg [viewBox 0 0 (50 * columns) (50 * rows)] (
                     position # mapWithIndex \index hasTrap ->
                         let {row, col} = coords columns index in

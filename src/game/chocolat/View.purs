@@ -4,7 +4,7 @@ import MyPrelude
 import Lib.Util (tabulate2)
 import Game.Core (_position, _nbRows, _nbColumns, possibleMoves)
 import Game.Chocolat.Model (State, Msg(..), Move(..), SoapMode(..), _soap, _soapMode, _moveWhenHover, cutLine) 
-import Pha (VDom, text, maybeN, key, class_, class')
+import Pha (VDom, text, (<??>), key, class_, class')
 import Pha.Elements (div, span, br)
 import Pha.Events (onclick, onpointerenter, onpointerleave)
 import Pha.Svg (svg, rect, line, circle, use, viewBox, fill, width, height, x_, y_, cx, cy, r, x1, x2, y1, y2)
@@ -39,13 +39,13 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
         cy $ show (50.0 * toNumber row),
         r "7",
         key $ "c" <> show (row * (columns + 1) + col), 
-        class' "chocolat-cutter" true,
+        class_ "chocolat-cutter",
         onpointerenter $ SetHover (Just move),
         onpointerleave $ SetHover Nothing,
         onclick $ Play move
     ]
 
-    grid = div (gridStyle rows columns 3 <> [class' "ui-board" true]) [
+    grid = div (gridStyle rows columns 3 <> [class_ "ui-board"]) [
         svg [viewBox (-7) (-7) (50 * columns + 14) (50 * rows + 14)] (
             concat [
                 tabulate2 rows columns \row col ->
@@ -55,7 +55,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                         width "36",
                         height "36",
                         key $ "choc" <> show (row * columns + col),
-                        class' "chocolat-square" true,
+                        class_ "chocolat-square",
                         class' "soap" (row == soapRow && col == soapCol),
                         class' "hidden" $ not (inside state row col)
                     ],
@@ -72,7 +72,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                         key "skull",
                         fill "#20AF20"
                     ],
-                    maybeN $ state^._moveWhenHover <#> \m ->
+                    state^._moveWhenHover <??> \m ->
                         let {x1: px1, x2: px2, y1: py1, y2: py2} = cutLine state m
                         in line [
                             x1 $ show (50 * px1),
@@ -89,7 +89,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
 
     board = incDecGrid state [
         grid,
-        span [class' "frog-turn-message" true] [text (turnMessage state)]
+        span [class_ "frog-turn-message"] [text (turnMessage state)]
     ]
             
     rules = [text "A chaque tour de ce jeu, tu peux déplacer une pile de jetons vers une case adjacente", br,

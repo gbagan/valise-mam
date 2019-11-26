@@ -6,7 +6,6 @@ import Lib.Util (tabulate, (..))
 import Data.Array.NonEmpty (NonEmptyArray, singleton, fromArray, cons) as N
 import Lib.KonamiCode (konamiCode)
 import Pha.Action (Action, setState)
-import Pha.Effects.Random (RNG)
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, Mode(..), GState, SizeLimit(..),
               playA,  _ext, coreUpdate, newGame, computerMove', genState, _position, _nbRows)
 import Game.Effs (EFFS)
@@ -76,8 +75,8 @@ instance withcore :: MsgWithCore Msg where core = Core
 update :: Msg -> Action State EFFS
 update (Core msg) = coreUpdate msg
 -- ajoute ou enlève un mouvement dans la liste des mouvements permis
-update (SelectMove move) = newGame $ _moves %~ selectMove move where
-    selectMove move moves =
+update (SelectMove move) = newGame $ _moves %~ selectMove where
+    selectMove moves =
         1 .. 5 
         # filter (\m -> (m == move) /= elem m moves)
         # N.fromArray

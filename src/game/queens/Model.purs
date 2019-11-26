@@ -2,11 +2,12 @@ module Game.Queens.Model where
 import MyPrelude
 import Lib.Util (tabulate, dCoords, map2)
 import Data.Array.NonEmpty (NonEmptyArray, fromArray, head, singleton) as N
-import Game.Core (GState, class Game, class ScoreGame, Objective(..), Dialog(..), SizeLimit(..), ShowWinStrategy(..),
-                  _ext, updateScore', genState, newGame, _dialog, _position, _nbRows, _nbColumns)
+import Game.Core (GState, class MsgWithCore, class Game, class ScoreGame, 
+                 CoreMsg, Objective(..), Dialog(..), SizeLimit(..), ShowWinStrategy(..),
+                coreUpdate, playA, genState, newGame,  updateScore',
+                _ext, _dialog, _position, _nbRows, _nbColumns)
 import Pha.Action (Action, setState)
-import Pha.Effects.Random (RNG)
-import Pha.Effects.Delay (DELAY)
+import Game.Effs (EFFS)
 
 piecesList :: Array Piece
 piecesList = [Rook, Bishop, King, Knight, Queen]
@@ -98,6 +99,11 @@ attackedBySelected state = case state^._selectedSquare of
     Nothing -> replicate (state^._nbRows * state^._nbColumns) false
     Just index -> attackedBy state (state^._selectedPiece) index 
 
+toggleAllowedPiece :: Piece ->  Boolean ->  N.NonEmptyArray Piece -> N.NonEmptyArray Piece
+toggleAllowedPiece piece false pieces = N.singleton piece
+toggleAllowedPiece piece true pieces = N.fromArray pieces2 # fromMaybe pieces where
+    pieces2 = piecesList # filter \p2 -> (p2 == piece) /= elem p2 pieces
+
 instance queensGame :: Game (Array Piece) Ext Int where 
     play state index = 
         let selectedPiece = state^._selectedPiece
@@ -119,28 +125,17 @@ instance queensScoreGame :: ScoreGame (Array Piece) Ext Int where
     scoreHash state = joinWith "-" [show (state^._nbRows), show (state^._nbColumns), show (N.head $ state^._allowedPieces)]
     isCustomGame state = state^._multiPieces || N.head (state^._allowedPieces) == Custom
 
-toggleAllowedPiece :: Piece ->  Boolean ->  N.NonEmptyArray Piece -> N.NonEmptyArray Piece
-toggleAllowedPiece piece false pieces = N.singleton piece
-toggleAllowedPiece piece true pieces = N.fromArray pieces2 # fromMaybe pieces where
-    pieces2 = piecesList # filter \p2 -> (p2 == piece) /= elem p2 pieces
-    
-selectPieceA :: ∀effs. Piece -> Action State effs
-selectPieceA piece = setState (_selectedPiece .~ piece)
-
-selectSquareA :: ∀effs. Maybe Int -> Action State effs
-selectSquareA a = setState (_selectedSquare .~ a)
-
-selectAllowedPieceA :: ∀effs. Piece -> Action State (rng :: RNG, delay :: DELAY | effs)
-selectAllowedPieceA piece = newGame $ \state -> state # _allowedPieces %~ toggleAllowedPiece piece (state^._multiPieces)
-
-toggleMultiPiecesA :: ∀effs. Action State effs
-toggleMultiPiecesA = setState (_multiPieces %~ not)
-
-flipDirectionA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-flipDirectionA direction = newGame (_customDirections ∘ ix direction %~ not)
-
-flipLocalMoveA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-flipLocalMoveA position = newGame (_customLocalMoves ∘ ix position %~ not)
-
-customizeA :: ∀effs. Action State (rng :: RNG | effs)
-customizeA = newGame $ (_allowedPieces .~ N.singleton Custom) ∘ (_dialog .~ CustomDialog) ∘ (_multiPieces .~ false)
+data Msg = Core CoreMsg | Play Int | SelectPiece Piece | SelectSquare (Maybe Int) | SelectAllowedPiece Piece | ToggleMultiPieces
+          | FlipDirection Int | FlipLocalMove Int | Customize
+instance withcore :: MsgWithCore Msg where core = Core
+        
+update :: Msg -> Action State EFFS
+update (Core msg) = coreUpdate msg
+update (Play i) = playA i
+update (SelectPiece piece) = setState (_selectedPiece .~ piece)
+update (SelectSquare a) = setState (_selectedSquare .~ a)
+update (SelectAllowedPiece piece) = newGame $ \state -> state # _allowedPieces %~ toggleAllowedPiece piece (state^._multiPieces)
+update ToggleMultiPieces = setState (_multiPieces %~ not)
+update (FlipDirection direction) = newGame (_customDirections ∘ ix direction %~ not)
+update (FlipLocalMove position) = newGame (_customLocalMoves ∘ ix position %~ not)
+update Customize = newGame $ (_allowedPieces .~ N.singleton Custom) ∘ (_dialog .~ CustomDialog) ∘ (_multiPieces .~ false)

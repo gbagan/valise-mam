@@ -1,14 +1,14 @@
 module UI.Template where
 import MyPrelude
-import Pha (VDom, Prop, text, emptyNode, maybeN, class_, class', style)
+import Pha (VDom, Prop, text, emptyNode, (<??>), class_, class', style)
 import Pha.Elements (div)
-import Pha.Events (on, onpointerleave)
+import Pha.Events (on, onpointerup, onpointerup', onpointerdown', onpointerleave)
 --import Pha.Attributes (onpointerup, onpointerdown', onpointerleave, onpointermove')
 import Pha.Util (pc, translate)
 import Game.Core (class Game, class ScoreGame, GState, Mode(..), Turn(..), SizeLimit(..), Dialog(..),
-         _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _pointer, _locked, 
-         canPlay, isLevelFinished, sizeLimit, bestScore, setGridSizeA, confirmNewGameA, dropA,
-        class MsgWithCore, core, CoreMsg(..)
+         _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _locked, 
+        isLevelFinished, sizeLimit, bestScore, canPlay,
+        class MsgWithCore, core, CoreMsg(..), class MsgWithDnd, dndmsg, DndMsg(..)
         )
 import Game.Common (pointerDecoder)
 import UI.Dialog (dialog) as D
@@ -70,7 +70,7 @@ dialog title = D.dialog {title, onCancel: Nothing, onOk: Just $ core SetNoDialog
 
 bestScoreDialog :: ∀msg pos ext mov. MsgWithCore msg => ScoreGame pos ext mov =>  
             GState pos ext -> (pos -> Array (VDom msg)) -> VDom msg
-bestScoreDialog state children = maybeN $ bestScore state <#> snd <#> \pos ->
+bestScoreDialog state children = snd <$> bestScore state <??> \pos ->
     dialog "Meilleur score" (children pos)
 
 
@@ -78,7 +78,7 @@ template :: ∀msg pos ext mov. MsgWithCore msg => Game pos ext mov =>
             (Elements msg -> Elements msg) -> GState pos ext -> VDom msg
 template elemFn state =
     div [] [
-        div [class' "main-container" true] [
+        div [class_ "main-container"] [
             div [] [board, winPanel winTitle (state^._showWin)],
             config
         ],
@@ -128,32 +128,32 @@ trackPointer = [
     on "pointerdown" move
 ] where
     move e = core <$> (SetPointer <$> Just <$> pointerDecoder e)
-{-
--- même chose que trackPointer mais gère le drag and drop par l'intermédiaire d'un lens
-dndBoardProps :: ∀pos ext dnd. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>
-    Lens' (GState pos ext) (Maybe dnd) -> Array (Prop (GState pos ext) EFFS)
-dndBoardProps dragLens = [
-    style "touch-action" "none", 
-    onpointermove' move,
-    onpointerup $ setState (dragLens .~ Nothing),
-    onpointerleave leave,
-    onpointerdown' move
-] where
-    move ev = getPointerPosition ev >>= setPointerPositionA
-    leave = setState $ (_pointer .~ Nothing) ∘ (dragLens .~ Nothing)
 
-dndItemProps :: ∀pos ext dnd. Eq dnd => Game pos ext {from :: dnd, to :: dnd} =>
-    Lens' (GState pos ext) (Maybe dnd) -> Boolean -> Boolean -> dnd -> (GState pos ext) -> Array (Prop (GState pos ext) EFFS)
-dndItemProps dragLens draggable droppable id state = [
+-- même chose que trackPointer mais gère le drag and drop par l'intermédiaire d'un lens
+dndBoardProps :: ∀msg id. MsgWithCore msg => MsgWithDnd msg id => Array (Prop msg)
+dndBoardProps = [
+    style "touch-action" "none", 
+    on "pointermove" move,
+    onpointerup $ dndmsg DropOnBoard,
+    onpointerleave $ dndmsg Leave
+] where
+    move e = core <$> (SetPointer <$> Just <$> pointerDecoder e)
+
+dndItemProps :: ∀pos ext msg id. Eq id => MsgWithDnd msg id => Game pos ext {from :: id, to :: id} =>
+    {
+        draggable :: Boolean,
+        droppable :: Boolean,
+        id :: id,
+        currentDragged :: Maybe id
+    } -> (GState pos ext) -> Array (Prop msg)
+dndItemProps {draggable, droppable, id, currentDragged} state = [
     class' "dragged" dragged,
     class' "candrop" candrop,
-    onpointerdown' $ \ev -> when draggable $ releasePointerCapture ev *> setState (dragLens .~ Just id),
-    onpointerup $ if candrop then dropA dragLens id else setState (dragLens .~ Nothing)  -- stopPropagation
+    onpointerdown' $ if draggable then Just $ dndmsg (Drag id) else Nothing, --  releasePointerCapture ev
+    onpointerup' $ if candrop then Just $ dndmsg (Drop id) else Nothing -- todo ne rien faire  -- stopPropagation
 ] where
-    draggedItem = state ^. dragLens
-    candrop = droppable && (draggedItem # maybe false (\x -> canPlay state { from: x, to: id }))
-    dragged = draggable && draggedItem == Just id
--}
+    candrop = droppable && (currentDragged # maybe false \d -> canPlay state {from: d, to: id})
+    dragged = draggable && Just id == currentDragged
 
 turnMessage :: ∀pos ext mov. Game pos ext mov => GState pos ext -> String
 turnMessage state =

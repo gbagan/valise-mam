@@ -3,7 +3,11 @@ module Game.Roue.Model where
 import MyPrelude
 import Lib.Util (swap)
 import Control.Monad.Rec.Class (tailRecM, Step(..))
-import Game.Core (class Game, GState, genState, newGame', lockAction, _ext, _position, _showWin, defaultSizeLimit)
+import Game.Effs (EFFS)
+import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, GState,
+    CoreMsg(ToggleHelp),  DndMsg(DropOnBoard),
+    coreUpdate, dndUpdate,
+    genState, newGame, lockAction, _ext, _position, _showWin, defaultSizeLimit)
 import Pha.Action (Action, getState, setState)
 import Pha.Effects.Delay  (delay, DELAY)
 import Pha.Effects.Random (RNG)
@@ -76,32 +80,31 @@ instance roueGame :: Game (Array (Maybe Int)) Ext {from :: Location, to :: Locat
 rotate :: Int -> State -> State
 rotate i = _rotation +~ i
 
-rotateA :: ∀effs. Int -> Action State effs
-rotateA i = setState (rotate i)
-
-setSizeA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-setSizeA = newGame' (set _size)
-
-
-checkA :: ∀effs. Action State (delay :: DELAY | effs)
-checkA = lockAction $ getState >>= \st -> tailRecM go (st^._size) where
-    go 0 = do
-        setState (_showWin .~ true)
-        delay $ 1000
-        setState (_showWin .~ false)
-        pure (Done unit)
-    go i = do
-        st2 <- getState
-        if not (validRotation st2) then
+data Msg = Core CoreMsg | DnD (DndMsg Location) | Rotate Int | SetSize Int | Check
+instance withcore :: MsgWithCore Msg where core = Core
+instance withdnd :: MsgWithDnd Msg Location where dndmsg = DnD  
+    
+update :: Msg -> Action State EFFS
+update (Core msg) = coreUpdate msg
+update (DnD DropOnBoard) = setState \state ->
+        let state2 = state # _dragged .~ Nothing in
+        case state^._dragged of
+            Just (Wheel i) -> state2 # _position ∘ ix i .~ Nothing
+            _ -> state2
+update (DnD msg) = dndUpdate _dragged msg
+update (Rotate i) = setState (rotate i)
+update (SetSize i) = newGame (_size .~ i)
+update Check = lockAction $ getState >>= \st -> tailRecM go (st^._size) where
+        go 0 = do
+            setState (_showWin .~ true)
+            delay $ 1000
+            setState (_showWin .~ false)
             pure (Done unit)
-        else do
-            setState (rotate 1)
-            delay 600
-            pure $ Loop (i-1)
-
-deleteDraggedA :: ∀effs. Action State effs
-deleteDraggedA = setState \state ->
-    let state2 = state # _dragged .~ Nothing in
-    case state^._dragged of
-        Just (Wheel i) -> state2 # _position ∘ ix i .~ Nothing
-        _ -> state2
+        go i = do
+            st2 <- getState
+            if not (validRotation st2) then
+                pure (Done unit)
+            else do
+                setState (rotate 1)
+                delay 600
+                pure $ Loop (i-1)

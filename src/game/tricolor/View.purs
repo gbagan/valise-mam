@@ -1,14 +1,13 @@
 module Game.Tricolor.View where
 
 import MyPrelude
-import Pha (VDom, text, class', attr, key, style)
+import Pha (VDom, text, class_, class', attr, key, style)
 import Pha.Elements (div)
-import Pha.Attributes (onclick, onpointerenter, onpointerleave)
+import Pha.Events (onclick, onpointerenter, onpointerleave)
 import Pha.Svg (svg, circle, text', stroke, fill, viewBox, cx, cy, r)
 import Pha.Util (pc, translate)
-import Game.Effs (EFFS)
-import Game.Core (playA, isLevelFinished, _position)
-import Game.Tricolor.Model (State, setSizeA, setNbColorsA, setRangeA, setHoverCellA, _size, _nbColors, _range, _hoverCell, inRange)
+import Game.Core (isLevelFinished, _position)
+import Game.Tricolor.Model (State, Msg(..), _size, _nbColors, _range, _hoverCell, inRange)
 import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 
@@ -20,33 +19,33 @@ translateCell i size = translate (pc x) (pc y) where
     x = 0.50 + 0.35 * cos (toNumber i * 2.0 * pi / toNumber size)
     y = 0.45 + 0.35 * sin (toNumber i * 2.0 * pi / toNumber size)
 
-view :: State -> VDom State EFFS
+view :: State -> VDom Msg
 view state = template _{config=config, board=board, rules=rules} state where
     size = state^._size
     nbColors = state^._nbColors
     levelFinished = isLevelFinished state
 
     config = card "Feux tricolores" [
-        iconSelectGroup state "Nombre de lumières" [4, 5, 6, 7, 8] size setSizeA (const identity),
-        iconSelectGroup state "Nombre de couleurs" [2, 3, 4, 5] nbColors setNbColorsA (const identity),
-        iconSelectGroup state "Portée" [1, 2, 3] (state^._range) setRangeA (const identity),
+        iconSelectGroup state "Nombre de lumières" [4, 5, 6, 7, 8] size SetSize (const identity),
+        iconSelectGroup state "Nombre de couleurs" [2, 3, 4, 5] nbColors SetNbColors (const identity),
+        iconSelectGroup state "Portée" [1, 2, 3] (state^._range) SetRange (const identity),
         icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> \x -> x state
     ]
 
-    board = div [class' "ui-board tricolor-board" true] [
+    board = div [class_ "ui-board tricolor-board"] [
         svg [viewBox 0 0 100 100] $ concat [
             state^._position # mapWithIndex \i color ->
                 circle [
                     r "7.5",
-                    class' "tricolor-cell" true,
+                    class_ "tricolor-cell",
                     class' "finished" levelFinished,
                     stroke $ if (inRange state i <$> state^._hoverCell) == Just true then "lightgreen" else "black",
                     key $ "b" <> show i,
                     style "fill" $ if levelFinished then "" else colors !! color # fromMaybe "",
                     style "transform" (translateCell i size),
-                    onclick $ playA i,
-                    onpointerenter $ setHoverCellA (Just i),
-                    onpointerleave $ setHoverCellA Nothing
+                    onclick $ Play i,
+                    onpointerenter $ SetHoverCell (Just i),
+                    onpointerleave $ SetHoverCell Nothing
                 ],
 
             concat $ take nbColors colors # mapWithIndex \i color -> [

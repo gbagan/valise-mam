@@ -1,12 +1,11 @@
 module Game.Dessin.View (view) where
 import MyPrelude
-import Pha (VDom, text, maybeN, class_, class')
+import Pha (VDom, text, maybeN, class_)
 import Pha.Elements (div, button, span, br)
-import Pha.Events (onclick, custom)
-import Pha.Events.Decoder (always)
+import Pha.Events (onclick, oncontextmenu)
 import Pha.Attributes (disabled)
 import Pha.Svg (svg, line, circle, viewBox, stroke, fill, x1, x2, y1, y2, cx, cy, r, strokeWidth, strokeDasharray)
-import Game.Core (canPlay, playA, _position, _pointer)
+import Game.Core (canPlay, _position, _pointer)
 import Game.Dessin.Model (State, Msg(..), Graph, Position, Edge, (↔), edgesOf, nbRaises, _graph, _graphIndex)
 import UI.Template (template, card, trackPointer)
 import UI.Icon (Icon(..))
@@ -43,14 +42,9 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
 
     board = div (trackPointer <> [
                 class_ "ui-board dessin-board",
-                -- todo
-                custom "contextmenu" $ always {
-                    message: Just (Play Nothing),
-                    preventDefault: true,
-                    stopPropagation: false
-                }
+                oncontextmenu $ Play Nothing
     ]) [
-        svg [class' "dessin-svg" true, viewBox 0 0 100 100] $ concat [
+        svg [class_ "dessin-svg", viewBox 0 0 100 100] $ concat [
             graph.edges <#> \edge ->
                 let {px1, px2, py1, py2} = getCoordsOfEdge graph edge
                 in line [
@@ -82,11 +76,11 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                 ],
             [maybeN $ currentLine <$> (state^._pointer) <*> (getCoords graph <$> join (last position))]
         ],
-        span [class' "dessin-raise-info dessin-raise-info" true] [
+        span [class_ "dessin-raise-info dessin-raise-info"] [
             text $ show raises <> " levé" <> s <> " de crayon"
         ],
         button [
-            class' "ui-button ui-button-primary dessin-raise" true,
+            class_ "ui-button ui-button-primary dessin-raise",
             disabled $ not (canPlay state Nothing),
             onclick $ Play Nothing
         ] [text "Lever le crayon"]

@@ -2,7 +2,7 @@ module Game.Frog.View (view) where
 
 import MyPrelude
 import Lib.Util (map2, tabulate, pairwise, floatRange)
-import Pha (VDom, text, ifN, maybeN, key, class_, class', style)
+import Pha (VDom, text, (<?>), (<??>), key, class_, class', style)
 import Pha.Elements (div, span, br)
 import Pha.Events (on)
 import Pha.Events.Decoder (shiftKey)
@@ -58,7 +58,7 @@ spiralPath = spiral { x: 0.0, y: 0.0 } 0.0 61.0 0.0 (37.0 / 6.0 * pi) (pi / 6.0)
 lily :: ∀a. Int -> Number -> Number -> Boolean -> Boolean -> VDom a
 lily i x y reachable hidden =
     use "#lily" (pos <> [
-        class' "frog-lily" true,
+        class_ "frog-lily",
         class' "reachable" reachable,
         class' "hidden" hidden
     ]) where
@@ -80,7 +80,7 @@ view state = template _{config = config, board = board, rules = rules, winTitle 
         icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x state
     ]
     grid = 
-        div [class' "ui-board frog-board" true] [
+        div [class_ "ui-board frog-board"] [
             svg [viewBox (-190) (-200) 400 400] $ concat [
                 [
                     path spiralPath [fill "none", stroke "black", strokeWidth "3"],
@@ -96,28 +96,28 @@ view state = template _{config = config, board = board, rules = rules, winTitle 
                         lily i x y false false,
                         lily i x y true (not reach || state^._locked),
                         text' (if state^._help then show $ (state^._nbRows) - i else "") [
-                            x_ $ show x, y_ $ show y, class' "frog-index" true
+                            x_ $ show x, y_ $ show y, class_ "frog-index"
                         ]
                     ],
                 map2 (state^._marked) spoints \i mark {x, y} ->
-                    ifN (mark && i /= position) \_ ->
+                    mark && i /= position <?> \_ ->
                         use "#frog2" [
                             x_ $ show (x - 20.0),
                             y_ $ show (y - 20.0),
                             width "32",
                             height "32",
                             key $ "reach" <> show i,
-                            class' "frog-frog marked" true
+                            class_ "frog-frog marked"
                         ],
-                [maybeN $ pointsPolar !! position <#> \{radius, theta} ->
+                [pointsPolar !! position <??> \{radius, theta} ->
                     g [
                     key "frog",
-                    class' "frog-frog-container" true,
+                    class_ "frog-frog-container",
                     style "transform" $ translate (px radius) "0" <> " rotate(" <> show (theta * 180.0 / pi) <> "deg)",
                     style "transform-origin" $ px (-radius) <> " 0"
                 ] [
                     g [
-                        class' "frog-frog-container" true,
+                        class_ "frog-frog-container",
                         style "transform" $ "rotate(" <> show (-theta * 180.0 / pi) <> "deg)"
                     ] [
                         use "#frog2" [

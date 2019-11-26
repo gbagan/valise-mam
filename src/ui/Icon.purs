@@ -2,7 +2,7 @@ module UI.Icon where
 
 import MyPrelude
 import Data.Tuple (uncurry)
-import Pha (VDom, Prop, text, emptyNode, maybeN, class_, class', style)
+import Pha (VDom, Prop, text, emptyNode, (<??>), class_, class', style)
 import Pha.Elements (button, span)
 import Pha.Attributes (disabled)
 import Pha.Svg (svg, use, width, height)
@@ -48,5 +48,5 @@ iconbutton optionFn props =
             ]
             IconText t -> span [class_ "ui-icon-text"] [text t]
             IconNone -> emptyNode,
-        maybeN $ tooltip <#> \t -> span [class_ "ui-icon-tooltip"] [text t]
+        tooltip <??> \t -> span [class_ "ui-icon-tooltip"] [text t]
     ]

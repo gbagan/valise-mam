@@ -1,6 +1,5 @@
 module UI.Dialog where
 import MyPrelude
-import Pha.Action (Action)
 import Pha (VDom, text, class_)
 import Pha.Elements (div, button)
 import Pha.Events (onclick)
@@ -11,7 +10,7 @@ type DialogOptions a = {
     onCancel :: Maybe a
 }
 
-dialog :: ∀a effs. DialogOptions a -> Array (VDom a) -> VDom a
+dialog :: ∀a. DialogOptions a -> Array (VDom a) -> VDom a
 dialog {title, onOk, onCancel} children =
     div [class_ "ui-absolute ui-flex-center ui-dialog-container"] [
         div [class_ "ui-dialog"] [

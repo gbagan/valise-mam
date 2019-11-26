@@ -2,13 +2,13 @@ module Game.Roue.View where
 
 import MyPrelude
 import Lib.Util (map2)
-import Game.Effs (EFFS)
 import Game.Core (PointerPosition, _position, _pointer, _locked)
-import Game.Roue.Model (State, Location(..), _size, _rotation, _dragged, setSizeA, rotateA, checkA, deleteDraggedA,
+import Game.Roue.Model (State, Msg(..), Location(..), _size, _rotation, _dragged,
                         aligned, validRotation, validRotation')
-import Pha (VDom, text, ifN, maybeN, key, class', style)
+import Pha (VDom, text, (<?>), maybeN, key, class_, class', style)
 import Pha.Elements (div, button, span)
-import Pha.Attributes (onclick, onpointerup, disabled)
+import Pha.Events (onclick)
+import Pha.Attributes (disabled)
 import Pha.Svg (svg, path, viewBox, fill, stroke)
 import Pha.Util (pc)
 import UI.Template (template, card, dndBoardProps, dndItemProps)
@@ -23,6 +23,7 @@ polarToCartesian centerX centerY radius angle = {
     y: centerY + radius * sin angle
 }
 
+
 pizza :: Number -> Number -> Number -> Number -> Number -> String
 pizza cx cy radius startAngle endAngle =
     joinWith " " [
@@ -34,7 +35,7 @@ pizza cx cy radius startAngle endAngle =
         s = polarToCartesian cx cy radius startAngle
         e = polarToCartesian cx cy radius endAngle
 
-innerWheel :: ∀a. Int -> VDom a EFFS
+innerWheel :: ∀a. Int -> VDom a
 innerWheel size = div [class' "roue-inner" true] [
     svg [viewBox 0 0 100 100] $ take size colors # mapWithIndex \i color ->
         path (pizza 50.0 50.0 50.0 (2.0 * pi * (toNumber i - 0.5) / toNumber size) (2.0 * pi * (toNumber i + 0.5) / toNumber size)) [
@@ -43,7 +44,7 @@ innerWheel size = div [class' "roue-inner" true] [
         ]
 ]
 
-cursor :: ∀a. PointerPosition -> String -> VDom a EFFS
+cursor :: ∀a. PointerPosition -> String -> VDom a
 cursor {x, y} color = div [
     class' "ui-cursor roue-select-color roue-cursor" true,
     style "left" $ pc x,
@@ -52,14 +53,14 @@ cursor {x, y} color = div [
 ] []
 
 
-view :: State -> VDom State EFFS
+view :: State -> VDom Msg
 view state = template _{config=config, board=board, rules=rules, winTitle=winTitle} state where
     size = state^._size
     position = state^._position
     valid = validRotation state
 
     config = card "Roue des couleurs" [
-        iconSelectGroup state "Nombre de couleurs" [4, 5, 6, 7, 8] size setSizeA (const identity),        
+        iconSelectGroup state "Nombre de couleurs" [4, 5, 6, 7, 8] size SetSize (const identity),        
         icongroup "Options" $ [ireset state, irules state]
     ]
 
@@ -81,10 +82,15 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
             path (pizza 50.0 50.0 50.0 (2.0 * pi * (toNumber i - 0.5) / toNumber size) (2.0 * pi * (toNumber i + 0.5) / toNumber size)) ([
                 class' "roue-wheel-part" true,
                 fill $ if not align then  "#F0B27A" else if validRotation' state then "lightgreen" else "#F5B7B1"
-            ] <> dndItemProps _dragged (isJust pos) true (Wheel i) state)
+            ] <> dndItemProps {
+                currentDragged: state^._dragged,
+                draggable: isJust pos,
+                droppable: true,
+                id: Wheel i
+            } state)
         ] <> (catMaybes $ position # mapWithIndex \index c -> c <#> \color -> 
             div [
-                class' "roue-outer-piece" true,
+                class_ "roue-outer-piece",
                 key $ show index,
                 style "left" $ pc $ 0.44 + 0.4 * cos(toNumber index * 2.0 * pi / toNumber size),
                 style "top" $ pc $ 0.44 + 0.4 * sin(toNumber index * 2.0 * pi / toNumber size),
@@ -92,43 +98,45 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
             ] []
         )
 
-    board = div (dndBoardProps _dragged <> [
-        class' "roue-board" true,
-        onpointerup deleteDraggedA
-    ]) [
-        div [class' "roue-buttons" true] $ concat [
+    board = div (dndBoardProps <> [class_ "roue-board"]) [
+        div [class_ "roue-buttons"] $ concat [
             [button [
-                class' "ui-button ui-button-primary roue-button" true,
+                class_ "ui-button ui-button-primary roue-button",
                 disabled $ state^._locked,
-                onclick $ rotateA (-1)
+                onclick $ Rotate (-1)
             ] [text "↶"]],
             take size colors # mapWithIndex \i color ->
                 div ([
-                    class' "roue-select-color ui-flex-center" true,
+                    class_ "roue-select-color ui-flex-center",
                     style "background-color" color
-                ] <> dndItemProps _dragged true false (Panel i) state) [
-                    ifN (elem (Just i) position) \_ ->
+                ] <> dndItemProps {
+                    currentDragged: state^._dragged,
+                    draggable: true,
+                    droppable: false,
+                    id: Panel i
+                } state) [
+                    elem (Just i) position <?> \_ ->
                         span [] [text "✓"]
                 ],
             [button [
-                class' "ui-button ui-button-primary roue-button" true,
+                class_ "ui-button ui-button-primary roue-button",
                     disabled $ state^._locked,
-                    onclick $ rotateA 1 -- lockAction n'est pas nécessaire
+                    onclick $ Rotate 1 -- lockAction n'est pas nécessaire
             ] [text "↷"]]
         ],
-        div [class' "roue-roue" true] [
+        div [class_ "roue-roue"] [
             outerWheel,
             innerWheel size,
             button [
-                class' "ui-button ui-button-primary roue-validate" true,
+                class_ "ui-button ui-button-primary roue-validate",
                 disabled $ not valid || state^._locked,
-                onclick checkA
+                onclick Check
             ] [text "Valider"],
-            div [class' "roue-valid-rotation" true] [
+            div [class_ "roue-valid-rotation"] [
                 if valid then
-                    span [class' "valid" true] [text "✓"]
+                    span [class_ "valid"] [text "✓"]
                 else
-                    span [class' "invalid" true] [text "✗"]
+                    span [class_ "invalid"] [text "✗"]
             ]
         ],
         maybeN $ cursor <$> state^._pointer <*> draggedColor

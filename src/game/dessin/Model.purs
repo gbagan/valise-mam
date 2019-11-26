@@ -2,7 +2,6 @@ module Game.Dessin.Model where
 import MyPrelude
 import Lib.Util (pairwise)
 import Pha.Action (Action)
-import Pha.Effects.Random (RNG)
 import Game.Core (class Game, class MsgWithCore, CoreMsg, GState,
                   playA, coreUpdate, _ext, genState, newGame, _position, defaultSizeLimit)
 import Game.Effs (EFFS)

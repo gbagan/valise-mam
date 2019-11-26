@@ -8,7 +8,6 @@ import Pha.Events (onclick)
 import Pha.Svg (svg, use, width, height)
 import Pha.Util (pc)
 import Game.Core (_position, _nbRows, _nbColumns, _help)
-import Game.Effs (EFFS)
 import Game.Noirblanc.Model (State, Msg(..), _level, _mode, _maxLevels)
 import UI.Icon (Icon(..), Options)
 import UI.Icons (icongroup, ihelp, ireset, irules, iconSelectGroup)
@@ -55,7 +54,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
         icongroup "Options" $ [ihelp state, ireset state, irules state]
     ]
 
-    grid = div ([class' "ui-board" true] <> gridStyle rows columns 4) $
+    grid = div ([class_ "ui-board"] <> gridStyle rows columns 4) $
         map2 position.light position.played \index light played ->
             let {row, col} = coords columns index in
             square light (state^._help && played) [

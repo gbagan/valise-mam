@@ -2,7 +2,7 @@ module Game.Baseball.View (view) where
 
 import MyPrelude
 import Lib.Util (map2)
-import Pha (VDom, text, ifN, class', key, style)
+import Pha (VDom, text, (<?>), class_, key, style)
 import Pha.Elements (div)
 import Pha.Events (onclick)
 import Pha.Svg (svg, g, rect, use, stroke, fill, viewBox, x_, y_, width, height)
@@ -38,20 +38,20 @@ view state = template _{config=config, board=board, rules=rules} state where
         icongroup "Options" $ [iundo state, iredo state, ireset state, irules state]
     ]
 
-    board = div [class' "ui-board baseball-board" true] [
+    board = div [class_ "ui-board baseball-board"] [
         svg [viewBox 0 0 100 100] $ concat [
             take nbBases colors # mapWithIndex \i color ->
                 rect [
                     x_ "-10", y_ "-10", width "20", height "20",
                     key $ "b" <> show i,
-                    class' "baseball-base" true,
+                    class_ "baseball-base",
                     stroke $ color,
                     style "transform" $ transformBase i nbBases
                 ],
             map2 (state^._position) dupColors \peg pos color ->
-                ifN (peg /= state^._missingPeg) \_ ->
+                peg /= state^._missingPeg <?> \_ ->
                     g [
-                        class' "baseball-player" true,
+                        class_ "baseball-player",
                         style "transform" $ translatePeg pos nbBases,
                         key $ "p" <> show peg
                     ] [ 

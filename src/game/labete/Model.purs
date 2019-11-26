@@ -1,14 +1,12 @@
 module Game.Labete.Model where
 import MyPrelude
 import Lib.Util (coords, tabulate2, abs)
-import Pha (Event)
 import Pha.Action (Action, setState)
-import Pha.Effects.Random (RNG)
 import Game.Common (_isoCustom)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, 
                  SizeLimit(..), GState, Objective(..), ShowWinStrategy(..), PointerPosition, Dialog(..),
-               playA, coreUpdate,  _ext, genState, newGame, newGame', _position, _nbRows, _nbColumns, _help, _dialog, updateScore')
+               playA, coreUpdate,  _ext, genState, newGame, _position, _nbRows, _nbColumns, _help, _dialog, updateScore')
 
 type Zone = { row1 :: Int, row2 :: Int, col1 :: Int, col2 :: Int}
 

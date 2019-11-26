@@ -4,7 +4,10 @@ import Data.Array (nub)
 import Data.Array.NonEmpty (fromArray, head, last, init, tail) as N
 import Pha.Effects.Random (randomInt)
 import Lib.Util (dCoords, rangeStep)
-import Game.Core (GState, class Game, SizeLimit(..), _ext, newGame', genState, _nbRows, _nbColumns, _position, playA)
+import Game.Effs (EFFS)
+import Game.Core (GState, class Game, class MsgWithCore, CoreMsg, SizeLimit(..), 
+        coreUpdate,
+        _ext, newGame, genState, _nbRows, _nbColumns, _position, playA)
 import Pha.Action (Action, getState, setState)
 import Pha.Effects.Random (RNG)
 import Pha.Effects.Delay (DELAY)
@@ -82,8 +85,13 @@ instance pathGame :: Game (Array Int) Ext Int where
     sizeLimit _ = SizeLimit 2 2 9 9
     updateScore st = st ∧ true
 
-selectVertexA :: ∀effs. Int -> Action State (rng :: RNG, delay :: DELAY | effs)
-selectVertexA v = do
+data Msg = Core CoreMsg | SelectVertex Int | SelectMode Mode
+instance withcore :: MsgWithCore Msg where core = Core
+    
+update :: Msg -> Action State EFFS
+update (Core msg) = coreUpdate msg
+
+update (SelectVertex v) = do
     state <- getState
     if null (state^._position) then
         setState (_position .~ [v])
@@ -92,6 +100,4 @@ selectVertexA v = do
     else
         playA v
 
-
-selectModeA :: ∀effs. Mode -> Action State (rng :: RNG | effs)
-selectModeA = newGame' (set _mode)
+update (SelectMode mode) = newGame (_mode .~ mode)

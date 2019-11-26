@@ -3,11 +3,11 @@ module Game.Tiling.Model where
 import MyPrelude
 import Lib.Util (coords)
 import Game.Common (_isoCustom)
-import Game.Core (GState, Dialog(..), class Game, SizeLimit(..),
-                  _ext, canPlay, genState, newGame, newGame', playA, _position, _nbColumns, _nbRows, _dialog)
-import Pha.Action (Action, setState, getState)
-import Pha.Effects.Delay (DELAY)
-import Pha.Effects.Random (RNG)
+import Game.Core (GState, Dialog(..), class Game, class MsgWithCore, CoreMsg, SizeLimit(..),
+            coreUpdate, playA,     
+            _ext, canPlay, genState, newGame, _position, _nbColumns, _nbRows, _dialog)
+import Pha.Action (Action, setState)
+import Game.Effs (EFFS)
 
 type Coord = {row :: Int, col :: Int}
 type Tile = Array Coord
@@ -96,6 +96,8 @@ inConflict state = case state^._hoverSquare of
     Nothing -> false
     Just sqr -> state^._position !! sqr /= Just 0 || not (canPlay state sqr)
 
+needSinks :: State -> Boolean
+needSinks state = length (sinks state) < state^._nbSinks
 
 instance tilingGame :: Game (Array Int) ExtState Int where
     play state index =
@@ -120,36 +122,28 @@ instance tilingGame :: Game (Array Int) ExtState Int where
     computerMove _ = pure Nothing
     updateScore st = st ∧ true 
   
-
-putSinkA :: ∀effs. Int -> Action State effs
-putSinkA i = setState $ _position ∘ ix i .~ (-1)
-
-setNbSinksA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-setNbSinksA = newGame' (set _nbSinks)
-
-setTileA :: ∀effs. TileType -> Action State (rng :: RNG | effs)
-setTileA ttype = newGame $ (_tileType .~ ttype) ∘ (if ttype == CustomTile then _dialog .~ CustomDialog else identity)
-
-clickOnCellA :: ∀effs. Int -> Action State (rng :: RNG, delay :: DELAY | effs)
-clickOnCellA a = do
+data Msg = Core CoreMsg | Play Int | PutSink Int | SetNbSinks Int | SetTile TileType | Rotate
+           | SetHoverSquare (Maybe Int) | FlipTile Int
+instance withcore :: MsgWithCore Msg where core = Core
+      
+update :: Msg -> Action State EFFS
+update (Core msg) = coreUpdate msg  
+update (Play m) = playA m
+update (PutSink i) = setState $ _position ∘ ix i .~ (-1)
+update (SetNbSinks n) = newGame (_nbSinks .~ n)
+update (SetTile t) = newGame $ (_tileType .~ t) >>> (if t == CustomTile then _dialog .~ CustomDialog else identity)
+update Rotate =  setState $ _rotation %~ (_ + 1)
+update (SetHoverSquare a) = setState (_hoverSquare .~ a)
+update (FlipTile index) = newGame $ _tile ∘ _isoCustom ∘ ix index %~ not
+{-
+update (ClickOnCell a) = do
     state <- getState
-    if length (sinks state) < state^._nbSinks then
-        putSinkA a
-    else
-        playA a
+    where putSink i = setState $ _position ∘ ix i .~ (-1)
+-}
 
-rotateA :: ∀effs. Action State effs
-rotateA = setState (_rotation %~ add 1)
-
-setHoverSquareA :: ∀effs. Maybe Int -> Action State effs
-setHoverSquareA a = setState (_hoverSquare .~ a)
-
-onKeyDown :: ∀effs. String -> Action State effs
-onKeyDown " " = rotateA
-onKeyDown _ = pure unit
-
-flipTileA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-flipTileA index = newGame $ _tile ∘ _isoCustom ∘ ix index %~ not
+--onKeyDown :: ∀effs. String -> Action State effs
+--onKeyDown " " = rotateA
+--onKeyDown _ = pure unit
 
 {-            
 const configHash = state => `${state.rows}-${state.columns}-${state.tileIndex}-${state.nbSinks}`

@@ -129,14 +129,11 @@ icons2Players state =
             _{icon = I.IconText "2P⇨", disabled = not (L.null $ state^._history) || state^._mode == DuelMode, tooltip = Just "L'IA commence"}
             [onclick $ core ComputerStarts]
     ]
-
-{-
-iconBestScore :: ∀pos ext mov. ScoreGame pos ext mov => GState pos ext -> VDom (GState pos ext) EFFS
+iconBestScore :: ∀msg pos ext mov. MsgWithCore msg => ScoreGame pos ext mov => GState pos ext -> VDom msg
 iconBestScore state =
     icongroup ("Meilleur score (" <> maybe "∅" (show ∘ fst) (bestScore state) <> ")") [
         iconbutton
             state
             _{icon = I.IconSymbol "#cup", disabled = isNothing (bestScore state), tooltip = Just "Meilleur score"}
-            [onclick $ setState (_dialog .~ ScoreDialog)]
+            [onclick $ core SetScoreDialog]
     ]
--}

@@ -137,7 +137,7 @@ changeTurn :: ∀pos ext. GState pos ext -> GState pos ext
 changeTurn state = state # _turn %~ \x -> if state^._mode == DuelMode then oppositeTurn x else Turn1
 
 data CoreMsg = 
-      Undo 
+      Undo
     | Redo 
     | Reset 
     | ToggleHelp
@@ -146,9 +146,11 @@ data CoreMsg =
     | SetCustomSize Boolean 
     | SetNoDialog 
     | SetRulesDialog
+    | SetScoreDialog
     | ConfirmNewGame
     | SetPointer (Maybe { x :: Number, y :: Number })
     | ComputerStarts
+    | Init
 
 class MsgWithCore a where
     core :: CoreMsg -> a
@@ -190,6 +192,7 @@ coreUpdate (SetGridSize nbRows nbColumns customSize) =
 coreUpdate (SetCustomSize b) = setState $ _customSize .~ true
 coreUpdate SetNoDialog = setState $ _dialog .~ NoDialog
 coreUpdate SetRulesDialog = setState $ _dialog .~ Rules
+coreUpdate SetScoreDialog = setState $ _dialog .~ ScoreDialog
 coreUpdate ConfirmNewGame = setState $ \state ->
                         case state^._dialog of
                             ConfirmNewGameDialog st -> st
@@ -198,7 +201,7 @@ coreUpdate (SetPointer pos) = setState $ _pointer .~ pos
 coreUpdate ComputerStarts = setState (pushToHistory ∘ (_turn %~ oppositeTurn)) *> computerPlay
         --coreUpdate (ConfirmNewGame  :: ∀pos ext effs. GState pos ext -> Action (GState pos ext) effs
 --confirmNewGameA st = setState (\_ -> st)
-
+coreUpdate Init = init
 
 playAux :: ∀pos ext mov. Game pos ext mov => mov -> GState pos ext -> Maybe (GState pos ext)
 playAux move state =
@@ -277,21 +280,6 @@ newGame' f val = newGame (f val)
 init :: ∀pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG | effs)
 init = newGame identity
 
-setModeA :: ∀pos ext mov effs. Game pos ext mov => Mode -> Action (GState pos ext) (rng :: RNG | effs)
-setModeA = newGame' (set _mode)
-
-setGridSizeA :: ∀pos ext mov effs. Game pos ext mov => Int -> Int -> Boolean -> Action (GState pos ext) (rng :: RNG | effs)
-setGridSizeA nbRows nbColumns customSize = newGame $ setSize' ∘ (_customSize .~ customSize) where
-    setSize' state =
-        if nbRows >= minrows && nbRows <= maxrows && nbColumns >= mincols && nbColumns <= maxcols then
-            state # _nbRows .~ nbRows # _nbColumns .~ nbColumns
-        else
-            state
-        where SizeLimit minrows mincols maxrows maxcols = sizeLimit state
-
-confirmNewGameA :: ∀pos ext effs. GState pos ext -> Action (GState pos ext) effs
-confirmNewGameA st = setState (\_ -> st)
-
 class Game pos ext mov <= TwoPlayersGame pos ext mov | ext -> pos mov  where
     isLosingPosition :: GState pos ext -> Boolean
     possibleMoves :: GState pos ext -> Array mov
@@ -339,6 +327,18 @@ updateScore' strat state =
 
 bestScore :: ∀pos ext mov. ScoreGame pos ext mov => GState pos ext -> Maybe (Tuple Int pos)
 bestScore state = state ^. (_scores ∘ at (scoreHash' state))
+
+data DndMsg i = Drag i | Drop i | Leave | DropOnBoard
+
+class MsgWithDnd msg i | msg -> i where
+    dndmsg :: DndMsg i -> msg
+
+dndUpdate :: ∀pos ext i. Eq i => Game pos ext {from :: i, to :: i} => 
+    Lens' (GState pos ext) (Maybe i) -> DndMsg i -> Action (GState pos ext) EFFS
+dndUpdate _dragged (Drag i) = setState $ _dragged .~ Just i
+dndUpdate _dragged (Drop i) = dropA _dragged i
+dndUpdate _dragged Leave = setState $ _dragged .~ Nothing
+dndUpdate _dragged DropOnBoard = setState $ _dragged .~ Nothing
 
 dropA :: ∀pos ext dnd effs. Eq dnd =>  Game pos ext {from :: dnd, to :: dnd} =>
             Lens' (GState pos ext) (Maybe dnd) -> dnd -> Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)

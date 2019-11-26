@@ -2,12 +2,15 @@ module Game.Solitaire.Model where
 import MyPrelude
 import Data.FoldableWithIndex (allWithIndex)
 import Pha.Action (Action, setState)
-import Pha.Effects.Random (RNG)
+import Pha.Effects.Random (RNG, randomInt, randomBool)
 import Run (Run)
-import Pha.Effects.Random (randomInt, randomBool)
 import Lib.Util (tabulate, tabulate2, dCoords)
-import Game.Core (class Game, class ScoreGame, GState, SizeLimit(..), Objective(..), ShowWinStrategy(..),
-                  _ext, genState, canPlay, _nbColumns, _nbRows, _customSize, _position, newGame, updateScore')
+import Game.Effs (EFFS)
+import Game.Core (class Game, class ScoreGame, class MsgWithCore, class MsgWithDnd,
+                GState, SizeLimit(..), Objective(..), ShowWinStrategy(..),
+                CoreMsg(ToggleHelp),  DndMsg,
+                coreUpdate, dndUpdate,
+                _ext, genState, canPlay, _nbColumns, _nbRows, _customSize, _position, newGame, updateScore')
 
 type Move = {from :: Int, to :: Int}
 
@@ -139,14 +142,18 @@ instance scoregame :: ScoreGame (Array Boolean) ExtState {from :: Int, to :: Int
     scoreHash state = joinWith "-" [show (state^._board), show (state^._nbRows), show (state^._nbColumns)]
     isCustomGame state = state^._board == RandomBoard
 
-setBoardA :: ∀effs. Board -> Action State (rng :: RNG | effs)
-setBoardA board = newGame \state ->
+data Msg = Core CoreMsg | DnD (DndMsg Int) | SetBoard Board
+instance withcore :: MsgWithCore Msg where core = Core
+instance withdnd :: MsgWithDnd Msg Int where dndmsg = DnD  
+    
+update :: Msg -> Action State EFFS
+update (Core ToggleHelp) = setState $ _help %~ \x -> (x + 1) `mod` 3
+update (Core msg) = coreUpdate msg
+update (DnD msg) = dndUpdate _dragged msg
+update (SetBoard board) = newGame \state ->
     let st2 = state # _board .~ board in 
     case board of
         CircleBoard -> st2 # _nbRows .~ 6 # _nbColumns .~ 1
         Grid3Board -> st2 # _nbRows .~ 3 # _nbColumns .~ 5
         RandomBoard -> st2 # _nbRows .~ 3 # _nbColumns .~ 5
         _ -> st2 # _nbRows .~ 7 # _nbColumns .~ 7
-
-toggleHelpA :: ∀effs. Action State effs
-toggleHelpA = setState $ _help %~ \x -> (x + 1) `mod` 3

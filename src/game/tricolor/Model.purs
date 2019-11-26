@@ -5,7 +5,9 @@ import Lib.Util (abs)
 import Pha.Effects.Random (randomInt)
 import Pha.Action (Action, setState)
 import Pha.Effects.Random (RNG)
-import Game.Core (class Game, GState, _ext, genState, newGame', _position, defaultSizeLimit)
+import Game.Effs (EFFS)
+import Game.Core (class Game, class MsgWithCore, GState, CoreMsg,
+                coreUpdate, playA, _ext, genState, newGame, _position, defaultSizeLimit)
 
 type Ext' = { 
     size :: Int,   -- le nombre de sommets
@@ -50,15 +52,14 @@ instance tricolorGame :: Game (Array Int) ExtState Int where
     computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
     updateScore st = st ∧ true 
-    
-setSizeA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-setSizeA = newGame' (set _size)
 
-setNbColorsA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-setNbColorsA = newGame' (set _nbColors)
-
-setRangeA :: ∀effs. Int -> Action State (rng :: RNG | effs)
-setRangeA = newGame' (set _range)
-
-setHoverCellA :: ∀effs. Maybe Int -> Action State effs
-setHoverCellA i = setState (_hoverCell .~ i)
+data Msg = Core CoreMsg | Play Int | SetSize Int | SetNbColors Int | SetRange Int | SetHoverCell (Maybe Int)
+instance withcore :: MsgWithCore Msg where core = Core
+  
+update :: Msg -> Action State EFFS
+update (Core msg) = coreUpdate msg    
+update (Play i) = playA i
+update (SetSize size) = newGame $ _size .~ size
+update (SetNbColors n) = newGame $ _nbColors .~ n
+update (SetRange n) = newGame $ _range .~ n
+update (SetHoverCell i) = setState $ _hoverCell .~ i

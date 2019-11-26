@@ -3,17 +3,15 @@ module Game.Queens.View (view) where
 import MyPrelude
 import Lib.Util (map2, map3)
 import Data.Array.NonEmpty (toArray, head) as N
-import Pha (VDom, Prop, text, maybeN, class', key, style)
+import Pha (VDom, Prop, text, (<??>), class_, class', key, style)
 import Pha.Elements (div, br)
-import Pha.Attributes (onclick, onpointerenter, onpointerleave)
+import Pha.Events (onclick, onclick', onpointerenter, onpointerleave)
 import Pha.Svg (svg, use, x_, y_, width, height)
 import Pha.Util (pc)
-import Game.Effs (EFFS)
-import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer, playA)
-import Game.Queens.Model (State, Piece(..),
+import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer)
+import Game.Queens.Model (State, Msg(..), Piece(..),
                            _selectedPiece, _selectedSquare, _allowedPieces, _multiPieces, _customLocalMoves, _customDirections,
-                           piecesList, capturableSquares, attackedBySelected,
-                 customizeA, selectSquareA, selectPieceA, selectAllowedPieceA, toggleMultiPiecesA, flipLocalMoveA, flipDirectionA)
+                           piecesList, capturableSquares, attackedBySelected)
 import UI.Template (template, card, dialog, bestScoreDialog, incDecGrid, gridStyle, trackPointer, cursorStyle)
 import UI.Icon (Icon(..))
 import UI.Icons (iconbutton, icongroup, iconSizesGroup, iconSelectGroupM, iconBestScore, ihelp, irules, ireset)
@@ -26,20 +24,20 @@ tooltip Bishop = "Fou"
 tooltip Knight = "Cavalier"
 tooltip _ = "Pièce personnalisée"
 
-square :: ∀a. { piece :: Piece, capturable :: Boolean, selected :: Boolean, nonavailable :: Boolean} -> Array (Prop a EFFS) -> VDom a EFFS
+square :: ∀a. { piece :: Piece, capturable :: Boolean, selected :: Boolean, nonavailable :: Boolean} -> Array (Prop a) -> VDom a
 square { piece, capturable, selected, nonavailable} props =
     div (props <> [
-        class' "queens-square" true,
+        class_ "queens-square",
         class' "queens-square-capturable" capturable,
         class' "queens-square-nonavailable" nonavailable,
         class' "queens-square-selected" selected
     ]) $ if piece == Empty then [] else [
-        svg [width "100%", height "100%", class' "queens-piece" true] [
+        svg [width "100%", height "100%", class_ "queens-piece"] [
             use ("#piece-" <> show piece) [x_ "10%", y_ "10%", width "80%", height "80%"]
         ]
     ]
 
-view :: State -> VDom State EFFS
+view :: State -> VDom Msg
 view state = template _{config=config, board=board, rules=rules, customDialog=customDialog, scoreDialog=scoreDialog} state where
     position = state^._position
     rows = state^._nbRows
@@ -47,22 +45,22 @@ view state = template _{config=config, board=board, rules=rules, customDialog=cu
         
     config = card "Les reines" [
         iconSizesGroup state [4∧4, 5∧5, 7∧7, 8∧8] true,
-        iconSelectGroupM state "Pièces disponibles" piecesList (state^._allowedPieces) selectAllowedPieceA \piece ->
+        iconSelectGroupM state "Pièces disponibles" piecesList (state^._allowedPieces) SelectAllowedPiece \piece ->
             _{icon = IconSymbol $ "#piece-" <> show piece, tooltip = Just $ tooltip piece},
         icongroup "Options" $ [
             iconbutton state _{icon = IconSymbol "#customize",
                                selected = N.head (state^._allowedPieces) == Custom,
                                tooltip = Just "Crée ta propre propre pièce"} [
-                                  onclick customizeA
+                                  onclick Customize
                               ],
             iconbutton state _{icon = IconSymbol "#piece-mix", selected = state^._multiPieces, tooltip = Just "Mode mixte"} [
-                onclick toggleMultiPiecesA
+                onclick ToggleMultiPieces
             ]
         ] <> [ihelp state, ireset state, irules state],
         iconBestScore state
     ]   
 
-    pieceSelector = div [class' "ui-flex-center gutter2 queens-pieceselector" true] $
+    pieceSelector = div [class_ "ui-flex-center gutter2 queens-pieceselector"] $
         N.toArray (state^._allowedPieces) <#> \piece ->
             let name = show piece in
             iconbutton state _{
@@ -70,15 +68,15 @@ view state = template _{config=config, board=board, rules=rules, customDialog=cu
                     icon = IconSymbol $ "#piece-" <> name
                 } [
                     key name,
-                    onclick $ selectPieceA piece
+                    onclick $ SelectPiece piece
                 ]
         
 
-    cursor pp = div ([class' "ui-cursor" true] <> cursorStyle pp rows columns 0.8) [
+    cursor pp = div ([class_ "ui-cursor"] <> cursorStyle pp rows columns 0.8) [
         svg [width "100%", height "100%"] [use ("#piece-" <> show (state^._selectedPiece)) []]
     ]
 
-    grid = div ([class' "ui-board" true] <> gridStyle rows columns 5 <> trackPointer) $ concat [  
+    grid = div ([class_ "ui-board"] <> gridStyle rows columns 5 <> trackPointer) $ concat [  
         map3 position (attackedBySelected state) (capturableSquares state) \index piece attacked capturable ->
             square {piece,
                 selected: attacked || state^._selectedSquare == Just index,
@@ -87,11 +85,11 @@ view state = template _{config=config, board=board, rules=rules, customDialog=cu
             } [
                 style "width" $ pc (1.0 / toNumber columns),
                 style "height" $ pc (1.0 / toNumber rows),
-                onclick $ playA index,
-                onpointerenter $ selectSquareA (Just index),
-                onpointerleave $ selectSquareA Nothing
+                onclick $ Play index,
+                onpointerenter $ SelectSquare (Just index),
+                onpointerleave $ SelectSquare Nothing
             ],
-        [maybeN $ cursor <$> state^._pointer]
+        [state^._pointer <??> cursor]
     ]
 
     board = div [] [
@@ -102,8 +100,8 @@ view state = template _{config=config, board=board, rules=rules, customDialog=cu
     angles = [45, 90, 135, 0, 0, 180, -45, -90, -135]
 
     customDialog _ = dialog "Personnalise ta pièce" [
-        div [class' "flex queens-custompiece" true] [
-            div [class' "queens-grid queens-custompiece-grid" true] (
+        div [class_ "flex queens-custompiece"] [
+            div [class_ "queens-grid queens-custompiece-grid"] (
                 state^._customLocalMoves # mapWithIndex \index selected ->
                     square {
                             piece: if index == 12 then Custom else Empty,
@@ -112,10 +110,10 @@ view state = template _{config=config, board=board, rules=rules, customDialog=cu
                             nonavailable: false
                     } [key $ show index, 
                         style "width" "20%", style "height" "20%",
-                        onclick if index /= 12 then flipLocalMoveA index else pure unit
+                        onclick' if index /= 12 then Just (FlipLocalMove index) else Nothing
                     ]
             ),
-            div [class' "flex queens-custompiece-directions" true] (
+            div [class_ "flex queens-custompiece-directions"] (
                 map2 (state^._customDirections) angles \i selected angle ->
                     iconbutton state _{
                         selected = selected,
@@ -123,15 +121,15 @@ view state = template _{config=config, board=board, rules=rules, customDialog=cu
                         style = ["transform" ∧ ("rotate(" <> show angle <> "deg)")]
                     } [
                         key $ show i,
-                        onclick $ if i /= 4 then flipDirectionA i else pure unit
+                        onclick' $ if i /= 4 then Just (FlipDirection i) else Nothing
                     ]
             )
         ]
     ]    
         
     scoreDialog _ = bestScoreDialog state \pos -> [
-        div [class' "ui-flex-center queens-bestscore-container" true] [
-            div (gridStyle rows columns 5 <> [class' "ui-board queens-grid" true]) (
+        div [class_ "ui-flex-center queens-bestscore-container"] [
+            div (gridStyle rows columns 5 <> [class_ "ui-board queens-grid"]) (
                 pos <#> \piece ->
                     square { piece, capturable: false, selected: false, nonavailable: false} [
                         style "width" $ pc (1.0 / toNumber columns),

@@ -1,9 +1,13 @@
 module Game.Jetons.Model where
 
 import MyPrelude
+import Pha.Action (Action)
+import Game.Effs (EFFS)
 import Lib.Util ((..), dCoords)
-import Game.Core (class Game, class ScoreGame, GState, SizeLimit (..), Objective(..), ShowWinStrategy(..),
-                  _ext, genState, updateScore', _position, _nbColumns, _nbRows, defaultOnNewGame)
+import Game.Core (class Game, class ScoreGame, class MsgWithCore, class MsgWithDnd, CoreMsg, DndMsg,
+                 GState, SizeLimit (..), Objective(..), ShowWinStrategy(..),
+                coreUpdate, dndUpdate,
+                _ext, genState, updateScore', _position, _nbColumns, _nbRows, defaultOnNewGame)
 
 type Position = Array Int
 type Ext' = { dragged :: Maybe Int }
@@ -55,3 +59,10 @@ instance scoregame :: ScoreGame (Array Int) Ext { from :: Int, to :: Int } where
     scoreHash state = show (state^._nbRows) <> "-" <> show (state^._nbColumns)
     isCustomGame _ = false
 
+data Msg = Core CoreMsg | DnD (DndMsg Int)
+instance withcore :: MsgWithCore Msg where core = Core
+instance withdnd :: MsgWithDnd Msg Int where dndmsg = DnD  
+
+update :: Msg -> Action State EFFS
+update (Core msg) = coreUpdate msg
+update (DnD msg) = dndUpdate _dragged msg

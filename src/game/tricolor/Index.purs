@@ -1,6 +1,6 @@
-module Game.Noirblanc (module M, game) where
-import Game.Noirblanc.Model (State, Msg, update, istate) as M
-import Game.Noirblanc.View (view) as M
+module Game.Tricolor (module M, game) where
+import Game.Tricolor.Model (State, Msg, update, istate) as M
+import Game.Tricolor.View (view) as M
 import MyPrelude
 import Game.Core (core, CoreMsg(Init))
 import Game.Generic (GenericGame)

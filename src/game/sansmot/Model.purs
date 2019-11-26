@@ -2,7 +2,9 @@ module Game.Sansmot.Model where
 import MyPrelude
 import Data.Map(Map, empty) as M
 import Pha.Action (Action, setState, getState)
-import Pha.Effects.Delay (DELAY, delay)
+import Pha.Effects.Delay (delay)
+import Game.Effs (EFFS)
+
 
 data Page = PythaPage | CarollPage
 
@@ -52,11 +54,12 @@ _locked = lens _.locked _{locked = _}
 _page :: Lens' State Page
 _page = lens _.page _{page = _}
 
-setPageA :: ∀effs. Page -> Action State effs
-setPageA page = unlessM (view _locked <$> getState) $ setState ((_page .~ page) ∘ (_anim .~ M.empty))
+data Msg = SetPage Page | Animate (Array AnimationStep)
 
-animateA :: ∀effs. Array AnimationStep -> Action State (delay :: DELAY | effs)
-animateA animation = do
+update :: Msg -> Action State EFFS
+update (SetPage page) = unlessM (view _locked <$> getState) $ setState ((_page .~ page) ∘ (_anim .~ M.empty))
+
+update (Animate animation) = do
     unlessM (view _locked <$> getState) $ do
         setState $ (_anim .~ M.empty) ∘ (_locked .~ true)
         for_ animation \(Step d key step) -> do

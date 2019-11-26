@@ -2,16 +2,14 @@ module Game.Solitaire.View where
 
 import MyPrelude
 import Lib.Util (coords)
-import Pha (VDom, text, ifN, maybeN, key, attr, class_, class', style)
+import Pha (VDom, text, (<?>), maybeN, key, attr, class_, class', style)
 import Pha.Elements (div, br)
-import Pha.Attributes (onclick)
 import Pha.Svg (svg, rect, circle, viewBox, x_, y_, width, height, cx, cy, r, fill, stroke, strokeWidth)
 import Pha.Util (px, translate)
-import Game.Effs (EFFS)
 import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointer, scoreFn)
-import Game.Solitaire.Model (State, Board(..), _board, _holes, _dragged, _help, setBoardA, toggleHelpA)
+import Game.Solitaire.Model (State, Msg(..), Board(..), _board, _holes, _dragged, _help)
 import UI.Icon (Icon(..))
-import UI.Icons (iconbutton, icongroup, iconSelectGroup, iconBestScore, iundo, iredo, ireset, irules)
+import UI.Icons (icongroup, iconSelectGroup, iconBestScore, ihelp, iundo, iredo, ireset, irules)
 import UI.Template (template, card, bestScoreDialog, gridStyle, incDecGrid, svgCursorStyle, dndBoardProps, dndItemProps)
 
 tricolor :: Int -> Int -> Int -> String
@@ -21,10 +19,10 @@ tricolor i columns help =
         1 -> "blue"
         _ -> "green"
 
-cursor :: ∀a b. PointerPosition -> b -> VDom a EFFS
+cursor :: ∀a b. PointerPosition -> b -> VDom a
 cursor pp _ = circle ([r "20", attr "pointer-events" "none", fill "url(#soli-peg)"] <> svgCursorStyle pp)
 
-view :: State -> VDom State EFFS
+view :: State -> VDom Msg
 view state = template _{config=config, board=board, rules=rules, winTitle=winTitle, scoreDialog=scoreDialog} state where
     columns = state^._nbColumns
     rows = state^._nbRows
@@ -41,33 +39,31 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
 
     config =
         let boards = [CircleBoard, Grid3Board, RandomBoard, EnglishBoard, FrenchBoard]
-            ihelp = iconbutton state _{icon = IconSymbol "#help", selected = state^._help > 0, tooltip = Just "Aide"}
-                    [onclick toggleHelpA]
         in        
         card "Jeu du solitaire" [
-            iconSelectGroup state "Plateau" boards (state^._board) setBoardA \i opt -> case i of
+            iconSelectGroup state "Plateau" boards (state^._board) SetBoard \i opt -> case i of
                 CircleBoard -> opt{icon = IconSymbol "#circle", tooltip = Just "Cercle"}
                 Grid3Board -> opt{icon = IconText "3xN", tooltip = Just "3xN"}
                 RandomBoard -> opt{icon = IconSymbol "#shuffle", tooltip = Just "Aléatoire"}
                 EnglishBoard -> opt{icon = IconSymbol "#tea", tooltip = Just "Anglais"}
                 FrenchBoard ->  opt{icon = IconSymbol "#bread", tooltip = Just "Français"},
-            icongroup "Options" $ [ihelp] <> ([iundo, iredo, ireset, irules] <#> \x -> x state),
+            icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x state,
             iconBestScore state
         ] 
 
     grid = div ([
         class' "ui-board" true
-    ] <> dndBoardProps _dragged <> (if isCircleBoard then
+    ] <> dndBoardProps <> (if isCircleBoard then
                             [style "width" "100%", style "height" "100%"] 
                         else 
                             gridStyle rows columns 5
     )) [
         svg [if isCircleBoard then viewBox 0 0 250 250 else viewBox 0 0 (50 * columns) (50 * rows)] $ concat [
-            [ifN isCircleBoard \_ ->
+            [isCircleBoard <?> \_ ->
                 circle [cx "125", cy "125", r "90", stroke "grey", fill "transparent", strokeWidth "5"]
             ],
             concat $ state^._holes # mapWithIndex \i val -> if not val then [] else [
-                ifN (state^._help > 0 && not isCircleBoard) \_ ->
+                state^._help > 0 && not isCircleBoard <?> \_ ->
                     rect [
                         x_ "-25.0", y_ "-25", width "50", height "50",
                         key $ "rect" <> show i,
@@ -80,16 +76,27 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                     fill "url(#soli-hole)",
                     class' "solitaire-hole" true,
                     style "transform" $ itemStyle i
-                ] <> dndItemProps _dragged false true i state)
+                ] <> dndItemProps {
+                    currentDragged: state^._dragged,
+                    draggable: false,
+                    droppable: true,
+                    id: i
+                } state)
             ],
-            state^._position # mapWithIndex \i val -> ifN val \_ ->
+            state^._position # mapWithIndex \i -> (_ <?> \_ ->
                 circle ([
                     r "20",
                     key $ "p" <> show i,
                     fill "url(#soli-peg)",
                     class' "solitaire-peg" true,
                     style "transform" $ itemStyle i
-                ] <> dndItemProps _dragged true false i state),
+                ] <> dndItemProps {
+                    draggable: true,
+                    droppable: false,
+                    currentDragged: state^._dragged,
+                    id: i
+                }  state)
+            ),
             [maybeN $ cursor <$> state^._pointer <*> state^._dragged]
         ]
     ]
@@ -104,18 +111,19 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                                     gridStyle rows columns 5
             )) [
                 svg [if isCircleBoard then viewBox 0 0 250 250 else viewBox 0 0 (50 * columns) (50 * rows)] $ concat [
-                    [ifN isCircleBoard \_ ->
+                    [isCircleBoard <?> \_ ->
                         circle [cx "125", cy "125", r "90", stroke "grey", fill "transparent", strokeWidth "5"]
                     ],
-                    state^._holes # mapWithIndex \i val -> ifN val \_ ->
+                    state^._holes # mapWithIndex \i -> (_ <?> \_ ->
                         circle [
                             key $ "h" <> show i,
                             r "17",
                             fill "url(#soli-hole)",
                             class_ "solitaire-hole",
                             style "transform" $ itemStyle i
-                        ],
-                    position # mapWithIndex \i val -> ifN val \_ ->
+                        ]
+                    ),
+                    position # mapWithIndex \i -> (_ <?> \_ ->
                         circle [
                             key $ "p" <> show i,
                             r "20",
@@ -123,6 +131,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
                             class_ "solitaire-peg",
                             style "transform" $ itemStyle i
                         ]
+                    )
                 ]
             ]
         ]

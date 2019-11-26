@@ -199,9 +199,7 @@ coreUpdate ConfirmNewGame = setState $ \state ->
                             _ -> state
 coreUpdate (SetPointer pos) = setState $ _pointer .~ pos
 coreUpdate ComputerStarts = setState (pushToHistory ∘ (_turn %~ oppositeTurn)) *> computerPlay
-        --coreUpdate (ConfirmNewGame  :: ∀pos ext effs. GState pos ext -> Action (GState pos ext) effs
---confirmNewGameA st = setState (\_ -> st)
-coreUpdate Init = init
+coreUpdate Init = newGame identity
 
 playAux :: ∀pos ext mov. Game pos ext mov => mov -> GState pos ext -> Maybe (GState pos ext)
 playAux move state =
@@ -272,13 +270,6 @@ newGame f = do
             const state4
         else
             _dialog .~ ConfirmNewGameDialog state4
-
-newGame' :: ∀a pos ext mov effs. Game pos ext mov =>
-    (a -> GState pos ext -> GState pos ext) -> a -> Action (GState pos ext) (rng :: RNG | effs)
-newGame' f val = newGame (f val)
-
-init :: ∀pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG | effs)
-init = newGame identity
 
 class Game pos ext mov <= TwoPlayersGame pos ext mov | ext -> pos mov  where
     isLosingPosition :: GState pos ext -> Boolean

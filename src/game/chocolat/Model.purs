@@ -4,7 +4,6 @@ import Data.Int.Bits ((.^.))
 import Lib.Util ((..))
 import Pha.Effects.Random (randomInt)
 import Pha.Action (Action, setState)
-import Pha.Effects.Random (RNG)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, SizeLimit(..), GState, Mode(..),
                 coreUpdate, playA, _ext, genState, newGame, computerMove', _position, _nbRows, _nbColumns)

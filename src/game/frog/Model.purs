@@ -69,7 +69,7 @@ winningPositions size moves = t <#> force where
 reachableArray :: State -> Array Boolean
 reachableArray state = tabulate (state^._nbRows + 1) (canPlay state)
 
-data Msg = Core CoreMsg | SelectMove Int | Mark Int | Play Int
+data Msg = Core CoreMsg | SelectMove Int | Mark Int | Play Int | Konami String
 instance withcore :: MsgWithCore Msg where core = Core
 
 update :: Msg -> Action State EFFS
@@ -84,7 +84,8 @@ update (SelectMove move) = newGame $ _moves %~ selectMove where
 -- place/retire une marque à la position i
 update (Mark i) = setState (_marked ∘ ix i %~ not)
 update (Play i) = playA i
+update (Konami s) = s # konamiCode _keySequence (setState \st -> st # _marked .~ st^._winning)
 
-onKeyDown :: ∀effs. String -> Action State effs
-onKeyDown = konamiCode _keySequence (setState \st -> st # _marked .~ st^._winning)
+onKeyDown :: String -> Maybe Msg
+onKeyDown = Just <<< Konami 
 

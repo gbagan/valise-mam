@@ -5,12 +5,11 @@ import Lib.Util (swap)
 import Control.Monad.Rec.Class (tailRecM, Step(..))
 import Game.Effs (EFFS)
 import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, GState,
-    CoreMsg(ToggleHelp),  DndMsg(DropOnBoard),
+    CoreMsg,  DndMsg(DropOnBoard),
     coreUpdate, dndUpdate,
     genState, newGame, lockAction, _ext, _position, _showWin, defaultSizeLimit)
 import Pha.Action (Action, getState, setState)
-import Pha.Effects.Delay  (delay, DELAY)
-import Pha.Effects.Random (RNG)
+import Pha.Effects.Delay  (delay)
 
 type Position = Array (Maybe Int)
 

@@ -135,14 +135,10 @@ update (SetTile t) = newGame $ (_tileType .~ t) >>> (if t == CustomTile then _di
 update Rotate =  setState $ _rotation %~ (_ + 1)
 update (SetHoverSquare a) = setState (_hoverSquare .~ a)
 update (FlipTile index) = newGame $ _tile ∘ _isoCustom ∘ ix index %~ not
-{-
-update (ClickOnCell a) = do
-    state <- getState
-    where putSink i = setState $ _position ∘ ix i .~ (-1)
--}
 
---onKeyDown :: ∀effs. String -> Action State effs
---onKeyDown " " = rotateA
+onKeyDown :: String -> Maybe Msg
+onKeyDown " " = Just Rotate
+onKeyDown _ = Nothing
 --onKeyDown _ = pure unit
 
 {-            

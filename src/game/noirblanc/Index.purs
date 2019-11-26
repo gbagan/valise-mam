@@ -1,5 +1,5 @@
 module Game.Noirblanc (module M, game) where
-import Game.Noirblanc.Model (State, Msg, update, istate) as M
+import Game.Noirblanc.Model (State, Msg, update, istate, onKeyDown) as M
 import Game.Noirblanc.View (view) as M
 import MyPrelude
 import Game.Core (core, CoreMsg(Init))
@@ -9,5 +9,5 @@ game :: GenericGame M.State M.Msg
 game = {
     init: Just (core Init),
     view: M.view,
-    onKeydown: const Nothing
+    onKeydown: M.onKeyDown
 }

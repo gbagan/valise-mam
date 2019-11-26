@@ -9,8 +9,6 @@ import Game.Core (GState, class Game, class MsgWithCore, CoreMsg, SizeLimit(..),
         coreUpdate,
         _ext, newGame, genState, _nbRows, _nbColumns, _position, playA)
 import Pha.Action (Action, getState, setState)
-import Pha.Effects.Random (RNG)
-import Pha.Effects.Delay (DELAY)
 
 data Mode = Mode1 | Mode2
 derive instance eqMode :: Eq Mode

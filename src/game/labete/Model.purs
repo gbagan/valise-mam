@@ -195,7 +195,8 @@ update (IncSelectedColor i) = setState $ _selectedColor %~ \x -> (x + i) `mod` 9
 -- startZoneA est activé lors  du onpointerdown sur l'élément html réprésentant le carré
 update (StartZone s) = setState (_startSquare .~ Just s)
 -- startZone2A est appliqué lors du onpointerdown sur l'élément html réprésentant le plateu
-update (StartZone2 pos) = setState (_startPointer .~ Just pos)
+update (StartZone2 pos) = do
+    setState (_startPointer .~ Just pos)
 update (FinishZone index1) = setState \state -> case state^._startSquare of
     Nothing -> state
     Just index2 ->
@@ -207,9 +208,9 @@ update (FinishZone index1) = setState \state -> case state^._startSquare of
 update (FlipCustomBeast i)  = newGame (_beast <<< ix 0 <<< _isoCustom <<< ix i %~ not)
 update (Play m) = playA m
 
---onKeyDown :: ∀effs. String -> Action State effs
---onKeyDown "o" = incSelectedColorA (-1)
---onKeyDown "p" = incSelectedColorA 1
---onKeyDown _ = pure unit
+onKeyDown :: String -> Maybe Msg
+onKeyDown "o" = Just (IncSelectedColor (-1))
+onKeyDown "p" = Just (IncSelectedColor 1)
+onKeyDown _ = Nothing
 
 

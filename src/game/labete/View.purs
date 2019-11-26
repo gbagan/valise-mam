@@ -101,7 +101,7 @@ view state = template _{config=config, board=board, rules=rules, winTitle=winTit
     ])
 
     grid = div (gridStyle rows columns 5 <> trackPointer <> [class_ "ui-board",
-        on' "onpointerdown" $ \ev -> shiftKey ev >>= (if _ then
+        on' "pointerdown" $ \ev -> shiftKey ev >>= (if _ then
                             Just <$> StartZone2 <$> pointerDecoder ev
                         else
                             pure Nothing

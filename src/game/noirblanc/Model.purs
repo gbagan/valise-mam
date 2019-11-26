@@ -5,11 +5,9 @@ import Run (Run)
 import Lib.Util (dCoords)
 import Lib.KonamiCode (konamiCode)
 import Pha.Action (Action, getState, setState)
-import Pha.Effects.Random (RNG)
-import Pha.Effects.Delay (DELAY)
 import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg, 
-         _ext, coreUpdate, playA, isLevelFinished, _position, _nbColumns, _nbRows, newGame, newGame', genState)
-import Game.Effs (EFFS)
+         _ext, coreUpdate, playA, isLevelFinished, _position, _nbColumns, _nbRows, newGame, genState)
+import Game.Effs (EFFS, RNG, DELAY)
 
 type Position = { light :: Array Boolean, played :: Array Boolean }
 type Ext' = {
@@ -98,10 +96,7 @@ afterPlay = do
         setState (_maxLevels ∘ ix mode .~ nextLevel)
         newGame (_level %~ \lvl -> min (lvl + 1) 6)
 
-onKeyDown :: ∀effs. String -> Action State effs
-onKeyDown = konamiCode _keySequence (setState (_maxLevels .~ [6, 6, 6, 6]))
-
-data Msg = Core CoreMsg | SelectMode Int | SelectLevel Int | Play Int
+data Msg = Core CoreMsg | SelectMode Int | SelectLevel Int | Play Int | Konami String
 instance withcore :: MsgWithCore Msg where core = Core
 
 update :: Msg -> Action State EFFS
@@ -109,3 +104,7 @@ update (Core msg) = coreUpdate msg
 update (SelectMode mode) = newGame $ (_mode .~ mode) ∘ (_level .~ 0)
 update (SelectLevel level) = newGame (_level .~ level)
 update (Play move) = playA move *> afterPlay
+update (Konami k) = k # konamiCode _keySequence (setState (_maxLevels .~ [6, 6, 6, 6]))
+
+onKeyDown :: String -> Maybe Msg
+onKeyDown = Just <<< Konami

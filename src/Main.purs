@@ -153,17 +153,16 @@ update (ValiseMsg msg)    = lens _.valise _{valise = _}       .~> Valise.update 
 init :: Action RootState EFFS
 init = do
     for_ (Map.values games) $
-        gameRun \game -> case game.core.init of
-                            Nothing -> pure unit
-                            Just msg -> update (game.msgmap msg)
+        gameRun \game -> game.core.init # maybe (pure unit) (update <<< game.msgmap)
     hashChange unit
 
 onKeyDown :: Event -> Action RootState EFFS
 onKeyDown ev = do
     st <- getState
     case E.key ev of
-        _  -> pure unit
-        -- Just k -> sliceFn st \lens -> actionOver lens (G.onKeyDown k)
+        Nothing  -> pure unit
+        Just k -> callByName st.location (pure unit) \game ->
+            game.core.onKeydown k # maybe (pure unit) (update <<< game.msgmap)
 
 view :: RootState -> Document Msg
 view st = {

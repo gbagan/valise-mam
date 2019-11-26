@@ -4,7 +4,6 @@ import MyPrelude
 import Lib.Util (abs)
 import Pha.Effects.Random (randomInt)
 import Pha.Action (Action, setState)
-import Pha.Effects.Random (RNG)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class MsgWithCore, GState, CoreMsg,
                 coreUpdate, playA, _ext, genState, newGame, _position, defaultSizeLimit)

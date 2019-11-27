@@ -8,7 +8,7 @@ import Data.Maybe (Maybe(..), maybe, fromMaybe, isJust, isNothing) as Exports
 import Data.Foldable (class Foldable, foldl, foldr, elem, any, all, and, or, for_) as Exports
 import Data.Traversable (sequence, for) as Exports
 import Data.Array ((!!), head, last, cons, snoc, filter, find, take, null, length, mapMaybe, catMaybes,
-        replicate, reverse, modifyAt, updateAt, updateAtIndices, mapWithIndex, concat, concatMap, sortWith, zipWith) as Exports
+        replicate, reverse, modifyAt, updateAt, updateAtIndices, mapWithIndex, concat, tail, concatMap, sortWith, zip, zipWith) as Exports
 import Data.Lens (Lens', lens, set, Iso', iso, view, over, (^.), (.~), (%~), (?~), (+~)) as Exports
 import Data.Lens.Index (ix) as Exports
 import Data.Lens.At (at) as Exports

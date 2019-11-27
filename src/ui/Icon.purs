@@ -5,11 +5,12 @@ import Data.Tuple (uncurry)
 import Pha (VDom, Prop, text, emptyNode, (<??>), class_, class', style)
 import Pha.Elements (button, span)
 import Pha.Attributes (disabled)
+import Lib.Util (partialUpdate, class PartialRecord)
 import Pha.Svg (svg, use, width, height)
 
 data Icon = IconText String | IconSymbol String | IconNone
 
-type Options = {
+type Options = (
     icon :: Icon,
     selected :: Boolean,
     tooltip :: Maybe String,
@@ -18,9 +19,9 @@ type Options = {
     hidden :: Boolean,
     disabled :: Boolean,
     style :: Array (Tuple String String)
-}
+)
 
-defaultOptions :: Options
+defaultOptions :: Record Options
 defaultOptions = {
     icon: IconNone,
     selected: false,
@@ -32,9 +33,9 @@ defaultOptions = {
     style: []
 }
 
-iconbutton :: ∀a. (Options -> Options) -> Array (Prop a) -> VDom a
-iconbutton optionFn props =
-    let {icon, selected, tooltip, round, large, hidden, disabled: d, style: st} = optionFn defaultOptions in
+iconbutton :: ∀a opts.  (PartialRecord opts Options) => Record opts -> Array (Prop a) -> VDom a
+iconbutton opts props =
+    let {icon, selected, tooltip, round, large, hidden, disabled: d, style: st} = partialUpdate opts defaultOptions in
     button ([
         class_ "ui-icon",
         class' "selected" selected,

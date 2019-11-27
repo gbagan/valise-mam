@@ -76,7 +76,7 @@ betweenMove2 state move@{from, to} =
         betweenMove state move
 
 -- fonction auxilaire pour onNewGame
-generateBoard :: forall r. Int -> Int -> Int -> (Int -> Int -> Boolean) ->
+generateBoard :: ∀r. Int -> Int -> Int -> (Int -> Int -> Boolean) ->
     {holes :: Array Boolean, position :: Run (rng :: RNG | r) (Array Boolean), customSize :: Boolean}
 generateBoard rows columns startingHole holeFilter = {holes, position, customSize: false} where
     holes = tabulate2 rows columns holeFilter

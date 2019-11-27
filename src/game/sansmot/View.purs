@@ -10,7 +10,7 @@ import Pha.Svg (svg, path, line, text', stroke, fill, viewBox, x_, y_, width, he
 import Pha.Util (pc, translate)
 import Game.Sansmot.Model (State, Msg(..), Page(..), pythaAnimation, carollAnimation)
 
-line' :: forall a. Int -> Int -> Int -> Int -> Array (Prop a) -> VDom a
+line' :: ∀a. Int -> Int -> Int -> Int -> Array (Prop a) -> VDom a
 line' x1_ y1_ x2_ y2_ props = line ([attr "x1" (show x1_), attr "x2" (show x2_), attr "y1" (show y1_), attr "y2" (show y2_)] <> props)
 
 -- besoin d'un transform par défault pour empécher un bug sous safari

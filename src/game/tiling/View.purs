@@ -31,7 +31,7 @@ square {isDark, hasBlock, hasSink, row, col} props =
     ]
     
 view :: State -> VDom Msg
-view state = template _{config=config, board=board, rules=rules, winTitle=winTitle, customDialog=customDialog} state where
+view state = template {config, board, rules, winTitle, customDialog} state where
     position = state^._position
     rows = state^._nbRows
     columns = state^._nbColumns

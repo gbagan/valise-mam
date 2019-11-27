@@ -16,7 +16,7 @@ px' :: Int -> String
 px' a = show a <> "px"
 
 view :: State -> VDom Msg
-view state = template _{config=config, board=board, rules=rules, winTitle=winTitle} state where
+view state = template {config, board, rules, winTitle} state where
     nbPiles = state^._nbPiles
     length = state^._length
 

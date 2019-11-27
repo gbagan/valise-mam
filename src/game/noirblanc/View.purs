@@ -13,7 +13,7 @@ import UI.Icon (Icon(..), Options)
 import UI.Icons (icongroup, ihelp, ireset, irules, iconSelectGroup)
 import UI.Template (template, card, incDecGrid, gridStyle)
 
-levelOptions :: Int -> Boolean -> Options -> Options
+levelOptions :: Int -> Boolean -> Record Options -> Record Options
 levelOptions _ true opt = opt{icon = IconSymbol "#locked", tooltip = Just "Difficulté non débloquée", disabled = true}
 levelOptions level _ opt = case level of
     0 -> opt{ icon = IconText "3x3" }
@@ -41,7 +41,7 @@ square light cross props =
     ]
 
 view :: State -> VDom Msg
-view state = template _{config=config, board=board, rules=rules, winTitle=winTitle} state where
+view state = template {config, board, rules, winTitle} state where
     rows = state^._nbRows
     columns = state^._nbColumns
     position = state^._position

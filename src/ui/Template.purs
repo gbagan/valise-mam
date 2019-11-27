@@ -11,6 +11,7 @@ import Game.Core (class Game, class ScoreGame, GState, Mode(..), Turn(..), SizeL
         class MsgWithCore, core, CoreMsg(..), class MsgWithDnd, dndmsg, DndMsg(..)
         )
 import Game.Common (pointerDecoder)
+import Lib.Util (partialUpdate, class PartialRecord)
 import UI.Dialog (dialog) as D
 import UI.IncDecGrid (incDecGrid) as U
 type Position = { x :: Number, y :: Number }
@@ -46,14 +47,16 @@ incDecGrid state = U.incDecGrid {
 } where
     SizeLimit minRows minCols maxRows maxCols = sizeLimit state 
 
-type Elements a = {
+type ElementsRow a = (
     board :: VDom a,
     config :: VDom a,
     rules :: Array (VDom a),
     winTitle :: String,
     customDialog :: Unit -> VDom a,
     scoreDialog :: Unit -> VDom a
-}
+)
+
+type Elements a = { | ElementsRow a }
 
 defaultElements :: ∀a. Elements a
 defaultElements = {
@@ -65,18 +68,11 @@ defaultElements = {
     scoreDialog: \_ -> emptyNode
 }
 
-dialog :: ∀msg. MsgWithCore msg => String -> Array (VDom msg) -> VDom msg
-dialog title = D.dialog {title, onCancel: Nothing, onOk: Just $ core SetNoDialog}
-
-bestScoreDialog :: ∀msg pos ext mov. MsgWithCore msg => ScoreGame pos ext mov =>  
-            GState pos ext -> (pos -> Array (VDom msg)) -> VDom msg
-bestScoreDialog state children = snd <$> bestScore state <??> \pos ->
-    dialog "Meilleur score" (children pos)
-
-
-template :: ∀msg pos ext mov. MsgWithCore msg => Game pos ext mov =>
-            (Elements msg -> Elements msg) -> GState pos ext -> VDom msg
-template elemFn state =
+template :: ∀elems pos ext mov msg.
+            PartialRecord elems (ElementsRow msg) =>
+            MsgWithCore msg => Game pos ext mov =>
+            Record (elems) -> GState pos ext -> VDom msg
+template elems state =
     div [] [
         div [class_ "main-container"] [
             div [] [board, winPanel winTitle (state^._showWin)],
@@ -85,7 +81,7 @@ template elemFn state =
         dialog' (state^._dialog)
     ]
     where
-        {board, config, rules, winTitle, customDialog, scoreDialog} = elemFn defaultElements
+        {config, board, winTitle, rules, customDialog, scoreDialog} = partialUpdate elems defaultElements
         dialog' Rules = dialog "Règles du jeu" rules
         dialog' (ConfirmNewGameDialog _) =
             D.dialog {
@@ -99,6 +95,14 @@ template elemFn state =
         dialog' ScoreDialog = scoreDialog unit
         dialog' _ = emptyNode
 
+dialog :: ∀msg. MsgWithCore msg => String -> Array (VDom msg) -> VDom msg
+dialog title = D.dialog {title, onCancel: Nothing, onOk: Just $ core SetNoDialog}
+
+bestScoreDialog :: ∀msg pos ext mov. MsgWithCore msg => ScoreGame pos ext mov =>  
+                    GState pos ext -> (pos -> Array (VDom msg)) -> VDom msg
+bestScoreDialog state children = snd <$> bestScore state <??> \pos ->
+    dialog "Meilleur score" (children pos)
+        
 
 gridStyle :: ∀a. Int -> Int -> Int -> Array (Prop a)
 gridStyle rows columns limit = [style "height" $ pc (toNumber rows / m),

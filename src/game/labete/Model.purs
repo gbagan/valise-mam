@@ -212,5 +212,3 @@ onKeyDown :: String -> Maybe Msg
 onKeyDown "o" = Just (IncSelectedColor (-1))
 onKeyDown "p" = Just (IncSelectedColor 1)
 onKeyDown _ = Nothing
-
-

@@ -39,49 +39,46 @@ modes = [StandardMode, CylinderMode, TorusMode]
 
 square :: ∀a. { color :: Int, hasTrap :: Boolean, hasBeast :: Boolean, row :: Int, col :: Int} -> Array (Prop a) -> VDom a
 square { color, hasTrap, hasBeast, row, col } props =
-    g ([transform $ translate (show $ 50 * col) (show $ 50 * row)] <> props) [
-        use "#grass" [width "50", height "50", fill $ colors !! color # fromMaybe ""],
-        rect [width "51", height "51", stroke "black", strokeWidth "0.5", fill "transparent"],
-        use "#paw" [x_ "5", y_ "5", width "40", height "40", class_ "labete-beast", class' "visible" hasBeast],
-        hasTrap <?> \_ ->
+    g ([transform $ translate (show $ 50 * col) (show $ 50 * row)] <> props)
+    [   use "#grass" [width "50", height "50", fill $ colors !! color # fromMaybe ""]
+    ,   rect [width "51", height "51", stroke "black", strokeWidth "0.5", fill "transparent"]
+    ,   use "#paw" [x_ "5", y_ "5", width "40", height "40", class_ "labete-beast", class' "visible" hasBeast]
+    ,   hasTrap <?> \_ ->
             use "#trap" [x_ "5", y_ "5", width "40", height "40"]
     ]
 
 ihelp :: State -> VDom Msg
 ihelp state =
     iconbutton
-        state _{icon = IconSymbol "#help", tooltip = Just "Aide", selected = state^._help} [
-            onpointerdown $ SetHelp true,
-            onpointerup $ SetHelp false,
-            onpointerleave $ SetHelp false
+        state {icon: IconSymbol "#help", tooltip: Just "Aide", selected : state^._help}
+        [   onpointerdown $ SetHelp true
+        ,   onpointerup $ SetHelp false
+        ,   onpointerleave $ SetHelp false
         ]
 
 view :: State -> VDom Msg
-view state = template _{config=config, board=board, rules=rules, winTitle=winTitle, 
-                                customDialog=customDialog, scoreDialog=scoreDialog} state where
+view state = template {config, board, rules, winTitle, customDialog, scoreDialog} state where
     rows = state^._nbRows
     columns = state^._nbColumns
     nonTrappedBeast = nonTrappedBeastOnGrid state
     beastTypes = [Type1, Type2, Type3, Type4, CustomBeast]
 
-    config = card "La bête" [
-        iconSelectGroup state "Forme de la bête" beastTypes (state^._beastType) SetBeast case _ of
-            Type1 -> _{icon = IconSymbol "#beast1"}
-            Type2 -> _{icon = IconSymbol "#beast2"}
-            Type3 -> _{icon = IconSymbol "#beast3"}
-            Type4 -> _{icon = IconSymbol "#beast23"}
-            CustomBeast -> _{icon = IconSymbol "#customize"}
-        ,
-        iconSelectGroup state "Type de la grille" modes (state^._mode) SetMode case _ of
-            StandardMode -> _{icon = IconSymbol "#grid-normal", tooltip = Just "Normale"}
-            CylinderMode -> _{icon = IconSymbol "#grid-cylinder", tooltip = Just "Cylindrique"}
-            TorusMode -> _{icon = IconSymbol "#grid-torus", tooltip = Just "Torique"},
+    config = card "La bête" 
+        [   iconSelectGroup state "Forme de la bête" beastTypes (state^._beastType) SetBeast case _ of
+                Type1 -> _{icon = IconSymbol "#beast1"}
+                Type2 -> _{icon = IconSymbol "#beast2"}
+                Type3 -> _{icon = IconSymbol "#beast3"}
+                Type4 -> _{icon = IconSymbol "#beast23"}
+                CustomBeast -> _{icon = IconSymbol "#customize"}
+        ,   iconSelectGroup state "Type de la grille" modes (state^._mode) SetMode case _ of
+                StandardMode -> _{icon = IconSymbol "#grid-normal", tooltip = Just "Normale"}
+                CylinderMode -> _{icon = IconSymbol "#grid-cylinder", tooltip = Just "Cylindrique"}
+                TorusMode -> _{icon = IconSymbol "#grid-torus", tooltip = Just "Torique"}
 
-        iconSizesGroup state [3∧3, 5∧5, 6∧6] true,
-
-        icongroup "Options" $ [ihelp state, ireset state, irules state],
-        iconBestScore state
-    ]
+        ,   iconSizesGroup state [3∧3, 5∧5, 6∧6] true
+        ,   icongroup "Options" $ [ihelp state, ireset state, irules state]
+        ,   iconBestScore state
+        ]
 
     rules = [
         text "Place le moins de pièges possible pour empécher la bête d'abimer ta belle pelouse!", br,

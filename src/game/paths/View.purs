@@ -44,7 +44,7 @@ heroCursor pp =
     ] <> svgCursorStyle pp
 
 view :: State -> VDom Msg
-view state = template _{config=config, board=board, rules=rules} state where
+view state = template {config, board, rules} state where
     position = state^._position
     rows = state^._nbRows
     columns = state^._nbColumns

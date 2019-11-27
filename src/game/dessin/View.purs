@@ -29,7 +29,7 @@ getCoordsOfEdge graph (u ↔ v) = {px1, px2, py1, py2} where
     {x: px2, y: py2} = getCoords graph v
 
 view :: State -> VDom Msg
-view state = template _{config=config, board=board, rules=rules, winTitle=winTitle} state where
+view state = template {config, board, rules, winTitle} state where
     position = state^._position
     graph = state^._graph
     raises = nbRaises state

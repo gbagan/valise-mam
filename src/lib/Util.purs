@@ -1,10 +1,9 @@
 module Lib.Util where
 
-import Prelude
-import Data.Maybe (Maybe, maybe)
-import Data.Tuple (Tuple)
-import Data.Array (range, (!!), mapWithIndex, updateAt, tail, zip, zipWith)
-import Data.Int (toNumber, floor)
+import MyPrelude
+import Data.Array (range)
+import Prim.Row (class Union, class Nub)
+import Record as Record
 
 abs :: Int -> Int
 abs x = if x < 0 then -x else x
@@ -26,7 +25,7 @@ map3 :: ∀a b c d. Array a -> Array b -> Array c -> (Int -> a -> b -> c -> d) -
 map3 t1 t2 t3 fn = zipWith ($) (zipWith ($) (mapWithIndex fn t1) t2) t3
 
 rangeStep :: Int -> Int -> Int -> Array Int
-rangeStep begin end step = tabulate (max 0 (1 + (end - begin) `div` step)) \i -> begin + i * step
+rangeStep begin end step = tabulate (max 0 (1 + (end - begin) / step)) \i -> begin + i * step
 
 floatRange :: Number -> Number -> Number -> Array Number
 floatRange begin end step = tabulate (max 0 (floor $ 1.0 + (end - begin) / step)) \i -> begin + toNumber i * step
@@ -54,3 +53,16 @@ dCoords cols x y = {
 } where
     p = coords cols x
     q = coords cols y
+
+{-    
+partialUpdate :: ∀r1 r2 s.
+    Union r1 r2 s =>  Nub s r2 =>
+    Record r1 -> Record r2 -> Record r2
+partialUpdate x y = Record.merge x y
+-}
+
+class PartialRecord (r1 :: #Type) (r2 :: #Type) where
+    partialUpdate :: Record r1 -> Record r2 -> Record r2
+
+instance precord :: (Union r1 r2 s, Nub s r2) => PartialRecord r1 r2 where
+    partialUpdate = Record.merge

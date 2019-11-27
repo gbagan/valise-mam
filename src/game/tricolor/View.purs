@@ -20,7 +20,7 @@ translateCell i size = translate (pc x) (pc y) where
     y = 0.45 + 0.35 * sin (toNumber i * 2.0 * pi / toNumber size)
 
 view :: State -> VDom Msg
-view state = template _{config=config, board=board, rules=rules} state where
+view state = template {config, board, rules} state where
     size = state^._size
     nbColors = state^._nbColors
     levelFinished = isLevelFinished state

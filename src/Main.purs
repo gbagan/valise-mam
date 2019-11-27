@@ -93,22 +93,22 @@ gameRun = unsafeCoerce
    
 games :: Map.Map String GameWrapper
 games = Map.fromFoldable 
-    [   "baseball"  /\ gameWrap Baseball.game  _.baseball  BaseballMsg
-    ,   "chocolat"  /\ gameWrap Chocolat.game  _.chocolat  ChocolatMsg
-    ,   "dessin"    /\ gameWrap Dessin.game    _.dessin    DessinMsg
-    ,   "frog"      /\ gameWrap Frog.game      _.frog      FrogMsg
-    ,   "jetons"    /\ gameWrap Jetons.game    _.jetons    JetonsMsg
-    ,   "labete"    /\ gameWrap Labete.game    _.labete    LabeteMsg
-    ,   "nim"       /\ gameWrap Nim.game       _.nim       NimMsg
-    ,   "noirblanc" /\ gameWrap Noirblanc.game _.noirblanc NoirblancMsg
-    ,   "paths"     /\ gameWrap Paths.game     _.paths     PathsMsg
-    ,   "queens"    /\ gameWrap Queens.game    _.queens    QueensMsg
-    ,   "roue"      /\ gameWrap Roue.game      _.roue      RoueMsg
-    ,   "sansmot"   /\ gameWrap Sansmot.game   _.sansmot   SansmotMsg
-    ,   "solitaire" /\ gameWrap Solitaire.game _.solitaire SolitaireMsg
-    ,   "tiling"    /\ gameWrap Tiling.game    _.tiling    TilingMsg
-    ,   "tricolor"  /\ gameWrap Tricolor.game  _.tricolor  TricolorMsg
-    ,   "valise"    /\ gameWrap Valise.game    _.valise     ValiseMsg
+    [   "baseball"  ∧ gameWrap Baseball.game  _.baseball  BaseballMsg
+    ,   "chocolat"  ∧ gameWrap Chocolat.game  _.chocolat  ChocolatMsg
+    ,   "dessin"    ∧ gameWrap Dessin.game    _.dessin    DessinMsg
+    ,   "frog"      ∧ gameWrap Frog.game      _.frog      FrogMsg
+    ,   "jetons"    ∧ gameWrap Jetons.game    _.jetons    JetonsMsg
+    ,   "labete"    ∧ gameWrap Labete.game    _.labete    LabeteMsg
+    ,   "nim"       ∧ gameWrap Nim.game       _.nim       NimMsg
+    ,   "noirblanc" ∧ gameWrap Noirblanc.game _.noirblanc NoirblancMsg
+    ,   "paths"     ∧ gameWrap Paths.game     _.paths     PathsMsg
+    ,   "queens"    ∧ gameWrap Queens.game    _.queens    QueensMsg
+    ,   "roue"      ∧ gameWrap Roue.game      _.roue      RoueMsg
+    ,   "sansmot"   ∧ gameWrap Sansmot.game   _.sansmot   SansmotMsg
+    ,   "solitaire" ∧ gameWrap Solitaire.game _.solitaire SolitaireMsg
+    ,   "tiling"    ∧ gameWrap Tiling.game    _.tiling    TilingMsg
+    ,   "tricolor"  ∧ gameWrap Tricolor.game  _.tricolor  TricolorMsg
+    ,   "valise"    ∧ gameWrap Valise.game    _.valise    ValiseMsg
     ]
 
 callByName :: ∀r. String -> r -> (∀st msg. GameWrapperF st msg -> r) -> r
@@ -116,7 +116,7 @@ callByName name default f = case games # Map.lookup name of
                                 Nothing -> default
                                 Just game -> game # gameRun f
  
-hashChange :: forall a. a -> Action RootState EFFS
+hashChange :: ∀a. a -> Action RootState EFFS
 hashChange _ = do
     loc <- getLocation
     let location = extractLocation loc.hash "valise"
@@ -211,7 +211,7 @@ state = {
 
 main :: Effect Unit
 main = app {
-    init: state /\ init,
+    init: state ∧ init,
     view,
     update,
     node: "root",

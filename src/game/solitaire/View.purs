@@ -23,7 +23,7 @@ cursor :: ∀a b. PointerPosition -> b -> VDom a
 cursor pp _ = circle ([r "20", attr "pointer-events" "none", fill "url(#soli-peg)"] <> svgCursorStyle pp)
 
 view :: State -> VDom Msg
-view state = template _{config=config, board=board, rules=rules, winTitle=winTitle, scoreDialog=scoreDialog} state where
+view state = template {config, board, rules, winTitle, scoreDialog} state where
     columns = state^._nbColumns
     rows = state^._nbRows
     isCircleBoard = state^._board == CircleBoard

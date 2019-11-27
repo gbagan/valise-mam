@@ -2,7 +2,7 @@ module Game.Effs (EFFS, LOCATION, Location, getLocation, GetLocation, interpretE
 import MyPrelude
 import Effect (Effect)
 import Run (FProxy, Run, SProxy(..), lift, match)
-import Pha (InterpretEffs, Event)
+import Pha (InterpretEffs)
 import Pha.Effects.Delay (DELAY, interpretDelay) as E
 import Pha.Effects.Random (RNG, interpretRng) as E
 

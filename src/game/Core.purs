@@ -113,11 +113,11 @@ data SizeLimit = SizeLimit Int Int Int Int
 
 class Game pos ext mov | ext -> pos mov where
     play :: GState pos ext -> mov -> Maybe pos
-    initialPosition :: forall r. GState pos ext -> Run (rng :: RNG | r) pos
+    initialPosition :: ∀r. GState pos ext -> Run (rng :: RNG | r) pos
     isLevelFinished :: GState pos ext -> Boolean
     sizeLimit ::  GState pos ext -> SizeLimit
-    computerMove :: forall r. GState pos ext -> Run (rng :: RNG | r) (Maybe mov)
-    onNewGame :: forall r. GState pos ext -> Run (rng :: RNG | r) (GState pos ext)
+    computerMove :: ∀r. GState pos ext -> Run (rng :: RNG | r) (Maybe mov)
+    onNewGame :: ∀r. GState pos ext -> Run (rng :: RNG | r) (GState pos ext)
     updateScore :: GState pos ext -> Tuple (GState pos ext) Boolean
 
 canPlay :: ∀pos ext mov. Game pos ext mov => GState pos ext -> mov -> Boolean
@@ -155,7 +155,7 @@ data CoreMsg =
 class MsgWithCore a where
     core :: CoreMsg -> a
 
-coreUpdate :: forall pos ext mov. Game pos ext mov => CoreMsg -> Action (GState pos ext) EFFS
+coreUpdate :: ∀pos ext mov. Game pos ext mov => CoreMsg -> Action (GState pos ext) EFFS
 coreUpdate Undo = setState \state -> case state^._history of
     Nil -> state
     Cons h rest ->

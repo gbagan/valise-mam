@@ -54,7 +54,7 @@ cursor {x, y} color = div [
 
 
 view :: State -> VDom Msg
-view state = template _{config=config, board=board, rules=rules, winTitle=winTitle} state where
+view state = template {config, board, rules, winTitle} state where
     size = state^._size
     position = state^._position
     valid = validRotation state

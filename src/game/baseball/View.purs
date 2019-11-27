@@ -29,7 +29,7 @@ transformBase i nbBases = translate (pc x) (pc y)  <> " rotate(45deg)" where
     y = 0.50 + 0.35 * sin (toNumber i * 2.0 * pi / toNumber nbBases)
 
 view :: State -> VDom Msg
-view state = template _{config=config, board=board, rules=rules} state where
+view state = template {config, board, rules} state where
     nbBases = state^._nbBases
     levelFinished = isLevelFinished state
 

@@ -3,7 +3,7 @@ module Game.Labete.View (view) where
 import MyPrelude
 import Lib.Util (coords, map3)
 import Math (abs)
-import Pha (VDom, Prop, text, (<?>), maybeN, key, attr, class_, class', style)
+import Pha (VDom, Prop, text, (<&&>), maybeN, key, attr, class_, class', style)
 import Pha.Elements (div, br)
 import Pha.Events (on', onclick, onpointerdown, onpointerup, onpointerleave)
 import Pha.Events.Decoder (shiftKey)
@@ -43,7 +43,7 @@ square { color, hasTrap, hasBeast, row, col } props =
     [   use "#grass" [width "50", height "50", fill $ colors !! color # fromMaybe ""]
     ,   rect [width "51", height "51", stroke "black", strokeWidth "0.5", fill "transparent"]
     ,   use "#paw" [x_ "5", y_ "5", width "40", height "40", class_ "labete-beast", class' "visible" hasBeast]
-    ,   hasTrap <?> \_ ->
+    ,   hasTrap <&&> \_ ->
             use "#trap" [x_ "5", y_ "5", width "40", height "40"]
     ]
 
@@ -125,7 +125,7 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
 
     board = incDecGrid state [
         grid,
-        state^._selectedColor > 0 <?> \_ ->
+        state^._selectedColor > 0 <&&> \_ ->
             div [
                 class_ "labete-color",
                 style "background-color" $ colors !! (state^._selectedColor) # fromMaybe ""

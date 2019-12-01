@@ -2,7 +2,7 @@ module Game.Solitaire.View where
 
 import MyPrelude
 import Lib.Util (coords)
-import Pha (VDom, text, (<?>), maybeN, key, attr, class_, class', style)
+import Pha (VDom, text, (<&&>), maybeN, key, attr, class_, class', style)
 import Pha.Elements (div, br)
 import Pha.Svg (svg, rect, circle, viewBox, x_, y_, width, height, cx, cy, r, fill, stroke, strokeWidth)
 import Pha.Util (px, translate)
@@ -59,11 +59,11 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                             gridStyle rows columns 5
     )) [
         svg [if isCircleBoard then viewBox 0 0 250 250 else viewBox 0 0 (50 * columns) (50 * rows)] $ concat [
-            [isCircleBoard <?> \_ ->
+            [isCircleBoard <&&> \_ ->
                 circle [cx "125", cy "125", r "90", stroke "grey", fill "transparent", strokeWidth "5"]
             ],
             concat $ state^._holes # mapWithIndex \i val -> if not val then [] else [
-                state^._help > 0 && not isCircleBoard <?> \_ ->
+                state^._help > 0 && not isCircleBoard <&&> \_ ->
                     rect [
                         x_ "-25.0", y_ "-25", width "50", height "50",
                         key $ "rect" <> show i,
@@ -83,7 +83,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                     id: i
                 } state)
             ],
-            state^._position # mapWithIndex \i -> (_ <?> \_ ->
+            state^._position # mapWithIndex \i -> (_ <&&> \_ ->
                 circle ([
                     r "20",
                     key $ "p" <> show i,
@@ -111,10 +111,10 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                                     gridStyle rows columns 5
             )) [
                 svg [if isCircleBoard then viewBox 0 0 250 250 else viewBox 0 0 (50 * columns) (50 * rows)] $ concat [
-                    [isCircleBoard <?> \_ ->
+                    [isCircleBoard <&&> \_ ->
                         circle [cx "125", cy "125", r "90", stroke "grey", fill "transparent", strokeWidth "5"]
                     ],
-                    state^._holes # mapWithIndex \i -> (_ <?> \_ ->
+                    state^._holes # mapWithIndex \i -> (_ <&&> \_ ->
                         circle [
                             key $ "h" <> show i,
                             r "17",
@@ -123,7 +123,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                             style "transform" $ itemStyle i
                         ]
                     ),
-                    position # mapWithIndex \i -> (_ <?> \_ ->
+                    position # mapWithIndex \i -> (_ <&&> \_ ->
                         circle [
                             key $ "p" <> show i,
                             r "20",

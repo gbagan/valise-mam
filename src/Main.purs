@@ -6,16 +6,18 @@ import Data.String.Pattern (Pattern (..))
 import Data.Map as Map
 import Unsafe.Coerce (unsafeCoerce)
 import Effect (Effect)
-import Pha (VDom, Document, Event, app, emptyNode, (<?>), key, class_, class')
+import Pha (VDom, Event, emptyNode, (<&&>), key, class_, class')
+import Pha.Subs as Subs
+import Pha.App (app, Document, addInterpret, attachTo)
 import Pha.Action (Action, getState, setState)
-import Pha.Effects.Delay (delay)
+import Pha.Effects.Delay (delay, interpretDelay)
+import Pha.Effects.Random (interpretRng)
 import Pha.Lens (actionOver)
 import Pha.Elements (div, a)
 import Pha.Attributes (href)
 import Pha.Svg (svg, use, width, height)
-import Pha.Event (key) as E
 import Game.Generic (GenericGame)
-import Game.Effs (EFFS, getLocation, interpretEffects)
+import Game.Effs (EFFS, getLocation, interpretLocation)
 import Game.Baseball as Baseball
 import Game.Chocolat as Chocolat
 import Game.Dessin as Dessin
@@ -77,6 +79,7 @@ data Msg =
     | ValiseMsg Valise.Msg
     | TilingMsg Tiling.Msg
     | TricolorMsg Tricolor.Msg
+    | OnKeyDown String
 
 type GameWrapperF st msg = {
     core :: GenericGame st msg,
@@ -149,6 +152,11 @@ update (SolitaireMsg msg) = lens _.solitaire _{solitaire = _} .~> Solitaire.upda
 update (TilingMsg msg)    = lens _.tiling _{tiling = _}       .~> Tiling.update msg
 update (TricolorMsg msg)  = lens _.tricolor _{tricolor = _}   .~> Tricolor.update msg
 update (ValiseMsg msg)    = lens _.valise _{valise = _}       .~> Valise.update msg
+update (OnKeyDown k) = do 
+        st <- getState
+        callByName st.location (pure unit) \game ->
+            game.core.onKeydown k # maybe (pure unit) (update <<< game.msgmap)
+
 
 init :: Action RootState EFFS
 init = do
@@ -156,13 +164,7 @@ init = do
         gameRun \game -> game.core.init # maybe (pure unit) (update <<< game.msgmap)
     hashChange unit
 
-onKeyDown :: Event -> Action RootState EFFS
-onKeyDown ev = do
-    st <- getState
-    case E.key ev of
-        Nothing  -> pure unit
-        Just k -> callByName st.location (pure unit) \game ->
-            game.core.onKeydown k # maybe (pure unit) (update <<< game.msgmap)
+
 
 view :: RootState -> Document Msg
 view st = {
@@ -174,7 +176,7 @@ view st = {
             class' "valise" (st.location == "valise"),
             class' "appear" st.anim
         ] [
-            st.location /= "valise" <?> \_ ->
+            st.location /= "valise" <&&> \_ ->
             a [
                 class_ "main-minivalise-link",
                 href "#valise"
@@ -214,10 +216,9 @@ main = app {
     init: state ∧ init,
     view,
     update,
-    node: "root",
-    events: [
-        "keydown" ∧ onKeyDown,
-        "hashchange" ∧ hashChange
-    ],
-    interpret: interpretEffects
-}
+    subscriptions: const [
+        Subs.onKeyDown (Just <<< OnKeyDown)
+        -- "hashchange" ∧ hashChange
+    ]
+} # addInterpret (interpretDelay >>> interpretRng >>> interpretLocation)
+  # attachTo "root"

@@ -2,7 +2,7 @@ module Game.Frog.View (view) where
 
 import MyPrelude
 import Lib.Util (map2, tabulate, pairwise, floatRange)
-import Pha (VDom, text, (<?>), (<??>), key, class_, class', style)
+import Pha (VDom, text, (<&&>), (<??>), key, class_, class', style)
 import Pha.Elements (div, span, br)
 import Pha.Events (on)
 import Pha.Events.Decoder (shiftKey)
@@ -100,7 +100,7 @@ view state = template {config, board, rules, winTitle} state where
                         ]
                     ],
                 map2 (state^._marked) spoints \i mark {x, y} ->
-                    mark && i /= position <?> \_ ->
+                    mark && i /= position <&&> \_ ->
                         use "#frog2" [
                             x_ $ show (x - 20.0),
                             y_ $ show (y - 20.0),

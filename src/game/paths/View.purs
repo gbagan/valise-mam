@@ -3,7 +3,7 @@ import MyPrelude
 import Lib.Util (coords, tabulate)
 import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _pointer)
 import Game.Paths.Model (State, Msg(..), Mode(..), _exit, _mode)
-import Pha (VDom, Prop, text, emptyNode, (<?>), (<??>), class_, class', attr, key, style)
+import Pha (VDom, Prop, text, emptyNode, (<&&>), (<??>), class_, class', attr, key, style)
 import Pha.Elements (div, p, br)
 import Pha.Events (onclick)
 import Pha.Svg (svg, g, path, use, viewBox, x_, y_, width, height)
@@ -16,7 +16,7 @@ square :: ∀a. {darken :: Boolean, trap :: Boolean, door :: Boolean, x :: Numbe
 square {darken, trap, door, x, y} props =
     g ([class' "paths-darken" darken] <> props) [
         use "#paths-background" pos,
-        door <?> \_ ->
+        door <&&> \_ ->
             use "#paths-door" pos,
         use "#paths-trap" (pos <> [
             class_ "paths-trap",

@@ -4,7 +4,9 @@ You can edit this file as you like.
 -}
 { name = "purescript"
 , dependencies =
-    [ "arrays"
+    [ "affjax"
+    , "argonaut"
+    , "arrays"
     , "debug"
     , "effect"
     , "foreign"

@@ -1,7 +1,7 @@
 module Game.Jetons.View (view) where
 
 import MyPrelude
-import Pha (VDom, text, (<?>), maybeN, key, class_, class', style)
+import Pha (VDom, text, (<&&>), maybeN, key, class_, class', style)
 import Pha.Elements (div, span, br)
 import Pha.Util (pc, rgbColor)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, scoreFn)
@@ -40,7 +40,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
     board = incDecGrid state [
         div ([class_ "ui-board"] <> dndBoardProps <> gridStyle rows columns 3) $ concat
         [   position # mapWithIndex \i val ->
-                val /= 0 <?> \_ ->
+                val /= 0 <&&> \_ ->
                     piece i val ([key $ show i] <> 
                         dndItemProps {
                             currentDragged: state^._dragged,
@@ -55,7 +55,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
     scoreDialog _ = bestScoreDialog state \pos -> [
         div [class' "ui-flex-center jetons-bestscore-grid-container" true] [ 
             div (gridStyle rows columns 3 <> [class' "ui-board" true]) (
-                pos # mapWithIndex \i val -> val /= 0 <?> \_ ->
+                pos # mapWithIndex \i val -> val /= 0 <&&> \_ ->
                     piece i val [key $ show i]
             )
         ]

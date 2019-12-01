@@ -5,7 +5,7 @@ import Lib.Util (map2)
 import Game.Core (PointerPosition, _position, _pointer, _locked)
 import Game.Roue.Model (State, Msg(..), Location(..), _size, _rotation, _dragged,
                         aligned, validRotation, validRotation')
-import Pha (VDom, text, (<?>), maybeN, key, class_, class', style)
+import Pha (VDom, text, (<&&>), maybeN, key, class_, class', style)
 import Pha.Elements (div, button, span)
 import Pha.Events (onclick)
 import Pha.Attributes (disabled)
@@ -115,7 +115,7 @@ view state = template {config, board, rules, winTitle} state where
                     droppable: false,
                     id: Panel i
                 } state) [
-                    elem (Just i) position <?> \_ ->
+                    elem (Just i) position <&&> \_ ->
                         span [] [text "✓"]
                 ],
             [button [

@@ -1,7 +1,7 @@
 module Game.Tiling.View (view) where
 import MyPrelude
 import Lib.Util (coords)
-import Pha (VDom, Prop, text, (<?>), (<??>), key, attr, style, class')
+import Pha (VDom, Prop, text, (<&&>), (<??>), key, attr, style, class')
 import Pha.Elements (div)
 import Pha.Events (onclick, oncontextmenu, onpointerenter, onpointerleave)
 import Pha.Svg (svg, g, rect, line, use,
@@ -24,9 +24,9 @@ square {isDark, hasBlock, hasSink, row, col} props =
         transform $ translate (show $ 50 * col) (show $ 50 * row)
     ] <> props) [
         rect [width "50", height "50", key "conc", fill "url(#concrete)"],
-        hasBlock <?> \_ ->
+        hasBlock <&&> \_ ->
             use "#tile2" [width "50", height "50", key "tile"],
-        hasSink <?> \_ ->
+        hasSink <&&> \_ ->
             use "#sink" [width "50", height "50", key "sink"]
     ]
     
@@ -89,13 +89,13 @@ view state = template {config, board, rules, winTitle, customDialog} state where
             ) <> (position # mapWithIndex \index pos ->
                 let {row, col} = coords columns index in
                 g [transform $ translate (show $ 50 * col) (show $ 50 * row)] [
-                    pos > 0 && border index (-1) <?> \_ ->
+                    pos > 0 && border index (-1) <&&> \_ ->
                         line [x1 "0", y1 "0", x2 "0", y2 "50", stroke "#000", strokeWidth "2"],
-                    pos > 0 && border index 1 <?> \_ ->
+                    pos > 0 && border index 1 <&&> \_ ->
                         line [x1 "50", y1 "0", x2 "50", y2 "50", stroke "#000", strokeWidth "2"],
-                    pos > 0 && border index (-columns) <?> \_ ->
+                    pos > 0 && border index (-columns) <&&> \_ ->
                         line [x1 "0", y1 "0", x2 "50", y2 "0", stroke "#000", strokeWidth "2"],
-                    pos > 0 && border index columns <?> \_ ->
+                    pos > 0 && border index columns <&&> \_ ->
                         line [x1 "0", y1 "50", x2 "50", y2 "50", stroke "#000", strokeWidth "2"]    
                 ]
             ) <> [state^._pointer <??> (if length (sinks state) < state^._nbSinks then sinkCursor else tileCursor)]

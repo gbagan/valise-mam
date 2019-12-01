@@ -1,8 +1,9 @@
-module Game.Effs (EFFS, LOCATION, Location, getLocation, GetLocation, interpretEffects, module E) where
+module Game.Effs (EFFS, LOCATION, Location, getLocation, GetLocation, interpretLocation, module E) where
 import MyPrelude
 import Effect (Effect)
-import Run (FProxy, Run, SProxy(..), lift, match)
-import Pha (InterpretEffs)
+import Effect.Class (liftEffect)
+import Run (FProxy, Run, SProxy(..), AFF)
+import Run as Run
 import Pha.Effects.Delay (DELAY, interpretDelay) as E
 import Pha.Effects.Random (RNG, interpretRng) as E
 
@@ -22,17 +23,18 @@ type Location = {
 data GetLocation a = GetLocation (Location -> a)
 derive instance functorLoc :: Functor GetLocation
 type LOCATION = FProxy GetLocation
+_location = SProxy :: SProxy "location"
 getLocation :: ∀r. Run (location :: LOCATION | r) Location
-getLocation = lift (SProxy :: SProxy "location") (GetLocation identity)
+getLocation = Run.lift _location (GetLocation identity)
 
 
 type EFFS = (rng :: E.RNG, delay :: E.DELAY, location :: LOCATION)
 
 foreign import getLoc :: Effect Location
 
-interpretEffects :: InterpretEffs EFFS
-interpretEffects = match {
-    delay: E.interpretDelay,
-    rng: E.interpretRng,
-    location: \(GetLocation cont) -> getLoc >>= cont
-}
+
+interpretLocation ∷ ∀r. Run (aff ∷ AFF, location :: LOCATION | r) Unit → Run (aff ∷ AFF | r) Unit
+interpretLocation = Run.run (Run.on _location handle Run.send) where
+    handle ∷ GetLocation ~> Run (aff ∷ AFF | r)
+    handle (GetLocation next) = do
+        Run.liftAff $ liftEffect $ getLoc <#> next

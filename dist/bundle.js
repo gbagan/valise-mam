@@ -8235,6 +8235,8 @@ var PS = {};
   const LAZY_NODE = 2
   const TEXT_NODE = 3
 
+  const compose = (f, g) => f && g ? x => f(g(x)) : f || g; 
+
   const h = name => ps => children => {
       const style = {};
       const props = {style};
@@ -8939,19 +8941,16 @@ var PS = {};
                               return function (action) {
                                   return function (optionFn) {
                                       return icongroup(title)(Data_Functor.mapFlipped(Data_Functor.functorArray)(values)(function (val) {
-                                          return iconbutton(Lib_Util.precord()())(state)((function () {
-                                              var v = optionFn(val)(UI_Icon.defaultOptions);
-                                              return {
-                                                  disabled: v.disabled,
-                                                  hidden: v.hidden,
-                                                  icon: UI_Icon.IconText.create(Data_Show.show(dictShow)(val)),
-                                                  large: v.large,
-                                                  round: v.round,
-                                                  selected: Data_Foldable.elem(dictFoldable)(dictEq)(val)(selected),
-                                                  style: v.style,
-                                                  tooltip: v.tooltip
-                                              };
-                                          })())([ Pha_Events.onclick(action(val)) ]);
+                                          return iconbutton(Lib_Util.precord()())(state)(optionFn(val)({
+                                              icon: UI_Icon.IconText.create(Data_Show.show(dictShow)(val)),
+                                              selected: Data_Foldable.elem(dictFoldable)(dictEq)(val)(selected),
+                                              tooltip: UI_Icon.defaultOptions.tooltip,
+                                              round: UI_Icon.defaultOptions.round,
+                                              large: UI_Icon.defaultOptions.large,
+                                              hidden: UI_Icon.defaultOptions.hidden,
+                                              disabled: UI_Icon.defaultOptions.disabled,
+                                              style: UI_Icon.defaultOptions.style
+                                          }))([ Pha_Events.onclick(action(val)) ]);
                                       }));
                                   };
                               };
@@ -8971,19 +8970,16 @@ var PS = {};
                           return function (action) {
                               return function (optionFn) {
                                   return icongroup(title)(Data_Functor.mapFlipped(Data_Functor.functorArray)(values)(function (val) {
-                                      return iconbutton(Lib_Util.precord()())(state)((function () {
-                                          var v = optionFn(val)(UI_Icon.defaultOptions);
-                                          return {
-                                              disabled: v.disabled,
-                                              hidden: v.hidden,
-                                              icon: UI_Icon.IconText.create(Data_Show.show(dictShow)(val)),
-                                              large: v.large,
-                                              round: v.round,
-                                              selected: Data_Eq.eq(dictEq)(val)(selected),
-                                              style: v.style,
-                                              tooltip: v.tooltip
-                                          };
-                                      })())([ Pha_Events.onclick(action(val)) ]);
+                                      return iconbutton(Lib_Util.precord()())(state)(optionFn(val)({
+                                          icon: UI_Icon.IconText.create(Data_Show.show(dictShow)(val)),
+                                          selected: Data_Eq.eq(dictEq)(val)(selected),
+                                          tooltip: UI_Icon.defaultOptions.tooltip,
+                                          round: UI_Icon.defaultOptions.round,
+                                          large: UI_Icon.defaultOptions.large,
+                                          hidden: UI_Icon.defaultOptions.hidden,
+                                          disabled: UI_Icon.defaultOptions.disabled,
+                                          style: UI_Icon.defaultOptions.style
+                                      }))([ Pha_Events.onclick(action(val)) ]);
                                   }));
                               };
                           };
@@ -17929,6 +17925,16 @@ var PS = {};
       };
       return $foreign.makeSub(fn);
   };
+  var on = function (name) {
+      return function (decoder) {
+          return on$prime(name)((function () {
+              var $5 = Data_Functor.map(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Data_Maybe.Just.create);
+              return function ($6) {
+                  return $5(decoder($6));
+              };
+          })());
+      };
+  };
   var onKeyDown = function (f) {
       return on$prime("keydown")((function () {
           var $7 = Data_Functor.map(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(f);
@@ -17937,6 +17943,7 @@ var PS = {};
           };
       })());
   };
+  exports["on"] = on;
   exports["onKeyDown"] = onKeyDown;
 })(PS);
 (function($PS) {
@@ -17997,6 +18004,7 @@ var PS = {};
   var Pha_Effects_Delay = $PS["Pha.Effects.Delay"];
   var Pha_Effects_Random = $PS["Pha.Effects.Random"];
   var Pha_Elements = $PS["Pha.Elements"];
+  var Pha_Events_Decoder = $PS["Pha.Events.Decoder"];
   var Pha_Lens = $PS["Pha.Lens"];
   var Pha_Subs = $PS["Pha.Subs"];
   var Pha_Svg = $PS["Pha.Svg"];
@@ -18155,6 +18163,13 @@ var PS = {};
       };
       return OnKeyDown;
   })();
+  var OnHashChange = (function () {
+      function OnHashChange() {
+
+      };
+      OnHashChange.value = new OnHashChange();
+      return OnHashChange;
+  })();
   var state = {
       baseball: Game_Baseball_Model.istate,
       chocolat: Game_Chocolat_Model.istate,
@@ -18227,166 +18242,164 @@ var PS = {};
           })(Data_String_CodePoints.indexOf("#")(url));
       };
   };
-  var hashChange = function (v) {
-      return Control_Bind.bind(Run.bindRun)(Game_Effs.getLocation)(function (v1) {
-          var location = extractLocation(v1.hash)("valise");
-          var $99 = location === "valise" || location === "";
-          if ($99) {
-              return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Action.setState(function (v2) {
-                  return {
-                      location: location,
-                      anim: true,
-                      valise: v2.valise,
-                      baseball: v2.baseball,
-                      chocolat: v2.chocolat,
-                      dessin: v2.dessin,
-                      frog: v2.frog,
-                      jetons: v2.jetons,
-                      labete: v2.labete,
-                      nim: v2.nim,
-                      noirblanc: v2.noirblanc,
-                      paths: v2.paths,
-                      queens: v2.queens,
-                      roue: v2.roue,
-                      sansmot: v2.sansmot,
-                      solitaire: v2.solitaire,
-                      tiling: v2.tiling,
-                      tricolor: v2.tricolor
-                  };
-              }))(function () {
-                  return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Effects_Delay.delay(100))(function () {
-                      return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Action.setState(function (v2) {
-                          return {
-                              anim: false,
-                              valise: v2.valise,
-                              location: v2.location,
-                              baseball: v2.baseball,
-                              chocolat: v2.chocolat,
-                              dessin: v2.dessin,
-                              frog: v2.frog,
-                              jetons: v2.jetons,
-                              labete: v2.labete,
-                              nim: v2.nim,
-                              noirblanc: v2.noirblanc,
-                              paths: v2.paths,
-                              queens: v2.queens,
-                              roue: v2.roue,
-                              sansmot: v2.sansmot,
-                              solitaire: v2.solitaire,
-                              tiling: v2.tiling,
-                              tricolor: v2.tricolor
-                          };
-                      }))(function () {
-                          return Pha_Lens.actionOver(function (dictStrong) {
-                              return Data_Lens_Lens.lens(function (v2) {
-                                  return v2.valise;
-                              })(function (v2) {
-                                  return function (v3) {
-                                      return {
-                                          valise: v3,
-                                          anim: v2.anim,
-                                          location: v2.location,
-                                          baseball: v2.baseball,
-                                          chocolat: v2.chocolat,
-                                          dessin: v2.dessin,
-                                          frog: v2.frog,
-                                          jetons: v2.jetons,
-                                          labete: v2.labete,
-                                          nim: v2.nim,
-                                          noirblanc: v2.noirblanc,
-                                          paths: v2.paths,
-                                          queens: v2.queens,
-                                          roue: v2.roue,
-                                          sansmot: v2.sansmot,
-                                          solitaire: v2.solitaire,
-                                          tiling: v2.tiling,
-                                          tricolor: v2.tricolor
-                                      };
+  var hashChange = Control_Bind.bind(Run.bindRun)(Game_Effs.getLocation)(function (v) {
+      var location = extractLocation(v.hash)("valise");
+      var $98 = location === "valise" || location === "";
+      if ($98) {
+          return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Action.setState(function (v1) {
+              return {
+                  location: location,
+                  anim: true,
+                  valise: v1.valise,
+                  baseball: v1.baseball,
+                  chocolat: v1.chocolat,
+                  dessin: v1.dessin,
+                  frog: v1.frog,
+                  jetons: v1.jetons,
+                  labete: v1.labete,
+                  nim: v1.nim,
+                  noirblanc: v1.noirblanc,
+                  paths: v1.paths,
+                  queens: v1.queens,
+                  roue: v1.roue,
+                  sansmot: v1.sansmot,
+                  solitaire: v1.solitaire,
+                  tiling: v1.tiling,
+                  tricolor: v1.tricolor
+              };
+          }))(function () {
+              return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Effects_Delay.delay(100))(function () {
+                  return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Action.setState(function (v1) {
+                      return {
+                          anim: false,
+                          valise: v1.valise,
+                          location: v1.location,
+                          baseball: v1.baseball,
+                          chocolat: v1.chocolat,
+                          dessin: v1.dessin,
+                          frog: v1.frog,
+                          jetons: v1.jetons,
+                          labete: v1.labete,
+                          nim: v1.nim,
+                          noirblanc: v1.noirblanc,
+                          paths: v1.paths,
+                          queens: v1.queens,
+                          roue: v1.roue,
+                          sansmot: v1.sansmot,
+                          solitaire: v1.solitaire,
+                          tiling: v1.tiling,
+                          tricolor: v1.tricolor
+                      };
+                  }))(function () {
+                      return Pha_Lens.actionOver(function (dictStrong) {
+                          return Data_Lens_Lens.lens(function (v1) {
+                              return v1.valise;
+                          })(function (v1) {
+                              return function (v2) {
+                                  return {
+                                      valise: v2,
+                                      anim: v1.anim,
+                                      location: v1.location,
+                                      baseball: v1.baseball,
+                                      chocolat: v1.chocolat,
+                                      dessin: v1.dessin,
+                                      frog: v1.frog,
+                                      jetons: v1.jetons,
+                                      labete: v1.labete,
+                                      nim: v1.nim,
+                                      noirblanc: v1.noirblanc,
+                                      paths: v1.paths,
+                                      queens: v1.queens,
+                                      roue: v1.roue,
+                                      sansmot: v1.sansmot,
+                                      solitaire: v1.solitaire,
+                                      tiling: v1.tiling,
+                                      tricolor: v1.tricolor
                                   };
-                              })(dictStrong);
-                          })(Game_Valise_Model.enterA);
-                      });
+                              };
+                          })(dictStrong);
+                      })(Game_Valise_Model.enterA);
                   });
               });
-          };
-          return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Lens.actionOver(function (dictStrong) {
-              return Data_Lens_Lens.lens(function (v2) {
-                  return v2.valise;
-              })(function (v2) {
-                  return function (v3) {
-                      return {
-                          valise: v3,
-                          anim: v2.anim,
-                          location: v2.location,
-                          baseball: v2.baseball,
-                          chocolat: v2.chocolat,
-                          dessin: v2.dessin,
-                          frog: v2.frog,
-                          jetons: v2.jetons,
-                          labete: v2.labete,
-                          nim: v2.nim,
-                          noirblanc: v2.noirblanc,
-                          paths: v2.paths,
-                          queens: v2.queens,
-                          roue: v2.roue,
-                          sansmot: v2.sansmot,
-                          solitaire: v2.solitaire,
-                          tiling: v2.tiling,
-                          tricolor: v2.tricolor
-                      };
-                  };
-              })(dictStrong);
-          })(Game_Valise_Model.leaveA))(function () {
-              return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Action.setState(function (v2) {
+          });
+      };
+      return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Lens.actionOver(function (dictStrong) {
+          return Data_Lens_Lens.lens(function (v1) {
+              return v1.valise;
+          })(function (v1) {
+              return function (v2) {
                   return {
-                      location: location,
-                      anim: true,
-                      valise: v2.valise,
-                      baseball: v2.baseball,
-                      chocolat: v2.chocolat,
-                      dessin: v2.dessin,
-                      frog: v2.frog,
-                      jetons: v2.jetons,
-                      labete: v2.labete,
-                      nim: v2.nim,
-                      noirblanc: v2.noirblanc,
-                      paths: v2.paths,
-                      queens: v2.queens,
-                      roue: v2.roue,
-                      sansmot: v2.sansmot,
-                      solitaire: v2.solitaire,
-                      tiling: v2.tiling,
-                      tricolor: v2.tricolor
+                      valise: v2,
+                      anim: v1.anim,
+                      location: v1.location,
+                      baseball: v1.baseball,
+                      chocolat: v1.chocolat,
+                      dessin: v1.dessin,
+                      frog: v1.frog,
+                      jetons: v1.jetons,
+                      labete: v1.labete,
+                      nim: v1.nim,
+                      noirblanc: v1.noirblanc,
+                      paths: v1.paths,
+                      queens: v1.queens,
+                      roue: v1.roue,
+                      sansmot: v1.sansmot,
+                      solitaire: v1.solitaire,
+                      tiling: v1.tiling,
+                      tricolor: v1.tricolor
                   };
-              }))(function () {
-                  return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Effects_Delay.delay(100))(function () {
-                      return Pha_Action.setState(function (v2) {
-                          return {
-                              anim: false,
-                              location: v2.location,
-                              valise: v2.valise,
-                              baseball: v2.baseball,
-                              chocolat: v2.chocolat,
-                              dessin: v2.dessin,
-                              frog: v2.frog,
-                              jetons: v2.jetons,
-                              labete: v2.labete,
-                              nim: v2.nim,
-                              noirblanc: v2.noirblanc,
-                              paths: v2.paths,
-                              queens: v2.queens,
-                              roue: v2.roue,
-                              sansmot: v2.sansmot,
-                              solitaire: v2.solitaire,
-                              tiling: v2.tiling,
-                              tricolor: v2.tricolor
-                          };
-                      });
+              };
+          })(dictStrong);
+      })(Game_Valise_Model.leaveA))(function () {
+          return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Action.setState(function (v1) {
+              return {
+                  location: location,
+                  anim: true,
+                  valise: v1.valise,
+                  baseball: v1.baseball,
+                  chocolat: v1.chocolat,
+                  dessin: v1.dessin,
+                  frog: v1.frog,
+                  jetons: v1.jetons,
+                  labete: v1.labete,
+                  nim: v1.nim,
+                  noirblanc: v1.noirblanc,
+                  paths: v1.paths,
+                  queens: v1.queens,
+                  roue: v1.roue,
+                  sansmot: v1.sansmot,
+                  solitaire: v1.solitaire,
+                  tiling: v1.tiling,
+                  tricolor: v1.tricolor
+              };
+          }))(function () {
+              return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Effects_Delay.delay(100))(function () {
+                  return Pha_Action.setState(function (v1) {
+                      return {
+                          anim: false,
+                          location: v1.location,
+                          valise: v1.valise,
+                          baseball: v1.baseball,
+                          chocolat: v1.chocolat,
+                          dessin: v1.dessin,
+                          frog: v1.frog,
+                          jetons: v1.jetons,
+                          labete: v1.labete,
+                          nim: v1.nim,
+                          noirblanc: v1.noirblanc,
+                          paths: v1.paths,
+                          queens: v1.queens,
+                          roue: v1.roue,
+                          sansmot: v1.sansmot,
+                          solitaire: v1.solitaire,
+                          tiling: v1.tiling,
+                          tricolor: v1.tricolor
+                      };
                   });
               });
           });
       });
-  };
+  });
   var callByName = function (name) {
       return function ($$default) {
           return function (f) {
@@ -18397,7 +18410,7 @@ var PS = {};
               if (v instanceof Data_Maybe.Just) {
                   return gameRun(f)(v.value0);
               };
-              throw new Error("Failed pattern match at Main (line 118, column 29 - line 120, column 62): " + [ v.constructor.name ]);
+              throw new Error("Failed pattern match at Main (line 120, column 29 - line 122, column 62): " + [ v.constructor.name ]);
           };
       };
   };
@@ -18885,20 +18898,23 @@ var PS = {};
       if (v instanceof OnKeyDown) {
           return Control_Bind.bind(Run.bindRun)(Pha_Action.getState)(function (v1) {
               return callByName(v1.location)(Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit))(function (game) {
-                  return Data_Maybe.maybe(Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit))(function ($121) {
-                      return update(game.msgmap($121));
+                  return Data_Maybe.maybe(Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit))(function ($120) {
+                      return update(game.msgmap($120));
                   })(game.core.onKeydown(v.value0));
               });
           });
       };
-      throw new Error("Failed pattern match at Main (line 138, column 1 - line 138, column 39): " + [ v.constructor.name ]);
+      if (v instanceof OnHashChange) {
+          return hashChange;
+      };
+      throw new Error("Failed pattern match at Main (line 140, column 1 - line 140, column 39): " + [ v.constructor.name ]);
   };
   var init = Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Data_Foldable.for_(Run.applicativeRun)(Data_List_Types.foldableList)(Data_Map_Internal.values(games))(gameRun(function (game) {
-      return Data_Maybe.maybe(Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit))(function ($122) {
-          return update(game.msgmap($122));
+      return Data_Maybe.maybe(Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit))(function ($121) {
+          return update(game.msgmap($121));
       })(game.core.init);
   })))(function () {
-      return hashChange(Data_Unit.unit);
+      return hashChange;
   });
   var viewGame = function (st) {
       return callByName(st.location)(Pha.emptyNode)(function (game) {
@@ -18913,15 +18929,15 @@ var PS = {};
           }), viewGame(st) ])
       };
   };
-  var main = Pha_App.attachTo("root")(Pha_App.addInterpret(function ($123) {
-      return Game_Effs.interpretLocation(Pha_Effects_Random.interpretRng(Pha_Effects_Delay.interpretDelay($123)));
+  var main = Pha_App.attachTo("root")(Pha_App.addInterpret(function ($122) {
+      return Game_Effs.interpretLocation(Pha_Effects_Random.interpretRng(Pha_Effects_Delay.interpretDelay($122)));
   })(Pha_App.app({
       init: new Data_Tuple.Tuple(state, init),
       view: view,
       update: update,
-      subscriptions: Data_Function["const"]([ Pha_Subs.onKeyDown(function ($124) {
-          return Data_Maybe.Just.create(OnKeyDown.create($124));
-      }) ])
+      subscriptions: Data_Function["const"]([ Pha_Subs.onKeyDown(function ($123) {
+          return Data_Maybe.Just.create(OnKeyDown.create($123));
+      }), Pha_Subs.on("hashchange")(Pha_Events_Decoder.always(OnHashChange.value)) ])
   })));
   exports["extractLocation"] = extractLocation;
   exports["BaseballMsg"] = BaseballMsg;
@@ -18941,6 +18957,7 @@ var PS = {};
   exports["TilingMsg"] = TilingMsg;
   exports["TricolorMsg"] = TricolorMsg;
   exports["OnKeyDown"] = OnKeyDown;
+  exports["OnHashChange"] = OnHashChange;
   exports["gameWrap"] = gameWrap;
   exports["gameRun"] = gameRun;
   exports["games"] = games;

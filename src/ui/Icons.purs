@@ -22,14 +22,6 @@ icongroup title children =
         div [class_ "ui-icon-grid"] children
     ]
 
-{-
-iconSelect :: ∀a pos ext sel. Eq sel =>
-    Lens' a (GState pos ext) -> GState pos ext -> sel -> (sel -> Action (GState pos ext)) -> sel
-  -> (I.Options -> I.Options) -> VDom a
-iconSelect lens state selection action value optionFn =
-    iconbutton state (\opt -> optionFn $ opt{selected = value == selection}) [click $ lens 🔍 action value]
--}
-
 iundo :: ∀msg pos ext. MsgWithCore msg => GState pos ext -> VDom msg
 iundo state =
     iconbutton
@@ -89,20 +81,20 @@ iconSelectGroup :: ∀msg pos ext sel. Show sel => Eq sel =>
     GState pos ext -> String -> Array sel -> sel -> (sel -> msg) -> (sel -> Record I.Options -> Record I.Options) -> VDom msg
 iconSelectGroup state title values selected action optionFn =
     icongroup title $ values <#> \val ->
-        iconbutton state (optionFn val I.defaultOptions){
+        iconbutton state (optionFn val I.defaultOptions{
             icon = I.IconText $ show val,
             selected = val == selected
-        } [onclick (action val)]
+        }) [onclick (action val)]
 
 iconSelectGroupM :: ∀msg pos ext t sel.
     Show sel => Eq sel => Foldable t =>
     GState pos ext -> String -> Array sel -> t sel -> (sel -> msg) -> (sel -> Record I.Options -> Record I.Options) -> VDom msg
 iconSelectGroupM state title values selected action optionFn =
     icongroup title $ values <#> \val ->
-        iconbutton state (optionFn val I.defaultOptions){
+        iconbutton state (optionFn val I.defaultOptions{
             icon = I.IconText $ show val,
             selected = elem val selected
-        } [onclick (action val)]
+        }) [onclick (action val)]
 
 iconSizesGroup :: ∀msg pos ext. MsgWithCore msg =>
     GState pos ext -> Array (Tuple Int Int) -> Boolean -> VDom msg

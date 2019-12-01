@@ -6,12 +6,13 @@ import Data.String.Pattern (Pattern (..))
 import Data.Map as Map
 import Unsafe.Coerce (unsafeCoerce)
 import Effect (Effect)
-import Pha (VDom, Event, emptyNode, (<&&>), key, class_, class')
+import Pha (VDom, emptyNode, (<&&>), key, class_, class')
 import Pha.Subs as Subs
 import Pha.App (app, Document, addInterpret, attachTo)
 import Pha.Action (Action, getState, setState)
 import Pha.Effects.Delay (delay, interpretDelay)
 import Pha.Effects.Random (interpretRng)
+import Pha.Events.Decoder (always)
 import Pha.Lens (actionOver)
 import Pha.Elements (div, a)
 import Pha.Attributes (href)
@@ -80,6 +81,7 @@ data Msg =
     | TilingMsg Tiling.Msg
     | TricolorMsg Tricolor.Msg
     | OnKeyDown String
+    | OnHashChange
 
 type GameWrapperF st msg = {
     core :: GenericGame st msg,
@@ -119,8 +121,8 @@ callByName name default f = case games # Map.lookup name of
                                 Nothing -> default
                                 Just game -> game # gameRun f
  
-hashChange :: ∀a. a -> Action RootState EFFS
-hashChange _ = do
+hashChange :: Action RootState EFFS
+hashChange = do
     loc <- getLocation
     let location = extractLocation loc.hash "valise"
     if location == "valise" || location == "" then do
@@ -156,13 +158,13 @@ update (OnKeyDown k) = do
         st <- getState
         callByName st.location (pure unit) \game ->
             game.core.onKeydown k # maybe (pure unit) (update <<< game.msgmap)
-
+update OnHashChange = hashChange
 
 init :: Action RootState EFFS
 init = do
     for_ (Map.values games) $
         gameRun \game -> game.core.init # maybe (pure unit) (update <<< game.msgmap)
-    hashChange unit
+    hashChange
 
 
 
@@ -217,8 +219,8 @@ main = app {
     view,
     update,
     subscriptions: const [
-        Subs.onKeyDown (Just <<< OnKeyDown)
-        -- "hashchange" ∧ hashChange
+        Subs.onKeyDown (Just <<< OnKeyDown),
+        Subs.on "hashchange" (always OnHashChange)
     ]
 } # addInterpret (interpretDelay >>> interpretRng >>> interpretLocation)
   # attachTo "root"

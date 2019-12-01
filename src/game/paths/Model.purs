@@ -12,7 +12,6 @@ import Pha.Action (Action, getState, setState)
 
 data Mode = Mode1 | Mode2
 derive instance eqMode :: Eq Mode
-instance showMode :: Show Mode where show _ = "mode"
 
 type Position = Array Int
 type Ext' = { exit :: Maybe Int, mode :: Mode }

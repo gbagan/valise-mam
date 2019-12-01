@@ -77,24 +77,30 @@ irules state =
             Rules -> true
             _ -> false
 
-iconSelectGroup :: ∀msg pos ext sel. Show sel => Eq sel =>
+class DefIconText a where
+    defIconText :: a -> Record I.Options -> Record I.Options
+
+instance defint :: DefIconText Int where
+    defIconText val opts = opts{icon = I.IconText $ show val}
+else instance defa :: DefIconText a where
+    defIconText _ opts = opts
+
+iconSelectGroup :: ∀msg pos ext sel. DefIconText sel => Eq sel =>
     GState pos ext -> String -> Array sel -> sel -> (sel -> msg) -> (sel -> Record I.Options -> Record I.Options) -> VDom msg
 iconSelectGroup state title values selected action optionFn =
     icongroup title $ values <#> \val ->
-        iconbutton state (optionFn val I.defaultOptions{
-            icon = I.IconText $ show val,
+        iconbutton state (optionFn val (defIconText val I.defaultOptions{
             selected = val == selected
-        }) [onclick (action val)]
+        })) [onclick (action val)]
 
 iconSelectGroupM :: ∀msg pos ext t sel.
-    Show sel => Eq sel => Foldable t =>
+    DefIconText sel => Eq sel => Foldable t =>
     GState pos ext -> String -> Array sel -> t sel -> (sel -> msg) -> (sel -> Record I.Options -> Record I.Options) -> VDom msg
 iconSelectGroupM state title values selected action optionFn =
     icongroup title $ values <#> \val ->
-        iconbutton state (optionFn val I.defaultOptions{
-            icon = I.IconText $ show val,
+        iconbutton state (optionFn val (defIconText val I.defaultOptions{
             selected = elem val selected
-        }) [onclick (action val)]
+        })) [onclick (action val)]
 
 iconSizesGroup :: ∀msg pos ext. MsgWithCore msg =>
     GState pos ext -> Array (Tuple Int Int) -> Boolean -> VDom msg

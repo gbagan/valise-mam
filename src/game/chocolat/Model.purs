@@ -11,7 +11,6 @@ import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, 
 data Move = FromLeft Int | FromRight Int | FromTop Int | FromBottom Int
 data SoapMode = CornerMode | BorderMode | StandardMode
 derive instance eqSoapMode :: Eq SoapMode
-instance showSoapMode :: Show SoapMode where show _ = ""
 
 type Position = {left :: Int, top :: Int, right :: Int, bottom :: Int}
 

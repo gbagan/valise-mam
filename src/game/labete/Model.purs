@@ -102,7 +102,7 @@ allTranslations n m beast = tabulate2 n m \row col → translate row col beast
 -- | en compte toutes les rotations et translations
 -- | peut contenir des positions hors du plateau
 allBeastPositions ∷ Int → Int → Beast' → Array Beast
-allBeastPositions rows cols = concatMap (allRotations >⇒ allTranslations rows cols)
+allBeastPositions rows cols = concatMap (allRotations >=> allTranslations rows cols)
 
 adaptatedBeast ∷ Int → Int → Mode → Beast → Beast
 adaptatedBeast rows columns mode =

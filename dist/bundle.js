@@ -6615,7 +6615,7 @@ var PS = {};
           if (v instanceof Init) {
               return newGame(dictGame)(Control_Category.identity(Control_Category.categoryFn));
           };
-          throw new Error("Failed pattern match at Game.Core (line 156, column 1 - line 156, column 86): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Core (line 156, column 1 - line 156, column 85): " + [ v.constructor.name ]);
       };
   };
   var playA = function (dictGame) {
@@ -8825,7 +8825,7 @@ var PS = {};
       var columns = Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget));
       var v = Data_Lens_Getter.viewOn(state)(Game_Chocolat_Model["_soap"](Data_Lens_Internal_Forget.strongForget));
       var winTitle = UI_Template.winTitleFor2Players(state);
-      var rules = [ Pha.text("A chaque tour de ce jeu, tu peux d\xe9placer une pile de jetons vers une case adjacente"), Pha_Elements.br, Pha.text("qui contient au moins autant de jetons"), Pha_Elements.br, Pha.text("Le but est de finir la partie avec le moins de cases contenant des piles de jetons.") ];
+      var rules = [ Pha.text("\xc0 chaque tour de ce jeu, tu peux d\xe9placer une pile de jetons vers une case adjacente"), Pha_Elements.br, Pha.text("qui contient au moins autant de jetons."), Pha_Elements.br, Pha.text("Le but est de finir la partie avec le moins de cases contenant des piles de jetons.") ];
       var cutter = function (row) {
           return function (col) {
               return function (move) {
@@ -10174,7 +10174,7 @@ var PS = {};
           return "";
       })();
       var winTitle = Data_Show.show(Data_Show.showInt)(score) + (" case" + (s + (" restante" + s)));
-      var rules = [ Pha.text("A chaque tour de ce jeu, tu peux d\xe9placer une pile de jetons vers une case adjacente"), Pha_Elements.br, Pha.text("qui contient au moins autant de jetons"), Pha_Elements.br, Pha.text("Le but est de finir la partie avec le moins de cases contenant des piles de jetons.") ];
+      var rules = [ Pha.text("\xc0 chaque tour de ce jeu, tu peux d\xe9placer une pile de jetons vers une case adjacente"), Pha_Elements.br, Pha.text("qui contient au moins autant de jetons."), Pha_Elements.br, Pha.text("Le but est de finir la partie avec le moins de cases contenant des piles de jetons.") ];
       var rows = Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget));
       var position = Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
       var config = UI_Template.card("Jeu des jetons")([ UI_Icons.iconSizesGroup(Game_Jetons_Model.withcore)(state)([ new Data_Tuple.Tuple(2, 2), new Data_Tuple.Tuple(4, 4), new Data_Tuple.Tuple(5, 5), new Data_Tuple.Tuple(6, 6) ])(true), UI_Icons.icongroup("Options")([ UI_Icons.iundo(Game_Jetons_Model.withcore)(state), UI_Icons.iredo(Game_Jetons_Model.withcore)(state), UI_Icons.ireset(Game_Jetons_Model.withcore)(state), UI_Icons.irules(Game_Jetons_Model.withcore)(state) ]), UI_Icons.iconBestScore(Game_Jetons_Model.withcore)(Game_Jetons_Model.scoregame)(state) ]);
@@ -11021,7 +11021,7 @@ var PS = {};
   };
   var view = function (state) {
       var winTitle = "Record: " + (Data_Show.show(Data_Show.showInt)(Game_Core.scoreFn(Game_Labete_Model.scoregameLabete)(state)) + " pi\xe8ges");
-      var rules = [ Pha.text("Place le moins de pi\xe8ges possible pour emp\xe9cher la b\xeate d'abimer ta belle pelouse!"), Pha_Elements.br, Pha.text("Tu peux choisir de jouer avec des b\xeates de diff\xe9rentes formes comme celles pr\xe9finies dans 'Forme de la b\xeate'"), Pha_Elements.br, Pha.text("Dans le dernier choix, la b\xeate peut prendre soit une ou l'autre des formes indiqu\xe9es."), Pha_Elements.br, Pha.text("Le plateau de jeu peut prendre une grille, un cylindre ou un tore") ];
+      var rules = [ Pha.text("Place le moins de pi\xe8ges possible pour emp\xeacher la b\xeate d'ab\xeemer ta belle pelouse !"), Pha_Elements.br, Pha.text("Tu peux choisir de jouer avec des b\xeates de diff\xe9rentes formes comme celles pr\xe9d\xe9finies dans 'Forme de la b\xeate'."), Pha_Elements.br, Pha.text("Dans le dernier choix, la b\xeate peut prendre l'une ou l'autre des formes indiqu\xe9es."), Pha_Elements.br, Pha.text("Le plateau de jeu peut prendre une grille, un cylindre ou un tore.") ];
       var rows = Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget));
       var nonTrappedBeast = Game_Labete_Model.nonTrappedBeastOnGrid(state);
       var customDialog = function (v) {
@@ -11545,7 +11545,7 @@ var PS = {};
           };
           return "rouge";
       })() + "s gagnent");
-      var rules = [ Pha.text("Essaie de bloquer ton adversaire"), Pha_Elements.br, Pha.text("A chaque tour, tu peux d\xe9placer un de tes jetons vers la gauche ou vers la droite"), Pha_Elements.br, Pha.text("d'autant de cases que tu veux mais tu ne peux pas sauter par dessus le jeton adversaire."), Pha_Elements.br, Pha.text("Tu es oblig\xe9 de d\xe9placer un jeton d'au moins une case, tu ne peux pas passer ton tour."), Pha_Elements.br, Pha.text("Tu gagnes la partie si ton adversaire n'a aucun mouvement possible.") ];
+      var rules = [ Pha.text("Essaie de bloquer ton adversaire."), Pha_Elements.br, Pha.text("\xc0 chaque tour, tu peux d\xe9placer un de tes jetons vers la gauche ou vers la droite"), Pha_Elements.br, Pha.text("d'autant de cases que tu veux mais tu ne peux pas sauter par-dessus le jeton adverse."), Pha_Elements.br, Pha.text("Tu es oblig\xe9 de d\xe9placer un jeton d'au moins une case, tu ne peux pas passer ton tour."), Pha_Elements.br, Pha.text("Tu gagnes la partie si ton adversaire n'a aucun mouvement possible.") ];
       var nbPiles = Data_Lens_Getter.viewOn(state)(Game_Nim_Model["_nbPiles"](Data_Lens_Internal_Forget.strongForget));
       var length = Data_Lens_Getter.viewOn(state)(Game_Nim_Model["_length"](Data_Lens_Internal_Forget.strongForget));
       var config = UI_Template.card("Poker Nim")([ UI_Icons.iconSelectGroup(UI_Icons.defint)(Data_Eq.eqInt)(state)("Nombre de rang\xe9es")([ 1, 2, 3, 4, 5 ])(nbPiles)(Game_Nim_Model.SetNbPiles.create)(Data_Function["const"](Control_Category.identity(Control_Category.categoryFn))), UI_Icons.iconSelectGroup(UI_Icons.defint)(Data_Eq.eqInt)(state)("Taille des rang\xe9es")([ 10, 5 ])(length)(Game_Nim_Model.SetLength.create)(Data_Function["const"](Control_Category.identity(Control_Category.categoryFn))), UI_Icons.icons2Players(Game_Nim_Model.withcore)(Game_Nim_Model.nimGame)(state), UI_Icons.icongroup("Options")(Data_Functor.mapFlipped(Data_Functor.functorArray)([ UI_Icons.iundo(Game_Nim_Model.withcore), UI_Icons.iredo(Game_Nim_Model.withcore), UI_Icons.ireset(Game_Nim_Model.withcore), UI_Icons.irules(Game_Nim_Model.withcore) ])(function (x) {
@@ -12487,7 +12487,7 @@ var PS = {};
       return Pha_Svg.use(" #paths-door")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key("cdoor"), Pha_Svg.x_("-50"), Pha_Svg.y_("-50"), Pha_Svg.width("100"), Pha_Svg.height("100"), Pha.attr("opacity")("0.6"), Pha.attr("pointer-events")("none") ])(UI_Template.svgCursorStyle(pp)));
   };
   var view = function (state) {
-      var rules = [ Pha_Elements.p([  ])([ Pha.text("Apr\xe8s de moultes p\xe9rip\xe9ties dans le temple maudit de Berge, le professeur Hamilton Jones se retrouve dans la derni\xe8re salle"), Pha_Elements.br, Pha.text("Pour sortir de celle-ci, il doit s'enfuir par une porte au dessous de lui."), Pha_Elements.br, Pha.text("Celle ci ne peut \xeatre ouverte qu'en marchant sur chacune des dalles dans la salle.") ]), Pha_Elements.p([  ])([ Pha.text("Malheusement, ces dalles sont pi\xe9g\xe9es, le pi\xe8ge se d\xe9clenchant peu de temps apr\xe8s avoir march\xe9 dessus."), Pha_Elements.br, Pha.text("Donc, Hamilton ne peut pas remarcher sur une dalle sur laquelle il a d\xe9j\xe0 \xe9t\xe9."), Pha_Elements.br, Pha.text("N'ayant plus l'aisance de sa jeunesse, Hamilton ne peut se d\xe9placer que d'une dalle \xe0 la fois et ne peut le faire en diagonale.") ]), Pha_Elements.p([  ])([ Pha.text("Trouve un parcours pour r\xe9soudre l'\xe9nigme. Ca semble facile? Mais, cela est-il possible pour toutes les tailles de grille") ]), Pha_Elements.p([  ])([ Pha.text("Dans le deuxi\xe8me mode de jeu, tu peux choisir la position de d\xe9part d'Hamilton ainsi que celle de la porte."), Pha_Elements.br, Pha.text("Tu remarqueras qu'il n'y a pas toujours de solution."), Pha_Elements.br, Pha.text("Trouve des crit\xe8res sur les positions d'Hamilton et de la porte pour qu'une solution soit possible.") ]) ];
+      var rules = [ Pha_Elements.p([  ])([ Pha.text("Apr\xe8s moultes p\xe9rip\xe9ties dans le temple maudit de Berge, le professeur Hamilton Jones se retrouve dans la derni\xe8re salle"), Pha_Elements.br, Pha.text("Pour sortir de celle-ci, il doit s'enfuir par une porte au-dessous de lui."), Pha_Elements.br, Pha.text("Celle-ci ne peut \xeatre ouverte qu'en marchant sur chacune des dalles dans la salle.") ]), Pha_Elements.p([  ])([ Pha.text("Malheusement, ces dalles sont pi\xe9g\xe9es, le pi\xe8ge se d\xe9clenchant peu de temps apr\xe8s avoir march\xe9 dessus."), Pha_Elements.br, Pha.text("Donc, Hamilton ne peut pas remarcher sur une dalle sur laquelle il a d\xe9j\xe0 \xe9t\xe9."), Pha_Elements.br, Pha.text("N'ayant plus l'aisance de sa jeunesse, Hamilton ne peut se d\xe9placer que d'une dalle \xe0 la fois et ne peut le faire en diagonale.") ]), Pha_Elements.p([  ])([ Pha.text("Trouve un parcours pour r\xe9soudre l'\xe9nigme. Ca semble facile ? Mais, cela est-il possible pour toutes les tailles de grille ?") ]), Pha_Elements.p([  ])([ Pha.text("Dans le deuxi\xe8me mode de jeu, tu peux choisir la position de d\xe9part d'Hamilton ainsi que celle de la porte."), Pha_Elements.br, Pha.text("Tu remarqueras qu'il n'y a pas toujours de solution."), Pha_Elements.br, Pha.text("Trouve des crit\xe8res sur les positions d'Hamilton et de la porte pour qu'une solution soit possible.") ]) ];
       var rows = Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget));
       var position = Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
       var config = UI_Template.card("Chemins")([ UI_Icons.iconSelectGroup(UI_Icons.defa)(Game_Paths_Model.eqMode)(state)("Mode de jeu")([ Game_Paths_Model.Mode1.value, Game_Paths_Model.Mode2.value ])(Data_Lens_Getter.viewOn(state)(Game_Paths_Model["_mode"](Data_Lens_Internal_Forget.strongForget)))(Game_Paths_Model.SelectMode.create)(function (v) {

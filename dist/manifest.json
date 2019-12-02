@@ -1,0 +1,27 @@
+{
+    "short_name": "Valise MaM",
+    "name": "Valise Maths à Modeler",
+    "icons": [
+      {
+        "src": "./images/valise32.png",
+        "sizes": "32x32",
+        "type": "image/png"
+      },
+      {
+        "src": "./images/valise72.png",
+        "sizes": "72x72",
+        "type": "image/png"
+      },
+      {
+        "src": "./images/valise512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ],
+    "start_url": "./index.html",
+    "orientation": "portrait",
+    "display": "standalone",
+    "theme_color": "#44b6c6",
+    "background_color": "#f1f1f1",
+    "scope": "."
+  } 

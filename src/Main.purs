@@ -6,9 +6,10 @@ import Data.String.Pattern (Pattern (..))
 import Data.Map as Map
 import Unsafe.Coerce (unsafeCoerce)
 import Effect (Effect)
+import Run as Run
 import Pha (VDom, emptyNode, (<&&>), key, class_, class')
 import Pha.Subs as Subs
-import Pha.App (app, Document, addInterpret, attachTo)
+import Pha.App (app, Document, attachTo)
 import Pha.Action (Action, getState, setState)
 import Pha.Effects.Delay (delay, interpretDelay)
 import Pha.Effects.Random (interpretRng)
@@ -221,6 +222,10 @@ main = app {
     subscriptions: const [
         Subs.onKeyDown (Just <<< OnKeyDown),
         Subs.on "hashchange" (always OnHashChange)
-    ]
-} # addInterpret (interpretDelay >>> interpretRng >>> interpretLocation)
-  # attachTo "root"
+    ],
+    interpreter: Run.match {
+        delay: interpretDelay,
+        rng: interpretRng,
+        location: interpretLocation
+    }
+} # attachTo "root"

@@ -61,7 +61,7 @@ update (SetPage page) = unlessM (view _locked <$> getState) $ setState ((_page .
 
 update (Animate animation) = do
     unlessM (view _locked <$> getState) $ do
-        setState $ (_anim .~ M.empty) ∘ (_locked .~ true)
+        setState $ (_anim .~ M.empty) >>> (_locked .~ true)
         for_ animation \(Step d key step) -> do
             delay d
             state <- getState

@@ -8,6 +8,7 @@ self.addEventListener('install', e => {
                 './index.html',
                 './bundle.css',
                 './bundle.js',
+                './swloader.js'
             ])
         )
     );

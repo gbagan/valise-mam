@@ -3,11 +3,11 @@ import MyPrelude
 import Data.List (List(..))
 import Data.List (last, null) as L
 import Data.Map (Map, empty) as M
-import Pha.Effects.Random (RNG, sample)
+import Pha.Random (Random, sample)
 import Run (Run)
 import Pha.Action (Action, getState, setState) 
 import Pha.Effects.Delay (delay, DELAY)
-import Game.Effs (EFFS)
+import Game.Effs (RNG, EFFS, randomGenerate)
 
 -- ConfirmNewGame contient le futur state si l'utilisateur valide de commencer une nouvelle partie
 data Dialog a = Rules | NoDialog | ConfirmNewGameDialog a | ScoreDialog | CustomDialog
@@ -113,11 +113,11 @@ data SizeLimit = SizeLimit Int Int Int Int
 
 class Game pos ext mov | ext -> pos mov where
     play :: GState pos ext -> mov -> Maybe pos
-    initialPosition :: ∀r. GState pos ext -> Run (rng :: RNG | r) pos
+    initialPosition :: ∀r. GState pos ext -> Random pos
     isLevelFinished :: GState pos ext -> Boolean
     sizeLimit ::  GState pos ext -> SizeLimit
-    computerMove :: ∀r. GState pos ext -> Run (rng :: RNG | r) (Maybe mov)
-    onNewGame :: ∀r. GState pos ext -> Run (rng :: RNG | r) (GState pos ext)
+    computerMove :: ∀r. GState pos ext -> Random (Maybe mov)
+    onNewGame :: ∀r. GState pos ext -> Random (GState pos ext)
     updateScore :: GState pos ext -> Tuple (GState pos ext) Boolean
 
 canPlay :: ∀pos ext mov. Game pos ext mov => GState pos ext -> mov -> Boolean
@@ -126,7 +126,7 @@ canPlay st mov = isJust (play st mov)
 defaultSizeLimit :: ∀a. a -> SizeLimit
 defaultSizeLimit _ = SizeLimit 0 0 0 0
 
-defaultOnNewGame :: ∀a r. a -> Run (rng :: RNG | r) a
+defaultOnNewGame :: ∀a. a -> Random a
 defaultOnNewGame = pure
 
 oppositeTurn :: Turn -> Turn
@@ -220,7 +220,7 @@ showVictory = do
 computerPlay :: ∀pos ext mov effs. Game pos ext mov => Action (GState pos ext) (rng :: RNG, delay :: DELAY | effs)
 computerPlay = do
     state <- getState
-    move <- computerMove state
+    move <- randomGenerate $ computerMove state
     case flip playAux state =<< move of
         Nothing -> pure unit
         Just st2 -> do
@@ -256,8 +256,8 @@ newGame :: ∀pos ext mov effs. Game pos ext mov =>
 newGame f = do
     state <- getState
     let state2 = f state
-    state3 <- onNewGame state2
-    position <- initialPosition state3
+    state3 <- randomGenerate $ onNewGame state2
+    position <- randomGenerate $ initialPosition state3
     let state4 = state3
                 # _position .~ position
                 # _history .~ Nil
@@ -275,7 +275,7 @@ class Game pos ext mov <= TwoPlayersGame pos ext mov | ext -> pos mov  where
     isLosingPosition :: GState pos ext -> Boolean
     possibleMoves :: GState pos ext -> Array mov
 
-computerMove' :: ∀pos ext mov r. TwoPlayersGame pos ext mov => GState pos ext -> Run (rng :: RNG | r) (Maybe mov)
+computerMove' :: ∀pos ext mov r. TwoPlayersGame pos ext mov => GState pos ext -> Random (Maybe mov)
 computerMove' state =
     if isLevelFinished state then
         pure Nothing
@@ -289,7 +289,7 @@ computerMove' state =
         ) in
             case bestMove of
                 Just _ -> pure bestMove
-                Nothing -> sample moves 
+                Nothing -> sample moves
 
 data Objective = Minimize | Maximize
 derive instance eqObjective :: Eq Objective 

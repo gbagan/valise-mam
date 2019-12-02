@@ -2,7 +2,7 @@ module Game.Chocolat.Model where
 import MyPrelude
 import Data.Int.Bits ((.^.))
 import Lib.Util ((..))
-import Pha.Effects.Random (randomInt)
+import Pha.Random (randomInt)
 import Pha.Action (Action, setState)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, SizeLimit(..), GState, Mode(..),

@@ -4,7 +4,7 @@ import Game.Sansmot.View (view) as M
 import MyPrelude
 import Game.Generic (GenericGame)
 
-game :: GenericGame M.State M.Msg
+game ∷ GenericGame M.State M.Msg
 game = {
     init: Nothing,
     view: M.view,

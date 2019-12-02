@@ -14,10 +14,10 @@ import Game.Common (pointerDecoder)
 import Lib.Util (partialUpdate, class PartialRecord)
 import UI.Dialog (dialog) as D
 import UI.IncDecGrid (incDecGrid) as U
-type Position = { x :: Number, y :: Number }
+type Position = { x ∷ Number, y ∷ Number }
 -- import Game.Effs (Position)
 
-winPanel :: ∀a. String -> Boolean -> VDom a
+winPanel ∷ ∀a. String → Boolean → VDom a
 winPanel title visible =
     div [class_ "ui-flex-center ui-absolute component-win-container"] [
         div [class_ "component-win", class' "visible" visible] [
@@ -25,7 +25,7 @@ winPanel title visible =
         ]
     ]
 
-card :: ∀a. String -> Array (VDom a) -> VDom a
+card ∷ ∀a. String → Array (VDom a) → VDom a
 card title children =
     div [class_ "ui-card"] [
         div [class_ "ui-card-head ui-flex-center"] [
@@ -34,8 +34,8 @@ card title children =
         div [class_ "ui-card-body"] children
     ]
 
-incDecGrid :: ∀msg pos ext mov. MsgWithCore msg => Game pos ext mov =>
-    GState pos ext -> Array (VDom msg) -> VDom msg
+incDecGrid ∷ ∀msg pos ext mov. MsgWithCore msg ⇒ Game pos ext mov ⇒
+    GState pos ext → Array (VDom msg) → VDom msg
 incDecGrid state = U.incDecGrid {
     locked: state^._locked,
     nbRows: state^._nbRows,
@@ -43,35 +43,35 @@ incDecGrid state = U.incDecGrid {
     showRowButtons: minRows < maxRows,
     showColButtons: minCols < maxCols,
     customSize: state^._customSize,
-    resize: \x y -> core (SetGridSize x y true)
+    resize: \x y → core (SetGridSize x y true)
 } where
     SizeLimit minRows minCols maxRows maxCols = sizeLimit state 
 
 type ElementsRow a = (
-    board :: VDom a,
-    config :: VDom a,
-    rules :: Array (VDom a),
-    winTitle :: String,
-    customDialog :: Unit -> VDom a,
-    scoreDialog :: Unit -> VDom a
+    board ∷ VDom a,
+    config ∷ VDom a,
+    rules ∷ Array (VDom a),
+    winTitle ∷ String,
+    customDialog ∷ Unit → VDom a,
+    scoreDialog ∷ Unit → VDom a
 )
 
 type Elements a = { | ElementsRow a }
 
-defaultElements :: ∀a. Elements a
+defaultElements ∷ ∀a. Elements a
 defaultElements = {
     board: emptyNode,
     config: emptyNode,
     rules: [text "blah blah"],
     winTitle: "GAGNÉ",
-    customDialog: \_ -> emptyNode,
-    scoreDialog: \_ -> emptyNode
+    customDialog: \_ → emptyNode,
+    scoreDialog: \_ → emptyNode
 }
 
-template :: ∀elems pos ext mov msg.
-            PartialRecord elems (ElementsRow msg) =>
-            MsgWithCore msg => Game pos ext mov =>
-            Record (elems) -> GState pos ext -> VDom msg
+template ∷ ∀elems pos ext mov msg.
+            PartialRecord elems (ElementsRow msg) ⇒
+            MsgWithCore msg ⇒ Game pos ext mov ⇒
+            Record (elems) → GState pos ext → VDom msg
 template elems state =
     div [] [
         div [class_ "main-container"] [
@@ -95,21 +95,21 @@ template elems state =
         dialog' ScoreDialog = scoreDialog unit
         dialog' _ = emptyNode
 
-dialog :: ∀msg. MsgWithCore msg => String -> Array (VDom msg) -> VDom msg
+dialog ∷ ∀msg. MsgWithCore msg ⇒ String → Array (VDom msg) → VDom msg
 dialog title = D.dialog {title, onCancel: Nothing, onOk: Just $ core SetNoDialog}
 
-bestScoreDialog :: ∀msg pos ext mov. MsgWithCore msg => ScoreGame pos ext mov =>  
-                    GState pos ext -> (pos -> Array (VDom msg)) -> VDom msg
-bestScoreDialog state children = snd <$> bestScore state <??> \pos ->
+bestScoreDialog ∷ ∀msg pos ext mov. MsgWithCore msg ⇒ ScoreGame pos ext mov ⇒  
+                    GState pos ext → (pos → Array (VDom msg)) → VDom msg
+bestScoreDialog state children = snd <$> bestScore state <??> \pos →
     dialog "Meilleur score" (children pos)
         
 
-gridStyle :: ∀a. Int -> Int -> Int -> Array (Prop a)
+gridStyle ∷ ∀a. Int → Int → Int → Array (Prop a)
 gridStyle rows columns limit = [style "height" $ pc (toNumber rows / m),
                                 style "width" $ pc (toNumber columns / m)]
     where m = toNumber $ max limit $ max rows columns        
 
-cursorStyle :: ∀a. Position -> Int -> Int -> Number -> Array (Prop a)
+cursorStyle ∷ ∀a. Position → Int → Int → Number → Array (Prop a)
 cursorStyle {x, y} rows columns size = [
     style "left" $ pc x,
     style "top" $ pc y,
@@ -117,14 +117,14 @@ cursorStyle {x, y} rows columns size = [
     style "height" $ pc (size / toNumber rows)
 ]
 
-svgCursorStyle :: ∀a. Position -> Array (Prop a)
+svgCursorStyle ∷ ∀a. Position → Array (Prop a)
 svgCursorStyle {x, y} = [
     style "transform" $ translate (pc x) (pc y)
 ]
 
 -- style à appliquer sur l'élément DOM représentant le plateau
 -- permet de mémoriser la position du pointeur
-trackPointer :: ∀msg. MsgWithCore msg => Array (Prop msg)
+trackPointer ∷ ∀msg. MsgWithCore msg ⇒ Array (Prop msg)
 trackPointer = [
     style "touch-action" "none",
     on "pointermove" move,
@@ -134,7 +134,7 @@ trackPointer = [
     move e = core <$> (SetPointer <$> Just <$> pointerDecoder e)
 
 -- même chose que trackPointer mais gère le drag and drop par l'intermédiaire d'un lens
-dndBoardProps :: ∀msg id. MsgWithCore msg => MsgWithDnd msg id => Array (Prop msg)
+dndBoardProps ∷ ∀msg id. MsgWithCore msg ⇒ MsgWithDnd msg id ⇒ Array (Prop msg)
 dndBoardProps = [
     style "touch-action" "none", 
     on "pointermove" move,
@@ -143,23 +143,23 @@ dndBoardProps = [
 ] where
     move e = core <$> (SetPointer <$> Just <$> pointerDecoder e)
 
-dndItemProps :: ∀pos ext msg id. Eq id => MsgWithDnd msg id => Game pos ext {from :: id, to :: id} =>
+dndItemProps ∷ ∀pos ext msg id. Eq id ⇒ MsgWithDnd msg id ⇒ Game pos ext {from ∷ id, to ∷ id} ⇒
     {
-        draggable :: Boolean,
-        droppable :: Boolean,
-        id :: id,
-        currentDragged :: Maybe id
-    } -> (GState pos ext) -> Array (Prop msg)
+        draggable ∷ Boolean,
+        droppable ∷ Boolean,
+        id ∷ id,
+        currentDragged ∷ Maybe id
+    } → (GState pos ext) → Array (Prop msg)
 dndItemProps {draggable, droppable, id, currentDragged} state = [
     class' "dragged" dragged,
     class' "candrop" candrop,
     releasePointerCaptureOn "pointerdown" $ always (if draggable then Just $ dndmsg (Drag id) else Nothing),
     onpointerup' $ if candrop then Just $ dndmsg (Drop id) else Nothing -- todo ne rien faire  -- stopPropagation
 ] where
-    candrop = droppable && (currentDragged # maybe false \d -> canPlay state {from: d, to: id})
+    candrop = droppable && (currentDragged # maybe false \d → canPlay state {from: d, to: id})
     dragged = draggable && Just id == currentDragged
 
-turnMessage :: ∀pos ext mov. Game pos ext mov => GState pos ext -> String
+turnMessage ∷ ∀pos ext mov. Game pos ext mov ⇒ GState pos ext → String
 turnMessage state =
     if isLevelFinished state then
         "Partie finie"
@@ -170,7 +170,7 @@ turnMessage state =
     else 
         "Tour de l'IA"
 
-winTitleFor2Players :: ∀pos ext. GState pos ext -> String
+winTitleFor2Players ∷ ∀pos ext. GState pos ext → String
 winTitleFor2Players state =
     if state^._mode == DuelMode then
         "Le " <> (if state^._turn == Turn2 then "premier" else "second") <> " joueur gagne"

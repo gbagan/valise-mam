@@ -7,21 +7,21 @@ import Pha.Events (onclick)
 import UI.Icon (iconbutton, Icon(..))
 
 type IncDecGridOptions msg = {
-    locked :: Boolean,
-    nbRows :: Int,
-    nbColumns :: Int,
-    customSize :: Boolean,
-    showRowButtons :: Boolean,
-    showColButtons :: Boolean,
-    resize :: Int -> Int -> msg
+    locked ∷ Boolean,
+    nbRows ∷ Int,
+    nbColumns ∷ Int,
+    customSize ∷ Boolean,
+    showRowButtons ∷ Boolean,
+    showColButtons ∷ Boolean,
+    resize ∷ Int → Int → msg
 }
 
-incDecGrid :: ∀msg. IncDecGridOptions msg -> Array (VDom msg) -> VDom msg   
+incDecGrid ∷ ∀msg. IncDecGridOptions msg → Array (VDom msg) → VDom msg   
 incDecGrid {locked, nbRows, nbColumns, customSize, showRowButtons, showColButtons, resize} children =
     div [class_ "ui-incdecgrid"] [
         div [class_ "flex"] [
             div [class_ "ui-flex-center ui-incdecgrid-container"] children,
-            showRowButtons <&&> \_ ->
+            showRowButtons <&&> \_ →
                 div [class_ "ui-flex-center ui-incdecgrid-rows"] [
                     iconbutton
                         {round: true, icon: IconSymbol "#plus", disabled: locked, hidden: not customSize}
@@ -32,7 +32,7 @@ incDecGrid {locked, nbRows, nbColumns, customSize, showRowButtons, showColButton
                         [onclick $ resize (nbRows - 1) nbColumns]
                 ]
         ],
-        showColButtons <&&> \_ ->
+        showColButtons <&&> \_ →
             div [class_ "ui-flex-center ui-incdecgrid-cols"] [ 
                 iconbutton
                     {round: true, icon: IconSymbol "#minus", disabled: locked, hidden: not customSize}

@@ -12,23 +12,23 @@ import Game.Baseball.Model (State, Msg(..), _nbBases, _missingPeg)
 import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 
-colors :: Array String
+colors ∷ Array String
 colors = ["blue", "red", "green", "magenta", "orange", "black", "cyan", "gray"]
-dupColors :: Array String
-dupColors = colors >>= \x -> [x, x]
+dupColors ∷ Array String
+dupColors = colors >>= \x → [x, x]
 
-translatePeg :: Int -> Int -> String
+translatePeg ∷ Int → Int → String
 translatePeg position nbBases = translate (pc x) (pc y)  where
     mid = toNumber (position / 2)
     x = 0.42 + 0.35 * cos (mid * 2.0 * pi / toNumber nbBases) + 0.1 * toNumber (position `mod` 2)
     y = 0.46 + 0.35 * sin (mid * 2.0 * pi / toNumber nbBases)
 
-transformBase :: Int -> Int -> String
+transformBase ∷ Int → Int → String
 transformBase i nbBases = translate (pc x) (pc y)  <> " rotate(45deg)" where
     x = 0.50 + 0.35 * cos (toNumber i * 2.0 * pi / toNumber nbBases)
     y = 0.50 + 0.35 * sin (toNumber i * 2.0 * pi / toNumber nbBases)
 
-view :: State -> VDom Msg
+view ∷ State → VDom Msg
 view state = template {config, board, rules} state where
     nbBases = state^._nbBases
     levelFinished = isLevelFinished state
@@ -40,7 +40,7 @@ view state = template {config, board, rules} state where
 
     board = div [class_ "ui-board baseball-board"] [
         svg [viewBox 0 0 100 100] $ concat [
-            take nbBases colors # mapWithIndex \i color ->
+            take nbBases colors # mapWithIndex \i color →
                 rect [
                     x_ "-10", y_ "-10", width "20", height "20",
                     key $ "b" <> show i,
@@ -48,8 +48,8 @@ view state = template {config, board, rules} state where
                     stroke $ color,
                     style "transform" $ transformBase i nbBases
                 ],
-            map2 (state^._position) dupColors \peg pos color ->
-                peg /= state^._missingPeg <&&> \_ ->
+            map2 (state^._position) dupColors \peg pos color →
+                peg /= state^._missingPeg <&&> \_ →
                     g [
                         class_ "baseball-player",
                         style "transform" $ translatePeg pos nbBases,

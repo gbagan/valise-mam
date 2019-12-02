@@ -10,7 +10,7 @@ import Lib.Util (coords)
 import UI.Template (template, card, bestScoreDialog, incDecGrid, gridStyle, dndBoardProps, dndItemProps, cursorStyle)
 import UI.Icons (icongroup, iconBestScore, iconSizesGroup, iundo, iredo, ireset, irules)
 
-view :: State -> VDom Msg
+view ∷ State → VDom Msg
 view state = template {config, board, rules, winTitle, scoreDialog} state where
     position = state^._position
     columns = state^._nbColumns
@@ -39,8 +39,8 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
 
     board = incDecGrid state [
         div ([class_ "ui-board"] <> dndBoardProps <> gridStyle rows columns 3) $ concat
-        [   position # mapWithIndex \i val ->
-                val /= 0 <&&> \_ ->
+        [   position # mapWithIndex \i val →
+                val /= 0 <&&> \_ →
                     piece i val ([key $ show i] <> 
                         dndItemProps {
                             currentDragged: state^._dragged,
@@ -52,10 +52,10 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
         ]
     ]
 
-    scoreDialog _ = bestScoreDialog state \pos -> [
+    scoreDialog _ = bestScoreDialog state \pos → [
         div [class' "ui-flex-center jetons-bestscore-grid-container" true] [ 
             div (gridStyle rows columns 3 <> [class' "ui-board" true]) (
-                pos # mapWithIndex \i val -> val /= 0 <&&> \_ ->
+                pos # mapWithIndex \i val → val /= 0 <&&> \_ →
                     piece i val [key $ show i]
             )
         ]

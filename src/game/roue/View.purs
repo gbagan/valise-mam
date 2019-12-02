@@ -14,17 +14,17 @@ import Pha.Util (pc)
 import UI.Template (template, card, dndBoardProps, dndItemProps)
 import UI.Icons (icongroup, iconSelectGroup, ireset, irules)
 
-colors :: Array String
+colors ∷ Array String
 colors = ["blue", "red", "magenta", "orange", "brown", "cyan", "gray", "black"]
 
-polarToCartesian :: Number -> Number -> Number -> Number -> {x :: Number, y :: Number}
+polarToCartesian ∷ Number → Number → Number → Number → {x ∷ Number, y ∷ Number}
 polarToCartesian centerX centerY radius angle = {
     x: centerX + radius * cos angle,
     y: centerY + radius * sin angle
 }
 
 
-pizza :: Number -> Number -> Number -> Number -> Number -> String
+pizza ∷ Number → Number → Number → Number → Number → String
 pizza cx cy radius startAngle endAngle =
     joinWith " " [
         "M", show cx, show cy,
@@ -35,16 +35,16 @@ pizza cx cy radius startAngle endAngle =
         s = polarToCartesian cx cy radius startAngle
         e = polarToCartesian cx cy radius endAngle
 
-innerWheel :: ∀a. Int -> VDom a
+innerWheel ∷ ∀a. Int → VDom a
 innerWheel size = div [class' "roue-inner" true] [
-    svg [viewBox 0 0 100 100] $ take size colors # mapWithIndex \i color ->
+    svg [viewBox 0 0 100 100] $ take size colors # mapWithIndex \i color →
         path (pizza 50.0 50.0 50.0 (2.0 * pi * (toNumber i - 0.5) / toNumber size) (2.0 * pi * (toNumber i + 0.5) / toNumber size)) [
             fill color,
             stroke "black"
         ]
 ]
 
-cursor :: ∀a. PointerPosition -> String -> VDom a
+cursor ∷ ∀a. PointerPosition → String → VDom a
 cursor {x, y} color = div [
     class' "ui-cursor roue-select-color roue-cursor" true,
     style "left" $ pc x,
@@ -53,7 +53,7 @@ cursor {x, y} color = div [
 ] []
 
 
-view :: State -> VDom Msg
+view ∷ State → VDom Msg
 view state = template {config, board, rules, winTitle} state where
     size = state^._size
     position = state^._position
@@ -66,19 +66,19 @@ view state = template {config, board, rules, winTitle} state where
 
     rules = [text "blah blah"]
 
-    draggedColor :: Maybe String 
-    draggedColor = state^._dragged >>= \d ->
+    draggedColor ∷ Maybe String 
+    draggedColor = state^._dragged >>= \d →
         let colorIndex = case d of
-                            Panel i -> i
-                            Wheel i -> fromMaybe (-1) $ join (position !! i)
-                            _ -> -1
+                            Panel i → i
+                            Wheel i → fromMaybe (-1) $ join (position !! i)
+                            _ → -1
         in colors !! colorIndex
 
     outerWheel = div [
         class' "roue-outer" true,
         style "transform" $ "rotate(" <> show (360.0 * toNumber (state^._rotation) / toNumber size) <> "deg)"
     ] $
-        [svg [key "svg", viewBox 0 0 100 100] $ map2 position (aligned state) \i pos align ->
+        [svg [key "svg", viewBox 0 0 100 100] $ map2 position (aligned state) \i pos align →
             path (pizza 50.0 50.0 50.0 (2.0 * pi * (toNumber i - 0.5) / toNumber size) (2.0 * pi * (toNumber i + 0.5) / toNumber size)) ([
                 class' "roue-wheel-part" true,
                 fill $ if not align then  "#F0B27A" else if validRotation' state then "lightgreen" else "#F5B7B1"
@@ -88,7 +88,7 @@ view state = template {config, board, rules, winTitle} state where
                 droppable: true,
                 id: Wheel i
             } state)
-        ] <> (catMaybes $ position # mapWithIndex \index c -> c <#> \color -> 
+        ] <> (catMaybes $ position # mapWithIndex \index c → c <#> \color → 
             div [
                 class_ "roue-outer-piece",
                 key $ show index,
@@ -105,7 +105,7 @@ view state = template {config, board, rules, winTitle} state where
                 disabled $ state^._locked,
                 onclick $ Rotate (-1)
             ] [text "↶"]],
-            take size colors # mapWithIndex \i color ->
+            take size colors # mapWithIndex \i color →
                 div ([
                     class_ "roue-select-color ui-flex-center",
                     style "background-color" color
@@ -115,7 +115,7 @@ view state = template {config, board, rules, winTitle} state where
                     droppable: false,
                     id: Panel i
                 } state) [
-                    elem (Just i) position <&&> \_ ->
+                    elem (Just i) position <&&> \_ →
                         span [] [text "✓"]
                 ],
             [button [

@@ -15,22 +15,22 @@ import UI.Template (template, card, dialog, incDecGrid, gridStyle, svgCursorStyl
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, iconSelectGroup, ihelp, ireset, irules)
 
-type Borders = {top :: Boolean, left :: Boolean, bottom :: Boolean, right :: Boolean}
+type Borders = {top ∷ Boolean, left ∷ Boolean, bottom ∷ Boolean, right ∷ Boolean}
 
-square :: ∀a. {isDark :: Boolean, hasBlock :: Boolean, hasSink :: Boolean, row :: Int, col :: Int} -> Array (Prop a) -> VDom a 
+square ∷ ∀a. {isDark ∷ Boolean, hasBlock ∷ Boolean, hasSink ∷ Boolean, row ∷ Int, col ∷ Int} → Array (Prop a) → VDom a 
 square {isDark, hasBlock, hasSink, row, col} props =
     g ([
         class' "tiling-darken" isDark,
         transform $ translate (show $ 50 * col) (show $ 50 * row)
     ] <> props) [
         rect [width "50", height "50", key "conc", fill "url(#concrete)"],
-        hasBlock <&&> \_ ->
+        hasBlock <&&> \_ →
             use "#tile2" [width "50", height "50", key "tile"],
-        hasSink <&&> \_ ->
+        hasSink <&&> \_ →
             use "#sink" [width "50", height "50", key "sink"]
     ]
     
-view :: State -> VDom Msg
+view ∷ State → VDom Msg
 view state = template {config, board, rules, winTitle, customDialog} state where
     position = state^._position
     rows = state^._nbRows
@@ -41,7 +41,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
 
     config = card "Carrelage" [
         iconSizesGroup state [4∧5, 5∧5, 5∧6, 7∧7] true,
-        iconSelectGroup state "Motif du pavé" [Type1, Type2, Type3, CustomTile] (state^._tileType) SetTile \t ->
+        iconSelectGroup state "Motif du pavé" [Type1, Type2, Type3, CustomTile] (state^._tileType) SetTile \t →
             _{icon = IconSymbol ("#" <> show t)},  --- custom
         iconSelectGroup state "Nombre d'éviers" [0, 1, 2] (state^._nbSinks) SetNbSinks (const identity),
         icongroup "Options" [ihelp state, ireset state, irules state]
@@ -52,7 +52,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
             g [
                 class' "tiling-cursor" true,
                 style "transform" $ "rotate(" <> show (90 * state^._rotation) <> "deg)"
-            ] $ state^._tile <#> \{row, col} ->
+            ] $ state^._tile <#> \{row, col} →
                 use "#tile2" [
                     x_ $ show (50.0 * toNumber col - 25.0),
                     y_ $ show (50.0 * toNumber row - 25.0),
@@ -74,7 +74,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
         oncontextmenu Rotate
     ]) [
         svg [viewBox 0 0 (50 * columns) (50 * rows)] $
-            (position # mapWithIndex \index pos ->
+            (position # mapWithIndex \index pos →
                 let {row, col} = coords columns index in
                 square {
                     isDark: state^._help && even (row + col),
@@ -86,16 +86,16 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                     onpointerenter $ SetHoverSquare (Just index),
                     onpointerleave $ SetHoverSquare Nothing
                 ]
-            ) <> (position # mapWithIndex \index pos ->
+            ) <> (position # mapWithIndex \index pos →
                 let {row, col} = coords columns index in
                 g [transform $ translate (show $ 50 * col) (show $ 50 * row)] [
-                    pos > 0 && border index (-1) <&&> \_ ->
+                    pos > 0 && border index (-1) <&&> \_ →
                         line [x1 "0", y1 "0", x2 "0", y2 "50", stroke "#000", strokeWidth "2"],
-                    pos > 0 && border index 1 <&&> \_ ->
+                    pos > 0 && border index 1 <&&> \_ →
                         line [x1 "50", y1 "0", x2 "50", y2 "50", stroke "#000", strokeWidth "2"],
-                    pos > 0 && border index (-columns) <&&> \_ ->
+                    pos > 0 && border index (-columns) <&&> \_ →
                         line [x1 "0", y1 "0", x2 "50", y2 "0", stroke "#000", strokeWidth "2"],
-                    pos > 0 && border index columns <&&> \_ ->
+                    pos > 0 && border index columns <&&> \_ →
                         line [x1 "0", y1 "50", x2 "50", y2 "50", stroke "#000", strokeWidth "2"]    
                 ]
             ) <> [state^._pointer <??> (if length (sinks state) < state^._nbSinks then sinkCursor else tileCursor)]
@@ -110,7 +110,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
         div [class' "tiling-customtile-grid-container" true] [
             div [class' "tiling-grid" true] [
                 svg [viewBox 0 0 250 250] (
-                    state^. (_tile ∘ _isoCustom) # mapWithIndex \index hasBlock ->
+                    state^. (_tile ∘ _isoCustom) # mapWithIndex \index hasBlock →
                         let {row, col} = coords 5 index
                         in square {hasBlock, row, col, hasSink: false, isDark: false}
                             [key (show index), onclick $ FlipTile index]
@@ -125,14 +125,14 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                     tooltip: 'Succès',
                     onclick: [actions.showDialog, 'success']
 
-    const HelpDialog = () => C.HelpDialog(
+    const HelpDialog = () ⇒ C.HelpDialog(
         'Essaie de remplir tout le plateau avec des pavés respectant un certain motif.', br,
         'Utilise le clic droit ou la barre espace pour tourner le pavé', br,
         'Dans les options, tu peux choisir d\'utiliser des éviers.', br,
         'Ceux-ci ne peuvent pas être déplacés et ne peuvent pas être carrelés.'
     );
 
-    const SuccessDialog = () =>
+    const SuccessDialog = () ⇒
         Dialog({
             title: 'Succès',
             onOk: [actions.showDialog, null]
@@ -142,7 +142,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                     class: 'tiling-grid',
                     style: gridStyle(state.rows, state.columns)
                 },
-                    state.successForThisConf.map(success =>
+                    state.successForThisConf.map(success ⇒
                         Square({
                             hasSink: success,
                             style: {

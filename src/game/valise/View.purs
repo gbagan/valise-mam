@@ -9,7 +9,7 @@ import Pha.Util (pc, translate)
 import Pha.Svg (svg, use, g, rect, width, height, x_, y_, viewBox, fill, transform)
 import Game.Common (pointerDecoder)
 
-valise :: State -> VDom Msg
+valise ∷ State → VDom Msg
 valise state = svg [
     viewBox 0 0 825 690,
     on "pointermove" $ pointerDecoder >>> (map MoveObject),
@@ -88,8 +88,8 @@ valise state = svg [
         let defaultTranslate = translate (pc $ toNumber x' / 850.0)  (pc $ toNumber y' / 690.0) in
         g [style "transform" $ 
             case drag ∧ (state ^. _positions ^. at symbol) of
-                true ∧ Just {x: x2, y: y2} -> translate (pc x2) (pc y2)    
-                _ -> defaultTranslate
+                true ∧ Just {x: x2, y: y2} → translate (pc x2) (pc y2)    
+                _ → defaultTranslate
         ] [
             g props [
                 svg ([
@@ -109,7 +109,7 @@ valise state = svg [
                     h "use" [
                         href $ "#" <> symbol, class_ "valise-symbol"
                     ] [],
-                    link <??> \l -> a [ href $ "#" <> l] [
+                    link <??> \l → a [ href $ "#" <> l] [
                         rect ([
                             width "100%",
                             height "100%",
@@ -123,7 +123,7 @@ valise state = svg [
             ]
         ]
 
-view :: State -> VDom Msg 
+view ∷ State → VDom Msg 
 view state = div [
     class_ "ui-flex-center valise-main-container",
     class' "open" state.isOpen

@@ -39,29 +39,29 @@ import Game.Valise as Valise
 
 infix 2 actionOver as .~>
 
-extractLocation :: String -> String -> String
+extractLocation ∷ String → String → String
 extractLocation url defaultValue =
-    S.indexOf (Pattern "#") url # maybe defaultValue \i -> S.drop (i + 1) url 
+    S.indexOf (Pattern "#") url # maybe defaultValue \i → S.drop (i + 1) url 
 
 type RootState = {
-    baseball :: Baseball.State,
-    chocolat :: Chocolat.State,
-    dessin :: Dessin.State,
-    frog :: Frog.State,
-    jetons :: Jetons.State,
-    labete :: Labete.State,
-    nim :: Nim.State,
-    noirblanc :: Noirblanc.State,
-    paths :: Paths.State,
-    queens :: Queens.State,
-    roue :: Roue.State,
-    sansmot :: Sansmot.State,
-    solitaire :: Solitaire.State,
-    tiling :: Tiling.State,
-    tricolor :: Tricolor.State,
-    valise :: Valise.State,
-    location :: String,
-    anim :: Boolean
+    baseball ∷ Baseball.State,
+    chocolat ∷ Chocolat.State,
+    dessin ∷ Dessin.State,
+    frog ∷ Frog.State,
+    jetons ∷ Jetons.State,
+    labete ∷ Labete.State,
+    nim ∷ Nim.State,
+    noirblanc ∷ Noirblanc.State,
+    paths ∷ Paths.State,
+    queens ∷ Queens.State,
+    roue ∷ Roue.State,
+    sansmot ∷ Sansmot.State,
+    solitaire ∷ Solitaire.State,
+    tiling ∷ Tiling.State,
+    tricolor ∷ Tricolor.State,
+    valise ∷ Valise.State,
+    location ∷ String,
+    anim ∷ Boolean
 }
 
 data Msg =
@@ -85,19 +85,19 @@ data Msg =
     | OnHashChange
 
 type GameWrapperF st msg = {
-    core :: GenericGame st msg,
-    map :: RootState -> st,
-    msgmap :: msg -> Msg
+    core ∷ GenericGame st msg,
+    map ∷ RootState → st,
+    msgmap ∷ msg → Msg
 }
 
-foreign import data GameWrapper :: Type
+foreign import data GameWrapper ∷ Type
 
-gameWrap :: ∀st msg. GenericGame st msg -> (RootState -> st) -> (msg -> Msg) -> GameWrapper
+gameWrap ∷ ∀st msg. GenericGame st msg → (RootState → st) → (msg → Msg) → GameWrapper
 gameWrap core map msgmap = unsafeCoerce {core, map, msgmap}
-gameRun :: ∀r. (∀st msg. GameWrapperF st msg -> r) -> GameWrapper -> r
+gameRun ∷ ∀r. (∀st msg. GameWrapperF st msg → r) → GameWrapper → r
 gameRun = unsafeCoerce
    
-games :: Map.Map String GameWrapper
+games ∷ Map.Map String GameWrapper
 games = Map.fromFoldable 
     [   "baseball"  ∧ gameWrap Baseball.game  _.baseball  BaseballMsg
     ,   "chocolat"  ∧ gameWrap Chocolat.game  _.chocolat  ChocolatMsg
@@ -117,14 +117,14 @@ games = Map.fromFoldable
     ,   "valise"    ∧ gameWrap Valise.game    _.valise    ValiseMsg
     ]
 
-callByName :: ∀r. String -> r -> (∀st msg. GameWrapperF st msg -> r) -> r
+callByName ∷ ∀r. String → r → (∀st msg. GameWrapperF st msg → r) → r
 callByName name default f = case games # Map.lookup name of
-                                Nothing -> default
-                                Just game -> game # gameRun f
+                                Nothing → default
+                                Just game → game # gameRun f
  
-hashChange :: Action RootState EFFS
+hashChange ∷ Action RootState EFFS
 hashChange = do
-    loc <- getLocation
+    loc ← getLocation
     let location = extractLocation loc.hash "valise"
     if location == "valise" || location == "" then do
         setState _{location = location, anim = true}
@@ -138,7 +138,7 @@ hashChange = do
         setState _{anim = false}
     
  
-update :: Msg -> Action RootState EFFS
+update ∷ Msg → Action RootState EFFS
 update (BaseballMsg msg)  = lens _.baseball _{baseball = _}   .~> Baseball.update msg
 update (ChocolatMsg msg)  = lens _.chocolat _{chocolat = _}   .~> Chocolat.update msg
 update (DessinMsg msg)    = lens _.dessin _{dessin = _}       .~> Dessin.update msg
@@ -156,20 +156,20 @@ update (TilingMsg msg)    = lens _.tiling _{tiling = _}       .~> Tiling.update 
 update (TricolorMsg msg)  = lens _.tricolor _{tricolor = _}   .~> Tricolor.update msg
 update (ValiseMsg msg)    = lens _.valise _{valise = _}       .~> Valise.update msg
 update (OnKeyDown k) = do 
-        st <- getState
-        callByName st.location (pure unit) \game ->
+        st ← getState
+        callByName st.location (pure unit) \game →
             game.core.onKeydown k # maybe (pure unit) (update <<< game.msgmap)
 update OnHashChange = hashChange
 
-init :: Action RootState EFFS
+init ∷ Action RootState EFFS
 init = do
     for_ (Map.values games) $
-        gameRun \game -> game.core.init # maybe (pure unit) (update <<< game.msgmap)
+        gameRun \game → game.core.init # maybe (pure unit) (update <<< game.msgmap)
     hashChange
 
 
 
-view :: RootState -> Document Msg
+view ∷ RootState → Document Msg
 view st = {
     title: "Valise MaM",
     body:
@@ -179,7 +179,7 @@ view st = {
             class' "valise" (st.location == "valise"),
             class' "appear" st.anim
         ] [
-            st.location /= "valise" <&&> \_ ->
+            st.location /= "valise" <&&> \_ →
             a [
                 class_ "main-minivalise-link",
                 href "#valise"
@@ -188,11 +188,11 @@ view st = {
         ]
 }
 
-viewGame :: RootState -> VDom Msg
+viewGame ∷ RootState → VDom Msg
 viewGame st = callByName st.location emptyNode 
-                    \game -> game.core.view (game.map st) <#> game.msgmap
+                    \game → game.core.view (game.map st) <#> game.msgmap
 
-state :: RootState
+state ∷ RootState
 state = {
     baseball: Baseball.istate,
     chocolat: Chocolat.istate,
@@ -214,7 +214,7 @@ state = {
     anim: true  --- empèche l'animation à l'ouverture de la page
 }
 
-main :: Effect Unit
+main ∷ Effect Unit
 main = app {
     init: state ∧ init,
     view,

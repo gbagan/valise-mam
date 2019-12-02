@@ -12,10 +12,10 @@ import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset, irules)
 
 -- todo
-px' :: Int -> String
+px' ∷ Int → String
 px' a = show a <> "px"
 
-view :: State -> VDom Msg
+view ∷ State → VDom Msg
 view state = template {config, board, rules, winTitle} state where
     nbPiles = state^._nbPiles
     length = state^._length
@@ -24,12 +24,12 @@ view state = template {config, board, rules, winTitle} state where
         iconSelectGroup state "Nombre de rangées" [1, 2, 3, 4, 5] nbPiles SetNbPiles (const identity),
         iconSelectGroup state "Taille des rangées" [10, 5] length SetLength (const identity),
         icons2Players state,
-        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x state
+        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x → x state
     ]
 
     board = div [class_ "ui-board nim-board"] [
         svg [viewBox 0 0 100 100] (
-            concat $ state^._position # mapWithIndex \i pile -> concat [
+            concat $ state^._position # mapWithIndex \i pile → concat [
                 [rect [
                     x_ $ if length == 5 then "25" else "0",
                     y_ $ show (10 + 19 * i),
@@ -38,7 +38,7 @@ view state = template {config, board, rules, winTitle} state where
                     key $ "pile" <> show i,
                     fill "snow"
                 ]],
-                tabulate length \j ->
+                tabulate length \j →
                     rect [
                         x_ "-2.5", y_ "-2.5", width "5", height "5",
                         key $ "base-" <> show i <> "-" <> show j,
@@ -49,7 +49,7 @@ view state = template {config, board, rules, winTitle} state where
                             " rotate(45deg)",
                         style "cursor" $ if canPlay state (Move i j) then "pointer" else "not-allowed"
                     ],
-                [fst pile, snd pile] # mapWithIndex \j peg ->
+                [fst pile, snd pile] # mapWithIndex \j peg →
                     use "#meeple" [
                         key $ "p-" <> show i <> "-" <> show j,
                         width "8", height "8",

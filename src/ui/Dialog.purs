@@ -5,12 +5,12 @@ import Pha.Elements (div, button)
 import Pha.Events (onclick)
 
 type DialogOptions a = {
-    title :: String,
-    onOk :: Maybe a,
-    onCancel :: Maybe a
+    title ∷ String,
+    onOk ∷ Maybe a,
+    onCancel ∷ Maybe a
 }
 
-dialog :: ∀a. DialogOptions a -> Array (VDom a) -> VDom a
+dialog ∷ ∀a. DialogOptions a → Array (VDom a) → VDom a
 dialog {title, onOk, onCancel} children =
     div [class_ "ui-absolute ui-flex-center ui-dialog-container"] [
         div [class_ "ui-dialog"] [
@@ -19,12 +19,12 @@ dialog {title, onOk, onCancel} children =
             ],
             div [class_ "ui-dialog-body"] children,
             div [class_ "ui-dialog-buttons"] $ catMaybes [
-                onCancel <#> \action ->
+                onCancel <#> \action →
                     button [
                         class_ "ui-button ui-button-primary", 
                         onclick action
                     ] [text "Annuler"],
-                onOk <#> \action ->
+                onOk <#> \action →
                     button [
                         class_ "ui-button ui-button-primary",
                         onclick action

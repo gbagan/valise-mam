@@ -10,7 +10,7 @@ data Page = PythaPage | CarollPage
 
 data AnimationStep = Step Int String Int -- delay, type d'items, phase 
 
-pythaAnimation :: Array AnimationStep
+pythaAnimation ∷ Array AnimationStep
 pythaAnimation = [
     Step 500 "a" 1,
     Step 200 "a" 2,
@@ -23,7 +23,7 @@ pythaAnimation = [
     Step 600 "e" 1
 ]
 
-carollAnimation :: Array AnimationStep
+carollAnimation ∷ Array AnimationStep
 carollAnimation = [
     Step 700 "a" 1,
     Step 700 "b" 1,
@@ -34,36 +34,36 @@ carollAnimation = [
 
 
 type State = {
-    anim :: M.Map String Int,
-    locked :: Boolean,
+    anim ∷ M.Map String Int,
+    locked ∷ Boolean,
     --dialog: null,
-    page :: Page
+    page ∷ Page
 }
 
-istate :: State
+istate ∷ State
 istate = {
     anim: M.empty,
     locked: false,
     page: CarollPage
 }
 
-_anim :: Lens' State (M.Map String Int)
+_anim ∷ Lens' State (M.Map String Int)
 _anim = lens _.anim _{anim = _}
-_locked :: Lens' State Boolean
+_locked ∷ Lens' State Boolean
 _locked = lens _.locked _{locked = _}
-_page :: Lens' State Page
+_page ∷ Lens' State Page
 _page = lens _.page _{page = _}
 
 data Msg = SetPage Page | Animate (Array AnimationStep)
 
-update :: Msg -> Action State EFFS
+update ∷ Msg → Action State EFFS
 update (SetPage page) = unlessM (view _locked <$> getState) $ setState ((_page .~ page) ∘ (_anim .~ M.empty))
 
 update (Animate animation) = do
     unlessM (view _locked <$> getState) $ do
         setState $ (_anim .~ M.empty) >>> (_locked .~ true)
-        for_ animation \(Step d key step) -> do
+        for_ animation \(Step d key step) → do
             delay d
-            state <- getState
+            state ← getState
             setState $ _anim ∘ at key .~ Just step
         setState $ _locked .~ false

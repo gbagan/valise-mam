@@ -16,7 +16,7 @@ import UI.Template (template, card, dialog, bestScoreDialog, incDecGrid, gridSty
 import UI.Icon (Icon(..))
 import UI.Icons (iconbutton, icongroup, iconSizesGroup, iconSelectGroupM, iconBestScore, ihelp, irules, ireset)
 
-tooltip :: Piece -> String
+tooltip ∷ Piece → String
 tooltip Queen = "Reine"
 tooltip King = "Roi"
 tooltip Rook = "Tour"
@@ -24,7 +24,7 @@ tooltip Bishop = "Fou"
 tooltip Knight = "Cavalier"
 tooltip _ = "Pièce personnalisée"
 
-square :: ∀a. { piece :: Piece, capturable :: Boolean, selected :: Boolean, nonavailable :: Boolean} -> Array (Prop a) -> VDom a
+square ∷ ∀a. { piece ∷ Piece, capturable ∷ Boolean, selected ∷ Boolean, nonavailable ∷ Boolean} → Array (Prop a) → VDom a
 square { piece, capturable, selected, nonavailable} props =
     div (props <> [
         class_ "queens-square",
@@ -37,7 +37,7 @@ square { piece, capturable, selected, nonavailable} props =
         ]
     ]
 
-view :: State -> VDom Msg
+view ∷ State → VDom Msg
 view state = template {config, board, rules, customDialog, scoreDialog} state where
     position = state^._position
     rows = state^._nbRows
@@ -45,7 +45,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
         
     config = card "Les reines" [
         iconSizesGroup state [4∧4, 5∧5, 7∧7, 8∧8] true,
-        iconSelectGroupM state "Pièces disponibles" piecesList (state^._allowedPieces) SelectAllowedPiece \piece ->
+        iconSelectGroupM state "Pièces disponibles" piecesList (state^._allowedPieces) SelectAllowedPiece \piece →
             _{icon = IconSymbol $ "#piece-" <> show piece, tooltip = Just $ tooltip piece},
         icongroup "Options" $ [
             iconbutton state
@@ -67,7 +67,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
     ]   
 
     pieceSelector = div [class_ "ui-flex-center gutter2 queens-pieceselector"] $
-        N.toArray (state^._allowedPieces) <#> \piece ->
+        N.toArray (state^._allowedPieces) <#> \piece →
             let name = show piece in
             iconbutton state
             {   selected: piece == state^._selectedPiece
@@ -83,7 +83,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
     ]
 
     grid = div ([class_ "ui-board"] <> gridStyle rows columns 5 <> trackPointer) $ concat [  
-        map3 position (attackedBySelected state) (capturableSquares state) \index piece attacked capturable ->
+        map3 position (attackedBySelected state) (capturableSquares state) \index piece attacked capturable →
             square {piece,
                 selected: attacked || state^._selectedSquare == Just index,
                 nonavailable: state^._help && (piece /= Empty || capturable),
@@ -109,7 +109,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
         dialog "Personnalise ta pièce"
         [   div [class_ "flex queens-custompiece"]
             [   div [class_ "queens-grid queens-custompiece-grid"] (
-                    state^._customLocalMoves # mapWithIndex \index selected ->
+                    state^._customLocalMoves # mapWithIndex \index selected →
                         square {
                                 piece: if index == 12 then Custom else Empty,
                                 selected: selected,
@@ -123,7 +123,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
                         ]
                 )
             ,   div [class_ "flex queens-custompiece-directions"] (
-                    map2 (state^._customDirections) angles \i selected angle ->
+                    map2 (state^._customDirections) angles \i selected angle →
                         iconbutton state 
                         {   selected: selected
                         ,       icon: if i == 4 then IconNone else IconSymbol "#arrow"
@@ -136,10 +136,10 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
         ]
     ]    
         
-    scoreDialog _ = bestScoreDialog state \pos -> [
+    scoreDialog _ = bestScoreDialog state \pos → [
         div [class_ "ui-flex-center queens-bestscore-container"] [
             div (gridStyle rows columns 5 <> [class_ "ui-board queens-grid"]) (
-                pos <#> \piece ->
+                pos <#> \piece →
                     square { piece, capturable: false, selected: false, nonavailable: false} [
                         style "width" $ pc (1.0 / toNumber columns),
                         style "height" $ pc (1.0 / toNumber rows)

@@ -10,19 +10,19 @@ import Game.Core (GState, class Game, class ScoreGame, Dialog(..), Mode(..), bes
                 _help, _dialog, _history, _redoHistory, _mode, _nbRows, _nbColumns, _locked, _customSize)
 import UI.Icon (iconbutton, defaultOptions, Options, Icon(..)) as I
 
-iconbutton :: ∀pos ext msg opts. PartialRecord opts I.Options => GState pos ext -> (Record opts) -> Array (Prop msg) -> VDom msg
+iconbutton ∷ ∀pos ext msg opts. PartialRecord opts I.Options ⇒ GState pos ext → (Record opts) → Array (Prop msg) → VDom msg
 iconbutton state opts props =
     let opts2 = partialUpdate opts I.defaultOptions in
     I.iconbutton opts2{disabled = opts2.disabled || state^._locked} props
 
-icongroup :: ∀a. String -> Array (VDom a) -> VDom a
+icongroup ∷ ∀a. String → Array (VDom a) → VDom a
 icongroup title children =
     div [] [
         h2 [] [text title],
         div [class_ "ui-icon-grid"] children
     ]
 
-iundo :: ∀msg pos ext. MsgWithCore msg => GState pos ext -> VDom msg
+iundo ∷ ∀msg pos ext. MsgWithCore msg ⇒ GState pos ext → VDom msg
 iundo state =
     iconbutton
         state
@@ -32,7 +32,7 @@ iundo state =
         }
         [onclick $ core Undo]
 
-iredo :: ∀msg pos ext. MsgWithCore msg => GState pos ext -> VDom msg
+iredo ∷ ∀msg pos ext. MsgWithCore msg ⇒ GState pos ext → VDom msg
 iredo state =
     iconbutton
         state
@@ -43,7 +43,7 @@ iredo state =
         }
         [onclick $ core Redo]
 
-ireset :: ∀msg pos ext. MsgWithCore msg => GState pos ext -> VDom msg
+ireset ∷ ∀msg pos ext. MsgWithCore msg ⇒ GState pos ext → VDom msg
 ireset state =
     iconbutton
         state
@@ -53,7 +53,7 @@ ireset state =
         }
         [onclick $ core Reset]
 
-ihelp :: ∀msg pos ext. MsgWithCore msg => GState pos ext -> VDom msg
+ihelp ∷ ∀msg pos ext. MsgWithCore msg ⇒ GState pos ext → VDom msg
 ihelp state =
     iconbutton
         state
@@ -63,7 +63,7 @@ ihelp state =
         }
         [onclick $ core ToggleHelp]
 
-irules :: ∀msg pos ext. MsgWithCore msg => GState pos ext -> VDom msg
+irules ∷ ∀msg pos ext. MsgWithCore msg ⇒ GState pos ext → VDom msg
 irules state =
     iconbutton
         state
@@ -74,39 +74,39 @@ irules state =
         [onclick $ core $ SetRulesDialog]
     where
         selected = case state^._dialog of
-            Rules -> true
-            _ -> false
+            Rules → true
+            _ → false
 
 class DefIconText a where
-    defIconText :: a -> Record I.Options -> Record I.Options
+    defIconText ∷ a → Record I.Options → Record I.Options
 
-instance defint :: DefIconText Int where
+instance defint ∷ DefIconText Int where
     defIconText val opts = opts{icon = I.IconText $ show val}
-else instance defa :: DefIconText a where
+else instance defa ∷ DefIconText a where
     defIconText _ opts = opts
 
-iconSelectGroup :: ∀msg pos ext sel. DefIconText sel => Eq sel =>
-    GState pos ext -> String -> Array sel -> sel -> (sel -> msg) -> (sel -> Record I.Options -> Record I.Options) -> VDom msg
+iconSelectGroup ∷ ∀msg pos ext sel. DefIconText sel ⇒ Eq sel ⇒
+    GState pos ext → String → Array sel → sel → (sel → msg) → (sel → Record I.Options → Record I.Options) → VDom msg
 iconSelectGroup state title values selected action optionFn =
-    icongroup title $ values <#> \val ->
+    icongroup title $ values <#> \val →
         iconbutton state (optionFn val (defIconText val I.defaultOptions{
             selected = val == selected
         })) [onclick (action val)]
 
-iconSelectGroupM :: ∀msg pos ext t sel.
-    DefIconText sel => Eq sel => Foldable t =>
-    GState pos ext -> String -> Array sel -> t sel -> (sel -> msg) -> (sel -> Record I.Options -> Record I.Options) -> VDom msg
+iconSelectGroupM ∷ ∀msg pos ext t sel.
+    DefIconText sel ⇒ Eq sel ⇒ Foldable t ⇒
+    GState pos ext → String → Array sel → t sel → (sel → msg) → (sel → Record I.Options → Record I.Options) → VDom msg
 iconSelectGroupM state title values selected action optionFn =
-    icongroup title $ values <#> \val ->
+    icongroup title $ values <#> \val →
         iconbutton state (optionFn val (defIconText val I.defaultOptions{
             selected = elem val selected
         })) [onclick (action val)]
 
-iconSizesGroup :: ∀msg pos ext. MsgWithCore msg =>
-    GState pos ext -> Array (Tuple Int Int) -> Boolean -> VDom msg
+iconSizesGroup ∷ ∀msg pos ext. MsgWithCore msg ⇒
+    GState pos ext → Array (Tuple Int Int) → Boolean → VDom msg
 iconSizesGroup state sizeList customSize =
     icongroup "Dimensions de la grille" $
-        (sizeList <#> \(rows ∧ cols) ->
+        (sizeList <#> \(rows ∧ cols) →
             iconbutton state 
             {   icon: I.IconText $ show rows <> "x" <> show cols
             ,   selected: rows == crows && cols == ccols && not csize
@@ -125,7 +125,7 @@ iconSizesGroup state sizeList customSize =
     ccols = state^._nbColumns
     csize = state^._customSize
 
-icons2Players :: ∀msg pos ext mov. MsgWithCore msg => Game pos ext mov => GState pos ext -> VDom msg
+icons2Players ∷ ∀msg pos ext mov. MsgWithCore msg ⇒ Game pos ext mov ⇒ GState pos ext → VDom msg
 icons2Players state =
     icongroup "Mode de jeu" [
         iconbutton
@@ -145,7 +145,7 @@ icons2Players state =
             {icon: I.IconText "2P⇨", disabled: not (L.null $ state^._history) || state^._mode == DuelMode, tooltip: Just "L'IA commence"}
             [onclick $ core ComputerStarts]
     ]
-iconBestScore :: ∀msg pos ext mov. MsgWithCore msg => ScoreGame pos ext mov => GState pos ext -> VDom msg
+iconBestScore ∷ ∀msg pos ext mov. MsgWithCore msg ⇒ ScoreGame pos ext mov ⇒ GState pos ext → VDom msg
 iconBestScore state =
     icongroup ("Meilleur score (" <> maybe "∅" (show ∘ fst) (bestScore state) <> ")") [
         iconbutton

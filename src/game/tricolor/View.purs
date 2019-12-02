@@ -11,15 +11,15 @@ import Game.Tricolor.Model (State, Msg(..), _size, _nbColors, _range, _hoverCell
 import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 
-colors :: Array String
+colors ∷ Array String
 colors = ["green", "yellow", "red", "magenta", "blue"]
 
-translateCell :: Int -> Int -> String
+translateCell ∷ Int → Int → String
 translateCell i size = translate (pc x) (pc y) where
     x = 0.50 + 0.35 * cos (toNumber i * 2.0 * pi / toNumber size)
     y = 0.45 + 0.35 * sin (toNumber i * 2.0 * pi / toNumber size)
 
-view :: State -> VDom Msg
+view ∷ State → VDom Msg
 view state = template {config, board, rules} state where
     size = state^._size
     nbColors = state^._nbColors
@@ -29,12 +29,12 @@ view state = template {config, board, rules} state where
         iconSelectGroup state "Nombre de lumières" [4, 5, 6, 7, 8] size SetSize (const identity),
         iconSelectGroup state "Nombre de couleurs" [2, 3, 4, 5] nbColors SetNbColors (const identity),
         iconSelectGroup state "Portée" [1, 2, 3] (state^._range) SetRange (const identity),
-        icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> \x -> x state
+        icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> \x → x state
     ]
 
     board = div [class_ "ui-board tricolor-board"] [
         svg [viewBox 0 0 100 100] $ concat [
-            state^._position # mapWithIndex \i color ->
+            state^._position # mapWithIndex \i color →
                 circle [
                     r "7.5",
                     class_ "tricolor-cell",
@@ -48,7 +48,7 @@ view state = template {config, board, rules} state where
                     onpointerleave $ SetHoverCell Nothing
                 ],
 
-            concat $ take nbColors colors # mapWithIndex \i color -> [
+            concat $ take nbColors colors # mapWithIndex \i color → [
                 circle [
                     cx $ show (95 + 15 * (i - nbColors)),
                     cy "95",

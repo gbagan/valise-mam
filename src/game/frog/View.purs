@@ -13,18 +13,18 @@ import UI.Icons (icongroup, iconSelectGroupM, icons2Players, ihelp, iundo, iredo
 import Game.Core (_nbRows, _position, _help, _locked)
 import Game.Frog.Model (State, Msg(..), _moves, _marked, reachableArray)
 
-type Cartesian = { x :: Number, y :: Number}
-type Polar = { radius :: Number, theta :: Number }
+type Cartesian = { x ∷ Number, y ∷ Number}
+type Polar = { radius ∷ Number, theta ∷ Number }
 
-lineIntersection :: Number -> Number -> Number -> Number -> { x :: Number, y :: Number }
+lineIntersection ∷ Number → Number → Number → Number → { x ∷ Number, y ∷ Number }
 lineIntersection  m1 b1 m2 b2 = { x, y: m1 * x + b1 } where x = (b2 - b1) / (m1 - m2)
 
-polarToCartesian :: Polar -> Cartesian
+polarToCartesian ∷ Polar → Cartesian
 polarToCartesian {radius, theta} = { x: radius * cos theta, y: radius * sin theta }
 
-spiral :: Cartesian -> Number -> Number -> Number -> Number -> Number -> String
+spiral ∷ Cartesian → Number → Number → Number → Number → Number → String
 spiral center startRadius radiusStep startTheta endTheta thetaStep =
-    floatRange startTheta endTheta thetaStep <#> (\theta ->
+    floatRange startTheta endTheta thetaStep <#> (\theta →
         let b = radiusStep / (2.0 * pi)
             r = startRadius + b * theta
             point = { x: center.x + r * cos theta, y: center.y + r * sin theta }
@@ -33,7 +33,7 @@ spiral center startRadius radiusStep startTheta endTheta thetaStep =
         in { point, slope, intercept }
     )
     # pairwise
-    # mapWithIndex (\i (a ∧ b) ->
+    # mapWithIndex (\i (a ∧ b) →
         let { x, y } = lineIntersection a.slope a.intercept b.slope b.intercept
             p = ["Q", show $ x + center.x, show $ y + center.y, show $ b.point.x, show b.point.y]
         in
@@ -42,20 +42,20 @@ spiral center startRadius radiusStep startTheta endTheta thetaStep =
     # concat
     # joinWith " "
 
-spiralPointsPolar :: Int -> Array Polar
-spiralPointsPolar n = reverse $ tabulate (n + 1) \i ->
+spiralPointsPolar ∷ Int → Array Polar
+spiralPointsPolar n = reverse $ tabulate (n + 1) \i →
     let theta = sqrt(if i == n then 21.0 else toNumber i * 20.0 / toNumber n) * 1.36 * pi
         radius = 61.0 * theta / (2.0 * pi)
     in { theta, radius }
 
 
-spiralPoints :: Int -> Array Cartesian
+spiralPoints ∷ Int → Array Cartesian
 spiralPoints n = spiralPointsPolar n <#> polarToCartesian
 
-spiralPath :: String
+spiralPath ∷ String
 spiralPath = spiral { x: 0.0, y: 0.0 } 0.0 61.0 0.0 (37.0 / 6.0 * pi) (pi / 6.0)
 
-lily :: ∀a. Int -> Number -> Number -> Boolean -> Boolean -> VDom a
+lily ∷ ∀a. Int → Number → Number → Boolean → Boolean → VDom a
 lily i x y reachable hidden =
     use "#lily" (pos <> [
         class_ "frog-lily",
@@ -68,7 +68,7 @@ lily i x y reachable hidden =
             [x_ $ show (x - 24.0), y_ $ show (y - 24.0), width "48", height "48"]
         
 
-view :: State -> VDom Msg
+view ∷ State → VDom Msg
 view state = template {config, board, rules, winTitle} state where
     position = state^._position
     reachable = reachableArray state
@@ -77,7 +77,7 @@ view state = template {config, board, rules, winTitle} state where
     config = card "La grenouille" [
         iconSelectGroupM state "Déplacements autorisés" [1, 2, 3, 4, 5] (state^._moves) SelectMove (const identity),
         icons2Players state,
-        icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x state
+        icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x → x state
     ]
     grid = 
         div [class_ "ui-board frog-board"] [
@@ -88,7 +88,7 @@ view state = template {config, board, rules, winTitle} state where
                     line [x_ "153", y_ "7", width "153", height "39", stroke "black", strokeWidth "3"],
                     line [x_ "207", y_"18", width "207", height "50", stroke "black", strokeWidth "3"]
                 ],
-                map2 spoints reachable \i {x, y} reach ->
+                map2 spoints reachable \i {x, y} reach →
                     g [
                         key $ "lily" <> show i,
                         on "click" $ shiftKey >>> map (if _ then Mark i else Play i)
@@ -99,8 +99,8 @@ view state = template {config, board, rules, winTitle} state where
                             x_ $ show x, y_ $ show y, class_ "frog-index"
                         ]
                     ],
-                map2 (state^._marked) spoints \i mark {x, y} ->
-                    mark && i /= position <&&> \_ ->
+                map2 (state^._marked) spoints \i mark {x, y} →
+                    mark && i /= position <&&> \_ →
                         use "#frog2" [
                             x_ $ show (x - 20.0),
                             y_ $ show (y - 20.0),
@@ -109,7 +109,7 @@ view state = template {config, board, rules, winTitle} state where
                             key $ "reach" <> show i,
                             class_ "frog-frog marked"
                         ],
-                [pointsPolar !! position <??> \{radius, theta} ->
+                [pointsPolar !! position <??> \{radius, theta} →
                     g [
                     key "frog",
                     class_ "frog-frog-container",

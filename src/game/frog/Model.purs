@@ -11,39 +11,39 @@ import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, 
 import Game.Effs (EFFS)
 
 type Ext' = {
-    moves :: N.NonEmptyArray Int,  -- la liste des mouvements autorisées (en nombre de cases)
-    winning :: Array Boolean, --- la liste des positions gagnantes
-    marked :: Array Boolean,  -- la liste des posiions marquées par l'utilisateur
-    keySequence :: Array String    --- pour le konami code
+    moves ∷ N.NonEmptyArray Int,  -- la liste des mouvements autorisées (en nombre de cases)
+    winning ∷ Array Boolean, --- la liste des positions gagnantes
+    marked ∷ Array Boolean,  -- la liste des posiions marquées par l'utilisateur
+    keySequence ∷ Array String    --- pour le konami code
 }
 newtype ExtState = Ext Ext'
 
 type State = GState Int ExtState
 
 -- lenses
-_ext' :: Lens' State Ext'
-_ext' = _ext ∘ iso (\(Ext a) -> a) Ext
-_moves :: Lens' State (N.NonEmptyArray Int)
+_ext' ∷ Lens' State Ext'
+_ext' = _ext ∘ iso (\(Ext a) → a) Ext
+_moves ∷ Lens' State (N.NonEmptyArray Int)
 _moves = _ext' ∘ lens _.moves _{moves = _}
-_winning :: Lens' State (Array Boolean)
+_winning ∷ Lens' State (Array Boolean)
 _winning = _ext' ∘ lens _.winning _{winning = _}
-_marked :: Lens' State (Array Boolean)
+_marked ∷ Lens' State (Array Boolean)
 _marked = _ext' ∘ lens _.marked _{marked = _}
-_keySequence :: Lens' State (Array String)
+_keySequence ∷ Lens' State (Array String)
 _keySequence = _ext' ∘ lens _.keySequence _{keySequence = _}
 
--- état initial
-istate :: State
+-- | état initial
+istate ∷ State
 istate = genState 20 _{nbRows = 20, mode = ExpertMode, customSize = true} (Ext { moves: 1 `N.cons` (2 `N.cons` N.singleton 3),
                                                             winning: [], marked: [], keySequence: [] })
 
-canPlay :: State -> Int -> Boolean
+canPlay ∷ State → Int → Boolean
 canPlay state v = elem (position - v) moves || position > 0 && v == 0 && position <= maximum where
     position = state^._position
     moves = state^._moves
     maximum = foldr max 0 moves
 
-instance frogGame :: Game Int ExtState Int where
+instance frogGame ∷ Game Int ExtState Int where
     play state v = if canPlay state v then Just v else Nothing
     initialPosition state = pure $ state^._nbRows
     onNewGame state = pure $ state
@@ -54,38 +54,38 @@ instance frogGame :: Game Int ExtState Int where
     sizeLimit _ = SizeLimit 5 0 30 0
     updateScore st = st ∧ true
 
-instance frogGame2 :: TwoPlayersGame Int ExtState Int where
+instance frogGame2 ∷ TwoPlayersGame Int ExtState Int where
     possibleMoves state = filter (canPlay state) (0 .. (state^._nbRows))
     isLosingPosition state = fromMaybe true $ state^._winning !! (state^._position)
 
 
--- calcule l'ensemble des positions gagnantes pour une taille et un ensemble de mouvements donnés
-winningPositions :: ∀t. Foldable t => Int -> t Int -> Array Boolean
+-- | renvoie l'ensemble des positions gagnantes pour une taille et un ensemble de mouvements donnés
+winningPositions ∷ ∀t. Foldable t ⇒ Int → t Int → Array Boolean
 winningPositions size moves = t <#> force where
-    t = tabulate size \i -> defer
-            \_ -> i == 0 || (moves # all \m -> maybe false (not ∘ force) (t !! (i - m)))
+    t = tabulate size \i → defer
+            \_ → i == 0 || (moves # all \m → maybe false (not ∘ force) (t !! (i - m)))
 
---- calcule les positions accessibles depluis la position courante
-reachableArray :: State -> Array Boolean
+-- | renvoie les positions accessibles depluis la position courante
+reachableArray ∷ State → Array Boolean
 reachableArray state = tabulate (state^._nbRows + 1) (canPlay state)
 
 data Msg = Core CoreMsg | SelectMove Int | Mark Int | Play Int | Konami String
-instance withcore :: MsgWithCore Msg where core = Core
+instance withcore ∷ MsgWithCore Msg where core = Core
 
-update :: Msg -> Action State EFFS
+update ∷ Msg → Action State EFFS
 update (Core msg) = coreUpdate msg
 -- ajoute ou enlève un mouvement dans la liste des mouvements permis
 update (SelectMove move) = newGame $ _moves %~ selectMove where
     selectMove moves =
         1 .. 5 
-        # filter (\m -> (m == move) /= elem m moves)
+        # filter (\m → (m == move) /= elem m moves)
         # N.fromArray
         # fromMaybe moves
 -- place/retire une marque à la position i
 update (Mark i) = setState (_marked ∘ ix i %~ not)
 update (Play i) = playA i
-update (Konami s) = s # konamiCode _keySequence (setState \st -> st # _marked .~ st^._winning)
+update (Konami s) = s # konamiCode _keySequence (setState \st → st # _marked .~ st^._winning)
 
-onKeyDown :: String -> Maybe Msg
+onKeyDown ∷ String → Maybe Msg
 onKeyDown = Just <<< Konami 
 

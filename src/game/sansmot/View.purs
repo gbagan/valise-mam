@@ -10,21 +10,21 @@ import Pha.Svg (svg, path, line, text', stroke, fill, viewBox, x_, y_, width, he
 import Pha.Util (pc, translate)
 import Game.Sansmot.Model (State, Msg(..), Page(..), pythaAnimation, carollAnimation)
 
-line' :: ∀a. Int -> Int -> Int -> Int -> Array (Prop a) -> VDom a
+line' ∷ ∀a. Int → Int → Int → Int → Array (Prop a) → VDom a
 line' x1_ y1_ x2_ y2_ props = line ([attr "x1" (show x1_), attr "x2" (show x2_), attr "y1" (show y1_), attr "y2" (show y2_)] <> props)
 
 -- besoin d'un transform par défault pour empécher un bug sous safari
-defaultStyle :: ∀a. Array (Prop a)
+defaultStyle ∷ ∀a. Array (Prop a)
 defaultStyle = [style "transform" "translate(0px, 0px)"]
 
-compStyle :: ∀a. Number -> Number -> {rotation :: Int, translation :: Tuple Int Int, duration :: Int} -> Array (Prop a)
+compStyle ∷ ∀a. Number → Number → {rotation ∷ Int, translation ∷ Tuple Int Int, duration ∷ Int} → Array (Prop a)
 compStyle width height { rotation, translation: x ∧ y, duration} = [
     style "transform" $ 
         translate (pc $ toNumber x / width) (pc $ toNumber y / height),
     style "transition" $ "transform linear " <> show duration <> "ms"
 ]
 
-pythaStyles :: ∀a. M.Map String (Array (Array (Prop a)))
+pythaStyles ∷ ∀a. M.Map String (Array (Array (Prop a)))
 pythaStyles = M.fromFoldable [
     "a" ∧ [[opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 400 ∧ (-100), rotation: 0, duration: 600 }],
     "b" ∧ [[opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 600 ∧ 0,      rotation: 0, duration: 600 }],
@@ -33,7 +33,7 @@ pythaStyles = M.fromFoldable [
     "e" ∧ [[opacity "0"], []]
 ]
 
-carollStyles :: ∀a. M.Map String (Array (Array (Prop a)))
+carollStyles ∷ ∀a. M.Map String (Array (Array (Prop a)))
 carollStyles = M.fromFoldable [
     "a" ∧ [defaultStyle, compStyle 1370.0 270.0 { translation: 300 ∧ 150, rotation: 0, duration: 600 }],
     "b" ∧ [defaultStyle, compStyle 1370.0 270.0 { translation: 550 ∧ 50,   rotation: 0, duration: 600 }],
@@ -43,12 +43,12 @@ carollStyles = M.fromFoldable [
 ]
 
 
--- const bbbb = styles => state => styles |> omap((style, name) => style[state.anim[name] || 0]);
-animPytha :: State -> VDom Msg
+-- const bbbb = styles ⇒ state ⇒ styles |> omap((style, name) ⇒ style[state.anim[name] || 0]);
+animPytha ∷ State → VDom Msg
 animPytha {anim} =
     let f key = 
                 let phase = anim ^. at key # fromMaybe 0 in
-                fromMaybe [] $ pythaStyles ^. at key >>= \t -> t !! phase        
+                fromMaybe [] $ pythaStyles ^. at key >>= \t → t !! phase        
     in
     svg [class_ "sansmot-svg", viewBox 0 0 700 300, style "width" "84vmin", style "height" "36vmin"] [
         path "M 0 300 h 300 v -300 h -300 Z L 100 100 M 0 100 h 300 l -200 -100 v 300" [fill "transparent", stroke "#000"],
@@ -69,11 +69,11 @@ animPytha {anim} =
         text' "c" $ [x_ "595", y_ "80", style "font-size" "20"] <> f "e"
     ]
 
-animCaroll :: State -> VDom Msg
+animCaroll ∷ State → VDom Msg
 animCaroll {anim} =
     let f key = 
                 let phase = anim ^. at key # fromMaybe 0 in
-                fromMaybe [] $ carollStyles ^. at key >>= \t -> t !! phase        
+                fromMaybe [] $ carollStyles ^. at key >>= \t → t !! phase        
     in
     svg [class_ "sansmot-svg", viewBox (-10) (-10) 1370 270, width "90vw", height "19vw"] $concat [
         [
@@ -86,13 +86,13 @@ animCaroll {anim} =
             path "M 400 250 h 250 v -100 h -100 v 50 h -150 Z" $ [fill "blue"] <> f "e",
             path "M 0 250 h 400 v -150 Z"                    $ [fill "green"] <> f "e"
         ],
-        tabulate 28 \i ->
+        tabulate 28 \i →
             line' (50 * i) (-10) (50 * i) 260 [class_ "sansmot-grid"],
-        tabulate 6 \i ->
+        tabulate 6 \i →
             line' (-10) (50 * i) 1360 (50 * i) [class_ "sansmot-grid"]
     ]
 
-view :: State -> VDom Msg
+view ∷ State → VDom Msg
 view state = 
     div [class_ "sansmot-main"] [
         div [class_ "sansmot-menu"] [

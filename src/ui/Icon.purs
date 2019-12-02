@@ -11,17 +11,17 @@ import Pha.Svg (svg, use, width, height)
 data Icon = IconText String | IconSymbol String | IconNone
 
 type Options = (
-    icon :: Icon,
-    selected :: Boolean,
-    tooltip :: Maybe String,
-    round :: Boolean,
-    large :: Boolean,
-    hidden :: Boolean,
-    disabled :: Boolean,
-    style :: Array (Tuple String String)
+    icon ∷ Icon,
+    selected ∷ Boolean,
+    tooltip ∷ Maybe String,
+    round ∷ Boolean,
+    large ∷ Boolean,
+    hidden ∷ Boolean,
+    disabled ∷ Boolean,
+    style ∷ Array (Tuple String String)
 )
 
-defaultOptions :: Record Options
+defaultOptions ∷ Record Options
 defaultOptions = {
     icon: IconNone,
     selected: false,
@@ -33,7 +33,7 @@ defaultOptions = {
     style: []
 }
 
-iconbutton :: ∀a opts.  (PartialRecord opts Options) => Record opts -> Array (Prop a) -> VDom a
+iconbutton ∷ ∀a opts.  (PartialRecord opts Options) ⇒ Record opts → Array (Prop a) → VDom a
 iconbutton opts props =
     let {icon, selected, tooltip, round, large, hidden, disabled: d, style: st} = partialUpdate opts defaultOptions in
     button ([
@@ -44,10 +44,10 @@ iconbutton opts props =
         disabled d
     ] <> props) $ [
         case icon of
-            IconSymbol symbol -> svg ((uncurry style <$> st) <> [width "100%", height "100%"]) [
+            IconSymbol symbol → svg ((uncurry style <$> st) <> [width "100%", height "100%"]) [
                 use symbol [class_ "ui-icon-symbol"]
             ]
-            IconText t -> span [class_ "ui-icon-text"] [text t]
-            IconNone -> emptyNode,
-        tooltip <??> \t -> span [class_ "ui-icon-tooltip"] [text t]
+            IconText t → span [class_ "ui-icon-text"] [text t]
+            IconNone → emptyNode,
+        tooltip <??> \t → span [class_ "ui-icon-tooltip"] [text t]
     ]

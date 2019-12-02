@@ -11,25 +11,25 @@ import Game.Core (GState, class Game, class MsgWithCore, CoreMsg, SizeLimit(..),
 import Pha.Action (Action, getState, setState)
 
 data Mode = Mode1 | Mode2
-derive instance eqMode :: Eq Mode
+derive instance eqMode ∷ Eq Mode
 
 type Position = Array Int
-type Ext' = { exit :: Maybe Int, mode :: Mode }
+type Ext' = { exit ∷ Maybe Int, mode ∷ Mode }
 newtype Ext = Ext Ext'
 type State = GState Position Ext
 
-istate :: State
+istate ∷ State
 istate = genState [] _{nbRows = 4, nbColumns = 6} (Ext { exit: Nothing, mode: Mode1 })
 
-_ext' :: Lens' State Ext'
-_ext' = _ext ∘ iso (\(Ext a) -> a) Ext
-_exit :: Lens' State (Maybe Int)
+_ext' ∷ Lens' State Ext'
+_ext' = _ext ∘ iso (\(Ext a) → a) Ext
+_exit ∷ Lens' State (Maybe Int)
 _exit = _ext' ∘ lens _.exit _{exit = _}
-_mode :: Lens' State Mode
+_mode ∷ Lens' State Mode
 _mode = _ext' ∘ lens _.mode _{mode = _}
 
 -- renvoie un chemin horizontal ou vertical entre u et v si celui ci existe (u exclus)
-pathBetween :: Int -> Int -> Int -> Maybe (Array Int)
+pathBetween ∷ Int → Int → Int → Maybe (Array Int)
 pathBetween columns u v =
     let {row, col} = dCoords columns u v in
     if row == 0 then
@@ -41,12 +41,12 @@ pathBetween columns u v =
 
 -- teste si un chemin est valide (sans répétition de sommets sauf les extrémités si cela créé un cycle hamiltonien)
 -- on ne peut pas passer par le sommet de sortie sauf si c'est le sommet final
-isValidPath :: State -> Array Int -> Boolean
+isValidPath ∷ State → Array Int → Boolean
 isValidPath state path = fromMaybe true $ do
-    exit <- state^._exit
-    path' <- N.fromArray path
+    exit ← state^._exit
+    path' ← N.fromArray path
     let path2 = N.init path'
-    path2' <- N.fromArray path2
+    path2' ← N.fromArray path2
     let path3 = N.tail path2'    
     let begin = N.head path'
     let end = N.last path'
@@ -54,12 +54,12 @@ isValidPath state path = fromMaybe true $ do
         begin /= end || length path == (state^._nbRows) * (state^._nbColumns) + (if begin == exit then 1 else 0) && end == exit
     )
 
-instance pathGame :: Game (Array Int) Ext Int where
+instance pathGame ∷ Game (Array Int) Ext Int where
     play state v =
         case last (state^._position) of
-            Nothing -> if state^._mode == Mode2 then Just [v] else Nothing
-            Just last -> do
-                p <- pathBetween (state^._nbColumns) last v 
+            Nothing → if state^._mode == Mode2 then Just [v] else Nothing
+            Just last → do
+                p ← pathBetween (state^._nbColumns) last v 
                 if not (null p) && isValidPath state (state^._position <> p) then
                     Just (state^._position <> p)
                 else
@@ -69,8 +69,8 @@ instance pathGame :: Game (Array Int) Ext Int where
         length (state^._position) == state^._nbColumns * state^._nbRows + (if state^._exit == head (state^._position) then 1 else 0)
 
     initialPosition state = pure $ case state^._exit of
-        Nothing -> []
-        Just exit -> [exit]
+        Nothing → []
+        Just exit → [exit]
 
     onNewGame state = flip (set _exit) state <$>
         if state^._mode == Mode1 then
@@ -83,13 +83,13 @@ instance pathGame :: Game (Array Int) Ext Int where
     updateScore st = st ∧ true
 
 data Msg = Core CoreMsg | SelectVertex Int | SelectMode Mode
-instance withcore :: MsgWithCore Msg where core = Core
+instance withcore ∷ MsgWithCore Msg where core = Core
     
-update :: Msg -> Action State EFFS
+update ∷ Msg → Action State EFFS
 update (Core msg) = coreUpdate msg
 
 update (SelectVertex v) = do
-    state <- getState
+    state ← getState
     if null (state^._position) then
         setState (_position .~ [v])
     else if isNothing (state^._exit) then

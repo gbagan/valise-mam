@@ -11,7 +11,7 @@ import UI.Template (template, card, trackPointer)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 
-currentLine :: ∀a. Position -> Position -> VDom a
+currentLine ∷ ∀a. Position → Position → VDom a
 currentLine p1 p2 = line [
     x1 $ show (100.0 * p1.x),
     y1 $ show (100.0 * p1.y),
@@ -20,15 +20,15 @@ currentLine p1 p2 = line [
     class_ "dessin-line-to-pointer"
 ]
 
-getCoords :: Graph -> Int -> Position
+getCoords ∷ Graph → Int → Position
 getCoords graph u = graph.vertices !! u # fromMaybe {x: 0.0, y: 0.0}
 
-getCoordsOfEdge :: Graph -> Edge -> {px1 :: Number, px2 :: Number, py1 :: Number, py2 :: Number}
+getCoordsOfEdge ∷ Graph → Edge → {px1 ∷ Number, px2 ∷ Number, py1 ∷ Number, py2 ∷ Number}
 getCoordsOfEdge graph (u ↔ v) = {px1, px2, py1, py2} where
     {x: px1, y: py1} = getCoords graph u
     {x: px2, y: py2} = getCoords graph v
 
-view :: State -> VDom Msg
+view ∷ State → VDom Msg
 view state = template {config, board, rules, winTitle} state where
     position = state^._position
     graph = state^._graph
@@ -36,8 +36,8 @@ view state = template {config, board, rules, winTitle} state where
     s = if raises > 1 then "s" else ""
 
     config = card "Dessin" [
-        iconSelectGroup state "Dessin" [0, 1, 2, 3, 4] (state^._graphIndex) SetGraphIndex \i -> _{icon = IconText (show (i + 1)) },
-        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x state
+        iconSelectGroup state "Dessin" [0, 1, 2, 3, 4] (state^._graphIndex) SetGraphIndex \i → _{icon = IconText (show (i + 1)) },
+        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x → x state
     ]
 
     board = div (trackPointer <> [
@@ -45,7 +45,7 @@ view state = template {config, board, rules, winTitle} state where
                 oncontextmenu $ Play Nothing
     ]) [
         svg [class_ "dessin-svg", viewBox 0 0 100 100] $ concat [
-            graph.edges <#> \edge ->
+            graph.edges <#> \edge →
                 let {px1, px2, py1, py2} = getCoordsOfEdge graph edge
                 in line [
                     x1 $ show (20.0 * px1),
@@ -55,7 +55,7 @@ view state = template {config, board, rules, winTitle} state where
                     stroke "grey",
                     strokeDasharray "3,1"
                 ],
-            edgesOf (state^._position) <#> \edge ->
+            edgesOf (state^._position) <#> \edge →
                 let {px1, px2, py1, py2} = getCoordsOfEdge graph edge
                 in line [
                     x1 $ show (20.0 * px1),
@@ -65,7 +65,7 @@ view state = template {config, board, rules, winTitle} state where
                     stroke "red",
                     strokeWidth "1.5"
                 ],
-            graph.vertices # mapWithIndex \i  {x, y} ->
+            graph.vertices # mapWithIndex \i  {x, y} →
                 circle [
                     cx $ show (20.0 * x),
                     cy $ show (20.0 * y),

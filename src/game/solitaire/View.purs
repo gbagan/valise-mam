@@ -12,17 +12,17 @@ import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSelectGroup, iconBestScore, ihelp, iundo, iredo, ireset, irules)
 import UI.Template (template, card, bestScoreDialog, gridStyle, incDecGrid, svgCursorStyle, dndBoardProps, dndItemProps)
 
-tricolor :: Int -> Int -> Int -> String
+tricolor ∷ Int → Int → Int → String
 tricolor i columns help = 
     case (i `mod` columns + help * (i / columns)) `mod` 3 of
-        0 -> "red"
-        1 -> "blue"
-        _ -> "green"
+        0 → "red"
+        1 → "blue"
+        _ → "green"
 
-cursor :: ∀a b. PointerPosition -> b -> VDom a
+cursor ∷ ∀a b. PointerPosition → b → VDom a
 cursor pp _ = circle ([r "20", attr "pointer-events" "none", fill "url(#soli-peg)"] <> svgCursorStyle pp)
 
-view :: State -> VDom Msg
+view ∷ State → VDom Msg
 view state = template {config, board, rules, winTitle, scoreDialog} state where
     columns = state^._nbColumns
     rows = state^._nbRows
@@ -41,13 +41,13 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
         let boards = [CircleBoard, Grid3Board, RandomBoard, EnglishBoard, FrenchBoard]
         in        
         card "Jeu du solitaire" [
-            iconSelectGroup state "Plateau" boards (state^._board) SetBoard \i opt -> case i of
-                CircleBoard -> opt{icon = IconSymbol "#circle", tooltip = Just "Cercle"}
-                Grid3Board -> opt{icon = IconText "3xN", tooltip = Just "3xN"}
-                RandomBoard -> opt{icon = IconSymbol "#shuffle", tooltip = Just "Aléatoire"}
-                EnglishBoard -> opt{icon = IconSymbol "#tea", tooltip = Just "Anglais"}
-                FrenchBoard ->  opt{icon = IconSymbol "#bread", tooltip = Just "Français"},
-            icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x -> x state,
+            iconSelectGroup state "Plateau" boards (state^._board) SetBoard \i opt → case i of
+                CircleBoard → opt{icon = IconSymbol "#circle", tooltip = Just "Cercle"}
+                Grid3Board → opt{icon = IconText "3xN", tooltip = Just "3xN"}
+                RandomBoard → opt{icon = IconSymbol "#shuffle", tooltip = Just "Aléatoire"}
+                EnglishBoard → opt{icon = IconSymbol "#tea", tooltip = Just "Anglais"}
+                FrenchBoard →  opt{icon = IconSymbol "#bread", tooltip = Just "Français"},
+            icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x → x state,
             iconBestScore state
         ] 
 
@@ -59,11 +59,11 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                             gridStyle rows columns 5
     )) [
         svg [if isCircleBoard then viewBox 0 0 250 250 else viewBox 0 0 (50 * columns) (50 * rows)] $ concat [
-            [isCircleBoard <&&> \_ ->
+            [isCircleBoard <&&> \_ →
                 circle [cx "125", cy "125", r "90", stroke "grey", fill "transparent", strokeWidth "5"]
             ],
-            concat $ state^._holes # mapWithIndex \i val -> if not val then [] else [
-                state^._help > 0 && not isCircleBoard <&&> \_ ->
+            concat $ state^._holes # mapWithIndex \i val → if not val then [] else [
+                state^._help > 0 && not isCircleBoard <&&> \_ →
                     rect [
                         x_ "-25.0", y_ "-25", width "50", height "50",
                         key $ "rect" <> show i,
@@ -83,7 +83,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                     id: i
                 } state)
             ],
-            state^._position # mapWithIndex \i -> (_ <&&> \_ ->
+            state^._position # mapWithIndex \i → (_ <&&> \_ →
                 circle ([
                     r "20",
                     key $ "p" <> show i,
@@ -103,7 +103,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
 
     board = incDecGrid state [grid]
 
-    scoreDialog _ = bestScoreDialog state \position -> [
+    scoreDialog _ = bestScoreDialog state \position → [
         div [class' "ui-flex-center solitaire-scoredialog" true] [
             div([class' "ui-board" true] <> (if isCircleBoard then 
                                     [style "width" "100%", style "height" "100%"] 
@@ -111,10 +111,10 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                                     gridStyle rows columns 5
             )) [
                 svg [if isCircleBoard then viewBox 0 0 250 250 else viewBox 0 0 (50 * columns) (50 * rows)] $ concat [
-                    [isCircleBoard <&&> \_ ->
+                    [isCircleBoard <&&> \_ →
                         circle [cx "125", cy "125", r "90", stroke "grey", fill "transparent", strokeWidth "5"]
                     ],
-                    state^._holes # mapWithIndex \i -> (_ <&&> \_ ->
+                    state^._holes # mapWithIndex \i → (_ <&&> \_ →
                         circle [
                             key $ "h" <> show i,
                             r "17",
@@ -123,7 +123,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                             style "transform" $ itemStyle i
                         ]
                     ),
-                    position # mapWithIndex \i -> (_ <&&> \_ ->
+                    position # mapWithIndex \i → (_ <&&> \_ →
                         circle [
                             key $ "p" <> show i,
                             r "20",

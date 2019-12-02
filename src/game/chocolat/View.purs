@@ -12,11 +12,11 @@ import UI.Template (template, card, gridStyle, incDecGrid, turnMessage, winTitle
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, icons2Players, iconSelectGroup, iundo, iredo, ireset, irules)
 
-inside :: State -> Int -> Int -> Boolean
+inside ∷ State → Int → Int → Boolean
 inside state row col = col >= left && col <= right - 1 && row >= top && row <= bottom - 1
     where {left, right, top, bottom} = state^._position
     
-view :: State -> VDom Msg
+view ∷ State → VDom Msg
 view state = template {config, board, rules, winTitle} state where
     pos = state^._position
     rows = state^._nbRows
@@ -26,12 +26,12 @@ view state = template {config, board, rules, winTitle} state where
     config = card "Barre de chocolat" [
         iconSizesGroup state [6∧7] true,
         iconSelectGroup state "Emplacement du savon" [CornerMode, BorderMode, StandardMode] 
-            (state^._soapMode) SetSoapMode \mode opt -> case mode of
-                CornerMode -> opt{icon = IconSymbol "#choc-mode0", tooltip = Just "Dans le coin"}
-                BorderMode -> opt{icon = IconSymbol "#choc-mode1", tooltip = Just "Sur un bord"}
-                StandardMode -> opt{icon = IconSymbol "#choc-mode2", tooltip = Just "N'importe où"},
+            (state^._soapMode) SetSoapMode \mode opt → case mode of
+                CornerMode → opt{icon = IconSymbol "#choc-mode0", tooltip = Just "Dans le coin"}
+                BorderMode → opt{icon = IconSymbol "#choc-mode1", tooltip = Just "Sur un bord"}
+                StandardMode → opt{icon = IconSymbol "#choc-mode2", tooltip = Just "N'importe où"},
         icons2Players state,
-        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x -> x state
+        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x → x state
     ]
 
     cutter row col move = circle [
@@ -48,7 +48,7 @@ view state = template {config, board, rules, winTitle} state where
     grid = div (gridStyle rows columns 3 <> [class_ "ui-board"]) [
         svg [viewBox (-7) (-7) (50 * columns + 14) (50 * rows + 14)] (
             concat [
-                tabulate2 rows columns \row col ->
+                tabulate2 rows columns \row col →
                     rect [
                         x_ $ show (50.0 * toNumber col + 7.0),
                         y_ $ show (50.0 * toNumber row + 7.0),
@@ -60,10 +60,10 @@ view state = template {config, board, rules, winTitle} state where
                         class' "hidden" $ not (inside state row col)
                     ],
                 possibleMoves state >>= case _ of
-                    FromLeft i -> [cutter pos.top i (FromLeft i), cutter pos.bottom i (FromLeft i)]
-                    FromRight i -> [cutter pos.top i (FromRight i), cutter pos.bottom i (FromRight i)]
-                    FromTop i -> [cutter i pos.left (FromTop i), cutter i pos.right (FromTop i)]
-                    FromBottom i -> [cutter i pos.left (FromBottom i), cutter i pos.right (FromBottom i)],
+                    FromLeft i → [cutter pos.top i (FromLeft i), cutter pos.bottom i (FromLeft i)]
+                    FromRight i → [cutter pos.top i (FromRight i), cutter pos.bottom i (FromRight i)]
+                    FromTop i → [cutter i pos.left (FromTop i), cutter i pos.right (FromTop i)]
+                    FromBottom i → [cutter i pos.left (FromBottom i), cutter i pos.right (FromBottom i)],
                 [
                     use "#skull" [
                         x_ $ show (50 * soapCol + 12),
@@ -72,7 +72,7 @@ view state = template {config, board, rules, winTitle} state where
                         key "skull",
                         fill "#20AF20"
                     ],
-                    state^._moveWhenHover <??> \m ->
+                    state^._moveWhenHover <??> \m →
                         let {x1: px1, x2: px2, y1: py1, y2: py2} = cutLine state m
                         in line [
                             x1 $ show (50 * px1),

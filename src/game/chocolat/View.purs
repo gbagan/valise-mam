@@ -92,8 +92,8 @@ view state = template {config, board, rules, winTitle} state where
         span [class_ "frog-turn-message"] [text (turnMessage state)]
     ]
             
-    rules = [text "A chaque tour de ce jeu, tu peux déplacer une pile de jetons vers une case adjacente", br,
-            text "qui contient au moins autant de jetons", br,
+    rules = [text "À chaque tour de ce jeu, tu peux déplacer une pile de jetons vers une case adjacente", br,
+            text "qui contient au moins autant de jetons.", br,
             text "Le but est de finir la partie avec le moins de cases contenant des piles de jetons."
     ]
     winTitle = winTitleFor2Players state

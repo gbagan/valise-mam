@@ -62,8 +62,8 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
     ]
 
     rules = [
-        text "A chaque tour de ce jeu, tu peux déplacer une pile de jetons vers une case adjacente", br,
-        text "qui contient au moins autant de jetons", br,
+        text "À chaque tour de ce jeu, tu peux déplacer une pile de jetons vers une case adjacente", br,
+        text "qui contient au moins autant de jetons.", br,
         text "Le but est de finir la partie avec le moins de cases contenant des piles de jetons."
     ]
 

@@ -81,10 +81,10 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
         ]
 
     rules = [
-        text "Place le moins de pièges possible pour empécher la bête d'abimer ta belle pelouse!", br,
-        text "Tu peux choisir de jouer avec des bêtes de différentes formes comme celles préfinies dans 'Forme de la bête'", br,
-        text "Dans le dernier choix, la bête peut prendre soit une ou l'autre des formes indiquées.", br,
-        text "Le plateau de jeu peut prendre une grille, un cylindre ou un tore"
+        text "Place le moins de pièges possible pour empêcher la bête d'abîmer ta belle pelouse !", br,
+        text "Tu peux choisir de jouer avec des bêtes de différentes formes comme celles prédéfinies dans 'Forme de la bête'.", br,
+        text "Dans le dernier choix, la bête peut prendre l'une ou l'autre des formes indiquées.", br,
+        text "Le plateau de jeu peut prendre une grille, un cylindre ou un tore."
     ]
 
     cursor pp = use "#trap" (svgCursorStyle pp <> [  

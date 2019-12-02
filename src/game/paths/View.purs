@@ -101,16 +101,16 @@ view state = template {config, board, rules} state where
 
     rules = [
         p [] [
-            text "Après de moultes péripéties dans le temple maudit de Berge, le professeur Hamilton Jones se retrouve dans la dernière salle", br,
-            text "Pour sortir de celle-ci, il doit s\'enfuir par une porte au dessous de lui.", br,
-            text "Celle ci ne peut être ouverte qu\'en marchant sur chacune des dalles dans la salle."
+            text "Après moultes péripéties dans le temple maudit de Berge, le professeur Hamilton Jones se retrouve dans la dernière salle", br,
+            text "Pour sortir de celle-ci, il doit s\'enfuir par une porte au-dessous de lui.", br,
+            text "Celle-ci ne peut être ouverte qu\'en marchant sur chacune des dalles dans la salle."
         ],
         p [] [
             text "Malheusement, ces dalles sont piégées, le piège se déclenchant peu de temps après avoir marché dessus.", br,
             text "Donc, Hamilton ne peut pas remarcher sur une dalle sur laquelle il a déjà été.", br,
             text "N'ayant plus l'aisance de sa jeunesse, Hamilton ne peut se déplacer que d'une dalle à la fois et ne peut le faire en diagonale."
         ],
-        p [] [text "Trouve un parcours pour résoudre l\'énigme. Ca semble facile? Mais, cela est-il possible pour toutes les tailles de grille"],
+        p [] [text "Trouve un parcours pour résoudre l\'énigme. Ca semble facile ? Mais, cela est-il possible pour toutes les tailles de grille ?"],
         
         p [] [
             text "Dans le deuxième mode de jeu, tu peux choisir la position de départ d\'Hamilton ainsi que celle de la porte.", br,

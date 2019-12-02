@@ -70,9 +70,9 @@ view state = template {config, board, rules, winTitle} state where
         ]
     ]
     rules = [
-        text "Essaie de bloquer ton adversaire", br,
-        text "A chaque tour, tu peux déplacer un de tes jetons vers la gauche ou vers la droite", br,
-        text "d'autant de cases que tu veux mais tu ne peux pas sauter par dessus le jeton adversaire.", br,
+        text "Essaie de bloquer ton adversaire.", br,
+        text "À chaque tour, tu peux déplacer un de tes jetons vers la gauche ou vers la droite", br,
+        text "d'autant de cases que tu veux mais tu ne peux pas sauter par-dessus le jeton adverse.", br,
         text "Tu es obligé de déplacer un jeton d'au moins une case, tu ne peux pas passer ton tour.", br,
         text "Tu gagnes la partie si ton adversaire n'a aucun mouvement possible."
     ]

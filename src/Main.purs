@@ -7,19 +7,17 @@ import Data.Map as Map
 import Unsafe.Coerce (unsafeCoerce)
 import Effect (Effect)
 import Run as Run
-import Pha (VDom, emptyNode, (<&&>), key, class_, class')
+import Pha (VDom, emptyNode, (<&&>), key, class_)
 import Pha.Subs as Subs
 import Pha.App (app, Document, attachTo)
 import Pha.Action (Action, getState, setState)
-import Pha.Effects.Delay (delay, interpretDelay)
-import Pha.Effects.Random (interpretRng)
 import Pha.Events.Decoder (always)
 import Pha.Lens (actionOver)
 import Pha.Elements (div, a)
 import Pha.Attributes (href)
 import Pha.Svg (svg, use, width, height)
 import Game.Generic (GenericGame)
-import Game.Effs (EFFS, getLocation, interpretLocation)
+import Game.Effs (EFFS, getLocation, interpretLocation, interpretDelay, interpretRng)
 import Game.Baseball as Baseball
 import Game.Chocolat as Chocolat
 import Game.Dessin as Dessin
@@ -60,8 +58,7 @@ type RootState = {
     tiling ∷ Tiling.State,
     tricolor ∷ Tricolor.State,
     valise ∷ Valise.State,
-    location ∷ String,
-    anim ∷ Boolean
+    location ∷ String
 }
 
 data Msg =
@@ -127,15 +124,11 @@ hashChange = do
     loc ← getLocation
     let location = extractLocation loc.hash "valise"
     if location == "valise" || location == "" then do
-        setState _{location = location, anim = true}
-        delay 100
-        setState _{anim = false}
+        setState _{location = location}
         lens _.valise _{valise = _} .~> Valise.enterA
     else do
         lens _.valise _{valise = _} .~> Valise.leaveA
-        setState _{location = location, anim = true}
-        delay 100
-        setState _{anim = false}
+        setState _{location = location}
     
  
 update ∷ Msg → Action RootState EFFS
@@ -164,7 +157,9 @@ update OnHashChange = hashChange
 init ∷ Action RootState EFFS
 init = do
     for_ (Map.values games) $
-        gameRun \game → game.core.init # maybe (pure unit) (update <<< game.msgmap)
+        gameRun \game → case game.core.init of
+                            Nothing → pure unit
+                            Just init → update $ game.msgmap init
     hashChange
 
 
@@ -176,8 +171,7 @@ view st = {
         div [
             key st.location,
             class_ "main-main-container",
-            class' "valise" (st.location == "valise"),
-            class' "appear" st.anim
+            class_ (if st.location == "valise" then "valise" else "game")
         ] [
             st.location /= "valise" <&&> \_ →
             a [
@@ -210,8 +204,7 @@ state = {
     tiling: Tiling.istate,
     tricolor: Tricolor.istate,
     valise: Valise.istate,
-    location: "",
-    anim: true  --- empèche l'animation à l'ouverture de la page
+    location: ""
 }
 
 main ∷ Effect Unit

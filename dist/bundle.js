@@ -7198,7 +7198,7 @@ var PS = {};
           if (v instanceof Data_Maybe.Nothing) {
               return $foreign.emptyNode;
           };
-          throw new Error("Failed pattern match at Pha (line 77, column 1 - line 77, column 52): " + [ v.constructor.name, v1.constructor.name ]);
+          throw new Error("Failed pattern match at Pha (line 78, column 1 - line 78, column 52): " + [ v.constructor.name, v1.constructor.name ]);
       };
   };
   var functorVDom = new Data_Functor.Functor(function (fn) {
@@ -16636,7 +16636,8 @@ var PS = {};
       }
       setState(istate)();
       init();
-  }                             
+  }
+
   exports.app = app;
 })(PS["Pha.Internal"] = PS["Pha.Internal"] || {});
 (function($PS) {
@@ -17076,8 +17077,7 @@ var PS = {};
       tiling: Game_Tiling_Model.istate,
       tricolor: Game_Tricolor_Model.istate,
       valise: Game_Valise_Model.istate,
-      location: "",
-      anim: true
+      location: ""
   };
   var gameWrap = function (core) {
       return function (map) {
@@ -17133,12 +17133,11 @@ var PS = {};
   };
   var hashChange = Control_Bind.bind(Run.bindRun)(Game_Effs.getLocation)(function (v) {
       var location = extractLocation(v.hash)("valise");
-      var $98 = location === "valise" || location === "";
-      if ($98) {
+      var $96 = location === "valise" || location === "";
+      if ($96) {
           return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Action.setState(function (v1) {
               return {
                   location: location,
-                  anim: true,
                   valise: v1.valise,
                   baseball: v1.baseball,
                   chocolat: v1.chocolat,
@@ -17157,59 +17156,33 @@ var PS = {};
                   tricolor: v1.tricolor
               };
           }))(function () {
-              return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Effects_Delay.delay(100))(function () {
-                  return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Action.setState(function (v1) {
-                      return {
-                          anim: false,
-                          valise: v1.valise,
-                          location: v1.location,
-                          baseball: v1.baseball,
-                          chocolat: v1.chocolat,
-                          dessin: v1.dessin,
-                          frog: v1.frog,
-                          jetons: v1.jetons,
-                          labete: v1.labete,
-                          nim: v1.nim,
-                          noirblanc: v1.noirblanc,
-                          paths: v1.paths,
-                          queens: v1.queens,
-                          roue: v1.roue,
-                          sansmot: v1.sansmot,
-                          solitaire: v1.solitaire,
-                          tiling: v1.tiling,
-                          tricolor: v1.tricolor
+              return Pha_Lens.actionOver(function (dictStrong) {
+                  return Data_Lens_Lens.lens(function (v1) {
+                      return v1.valise;
+                  })(function (v1) {
+                      return function (v2) {
+                          return {
+                              valise: v2,
+                              location: v1.location,
+                              baseball: v1.baseball,
+                              chocolat: v1.chocolat,
+                              dessin: v1.dessin,
+                              frog: v1.frog,
+                              jetons: v1.jetons,
+                              labete: v1.labete,
+                              nim: v1.nim,
+                              noirblanc: v1.noirblanc,
+                              paths: v1.paths,
+                              queens: v1.queens,
+                              roue: v1.roue,
+                              sansmot: v1.sansmot,
+                              solitaire: v1.solitaire,
+                              tiling: v1.tiling,
+                              tricolor: v1.tricolor
+                          };
                       };
-                  }))(function () {
-                      return Pha_Lens.actionOver(function (dictStrong) {
-                          return Data_Lens_Lens.lens(function (v1) {
-                              return v1.valise;
-                          })(function (v1) {
-                              return function (v2) {
-                                  return {
-                                      valise: v2,
-                                      anim: v1.anim,
-                                      location: v1.location,
-                                      baseball: v1.baseball,
-                                      chocolat: v1.chocolat,
-                                      dessin: v1.dessin,
-                                      frog: v1.frog,
-                                      jetons: v1.jetons,
-                                      labete: v1.labete,
-                                      nim: v1.nim,
-                                      noirblanc: v1.noirblanc,
-                                      paths: v1.paths,
-                                      queens: v1.queens,
-                                      roue: v1.roue,
-                                      sansmot: v1.sansmot,
-                                      solitaire: v1.solitaire,
-                                      tiling: v1.tiling,
-                                      tricolor: v1.tricolor
-                                  };
-                              };
-                          })(dictStrong);
-                      })(Game_Valise_Model.enterA);
-                  });
-              });
+                  })(dictStrong);
+              })(Game_Valise_Model.enterA);
           });
       };
       return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Lens.actionOver(function (dictStrong) {
@@ -17219,7 +17192,6 @@ var PS = {};
               return function (v2) {
                   return {
                       valise: v2,
-                      anim: v1.anim,
                       location: v1.location,
                       baseball: v1.baseball,
                       chocolat: v1.chocolat,
@@ -17240,10 +17212,9 @@ var PS = {};
               };
           })(dictStrong);
       })(Game_Valise_Model.leaveA))(function () {
-          return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Action.setState(function (v1) {
+          return Pha_Action.setState(function (v1) {
               return {
                   location: location,
-                  anim: true,
                   valise: v1.valise,
                   baseball: v1.baseball,
                   chocolat: v1.chocolat,
@@ -17261,31 +17232,6 @@ var PS = {};
                   tiling: v1.tiling,
                   tricolor: v1.tricolor
               };
-          }))(function () {
-              return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Effects_Delay.delay(100))(function () {
-                  return Pha_Action.setState(function (v1) {
-                      return {
-                          anim: false,
-                          location: v1.location,
-                          valise: v1.valise,
-                          baseball: v1.baseball,
-                          chocolat: v1.chocolat,
-                          dessin: v1.dessin,
-                          frog: v1.frog,
-                          jetons: v1.jetons,
-                          labete: v1.labete,
-                          nim: v1.nim,
-                          noirblanc: v1.noirblanc,
-                          paths: v1.paths,
-                          queens: v1.queens,
-                          roue: v1.roue,
-                          sansmot: v1.sansmot,
-                          solitaire: v1.solitaire,
-                          tiling: v1.tiling,
-                          tricolor: v1.tricolor
-                      };
-                  });
-              });
           });
       });
   });
@@ -17299,7 +17245,7 @@ var PS = {};
               if (v instanceof Data_Maybe.Just) {
                   return gameRun(f)(v.value0);
               };
-              throw new Error("Failed pattern match at Main (line 121, column 29 - line 123, column 61): " + [ v.constructor.name ]);
+              throw new Error("Failed pattern match at Main (line 118, column 29 - line 120, column 61): " + [ v.constructor.name ]);
           };
       };
   };
@@ -17312,7 +17258,6 @@ var PS = {};
                   return function (v2) {
                       return {
                           baseball: v2,
-                          anim: v1.anim,
                           chocolat: v1.chocolat,
                           dessin: v1.dessin,
                           frog: v1.frog,
@@ -17342,7 +17287,6 @@ var PS = {};
                   return function (v2) {
                       return {
                           chocolat: v2,
-                          anim: v1.anim,
                           baseball: v1.baseball,
                           dessin: v1.dessin,
                           frog: v1.frog,
@@ -17372,7 +17316,6 @@ var PS = {};
                   return function (v2) {
                       return {
                           dessin: v2,
-                          anim: v1.anim,
                           baseball: v1.baseball,
                           chocolat: v1.chocolat,
                           frog: v1.frog,
@@ -17402,7 +17345,6 @@ var PS = {};
                   return function (v2) {
                       return {
                           frog: v2,
-                          anim: v1.anim,
                           baseball: v1.baseball,
                           chocolat: v1.chocolat,
                           dessin: v1.dessin,
@@ -17432,7 +17374,6 @@ var PS = {};
                   return function (v2) {
                       return {
                           jetons: v2,
-                          anim: v1.anim,
                           baseball: v1.baseball,
                           chocolat: v1.chocolat,
                           dessin: v1.dessin,
@@ -17462,7 +17403,6 @@ var PS = {};
                   return function (v2) {
                       return {
                           labete: v2,
-                          anim: v1.anim,
                           baseball: v1.baseball,
                           chocolat: v1.chocolat,
                           dessin: v1.dessin,
@@ -17492,7 +17432,6 @@ var PS = {};
                   return function (v2) {
                       return {
                           nim: v2,
-                          anim: v1.anim,
                           baseball: v1.baseball,
                           chocolat: v1.chocolat,
                           dessin: v1.dessin,
@@ -17522,7 +17461,6 @@ var PS = {};
                   return function (v2) {
                       return {
                           noirblanc: v2,
-                          anim: v1.anim,
                           baseball: v1.baseball,
                           chocolat: v1.chocolat,
                           dessin: v1.dessin,
@@ -17552,7 +17490,6 @@ var PS = {};
                   return function (v2) {
                       return {
                           paths: v2,
-                          anim: v1.anim,
                           baseball: v1.baseball,
                           chocolat: v1.chocolat,
                           dessin: v1.dessin,
@@ -17582,7 +17519,6 @@ var PS = {};
                   return function (v2) {
                       return {
                           queens: v2,
-                          anim: v1.anim,
                           baseball: v1.baseball,
                           chocolat: v1.chocolat,
                           dessin: v1.dessin,
@@ -17612,7 +17548,6 @@ var PS = {};
                   return function (v2) {
                       return {
                           roue: v2,
-                          anim: v1.anim,
                           baseball: v1.baseball,
                           chocolat: v1.chocolat,
                           dessin: v1.dessin,
@@ -17642,7 +17577,6 @@ var PS = {};
                   return function (v2) {
                       return {
                           sansmot: v2,
-                          anim: v1.anim,
                           baseball: v1.baseball,
                           chocolat: v1.chocolat,
                           dessin: v1.dessin,
@@ -17672,7 +17606,6 @@ var PS = {};
                   return function (v2) {
                       return {
                           solitaire: v2,
-                          anim: v1.anim,
                           baseball: v1.baseball,
                           chocolat: v1.chocolat,
                           dessin: v1.dessin,
@@ -17702,7 +17635,6 @@ var PS = {};
                   return function (v2) {
                       return {
                           tiling: v2,
-                          anim: v1.anim,
                           baseball: v1.baseball,
                           chocolat: v1.chocolat,
                           dessin: v1.dessin,
@@ -17732,7 +17664,6 @@ var PS = {};
                   return function (v2) {
                       return {
                           tricolor: v2,
-                          anim: v1.anim,
                           baseball: v1.baseball,
                           chocolat: v1.chocolat,
                           dessin: v1.dessin,
@@ -17762,7 +17693,6 @@ var PS = {};
                   return function (v2) {
                       return {
                           valise: v2,
-                          anim: v1.anim,
                           baseball: v1.baseball,
                           chocolat: v1.chocolat,
                           dessin: v1.dessin,
@@ -17787,8 +17717,8 @@ var PS = {};
       if (v instanceof OnKeyDown) {
           return Control_Bind.bind(Run.bindRun)(Pha_Action.getState)(function (v1) {
               return callByName(v1.location)(Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit))(function (game) {
-                  return Data_Maybe.maybe(Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit))(function ($120) {
-                      return update(game.msgmap($120));
+                  return Data_Maybe.maybe(Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit))(function ($121) {
+                      return update(game.msgmap($121));
                   })(game.core.onKeydown(v.value0));
               });
           });
@@ -17796,12 +17726,16 @@ var PS = {};
       if (v instanceof OnHashChange) {
           return hashChange;
       };
-      throw new Error("Failed pattern match at Main (line 141, column 1 - line 141, column 37): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Main (line 134, column 1 - line 134, column 37): " + [ v.constructor.name ]);
   };
   var init = Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Data_Foldable.for_(Run.applicativeRun)(Data_List_Types.foldableList)(Data_Map_Internal.values(games))(gameRun(function (game) {
-      return Data_Maybe.maybe(Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit))(function ($121) {
-          return update(game.msgmap($121));
-      })(game.core.init);
+      if (game.core.init instanceof Data_Maybe.Nothing) {
+          return Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit);
+      };
+      if (game.core.init instanceof Data_Maybe.Just) {
+          return update(game.msgmap(game.core.init.value0));
+      };
+      throw new Error("Failed pattern match at Main (line 160, column 25 - line 162, column 66): " + [ game.core.init.constructor.name ]);
   })))(function () {
       return hashChange;
   });
@@ -17813,7 +17747,13 @@ var PS = {};
   var view = function (st) {
       return {
           title: "Valise MaM",
-          body: Pha_Elements.div([ Pha.key(st.location), Pha.class_("main-main-container"), Pha["class'"]("valise")(st.location === "valise"), Pha["class'"]("appear")(st.anim) ])([ Pha.when(st.location !== "valise")(function (v) {
+          body: Pha_Elements.div([ Pha.key(st.location), Pha.class_("main-main-container"), Pha.class_((function () {
+              var $120 = st.location === "valise";
+              if ($120) {
+                  return "valise";
+              };
+              return "game";
+          })()) ])([ Pha.when(st.location !== "valise")(function (v) {
               return Pha_Elements.a([ Pha.class_("main-minivalise-link"), Pha_Attributes.href("#valise") ])([ Pha_Svg.svg([ Pha_Svg.width("100%"), Pha_Svg.height("100%") ])([ Pha_Svg.use("#valise")([  ]) ]) ]);
           }), viewGame(st) ])
       };

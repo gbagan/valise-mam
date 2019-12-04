@@ -3,23 +3,32 @@
     width: 100%;
     position: fixed;
     transform: scale(1);
-    transition: linear 1s;
-    opacity: 1;
-
-    &.appear {
-        transform: scale(0.05);
-        transition: none;
-
-        &.valise {
-            transform: translate(-50%, -50%) scale(0.1);
-        }
+    &.game {
+        animation: linear 1s gameenter;
     }
-
-    &.exit {
-        transition: linear 0.5s;
-        opacity: 0;
+    &.valise {
+        animation: linear 1s valiseenter;
     }
 }
+
+@keyframes gameenter {
+    from {
+        transform: scale(0.05); 
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+@keyframes valiseenter {
+    from {
+        transform: translate(-50%, -50%) scale(0.1);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
 
 .main-minivalise-link {
     position: absolute;

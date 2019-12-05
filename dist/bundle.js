@@ -9988,12 +9988,9 @@ var PS = {};
   var Data_Foldable = $PS["Data.Foldable"];
   var Data_HeytingAlgebra = $PS["Data.HeytingAlgebra"];
   var Data_Lens_Getter = $PS["Data.Lens.Getter"];
-  var Data_Lens_Index = $PS["Data.Lens.Index"];
   var Data_Lens_Internal_Forget = $PS["Data.Lens.Internal.Forget"];
-  var Data_Lens_Internal_Wander = $PS["Data.Lens.Internal.Wander"];
   var Data_Lens_Iso = $PS["Data.Lens.Iso"];
   var Data_Lens_Lens = $PS["Data.Lens.Lens"];
-  var Data_Lens_Setter = $PS["Data.Lens.Setter"];
   var Data_Maybe = $PS["Data.Maybe"];
   var Data_Show = $PS["Data.Show"];
   var Game_Core = $PS["Game.Core"];
@@ -10065,9 +10062,9 @@ var PS = {};
               return Control_Bind.bind(Data_Maybe.bindMaybe)(Data_Array.index(position)(v.to))(function (v3) {
                   var $25 = v2 > 0 && (v2 <= v3 && ((v1.row * v1.row | 0) + (v1.col * v1.col | 0) | 0) === 1);
                   if ($25) {
-                      return Data_Maybe.Just.create(Data_Lens_Setter.over(Data_Lens_Index.ix(Data_Lens_Index.indexArray)(v.to)(Data_Lens_Internal_Wander.wanderFunction))(function (v4) {
+                      return Control_Bind.bind(Data_Maybe.bindMaybe)(Data_Array.updateAt(v.from)(0)(position))(Data_Array.modifyAt(v.to)(function (v4) {
                           return v4 + v2 | 0;
-                      })(Data_Lens_Setter.set(Data_Lens_Index.ix(Data_Lens_Index.indexArray)(v.from)(Data_Lens_Internal_Wander.wanderFunction))(0)(position)));
+                      }));
                   };
                   return Data_Maybe.Nothing.value;
               });
@@ -17735,7 +17732,7 @@ var PS = {};
       if (game.core.init instanceof Data_Maybe.Just) {
           return update(game.msgmap(game.core.init.value0));
       };
-      throw new Error("Failed pattern match at Main (line 160, column 25 - line 162, column 66): " + [ game.core.init.constructor.name ]);
+      throw new Error("Failed pattern match at Main (line 160, column 25 - line 162, column 60): " + [ game.core.init.constructor.name ]);
   })))(function () {
       return hashChange;
   });

@@ -31,7 +31,7 @@ instance jetonsGame ∷ Game (Array Int) Ext { from ∷ Int, to ∷ Int } where
         pfrom ← position !! from
         pto ← position !! to
         if pfrom > 0 && pfrom <= pto && row * row + col * col == 1 then
-            Just $ position # ix from .~ 0 # ix to %~ (_ + pfrom)
+            position # updateAt from 0 >>= modifyAt to (_ + pfrom)
         else
             Nothing
     

@@ -159,7 +159,7 @@ init = do
     for_ (Map.values games) $
         gameRun \game → case game.core.init of
                             Nothing → pure unit
-                            Just init → update $ game.msgmap init
+                            Just i → update $ game.msgmap i
     hashChange
 
 

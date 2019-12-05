@@ -24,7 +24,7 @@ _dragged = _ext' ∘ lens _.dragged _{dragged = _}
 istate ∷ State
 istate = genState [] _{nbRows = 4, nbColumns = 4} (Ext { dragged: Nothing })
 
-instance jetonsGame ∷ Game (Array Int) Ext { from ∷ Int, to ∷ Int } where
+instance game ∷ Game (Array Int) Ext { from ∷ Int, to ∷ Int } where
     play state {from, to} = do
         let position = state^._position
         let {row, col} = dCoords (state^._nbColumns) from to

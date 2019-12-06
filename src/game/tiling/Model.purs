@@ -133,7 +133,7 @@ update (PutSink i) = setState $ _position ∘ ix i .~ (-1)
 update (SetNbSinks n) = newGame (_nbSinks .~ n)
 update (SetTile t) = newGame $ (_tileType .~ t) >>> (if t == CustomTile then _dialog .~ CustomDialog else identity)
 update Rotate = setState $ _rotation %~ (_ + 1)
-update (SetHoverSquare a) = setState (_hoverSquare .~ a)
+update (SetHoverSquare a) = setState $ _hoverSquare .~ a
 update (FlipTile index) = newGame $ _tile ∘ _isoCustom ∘ ix index %~ not
 
 onKeyDown ∷ String → Maybe Msg

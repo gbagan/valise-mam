@@ -205,7 +205,7 @@ update (FinishZone index1) = setState \state → case state^._startSquare of
         in state # _squareColors .~ colorZone state {row1, col1, row2, col2}
                  # _startSquare .~ Nothing
                  # _startPointer .~ Nothing
-update (FlipCustomBeast i)  = newGame (_beast <<< ix 0 <<< _isoCustom <<< ix i %~ not)
+update (FlipCustomBeast i)  = newGame $ _beast ∘ ix 0 ∘ _isoCustom ∘ ix i %~ not
 update (Play m) = playA m
 
 onKeyDown ∷ String → Maybe Msg

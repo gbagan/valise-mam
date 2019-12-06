@@ -25,47 +25,53 @@ view state = template {config, board, rules} state where
     nbColors = state^._nbColors
     levelFinished = isLevelFinished state
 
-    config = card "Feux tricolores" [
-        iconSelectGroup state "Nombre de lumières" [4, 5, 6, 7, 8] size SetSize (const identity),
-        iconSelectGroup state "Nombre de couleurs" [2, 3, 4, 5] nbColors SetNbColors (const identity),
-        iconSelectGroup state "Portée" [1, 2, 3] (state^._range) SetRange (const identity),
-        icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> \x → x state
-    ]
-
-    board = div [class_ "ui-board tricolor-board"] [
-        svg [viewBox 0 0 100 100] $ concat [
-            state^._position # mapWithIndex \i color →
-                circle [
-                    r "7.5",
-                    class_ "tricolor-cell",
-                    class' "finished" levelFinished,
-                    stroke $ if (inRange state i <$> state^._hoverCell) == Just true then "lightgreen" else "black",
-                    key $ "b" <> show i,
-                    style "fill" $ if levelFinished then "" else colors !! color # fromMaybe "",
-                    style "transform" (translateCell i size),
-                    onclick $ Play i,
-                    onpointerenter $ SetHoverCell (Just i),
-                    onpointerleave $ SetHoverCell Nothing
-                ],
-
-            concat $ take nbColors colors # mapWithIndex \i color → [
-                circle [
-                    cx $ show (95 + 15 * (i - nbColors)),
-                    cy "95",
-                    r "3",
-                    key $ "c" <> show i,
-                    fill color
-                ],
-                text' "➡" [
-                    cx $ show (99 + 15 * (i - nbColors)),
-                    cy "97",
-                    key $ "t" <> show i,
-                    attr "font-size" "7"
-                ]
-            ],
-            [circle [cx "95", cy "95",  r "3", key "fc", fill "green"]]
+    config =
+        card "Feux tricolores" 
+        [   iconSelectGroup state "Nombre de lumières" [4, 5, 6, 7, 8] size SetSize (const identity)
+        ,   iconSelectGroup state "Nombre de couleurs" [2, 3, 4, 5] nbColors SetNbColors (const identity)
+        ,   iconSelectGroup state "Portée" [1, 2, 3] (state^._range) SetRange (const identity)
+        ,   icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> \x → x state
         ]
-    ]
+
+    drawCell i color =
+        circle 
+        [   r "7.5"
+        ,   class_ "tricolor-cell"
+        ,   class' "finished" levelFinished
+        ,   stroke $ if (inRange state i <$> state^._hoverCell) == Just true then "lightgreen" else "black"
+        ,   key $ "b" <> show i
+        ,   style "fill" $ if levelFinished then "" else colors !! color # fromMaybe ""
+        ,   style "transform" (translateCell i size)
+        ,   onclick $ Play i
+        ,   onpointerenter $ SetHoverCell (Just i)
+        ,   onpointerleave $ SetHoverCell Nothing
+        ]
+
+    drawColorCycle =
+        (concat $ take nbColors colors # mapWithIndex \i color →
+                [   circle
+                    [   cx $ show (95 + 15 * (i - nbColors))
+                    ,   cy "95"
+                    ,   r "3"
+                    ,   key $ "c" <> show i
+                    ,   fill color
+                    ]
+                ,   text' "➡"
+                    [   cx $ show (99 + 15 * (i - nbColors))
+                    ,   cy "97"
+                    ,   key $ "t" <> show i
+                    ,   attr "font-size" "7"
+                    ]
+                ]
+        ) <> [circle [cx "95", cy "95",  r "3", key "fc", fill "green"]]
+
+    board =
+        div [class_ "ui-board tricolor-board"]
+        [   svg [viewBox 0 0 100 100] $ concat
+            [   state^._position # mapWithIndex drawCell
+            ,   drawColorCycle
+            ]
+        ]
 
     rules = [text "blah blah blah blah"]
     

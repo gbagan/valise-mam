@@ -43,65 +43,73 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
     rows = state^._nbRows
     columns = state^._nbColumns
         
-    config = card "Les reines" [
-        iconSizesGroup state [4∧4, 5∧5, 7∧7, 8∧8] true,
-        iconSelectGroupM state "Pièces disponibles" piecesList (state^._allowedPieces) SelectAllowedPiece \piece →
-            _{icon = IconSymbol $ "#piece-" <> show piece, tooltip = Just $ tooltip piece},
-        icongroup "Options" $ [
-            iconbutton state
-            {   icon: IconSymbol "#customize"
-            ,   selected: N.head (state^._allowedPieces) == Custom
-            ,   tooltip: Just "Crée ta propre propre pièce"
-            }
-            [ onclick Customize]
-        ,
-            iconbutton state
-            {   icon: IconSymbol "#piece-mix"
-            ,   selected: state^._multiPieces
-            ,   tooltip: Just "Mode mixte"
-            } [
-                onclick ToggleMultiPieces
+    config =
+        card "Les reines"
+        [   iconSizesGroup state [4∧4, 5∧5, 7∧7, 8∧8] true
+        ,   iconSelectGroupM state "Pièces disponibles" piecesList (state^._allowedPieces) SelectAllowedPiece \piece →
+                _{  icon = IconSymbol $ "#piece-" <> show piece
+                ,   tooltip = Just $ tooltip piece
+                }
+        ,   icongroup "Options" $ 
+            [   iconbutton state
+                {   icon: IconSymbol "#customize"
+                ,   selected: N.head (state^._allowedPieces) == Custom
+                ,   tooltip: Just "Crée ta propre propre pièce"
+                }
+                [onclick Customize]
+            ,   iconbutton state
+                {   icon: IconSymbol "#piece-mix"
+                ,   selected: state^._multiPieces
+                ,   tooltip: Just "Mode mixte"
+                } [
+                    onclick ToggleMultiPieces
+                ]
+            ] <> [ihelp state, ireset state, irules state]
+        ,   iconBestScore state
+        ]   
+
+    pieceSelector =
+        div [class_ "ui-flex-center gutter2 queens-pieceselector"] $
+            N.toArray (state^._allowedPieces) <#> \piece →
+                let name = show piece in
+                iconbutton state
+                {   selected: piece == state^._selectedPiece
+                ,   icon: IconSymbol $ "#piece-" <> name
+                } 
+                [   key name
+                ,   onclick $ SelectPiece piece
+                ]
+
+    cursor pp =
+        div ([class_ "ui-cursor"] <> cursorStyle pp rows columns 0.8)
+        [   svg [width "100%", height "100%"]
+            [   use ("#piece-" <> show (state^._selectedPiece)) []
             ]
-        ] <> [ihelp state, ireset state, irules state],
-        iconBestScore state
-    ]   
+        ]
 
-    pieceSelector = div [class_ "ui-flex-center gutter2 queens-pieceselector"] $
-        N.toArray (state^._allowedPieces) <#> \piece →
-            let name = show piece in
-            iconbutton state
-            {   selected: piece == state^._selectedPiece
-            ,   icon: IconSymbol $ "#piece-" <> name
-            } 
-            [   key name
-            ,   onclick $ SelectPiece piece
-            ]
-        
+    grid = 
+        div ([class_ "ui-board"] <> gridStyle rows columns 5 <> trackPointer) $ concat
+        [   map3 position (attackedBySelected state) (capturableSquares state) \index piece attacked capturable →
+                square
+                {   piece
+                ,   selected: attacked || state^._selectedSquare == Just index
+                ,   nonavailable: state^._help && (piece /= Empty || capturable)
+                ,   capturable
+                }
+                [   style "width" $ pc (1.0 / toNumber columns)
+                ,   style "height" $ pc (1.0 / toNumber rows)
+                ,   onclick $ Play index
+                ,   onpointerenter $ SelectSquare (Just index)
+                ,   onpointerleave $ SelectSquare Nothing
+                ]
+        ,   [state^._pointer <??> cursor]
+        ]
 
-    cursor pp = div ([class_ "ui-cursor"] <> cursorStyle pp rows columns 0.8) [
-        svg [width "100%", height "100%"] [use ("#piece-" <> show (state^._selectedPiece)) []]
-    ]
-
-    grid = div ([class_ "ui-board"] <> gridStyle rows columns 5 <> trackPointer) $ concat [  
-        map3 position (attackedBySelected state) (capturableSquares state) \index piece attacked capturable →
-            square {piece,
-                selected: attacked || state^._selectedSquare == Just index,
-                nonavailable: state^._help && (piece /= Empty || capturable),
-                capturable
-            } [
-                style "width" $ pc (1.0 / toNumber columns),
-                style "height" $ pc (1.0 / toNumber rows),
-                onclick $ Play index,
-                onpointerenter $ SelectSquare (Just index),
-                onpointerleave $ SelectSquare Nothing
-            ],
-        [state^._pointer <??> cursor]
-    ]
-
-    board = div [] [
-        pieceSelector,
-        incDecGrid state [grid]
-    ]
+    board = 
+        div []
+        [   pieceSelector
+        ,   incDecGrid state [grid]
+        ]
 
     angles = [45, 90, 135, 0, 0, 180, -45, -90, -135]
 
@@ -110,11 +118,11 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
         [   div [class_ "flex queens-custompiece"]
             [   div [class_ "queens-grid queens-custompiece-grid"] (
                     state^._customLocalMoves # mapWithIndex \index selected →
-                        square {
-                                piece: if index == 12 then Custom else Empty,
-                                selected: selected,
-                                capturable: false,
-                                nonavailable: false
+                        square
+                        {   piece: if index == 12 then Custom else Empty
+                        ,   selected: selected
+                        ,   capturable: false
+                        ,   nonavailable: false
                         } 
                         [   key $ show index 
                         ,   style "width" "20%"
@@ -140,9 +148,9 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
         div [class_ "ui-flex-center queens-bestscore-container"] [
             div (gridStyle rows columns 5 <> [class_ "ui-board queens-grid"]) (
                 pos <#> \piece →
-                    square { piece, capturable: false, selected: false, nonavailable: false} [
-                        style "width" $ pc (1.0 / toNumber columns),
-                        style "height" $ pc (1.0 / toNumber rows)
+                    square { piece, capturable: false, selected: false, nonavailable: false}
+                    [   style "width" $ pc (1.0 / toNumber columns)
+                    ,   style "height" $ pc (1.0 / toNumber rows)
                     ]
             )
         ]

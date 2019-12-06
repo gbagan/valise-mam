@@ -14,11 +14,12 @@ derive instance eqSoapMode ∷ Eq SoapMode
 
 type Position = {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int}
 
-type Ext' = {
-    soap ∷ {row ∷ Int, col ∷ Int},
-    soapMode ∷ SoapMode,
-    moveWhenHover ∷ Maybe Move
-}
+type Ext' =
+    {   soap ∷ {row ∷ Int, col ∷ Int}
+    ,   soapMode ∷ SoapMode
+    ,   moveWhenHover ∷ Maybe Move
+    }
+
 newtype ExtState = Ext Ext'
 type State = GState Position ExtState
 
@@ -37,7 +38,7 @@ istate ∷ State
 istate = genState {left: 0, top: 0, right: 0, bottom: 0} _{nbRows = 6, nbColumns = 7, mode = RandomMode}
         (Ext { soap: {row: 0, col: 0}, soapMode: CornerMode, moveWhenHover: Nothing})
 
-instance gameChocolat ∷ Game {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int} ExtState Move where
+instance game ∷ Game {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int} ExtState Move where
     -- les coups proposées par la vue sont toujours valides
     play st = case _ of
             FromLeft x → Just p{left = x}
@@ -46,7 +47,7 @@ instance gameChocolat ∷ Game {left ∷ Int, top ∷ Int, right ∷ Int, bottom
             FromBottom x → Just p{bottom = x}
         where p = st^._position
 
-    isLevelFinished = view _position >>> \{left, right, top, bottom} → left == right - 1 && top == bottom - 1
+    isLevelFinished = view _position >>> \p → p.left == p.right - 1 && p.top == p.bottom - 1
 
     initialPosition st = pure { left: 0, right: st^._nbColumns, top: 0, bottom: st^._nbRows }
 
@@ -59,7 +60,7 @@ instance gameChocolat ∷ Game {left ∷ Int, top ∷ Int, right ∷ Int, bottom
     computerMove = computerMove'
     updateScore st = st ∧ true
 
-instance chocolat2Game ∷ TwoPlayersGame {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int} ExtState Move where
+instance game_ ∷ TwoPlayersGame {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int} ExtState Move where
     isLosingPosition st = (col - left) .^. (right - col - 1) .^. (row - top) .^. (bottom - row - 1) == 0 where
         {left, right, top, bottom} = st^._position
         {row, col} = st^._soap 

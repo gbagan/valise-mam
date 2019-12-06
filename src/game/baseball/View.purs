@@ -39,33 +39,36 @@ view state = template {config, board, rules} state where
     ]
 
     board = div [class_ "ui-board baseball-board"] [
-        svg [viewBox 0 0 100 100] $ concat [
-            take nbBases colors # mapWithIndex \i color →
-                rect [
-                    x_ "-10", y_ "-10", width "20", height "20",
-                    key $ "b" <> show i,
-                    class_ "baseball-base",
-                    stroke $ color,
-                    style "transform" $ transformBase i nbBases
-                ],
-            map2 (state^._position) dupColors \peg pos color →
+        svg [viewBox 0 0 100 100] $ concat
+        [   take nbBases colors # mapWithIndex \i color →
+                rect
+                [   key $ "b" <> show i
+                ,   x_ "-10"
+                ,   y_ "-10"
+                ,   width "20"
+                ,   height "20"
+                ,   class_ "baseball-base"
+                ,   stroke color
+                ,   style "transform" $ transformBase i nbBases
+                ]
+        ,   map2 (state^._position) dupColors \peg pos color →
                 peg /= state^._missingPeg <&&> \_ →
-                    g [
-                        class_ "baseball-player",
-                        style "transform" $ translatePeg pos nbBases,
-                        key $ "p" <> show peg
-                    ] [ 
-                        use "#meeple" [
-                            width "7",
-                            height "7",
-                            onclick $ Play peg,
-                            fill color,
-                            style "animation"
+                    g
+                    [   class_ "baseball-player"
+                    ,   style "transform" $ translatePeg pos nbBases
+                    ,   key $ "p" <> show peg
+                    ]
+                    [   use "#meeple"
+                        [   width "7"
+                        ,   height "7"
+                        ,   onclick $ Play peg
+                        ,   fill color
+                        ,   style "animation"
                                 if levelFinished then
                                     "baseballHola 4s linear " <> show (1000 + 2000 * peg / nbBases) <> "ms infinite"
                                 else
-                                    "none",
-                            style "cursor" (if canPlay state peg then "pointer" else "not-allowed")
+                                    "none"
+                        ,   style "cursor" (if canPlay state peg then "pointer" else "not-allowed")
                         ]
                     ]
         ]

@@ -38,68 +38,79 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
             translate (px $ 50.0 * toNumber col + 25.0) (px $ 50.0 * toNumber row + 25.0)
 
     config =
-        let boards = [CircleBoard, Grid3Board, RandomBoard, EnglishBoard, FrenchBoard]
-        in        
-        card "Jeu du solitaire" [
-            iconSelectGroup state "Plateau" boards (state^._board) SetBoard \i opt → case i of
+        let boards = [CircleBoard, Grid3Board, RandomBoard, EnglishBoard, FrenchBoard] in        
+        card "Jeu du solitaire"
+        [   iconSelectGroup state "Plateau" boards (state^._board) SetBoard \i opt → case i of
                 CircleBoard → opt{icon = IconSymbol "#circle", tooltip = Just "Cercle"}
                 Grid3Board → opt{icon = IconText "3xN", tooltip = Just "3xN"}
                 RandomBoard → opt{icon = IconSymbol "#shuffle", tooltip = Just "Aléatoire"}
                 EnglishBoard → opt{icon = IconSymbol "#tea", tooltip = Just "Anglais"}
-                FrenchBoard →  opt{icon = IconSymbol "#bread", tooltip = Just "Français"},
-            icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x → x state,
-            iconBestScore state
-        ] 
+                FrenchBoard →  opt{icon = IconSymbol "#bread", tooltip = Just "Français"}
+        ,   icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x → x state
+        ,   iconBestScore state
+        ]
 
-    grid = div ([
-        class' "ui-board" true
-    ] <> dndBoardProps <> (if isCircleBoard then
+    drawHole i = 
+        [   state^._help > 0 && not isCircleBoard <&&> \_ →
+                rect
+                [   x_ "-25.0"
+                ,   y_ "-25"
+                ,   width "50"
+                ,   height "50"
+                ,   key $ "rect" <> show i
+                ,   fill $ tricolor i columns (state^._help)
+                ,   style "transform" $ itemStyle i
+                ]
+        ,   circle (
+            [   key $ "h" <> show i
+            ,   r "17"
+            ,   fill "url(#soli-hole)"
+            ,   class' "solitaire-hole" true
+            ,   style "transform" $ itemStyle i
+            ] <> dndItemProps 
+                {   currentDragged: state^._dragged
+                ,   draggable: false
+                ,   droppable: true
+                ,   id: i
+                } state
+            )
+        ]
+
+    drawPeg i =
+        circle (
+        [   r "20"
+        ,   key $ "p" <> show i
+        ,   fill "url(#soli-peg)"
+        ,   class' "solitaire-peg" true
+        ,   style "transform" $ itemStyle i
+        ] <> dndItemProps
+            {   draggable: true
+            ,   droppable: false
+            ,   currentDragged: state^._dragged
+            ,   id: i
+            } state
+        )
+
+
+    grid =
+        div ([
+            class' "ui-board" true
+        ] <> dndBoardProps <> (if isCircleBoard then
                             [style "width" "100%", style "height" "100%"] 
                         else 
                             gridStyle rows columns 5
-    )) [
-        svg [if isCircleBoard then viewBox 0 0 250 250 else viewBox 0 0 (50 * columns) (50 * rows)] $ concat [
-            [isCircleBoard <&&> \_ →
-                circle [cx "125", cy "125", r "90", stroke "grey", fill "transparent", strokeWidth "5"]
-            ],
-            concat $ state^._holes # mapWithIndex \i val → if not val then [] else [
-                state^._help > 0 && not isCircleBoard <&&> \_ →
-                    rect [
-                        x_ "-25.0", y_ "-25", width "50", height "50",
-                        key $ "rect" <> show i,
-                        fill $ tricolor i columns (state^._help),
-                        style "transform" $ itemStyle i
-                    ],
-                circle ([
-                    key $ "h" <> show i,
-                    r "17",
-                    fill "url(#soli-hole)",
-                    class' "solitaire-hole" true,
-                    style "transform" $ itemStyle i
-                ] <> dndItemProps {
-                    currentDragged: state^._dragged,
-                    draggable: false,
-                    droppable: true,
-                    id: i
-                } state)
-            ],
-            state^._position # mapWithIndex \i → (_ <&&> \_ →
-                circle ([
-                    r "20",
-                    key $ "p" <> show i,
-                    fill "url(#soli-peg)",
-                    class' "solitaire-peg" true,
-                    style "transform" $ itemStyle i
-                ] <> dndItemProps {
-                    draggable: true,
-                    droppable: false,
-                    currentDragged: state^._dragged,
-                    id: i
-                }  state)
-            ),
-            [maybeN $ cursor <$> state^._pointer <*> state^._dragged]
+        ))
+        [   svg [if isCircleBoard then viewBox 0 0 250 250 else viewBox 0 0 (50 * columns) (50 * rows)] $ concat
+            [   [isCircleBoard <&&> \_ →
+                    circle [cx "125", cy "125", r "90", stroke "grey", fill "transparent", strokeWidth "5"]
+                ]
+            ,   concat $ state^._holes # mapWithIndex \i hasHole →
+                    if hasHole then drawHole i else []
+            ,   state^._position # mapWithIndex \i hasPeg →
+                    hasPeg <&&> \_ → drawPeg i
+            ,   [maybeN $ cursor <$> state^._pointer <*> state^._dragged]
+            ]
         ]
-    ]
 
     board = incDecGrid state [grid]
 

@@ -26,14 +26,13 @@ levelOptions level _ opt = case level of
 
 square ∷ ∀a. Boolean → Boolean → Array (Prop a) → VDom a
 square light cross props = 
-    div ([class_ "noirblanc-square"] <> props) [
-        div [class_ "noirblanc-square-inner", class' "blanc" light] [
-            div [class_ "noirblanc-square-blanc"] $ 
+    div ([class_ "noirblanc-square"] <> props)
+    [   div [class_ "noirblanc-square-inner", class' "blanc" light]
+        [   div [class_ "noirblanc-square-blanc"] $ 
                 if cross then [
                     svg [width "100%", height "100%", class_ "ui-absolute noirblanc-cross"] [use "#cross" []]
-                ]  else [],
-
-            div [class_ "noirblanc-square-noir"] $
+                ]  else []
+        ,   div [class_ "noirblanc-square-noir"] $
                 if cross then [
                     svg [width "100%", height "100%", class_ "ui-absolute noirblanc-cross"] [use "#cross" []]
                 ] else []
@@ -57,17 +56,19 @@ view state = template {config, board, rules, winTitle} state where
     grid = div ([class_ "ui-board"] <> gridStyle rows columns 4) $
         map2 position.light position.played \index light played →
             let {row, col} = coords columns index in
-            square light (state^._help && played) [
-                key $ show index,
-                style "height" $ pc (0.86 / toNumber rows),
-                style "width" $ pc (0.86 / toNumber columns),
-                style "left" $ pc ((toNumber col + 0.07) / toNumber columns),
-                style "top" $ pc ((toNumber row + 0.07) / toNumber rows),
-                onclick $ Play index
+            square light (state^._help && played)
+            [   key $ show index
+            ,   style "height" $ pc (0.86 / toNumber rows)
+            ,   style "width" $ pc (0.86 / toNumber columns)
+            ,   style "left" $ pc ((toNumber col + 0.07) / toNumber columns)
+            ,   style "top" $ pc ((toNumber row + 0.07) / toNumber rows)
+            ,   onclick $ Play index
             ]
 
     board = incDecGrid state [grid]
 
-    rules = [text "blablahblah"]
+    rules = 
+        [   text "blablahblah"
+        ]
 
     winTitle = "GAGNÉ"

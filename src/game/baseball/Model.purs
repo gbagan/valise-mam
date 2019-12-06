@@ -9,7 +9,11 @@ import Game.Effs (EFFS)
 import Game.Core (class Game, GState, class MsgWithCore, CoreMsg,
                  playA, coreUpdate, _ext, genState, newGame, _position, defaultSizeLimit)
 
-type Ext' = { nbBases ∷ Int, missingPeg ∷ Int }
+type Ext' =
+    { nbBases ∷ Int
+    , missingPeg ∷ Int
+    }
+
 newtype ExtState = Ext Ext'
 type State = GState (Array Int) ExtState
 
@@ -37,10 +41,11 @@ instance baseballGame ∷ Game (Array Int) ExtState Int where
         else 
             Nothing
 
-    initialPosition state = shuffle $ 0 .. (2 * state^._nbBases - 1)
+    initialPosition state = shuffle (0 .. (2 * state^._nbBases - 1))
     isLevelFinished state = state^._position # allWithIndex \i j → i / 2 == j / 2
     onNewGame state = randomInt (2 * state^._nbBases) <#> \i → state # _missingPeg .~ i
     
+    -- fonctions par défault
     computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
     updateScore st = st ∧ true 
@@ -50,5 +55,5 @@ instance withcore ∷ MsgWithCore Msg where core = Core
 
 update ∷ Msg → Action State EFFS
 update (Core msg) = coreUpdate msg
-update (SetNbBases n) = newGame (_nbBases .~ n)
+update (SetNbBases n) = newGame $ _nbBases .~ n
 update (Play m) = playA m

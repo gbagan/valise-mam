@@ -212,13 +212,13 @@ main = app {
     init: state ∧ init,
     view,
     update,
-    subscriptions: const [
-        Subs.onKeyDown (Just <<< OnKeyDown),
-        Subs.on "hashchange" (always OnHashChange)
-    ],
-    interpreter: Run.match {
-        delay: interpretDelay,
-        rng: interpretRng,
-        location: interpretLocation
-    }
+    subscriptions: const
+        [   Subs.onKeyDown (Just <<< OnKeyDown)
+        ,   Subs.on "hashchange" (always OnHashChange)
+        ]
+    interpreter: Run.match 
+        {   delay: interpretDelay
+        ,   rng: interpretRng
+        ,   location: interpretLocation
+        }
 } # attachTo "root"

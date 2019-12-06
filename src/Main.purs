@@ -41,25 +41,46 @@ extractLocation ∷ String → String → String
 extractLocation url defaultValue =
     S.indexOf (Pattern "#") url # maybe defaultValue \i → S.drop (i + 1) url 
 
-type RootState = {
-    baseball ∷ Baseball.State,
-    chocolat ∷ Chocolat.State,
-    dessin ∷ Dessin.State,
-    frog ∷ Frog.State,
-    jetons ∷ Jetons.State,
-    labete ∷ Labete.State,
-    nim ∷ Nim.State,
-    noirblanc ∷ Noirblanc.State,
-    paths ∷ Paths.State,
-    queens ∷ Queens.State,
-    roue ∷ Roue.State,
-    sansmot ∷ Sansmot.State,
-    solitaire ∷ Solitaire.State,
-    tiling ∷ Tiling.State,
-    tricolor ∷ Tricolor.State,
-    valise ∷ Valise.State,
-    location ∷ String
-}
+type RootState = 
+    {   baseball ∷ Baseball.State
+    ,   chocolat ∷ Chocolat.State
+    ,   dessin ∷ Dessin.State
+    ,   frog ∷ Frog.State
+    ,   jetons ∷ Jetons.State
+    ,   labete ∷ Labete.State
+    ,   nim ∷ Nim.State
+    ,   noirblanc ∷ Noirblanc.State
+    ,   paths ∷ Paths.State
+    ,   queens ∷ Queens.State
+    ,   roue ∷ Roue.State
+    ,   sansmot ∷ Sansmot.State
+    ,   solitaire ∷ Solitaire.State
+    ,   tiling ∷ Tiling.State
+    ,   tricolor ∷ Tricolor.State
+    ,   valise ∷ Valise.State
+    ,   location ∷ String
+    }
+
+state ∷ RootState
+state = 
+    {   baseball: Baseball.istate
+    ,   chocolat: Chocolat.istate
+    ,   dessin: Dessin.istate
+    ,   frog: Frog.istate
+    ,   jetons: Jetons.istate
+    ,   labete: Labete.istate
+    ,   nim: Nim.istate
+    ,   noirblanc: Noirblanc.istate
+    ,   paths: Paths.istate
+    ,   queens: Queens.istate
+    ,   roue: Roue.istate
+    ,   sansmot: Sansmot.istate
+    ,   solitaire: Solitaire.istate
+    ,   tiling: Tiling.istate
+    ,   tricolor: Tricolor.istate
+    ,   valise: Valise.istate
+    ,   location: ""
+    }
 
 data Msg =
       BaseballMsg Baseball.Msg
@@ -81,11 +102,11 @@ data Msg =
     | OnKeyDown String
     | OnHashChange
 
-type GameWrapperF st msg = {
-    core ∷ GenericGame st msg,
-    map ∷ RootState → st,
-    msgmap ∷ msg → Msg
-}
+type GameWrapperF st msg =
+    {   core ∷ GenericGame st msg
+    ,   map ∷ RootState → st
+    ,   msgmap ∷ msg → Msg
+    }
 
 foreign import data GameWrapper ∷ Type
 
@@ -123,12 +144,11 @@ hashChange ∷ Action RootState EFFS
 hashChange = do
     loc ← getLocation
     let location = extractLocation loc.hash "valise"
-    if location == "valise" || location == "" then do
-        setState _{location = location}
+    setState _{location = location}
+    if location == "valise" then
         lens _.valise _{valise = _} .~> Valise.enterA
-    else do
-        lens _.valise _{valise = _} .~> Valise.leaveA
-        setState _{location = location}
+    else
+        pure unit
     
  
 update ∷ Msg → Action RootState EFFS
@@ -162,50 +182,30 @@ init = do
                             Just i → update $ game.msgmap i
     hashChange
 
-
-
 view ∷ RootState → Document Msg
 view st = {
     title: "Valise MaM",
     body:
-        div [
-            key st.location,
-            class_ "main-main-container",
-            class_ (if st.location == "valise" then "valise" else "game")
-        ] [
-            st.location /= "valise" <&&> \_ →
-            a [
-                class_ "main-minivalise-link",
-                href "#valise"
-            ] [svg [width "100%", height "100%"] [use "#valise" []]],
-            viewGame st
+        div
+        [   key st.location
+        ,   class_ "main-main-container"
+        ,   class_ (if st.location == "valise" then "valise" else "game")
+        ]
+        [   st.location /= "valise" <&&> \_ →
+                a
+                [   class_ "main-minivalise-link"
+                ,   href "#valise"
+                ]
+                [   svg [width "100%", height "100%"]
+                    [   use "#valise" []]
+                ]
+        ,   viewGame st
         ]
 }
 
 viewGame ∷ RootState → VDom Msg
 viewGame st = callByName st.location emptyNode 
                     \game → game.core.view (game.map st) <#> game.msgmap
-
-state ∷ RootState
-state = {
-    baseball: Baseball.istate,
-    chocolat: Chocolat.istate,
-    dessin: Dessin.istate,
-    frog: Frog.istate,
-    jetons: Jetons.istate,
-    labete: Labete.istate,
-    nim: Nim.istate,
-    noirblanc: Noirblanc.istate,
-    paths: Paths.istate,
-    queens: Queens.istate,
-    roue: Roue.istate,
-    sansmot: Sansmot.istate,
-    solitaire: Solitaire.istate,
-    tiling: Tiling.istate,
-    tricolor: Tricolor.istate,
-    valise: Valise.istate,
-    location: ""
-}
 
 main ∷ Effect Unit
 main = app {

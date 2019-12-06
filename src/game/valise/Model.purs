@@ -43,11 +43,9 @@ _isSwitchOn = lens _.isSwitchOn _{isSwitchOn = _}
 
 enterA ∷ ∀effs. Action State (delay ∷ DELAY | effs) 
 enterA = do
+    setState \_ → istate
     delay 1500
     setState _{isOpen = true}
-
-leaveA ∷ ∀effs. Action State effs 
-leaveA = setState (\_ → istate)
 
 data Msg = ShowHelp String | ToggleSwitch | SetDrag (Maybe { name ∷ String, x ∷ Number, y ∷ Number })
           | MoveObject {x ∷ Number, y ∷ Number}

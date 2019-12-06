@@ -10024,8 +10024,28 @@ var PS = {};
   };
   var withdnd = new Game_Core.MsgWithDnd(DnD.create);
   var withcore = new Game_Core.MsgWithCore(Core.create);
+  var istate = Game_Core.genState([  ])(function (v) {
+      return {
+          position: v.position,
+          history: v.history,
+          redoHistory: v.redoHistory,
+          dialog: v.dialog,
+          turn: v.turn,
+          nbRows: 4,
+          nbColumns: 4,
+          customSize: v.customSize,
+          mode: v.mode,
+          help: v.help,
+          locked: v.locked,
+          showWin: v.showWin,
+          scores: v.scores,
+          pointer: v.pointer
+      };
+  })({
+      dragged: Data_Maybe.Nothing.value
+  });
   var scoregame = new Game_Core.ScoreGame(function () {
-      return jetonsGame;
+      return game;
   }, function (v) {
       return false;
   }, function (state) {
@@ -10041,7 +10061,7 @@ var PS = {};
   })(), function (state) {
       return Data_Show.show(Data_Show.showInt)(Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget))) + ("-" + Data_Show.show(Data_Show.showInt)(Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget))));
   });
-  var jetonsGame = new Game_Core.Game(function (v) {
+  var game = new Game_Core.Game(function (v) {
       return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Maybe.Nothing.value);
   }, function (state) {
       return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Array.replicate(Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)) * Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget)) | 0)(1));
@@ -10079,26 +10099,6 @@ var PS = {};
   }, function (v) {
       return new Game_Core.SizeLimit(1, 2, 6, 12);
   }, Game_Core["updateScore'"](scoregame)(Game_Core.AlwaysShowWin.value));
-  var istate = Game_Core.genState([  ])(function (v) {
-      return {
-          position: v.position,
-          history: v.history,
-          redoHistory: v.redoHistory,
-          dialog: v.dialog,
-          turn: v.turn,
-          nbRows: 4,
-          nbColumns: 4,
-          customSize: v.customSize,
-          mode: v.mode,
-          help: v.help,
-          locked: v.locked,
-          showWin: v.showWin,
-          scores: v.scores,
-          pointer: v.pointer
-      };
-  })({
-      dragged: Data_Maybe.Nothing.value
-  });
   var _ext$prime = function (dictStrong) {
       var $37 = Game_Core["_ext"](dictStrong);
       var $38 = Data_Lens_Iso.iso(function (v) {
@@ -10125,10 +10125,10 @@ var PS = {};
   };
   var update = function (v) {
       if (v instanceof Core) {
-          return Game_Core.coreUpdate(jetonsGame)(v.value0);
+          return Game_Core.coreUpdate(game)(v.value0);
       };
       if (v instanceof DnD) {
-          return Game_Core.dndUpdate(Data_Eq.eqInt)(jetonsGame)(function (dictStrong) {
+          return Game_Core.dndUpdate(Data_Eq.eqInt)(game)(function (dictStrong) {
               return _dragged(dictStrong);
           })(v.value0);
       };
@@ -10137,7 +10137,7 @@ var PS = {};
   exports["_dragged"] = _dragged;
   exports["istate"] = istate;
   exports["update"] = update;
-  exports["jetonsGame"] = jetonsGame;
+  exports["game"] = game;
   exports["scoregame"] = scoregame;
   exports["withcore"] = withcore;
   exports["withdnd"] = withdnd;
@@ -10206,10 +10206,10 @@ var PS = {};
               })(pos)) ]) ];
           });
       };
-      var board = UI_Template.incDecGrid(Game_Jetons_Model.withcore)(Game_Jetons_Model.jetonsGame)(state)([ Pha_Elements.div(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.class_("ui-board") ])(Data_Semigroup.append(Data_Semigroup.semigroupArray)(UI_Template.dndBoardProps(Game_Jetons_Model.withcore)(Game_Jetons_Model.withdnd))(UI_Template.gridStyle(rows)(columns)(3))))(Data_Array.concat([ Data_Array.mapWithIndex(function (i) {
+      var board = UI_Template.incDecGrid(Game_Jetons_Model.withcore)(Game_Jetons_Model.game)(state)([ Pha_Elements.div(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.class_("ui-board") ])(Data_Semigroup.append(Data_Semigroup.semigroupArray)(UI_Template.dndBoardProps(Game_Jetons_Model.withcore)(Game_Jetons_Model.withdnd))(UI_Template.gridStyle(rows)(columns)(3))))(Data_Array.concat([ Data_Array.mapWithIndex(function (i) {
           return function (val) {
               return Pha.when(val !== 0)(function (v) {
-                  return piece(i)(val)(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key(Data_Show.show(Data_Show.showInt)(i)) ])(UI_Template.dndItemProps(Data_Eq.eqInt)(Game_Jetons_Model.withdnd)(Game_Jetons_Model.jetonsGame)({
+                  return piece(i)(val)(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key(Data_Show.show(Data_Show.showInt)(i)) ])(UI_Template.dndItemProps(Data_Eq.eqInt)(Game_Jetons_Model.withdnd)(Game_Jetons_Model.game)({
                       currentDragged: Data_Lens_Getter.viewOn(state)(Game_Jetons_Model["_dragged"](Data_Lens_Internal_Forget.strongForget)),
                       draggable: true,
                       droppable: true,
@@ -10218,7 +10218,7 @@ var PS = {};
               });
           };
       })(position), [ Pha.maybeN(Control_Apply.apply(Data_Maybe.applyMaybe)(Data_Functor.map(Data_Maybe.functorMaybe)(cursor)(Data_Lens_Getter.viewOn(state)(Game_Core["_pointer"](Data_Lens_Internal_Forget.strongForget))))(Data_Lens_Getter.viewOn(state)(Game_Jetons_Model["_dragged"](Data_Lens_Internal_Forget.strongForget)))) ] ])) ]);
-      return UI_Template.template(Lib_Util.precord()())(Game_Jetons_Model.withcore)(Game_Jetons_Model.jetonsGame)({
+      return UI_Template.template(Lib_Util.precord()())(Game_Jetons_Model.withcore)(Game_Jetons_Model.game)({
           config: config,
           board: board,
           rules: rules,
@@ -15548,7 +15548,6 @@ var PS = {};
   var Control_Category = $PS["Control.Category"];
   var Control_Monad_Free = $PS["Control.Monad.Free"];
   var Data_Array = $PS["Data.Array"];
-  var Data_Eq = $PS["Data.Eq"];
   var Data_EuclideanRing = $PS["Data.EuclideanRing"];
   var Data_Foldable = $PS["Data.Foldable"];
   var Data_HeytingAlgebra = $PS["Data.HeytingAlgebra"];
@@ -15631,17 +15630,17 @@ var PS = {};
       hoverCell: Data_Maybe.Nothing.value
   });
   var _ext$prime = function (dictStrong) {
-      var $29 = Game_Core["_ext"](dictStrong);
-      var $30 = Data_Lens_Iso.iso(function (v) {
+      var $30 = Game_Core["_ext"](dictStrong);
+      var $31 = Data_Lens_Iso.iso(function (v) {
           return v;
       })(Ext)(dictStrong.Profunctor0());
-      return function ($31) {
-          return $29($30($31));
+      return function ($32) {
+          return $30($31($32));
       };
   };
   var _hoverCell = function (dictStrong) {
-      var $32 = _ext$prime(dictStrong);
-      var $33 = Data_Lens_Lens.lens(function (v) {
+      var $33 = _ext$prime(dictStrong);
+      var $34 = Data_Lens_Lens.lens(function (v) {
           return v.hoverCell;
       })(function (v) {
           return function (v1) {
@@ -15653,13 +15652,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($34) {
-          return $32($33($34));
+      return function ($35) {
+          return $33($34($35));
       };
   };
   var _nbColors = function (dictStrong) {
-      var $35 = _ext$prime(dictStrong);
-      var $36 = Data_Lens_Lens.lens(function (v) {
+      var $36 = _ext$prime(dictStrong);
+      var $37 = Data_Lens_Lens.lens(function (v) {
           return v.nbColors;
       })(function (v) {
           return function (v1) {
@@ -15671,13 +15670,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($37) {
-          return $35($36($37));
+      return function ($38) {
+          return $36($37($38));
       };
   };
   var _range = function (dictStrong) {
-      var $38 = _ext$prime(dictStrong);
-      var $39 = Data_Lens_Lens.lens(function (v) {
+      var $39 = _ext$prime(dictStrong);
+      var $40 = Data_Lens_Lens.lens(function (v) {
           return v.range;
       })(function (v) {
           return function (v1) {
@@ -15689,13 +15688,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($40) {
-          return $38($39($40));
+      return function ($41) {
+          return $39($40($41));
       };
   };
   var _size = function (dictStrong) {
-      var $41 = _ext$prime(dictStrong);
-      var $42 = Data_Lens_Lens.lens(function (v) {
+      var $42 = _ext$prime(dictStrong);
+      var $43 = Data_Lens_Lens.lens(function (v) {
           return v.size;
       })(function (v) {
           return function (v1) {
@@ -15707,8 +15706,8 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($43) {
-          return $41($42($43));
+      return function ($44) {
+          return $42($43($44));
       };
   };
   var inRange = function (state) {
@@ -15724,13 +15723,15 @@ var PS = {};
   }, function (state) {
       return Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Free.freeApplicative)(Data_Array.replicate(Data_Lens_Getter.viewOn(state)(_size(Data_Lens_Internal_Forget.strongForget)))(Pha_Random.randomInt(Data_Lens_Getter.viewOn(state)(_nbColors(Data_Lens_Internal_Forget.strongForget)))));
   }, function (state) {
-      return Data_Foldable.all(Data_Foldable.foldableArray)(Data_HeytingAlgebra.heytingAlgebraBoolean)(Data_Eq.eq(Data_Eq.eqInt)(0))(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget)));
+      return Data_Foldable.all(Data_Foldable.foldableArray)(Data_HeytingAlgebra.heytingAlgebraBoolean)(function (v) {
+          return v === 0;
+      })(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget)));
   }, Control_Applicative.pure(Control_Monad_Free.freeApplicative), function (state) {
       return function (i) {
           return Data_Maybe.Just.create(Data_Array.mapWithIndex(function (i$prime) {
               return function (color) {
-                  var $21 = inRange(state)(i)(i$prime);
-                  if ($21) {
+                  var $22 = inRange(state)(i)(i$prime);
+                  if ($22) {
                       return Data_EuclideanRing.mod(Data_EuclideanRing.euclideanRingInt)(color + 1 | 0)(Data_Lens_Getter.viewOn(state)(_nbColors(Data_Lens_Internal_Forget.strongForget)));
                   };
                   return color;
@@ -15927,19 +15928,20 @@ var PS = {};
       positions: Data_Map_Internal.empty,
       isSwitchOn: false
   };
-  var leaveA = Pha_Action.setState(function (v) {
+  var enterA = Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Action.setState(function (v) {
       return istate;
-  });
-  var enterA = Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Effects_Delay.delay(1500))(function () {
-      return Pha_Action.setState(function (v) {
-          return {
-              isOpen: true,
-              drag: v.drag,
-              help: v.help,
-              helpVisible: v.helpVisible,
-              isSwitchOn: v.isSwitchOn,
-              positions: v.positions
-          };
+  }))(function () {
+      return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Effects_Delay.delay(1500))(function () {
+          return Pha_Action.setState(function (v) {
+              return {
+                  isOpen: true,
+                  drag: v.drag,
+                  help: v.help,
+                  helpVisible: v.helpVisible,
+                  isSwitchOn: v.isSwitchOn,
+                  positions: v.positions
+              };
+          });
       });
   });
   var _positions = function (dictStrong) {
@@ -16054,12 +16056,11 @@ var PS = {};
               return state;
           });
       };
-      throw new Error("Failed pattern match at Game.Valise.Model (line 55, column 1 - line 55, column 33): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Valise.Model (line 53, column 1 - line 53, column 33): " + [ v.constructor.name ]);
   };
   exports["istate"] = istate;
   exports["_positions"] = _positions;
   exports["enterA"] = enterA;
-  exports["leaveA"] = leaveA;
   exports["ShowHelp"] = ShowHelp;
   exports["ToggleSwitch"] = ToggleSwitch;
   exports["SetDrag"] = SetDrag;
@@ -17152,29 +17153,29 @@ var PS = {};
   };
   var hashChange = Control_Bind.bind(Run.bindRun)(Game_Effs.getLocation)(function (v) {
       var location = extractLocation(v.hash)("valise");
-      var $96 = location === "valise" || location === "";
-      if ($96) {
-          return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Action.setState(function (v1) {
-              return {
-                  location: location,
-                  valise: v1.valise,
-                  baseball: v1.baseball,
-                  chocolat: v1.chocolat,
-                  dessin: v1.dessin,
-                  frog: v1.frog,
-                  jetons: v1.jetons,
-                  labete: v1.labete,
-                  nim: v1.nim,
-                  noirblanc: v1.noirblanc,
-                  paths: v1.paths,
-                  queens: v1.queens,
-                  roue: v1.roue,
-                  sansmot: v1.sansmot,
-                  solitaire: v1.solitaire,
-                  tiling: v1.tiling,
-                  tricolor: v1.tricolor
-              };
-          }))(function () {
+      return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Action.setState(function (v1) {
+          return {
+              location: location,
+              valise: v1.valise,
+              baseball: v1.baseball,
+              chocolat: v1.chocolat,
+              dessin: v1.dessin,
+              frog: v1.frog,
+              jetons: v1.jetons,
+              labete: v1.labete,
+              nim: v1.nim,
+              noirblanc: v1.noirblanc,
+              paths: v1.paths,
+              queens: v1.queens,
+              roue: v1.roue,
+              sansmot: v1.sansmot,
+              solitaire: v1.solitaire,
+              tiling: v1.tiling,
+              tricolor: v1.tricolor
+          };
+      }))(function () {
+          var $91 = location === "valise";
+          if ($91) {
               return Pha_Lens.actionOver(function (dictStrong) {
                   return Data_Lens_Lens.lens(function (v1) {
                       return v1.valise;
@@ -17202,56 +17203,8 @@ var PS = {};
                       };
                   })(dictStrong);
               })(Game_Valise_Model.enterA);
-          });
-      };
-      return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Lens.actionOver(function (dictStrong) {
-          return Data_Lens_Lens.lens(function (v1) {
-              return v1.valise;
-          })(function (v1) {
-              return function (v2) {
-                  return {
-                      valise: v2,
-                      location: v1.location,
-                      baseball: v1.baseball,
-                      chocolat: v1.chocolat,
-                      dessin: v1.dessin,
-                      frog: v1.frog,
-                      jetons: v1.jetons,
-                      labete: v1.labete,
-                      nim: v1.nim,
-                      noirblanc: v1.noirblanc,
-                      paths: v1.paths,
-                      queens: v1.queens,
-                      roue: v1.roue,
-                      sansmot: v1.sansmot,
-                      solitaire: v1.solitaire,
-                      tiling: v1.tiling,
-                      tricolor: v1.tricolor
-                  };
-              };
-          })(dictStrong);
-      })(Game_Valise_Model.leaveA))(function () {
-          return Pha_Action.setState(function (v1) {
-              return {
-                  location: location,
-                  valise: v1.valise,
-                  baseball: v1.baseball,
-                  chocolat: v1.chocolat,
-                  dessin: v1.dessin,
-                  frog: v1.frog,
-                  jetons: v1.jetons,
-                  labete: v1.labete,
-                  nim: v1.nim,
-                  noirblanc: v1.noirblanc,
-                  paths: v1.paths,
-                  queens: v1.queens,
-                  roue: v1.roue,
-                  sansmot: v1.sansmot,
-                  solitaire: v1.solitaire,
-                  tiling: v1.tiling,
-                  tricolor: v1.tricolor
-              };
-          });
+          };
+          return Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit);
       });
   });
   var callByName = function (name) {
@@ -17264,7 +17217,7 @@ var PS = {};
               if (v instanceof Data_Maybe.Just) {
                   return gameRun(f)(v.value0);
               };
-              throw new Error("Failed pattern match at Main (line 118, column 29 - line 120, column 61): " + [ v.constructor.name ]);
+              throw new Error("Failed pattern match at Main (line 139, column 29 - line 141, column 61): " + [ v.constructor.name ]);
           };
       };
   };
@@ -17736,8 +17689,8 @@ var PS = {};
       if (v instanceof OnKeyDown) {
           return Control_Bind.bind(Run.bindRun)(Pha_Action.getState)(function (v1) {
               return callByName(v1.location)(Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit))(function (game) {
-                  return Data_Maybe.maybe(Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit))(function ($121) {
-                      return update(game.msgmap($121));
+                  return Data_Maybe.maybe(Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit))(function ($116) {
+                      return update(game.msgmap($116));
                   })(game.core.onKeydown(v.value0));
               });
           });
@@ -17745,7 +17698,7 @@ var PS = {};
       if (v instanceof OnHashChange) {
           return hashChange;
       };
-      throw new Error("Failed pattern match at Main (line 134, column 1 - line 134, column 37): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Main (line 154, column 1 - line 154, column 37): " + [ v.constructor.name ]);
   };
   var init = Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Data_Foldable.for_(Run.applicativeRun)(Data_List_Types.foldableList)(Data_Map_Internal.values(games))(gameRun(function (game) {
       if (game.core.init instanceof Data_Maybe.Nothing) {
@@ -17754,7 +17707,7 @@ var PS = {};
       if (game.core.init instanceof Data_Maybe.Just) {
           return update(game.msgmap(game.core.init.value0));
       };
-      throw new Error("Failed pattern match at Main (line 160, column 25 - line 162, column 60): " + [ game.core.init.constructor.name ]);
+      throw new Error("Failed pattern match at Main (line 180, column 25 - line 182, column 60): " + [ game.core.init.constructor.name ]);
   })))(function () {
       return hashChange;
   });
@@ -17767,8 +17720,8 @@ var PS = {};
       return {
           title: "Valise MaM",
           body: Pha_Elements.div([ Pha.key(st.location), Pha.class_("main-main-container"), Pha.class_((function () {
-              var $120 = st.location === "valise";
-              if ($120) {
+              var $115 = st.location === "valise";
+              if ($115) {
                   return "valise";
               };
               return "game";
@@ -17781,8 +17734,8 @@ var PS = {};
       init: new Data_Tuple.Tuple(state, init),
       view: view,
       update: update,
-      subscriptions: Data_Function["const"]([ Pha_Subs.onKeyDown(function ($122) {
-          return Data_Maybe.Just.create(OnKeyDown.create($122));
+      subscriptions: Data_Function["const"]([ Pha_Subs.onKeyDown(function ($117) {
+          return Data_Maybe.Just.create(OnKeyDown.create($117));
       }), Pha_Subs.on("hashchange")(Pha_Events_Decoder.always(OnHashChange.value)) ]),
       interpreter: Data_Functor_Variant.match()()()({
           delay: Pha_Effects_Delay.interpretDelay,
@@ -17791,6 +17744,7 @@ var PS = {};
       })
   }));
   exports["extractLocation"] = extractLocation;
+  exports["state"] = state;
   exports["BaseballMsg"] = BaseballMsg;
   exports["ChocolatMsg"] = ChocolatMsg;
   exports["DessinMsg"] = DessinMsg;
@@ -17818,7 +17772,6 @@ var PS = {};
   exports["init"] = init;
   exports["view"] = view;
   exports["viewGame"] = viewGame;
-  exports["state"] = state;
   exports["main"] = main;
 })(PS);
 PS["Main"].main();

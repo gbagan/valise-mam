@@ -1,5 +1,5 @@
 module Game.Valise (module M, game) where
-import Game.Valise.Model (State, Msg, update, istate, enterA, leaveA) as M
+import Game.Valise.Model (State, Msg, update, istate, enterA) as M
 import Game.Valise.View (view) as M
 import MyPrelude
 import Game.Generic (GenericGame)

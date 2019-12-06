@@ -10,7 +10,7 @@ import Game.Core (class Game, class ScoreGame, class MsgWithCore, class MsgWithD
                 _ext, genState, updateScore', _position, _nbColumns, _nbRows, defaultOnNewGame)
 
 -- une position représente pour chaque numéro de case le nombre de jetons sur cette case
--- un coup (move) est du type {from, to} où l'on souhaite déplacer une pile de jetons 
+-- un coup (move) est du type {from, to} lorsque l'on souhaite déplacer une pile de jetons 
 --       de la case de numéro from vers la case de numéro to
 
 type Position = Array Int

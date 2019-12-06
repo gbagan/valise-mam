@@ -42,11 +42,11 @@ instance showBt ∷ Show BeastType where
 type Ext' =
     {   beast ∷ Beast'
     ,   beastType ∷ BeastType
-    ,   mode ∷ Mode
-    ,   selectedColor ∷ Int
-    ,   squareColors ∷ Array Int
-    ,   startSquare ∷ Maybe Int
-    ,   startPointer ∷ Maybe PointerPosition
+    ,   mode ∷ Mode                          -- forme de la grille (normale/cylindrique/torique)
+    ,   selectedColor ∷ Int                  -- couleur actuellement choisi avec les touches O/P
+    ,   squareColors ∷ Array Int             -- couleur de chaque case
+    ,   startSquare ∷ Maybe Int              -- case de départ lorsque l'on sélectionne une zone à colorier
+    ,   startPointer ∷ Maybe PointerPosition -- position de départ lorsque l'on sélectionne une zone à colorier
 }
 newtype ExtState = Ext Ext'
 type State = GState (Array Boolean) ExtState

@@ -45,7 +45,7 @@ instance tricolorGame ∷ Game (Array Int) ExtState Int where
         else
             color
     initialPosition state = sequence $ replicate (state^._size) $ randomInt (state^._nbColors)
-    isLevelFinished state = state^._position # all (eq 0)
+    isLevelFinished state = state^._position # all (_ == 0)
 
     onNewGame = pure
     computerMove _ = pure Nothing

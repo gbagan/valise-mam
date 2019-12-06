@@ -8,19 +8,32 @@ import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg,
          _ext, coreUpdate, playA, isLevelFinished, _position, _nbColumns, _nbRows, newGame, genState)
 import Game.Effs (EFFS, RNG, DELAY)
 
+-- une position est composée de 2 tableaux light et played
+-- light indique si la case de numéro i est allumée
+-- played indique si l'on a joué sur la case de numéro i
+-- un coup (move) est représenté par le numéro de case que l'on active
+
 type Position = { light ∷ Array Boolean, played ∷ Array Boolean }
-type Ext' = {
-    mode ∷ Int, -- entre 0 et 3
-    level ∷ Int, --- le niveau en cours
-    maxLevels ∷ Array Int, -- pour chaque mode, le nombre de niveaux débloqués
-    keySequence ∷ Array String --- pour le konami code
-}
+type Ext' = 
+    {   mode ∷ Int                 -- entre 0 et 3
+    ,   level ∷ Int                -- le niveau en cours
+    ,   maxLevels ∷ Array Int      -- pour chaque mode, le nombre de niveaux débloqués
+    ,   keySequence ∷ Array String -- pour le konami code
+    }
+
 newtype ExtState = Ext Ext'
 type State = GState Position ExtState
 
 -- état initial
 istate ∷ State
-istate = genState {light: [], played: []} identity (Ext { level: 0, mode: 0, maxLevels: [0, 1, 1, 0], keySequence: [] })
+istate = genState {light: [], played: []} identity 
+        (Ext 
+            {   level: 0
+            ,   mode: 0
+            ,   maxLevels: [0, 1, 1, 0]
+            ,   keySequence: []
+            }
+        )
 
 -- lenses
 _ext' ∷ Lens' State Ext'
@@ -38,6 +51,8 @@ _light = lens _.light _{light = _}
 _played ∷ Lens' Position (Array Boolean)
 _played = lens _.played _{played = _}
 
+-- | indique si index1 est voisine de index2 selon un mode de jeu donné
+-- | c'est à dire que si l'on active index1, index2 va changer de couleur
 neighbor ∷ State → Int → Int → Boolean
 neighbor state index1 index2 =
     row * row + col * col == 1
@@ -47,16 +62,18 @@ neighbor state index1 index2 =
         mode = state^._mode
         {row, col} = dCoords (state^._nbColumns) index1 index2
     
+-- | met à jour le tableau light en fonction du coup joué à la position index
 toggleCell ∷ State → Int → Array Boolean → Array Boolean
-toggleCell state index = mapWithIndex \i color → color /= neighbor state index i
+toggleCell state index = mapWithIndex \i → (_ /= neighbor state index i)
 
+-- | génération de plateau aléatoire pour le niveau 6
+-- | on part d'une configuration où tout est éteint et on joue des coups aléatoires
 genRandomBoard ∷ State → Random (Array Boolean)
 genRandomBoard state = do
     let size = state^._nbRows * state^._nbColumns
     nbMoves ← randomInt (size + 1)
     rints ← sequence $ replicate nbMoves (randomInt size)
     pure $ foldr (toggleCell state) (replicate size true) rints
-
 
 instance noirblancGame ∷ Game { light ∷ Array Boolean, played ∷ Array Boolean } ExtState Int where
     play state index = Just $ state^._position 
@@ -82,7 +99,8 @@ instance noirblancGame ∷ Game { light ∷ Array Boolean, played ∷ Array Bool
 sizes ∷ Array (Tuple Int Int)
 sizes = [3∧3, 4∧4, 2∧10, 3∧10, 5∧5, 8∧8, 8∧8]
 
--- si le niveau est fini, on met à jour les nivaux débloqués
+-- | si le niveau est fini, on met à jour les nivaux débloqués
+-- | et l'on passe au niveau suivant
 afterPlay ∷ ∀effs. Action State (rng ∷ RNG, delay ∷ DELAY | effs)
 afterPlay = do
     state ← getState

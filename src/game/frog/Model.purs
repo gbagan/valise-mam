@@ -10,12 +10,17 @@ import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, 
               playA,  _ext, coreUpdate, newGame, computerMove', genState, _position, _nbRows)
 import Game.Effs (EFFS)
 
-type Ext' = {
-    moves ∷ N.NonEmptyArray Int,  -- la liste des mouvements autorisées (en nombre de cases)
-    winning ∷ Array Boolean, --- la liste des positions gagnantes
-    marked ∷ Array Boolean,  -- la liste des posiions marquées par l'utilisateur
-    keySequence ∷ Array String    --- pour le konami code
-}
+-- une position est la case sur laquelle se trouve de la grenouille
+-- les positions vont de 0 à nbRows
+--      nbRows est la position initiale et 0 la position finale
+-- un coup (move) est la case sur laquelle on veut déplacer la grenouille
+
+type Ext' =
+    {   moves ∷ N.NonEmptyArray Int  -- la liste des mouvements autorisées (en nombre de cases)
+    ,   winning ∷ Array Boolean      -- la liste des positions gagnantes
+    ,   marked ∷ Array Boolean       -- la liste des posiions marquées par l'utilisateur
+    ,   keySequence ∷ Array String   -- pour le konami code
+    }
 newtype ExtState = Ext Ext'
 
 type State = GState Int ExtState
@@ -37,13 +42,13 @@ istate ∷ State
 istate = genState
             20   -- position 
             _{  nbRows = 20
-            ,   mode = ExpertMode
+            ,   mode = RandomMode
             ,   customSize = true
             } (Ext
             {   moves: 1 `N.cons` (2 `N.cons` N.singleton 3)
             ,   winning: []
             ,   marked: []
-            , keySequence: []
+            ,   keySequence: []
             })
 
 canPlay ∷ State → Int → Boolean

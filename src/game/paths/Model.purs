@@ -13,6 +13,12 @@ import Pha.Action (Action, getState, setState)
 data Mode = Mode1 | Mode2
 derive instance eqMode ∷ Eq Mode
 
+-- | une position représente le chemin que l'on a effectué avec le héros
+-- | c'est à dire la liste des positions des cases
+-- | un coup (move) représente le numéro de cases où l'on souhaite aller
+-- |    la case n'est pas forcemment adjacente à la position du héro
+-- |    mais accessible en ligne horizontale ou verticale
+
 type Position = Array Int
 type Ext' = { exit ∷ Maybe Int, mode ∷ Mode }
 newtype Ext = Ext Ext'
@@ -54,7 +60,7 @@ isValidPath state path = fromMaybe true $ do
         begin /= end || length path == (state^._nbRows) * (state^._nbColumns) + (if begin == exit then 1 else 0) && end == exit
     )
 
-instance pathGame ∷ Game (Array Int) Ext Int where
+instance game ∷ Game (Array Int) Ext Int where
     play state v =
         case last (state^._position) of
             Nothing → if state^._mode == Mode2 then Just [v] else Nothing

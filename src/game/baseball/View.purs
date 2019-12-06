@@ -3,7 +3,7 @@ module Game.Baseball.View (view) where
 import MyPrelude
 import Lib.Util (map2)
 import Pha (VDom, text, (<&&>), class_, key, style)
-import Pha.Elements (div)
+import Pha.Elements (div, br)
 import Pha.Events (onclick)
 import Pha.Svg (svg, g, rect, use, stroke, fill, viewBox, x_, y_, width, height)
 import Pha.Util (pc, translate)
@@ -74,5 +74,9 @@ view state = template {config, board, rules} state where
         ]
     ]
 
-    rules = [text "blah blah blah blah"]
+    rules =
+        [   text "blah blah blah blah"
+        ,   br
+        ,   text "blah blah blah blah"
+        ]
     

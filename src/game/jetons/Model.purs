@@ -9,6 +9,10 @@ import Game.Core (class Game, class ScoreGame, class MsgWithCore, class MsgWithD
                 coreUpdate, dndUpdate,
                 _ext, genState, updateScore', _position, _nbColumns, _nbRows, defaultOnNewGame)
 
+-- une position représente pour chaque numéro de case le nombre de jetons sur cette case
+-- un coup (move) est du type {from, to} où l'on souhaite déplacer une pile de jetons 
+--       de la case de numéro from vers la case de numéro to
+
 type Position = Array Int
 type Ext' = { dragged ∷ Maybe Int }
 newtype Ext = Ext Ext'

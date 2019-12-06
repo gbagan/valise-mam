@@ -30,13 +30,21 @@ rotate i t = rotate (i-1) (rotate90 t)
 translate ∷ Coord → Tile → Tile
 translate {row: drow, col: dcol} = map \{row, col} → {row: row + drow, col: col + dcol}
 
-type Ext' = {
-    rotation ∷ Int,
-    tileType ∷ TileType,
-    tile ∷ Tile,
-    nbSinks ∷ Int,
-    hoverSquare ∷ Maybe Int
-}
+-- une position représente pour chaque position dans la grille ce que contient la case
+--     0: ne contient rien,
+--     -1: contient un évier,
+--     n > 0 contient un morceau de tuile
+-- les morceaux de tuiles ayant le même numéro appartiennent à la même tuile
+-- une partie est terminé si toute case contient un évier ou un morceau de tuile
+-- un coup peut consister à poser une tuile ou à en retirer une
+
+type Ext' = 
+    {   rotation ∷ Int          -- le nombre de rotations effectuées sur la tuile courrante
+    ,   tileType ∷ TileType     -- un symbole réprésentant une tuile
+    ,   tile ∷ Tile             -- une tuile représenté par un tableau de ses positions
+    ,   nbSinks ∷ Int           -- le nombre d'éviers que l'on doit poser avant de commencer la partie
+    ,   hoverSquare ∷ Maybe Int -- la case sur laquelle passe la souris
+    }
 
 newtype ExtState = Ext Ext'
 type State = GState (Array Int) ExtState
@@ -44,13 +52,14 @@ type State = GState (Array Int) ExtState
 -- état initial
 istate ∷ State
 istate = genState [] _{nbRows = 5, nbColumns = 5}
-    (Ext {
-        rotation: 0,
-        tileType: Type1, 
-        tile: [],
-        nbSinks: 0, 
-        hoverSquare: Nothing
-    })
+    (Ext 
+        {   rotation: 0
+        ,   tileType: Type1
+        ,   tile: []
+        ,   nbSinks: 0 
+        ,   hoverSquare: Nothing
+        }
+    )
 
 -- lenses
 _ext' ∷ Lens' State Ext'
@@ -104,11 +113,15 @@ instance tilingGame ∷ Game (Array Int) ExtState Int where
         let pos = state^._position 
             tilePos = tilePositions state index
         in
+        -- si on peut poser la tuile à l'emplacement de la souris, on le fait
+        -- on choisit un numéro non attribué m comme numéro de tuile
         if canPutTile state tilePos then
             let m = (foldr max 0 pos) + 1 in
             Just $ pos # updateAtIndices (tilePos <#> (_ ∧ m))
+        -- si la souris se trouve sur l'emplacement d'une tuile, on retire la tuile
         else if state^._position !! index > Just 0 then
             Just $ pos <#> \x → if Just x == pos !! index then 0 else x
+        -- sinon, c'est un coup invalide
         else
             Nothing
 

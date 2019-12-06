@@ -23,24 +23,32 @@ instance showPiece ∷ Show Piece where
     show _ = "custom"
 
 type Position = Array Piece
-type Ext' = {
-    selectedPiece ∷ Piece,              --- la pièce actuellement choisie par l'utilisateur
-    selectedSquare ∷ Maybe Int,          -- la case sur laquelle pointe le pointeur de l'utilisateur
-    allowedPieces ∷ N.NonEmptyArray Piece, -- la liste des pièces que l'utilisateur a le droit d'utiliser
-    multiPieces ∷ Boolean,             -- l'utilisateur peut-il utiliser plusieurs pièces différentes ou une seule
-    customLocalMoves ∷ Array Boolean,  -- la liste des mouvements locaux autorisées pour la pièce personnalisée
-    customDirections ∷ Array Boolean   -- la liste des directions autorisées pour la pièce personnalisée
-}
+type Ext' = 
+    {   selectedPiece ∷ Piece                 -- la pièce actuellement choisie par l'utilisateur
+    ,   selectedSquare ∷ Maybe Int            -- la case sur laquelle pointe le pointeur de l'utilisateur
+    ,   allowedPieces ∷ N.NonEmptyArray Piece -- la liste des pièces que l'utilisateur a le droit d'utiliser
+    ,   multiPieces ∷ Boolean                 -- l'utilisateur peut-il utiliser plusieurs pièces différentes ou une seule
+    ,   customLocalMoves ∷ Array Boolean      -- la liste des mouvements locaux autorisées pour la pièce personnalisée
+    ,   customDirections ∷ Array Boolean      -- la liste des directions autorisées pour la pièce personnalisée
+    }
 newtype Ext = Ext Ext'
 type State = GState Position Ext
 
 -- état initial
 istate ∷ State
 istate = genState []
-    _{nbRows = 8, nbColumns = 8}
-    (Ext {selectedPiece: Queen, selectedSquare: Nothing, allowedPieces: N.singleton Rook, multiPieces: false,
-        customLocalMoves: replicate 25 false, customDirections: replicate 9 false
-    })
+    _{  nbRows = 8
+    ,   nbColumns = 8
+    }
+    (Ext 
+        {   selectedPiece: Queen
+        ,   selectedSquare: Nothing
+        ,   allowedPieces: N.singleton Rook
+        ,   multiPieces: false
+        ,   customLocalMoves: replicate 25 false
+        ,   customDirections: replicate 9 false
+        }
+    )
 
 -- lenses
 _ext' ∷ Lens' State Ext'

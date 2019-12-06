@@ -9,17 +9,20 @@ import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, 
             coreUpdate, playA,
             _ext, genState, newGame, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
 
-data Move = Move Int Int  --- pile et position dans la pile
-type Ext' = { 
-    nbPiles ∷ Int,
-    length ∷ Int   ---- longueur d'une rangée
-}
+-- une position donne pour chaque numéro de rangée une paire indiquant la position de chaque jetons
+-- un coup (move) est du type Move i j où i est le numéro de pile et j la position dans la pile
+
+data Move = Move Int Int -- pile et position dans la pile
+type Ext' = 
+    {   nbPiles ∷ Int    -- nombre de rangées
+    ,   length ∷ Int     -- nombre de cases sur une rangée
+    }
 newtype ExtState = Ext Ext'
 type State = GState (Array (Tuple Int Int)) ExtState
 
 -- état initial
 istate ∷ State
-istate = genState [] _{mode = ExpertMode } (Ext { length: 10, nbPiles: 4 })
+istate = genState [] _{mode = ExpertMode} (Ext {length: 10, nbPiles: 4})
 
 -- lenses
 _ext' ∷ Lens' State Ext'
@@ -56,6 +59,8 @@ instance nimGame ∷ Game (Array (Tuple Int Int)) ExtState Move where
                 pure (x ∧ (y + 5))
 
     computerMove = computerMove'
+
+    -- fonctions par défault
     sizeLimit = defaultSizeLimit
     onNewGame = defaultOnNewGame
     updateScore st = st ∧ true
@@ -67,13 +72,13 @@ instance nimGame2 ∷ TwoPlayersGame (Array (Tuple Int Int)) ExtState Move where
         # sortWith \(Move pile pos) → state^._position !! pile # maybe 0
             \x → if state^._turn == Turn1 then fst x - pos else pos - snd x
 
-    isLosingPosition = eq 0 ∘ foldr (\t → xor (snd t - fst t - 1)) 0 ∘ view _position
+    isLosingPosition = view _position >>> foldr (\t → xor (snd t - fst t - 1)) 0 >>> (_ == 0)
 
 data Msg = Core CoreMsg | SetNbPiles Int | SetLength Int | Play Move
 instance withcore ∷ MsgWithCore Msg where core = Core
 
 update ∷ Msg → Action State EFFS
 update (Core msg) = coreUpdate msg
-update (SetNbPiles n) = newGame (_nbPiles .~ n)
-update (SetLength n) = newGame (_length .~ n)
+update (SetNbPiles n) = newGame $ _nbPiles .~ n
+update (SetLength n) = newGame $ _length .~ n
 update (Play n) = playA n

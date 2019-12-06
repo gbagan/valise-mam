@@ -39,14 +39,14 @@ instance showBt ∷ Show BeastType where
     show Type4       = "type4"
     show CustomBeast = "custom"
 
-type Ext' = {
-    beast ∷ Beast',
-    beastType ∷ BeastType,
-    mode ∷ Mode,
-    selectedColor ∷ Int,
-    squareColors ∷ Array Int,
-    startSquare ∷ Maybe Int,
-    startPointer ∷ Maybe PointerPosition
+type Ext' =
+    {   beast ∷ Beast'
+    ,   beastType ∷ BeastType
+    ,   mode ∷ Mode
+    ,   selectedColor ∷ Int
+    ,   squareColors ∷ Array Int
+    ,   startSquare ∷ Maybe Int
+    ,   startPointer ∷ Maybe PointerPosition
 }
 newtype ExtState = Ext Ext'
 type State = GState (Array Boolean) ExtState

@@ -1,3 +1,5 @@
+// v 0.1.1
+
 const CACHE = 'cache-valise-pwa';
 
 self.addEventListener('install', e => {

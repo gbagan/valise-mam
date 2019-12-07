@@ -6,7 +6,8 @@ import Pha (VDom, text, (<&&>), (<??>), key, class_, class', style)
 import Pha.Elements (div, span, br)
 import Pha.Events (on)
 import Pha.Events.Decoder (shiftKey)
-import Pha.Svg (svg, g, use, line, path, text', x_, y_, width, height, viewBox, stroke, fill, strokeDasharray, strokeWidth)
+import Pha.Svg (svg, g, use, line, path, text',
+                x_, y_, x1, y1, x2, y2, width, height, viewBox, stroke, fill, strokeDasharray, strokeWidth)
 import Pha.Util (px, translate)
 import UI.Template (template, card, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icons (icongroup, iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
@@ -58,9 +59,9 @@ spiralPath = spiral { x: 0.0, y: 0.0 } 0.0 61.0 0.0 (37.0 / 6.0 * pi) (pi / 6.0)
 drawSpiral ∷ ∀a. Array (VDom a)
 drawSpiral =
     [   path spiralPath [fill "none", stroke "black", strokeWidth "3"]
-    ,   line [x_ "153", y_ "9", width "207", height "20", stroke "black", strokeDasharray "5", strokeWidth "6"]
-    ,   line [x_ "153", y_ "7", width "153", height "39", stroke "black", strokeWidth "3"]
-    ,   line [x_ "207", y_"18", width "207", height "50", stroke "black", strokeWidth "3"]
+    ,   line [x1 "153", y1 "9", x2 "207", y2 "20", stroke "black", strokeDasharray "5", strokeWidth "6"]
+    ,   line [x1 "153", y1 "7", x2 "153", y2 "39", stroke "black", strokeWidth "3"]
+    ,   line [x1 "207", y1 "18", x2 "207", y2 "50", stroke "black", strokeWidth "3"]
     ]
 
 lily ∷ ∀a. Int → Number → Number → Boolean → Boolean → VDom a

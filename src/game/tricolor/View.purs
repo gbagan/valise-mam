@@ -4,7 +4,7 @@ import MyPrelude
 import Pha (VDom, text, class_, class', attr, key, style)
 import Pha.Elements (div)
 import Pha.Events (onclick, onpointerenter, onpointerleave)
-import Pha.Svg (svg, circle, text', stroke, fill, viewBox, cx, cy, r)
+import Pha.Svg (svg, circle, text', stroke, fill, viewBox, x_, y_, cx, cy, r)
 import Pha.Util (pc, translate)
 import Game.Core (isLevelFinished, _position)
 import Game.Tricolor.Model (State, Msg(..), _size, _nbColors, _range, _hoverCell, inRange)
@@ -57,8 +57,8 @@ view state = template {config, board, rules} state where
                     ,   fill color
                     ]
                 ,   text' "➡"
-                    [   cx $ show (99 + 15 * (i - nbColors))
-                    ,   cy "97"
+                    [   x_ $ show (99 + 15 * (i - nbColors))
+                    ,   y_ "97"
                     ,   key $ "t" <> show i
                     ,   attr "font-size" "7"
                     ]

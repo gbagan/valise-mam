@@ -8,6 +8,12 @@ import Game.Effs (EFFS)
 import Game.Core (class Game, class MsgWithCore, GState, CoreMsg,
                 coreUpdate, playA, _ext, genState, newGame, _position, defaultSizeLimit)
 
+-- une position est un tableau qui indique pour chaque sommmet la couleur du sommet
+-- les couleurs sont comprises entre 0 et nbColors - 1
+-- le but est de mettre toutes les couleurs à 0
+-- une position initiale aléatoire n'est pas nécessairement une position gagnante
+-- un coup (move) est représenté par le numéro du sommet que l'on souhaite activer
+
 type Ext' = { 
     size ∷ Int,   -- le nombre de sommets
     nbColors ∷ Int,

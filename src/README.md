@@ -1,4 +1,4 @@
-## Installation
+# Installation
 
 Dans un enveronnement avec npm ou yarn
 - npm install (ou yarn install)
@@ -7,11 +7,22 @@ Dans un enveronnement avec npm ou yarn
 Pour compiler le css
 - npm buildcss (ou yarn buildcss)
 
-## Langage et modèle
+---------------------------------------------------------
 
-La valise est écrite en Purescript langage purement fonctionnel très proche de Haskell et sur la librairie Purescript-Pha très proche du modèle TEA (The Elm Architecture).
+# Langage et modèle
 
-Le principe de TEA et donc de Purescript-Pha est donner seulement les instructions pour créer une vue, pas comment la modifier.
+## Langage
+La valise est écrite en [Purescript](http://www.purescript.org/)
+langage purement fonctionnel très proche de Haskell.
+Il se rapproche de Elm qui est également un langage inspiré de Haskell et qui compile vers du Javascript
+mais se différencie au niveau de son orientation. Elm se veut un langage très épuré est simple alors que Purescript mise plutôt sur le pouvoir d'expression en reprénant la plupart des concepts d'Haskell (monades, types de classe, n-rank polymorphism, kind polymorphism, etc) et y rajoute le concept de row polymorphism. La grande différence avec Haskell est que c'est un langage avec évaluation strict alors que Haskell est à évaluation paresseuse.
+
+
+## Librairie et modèle
+La valise est basée sur la librairie [Purescript-Pha](https://github.com/gbagan/purescript-pha/) (écrite par l'auteur actuel de la valise).
+Celle ci est très proche du modèle TEA ([The Elm Architecture](https://dennisreimann.de/articles/elm-architecture-overview.html)).
+
+Le principe de TEA et donc de Purescript-Pha est de donner seulement les instructions pour créer une vue, pas comment la modifier.
 Pour cela, on se base sur un DOM virtuel. On génère du DOM Virtuel au lieu de vrai HTML.
 La librairie s'occupe de générérer le html. En cas de mise à jour, la librairie compare l'ancien et nouveau DOM virtuel et essaie d'apporter un nombre minimal de modifications au HTML.
 
@@ -21,9 +32,9 @@ L'application est composée de
 - une fonction pure model -> vdom   où vdom est un arbre DOM virtuel
    - le vdom peut associer des messages à certaintements évènements (click de souris, etc)
 - une fonction update msg -> model -> model qui créé un nouveau modele en fonction de l'ancien et du message reçu.
-   - la fonction peut-être pure où utiliser certains effets non purs (génération aléatoire d'objects, sleep pendant une certaine période, etc)
+   - la fonction peut-être pure où utiliser certains effets non purs à travers un run (voir plus bas)
    - ce ne sont pas réellement des effets mais des symboles qui devont être interprétés par l'application. Cela facile la testabilité de
-      l'application
+      l'application et permet à update d'être pure.
    - la fonction s'implèmente en général par un matching sur l'argument msg
 
 ```
@@ -45,14 +56,23 @@ L'application est composée de
 
 En plus de de cela, une application peut contenir
  - une liste de subscriptions: ceux sont des événements globaux non liés un élément spécifique du vdom.
- - un interpréteur qui interprète les symboles d'effets évoqués plus haut
+ - un interpréteur qui interprète les éffets d'un run
  
  Voici est un exemple simpliste (sans effets)
  https://github.com/gbagan/purescript-pha
  et un exemple avec effets
  https://github.com/gbagan/purescript-pha/blob/master/examples/Random.purs
- 
-## Architecture de la valise
+
+## runs
+Contrairement à Elm qui utilse des commandes pour gérer les effets de bord,
+Purescript-pha utilise des [runs](https://github.com/natefaubion/purescript-run) dans la fonction update.
+Derrière ceci, on retrouve le concept de free monads et de variantes mais sans rentrer dans les détails.
+Un run est un programme semblant impératif mais dans les effets de bord sont des objects attendant une interprétation.
+De ce fait, un run est purement fonctionnel et facilement testable puisque l'on peut changer d'interpreter.
+
+--------------------------------------------------------------------------
+
+# Architecture de la valise
  
 Dans l'application Valise, l'état (que l'on appelera état racine) est représenté par un record dont chaque attribut est l'état d'un jeu particulier.
 De même le type des messages est une somme algébraique de types de messagages associés à chaque jeu.
@@ -105,6 +125,15 @@ type CoreState pos ext = {
     pointer ∷ Maybe PointerPosition   -- position du pointeur en % relativement au plateau de jeu
 }
 ```
+
+### Les Lenses
+
+La valise fait un usage intensif de lenses. Un lens et une paire de fonctions qui se focusent sur une partie d'un objet
+la première fonction permet  de renvoyer l'élément ciblé et l'autre permet de renvoyer un nouvel objet avec l'object en focus modifié.
+C'est un peu l'analogue fonctionnel des getters et setters de Java mais leur force réside dans le fait que les lens peuvent être composés. Dans la valise, on associera par exemple un lens à chaque attribut de GState.
+
+[Un livre à ce sujet](https://leanpub.com/lenses)
+
 
 ### La classe Game
  
@@ -181,7 +210,9 @@ computerMove' ∷ ∀pos ext mov. TwoPlayersGame pos ext mov ⇒ GState pos ext 
 ```
 donne une implémentation pour la fonction computerMove de Game
 
-### Vue
+-----------------------------------------------------------------------
+
+## Vue
 
 La vue générée par la fonction template dans UI.Template
 

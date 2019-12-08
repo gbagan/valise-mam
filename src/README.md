@@ -134,6 +134,8 @@ C'est un peu l'analogue fonctionnel des getters et setters de Java mais leur for
 
 [Un livre à ce sujet](https://leanpub.com/lenses)
 
+---------------------------------------------------------
+3 classes sont présentes pour le modèle, n'oubliez pas que classe dans Haskell/Purescript est plus proche d'une interface que d'une vraie classe.
 
 ### La classe Game
  

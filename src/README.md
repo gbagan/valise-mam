@@ -1,6 +1,19 @@
+## Installation
+
+Dans un enveronnement avec npm ou yarn
+- npm install (ou yarn install)
+- npm build (ou yarn build)
+
+Pour compiler le css
+- npm buildcss (ou yarn buildcss)
+
 ## Langage et modèle
 
 La valise est écrite en Purescript langage purement fonctionnel très proche de Haskell et sur la librairie Purescript-Pha très proche du modèle TEA (The Elm Architecture).
+
+Le principe de TEA et donc de Purescript-Pha est donner seulement les instructions pour créer une vue, pas comment la modifier.
+Pour cela, on se base sur un DOM virtuel. On génère du DOM Virtuel au lieu de vrai HTML.
+La librairie s'occupe de générérer le html. En cas de mise à jour, la librairie compare l'ancien et nouveau DOM virtuel et essaie d'apporter un nombre minimal de modifications au HTML.
 
 L'application est composée de
 - un modèle (ou état) immutable initial
@@ -170,4 +183,23 @@ donne une implémentation pour la fonction computerMove de Game
 
 ### Vue
 
-à faire
+La vue générée par la fonction template dans UI.Template
+
+pour cela, il faut implémenter (éventuellement partiellement les attributs de
+```purescript
+type Elements a = {
+    board ∷ VDom a,
+    config ∷ VDom a,
+    rules ∷ Array (VDom a),
+    winTitle ∷ String,
+    customDialog ∷ Unit → VDom a,
+    scoreDialog ∷ Unit → VDom a
+}
+```
+- board est le plateau principal. On toruve dans UI.Template plusieurs fonctions utilitaires pour aider à sa création
+- config est le panneau des options à droite. On trouve dans UI.Icons plusieurs fonctions pour aider à sa création
+- rules donne les régèles du jeu. C'est en général un tableau alternant du text et des br.
+- winTitle: le message de victoire. La fonction winTitleFor2Players donne une implémentation par défaut pour les jeux à deux joueurs.
+- customDialog et scoreDialog sont des boites de dialogue pour faire une pièce (ou autre objet) personnalisée et d'affichage du meilleur score respectivement
+
+On trouvera également dans UI.Template les fonctions dndBoardProps et dndItemProps pour gérer le drag and drop.

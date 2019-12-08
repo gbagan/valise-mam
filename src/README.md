@@ -159,9 +159,11 @@ Il prend trois paramètre
 Les fonctions
 - play prend en arugment un état et coup et renvoie la position après le coup si celui-ci est légal ou sinon Nothing
 - initialPosition renvoie une position en fonction des autres attributs en cas de nouvelle partie
+                  la fonctionn peut-être potentiellement aléatoire, d'où le "Random" dans la signaure  
 - isLevelFinished teste si une position est une fin de partie
 - sizeLimit est utilisée uniquement pour les jeux sur un plateau 2D, il donnne les limites min et max du nombre de rangées et colonnes
-- computerMove renvoie une proposition de coup par l'IA en fonction du mode choisi. Renvoie Nothing s'il n'y a pas de coups valides
+- computerMove renvoie une proposition de coup par l'IA en fonction du mode choisi et avec éventuellement une part d'aléatoire.
+   Renvoie Nothing s'il n'y a pas de coups valides
     ou le jeu n'est pas concerné par une IA.
 - onNewGame est similaire à initialPosition mais réinitialise certains autres paramètres pour garder l'état cohérent
 - updateScore renvoie un nouvel état en cas d'un record battu et un booléen indiquant s'il faut afficher un message de victoire

@@ -7,7 +7,14 @@ Dans un enveronnement avec npm ou yarn
 Pour compiler le css
 - npm buildcss (ou yarn buildcss)
 
----------------------------------------------------------
+# But du projet
+- implémenter un maximum de jeux mais conserver une charte visuelle entre chaque jeu
+- cela doit être léger à la fois en vitesse d'éxecution et en poids des fichiers
+- les applis doivent fonctionner correctement sur tablette (ce qui n'est pas pour l'instant pas le cas
+  pour pavage).
+- le style de l'interface doit inspirer quelque chose d'artisinal dans son aspect visuel (proche d'un jeu réel en bois)
+  Il y a surement des améliorations à faire à ce sujet?
+- la valise doit rester libre et ne doit pas dépendre de solutions propriétaires
 
 # Langage et modèle
 

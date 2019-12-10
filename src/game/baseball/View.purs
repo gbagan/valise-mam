@@ -75,8 +75,10 @@ view state = template {config, board, rules} state where
     ]
 
     rules =
-        [   text "blah blah blah blah"
+        [   text "Le but du jeu est d'amener chaque jeton dans sa base (celle qui a la même couleur que le jeton)."
         ,   br
-        ,   text "blah blah blah blah"
+        ,   text "Pour cela, tu peux déplacer un jeton vers une base adjacente si celle-ci possède un emplacement libre."
+        ,   br
+        ,   text "Pour déplacer un jeton, il te suffit de cliquer dessus."
         ]
     

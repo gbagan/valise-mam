@@ -139,7 +139,6 @@ valise state =
                             [   width "100%"
                             ,   height "100%"
                             ,   class_ "valise-object-link"
-                            ,   fill "transparent"
                             ,   onpointerenter $ ShowHelp help
                             ,   onpointerleave $ ShowHelp ""
                             ] 

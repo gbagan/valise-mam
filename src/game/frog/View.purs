@@ -159,9 +159,16 @@ view state = template {config, board, rules, winTitle} state where
 
     board = incDecGrid state [grid]
 
-    rules = [
-        text "Jeu de la grenouille", br,
-        text "Règles pas encore définies"
+    rules =
+        [   text "Le jeu de la grenouille est un jeu à deux joueurs"
+        ,   br
+        ,   text "A chaque tour, un joueur peut avancer la grenouille d'un nombre de cases parmi ceux indiqués dans \"Déplacements autorisés\""
+        ,   br
+        ,   text "Le premier joueur à atteindre le nénuphar final a gagné."
+        ,   br
+        ,   text "Pour éviter une situation bloquante, un joueur peut se déplacer vers le nénuphar final en utilisant moins de déplacements que ce qui lui est autorisé."
+        ,   br
+        ,   text "Par exemple, si les mouvements autorisés sont {1, 4, 5}, le joueur a quand même le droit de se déplacer de 2 ou 3 cases si cela lui permet d'atteindre le nénuphar final."
     ]
     
     winTitle = winTitleFor2Players state

@@ -2,7 +2,7 @@ module Game.Solitaire.View where
 
 import MyPrelude
 import Lib.Util (coords)
-import Pha (VDom, text, (<&&>), maybeN, key, attr, class_, class', style)
+import Pha (VDom, text, (<&&>), maybeN, key, class_, class', style)
 import Pha.Elements (div, br)
 import Pha.Svg (svg, rect, circle, viewBox, x_, y_, width, height, cx, cy, r, fill, stroke, strokeWidth)
 import Pha.Util (px, translate)
@@ -20,7 +20,7 @@ tricolor i columns help =
         _ → "green"
 
 cursor ∷ ∀a b. PointerPosition → b → VDom a
-cursor pp _ = circle ([r "20", attr "pointer-events" "none", fill "url(#soli-peg)"] <> svgCursorStyle pp)
+cursor pp _ = circle ([r "20", class_ "solitaire-cursor"] <> svgCursorStyle pp)
 
 view ∷ State → VDom Msg
 view state = template {config, board, rules, winTitle, scoreDialog} state where
@@ -126,21 +126,19 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                         circle [cx "125", cy "125", r "90", stroke "grey", fill "transparent", strokeWidth "5"]
                     ],
                     state^._holes # mapWithIndex \i → (_ <&&> \_ →
-                        circle [
-                            key $ "h" <> show i,
-                            r "17",
-                            fill "url(#soli-hole)",
-                            class_ "solitaire-hole",
-                            style "transform" $ itemStyle i
+                        circle
+                        [   key $ "h" <> show i
+                        ,   r "17"
+                        ,   class_ "solitaire-hole"
+                        ,   style "transform" $ itemStyle i
                         ]
                     ),
                     position # mapWithIndex \i → (_ <&&> \_ →
-                        circle [
-                            key $ "p" <> show i,
-                            r "20",
-                            fill "url(#soli-peg)",
-                            class_ "solitaire-peg",
-                            style "transform" $ itemStyle i
+                        circle
+                        [   key $ "p" <> show i
+                        ,   r "20"
+                        ,   class_ "solitaire-peg"
+                        ,   style "transform" $ itemStyle i
                         ]
                     )
                 ]

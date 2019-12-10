@@ -111,7 +111,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
         div [class' "tiling-customtile-grid-container" true] [
             div [class' "tiling-grid" true] [
                 svg [viewBox 0 0 250 250] (
-                    state^. (_tile ∘ _isoCustom) # mapWithIndex \index hasBlock →
+                    state  ^. (_tile ∘ _isoCustom) # mapWithIndex \index hasBlock →
                         let {row, col} = coords 5 index
                         in square {hasBlock, row, col, hasSink: false, isDark: false}
                             [key (show index), onclick $ FlipTile index]

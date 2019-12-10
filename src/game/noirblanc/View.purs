@@ -1,14 +1,15 @@
 module Game.Noirblanc.View where
 
 import MyPrelude
+
+import Game.Core (_position, _nbRows, _nbColumns, _help)
+import Game.Noirblanc.Model (State, Msg(..), _level, _mode, _maxLevels)
 import Lib.Util (coords, map2)
 import Pha (Prop, VDom, text, class_, class', key, style)
-import Pha.Elements (div)
+import Pha.Elements (br, div)
 import Pha.Events (onclick)
 import Pha.Svg (svg, use, width, height)
 import Pha.Util (pc)
-import Game.Core (_position, _nbRows, _nbColumns, _help)
-import Game.Noirblanc.Model (State, Msg(..), _level, _mode, _maxLevels)
 import UI.Icon (Icon(..), Options)
 import UI.Icons (icongroup, ihelp, ireset, irules, iconSelectGroup)
 import UI.Template (template, card, incDecGrid, gridStyle)
@@ -67,8 +68,14 @@ view state = template {config, board, rules, winTitle} state where
 
     board = incDecGrid state [grid]
 
-    rules = 
-        [   text "blablahblah"
+    rules =
+        [   text "Le but de \"Tout noir, tout blanc\" est de retourner des tuiles pour que toutes soient face noire."
+        ,   br
+        ,   text "Le problème est que lorsque tu retournes une tuile, tu es obligé de retourner également les tuiles adjacentes."
+        ,   br
+        ,   text "Ce jeu possède d'autres modes. Selon le mode, tu es obligé de retourner toute la ligne et toute la colonne du jeton que tu as choisi."
+        ,   br
+        ,   text "Pour d'autres modes, tu retournes les tuiles adjacentes mais pas la tuile choisie"
         ]
 
     winTitle = "GAGNÉ"

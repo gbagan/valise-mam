@@ -17,12 +17,24 @@
     }
 }
 
+.labete-square-borders {
+    stroke: black;
+    stroke-width: 0.5;
+    fill: transparent;
+}
+
 .labete-cursor {
     opacity: 0.7;
 
     &.overtrap {
         opacity: 0.3;
     }
+}
+
+.labete-zone {
+    stroke: black;
+    pointer-events: none;
+    opacity: 0.4;
 }
 
 .labete-custombeast-grid-container {

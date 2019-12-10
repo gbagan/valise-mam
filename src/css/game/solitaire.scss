@@ -1,14 +1,22 @@
 .solitaire-hole {
+    fill: url(#soli-hole);
+
     &.candrop {
         stroke: green;
         stroke-width: 4;
     }
 }
 .solitaire-peg {
+    fill: url(#soli-peg);
     cursor: pointer;
     &.dragged {
         opacity: 0.3;
     }
+}
+
+.solitaire-cursor {
+    pointer-events: none;
+    fill: url(#soli-peg);
 }
 
 .solitaire-scoredialog {

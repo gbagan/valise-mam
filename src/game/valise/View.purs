@@ -116,7 +116,6 @@ valise state =
         [   g props
             [   svg (
                 [   class_ "valise-object"
-                ,   style "touch-action" "none"
                 ,   class' "draggable" drag
                 ,   width $ show w'
                 ,   height $ show h'

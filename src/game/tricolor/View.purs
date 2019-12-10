@@ -56,7 +56,7 @@ view state = template {config, board, rules} state where
                     ,   key $ "c" <> show i
                     ,   fill color
                     ]
-                ,   text' "➡"
+                ,   text' "⮕"
                     [   x_ $ show (99 + 15 * (i - nbColors))
                     ,   y_ "97"
                     ,   key $ "t" <> show i

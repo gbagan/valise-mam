@@ -4,7 +4,7 @@ import Effect (Effect)
 import Run (FProxy, Run, SProxy(..))
 import Run as Run
 import Pha.Effects.Delay (DELAY, delay, interpretDelay) as E
-import Pha.Effects.Random (RNG, randomGenerate, interpretRng) as E
+import Pha.Effects.Random (RNG, randomGenerate, randomly, interpretRng) as E
 
 type Location = {
     hash ∷ String,

@@ -5,7 +5,7 @@ import Data.List (last, null) as L
 import Data.Map (Map, empty) as M
 import Pha.Random (Random, sample)
 import Pha.Update (Update, getState, setState, purely)
-import Game.Effs (RNG, EFFS, delay, DELAY, randomGenerate)
+import Game.Effs (RNG, EFFS, delay, DELAY, randomGenerate, randomly)
 
 -- ConfirmNewGame contient le futur state si l'utilisateur valide de commencer une nouvelle partie
 data Dialog a = Rules | NoDialog | ConfirmNewGameDialog a | ScoreDialog | CustomDialog
@@ -197,7 +197,7 @@ coreUpdate ConfirmNewGame = purely \state →
                             _ → state
 coreUpdate (SetPointer pos) = purely $ _pointer .~ pos
 coreUpdate ComputerStarts = do
-    setState (pushToHistory ∘ (_turn %~ oppositeTurn))
+    setState $ pushToHistory >>> (_turn %~ oppositeTurn)
     computerPlay
 coreUpdate Init = newGame identity
 
@@ -242,34 +242,36 @@ playA move = lockAction $ do
                 delay 1000 *> computerPlay
             else 
                 pure unit
--- affecte à true l'attribut locked avant le début de l'action act et l'affecte à false à la fin de l'action
--- fonctionne sur toute la durée d'une action asynchrone
--- ne fait rien si locked est déjà à true
+-- | Empêche d'autres actions d'être effectués durant la durée de l'action
+-- | en mettant locked à true au début de l'action et à false à la fin de l'action.
+-- | L'action n'est pas executé si locked est déjà à true
 lockAction ∷ ∀pos ext effs. Update (GState pos ext) effs → Update (GState pos ext) effs 
 lockAction act = unlessM (view _locked <$> getState) do
         setState (_locked .~ true)
         act
         setState (_locked .~ false)
 
+newGameAux :: ∀pos ext mov. Game pos ext mov ⇒
+        (GState pos ext → GState pos ext) → GState pos ext → Random (GState pos ext)
+newGameAux f state = do 
+    let state2 = f state
+    state3 ← onNewGame state2
+    position ← initialPosition state3
+    pure $ state3
+        # _position .~ position
+        # _history .~ Nil
+        # _redoHistory .~ Nil
+        # _help .~ false
+        # _scores ∘ at "custom" .~ Nothing
+
 newGame ∷ ∀pos ext mov effs. Game pos ext mov ⇒
     (GState pos ext → GState pos ext) → Update (GState pos ext) (rng ∷ RNG | effs)
-newGame f = do
-    state ← getState
-    let state2 = f state
-    state3 ← randomGenerate $ onNewGame state2
-    position ← randomGenerate $ initialPosition state3
-    let state4 = state3
-                # _position .~ position
-                # _history .~ Nil
-                # _redoHistory .~ Nil
-                # _help .~ false
-                # _scores ∘ at "custom" .~ Nothing
-        
-    setState $
-        if L.null (state2^._history) || isLevelFinished state then
-            const state4
-        else
-            _dialog .~ ConfirmNewGameDialog state4
+newGame f = randomly \state →
+    let rstate = newGameAux f state in
+    if L.null (state^._history) || isLevelFinished state then
+        rstate
+    else
+        rstate <#> \s → state # _dialog .~ ConfirmNewGameDialog s
 
 class Game pos ext mov <= TwoPlayersGame pos ext mov | ext → pos mov  where
     isLosingPosition ∷ GState pos ext → Boolean

@@ -85,7 +85,7 @@ template elems state =
     ]
     where
         {config, board, winTitle, rules, customDialog, scoreDialog} = partialUpdate elems defaultElements
-        dialog' Rules = dialog "Règles du jeu" rules
+        dialog' Rules = dialog "Règles du jeu" [div [class_ "ui-rules"] rules]
         dialog' (ConfirmNewGameDialog _) =
             D.dialog
                 {   title: "Nouvelle partie"
@@ -131,7 +131,6 @@ svgCursorStyle {x, y} = [
 -- | permet de mémoriser la position du pointeur
 trackPointer ∷ ∀msg. MsgWithCore msg ⇒ Array (Prop msg)
 trackPointer = [
-    style "touch-action" "none",
     on "pointermove" move,
     onpointerleave $ core (SetPointer Nothing),
     on "pointerdown" move
@@ -141,7 +140,7 @@ trackPointer = [
 -- | même chose que trackPointer mais gère le drag and drop par l'intermédiaire d'un lens
 dndBoardProps ∷ ∀msg id. MsgWithCore msg ⇒ MsgWithDnd msg id ⇒ Array (Prop msg)
 dndBoardProps = [
-    style "touch-action" "none", 
+    on "pointerdown" move,
     on "pointermove" move,
     onpointerup $ dndmsg DropOnBoard,
     onpointerleave $ dndmsg Leave

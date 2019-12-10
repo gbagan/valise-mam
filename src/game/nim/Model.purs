@@ -2,7 +2,7 @@ module Game.Nim.Model where
 import MyPrelude
 import Data.Int.Bits (xor)
 import Lib.Util (tabulate2)
-import Pha.Action (Action)
+import Pha.Update (Update)
 import Pha.Random (randomInt)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, GState, Mode(..), Turn(..),
@@ -77,7 +77,7 @@ instance nimGame2 ∷ TwoPlayersGame (Array (Tuple Int Int)) ExtState Move where
 data Msg = Core CoreMsg | SetNbPiles Int | SetLength Int | Play Move
 instance withcore ∷ MsgWithCore Msg where core = Core
 
-update ∷ Msg → Action State EFFS
+update ∷ Msg → Update State EFFS
 update (Core msg) = coreUpdate msg
 update (SetNbPiles n) = newGame $ _nbPiles .~ n
 update (SetLength n) = newGame $ _length .~ n

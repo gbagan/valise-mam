@@ -6,7 +6,7 @@ import Game.Common (_isoCustom)
 import Game.Core (GState, Dialog(..), class Game, class MsgWithCore, CoreMsg, SizeLimit(..),
             coreUpdate, playA,     
             _ext, canPlay, genState, newGame, _position, _nbColumns, _nbRows, _dialog)
-import Pha.Action (Action, setState)
+import Pha.Update (Update, purely)
 import Game.Effs (EFFS)
 
 type Coord = {row ∷ Int, col ∷ Int}
@@ -139,14 +139,14 @@ data Msg = Core CoreMsg | Play Int | PutSink Int | SetNbSinks Int | SetTile Tile
            | SetHoverSquare (Maybe Int) | FlipTile Int
 instance withcore ∷ MsgWithCore Msg where core = Core
       
-update ∷ Msg → Action State EFFS
+update ∷ Msg → Update State EFFS
 update (Core msg) = coreUpdate msg  
 update (Play m) = playA m
-update (PutSink i) = setState $ _position ∘ ix i .~ (-1)
+update (PutSink i) = purely $ _position ∘ ix i .~ (-1)
 update (SetNbSinks n) = newGame (_nbSinks .~ n)
 update (SetTile t) = newGame $ (_tileType .~ t) >>> (if t == CustomTile then _dialog .~ CustomDialog else identity)
-update Rotate = setState $ _rotation %~ (_ + 1)
-update (SetHoverSquare a) = setState $ _hoverSquare .~ a
+update Rotate = purely $ _rotation %~ (_ + 1)
+update (SetHoverSquare a) = purely $ _hoverSquare .~ a
 update (FlipTile index) = newGame $ _tile ∘ _isoCustom ∘ ix index %~ not
 
 onKeyDown ∷ String → Maybe Msg

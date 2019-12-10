@@ -8,7 +8,7 @@ import Game.Effs (EFFS)
 import Game.Core (GState, class Game, class MsgWithCore, CoreMsg, SizeLimit(..), 
         coreUpdate,
         _ext, newGame, genState, _nbRows, _nbColumns, _position, playA)
-import Pha.Action (Action, getState, setState)
+import Pha.Update (Update, getState, purely)
 
 data Mode = Mode1 | Mode2
 derive instance eqMode ∷ Eq Mode
@@ -91,15 +91,15 @@ instance game ∷ Game (Array Int) Ext Int where
 data Msg = Core CoreMsg | SelectVertex Int | SelectMode Mode
 instance withcore ∷ MsgWithCore Msg where core = Core
     
-update ∷ Msg → Action State EFFS
+update ∷ Msg → Update State EFFS
 update (Core msg) = coreUpdate msg
 
 update (SelectVertex v) = do
     state ← getState
     if null (state^._position) then
-        setState (_position .~ [v])
+        purely (_position .~ [v])
     else if isNothing (state^._exit) then
-        setState (_exit .~ Just v)
+        purely (_exit .~ Just v)
     else
         playA v
 

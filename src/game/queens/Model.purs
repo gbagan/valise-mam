@@ -6,7 +6,7 @@ import Game.Core (GState, class MsgWithCore, class Game, class ScoreGame,
                  CoreMsg, Objective(..), Dialog(..), SizeLimit(..), ShowWinPolicy(..),
                 coreUpdate, playA, genState, newGame,  updateScore',
                 _ext, _dialog, _position, _nbRows, _nbColumns)
-import Pha.Action (Action, setState)
+import Pha.Update (Update, purely)
 import Game.Effs (EFFS)
 
 piecesList ∷ Array Piece
@@ -137,13 +137,16 @@ data Msg = Core CoreMsg | Play Int | SelectPiece Piece | SelectSquare (Maybe Int
           | FlipDirection Int | FlipLocalMove Int | Customize
 instance withcore ∷ MsgWithCore Msg where core = Core
         
-update ∷ Msg → Action State EFFS
+update ∷ Msg → Update State EFFS
 update (Core msg) = coreUpdate msg
 update (Play i) = playA i
-update (SelectPiece piece) = setState (_selectedPiece .~ piece)
-update (SelectSquare a) = setState (_selectedSquare .~ a)
+update (SelectPiece piece) = purely $ _selectedPiece .~ piece
+update (SelectSquare a) = purely $ _selectedSquare .~ a
 update (SelectAllowedPiece piece) = newGame $ \state → state # _allowedPieces %~ toggleAllowedPiece piece (state^._multiPieces)
-update ToggleMultiPieces = setState (_multiPieces %~ not)
-update (FlipDirection direction) = newGame (_customDirections ∘ ix direction %~ not)
-update (FlipLocalMove position) = newGame (_customLocalMoves ∘ ix position %~ not)
-update Customize = newGame $ (_allowedPieces .~ N.singleton Custom) ∘ (_dialog .~ CustomDialog) ∘ (_multiPieces .~ false)
+update ToggleMultiPieces = purely $ _multiPieces %~ not
+update (FlipDirection direction) = newGame $ _customDirections ∘ ix direction %~ not
+update (FlipLocalMove position) = newGame $ _customLocalMoves ∘ ix position %~ not
+update Customize = newGame $ 
+                        (_allowedPieces .~ N.singleton Custom)
+                        >>> (_dialog .~ CustomDialog) 
+                        >>> (_multiPieces .~ false)

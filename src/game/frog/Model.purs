@@ -5,7 +5,7 @@ import Data.Lazy (defer, force)
 import Lib.Util (tabulate, (..))
 import Data.Array.NonEmpty (NonEmptyArray, singleton, fromArray, cons) as N
 import Lib.KonamiCode (konamiCode)
-import Pha.Action (Action, setState)
+import Pha.Update (Update, purely)
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, Mode(..), GState, SizeLimit(..),
               playA,  _ext, coreUpdate, newGame, computerMove', genState, _position, _nbRows)
 import Game.Effs (EFFS)
@@ -85,7 +85,7 @@ instance game2 ∷ TwoPlayersGame Int ExtState Int where
 data Msg = Core CoreMsg | SelectMove Int | Mark Int | Play Int | Konami String
 instance withcore ∷ MsgWithCore Msg where core = Core
 
-update ∷ Msg → Action State EFFS
+update ∷ Msg → Update State EFFS
 update (Core msg) = coreUpdate msg
 -- ajoute ou enlève un mouvement dans la liste des mouvements permis
 update (SelectMove move) = newGame $ _moves %~ selectMove where
@@ -95,9 +95,9 @@ update (SelectMove move) = newGame $ _moves %~ selectMove where
         # N.fromArray
         # fromMaybe moves
 -- place/retire une marque à la position i
-update (Mark i) = setState $ _marked ∘ ix i %~ not
+update (Mark i) = purely $ _marked ∘ ix i %~ not
 update (Play i) = playA i
-update (Konami s) = s # konamiCode _keySequence (setState \st → st # _marked .~ st^._winning)
+update (Konami s) = s # konamiCode _keySequence (purely \st → st # _marked .~ st^._winning)
 
 onKeyDown ∷ String → Maybe Msg
 onKeyDown = Just <<< Konami 

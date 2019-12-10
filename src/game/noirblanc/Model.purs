@@ -3,7 +3,7 @@ import MyPrelude
 import Pha.Random (Random, randomInt)
 import Lib.Util (dCoords)
 import Lib.KonamiCode (konamiCode)
-import Pha.Action (Action, getState, setState)
+import Pha.Update (Update, getState, setState, purely)
 import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg, 
          _ext, coreUpdate, playA, isLevelFinished, _position, _nbColumns, _nbRows, newGame, genState)
 import Game.Effs (EFFS, RNG, DELAY)
@@ -101,7 +101,7 @@ sizes = [3∧3, 4∧4, 2∧10, 3∧10, 5∧5, 8∧8, 8∧8]
 
 -- | si le niveau est fini, on met à jour les nivaux débloqués
 -- | et l'on passe au niveau suivant
-afterPlay ∷ ∀effs. Action State (rng ∷ RNG, delay ∷ DELAY | effs)
+afterPlay ∷ ∀effs. Update State (rng ∷ RNG, delay ∷ DELAY | effs)
 afterPlay = do
     state ← getState
     let mode = state^._mode
@@ -110,18 +110,18 @@ afterPlay = do
                         6
                     else
                         state^._level + (if mode == 0 || mode == 3 then 1 else 2)
-        setState (_maxLevels ∘ ix mode .~ nextLevel)
-        newGame (_level %~ \lvl → min (lvl + 1) 6)
+        setState $ _maxLevels ∘ ix mode .~ nextLevel
+        newGame $ _level %~ \lvl → min (lvl + 1) 6
 
 data Msg = Core CoreMsg | SelectMode Int | SelectLevel Int | Play Int | Konami String
 instance withcore ∷ MsgWithCore Msg where core = Core
 
-update ∷ Msg → Action State EFFS
+update ∷ Msg → Update State EFFS
 update (Core msg) = coreUpdate msg
 update (SelectMode mode) = newGame $ (_mode .~ mode) ∘ (_level .~ 0)
 update (SelectLevel level) = newGame (_level .~ level)
 update (Play move) = playA move *> afterPlay
-update (Konami k) = k # konamiCode _keySequence (setState (_maxLevels .~ [6, 6, 6, 6]))
+update (Konami k) = k # konamiCode _keySequence (purely $ _maxLevels .~ [6, 6, 6, 6])
 
 onKeyDown ∷ String → Maybe Msg
 onKeyDown = Just <<< Konami

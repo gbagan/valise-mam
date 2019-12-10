@@ -1,7 +1,7 @@
 module Game.Sansmot.Model where
 import MyPrelude
 import Data.Map(Map, empty) as M
-import Pha.Action (Action, setState, getState)
+import Pha.Update (Update, setState, purely, getState)
 import Pha.Effects.Delay (delay)
 import Game.Effs (EFFS)
 
@@ -56,8 +56,12 @@ _page = lens _.page _{page = _}
 
 data Msg = SetPage Page | Animate (Array AnimationStep)
 
-update ∷ Msg → Action State EFFS
-update (SetPage page) = unlessM (view _locked <$> getState) $ setState ((_page .~ page) ∘ (_anim .~ M.empty))
+update ∷ Msg → Update State EFFS
+update (SetPage page) = purely \st ->
+    if st^._locked then
+        st
+    else
+        st # _page .~ page # _anim .~ M.empty
 
 update (Animate animation) = do
     unlessM (view _locked <$> getState) $ do

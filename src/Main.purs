@@ -10,9 +10,9 @@ import Run as Run
 import Pha (VDom, emptyNode, (<&&>), key, class_)
 import Pha.Subs as Subs
 import Pha.App (app, Document, attachTo)
-import Pha.Action (Action, getState, setState)
+import Pha.Update (Update, getState, setState)
 import Pha.Events.Decoder (always)
-import Pha.Lens (actionOver)
+import Pha.Lens (updateOver)
 import Pha.Elements (div, a)
 import Pha.Attributes (href)
 import Pha.Svg (svg, use, width, height)
@@ -35,7 +35,7 @@ import Game.Tiling as Tiling
 import Game.Tricolor as Tricolor
 import Game.Valise as Valise
 
-infix 2 actionOver as .~>
+infix 2 updateOver as .~>
 
 extractLocation ∷ String → String → String
 extractLocation url defaultValue =
@@ -140,7 +140,7 @@ callByName name default f = case games # Map.lookup name of
                                 Nothing → default
                                 Just game → game # gameRun f
  
-hashChange ∷ Action RootState EFFS
+hashChange ∷ Update RootState EFFS
 hashChange = do
     loc ← getLocation
     let location = extractLocation loc.hash "valise"
@@ -151,7 +151,7 @@ hashChange = do
         pure unit
     
  
-update ∷ Msg → Action RootState EFFS
+update ∷ Msg → Update RootState EFFS
 update (BaseballMsg msg)  = lens _.baseball _{baseball = _}   .~> Baseball.update msg
 update (ChocolatMsg msg)  = lens _.chocolat _{chocolat = _}   .~> Chocolat.update msg
 update (DessinMsg msg)    = lens _.dessin _{dessin = _}       .~> Dessin.update msg
@@ -174,7 +174,7 @@ update (OnKeyDown k) = do
             game.core.onKeydown k # maybe (pure unit) (update <<< game.msgmap)
 update OnHashChange = hashChange
 
-init ∷ Action RootState EFFS
+init ∷ Update RootState EFFS
 init = do
     for_ (Map.values games) $
         gameRun \game → case game.core.init of

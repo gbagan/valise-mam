@@ -1,7 +1,7 @@
 module Game.Dessin.Model where
 import MyPrelude
 import Lib.Util (pairwise)
-import Pha.Action (Action)
+import Pha.Update (Update)
 import Game.Core (class Game, class MsgWithCore, CoreMsg, GState,
                   playA, coreUpdate, _ext, genState, newGame, _position, defaultSizeLimit)
 import Game.Effs (EFFS)
@@ -94,7 +94,7 @@ edgesOf = mapMaybe toEdge ∘ pairwise where
     toEdge (Just u ∧ Just v) = Just (u ↔ v)
     toEdge _ = Nothing
 
-instance gameDessin ∷ Game (Array (Maybe Int)) ExtState (Maybe Int) where
+instance game ∷ Game (Array (Maybe Int)) ExtState (Maybe Int) where
     play state x = 
         let position = state^._position in 
         case x ∧ last position of
@@ -121,7 +121,7 @@ nbRaises = view _position >>> filter isNothing >>> length
 data Msg = Core CoreMsg | SetGraphIndex Int | Play (Maybe Int)
 instance withcore ∷ MsgWithCore Msg where core = Core
     
-update ∷ Msg → Action State EFFS
+update ∷ Msg → Update State EFFS
 update (Core msg) = coreUpdate msg
 update (SetGraphIndex i) = newGame (_graphIndex .~ i)
 update (Play m) = playA m

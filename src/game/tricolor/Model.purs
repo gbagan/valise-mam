@@ -3,7 +3,7 @@ module Game.Tricolor.Model where
 import MyPrelude
 import Lib.Util (abs)
 import Pha.Random (randomInt)
-import Pha.Action (Action, setState)
+import Pha.Update (Update, purely)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class MsgWithCore, GState, CoreMsg,
                 coreUpdate, playA, _ext, genState, newGame, _position, defaultSizeLimit)
@@ -61,10 +61,10 @@ instance tricolorGame ∷ Game (Array Int) ExtState Int where
 data Msg = Core CoreMsg | Play Int | SetSize Int | SetNbColors Int | SetRange Int | SetHoverCell (Maybe Int)
 instance withcore ∷ MsgWithCore Msg where core = Core
   
-update ∷ Msg → Action State EFFS
+update ∷ Msg → Update State EFFS
 update (Core msg) = coreUpdate msg    
 update (Play i) = playA i
 update (SetSize size) = newGame $ _size .~ size
 update (SetNbColors n) = newGame $ _nbColors .~ n
 update (SetRange n) = newGame $ _range .~ n
-update (SetHoverCell i) = setState $ _hoverCell .~ i
+update (SetHoverCell i) = purely $ _hoverCell .~ i

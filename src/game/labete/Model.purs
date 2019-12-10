@@ -1,7 +1,7 @@
 module Game.Labete.Model where
 import MyPrelude
 import Lib.Util (coords, tabulate2, abs)
-import Pha.Action (Action, setState)
+import Pha.Update (Update, purely)
 import Game.Common (_isoCustom)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, 
@@ -179,25 +179,24 @@ data Msg = Core CoreMsg | SetMode Mode | SetHelp Boolean | SetBeast BeastType | 
          | StartZone Int | StartZone2 { x ∷ Number, y ∷ Number} | FinishZone Int | FlipCustomBeast Int
 instance withcore ∷ MsgWithCore Msg where core = Core
 
-update ∷ Msg → Action State EFFS
+update ∷ Msg → Update State EFFS
 update (Core msg) = coreUpdate msg
-update (SetMode m) = newGame (_mode .~ m)
-update (SetHelp a) = setState (_help .~ a)
-update (SetBeast ttype) = newGame ( (_beastType .~ ttype) ∘ 
+update (SetMode m) = newGame $ _mode .~ m
+update (SetHelp a) = purely $ _help .~ a
+update (SetBeast ttype) = newGame $ 
+                            (_beastType .~ ttype) >>> 
                             (if ttype == CustomBeast then
                                 (_dialog .~ CustomDialog) ∘ (_beast %~ take 1)
                             else
                                 identity
                             )
-                        )
-update (IncSelectedColor i) = setState $ _selectedColor %~ \x → (x + i) `mod` 9
+update (IncSelectedColor i) = purely $ _selectedColor %~ \x → (x + i) `mod` 9
 -- le début d'une zone est décomposé en deux actions
 -- startZoneA est activé lors  du onpointerdown sur l'élément html réprésentant le carré
-update (StartZone s) = setState (_startSquare .~ Just s)
+update (StartZone s) = purely $ _startSquare .~ Just s
 -- startZone2A est appliqué lors du onpointerdown sur l'élément html réprésentant le plateu
-update (StartZone2 pos) = do
-    setState (_startPointer .~ Just pos)
-update (FinishZone index1) = setState \state → case state^._startSquare of
+update (StartZone2 pos) = purely $ _startPointer .~ Just pos
+update (FinishZone index1) = purely \state → case state^._startSquare of
     Nothing → state
     Just index2 →
         let {row: row1, col: col1} = coords (state^._nbColumns) index1
@@ -205,7 +204,7 @@ update (FinishZone index1) = setState \state → case state^._startSquare of
         in state # _squareColors .~ colorZone state {row1, col1, row2, col2}
                  # _startSquare .~ Nothing
                  # _startPointer .~ Nothing
-update (FlipCustomBeast i)  = newGame $ _beast ∘ ix 0 ∘ _isoCustom ∘ ix i %~ not
+update (FlipCustomBeast i) = newGame $ _beast ∘ ix 0 ∘ _isoCustom ∘ ix i %~ not
 update (Play m) = playA m
 
 onKeyDown ∷ String → Maybe Msg

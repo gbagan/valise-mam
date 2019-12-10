@@ -1,7 +1,7 @@
 module Game.Solitaire.Model where
 import MyPrelude
 import Data.FoldableWithIndex (allWithIndex)
-import Pha.Action (Action, setState)
+import Pha.Update (Update, purely)
 import Pha.Random (Random, randomInt, randomBool)
 import Lib.Util (tabulate, tabulate2, dCoords)
 import Game.Effs (EFFS)
@@ -145,8 +145,8 @@ data Msg = Core CoreMsg | DnD (DndMsg Int) | SetBoard Board
 instance withcore ∷ MsgWithCore Msg where core = Core
 instance withdnd ∷ MsgWithDnd Msg Int where dndmsg = DnD  
     
-update ∷ Msg → Action State EFFS
-update (Core ToggleHelp) = setState $ _help %~ \x → (x + 1) `mod` 3
+update ∷ Msg → Update State EFFS
+update (Core ToggleHelp) = purely $ _help %~ \x → (x + 1) `mod` 3
 update (Core msg) = coreUpdate msg
 update (DnD msg) = dndUpdate _dragged msg
 update (SetBoard board) = newGame \state →

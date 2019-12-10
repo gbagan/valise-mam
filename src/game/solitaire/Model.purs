@@ -6,7 +6,7 @@ import Pha.Random (Random, randomInt, randomBool)
 import Lib.Util (tabulate, tabulate2, dCoords)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class ScoreGame, class MsgWithCore, class MsgWithDnd,
-                GState, SizeLimit(..), Objective(..), ShowWinStrategy(..),
+                GState, SizeLimit(..), Objective(..), ShowWinPolicy(..),
                 CoreMsg(ToggleHelp),  DndMsg,
                 coreUpdate, dndUpdate,
                 _ext, genState, canPlay, _nbColumns, _nbRows, _customSize, _position, newGame, updateScore')

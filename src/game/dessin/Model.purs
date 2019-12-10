@@ -116,7 +116,7 @@ instance gameDessin ∷ Game (Array (Maybe Int)) ExtState (Maybe Int) where
 
 -- | nombre de levés de crayon déjà effectués
 nbRaises ∷ State → Int
-nbRaises = length ∘ filter isNothing ∘ view _position
+nbRaises = view _position >>> filter isNothing >>> length
 
 data Msg = Core CoreMsg | SetGraphIndex Int | Play (Maybe Int)
 instance withcore ∷ MsgWithCore Msg where core = Core

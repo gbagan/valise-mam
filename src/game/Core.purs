@@ -291,8 +291,8 @@ computerMove' state =
 
 data Objective = Minimize | Maximize
 derive instance eqObjective ∷ Eq Objective 
-data ShowWinStrategy = AlwaysShowWin | NeverShowWin | ShowWinOnNewRecord
-derive instance eqSws ∷ Eq ShowWinStrategy 
+data ShowWinPolicy = AlwaysShowWin | NeverShowWin | ShowWinOnNewRecord
+derive instance eqSws ∷ Eq ShowWinPolicy
 
 class Game pos ext mov <= ScoreGame pos ext mov | ext → pos mov  where
     objective ∷ GState pos ext → Objective
@@ -303,7 +303,7 @@ class Game pos ext mov <= ScoreGame pos ext mov | ext → pos mov  where
 scoreHash' ∷ ∀pos ext mov. ScoreGame pos ext mov ⇒ GState pos ext → String
 scoreHash' state = if isCustomGame state then "custom" else scoreHash state
 
-updateScore' ∷ ∀pos ext mov. ScoreGame pos ext mov ⇒ ShowWinStrategy → GState pos ext → Tuple (GState pos ext) Boolean
+updateScore' ∷ ∀pos ext mov. ScoreGame pos ext mov ⇒ ShowWinPolicy → GState pos ext → Tuple (GState pos ext) Boolean
 updateScore' strat state =
     let score = scoreFn state
         hash = scoreHash' state 

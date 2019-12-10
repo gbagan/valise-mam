@@ -5,7 +5,7 @@ import Pha.Action (Action, setState)
 import Game.Common (_isoCustom)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, 
-                 SizeLimit(..), GState, Objective(..), ShowWinStrategy(..), PointerPosition, Dialog(..),
+                 SizeLimit(..), GState, Objective(..), ShowWinPolicy(..), PointerPosition, Dialog(..),
                playA, coreUpdate,  _ext, genState, newGame, _position, _nbRows, _nbColumns, _help, _dialog, updateScore')
 
 type Zone = { row1 ∷ Int, row2 ∷ Int, col1 ∷ Int, col2 ∷ Int}

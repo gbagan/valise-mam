@@ -15,8 +15,9 @@ import Lib.Util (partialUpdate, class PartialRecord)
 import UI.Dialog (dialog) as D
 import UI.IncDecGrid (incDecGrid) as U
 type Position = { x ∷ Number, y ∷ Number }
--- import Game.Effs (Position)
 
+
+-- | widget pour l'affichage du panneau de victoire
 winPanel ∷ ∀a. String → Boolean → VDom a
 winPanel title visible =
     div [class_ "ui-flex-center ui-absolute component-win-container"] [
@@ -25,6 +26,7 @@ winPanel title visible =
         ]
     ]
 
+-- | widget principal pour l'affichage du panneau des options
 card ∷ ∀a. String → Array (VDom a) → VDom a
 card title children =
     div [class_ "ui-card"] [
@@ -34,6 +36,7 @@ card title children =
         div [class_ "ui-card-body"] children
     ]
 
+-- | widget permettant de changer les dimensions d'un plateau 2D
 incDecGrid ∷ ∀msg pos ext mov. MsgWithCore msg ⇒ Game pos ext mov ⇒
     GState pos ext → Array (VDom msg) → VDom msg
 incDecGrid state = U.incDecGrid {
@@ -47,50 +50,50 @@ incDecGrid state = U.incDecGrid {
 } where
     SizeLimit minRows minCols maxRows maxCols = sizeLimit state 
 
-type ElementsRow a = (
-    board ∷ VDom a,
-    config ∷ VDom a,
-    rules ∷ Array (VDom a),
-    winTitle ∷ String,
-    customDialog ∷ Unit → VDom a,
-    scoreDialog ∷ Unit → VDom a
-)
+type ElementsRow a = 
+    (   board ∷ VDom a
+    ,   config ∷ VDom a
+    ,   rules ∷ Array (VDom a)
+    ,   winTitle ∷ String
+    ,   customDialog ∷ Unit → VDom a
+    ,   scoreDialog ∷ Unit → VDom a
+    )
 
-type Elements a = { | ElementsRow a }
+type Elements a = Record (ElementsRow a)
 
 defaultElements ∷ ∀a. Elements a
-defaultElements = {
-    board: emptyNode,
-    config: emptyNode,
-    rules: [text "blah blah"],
-    winTitle: "GAGNÉ",
-    customDialog: \_ → emptyNode,
-    scoreDialog: \_ → emptyNode
-}
+defaultElements =
+    {   board: emptyNode
+    ,   config: emptyNode
+    ,   rules: [text "blah blah"]
+    ,   winTitle: "GAGNÉ"
+    ,   customDialog: \_ → emptyNode
+    ,   scoreDialog: \_ → emptyNode
+    }
 
 template ∷ ∀elems pos ext mov msg.
             PartialRecord elems (ElementsRow msg) ⇒
             MsgWithCore msg ⇒ Game pos ext mov ⇒
             Record (elems) → GState pos ext → VDom msg
 template elems state =
-    div [] [
-        div [class_ "main-container"] [
-            div [] [board, winPanel winTitle (state^._showWin)],
-            config
-        ],
-        dialog' (state^._dialog)
+    div []
+    [   div [class_ "main-container"]
+        [   div [] [board, winPanel winTitle (state^._showWin)]
+        ,   config
+        ]
+    ,   dialog' (state^._dialog)
     ]
     where
         {config, board, winTitle, rules, customDialog, scoreDialog} = partialUpdate elems defaultElements
         dialog' Rules = dialog "Règles du jeu" rules
         dialog' (ConfirmNewGameDialog _) =
-            D.dialog {
-                title: "Nouvelle partie", 
-                onCancel: Just $ core SetNoDialog, 
-                onOk: Just $ core ConfirmNewGame
-            } [
-                text "Tu es sur le point de créer une nouvelle partie. Ta partie en cours sera perdue. Es-tu sûr(e)?"
-            ]
+            D.dialog
+                {   title: "Nouvelle partie"
+                ,   onCancel: Just $ core SetNoDialog
+                ,   onOk: Just $ core ConfirmNewGame
+                }
+                [   text "Tu es sur le point de créer une nouvelle partie. Ta partie en cours sera perdue. Es-tu sûr(e)?"
+                ]
         dialog' CustomDialog = customDialog unit
         dialog' ScoreDialog = scoreDialog unit
         dialog' _ = emptyNode
@@ -104,6 +107,8 @@ bestScoreDialog state children = snd <$> bestScore state <??> \pos →
     dialog "Meilleur score" (children pos)
         
 
+-- | Fonction utilaire pouré définir le style d'un plateau 2D par rapport à ses dimensions et une limite.
+-- | Le plateau essaie de prendre toute la place à sa disposition sauf si ses deux dimensions sont inférieure à la limite
 gridStyle ∷ ∀a. Int → Int → Int → Array (Prop a)
 gridStyle rows columns limit = [style "height" $ pc (toNumber rows / m),
                                 style "width" $ pc (toNumber columns / m)]
@@ -122,8 +127,8 @@ svgCursorStyle {x, y} = [
     style "transform" $ translate (pc x) (pc y)
 ]
 
--- style à appliquer sur l'élément DOM représentant le plateau
--- permet de mémoriser la position du pointeur
+-- | tableau d'atrributs à appliquer sur l'élément DOM représentant le plateau
+-- | permet de mémoriser la position du pointeur
 trackPointer ∷ ∀msg. MsgWithCore msg ⇒ Array (Prop msg)
 trackPointer = [
     style "touch-action" "none",
@@ -133,7 +138,7 @@ trackPointer = [
 ] where
     move e = core <$> (SetPointer <$> Just <$> pointerDecoder e)
 
--- même chose que trackPointer mais gère le drag and drop par l'intermédiaire d'un lens
+-- | même chose que trackPointer mais gère le drag and drop par l'intermédiaire d'un lens
 dndBoardProps ∷ ∀msg id. MsgWithCore msg ⇒ MsgWithDnd msg id ⇒ Array (Prop msg)
 dndBoardProps = [
     style "touch-action" "none", 
@@ -143,6 +148,7 @@ dndBoardProps = [
 ] where
     move e = core <$> (SetPointer <$> Just <$> pointerDecoder e)
 
+-- | gère le drag and drop pour une item en renvoyant une liste d'attributs
 dndItemProps ∷ ∀pos ext msg id. Eq id ⇒ MsgWithDnd msg id ⇒ Game pos ext {from ∷ id, to ∷ id} ⇒
     {
         draggable ∷ Boolean,
@@ -150,15 +156,16 @@ dndItemProps ∷ ∀pos ext msg id. Eq id ⇒ MsgWithDnd msg id ⇒ Game pos ext
         id ∷ id,
         currentDragged ∷ Maybe id
     } → (GState pos ext) → Array (Prop msg)
-dndItemProps {draggable, droppable, id, currentDragged} state = [
-    class' "dragged" dragged,
-    class' "candrop" candrop,
-    releasePointerCaptureOn "pointerdown" $ always (if draggable then Just $ dndmsg (Drag id) else Nothing),
-    onpointerup' $ if candrop then Just $ dndmsg (Drop id) else Nothing -- todo ne rien faire  -- stopPropagation
-] where
-    candrop = droppable && (currentDragged # maybe false \d → canPlay state {from: d, to: id})
-    dragged = draggable && Just id == currentDragged
+dndItemProps {draggable, droppable, id, currentDragged} state =
+    [   class' "dragged" dragged
+    ,   class' "candrop" candrop
+    ,   releasePointerCaptureOn "pointerdown" $ always (if draggable then Just $ dndmsg (Drag id) else Nothing)
+    ,   onpointerup' $ if candrop then Just $ dndmsg (Drop id) else Nothing
+    ] where
+        candrop = droppable && (currentDragged # maybe false \d → canPlay state {from: d, to: id})
+        dragged = draggable && Just id == currentDragged
 
+-- | un message qui indique à qui est le tour ou si la partie est finie
 turnMessage ∷ ∀pos ext mov. Game pos ext mov ⇒ GState pos ext → String
 turnMessage state =
     if isLevelFinished state then
@@ -169,7 +176,7 @@ turnMessage state =
         "Tour du second joueur"
     else 
         "Tour de l'IA"
-
+-- | un message de fin de partie pour les jeux à deux joueurs
 winTitleFor2Players ∷ ∀pos ext. GState pos ext → String
 winTitleFor2Players state =
     if state^._mode == DuelMode then

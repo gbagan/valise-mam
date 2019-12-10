@@ -5,7 +5,7 @@ import Pha.Action (Action)
 import Game.Effs (EFFS)
 import Lib.Util ((..), dCoords)
 import Game.Core (class Game, class ScoreGame, class MsgWithCore, class MsgWithDnd, CoreMsg, DndMsg,
-                 GState, SizeLimit (..), Objective(..), ShowWinStrategy(..),
+                 GState, SizeLimit (..), Objective(..), ShowWinPolicy(..),
                 coreUpdate, dndUpdate,
                 _ext, genState, updateScore', _position, _nbColumns, _nbRows, defaultOnNewGame)
 

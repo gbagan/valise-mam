@@ -3,7 +3,7 @@ import MyPrelude
 import Lib.Util (tabulate, dCoords, map2)
 import Data.Array.NonEmpty (NonEmptyArray, fromArray, head, singleton) as N
 import Game.Core (GState, class MsgWithCore, class Game, class ScoreGame, 
-                 CoreMsg, Objective(..), Dialog(..), SizeLimit(..), ShowWinStrategy(..),
+                 CoreMsg, Objective(..), Dialog(..), SizeLimit(..), ShowWinPolicy(..),
                 coreUpdate, playA, genState, newGame,  updateScore',
                 _ext, _dialog, _position, _nbRows, _nbColumns)
 import Pha.Action (Action, setState)

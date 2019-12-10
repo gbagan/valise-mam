@@ -4,16 +4,12 @@ import Pha (VDom, text, class_, key, style)
 import Pha.Elements (div, span, br)
 import Pha.Events ( onclick)
 import Pha.Svg (svg, rect, use, fill, viewBox, x_, y_, width, height)
-import Pha.Util (translate)
+import Pha.Util (translate, px')
 import Lib.Util (tabulate)
 import Game.Core (Turn(..), canPlay, isLevelFinished, _position, _turn)
 import Game.Nim.Model (State, Msg(..), Move(..), _nbPiles, _length)
 import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset, irules)
-
--- todo
-px' ∷ Int → String
-px' a = show a <> "px"
 
 view ∷ State → VDom Msg
 view state = template {config, board, rules, winTitle} state where

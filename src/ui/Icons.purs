@@ -17,9 +17,9 @@ iconbutton state opts props =
 
 icongroup ∷ ∀a. String → Array (VDom a) → VDom a
 icongroup title children =
-    div [] [
-        h2 [] [text title],
-        div [class_ "ui-icon-grid"] children
+    div []
+    [   h2 [] [text title]
+    ,   div [class_ "ui-icon-grid"] children
     ]
 
 iundo ∷ ∀msg pos ext. MsgWithCore msg ⇒ GState pos ext → VDom msg
@@ -85,6 +85,7 @@ instance defint ∷ DefIconText Int where
 else instance defa ∷ DefIconText a where
     defIconText _ opts = opts
 
+-- | groupe d'icones à choix unique
 iconSelectGroup ∷ ∀msg pos ext sel. DefIconText sel ⇒ Eq sel ⇒
     GState pos ext → String → Array sel → sel → (sel → msg) → (sel → Record I.Options → Record I.Options) → VDom msg
 iconSelectGroup state title values selected action optionFn =
@@ -93,6 +94,7 @@ iconSelectGroup state title values selected action optionFn =
             selected = val == selected
         })) [onclick (action val)]
 
+-- | groupe d'icones à choix multiple
 iconSelectGroupM ∷ ∀msg pos ext t sel.
     DefIconText sel ⇒ Eq sel ⇒ Foldable t ⇒
     GState pos ext → String → Array sel → t sel → (sel → msg) → (sel → Record I.Options → Record I.Options) → VDom msg
@@ -102,6 +104,7 @@ iconSelectGroupM state title values selected action optionFn =
             selected = elem val selected
         })) [onclick (action val)]
 
+-- | groupe d'icones pour le choix d'une taille de plateau
 iconSizesGroup ∷ ∀msg pos ext. MsgWithCore msg ⇒
     GState pos ext → Array (Tuple Int Int) → Boolean → VDom msg
 iconSizesGroup state sizeList customSize =
@@ -125,6 +128,7 @@ iconSizesGroup state sizeList customSize =
     ccols = state^._nbColumns
     csize = state^._customSize
 
+-- | groupe d'icones pour les jeux à deux joueurs
 icons2Players ∷ ∀msg pos ext mov. MsgWithCore msg ⇒ Game pos ext mov ⇒ GState pos ext → VDom msg
 icons2Players state =
     icongroup "Mode de jeu" [
@@ -145,6 +149,7 @@ icons2Players state =
             {icon: I.IconText "2P⇨", disabled: not (L.null $ state^._history) || state^._mode == DuelMode, tooltip: Just "L'IA commence"}
             [onclick $ core ComputerStarts]
     ]
+
 iconBestScore ∷ ∀msg pos ext mov. MsgWithCore msg ⇒ ScoreGame pos ext mov ⇒ GState pos ext → VDom msg
 iconBestScore state =
     icongroup ("Meilleur score (" <> maybe "∅" (show ∘ fst) (bestScore state) <> ")") [

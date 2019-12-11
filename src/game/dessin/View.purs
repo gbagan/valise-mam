@@ -93,9 +93,9 @@ view state = template {config, board, rules, winTitle} state where
             ]
 
     rules = 
-        [   text "blah blah blah blah blah blah blah blah"
+        [   text "Le but du jeu est de dessiner le motif indiqué en pointillé en levant le moins souvent possible le crayon."
         ,   br
-        ,   text "blah blah blah blah blah blah blah blah"
+        ,   text "Pour lever le crayon, tu peux cliquer sur le bouton prévu pour ou utiliser le clic droit."
         ]
 
     winTitle = "Tu as réussi en " <> show raises <> " levé" <> s

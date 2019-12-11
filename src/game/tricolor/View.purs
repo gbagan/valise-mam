@@ -1,15 +1,16 @@
 module Game.Tricolor.View where
 
 import MyPrelude
-import Pha (VDom, text, class_, class', attr, key, style)
+
+import Game.Core (isLevelFinished, _position)
+import Game.Tricolor.Model (State, Msg(..), _size, _nbColors, _range, _hoverCell, inRange)
+import Pha (VDom, attr, class', class_, key, style)
 import Pha.Elements (div)
 import Pha.Events (onclick, onpointerenter, onpointerleave)
 import Pha.Svg (svg, circle, text', stroke, fill, viewBox, x_, y_, cx, cy, r)
 import Pha.Util (pc, translate)
-import Game.Core (isLevelFinished, _position)
-import Game.Tricolor.Model (State, Msg(..), _size, _nbColors, _range, _hoverCell, inRange)
-import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
+import UI.Template (template, card)
 
 colors ∷ Array String
 colors = ["green", "yellow", "red", "magenta", "blue"]
@@ -73,5 +74,6 @@ view state = template {config, board, rules} state where
             ]
         ]
 
-    rules = [text "blah blah blah blah"]
+    rules = []
+        
     

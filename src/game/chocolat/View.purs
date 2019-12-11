@@ -95,10 +95,10 @@ view state = template {config, board, rules, winTitle} state where
         ]
             
     rules =
-        [   text "À chaque tour de ce jeu, tu peux déplacer une pile de jetons vers une case adjacente"
+        [   text "Chocolat est un jeu à deux joueurs."
         ,   br
-        ,   text "qui contient au moins autant de jetons."
+        ,   text "A chaque tour, un joueur coupe la barre de chocolat en deux et conserve celle qui contient le carré empoisonné."
         ,   br
-        ,   text "Le but est de finir la partie avec le moins de cases contenant des piles de jetons."
+        ,   text "Lorsqu'il ne reste que le carré empoisonné, le joueur qui doit jouer a perdu."
         ]
     winTitle = winTitleFor2Players state

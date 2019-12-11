@@ -1,18 +1,18 @@
 module Game.Roue.View where
 
 import MyPrelude
-import Lib.Util (map2)
+
 import Game.Core (PointerPosition, _position, _pointer, _locked)
-import Game.Roue.Model (State, Msg(..), Location(..), _size, _rotation, _dragged,
-                        aligned, validRotation, validRotation')
+import Game.Roue.Model (State, Msg(..), Location(..), _size, _rotation, _dragged, aligned, validRotation, validRotation')
+import Lib.Util (map2)
 import Pha (VDom, text, (<&&>), maybeN, key, class_, class', style)
-import Pha.Elements (div, button, span)
-import Pha.Events (onclick)
 import Pha.Attributes (disabled)
+import Pha.Elements (br, button, div, span)
+import Pha.Events (onclick)
 import Pha.Svg (svg, path, viewBox, fill, stroke)
 import Pha.Util (pc)
-import UI.Template (template, card, dndBoardProps, dndItemProps)
 import UI.Icons (icongroup, iconSelectGroup, ireset, irules)
+import UI.Template (template, card, dndBoardProps, dndItemProps)
 
 colors ∷ Array String
 colors = ["blue", "red", "magenta", "orange", "brown", "cyan", "gray", "black"]
@@ -155,4 +155,10 @@ view state = template {config, board, rules} state where
         ,   maybeN $ cursor <$> state^._pointer <*> draggedColor
         ]
 
-    rules = [text "blah blah"]
+    rules = 
+        [   text "Le but du jeu est de poser une bille sur chaque emplacement de la roue et effectuer un tour complet de la roue en respectant la condition suivante:"
+        ,   br
+        ,   text "à chaque moment durant la rotation de la roue, exactement une bille a sa couleur qui correspond avec la couleur de la roue."
+        ,   br
+        ,   text "Tu peux tester en faisant varier le nombre de couleurs de la roue mais également en faisant varier le nombre de couleurs que tu utilises."
+        ]

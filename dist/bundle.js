@@ -8848,7 +8848,7 @@ var PS = {};
       var columns = Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget));
       var v = Data_Lens_Getter.viewOn(state)(Game_Chocolat_Model["_soap"](Data_Lens_Internal_Forget.strongForget));
       var winTitle = UI_Template.winTitleFor2Players(state);
-      var rules = [ Pha.text("\xc0 chaque tour de ce jeu, tu peux d\xe9placer une pile de jetons vers une case adjacente"), Pha_Elements.br, Pha.text("qui contient au moins autant de jetons."), Pha_Elements.br, Pha.text("Le but est de finir la partie avec le moins de cases contenant des piles de jetons.") ];
+      var rules = [ Pha.text("Chocolat est un jeu \xe0 deux joueurs."), Pha_Elements.br, Pha.text("A chaque tour, un joueur coupe la barre de chocolat en deux et conserve celle qui contient le carr\xe9 empoisonn\xe9."), Pha_Elements.br, Pha.text("Lorsqu'il ne reste que le carr\xe9 empoisonn\xe9, le joueur qui doit jouer a perdu.") ];
       var cutter = function (row) {
           return function (col) {
               return function (move) {
@@ -9372,7 +9372,7 @@ var PS = {};
       };
   };
   var view = function (state) {
-      var rules = [ Pha.text("blah blah blah blah blah blah blah blah"), Pha_Elements.br, Pha.text("blah blah blah blah blah blah blah blah") ];
+      var rules = [ Pha.text("Le but du jeu est de dessiner le motif indiqu\xe9 en pointill\xe9 en levant le moins souvent possible le crayon."), Pha_Elements.br, Pha.text("Pour lever le crayon, tu peux cliquer sur le bouton pr\xe9vu pour ou utiliser le clic droit.") ];
       var raises = Game_Dessin_Model.nbRaises(state);
       var s = (function () {
           var $17 = raises > 1;
@@ -9934,7 +9934,7 @@ var PS = {};
   var view = function (state) {
       var winTitle = UI_Template.winTitleFor2Players(state);
       var spoints = spiralPoints(Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)));
-      var rules = [ Pha.text("Le jeu de la grenouille est un jeu \xe0 deux joueurs"), Pha_Elements.br, Pha.text("A chaque tour, un joueur peut avancer la grenouille d'un nombre de cases parmi ceux indiqu\xe9s dans \"D\xe9placements autoris\xe9s\""), Pha_Elements.br, Pha.text("Le premier joueur \xe0 atteindre le n\xe9nuphar final a gagn\xe9."), Pha_Elements.br, Pha.text("Pour \xe9viter une situation bloquante, un joueur peut se d\xe9placer vers le n\xe9nuphar final en utilisant moins de d\xe9placements que ce qui lui est autoris\xe9."), Pha_Elements.br, Pha.text("Par exemple, si les mouvements autoris\xe9s sont {1, 4, 5}, le joueur a quand m\xeame le droit de se d\xe9placer de 2 ou 3 cases si cela lui permet d'atteindre le n\xe9nuphar final.") ];
+      var rules = [ Pha.text("Le jeu de la grenouille est un jeu \xe0 deux joueurs."), Pha_Elements.br, Pha.text("A chaque tour, un joueur peut avancer la grenouille d'un nombre de cases parmi ceux indiqu\xe9s dans \"D\xe9placements autoris\xe9s\"."), Pha_Elements.br, Pha.text("Le premier joueur \xe0 atteindre le n\xe9nuphar final a gagn\xe9."), Pha_Elements.br, Pha.text("Pour \xe9viter une situation bloquante, un joueur peut se d\xe9placer vers le n\xe9nuphar final en utilisant moins de d\xe9placements que ce qui lui est autoris\xe9."), Pha_Elements.br, Pha.text("Par exemple, si les mouvements autoris\xe9s sont {3, 4, 5}, le joueur a quand m\xeame le droit de se d\xe9placer de 1 ou 2 cases si cela lui permet d'atteindre le n\xe9nuphar final.") ];
       var reachable = Game_Frog_Model.reachableArray(state);
       var position = Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
       var pointsPolar = spiralPointsPolar(Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)));
@@ -12137,7 +12137,7 @@ var PS = {};
       };
   };
   var view = function (state) {
-      var rules = [ Pha.text("Le but de \"Tout noir, tout blanc\" est de retourner des tuiles pour que toutes soient face noire."), Pha_Elements.br, Pha.text("Le probl\xe8me est que lorsque tu retournes une tuile, tu es oblig\xe9 de retourner \xe9galement les tuiles adjacentes."), Pha_Elements.br, Pha.text("Ce jeu poss\xe8de d'autres modes. Selon le mode, tu es oblig\xe9 de retourner toute la ligne et toute la colonne du jeton que tu as choisi."), Pha_Elements.br, Pha.text("Pour d'autres modes, tu retournes les tuiles adjacentes mais pas la tuile choisie") ];
+      var rules = [ Pha.text("Le but de \"Tout noir, tout blanc\" est de retourner des tuiles pour que toutes soient face noire."), Pha_Elements.br, Pha.text("Le probl\xe8me est que lorsque tu retournes une tuile, tu es oblig\xe9 de retourner \xe9galement les tuiles adjacentes."), Pha_Elements.br, Pha.text("Ce jeu poss\xe8de d'autres modes. Selon le mode choisi, la mani\xe8re de retourner les tuiles est diff\xe9rente.") ];
       var rows = Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget));
       var position = Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
       var config = UI_Template.card("Tout noir tout blanc")([ UI_Icons.iconSelectGroup(UI_Icons.defint)(Data_Eq.eqInt)(state)("Mode jeu")([ 0, 1, 2, 3 ])(Data_Lens_Getter.viewOn(state)(Game_Noirblanc_Model["_mode"](Data_Lens_Internal_Forget.strongForget)))(Game_Noirblanc_Model.SelectMode.create)(function (i) {
@@ -13250,7 +13250,7 @@ var PS = {};
       };
   };
   var view = function (state) {
-      var rules = [ Pha.text("Place le plus de pi\xe8ces possible sur ta grille sans qu'aucune ne soit menac\xe9e par une autre pi\xe8ce."), Pha_Elements.br, Pha.text("Tu peux choisir de jouer avec diff\xe9rentes pi\xe8ces comme celles du jeu d'\xe9checs.") ];
+      var rules = [ Pha.text("Place le plus de pi\xe8ces possible sur ta grille sans qu'aucune ne soit menac\xe9e par une autre pi\xe8ce."), Pha_Elements.br, Pha.text("Tu peux choisir de jouer avec diff\xe9rentes pi\xe8ces comme celles du jeu d'\xe9checs."), Pha_Elements.br, Pha.text("Le mode mixte permet de jouer avec plusieurs pi\xe8ces diff\xe9rentes."), Pha_Elements.br, Pha.text("Tu peux jouer avec une pi\xe8ce personnalis\xe9e si tu le souhaites.") ];
       var rows = Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget));
       var position = Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
       var pieceSelector = Pha_Elements.div([ Pha.class_("ui-flex-center gutter2 queens-pieceselector") ])(Data_Functor.mapFlipped(Data_Functor.functorArray)(Data_Array_NonEmpty.toArray(Data_Lens_Getter.viewOn(state)(Game_Queens_Model["_allowedPieces"](Data_Lens_Internal_Forget.strongForget))))(function (piece) {
@@ -13778,7 +13778,7 @@ var PS = {};
   var view = function (state) {
       var valid = Game_Roue_Model.validRotation(state);
       var size = Data_Lens_Getter.viewOn(state)(Game_Roue_Model["_size"](Data_Lens_Internal_Forget.strongForget));
-      var rules = [ Pha.text("blah blah") ];
+      var rules = [ Pha.text("Le but du jeu est de poser une bille sur chaque emplacement de la roue et effectuer un tour complet de la roue en respectant la condition suivante:"), Pha_Elements.br, Pha.text("\xe0 chaque moment durant la rotation de la roue, exactement une bille a sa couleur qui correspond avec la couleur de la roue."), Pha_Elements.br, Pha.text("Tu peux tester en faisant varier le nombre de couleurs de la roue mais \xe9galement en faisant varier le nombre de couleurs que tu utilises.") ];
       var position = Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
       var outerWheel = Pha_Elements.div([ Pha["class'"]("roue-outer")(true), Pha.style("transform")("rotate(" + (Data_Show.show(Data_Show.showNumber)((360.0 * Data_Int.toNumber(Data_Lens_Getter.viewOn(state)(Game_Roue_Model["_rotation"](Data_Lens_Internal_Forget.strongForget)))) / Data_Int.toNumber(size)) + "deg)")) ])(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Svg.svg([ Pha.key("svg"), Pha_Svg.viewBox(0)(0)(100)(100) ])(Lib_Util.map2(position)(Game_Roue_Model.aligned(state))(function (i) {
           return function (pos) {
@@ -15463,7 +15463,7 @@ var PS = {};
       var sinkCursor = function (pp) {
           return Pha_Svg.use("#sink")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Svg.x_("-25"), Pha_Svg.y_("-25"), Pha_Svg.width("50"), Pha_Svg.height("50"), Pha.attr("pointer-events")("none") ])(UI_Template.svgCursorStyle(pp)));
       };
-      var rules = [ Pha.text("blah blah") ];
+      var rules = [ Pha.text("Est-il possible de faire le carrelage de toute votre cuisine, sachant qu'elle peut avoir un ou plusieurs \xe9viers ?"), Pha_Elements.br, Pha.text("Tu peux tester avec diff\xe9rentes formes de tuile et diff\xe9rents emplacements d'\xe9viers."), Pha_Elements.br, Pha.text("Deux questions sont particuli\xe8rement int\xe9ressantes:"), Pha_Elements.br, Pha.text("- Pour quelles dimensions de la grille et pour quels positions d'\xe9viers peut-on paver une grille avec le premier type de tuiles?"), Pha_Elements.br, Pha.text("- Peut-on toujours carreler une grille 8x8 avec les tuiles de type 3 et en posant un \xe9vier, et ceci, quelque soit la position de l'\xe9vier?") ];
       var rows = Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget));
       var position = Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
       var customDialog = function (v) {
@@ -15486,7 +15486,7 @@ var PS = {};
               };
           })()))) ]) ]) ]);
       };
-      var config = UI_Template.card("Carrelage")([ UI_Icons.iconSizesGroup(Game_Tiling_Model.withcore)(state)([ new Data_Tuple.Tuple(4, 5), new Data_Tuple.Tuple(5, 5), new Data_Tuple.Tuple(5, 6), new Data_Tuple.Tuple(7, 7) ])(true), UI_Icons.iconSelectGroup(UI_Icons.defa)(Game_Tiling_Model.eqTileType)(state)("Motif du pav\xe9")([ Game_Tiling_Model.Type1.value, Game_Tiling_Model.Type2.value, Game_Tiling_Model.Type3.value, Game_Tiling_Model.CustomTile.value ])(Data_Lens_Getter.viewOn(state)(Game_Tiling_Model["_tileType"](Data_Lens_Internal_Forget.strongForget)))(Game_Tiling_Model.SetTile.create)(function (t) {
+      var config = UI_Template.card("Carrelage")([ UI_Icons.iconSizesGroup(Game_Tiling_Model.withcore)(state)([ new Data_Tuple.Tuple(4, 5), new Data_Tuple.Tuple(5, 5), new Data_Tuple.Tuple(5, 6), new Data_Tuple.Tuple(8, 8) ])(true), UI_Icons.iconSelectGroup(UI_Icons.defa)(Game_Tiling_Model.eqTileType)(state)("Motif de la tuile")([ Game_Tiling_Model.Type1.value, Game_Tiling_Model.Type2.value, Game_Tiling_Model.Type3.value, Game_Tiling_Model.CustomTile.value ])(Data_Lens_Getter.viewOn(state)(Game_Tiling_Model["_tileType"](Data_Lens_Internal_Forget.strongForget)))(Game_Tiling_Model.SetTile.create)(function (t) {
           return function (v) {
               return {
                   icon: new UI_Icon.IconSymbol("#" + Data_Show.show(Game_Tiling_Model.showTileType)(t)),
@@ -15845,7 +15845,7 @@ var PS = {};
   var colors = [ "green", "yellow", "red", "magenta", "blue" ];
   var view = function (state) {
       var size = Data_Lens_Getter.viewOn(state)(Game_Tricolor_Model["_size"](Data_Lens_Internal_Forget.strongForget));
-      var rules = [ Pha.text("blah blah blah blah") ];
+      var rules = [  ];
       var nbColors = Data_Lens_Getter.viewOn(state)(Game_Tricolor_Model["_nbColors"](Data_Lens_Internal_Forget.strongForget));
       var levelFinished = Game_Core.isLevelFinished(Game_Tricolor_Model.tricolorGame)(state);
       var drawColorCycle = Data_Semigroup.append(Data_Semigroup.semigroupArray)(Data_Array.concat(Data_Array.mapWithIndex(function (i) {

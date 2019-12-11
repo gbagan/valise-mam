@@ -73,9 +73,7 @@ view state = template {config, board, rules, winTitle} state where
         ,   br
         ,   text "Le problème est que lorsque tu retournes une tuile, tu es obligé de retourner également les tuiles adjacentes."
         ,   br
-        ,   text "Ce jeu possède d'autres modes. Selon le mode, tu es obligé de retourner toute la ligne et toute la colonne du jeton que tu as choisi."
-        ,   br
-        ,   text "Pour d'autres modes, tu retournes les tuiles adjacentes mais pas la tuile choisie"
+        ,   text "Ce jeu possède d'autres modes. Selon le mode choisi, la manière de retourner les tuiles est différente."
         ]
 
     winTitle = "GAGNÉ"

@@ -156,16 +156,12 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
         ]
     ]
 
-    rules = [
-        text "Place le plus de pièces possible sur ta grille sans qu\'aucune ne soit menacée par une autre pièce.", br,
-        text "Tu peux choisir de jouer avec différentes pièces comme celles du jeu d\'échecs."
-    ]
-    {-
-            Fabrique ta propre pièce avec <Icon image="customize" />. Cette pièce est représentée par <Icon image="piece-custom" /><br />
-            Le mode mixte permet de jouer avec plusieurs pièces.<br />
-            Pour activer ce mode, clique sur <Icon image="piece-mix" /><br />
-            Plusieurs tailles de tableau te sont proposées.<br />
-            Là encore, tu peux personnaliser la taille du plateau avec <Icon text="NxM" /><br />
-            Au cours de la partie, il peut être difficile de voir les cases libres (non menacées par des pièces posées).<br />
-            Tu peux alors voir les cases libres avec l&#39;aide: <Icon image="help" />
-    -}
+    rules = 
+        [   text "Place le plus de pièces possible sur ta grille sans qu\'aucune ne soit menacée par une autre pièce."
+        ,   br
+        ,   text "Tu peux choisir de jouer avec différentes pièces comme celles du jeu d\'échecs."
+        ,   br
+        ,   text "Le mode mixte permet de jouer avec plusieurs pièces différentes."
+        ,   br
+        ,   text "Tu peux jouer avec une pièce personnalisée si tu le souhaites."
+        ]

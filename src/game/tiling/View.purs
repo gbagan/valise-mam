@@ -2,7 +2,7 @@ module Game.Tiling.View (view) where
 import MyPrelude
 import Lib.Util (coords)
 import Pha (VDom, Prop, text, (<&&>), (<??>), key, attr, style, class')
-import Pha.Elements (div)
+import Pha.Elements (div, br)
 import Pha.Events (onclick, oncontextmenu, onpointerenter, onpointerleave)
 import Pha.Svg (svg, g, rect, line, use,
                 viewBox, fill, stroke, x_, y_, x1, x2, y1, y2, width, height, strokeWidth, transform)
@@ -41,8 +41,8 @@ view state = template {config, board, rules, winTitle, customDialog} state where
 
     config =
         card "Carrelage"
-        [   iconSizesGroup state [4∧5, 5∧5, 5∧6, 7∧7] true
-        ,   iconSelectGroup state "Motif du pavé" [Type1, Type2, Type3, CustomTile] (state^._tileType) SetTile \t →
+        [   iconSizesGroup state [4∧5, 5∧5, 5∧6, 8∧8] true
+        ,   iconSelectGroup state "Motif de la tuile" [Type1, Type2, Type3, CustomTile] (state^._tileType) SetTile \t →
                 _{icon = IconSymbol ("#" <> show t)}
         ,   iconSelectGroup state "Nombre d'éviers" [0, 1, 2] (state^._nbSinks) SetNbSinks (const identity)
         ,   icongroup "Options" [ihelp state, ireset state, irules state]
@@ -121,7 +121,15 @@ view state = template {config, board, rules, winTitle, customDialog} state where
     ]
 
     rules =
-        [   text "blah blah"
+        [   text "Est-il possible de faire le carrelage de toute votre cuisine, sachant qu'elle peut avoir un ou plusieurs éviers ?"
+        ,   br
+        ,   text "Tu peux tester avec différentes formes de tuile et différents emplacements d'éviers."
+        ,   br
+        ,   text "Deux questions sont particulièrement intéressantes:"
+        ,   br
+        ,   text "- Pour quelles dimensions de la grille et pour quels positions d'éviers peut-on paver une grille avec le premier type de tuiles?"
+        ,   br
+        ,   text "- Peut-on toujours carreler une grille 8x8 avec les tuiles de type 3 et en posant un évier, et ceci, quelque soit la position de l'évier?"
         ]
 
     winTitle = "GAGNÉ"

@@ -175,6 +175,7 @@ turnMessage state =
         "Tour du second joueur"
     else 
         "Tour de l'IA"
+
 -- | un message de fin de partie pour les jeux à deux joueurs
 winTitleFor2Players ∷ ∀pos ext. GState pos ext → String
 winTitleFor2Players state =

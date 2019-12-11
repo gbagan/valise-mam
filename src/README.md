@@ -135,11 +135,42 @@ type CoreState pos ext = {
 
 ### Les Lenses
 
-La valise fait un usage intensif de lenses. Un lens et une paire de fonctions qui se focusent sur une partie d'un objet
+La valise fait un usage intensif de lenses. Un lens et une paire de fonctions qui focusent sur une partie d'un objet
 la première fonction permet  de renvoyer l'élément ciblé et l'autre permet de renvoyer un nouvel objet avec l'object en focus modifié.
 C'est un peu l'analogue fonctionnel des getters et setters de Java mais leur force réside dans le fait que les lens peuvent être composés. Dans la valise, on associera par exemple un lens à chaque attribut de GState.
 
 [Un livre à ce sujet](https://leanpub.com/lenses)
+
+### Messages et fonction update
+
+Le type de message pour un jeu (que l'on appelera msg) doit contenir le type CoreMsg qui est le type des messages communs à tous les jeux.
+msg doit également implément la la classe de type MsgWithCore.
+coreUpdate est une fonction update pour les messages du type CoreMsg.
+Un exemple:
+
+```purescript
+data Msg = Core CoreMsg | Message1 Int | Message2
+instance withcore ∷ MsgWithCore Msg where core = Core
+
+update ∷ Msg → Update State EFFS
+update (Core msg) = coreUpdate msg
+update (Message1 n) = ...
+update Message2 = ...
+```
+Il est possible de rédefinir l'action à effectuer pour un message de CoreMsg de la façon suivante.
+
+```purescript
+data Msg = Core CoreMsg | Message1 Int | Message2
+instance withcore ∷ MsgWithCore Msg where core = Core
+
+update ∷ Msg → Update State EFFS
+update (Core Undo) = ...
+update (Core msg) = coreUpdate msg
+update (Message1 n) = ...
+update Message2 = ...
+```
+
+
 
 ---------------------------------------------------------
 3 classes sont présentes pour le modèle, n'oubliez pas que classe dans Haskell/Purescript est plus proche d'une interface que d'une vraie classe.
@@ -158,13 +189,13 @@ class Game pos ext mov | ext → pos mov where
     updateScore ∷ GState pos ext → Tuple (GState pos ext) Boolean
 ```
 
-Il prend trois paramètre
+Il prend trois paramètres
 - pos est le type de la position
 - ext est le type des attributs additionnels de GState
 - mov est le type du coup (mov)
 
 Les fonctions
-- play prend en arugment un état et coup et renvoie la position après le coup si celui-ci est légal ou sinon Nothing
+- play prend en argument un état et coup et renvoie la position après le coup si celui-ci est légal ou sinon Nothing
 - initialPosition renvoie une position en fonction des autres attributs en cas de nouvelle partie
                   la fonctionn peut-être potentiellement aléatoire, d'où le "Random" dans la signaure  
 - isLevelFinished teste si une position est une fin de partie

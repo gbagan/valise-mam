@@ -135,7 +135,7 @@ type CoreState pos ext = {
 
 ### Les Lenses
 
-La valise fait un usage intensif de lenses. Un lens et une paire de fonctions qui se focusent sur une partie d'un objet
+La valise fait un usage intensif de lenses. Un lens et une paire de fonctions qui focusent sur une partie d'un objet
 la première fonction permet  de renvoyer l'élément ciblé et l'autre permet de renvoyer un nouvel objet avec l'object en focus modifié.
 C'est un peu l'analogue fonctionnel des getters et setters de Java mais leur force réside dans le fait que les lens peuvent être composés. Dans la valise, on associera par exemple un lens à chaque attribut de GState.
 
@@ -158,13 +158,13 @@ class Game pos ext mov | ext → pos mov where
     updateScore ∷ GState pos ext → Tuple (GState pos ext) Boolean
 ```
 
-Il prend trois paramètre
+Il prend trois paramètres
 - pos est le type de la position
 - ext est le type des attributs additionnels de GState
 - mov est le type du coup (mov)
 
 Les fonctions
-- play prend en arugment un état et coup et renvoie la position après le coup si celui-ci est légal ou sinon Nothing
+- play prend en argument un état et coup et renvoie la position après le coup si celui-ci est légal ou sinon Nothing
 - initialPosition renvoie une position en fonction des autres attributs en cas de nouvelle partie
                   la fonctionn peut-être potentiellement aléatoire, d'où le "Random" dans la signaure  
 - isLevelFinished teste si une position est une fin de partie

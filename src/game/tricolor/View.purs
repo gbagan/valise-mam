@@ -1,7 +1,7 @@
 module Game.Tricolor.View where
 
 import MyPrelude
-
+import Data.FoldableWithIndex (foldMapWithIndex)
 import Game.Core (isLevelFinished, _position)
 import Game.Tricolor.Model (State, Msg(..), _size, _nbColors, _range, _hoverCell, inRange)
 import Pha (VDom, attr, class', class_, key, style)
@@ -49,7 +49,7 @@ view state = template {config, board, rules} state where
         ]
 
     drawColorCycle =
-        (concat $ take nbColors colors # mapWithIndex \i color →
+        (take nbColors colors # foldMapWithIndex \i color →
                 [   circle
                     [   cx $ show (95 + 15 * (i - nbColors))
                     ,   cy "95"

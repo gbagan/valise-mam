@@ -1,5 +1,6 @@
 module Game.Nim.View where
 import MyPrelude
+import Data.FoldableWithIndex (foldMapWithIndex)
 import Pha (VDom, text, class_, key, style)
 import Pha.Elements (div, span, br)
 import Pha.Events ( onclick)
@@ -62,7 +63,7 @@ view state = template {config, board, rules, winTitle} state where
     board =
         div [class_ "ui-board nim-board"]
         [   svg [viewBox 0 0 100 100] (
-                concat $ state^._position # mapWithIndex \i (p1 /\ p2) → concat
+                state^._position # foldMapWithIndex \i (p1 /\ p2) → concat
                     [   [drawRow i]
                     ,   tabulate length (drawSquare i)
                     ,   [p1, p2] # mapWithIndex (drawPeg i)

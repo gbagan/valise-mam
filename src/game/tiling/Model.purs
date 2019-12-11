@@ -110,9 +110,6 @@ needSinks state = length (sinks state) < state^._nbSinks
 
 instance tilingGame ∷ Game (Array Int) ExtState Int where
     play state index =
-        let pos = state^._position 
-            tilePos = tilePositions state index
-        in
         -- si on peut poser la tuile à l'emplacement de la souris, on le fait
         -- on choisit un numéro non attribué m comme numéro de tuile
         if canPutTile state tilePos then
@@ -124,6 +121,9 @@ instance tilingGame ∷ Game (Array Int) ExtState Int where
         -- sinon, c'est un coup invalide
         else
             Nothing
+        where
+            pos = state^._position 
+            tilePos = tilePositions state index
 
     isLevelFinished = all (_ /= 0) <<< view _position
 

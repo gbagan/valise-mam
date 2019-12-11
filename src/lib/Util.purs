@@ -24,17 +24,17 @@ map2 t1 t2 fn = zipWith ($) (mapWithIndex fn t1) t2
 map3 ∷ ∀a b c d. Array a → Array b → Array c → (Int → a → b → c → d) → Array d
 map3 t1 t2 t3 fn = zipWith ($) (zipWith ($) (mapWithIndex fn t1) t2) t3
 
-rangeStep ∷ Int → Int → Int → Array Int
-rangeStep begin end step = tabulate (max 0 (1 + (end - begin) / step)) \i → begin + i * step
+rangeWithStep ∷ Int → Int → Int → Array Int
+rangeWithStep begin end step = tabulate (max 0 (1 + (end - begin) / step)) \i → begin + i * step
 
-floatRange ∷ Number → Number → Number → Array Number
-floatRange begin end step = tabulate (max 0 (floor $ 1.0 + (end - begin) / step)) \i → begin + toNumber i * step
+rangeWithStep' ∷ Number → Number → Number → Array Number
+rangeWithStep' begin end step = tabulate (max 0 (floor $ 1.0 + (end - begin) / step)) \i → begin + toNumber i * step
 
--- [x1, x2, x3, x4] → [(x1, x2), (x2, x3), (x3, x4)]
+-- | [x1, x2, x3, x4] → [(x1, x2), (x2, x3), (x3, x4)]
 pairwise ∷ ∀a. Array a → Array (Tuple a a)
 pairwise list =  maybe [] (zip list) (tail list)
 
--- échange les éléments à la position i et j
+-- | échange les éléments à la position i et j
 swap ∷ ∀a. Int → Int → Array a → Maybe (Array a)
 swap i j array = do
     x ← array !! i
@@ -53,13 +53,6 @@ dCoords cols x y = {
 } where
     p = coords cols x
     q = coords cols y
-
-{-    
-partialUpdate ∷ ∀r1 r2 s.
-    Union r1 r2 s ⇒  Nub s r2 ⇒
-    Record r1 → Record r2 → Record r2
-partialUpdate x y = Record.merge x y
--}
 
 class PartialRecord (r1 ∷ #Type) (r2 ∷ #Type) where
     partialUpdate ∷ Record r1 → Record r2 → Record r2

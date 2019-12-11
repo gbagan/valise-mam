@@ -3,7 +3,7 @@ import MyPrelude
 import Data.Array (nub)
 import Data.Array.NonEmpty (fromArray, head, last, init, tail) as N
 import Pha.Random (randomInt)
-import Lib.Util (dCoords, rangeStep)
+import Lib.Util (dCoords, rangeWithStep)
 import Game.Effs (EFFS)
 import Game.Core (GState, class Game, class MsgWithCore, CoreMsg, SizeLimit(..), 
         coreUpdate,
@@ -39,9 +39,9 @@ pathBetween ∷ Int → Int → Int → Maybe (Array Int)
 pathBetween columns u v =
     let {row, col} = dCoords columns u v in
     if row == 0 then
-        Just (if u < v then rangeStep (u + 1) v 1 else rangeStep (u - 1) v (-1))
+        Just (if u < v then rangeWithStep (u + 1) v 1 else rangeWithStep (u - 1) v (-1))
     else if col == 0 then
-        Just (if u < v then rangeStep (u + columns) v columns else rangeStep (u - columns) v (-columns))
+        Just (if u < v then rangeWithStep (u + columns) v columns else rangeWithStep (u - columns) v (-columns))
     else
         Nothing
 

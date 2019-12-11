@@ -1,7 +1,8 @@
 module Game.Frog.View (view) where
 
 import MyPrelude
-import Lib.Util (map2, tabulate, pairwise, floatRange)
+import Data.FoldableWithIndex (foldMapWithIndex)
+import Lib.Util (map2, tabulate, pairwise, rangeWithStep')
 import Pha (VDom, text, (<&&>), (<??>), key, class_, class', style)
 import Pha.Elements (div, span, br)
 import Pha.Events (on)
@@ -25,7 +26,7 @@ polarToCartesian {radius, theta} = { x: radius * cos theta, y: radius * sin thet
 
 spiral ∷ Cartesian → Number → Number → Number → Number → Number → String
 spiral center startRadius radiusStep startTheta endTheta thetaStep =
-    floatRange startTheta endTheta thetaStep <#> (\theta →
+    rangeWithStep' startTheta endTheta thetaStep <#> (\theta →
         let b = radiusStep / (2.0 * pi)
             r = startRadius + b * theta
             point = { x: center.x + r * cos theta, y: center.y + r * sin theta }
@@ -34,13 +35,12 @@ spiral center startRadius radiusStep startTheta endTheta thetaStep =
         in { point, slope, intercept }
     )
     # pairwise
-    # mapWithIndex (\i (a ∧ b) →
+    # foldMapWithIndex (\i (a ∧ b) →
         let { x, y } = lineIntersection a.slope a.intercept b.slope b.intercept
             p = ["Q", show $ x + center.x, show $ y + center.y, show $ b.point.x, show b.point.y]
         in
             if i == 0 then ["M", show a.point.x, show a.point.y] <> p else p
     )
-    # concat
     # joinWith " "
 
 spiralPointsPolar ∷ Int → Array Polar

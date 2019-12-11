@@ -1,5 +1,6 @@
 module Game.Paths.View (view) where
 import MyPrelude
+import Data.FoldableWithIndex (foldMapWithIndex)
 import Lib.Util (coords, tabulate)
 import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _pointer)
 import Game.Paths.Model (State, Msg(..), Mode(..), _exit, _mode)
@@ -75,7 +76,7 @@ view state = template {config, board, rules} state where
                                           (pc $ (toNumber row + 0.1) / toNumber rows)
         ]
 
-    pathdec = joinWith " " $ concat $ position # mapWithIndex \i v →
+    pathdec = joinWith " " $ position # foldMapWithIndex \i v →
         let {row, col} = coords columns v in
         [if i == 0 then "M" else "L", show $ 100 * col + 50, show $ 100 * row + 50]
     

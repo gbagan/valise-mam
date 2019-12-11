@@ -1,5 +1,6 @@
 module Game.Queens.Model where
 import MyPrelude
+import Data.FoldableWithIndex (foldrWithIndex)
 import Lib.Util (tabulate, dCoords, map2)
 import Data.Array.NonEmpty (NonEmptyArray, fromArray, head, singleton) as N
 import Game.Core (GState, class MsgWithCore, class Game, class ScoreGame, 
@@ -97,9 +98,8 @@ attackedBy state piece index =
 
 -- | renvoie l'ensemble des cases pouvant être attaquées par une pièce sur le plateau
 capturableSquares ∷ State → Array Boolean
-capturableSquares state = state^._position # mapWithIndex Tuple
-    # foldr
-        (\(index ∧ piece) → if piece == Empty then identity else zipWith disj (attackedBy state piece index))
+capturableSquares state = state^._position # foldrWithIndex
+        (\index piece → if piece == Empty then identity else zipWith disj (attackedBy state piece index))
         (replicate (state^._nbRows * state^._nbColumns) false)
 
 attackedBySelected ∷ State → Array Boolean

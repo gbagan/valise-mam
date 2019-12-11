@@ -2657,7 +2657,6 @@ var PS = {};
   exports["updateAt"] = updateAt;
   exports["updateAtIndices"] = updateAtIndices;
   exports["modifyAt"] = modifyAt;
-  exports["concatMap"] = concatMap;
   exports["mapMaybe"] = mapMaybe;
   exports["catMaybes"] = catMaybes;
   exports["mapWithIndex"] = mapWithIndex;
@@ -3182,6 +3181,8 @@ var PS = {};
           };
       };
   };
+  exports["foldrWithIndex"] = foldrWithIndex;
+  exports["foldMapWithIndex"] = foldMapWithIndex;
   exports["allWithIndex"] = allWithIndex;
   exports["foldableWithIndexArray"] = foldableWithIndexArray;
 })(PS);
@@ -5484,6 +5485,7 @@ var PS = {};
   var Control_Category = $PS["Control.Category"];
   var Control_Monad = $PS["Control.Monad"];
   var Control_Monad_Free = $PS["Control.Monad.Free"];
+  var Data_Boolean = $PS["Data.Boolean"];
   var Data_Eq = $PS["Data.Eq"];
   var Data_Foldable = $PS["Data.Foldable"];
   var Data_Function = $PS["Data.Function"];
@@ -5863,11 +5865,13 @@ var PS = {};
   };
   var scoreHash$prime = function (dictScoreGame) {
       return function (state) {
-          var $109 = isCustomGame(dictScoreGame)(state);
-          if ($109) {
+          if (isCustomGame(dictScoreGame)(state)) {
               return "custom";
           };
-          return scoreHash(dictScoreGame)(state);
+          if (Data_Boolean.otherwise) {
+              return scoreHash(dictScoreGame)(state);
+          };
+          throw new Error("Failed pattern match at Game.Core (line 306, column 1 - line 306, column 75): " + [ state.constructor.name ]);
       };
   };
   var initialPosition = function (dict) {
@@ -6497,31 +6501,33 @@ var PS = {};
   };
   var computerMove$prime = function (dictTwoPlayersGame) {
       return function (state) {
-          var $136 = isLevelFinished(dictTwoPlayersGame.Game0())(state);
-          if ($136) {
+          if (isLevelFinished(dictTwoPlayersGame.Game0())(state)) {
               return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Maybe.Nothing.value);
           };
-          var moves = possibleMoves(dictTwoPlayersGame)(state);
-          var bestMove = (function () {
-              var $137 = Data_Eq.eq(eqMode)(Data_Lens_Getter.viewOn(state)(_mode(Data_Lens_Internal_Forget.strongForget)))(RandomMode.value);
-              if ($137) {
-                  return Data_Maybe.Nothing.value;
-              };
-              return Data_Foldable.find(Data_Foldable.foldableArray)((function () {
-                  var $236 = Data_Maybe.maybe(false)(isLosingPosition(dictTwoPlayersGame));
-                  var $237 = Data_Function.flip(playAux(dictTwoPlayersGame.Game0()))(state);
-                  return function ($238) {
-                      return $236($237($238));
+          if (Data_Boolean.otherwise) {
+              var moves = possibleMoves(dictTwoPlayersGame)(state);
+              var bestMove = (function () {
+                  var $137 = Data_Eq.eq(eqMode)(Data_Lens_Getter.viewOn(state)(_mode(Data_Lens_Internal_Forget.strongForget)))(RandomMode.value);
+                  if ($137) {
+                      return Data_Maybe.Nothing.value;
                   };
-              })())(moves);
-          })();
-          if (bestMove instanceof Data_Maybe.Just) {
-              return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(bestMove);
+                  return Data_Foldable.find(Data_Foldable.foldableArray)((function () {
+                      var $236 = Data_Maybe.maybe(false)(isLosingPosition(dictTwoPlayersGame));
+                      var $237 = Data_Function.flip(playAux(dictTwoPlayersGame.Game0()))(state);
+                      return function ($238) {
+                          return $236($237($238));
+                      };
+                  })())(moves);
+              })();
+              if (bestMove instanceof Data_Maybe.Just) {
+                  return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(bestMove);
+              };
+              if (bestMove instanceof Data_Maybe.Nothing) {
+                  return Pha_Random.sample(moves);
+              };
+              throw new Error("Failed pattern match at Game.Core (line 291, column 13 - line 293, column 39): " + [ bestMove.constructor.name ]);
           };
-          if (bestMove instanceof Data_Maybe.Nothing) {
-              return Pha_Random.sample(moves);
-          };
-          throw new Error("Failed pattern match at Game.Core (line 292, column 13 - line 294, column 39): " + [ bestMove.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Core (line 280, column 1 - line 280, column 95): " + [ state.constructor.name ]);
       };
   };
   var computerPlay = function (dictGame) {
@@ -6692,7 +6698,7 @@ var PS = {};
                               return Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit);
                           });
                       };
-                      throw new Error("Failed pattern match at Game.Core (line 340, column 5 - line 344, column 71): " + [ v1.constructor.name ]);
+                      throw new Error("Failed pattern match at Game.Core (line 341, column 5 - line 345, column 71): " + [ v1.constructor.name ]);
                   });
               };
           };
@@ -6716,7 +6722,7 @@ var PS = {};
                   if (v instanceof DropOnBoard) {
                       return Pha_Update.purely(Data_Lens_Setter.set(_dragged(Data_Profunctor_Strong.strongFn))(Data_Maybe.Nothing.value));
                   };
-                  throw new Error("Failed pattern match at Game.Core (line 329, column 1 - line 330, column 79): " + [ _dragged.constructor.name, v.constructor.name ]);
+                  throw new Error("Failed pattern match at Game.Core (line 330, column 1 - line 331, column 79): " + [ _dragged.constructor.name, v.constructor.name ]);
               };
           };
       };
@@ -6879,11 +6885,20 @@ var PS = {};
           return Data_Functor.mapFlipped(Data_Functor.functorArray)(range$prime(0)(n - 1 | 0))(f);
       };
   };
-  var rangeStep = function (begin) {
+  var rangeWithStep = function (begin) {
       return function (end) {
           return function (step) {
               return tabulate(Data_Ord.max(Data_Ord.ordInt)(0)(1 + Data_EuclideanRing.div(Data_EuclideanRing.euclideanRingInt)(end - begin | 0)(step) | 0))(function (i) {
                   return begin + (i * step | 0) | 0;
+              });
+          };
+      };
+  };
+  var rangeWithStep$prime = function (begin) {
+      return function (end) {
+          return function (step) {
+              return tabulate(Data_Ord.max(Data_Ord.ordInt)(0)(Data_Int.floor(1.0 + (end - begin) / step)))(function (i) {
+                  return begin + Data_Int.toNumber(i) * step;
               });
           };
       };
@@ -6924,15 +6939,6 @@ var PS = {};
           };
       };
   };
-  var floatRange = function (begin) {
-      return function (end) {
-          return function (step) {
-              return tabulate(Data_Ord.max(Data_Ord.ordInt)(0)(Data_Int.floor(1.0 + (end - begin) / step)))(function (i) {
-                  return begin + Data_Int.toNumber(i) * step;
-              });
-          };
-      };
-  };
   var coords = function (cols) {
       return function (i) {
           return {
@@ -6967,8 +6973,8 @@ var PS = {};
   exports["tabulate2"] = tabulate2;
   exports["map2"] = map2;
   exports["map3"] = map3;
-  exports["rangeStep"] = rangeStep;
-  exports["floatRange"] = floatRange;
+  exports["rangeWithStep"] = rangeWithStep;
+  exports["rangeWithStep'"] = rangeWithStep$prime;
   exports["pairwise"] = pairwise;
   exports["swap"] = swap;
   exports["coords"] = coords;
@@ -9812,12 +9818,14 @@ var PS = {};
   var Data_Array = $PS["Data.Array"];
   var Data_Array_NonEmpty_Internal = $PS["Data.Array.NonEmpty.Internal"];
   var Data_Eq = $PS["Data.Eq"];
+  var Data_FoldableWithIndex = $PS["Data.FoldableWithIndex"];
   var Data_Function = $PS["Data.Function"];
   var Data_Functor = $PS["Data.Functor"];
   var Data_Identity = $PS["Data.Identity"];
   var Data_Int = $PS["Data.Int"];
   var Data_Lens_Getter = $PS["Data.Lens.Getter"];
   var Data_Lens_Internal_Forget = $PS["Data.Lens.Internal.Forget"];
+  var Data_Monoid = $PS["Data.Monoid"];
   var Data_Semigroup = $PS["Data.Semigroup"];
   var Data_Show = $PS["Data.Show"];
   var Data_String_Common = $PS["Data.String.Common"];
@@ -9877,7 +9885,7 @@ var PS = {};
               return function (startTheta) {
                   return function (endTheta) {
                       return function (thetaStep) {
-                          return Data_String_Common.joinWith(" ")(Data_Array.concat(Data_Array.mapWithIndex(function (i) {
+                          return Data_String_Common.joinWith(" ")(Data_FoldableWithIndex.foldMapWithIndex(Data_FoldableWithIndex.foldableWithIndexArray)(Data_Monoid.monoidArray)(function (i) {
                               return function (v) {
                                   var v1 = lineIntersection(v.value0.slope)(v.value0.intercept)(v.value1.slope)(v.value1.intercept);
                                   var p = [ "Q", Data_Show.show(Data_Show.showNumber)(v1.x + center.x), Data_Show.show(Data_Show.showNumber)(v1.y + center.y), Data_Show.show(Data_Show.showNumber)(v.value1.point.x), Data_Show.show(Data_Show.showNumber)(v.value1.point.y) ];
@@ -9887,7 +9895,7 @@ var PS = {};
                                   };
                                   return p;
                               };
-                          })(Lib_Util.pairwise(Data_Functor.mapFlipped(Data_Functor.functorArray)(Lib_Util.floatRange(startTheta)(endTheta)(thetaStep))(function (theta) {
+                          })(Lib_Util.pairwise(Data_Functor.mapFlipped(Data_Functor.functorArray)(Lib_Util["rangeWithStep'"](startTheta)(endTheta)(thetaStep))(function (theta) {
                               var b = radiusStep / (2.0 * $$Math.pi);
                               var r = startRadius + b * theta;
                               var point = {
@@ -9901,7 +9909,7 @@ var PS = {};
                                   slope: slope,
                                   intercept: intercept
                               };
-                          })))));
+                          }))));
                       };
                   };
               };
@@ -10624,7 +10632,9 @@ var PS = {};
   };
   var allBeastPositions = function (rows) {
       return function (cols) {
-          return Data_Array.concatMap(Control_Bind.composeKleisli(Control_Bind.bindArray)(allRotations)(allTranslations(rows)(cols)));
+          return function (v) {
+              return Control_Bind.bind(Control_Bind.bindArray)(v)(Control_Bind.composeKleisli(Control_Bind.bindArray)(allRotations)(allTranslations(rows)(cols)));
+          };
       };
   };
   var adaptatedBeast = function (rows) {
@@ -10655,17 +10665,17 @@ var PS = {};
       };
   };
   var _ext$prime = function (dictStrong) {
-      var $99 = Game_Core["_ext"](dictStrong);
-      var $100 = Data_Lens_Iso.iso(function (v) {
+      var $100 = Game_Core["_ext"](dictStrong);
+      var $101 = Data_Lens_Iso.iso(function (v) {
           return v;
       })(Ext)(dictStrong.Profunctor0());
-      return function ($101) {
-          return $99($100($101));
+      return function ($102) {
+          return $100($101($102));
       };
   };
   var _mode = function (dictStrong) {
-      var $102 = _ext$prime(dictStrong);
-      var $103 = Data_Lens_Lens.lens(function (v) {
+      var $103 = _ext$prime(dictStrong);
+      var $104 = Data_Lens_Lens.lens(function (v) {
           return v.mode;
       })(function (v) {
           return function (v1) {
@@ -10680,13 +10690,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($104) {
-          return $102($103($104));
+      return function ($105) {
+          return $103($104($105));
       };
   };
   var _selectedColor = function (dictStrong) {
-      var $105 = _ext$prime(dictStrong);
-      var $106 = Data_Lens_Lens.lens(function (v) {
+      var $106 = _ext$prime(dictStrong);
+      var $107 = Data_Lens_Lens.lens(function (v) {
           return v.selectedColor;
       })(function (v) {
           return function (v1) {
@@ -10701,13 +10711,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($107) {
-          return $105($106($107));
+      return function ($108) {
+          return $106($107($108));
       };
   };
   var _squareColors = function (dictStrong) {
-      var $108 = _ext$prime(dictStrong);
-      var $109 = Data_Lens_Lens.lens(function (v) {
+      var $109 = _ext$prime(dictStrong);
+      var $110 = Data_Lens_Lens.lens(function (v) {
           return v.squareColors;
       })(function (v) {
           return function (v1) {
@@ -10722,8 +10732,8 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($110) {
-          return $108($109($110));
+      return function ($111) {
+          return $109($110($111));
       };
   };
   var colorZone = function (state) {
@@ -10734,8 +10744,8 @@ var PS = {};
       };
   };
   var _startPointer = function (dictStrong) {
-      var $111 = _ext$prime(dictStrong);
-      var $112 = Data_Lens_Lens.lens(function (v) {
+      var $112 = _ext$prime(dictStrong);
+      var $113 = Data_Lens_Lens.lens(function (v) {
           return v.startPointer;
       })(function (v) {
           return function (v1) {
@@ -10750,13 +10760,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($113) {
-          return $111($112($113));
+      return function ($114) {
+          return $112($113($114));
       };
   };
   var _startSquare = function (dictStrong) {
-      var $114 = _ext$prime(dictStrong);
-      var $115 = Data_Lens_Lens.lens(function (v) {
+      var $115 = _ext$prime(dictStrong);
+      var $116 = Data_Lens_Lens.lens(function (v) {
           return v.startSquare;
       })(function (v) {
           return function (v1) {
@@ -10771,13 +10781,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($116) {
-          return $114($115($116));
+      return function ($117) {
+          return $115($116($117));
       };
   };
   var _beastType = function (dictStrong) {
-      var $117 = _ext$prime(dictStrong);
-      var $118 = Data_Lens_Lens.lens(function (v) {
+      var $118 = _ext$prime(dictStrong);
+      var $119 = Data_Lens_Lens.lens(function (v) {
           return v.beastType;
       })(function (v) {
           return function (v1) {
@@ -10792,13 +10802,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($119) {
-          return $117($118($119));
+      return function ($120) {
+          return $118($119($120));
       };
   };
   var _beast = function (dictStrong) {
-      var $120 = _ext$prime(dictStrong);
-      var $121 = Data_Lens_Lens.lens(function (v) {
+      var $121 = _ext$prime(dictStrong);
+      var $122 = Data_Lens_Lens.lens(function (v) {
           return v.beast;
       })(function (v) {
           return function (v1) {
@@ -10813,8 +10823,8 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($122) {
-          return $120($121($122));
+      return function ($123) {
+          return $121($122($123));
       };
   };
   var getNewBeast = function (state) {
@@ -10851,10 +10861,10 @@ var PS = {};
   }, function (v) {
       return Game_Core.Minimize.value;
   }, (function () {
-      var $123 = Data_Array.filter(Control_Category.identity(Control_Category.categoryFn));
-      var $124 = Data_Lens_Getter.view(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
-      return function ($125) {
-          return Data_Array.length($123($124($125)));
+      var $124 = Data_Array.filter(Control_Category.identity(Control_Category.categoryFn));
+      var $125 = Data_Lens_Getter.view(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
+      return function ($126) {
+          return Data_Array.length($124($125($126)));
       };
   })(), function (state) {
       return Data_String_Common.joinWith("-")([ Data_Show.show(Data_Show.showInt)(Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget))), Data_Show.show(Data_Show.showInt)(Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget))), Data_Show.show(showMode)(Data_Lens_Getter.viewOn(state)(_mode(Data_Lens_Internal_Forget.strongForget))), Data_Show.show(showBt)(Data_Lens_Getter.viewOn(state)(_beastType(Data_Lens_Internal_Forget.strongForget))) ]);
@@ -10863,8 +10873,8 @@ var PS = {};
       return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Maybe.Nothing.value);
   }, function (st) {
       return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Array.replicate(Data_Lens_Getter.viewOn(st)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)) * Data_Lens_Getter.viewOn(st)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget)) | 0)(false));
-  }, function ($126) {
-      return Data_Array["null"](nonTrappedBeasts($126));
+  }, function ($127) {
+      return Data_Array["null"](nonTrappedBeasts($127));
   }, function (st) {
       return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Lens_Setter.set(_squareColors(Data_Profunctor_Strong.strongFn))(Data_Array.replicate(Data_Lens_Getter.viewOn(st)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)) * Data_Lens_Getter.viewOn(st)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget)) | 0)(0))(Data_Lens_Setter.set(_beast(Data_Profunctor_Strong.strongFn))(getNewBeast(st))(st)));
   }, function (state) {
@@ -10893,20 +10903,20 @@ var PS = {};
       };
       if (v instanceof SetBeast) {
           return Game_Core.newGame(labeteGame)((function () {
-              var $127 = (function () {
-                  var $83 = Data_Eq.eq(eqBt)(v.value0)(CustomBeast.value);
-                  if ($83) {
-                      var $130 = Data_Lens_Setter.set(Game_Core["_dialog"](Data_Profunctor_Strong.strongFn))(Game_Core.CustomDialog.value);
-                      var $131 = Data_Lens_Setter.over(_beast(Data_Profunctor_Strong.strongFn))(Data_Array.take(1));
-                      return function ($132) {
-                          return $130($131($132));
+              var $128 = (function () {
+                  var $84 = Data_Eq.eq(eqBt)(v.value0)(CustomBeast.value);
+                  if ($84) {
+                      var $131 = Data_Lens_Setter.set(Game_Core["_dialog"](Data_Profunctor_Strong.strongFn))(Game_Core.CustomDialog.value);
+                      var $132 = Data_Lens_Setter.over(_beast(Data_Profunctor_Strong.strongFn))(Data_Array.take(1));
+                      return function ($133) {
+                          return $131($132($133));
                       };
                   };
                   return Control_Category.identity(Control_Category.categoryFn);
               })();
-              var $128 = Data_Lens_Setter.set(_beastType(Data_Profunctor_Strong.strongFn))(v.value0);
-              return function ($129) {
-                  return $127($128($129));
+              var $129 = Data_Lens_Setter.set(_beastType(Data_Profunctor_Strong.strongFn))(v.value0);
+              return function ($130) {
+                  return $128($129($130));
               };
           })());
       };
@@ -10942,12 +10952,12 @@ var PS = {};
       };
       if (v instanceof FlipCustomBeast) {
           return Game_Core.newGame(labeteGame)(Data_Lens_Setter.over((function () {
-              var $133 = _beast(Data_Profunctor_Strong.strongFn);
-              var $134 = Data_Lens_Index.ix(Data_Lens_Index.indexArray)(0)(Data_Lens_Internal_Wander.wanderFunction);
-              var $135 = Game_Common["_isoCustom"](Data_Profunctor.profunctorFn);
-              var $136 = Data_Lens_Index.ix(Data_Lens_Index.indexArray)(v.value0)(Data_Lens_Internal_Wander.wanderFunction);
-              return function ($137) {
-                  return $133($134($135($136($137))));
+              var $134 = _beast(Data_Profunctor_Strong.strongFn);
+              var $135 = Data_Lens_Index.ix(Data_Lens_Index.indexArray)(0)(Data_Lens_Internal_Wander.wanderFunction);
+              var $136 = Game_Common["_isoCustom"](Data_Profunctor.profunctorFn);
+              var $137 = Data_Lens_Index.ix(Data_Lens_Index.indexArray)(v.value0)(Data_Lens_Internal_Wander.wanderFunction);
+              return function ($138) {
+                  return $134($135($136($137($138))));
               };
           })())(Data_HeytingAlgebra.not(Data_HeytingAlgebra.heytingAlgebraBoolean)));
       };
@@ -11545,10 +11555,12 @@ var PS = {};
   var Control_Category = $PS["Control.Category"];
   var Data_Array = $PS["Data.Array"];
   var Data_Eq = $PS["Data.Eq"];
+  var Data_FoldableWithIndex = $PS["Data.FoldableWithIndex"];
   var Data_Function = $PS["Data.Function"];
   var Data_Functor = $PS["Data.Functor"];
   var Data_Lens_Getter = $PS["Data.Lens.Getter"];
   var Data_Lens_Internal_Forget = $PS["Data.Lens.Internal.Forget"];
+  var Data_Monoid = $PS["Data.Monoid"];
   var Data_Show = $PS["Data.Show"];
   var Game_Core = $PS["Game.Core"];
   var Game_Nim_Model = $PS["Game.Nim.Model"];
@@ -11625,11 +11637,11 @@ var PS = {};
       var config = UI_Template.card("Poker Nim")([ UI_Icons.iconSelectGroup(UI_Icons.defint)(Data_Eq.eqInt)(state)("Nombre de rang\xe9es")([ 1, 2, 3, 4, 5 ])(nbPiles)(Game_Nim_Model.SetNbPiles.create)(Data_Function["const"](Control_Category.identity(Control_Category.categoryFn))), UI_Icons.iconSelectGroup(UI_Icons.defint)(Data_Eq.eqInt)(state)("Taille des rang\xe9es")([ 10, 5 ])(length)(Game_Nim_Model.SetLength.create)(Data_Function["const"](Control_Category.identity(Control_Category.categoryFn))), UI_Icons.icons2Players(Game_Nim_Model.withcore)(Game_Nim_Model.nimGame)(state), UI_Icons.icongroup("Options")(Data_Functor.mapFlipped(Data_Functor.functorArray)([ UI_Icons.iundo(Game_Nim_Model.withcore), UI_Icons.iredo(Game_Nim_Model.withcore), UI_Icons.ireset(Game_Nim_Model.withcore), UI_Icons.irules(Game_Nim_Model.withcore) ])(function (x) {
           return x(state);
       })) ]);
-      var board = Pha_Elements.div([ Pha.class_("ui-board nim-board") ])([ Pha_Svg.svg([ Pha_Svg.viewBox(0)(0)(100)(100) ])(Data_Array.concat(Data_Array.mapWithIndex(function (i) {
+      var board = Pha_Elements.div([ Pha.class_("ui-board nim-board") ])([ Pha_Svg.svg([ Pha_Svg.viewBox(0)(0)(100)(100) ])(Data_FoldableWithIndex.foldMapWithIndex(Data_FoldableWithIndex.foldableWithIndexArray)(Data_Monoid.monoidArray)(function (i) {
           return function (v) {
               return Data_Array.concat([ [ drawRow(i) ], Lib_Util.tabulate(length)(drawSquare(i)), Data_Array.mapWithIndex(drawPeg(i))([ v.value0, v.value1 ]) ]);
           };
-      })(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))))), Pha_Elements.span([ Pha.class_("nim-turn-message") ])([ Pha.text((function () {
+      })(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget)))), Pha_Elements.span([ Pha.class_("nim-turn-message") ])([ Pha.text((function () {
           var $11 = Game_Core.isLevelFinished(Game_Nim_Model.nimGame)(state);
           if ($11) {
               return "Partie finie";
@@ -12274,9 +12286,9 @@ var PS = {};
                   return new Data_Maybe.Just((function () {
                       var $28 = u < v;
                       if ($28) {
-                          return Lib_Util.rangeStep(u + 1 | 0)(v)(1);
+                          return Lib_Util.rangeWithStep(u + 1 | 0)(v)(1);
                       };
-                      return Lib_Util.rangeStep(u - 1 | 0)(v)(-1 | 0);
+                      return Lib_Util.rangeWithStep(u - 1 | 0)(v)(-1 | 0);
                   })());
               };
               var $29 = v1.col === 0;
@@ -12284,9 +12296,9 @@ var PS = {};
                   return new Data_Maybe.Just((function () {
                       var $30 = u < v;
                       if ($30) {
-                          return Lib_Util.rangeStep(u + columns | 0)(v)(columns);
+                          return Lib_Util.rangeWithStep(u + columns | 0)(v)(columns);
                       };
-                      return Lib_Util.rangeStep(u - columns | 0)(v)(-columns | 0);
+                      return Lib_Util.rangeWithStep(u - columns | 0)(v)(-columns | 0);
                   })());
               };
               return Data_Maybe.Nothing.value;
@@ -12484,11 +12496,13 @@ var PS = {};
   var Data_Array = $PS["Data.Array"];
   var Data_Eq = $PS["Data.Eq"];
   var Data_Foldable = $PS["Data.Foldable"];
+  var Data_FoldableWithIndex = $PS["Data.FoldableWithIndex"];
   var Data_Functor = $PS["Data.Functor"];
   var Data_Int = $PS["Data.Int"];
   var Data_Lens_Getter = $PS["Data.Lens.Getter"];
   var Data_Lens_Internal_Forget = $PS["Data.Lens.Internal.Forget"];
   var Data_Maybe = $PS["Data.Maybe"];
+  var Data_Monoid = $PS["Data.Monoid"];
   var Data_Semigroup = $PS["Data.Semigroup"];
   var Data_Show = $PS["Data.Show"];
   var Data_String_Common = $PS["Data.String.Common"];
@@ -12551,7 +12565,7 @@ var PS = {};
                   };
               };
           };
-          throw new Error("Failed pattern match at Game.Paths.View (line 60, column 90 - line 62, column 85): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Paths.View (line 61, column 90 - line 63, column 85): " + [ v.constructor.name ]);
       }), UI_Icons.iconSizesGroup(Game_Paths_Model.withcore)(state)([ new Data_Tuple.Tuple(4, 6), new Data_Tuple.Tuple(5, 5), new Data_Tuple.Tuple(3, 8) ])(true), UI_Icons.icongroup("Options")(Data_Functor.mapFlipped(Data_Functor.functorArray)([ UI_Icons.ihelp(Game_Paths_Model.withcore), UI_Icons.iundo(Game_Paths_Model.withcore), UI_Icons.iredo(Game_Paths_Model.withcore), UI_Icons.ireset(Game_Paths_Model.withcore), UI_Icons.irules(Game_Paths_Model.withcore) ])(function (x) {
           return x(state);
       })) ]);
@@ -12560,7 +12574,7 @@ var PS = {};
           var v = Lib_Util.coords(columns)(h);
           return Pha_Svg.use("#meeplehat")([ Pha.key("hero"), Pha_Svg.width("80"), Pha_Svg.height("80"), Pha.class_("paths-hero"), Pha.style("transform")(Pha_Util.translate(Pha_Util.pc((Data_Int.toNumber(v.col) + 0.1) / Data_Int.toNumber(columns)))(Pha_Util.pc((Data_Int.toNumber(v.row) + 0.1) / Data_Int.toNumber(rows)))) ]);
       };
-      var pathdec = Data_String_Common.joinWith(" ")(Data_Array.concat(Data_Array.mapWithIndex(function (i) {
+      var pathdec = Data_String_Common.joinWith(" ")(Data_FoldableWithIndex.foldMapWithIndex(Data_FoldableWithIndex.foldableWithIndexArray)(Data_Monoid.monoidArray)(function (i) {
           return function (v) {
               var v1 = Lib_Util.coords(columns)(v);
               return [ (function () {
@@ -12571,7 +12585,7 @@ var PS = {};
                   return "L";
               })(), Data_Show.show(Data_Show.showInt)((100 * v1.col | 0) + 50 | 0), Data_Show.show(Data_Show.showInt)((100 * v1.row | 0) + 50 | 0) ];
           };
-      })(position)));
+      })(position));
       var grid = Pha_Elements.div(Data_Semigroup.append(Data_Semigroup.semigroupArray)(UI_Template.gridStyle(rows)(columns)(5))(UI_Template.trackPointer(Game_Paths_Model.withcore)))([ Pha_Svg.svg([ Pha_Svg.viewBox(0)(0)(100 * columns | 0)(100 * rows | 0) ])(Data_Semigroup.append(Data_Semigroup.semigroupArray)(Lib_Util.tabulate(rows * columns | 0)(function (index) {
           var v = Lib_Util.coords(columns)(index);
           return square({
@@ -12631,6 +12645,7 @@ var PS = {};
   var Data_Array_NonEmpty_Internal = $PS["Data.Array.NonEmpty.Internal"];
   var Data_Eq = $PS["Data.Eq"];
   var Data_Foldable = $PS["Data.Foldable"];
+  var Data_FoldableWithIndex = $PS["Data.FoldableWithIndex"];
   var Data_HeytingAlgebra = $PS["Data.HeytingAlgebra"];
   var Data_Lens_Getter = $PS["Data.Lens.Getter"];
   var Data_Lens_Index = $PS["Data.Lens.Index"];
@@ -12643,7 +12658,6 @@ var PS = {};
   var Data_Profunctor_Strong = $PS["Data.Profunctor.Strong"];
   var Data_Show = $PS["Data.Show"];
   var Data_String_Common = $PS["Data.String.Common"];
-  var Data_Tuple = $PS["Data.Tuple"];
   var Game_Core = $PS["Game.Core"];
   var Lib_Util = $PS["Lib.Util"];
   var Pha_Update = $PS["Pha.Update"];                
@@ -12781,8 +12795,8 @@ var PS = {};
       if (v === 0) {
           return 0;
       };
-      var $45 = v > 0;
-      if ($45) {
+      var $44 = v > 0;
+      if ($44) {
           return 1;
       };
       return -1 | 0;
@@ -12896,17 +12910,17 @@ var PS = {};
       };
   };
   var _ext$prime = function (dictStrong) {
-      var $75 = Game_Core["_ext"](dictStrong);
-      var $76 = Data_Lens_Iso.iso(function (v) {
+      var $71 = Game_Core["_ext"](dictStrong);
+      var $72 = Data_Lens_Iso.iso(function (v) {
           return v;
       })(Ext)(dictStrong.Profunctor0());
-      return function ($77) {
-          return $75($76($77));
+      return function ($73) {
+          return $71($72($73));
       };
   };
   var _multiPieces = function (dictStrong) {
-      var $78 = _ext$prime(dictStrong);
-      var $79 = Data_Lens_Lens.lens(function (v) {
+      var $74 = _ext$prime(dictStrong);
+      var $75 = Data_Lens_Lens.lens(function (v) {
           return v.multiPieces;
       })(function (v) {
           return function (v1) {
@@ -12920,13 +12934,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($80) {
-          return $78($79($80));
+      return function ($76) {
+          return $74($75($76));
       };
   };
   var _selectedPiece = function (dictStrong) {
-      var $81 = _ext$prime(dictStrong);
-      var $82 = Data_Lens_Lens.lens(function (v) {
+      var $77 = _ext$prime(dictStrong);
+      var $78 = Data_Lens_Lens.lens(function (v) {
           return v.selectedPiece;
       })(function (v) {
           return function (v1) {
@@ -12940,13 +12954,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($83) {
-          return $81($82($83));
+      return function ($79) {
+          return $77($78($79));
       };
   };
   var _selectedSquare = function (dictStrong) {
-      var $84 = _ext$prime(dictStrong);
-      var $85 = Data_Lens_Lens.lens(function (v) {
+      var $80 = _ext$prime(dictStrong);
+      var $81 = Data_Lens_Lens.lens(function (v) {
           return v.selectedSquare;
       })(function (v) {
           return function (v1) {
@@ -12960,13 +12974,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($86) {
-          return $84($85($86));
+      return function ($82) {
+          return $80($81($82));
       };
   };
   var _customLocalMoves = function (dictStrong) {
-      var $87 = _ext$prime(dictStrong);
-      var $88 = Data_Lens_Lens.lens(function (v) {
+      var $83 = _ext$prime(dictStrong);
+      var $84 = Data_Lens_Lens.lens(function (v) {
           return v.customLocalMoves;
       })(function (v) {
           return function (v1) {
@@ -12980,13 +12994,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($89) {
-          return $87($88($89));
+      return function ($85) {
+          return $83($84($85));
       };
   };
   var _customDirections = function (dictStrong) {
-      var $90 = _ext$prime(dictStrong);
-      var $91 = Data_Lens_Lens.lens(function (v) {
+      var $86 = _ext$prime(dictStrong);
+      var $87 = Data_Lens_Lens.lens(function (v) {
           return v.customDirections;
       })(function (v) {
           return function (v1) {
@@ -13000,8 +13014,8 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($92) {
-          return $90($91($92));
+      return function ($88) {
+          return $86($87($88));
       };
   };
   var canCapture = function (state) {
@@ -13009,8 +13023,8 @@ var PS = {};
           return function (index1) {
               return function (index2) {
                   var v = Lib_Util.dCoords(Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget)))(index2)(index1);
-                  var $57 = Data_Eq.notEq(eqPiece)(piece)(Custom.value);
-                  if ($57) {
+                  var $56 = Data_Eq.notEq(eqPiece)(piece)(Custom.value);
+                  if ($56) {
                       return index1 !== index2 && legalMoves(piece)(v.row)(v.col);
                   };
                   return ((((v.row * v.row | 0) - (v.col * v.col | 0) | 0) * v.row | 0) * v.col | 0) === 0 && Data_Eq.eq(Data_Maybe.eqMaybe(Data_Eq.eqBoolean))(Data_Array.index(Data_Lens_Getter.viewOn(state)(_customDirections(Data_Lens_Internal_Forget.strongForget)))(((3 * sign(v.row) | 0) + sign(v.col) | 0) + 4 | 0))(new Data_Maybe.Just(true)) || ((v.row * v.row | 0) + (v.col * v.col | 0) | 0) <= 8 && Data_Eq.eq(Data_Maybe.eqMaybe(Data_Eq.eqBoolean))(Data_Array.index(Data_Lens_Getter.viewOn(state)(_customLocalMoves(Data_Lens_Internal_Forget.strongForget)))(((5 * v.row | 0) + v.col | 0) + 12 | 0))(new Data_Maybe.Just(true));
@@ -13036,17 +13050,19 @@ var PS = {};
       throw new Error("Failed pattern match at Game.Queens.Model (line 106, column 28 - line 108, column 64): " + [ v.constructor.name ]);
   };
   var capturableSquares = function (state) {
-      return Data_Foldable.foldr(Data_Foldable.foldableArray)(function (v) {
-          var $63 = Data_Eq.eq(eqPiece)(v.value1)(Empty.value);
-          if ($63) {
-              return Control_Category.identity(Control_Category.categoryFn);
+      return Data_FoldableWithIndex.foldrWithIndex(Data_FoldableWithIndex.foldableWithIndexArray)(function (index) {
+          return function (piece) {
+              var $61 = Data_Eq.eq(eqPiece)(piece)(Empty.value);
+              if ($61) {
+                  return Control_Category.identity(Control_Category.categoryFn);
+              };
+              return Data_Array.zipWith(Data_HeytingAlgebra.disj(Data_HeytingAlgebra.heytingAlgebraBoolean))(attackedBy(state)(piece)(index));
           };
-          return Data_Array.zipWith(Data_HeytingAlgebra.disj(Data_HeytingAlgebra.heytingAlgebraBoolean))(attackedBy(state)(v.value1)(v.value0));
-      })(Data_Array.replicate(Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)) * Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget)) | 0)(false))(Data_Array.mapWithIndex(Data_Tuple.Tuple.create)(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))));
+      })(Data_Array.replicate(Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)) * Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget)) | 0)(false))(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget)));
   };
   var _allowedPieces = function (dictStrong) {
-      var $93 = _ext$prime(dictStrong);
-      var $94 = Data_Lens_Lens.lens(function (v) {
+      var $89 = _ext$prime(dictStrong);
+      var $90 = Data_Lens_Lens.lens(function (v) {
           return v.allowedPieces;
       })(function (v) {
           return function (v1) {
@@ -13060,8 +13076,8 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($95) {
-          return $93($94($95));
+      return function ($91) {
+          return $89($90($91));
       };
   };
   var queensScoreGame = new Game_Core.ScoreGame(function () {
@@ -13071,12 +13087,12 @@ var PS = {};
   }, function (v) {
       return Game_Core.Maximize.value;
   }, (function () {
-      var $96 = Data_Array.filter(function (v) {
+      var $92 = Data_Array.filter(function (v) {
           return Data_Eq.notEq(eqPiece)(v)(Empty.value);
       });
-      var $97 = Data_Lens_Getter.view(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
-      return function ($98) {
-          return Data_Array.length($96($97($98)));
+      var $93 = Data_Lens_Getter.view(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
+      return function ($94) {
+          return Data_Array.length($92($93($94)));
       };
   })(), function (state) {
       return Data_String_Common.joinWith("-")([ Data_Show.show(Data_Show.showInt)(Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget))), Data_Show.show(Data_Show.showInt)(Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget))), Data_Show.show(showPiece)(Data_Array_NonEmpty.head(Data_Lens_Getter.viewOn(state)(_allowedPieces(Data_Lens_Internal_Forget.strongForget)))) ]);
@@ -13099,8 +13115,8 @@ var PS = {};
       return function (index) {
           var selectedPiece = Data_Lens_Getter.viewOn(state)(_selectedPiece(Data_Lens_Internal_Forget.strongForget));
           return Data_Array.modifyAt(index)(function (t) {
-              var $66 = Data_Eq.eq(eqPiece)(t)(selectedPiece);
-              if ($66) {
+              var $62 = Data_Eq.eq(eqPiece)(t)(selectedPiece);
+              if ($62) {
                   return Empty.value;
               };
               return selectedPiece;
@@ -13132,29 +13148,29 @@ var PS = {};
       };
       if (v instanceof FlipDirection) {
           return Game_Core.newGame(queensGame)(Data_Lens_Setter.over((function () {
-              var $99 = _customDirections(Data_Profunctor_Strong.strongFn);
-              var $100 = Data_Lens_Index.ix(Data_Lens_Index.indexArray)(v.value0)(Data_Lens_Internal_Wander.wanderFunction);
-              return function ($101) {
-                  return $99($100($101));
+              var $95 = _customDirections(Data_Profunctor_Strong.strongFn);
+              var $96 = Data_Lens_Index.ix(Data_Lens_Index.indexArray)(v.value0)(Data_Lens_Internal_Wander.wanderFunction);
+              return function ($97) {
+                  return $95($96($97));
               };
           })())(Data_HeytingAlgebra.not(Data_HeytingAlgebra.heytingAlgebraBoolean)));
       };
       if (v instanceof FlipLocalMove) {
           return Game_Core.newGame(queensGame)(Data_Lens_Setter.over((function () {
-              var $102 = _customLocalMoves(Data_Profunctor_Strong.strongFn);
-              var $103 = Data_Lens_Index.ix(Data_Lens_Index.indexArray)(v.value0)(Data_Lens_Internal_Wander.wanderFunction);
-              return function ($104) {
-                  return $102($103($104));
+              var $98 = _customLocalMoves(Data_Profunctor_Strong.strongFn);
+              var $99 = Data_Lens_Index.ix(Data_Lens_Index.indexArray)(v.value0)(Data_Lens_Internal_Wander.wanderFunction);
+              return function ($100) {
+                  return $98($99($100));
               };
           })())(Data_HeytingAlgebra.not(Data_HeytingAlgebra.heytingAlgebraBoolean)));
       };
       if (v instanceof Customize) {
           return Game_Core.newGame(queensGame)((function () {
-              var $105 = Data_Lens_Setter.set(_multiPieces(Data_Profunctor_Strong.strongFn))(false);
-              var $106 = Data_Lens_Setter.set(Game_Core["_dialog"](Data_Profunctor_Strong.strongFn))(Game_Core.CustomDialog.value);
-              var $107 = Data_Lens_Setter.set(_allowedPieces(Data_Profunctor_Strong.strongFn))(Data_Array_NonEmpty.singleton(Custom.value));
-              return function ($108) {
-                  return $105($106($107($108)));
+              var $101 = Data_Lens_Setter.set(_multiPieces(Data_Profunctor_Strong.strongFn))(false);
+              var $102 = Data_Lens_Setter.set(Game_Core["_dialog"](Data_Profunctor_Strong.strongFn))(Game_Core.CustomDialog.value);
+              var $103 = Data_Lens_Setter.set(_allowedPieces(Data_Profunctor_Strong.strongFn))(Data_Array_NonEmpty.singleton(Custom.value));
+              return function ($104) {
+                  return $101($102($103($104)));
               };
           })());
       };
@@ -15816,12 +15832,14 @@ var PS = {};
   var Control_Category = $PS["Control.Category"];
   var Data_Array = $PS["Data.Array"];
   var Data_Eq = $PS["Data.Eq"];
+  var Data_FoldableWithIndex = $PS["Data.FoldableWithIndex"];
   var Data_Function = $PS["Data.Function"];
   var Data_Functor = $PS["Data.Functor"];
   var Data_Int = $PS["Data.Int"];
   var Data_Lens_Getter = $PS["Data.Lens.Getter"];
   var Data_Lens_Internal_Forget = $PS["Data.Lens.Internal.Forget"];
   var Data_Maybe = $PS["Data.Maybe"];
+  var Data_Monoid = $PS["Data.Monoid"];
   var Data_Semigroup = $PS["Data.Semigroup"];
   var Data_Show = $PS["Data.Show"];
   var Game_Core = $PS["Game.Core"];
@@ -15848,11 +15866,11 @@ var PS = {};
       var rules = [  ];
       var nbColors = Data_Lens_Getter.viewOn(state)(Game_Tricolor_Model["_nbColors"](Data_Lens_Internal_Forget.strongForget));
       var levelFinished = Game_Core.isLevelFinished(Game_Tricolor_Model.tricolorGame)(state);
-      var drawColorCycle = Data_Semigroup.append(Data_Semigroup.semigroupArray)(Data_Array.concat(Data_Array.mapWithIndex(function (i) {
+      var drawColorCycle = Data_Semigroup.append(Data_Semigroup.semigroupArray)(Data_FoldableWithIndex.foldMapWithIndex(Data_FoldableWithIndex.foldableWithIndexArray)(Data_Monoid.monoidArray)(function (i) {
           return function (color) {
               return [ Pha_Svg.circle([ Pha_Svg.cx(Data_Show.show(Data_Show.showInt)(95 + (15 * (i - nbColors | 0) | 0) | 0)), Pha_Svg.cy("95"), Pha_Svg.r("3"), Pha.key("c" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.fill(color) ]), Pha_Svg["text'"]("\u2b95")([ Pha_Svg.x_(Data_Show.show(Data_Show.showInt)(99 + (15 * (i - nbColors | 0) | 0) | 0)), Pha_Svg.y_("97"), Pha.key("t" + Data_Show.show(Data_Show.showInt)(i)), Pha.attr("font-size")("7") ]) ];
           };
-      })(Data_Array.take(nbColors)(colors))))([ Pha_Svg.circle([ Pha_Svg.cx("95"), Pha_Svg.cy("95"), Pha_Svg.r("3"), Pha.key("fc"), Pha_Svg.fill("green") ]) ]);
+      })(Data_Array.take(nbColors)(colors)))([ Pha_Svg.circle([ Pha_Svg.cx("95"), Pha_Svg.cy("95"), Pha_Svg.r("3"), Pha.key("fc"), Pha_Svg.fill("green") ]) ]);
       var drawCell = function (i) {
           return function (color) {
               return Pha_Svg.circle([ Pha_Svg.r("7.5"), Pha.class_("tricolor-cell"), Pha["class'"]("finished")(levelFinished), Pha_Svg.stroke((function () {

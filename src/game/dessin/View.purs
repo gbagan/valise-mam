@@ -70,7 +70,7 @@ view state = template {config, board, rules, winTitle} state where
                         ,   stroke "red"
                         ,   strokeWidth "1.5"
                         ]
-                ,   graph.vertices # mapWithIndex \i  {x, y} →
+                ,   graph.vertices # mapWithIndex \i {x, y} →
                     circle
                     [   cx $ show (20.0 * x)
                     ,   cy $ show (20.0 * y)

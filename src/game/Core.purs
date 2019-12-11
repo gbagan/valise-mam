@@ -278,10 +278,9 @@ class Game pos ext mov <= TwoPlayersGame pos ext mov | ext → pos mov  where
     possibleMoves ∷ GState pos ext → Array mov
 
 computerMove' ∷ ∀pos ext mov. TwoPlayersGame pos ext mov ⇒ GState pos ext → Random (Maybe mov)
-computerMove' state =
-    if isLevelFinished state then
-        pure Nothing
-    else
+computerMove' state
+    | isLevelFinished state = pure Nothing
+    | otherwise =
         let moves = possibleMoves state in
         let bestMove = (
             if state^._mode == RandomMode then
@@ -305,7 +304,9 @@ class Game pos ext mov <= ScoreGame pos ext mov | ext → pos mov  where
     isCustomGame ∷ GState pos ext → Boolean                    
 
 scoreHash' ∷ ∀pos ext mov. ScoreGame pos ext mov ⇒ GState pos ext → String
-scoreHash' state = if isCustomGame state then "custom" else scoreHash state
+scoreHash' state 
+    | isCustomGame state = "custom"
+    | otherwise = scoreHash state
 
 updateScore' ∷ ∀pos ext mov. ScoreGame pos ext mov ⇒ ShowWinPolicy → GState pos ext → Tuple (GState pos ext) Boolean
 updateScore' strat state =

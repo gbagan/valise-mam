@@ -69,11 +69,11 @@ view state = template {config, board, rules, winTitle} state where
     board = incDecGrid state [grid]
 
     rules =
-        [   text "Le but de \"Tout noir, tout blanc\" est de retourner des tuiles pour que toutes soient face noire."
+        [   text "Le but du jeu est de retourner des tuiles pour que toutes soient face noire."
         ,   br
-        ,   text "Le problème est que lorsque tu retournes une tuile, tu es obligé de retourner également les tuiles adjacentes."
+        ,   text "La difficulté est que lorsque tu retournes une tuile, les tuiles adjacentes sont également retournées."
         ,   br
-        ,   text "Ce jeu possède d'autres modes. Selon le mode choisi, la manière de retourner les tuiles est différente."
+        ,   text "Ce jeu possède différents niveaux débloqués au fur et à mesure ainsi que d'autres modes de jeu. Selon le mode choisi, les règles pour retourner les tuiles changent."
         ]
 
     winTitle = "GAGNÉ"

@@ -1,11 +1,12 @@
 module Game.Tricolor.View where
 
 import MyPrelude
+
 import Data.FoldableWithIndex (foldMapWithIndex)
 import Game.Core (isLevelFinished, _position)
 import Game.Tricolor.Model (State, Msg(..), _size, _nbColors, _range, _hoverCell, inRange)
-import Pha (VDom, attr, class', class_, key, style)
-import Pha.Elements (div)
+import Pha (VDom, attr, class', class_, key, style, text)
+import Pha.Elements (br, div)
 import Pha.Events (onclick, onpointerenter, onpointerleave)
 import Pha.Svg (svg, circle, text', stroke, fill, viewBox, x_, y_, cx, cy, r)
 import Pha.Util (pc, translate)
@@ -74,6 +75,12 @@ view state = template {config, board, rules} state where
             ]
         ]
 
-    rules = []
+    rules = 
+        [   text "Ce jeu est une variante de \"Tout noir ou tout blanc\" mais avec plusieurs couleurs."
+        ,   br
+        ,   text "Lorsque tu cliques un jeton, celui-ci change de couleurs ainsi que tous les jetons proches jusqu'à la distance choisie dans \"Portée\"."
+        ,   br
+        ,   text "Le but est que tous les jetons soient de couleur verte."
+        ]
         
     

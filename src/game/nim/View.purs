@@ -82,11 +82,9 @@ view state = template {config, board, rules, winTitle} state where
         ]
 
     rules = 
-        [   text "Essaie de bloquer ton adversaire."
+        [   text "Le but du jeu est d'acculer chacun des jetons de l'adversaire au bord du plateau de telle façon qu'il ne puisse plus en déplacer."
         ,   br
-        ,   text "À chaque tour, tu peux déplacer un de tes jetons vers la gauche ou vers la droite"
-        ,   br
-        ,   text "d'autant de cases que tu veux mais tu ne peux pas sauter par-dessus le jeton adverse."
+        ,   text "À chaque tour, tu peux déplacer un de tes jetons vers la gauche ou vers la droite d'autant de cases que tu veux mais tu ne peux pas sauter par-dessus un jeton adverse."
         ,   br
         ,   text "Tu es obligé de déplacer un jeton d'au moins une case, tu ne peux pas passer ton tour."
         ,   br

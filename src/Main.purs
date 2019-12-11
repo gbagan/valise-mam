@@ -171,7 +171,9 @@ update (ValiseMsg msg)    = lens _.valise _{valise = _}       .~> Valise.update 
 update (OnKeyDown k) = do 
         st ← getState
         callByName st.location (pure unit) \game →
-            game.core.onKeydown k # maybe (pure unit) (update <<< game.msgmap)
+            case game.core.onKeydown k of
+                Nothing → pure unit
+                Just msg → update (game.msgmap msg)
 update OnHashChange = hashChange
 
 init ∷ Update RootState EFFS

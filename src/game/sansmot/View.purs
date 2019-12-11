@@ -64,7 +64,7 @@ animPytha {anim} =
         text' "a" $ [x_ "5", y_ "55", style "font-size" "20"] <> f "e",
         text' "a" $ [x_ "46", y_ "12", style "font-size" "20"] <> f "e",
         text' "b" $  [x_ "105", y_ "210", style "font-size" "20"] <> f "e",
-        text' "b" $ [x_ "198", y_ "210", style "font-size" "20"] <> f "e",
+        text' "b" $ [x_ "198", y_ "120", style "font-size" "20"] <> f "e",
         text' "c" $ [x_ "450", y_ "98", style "font-size" "20"] <> f "e",
         text' "c" $ [x_ "595", y_ "80", style "font-size" "20"] <> f "e"
     ]

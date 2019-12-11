@@ -6,9 +6,9 @@ import Pha.Update (Update, getState, setState)
 codeSequence ∷ String
 codeSequence = "ArrowUp ArrowUp ArrowDown ArrowDown ArrowLeft ArrowRight ArrowLeft ArrowRight b a"
 
-konamiCode ∷ ∀a effs. Lens' a (Array String) → Update a effs → String → Update a effs
+konamiCode ∷ ∀st effs. Lens' st (Array String) → Update st effs → String → Update st effs
 konamiCode lens onActivation key = do
     state ← getState
     let seq = state ^. lens # flip snoc key # takeEnd 10
-    setState (lens .~ seq)
+    setState $ lens .~ seq
     when (joinWith " " seq == codeSequence) onActivation

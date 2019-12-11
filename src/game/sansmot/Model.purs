@@ -11,26 +11,26 @@ data Page = PythaPage | CarollPage
 data AnimationStep = Step Int String Int -- delay, type d'items, phase 
 
 pythaAnimation ∷ Array AnimationStep
-pythaAnimation = [
-    Step 500 "a" 1,
-    Step 200 "a" 2,
-    Step 600 "b" 1,
-    Step 200 "b" 2,
-    Step 600 "c" 1,
-    Step 200 "c" 2,
-    Step 600 "d" 1,
-    Step 200 "d" 2,
-    Step 600 "e" 1
-]
+pythaAnimation = 
+    [   Step 500 "a" 1
+    ,   Step 200 "a" 2
+    ,   Step 600 "b" 1
+    ,   Step 200 "b" 2
+    ,   Step 600 "c" 1
+    ,   Step 200 "c" 2
+    ,   Step 600 "d" 1
+    ,   Step 200 "d" 2
+    ,   Step 600 "e" 1
+    ]
 
 carollAnimation ∷ Array AnimationStep
-carollAnimation = [
-    Step 700 "a" 1,
-    Step 700 "b" 1,
-    Step 700 "c" 1,
-    Step 700 "d" 1,
-    Step 600 "e" 1
-]
+carollAnimation =
+    [   Step 700 "a" 1
+    ,   Step 700 "b" 1
+    ,   Step 700 "c" 1
+    ,   Step 700 "d" 1
+    ,   Step 600 "e" 1
+    ]
 
 
 type State = {
@@ -41,11 +41,11 @@ type State = {
 }
 
 istate ∷ State
-istate = {
-    anim: M.empty,
-    locked: false,
-    page: CarollPage
-}
+istate = 
+    {   anim: M.empty
+    ,   locked: false
+    ,   page: CarollPage
+    }
 
 _anim ∷ Lens' State (M.Map String Int)
 _anim = lens _.anim _{anim = _}
@@ -56,6 +56,12 @@ _page = lens _.page _{page = _}
 
 data Msg = SetPage Page | Animate (Array AnimationStep)
 
+lockAction ∷ ∀effs. Update State effs → Update State effs 
+lockAction act = unlessM (getState <#> _.locked) do
+        setState _{locked = true}
+        act
+        setState _{locked = false}
+
 update ∷ Msg → Update State EFFS
 update (SetPage page) = purely \st ->
     if st^._locked then
@@ -63,11 +69,8 @@ update (SetPage page) = purely \st ->
     else
         st # _page .~ page # _anim .~ M.empty
 
-update (Animate animation) = do
-    unlessM (view _locked <$> getState) $ do
-        setState $ (_anim .~ M.empty) >>> (_locked .~ true)
+update (Animate animation) = lockAction do
+        setState $ _anim .~ M.empty 
         for_ animation \(Step d key step) → do
             delay d
-            state ← getState
             setState $ _anim ∘ at key .~ Just step
-        setState $ _locked .~ false

@@ -141,6 +141,37 @@ C'est un peu l'analogue fonctionnel des getters et setters de Java mais leur for
 
 [Un livre à ce sujet](https://leanpub.com/lenses)
 
+### Messages et fonction update
+
+Le type de message pour un jeu (que l'on appelera msg) doit contenir le type CoreMsg qui est le type des messages communs à tous les jeux.
+msg doit également implément la la classe de type MsgWithCore.
+coreUpdate est une fonction update pour les messages du type CoreMsg.
+Un exemple:
+
+```purescript
+data Msg = Core CoreMsg | Message1 Int | Message2
+instance withcore ∷ MsgWithCore Msg where core = Core
+
+update ∷ Msg → Update State EFFS
+update (Core msg) = coreUpdate msg
+update (Message1 n) = ...
+update Message2 = ...
+```
+Il est possible de rédefinir l'action à effectuer pour un message de CoreMsg de la façon suivante.
+
+```purescript
+data Msg = Core CoreMsg | Message1 Int | Message2
+instance withcore ∷ MsgWithCore Msg where core = Core
+
+update ∷ Msg → Update State EFFS
+update (Core Undo) = ...
+update (Core msg) = coreUpdate msg
+update (Message1 n) = ...
+update Message2 = ...
+```
+
+
+
 ---------------------------------------------------------
 3 classes sont présentes pour le modèle, n'oubliez pas que classe dans Haskell/Purescript est plus proche d'une interface que d'une vraie classe.
 

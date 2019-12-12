@@ -3,7 +3,7 @@ module Game.Baseball.Model where
 import MyPrelude
 import Data.FoldableWithIndex (allWithIndex)
 import Lib.Util ((..))
-import Pha.Random (shuffle, randomInt)
+import Pha.Random as R
 import Pha.Update (Update)
 import Game.Effs (EFFS)
 import Game.Core (class Game, GState, class MsgWithCore, CoreMsg,
@@ -54,10 +54,10 @@ instance baseballGame ∷ Game (Array Int) ExtState Int where
         else
             Nothing
 
-    initialPosition state = shuffle (0 .. (2 * state^._nbBases - 1))
+    initialPosition state = R.shuffle (0 .. (2 * state^._nbBases - 1))
     isLevelFinished state = state^._position # allWithIndex \i j → i / 2 == j / 2
     -- on tire aléatoirement le jeton manquant
-    onNewGame state = randomInt (2 * state^._nbBases) <#> \i → state # _missingPeg .~ i
+    onNewGame state = R.int' (2 * state^._nbBases) <#> \i → state # _missingPeg .~ i
     
     -- fonctions par défault
     computerMove _ = pure Nothing

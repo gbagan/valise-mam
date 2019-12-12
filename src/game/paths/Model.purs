@@ -2,7 +2,7 @@ module Game.Paths.Model where
 import MyPrelude
 import Data.Array (nub)
 import Data.Array.NonEmpty (fromArray, head, last, init, tail) as N
-import Pha.Random (randomInt)
+import Pha.Random as R
 import Lib.Util (dCoords, rangeWithStep)
 import Game.Effs (EFFS)
 import Game.Core (GState, class Game, class MsgWithCore, CoreMsg, SizeLimit(..), 
@@ -80,7 +80,7 @@ instance game ∷ Game (Array Int) Ext Int where
 
     onNewGame state = flip (set _exit) state <$>
         if state^._mode == Mode1 then
-            randomInt (state^._nbRows * state^._nbColumns) <#> Just
+            R.int' (state^._nbRows * state^._nbColumns) <#> Just
         else
             pure Nothing
 

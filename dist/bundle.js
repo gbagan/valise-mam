@@ -5271,6 +5271,7 @@ var PS = {};
   var Control_Category = $PS["Control.Category"];
   var Control_Monad_Free = $PS["Control.Monad.Free"];
   var Data_Array = $PS["Data.Array"];
+  var Data_Boolean = $PS["Data.Boolean"];
   var Data_Eq = $PS["Data.Eq"];
   var Data_Foldable = $PS["Data.Foldable"];
   var Data_Functor = $PS["Data.Functor"];
@@ -5297,17 +5298,14 @@ var PS = {};
           return new RandomNumber(value0);
       };
       return RandomNumber;
-  })();                                                                                                                 
-  var randomInt = function (n) {
+  })();                                                                                                           
+  var int$prime = function (n) {
       return Control_Monad_Free.liftF(new RandomInt(n, Control_Category.identity(Control_Category.categoryFn)));
-  };
-  var sample = function (t) {
-      return Data_Functor.map(Control_Monad_Free.freeFunctor)(Data_Array.index(t))(randomInt(Data_Array.length(t)));
   };
   var shuffle = function (array) {
       return Control_Bind.bind(Control_Monad_Free.freeBind)(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Free.freeApplicative)(Data_Array.mapWithIndex(function (i) {
           return function (x) {
-              return Data_Functor.map(Control_Monad_Free.freeFunctor)(Data_Tuple.Tuple.create(x))(randomInt(i + 1 | 0));
+              return Data_Functor.map(Control_Monad_Free.freeFunctor)(Data_Tuple.Tuple.create(x))(int$prime(i + 1 | 0));
           };
       })(array)))(function (v) {
           return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Foldable.foldl(Data_Foldable.foldableArray)(function (t) {
@@ -5317,7 +5315,31 @@ var PS = {};
           })([  ])(v));
       });
   };
-  var randomBool = Data_Functor.mapFlipped(Control_Monad_Free.freeFunctor)(randomInt(2))(Data_Eq.eq(Data_Eq.eqInt)(0));
+  var $$int = function ($copy_n) {
+      return function ($copy_m) {
+          var $tco_var_n = $copy_n;
+          var $tco_done = false;
+          var $tco_result;
+          function $tco_loop(n, m) {
+              if (m < n) {
+                  $tco_var_n = m;
+                  $copy_m = n;
+                  return;
+              };
+              if (Data_Boolean.otherwise) {
+                  $tco_done = true;
+                  return Data_Functor.mapFlipped(Control_Monad_Free.freeFunctor)(int$prime((m + 1 | 0) - n | 0))(function (v) {
+                      return v + n | 0;
+                  });
+              };
+              throw new Error("Failed pattern match at Pha.Random (line 19, column 1 - line 19, column 29): " + [ n.constructor.name, m.constructor.name ]);
+          };
+          while (!$tco_done) {
+              $tco_result = $tco_loop($tco_var_n, $copy_m);
+          };
+          return $tco_result;
+      };
+  };
   var functorRng = new Data_Functor.Functor(function (f) {
       return function (m) {
           if (m instanceof RandomInt) {
@@ -5326,13 +5348,18 @@ var PS = {};
           if (m instanceof RandomNumber) {
               return new RandomNumber(Data_Functor.map(Data_Functor.functorFn)(f)(m.value0));
           };
-          throw new Error("Failed pattern match at Pha.Random (line 10, column 1 - line 10, column 45): " + [ m.constructor.name ]);
+          throw new Error("Failed pattern match at Pha.Random (line 11, column 1 - line 11, column 45): " + [ m.constructor.name ]);
       };
   });
-  exports["randomInt"] = randomInt;
-  exports["randomBool"] = randomBool;
+  var element$prime = function (t) {
+      return Data_Functor.map(Control_Monad_Free.freeFunctor)(Data_Array.index(t))(int$prime(Data_Array.length(t)));
+  };
+  var bool = Data_Functor.mapFlipped(Control_Monad_Free.freeFunctor)(int$prime(2))(Data_Eq.eq(Data_Eq.eqInt)(0));
+  exports["int"] = $$int;
+  exports["int'"] = int$prime;
+  exports["bool"] = bool;
   exports["shuffle"] = shuffle;
-  exports["sample"] = sample;
+  exports["element'"] = element$prime;
   exports["RandomInt"] = RandomInt;
   exports["RandomNumber"] = RandomNumber;
   exports["functorRng"] = functorRng;
@@ -5871,7 +5898,7 @@ var PS = {};
           if (Data_Boolean.otherwise) {
               return scoreHash(dictScoreGame)(state);
           };
-          throw new Error("Failed pattern match at Game.Core (line 306, column 1 - line 306, column 75): " + [ state.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Core (line 307, column 1 - line 307, column 75): " + [ state.constructor.name ]);
       };
   };
   var initialPosition = function (dict) {
@@ -6523,11 +6550,11 @@ var PS = {};
                   return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(bestMove);
               };
               if (bestMove instanceof Data_Maybe.Nothing) {
-                  return Pha_Random.sample(moves);
+                  return Pha_Random["element'"](moves);
               };
-              throw new Error("Failed pattern match at Game.Core (line 291, column 13 - line 293, column 39): " + [ bestMove.constructor.name ]);
+              throw new Error("Failed pattern match at Game.Core (line 292, column 13 - line 294, column 43): " + [ bestMove.constructor.name ]);
           };
-          throw new Error("Failed pattern match at Game.Core (line 280, column 1 - line 280, column 95): " + [ state.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Core (line 281, column 1 - line 281, column 95): " + [ state.constructor.name ]);
       };
   };
   var computerPlay = function (dictGame) {
@@ -6542,7 +6569,7 @@ var PS = {};
                       return Control_Applicative.when(Run.applicativeRun)(isLevelFinished(dictGame)(v2.value0))(showVictory);
                   });
               };
-              throw new Error("Failed pattern match at Game.Core (line 224, column 5 - line 228, column 51): " + [ v2.constructor.name ]);
+              throw new Error("Failed pattern match at Game.Core (line 225, column 5 - line 229, column 51): " + [ v2.constructor.name ]);
           });
       });
   };
@@ -6557,7 +6584,7 @@ var PS = {};
                   if (v1 instanceof Data_List_Types.Cons) {
                       return Data_Lens_Setter.over(_redoHistory(Data_Profunctor_Strong.strongFn))(Data_List_Types.Cons.create(Data_Lens_Getter.viewOn(state)(_position(Data_Lens_Internal_Forget.strongForget))))(Data_Lens_Setter.set(_history(Data_Profunctor_Strong.strongFn))(v1.value1)(Data_Lens_Setter.set(_position(Data_Profunctor_Strong.strongFn))(v1.value0)(changeTurn(state))));
                   };
-                  throw new Error("Failed pattern match at Game.Core (line 157, column 35 - line 163, column 56): " + [ v1.constructor.name ]);
+                  throw new Error("Failed pattern match at Game.Core (line 158, column 35 - line 164, column 56): " + [ v1.constructor.name ]);
               });
           };
           if (v instanceof Redo) {
@@ -6569,7 +6596,7 @@ var PS = {};
                   if (v1 instanceof Data_List_Types.Cons) {
                       return Data_Lens_Setter.over(_history(Data_Profunctor_Strong.strongFn))(Data_List_Types.Cons.create(Data_Lens_Getter.viewOn(state)(_position(Data_Lens_Internal_Forget.strongForget))))(Data_Lens_Setter.set(_redoHistory(Data_Profunctor_Strong.strongFn))(v1.value1)(Data_Lens_Setter.set(_position(Data_Profunctor_Strong.strongFn))(v1.value0)(changeTurn(state))));
                   };
-                  throw new Error("Failed pattern match at Game.Core (line 165, column 35 - line 171, column 52): " + [ v1.constructor.name ]);
+                  throw new Error("Failed pattern match at Game.Core (line 166, column 35 - line 172, column 52): " + [ v1.constructor.name ]);
               });
           };
           if (v instanceof Reset) {
@@ -6581,7 +6608,7 @@ var PS = {};
                   if (v1 instanceof Data_Maybe.Just) {
                       return Data_Lens_Setter.set(_turn(Data_Profunctor_Strong.strongFn))(Turn1.value)(Data_Lens_Setter.set(_redoHistory(Data_Profunctor_Strong.strongFn))(Data_List_Types.Nil.value)(Data_Lens_Setter.set(_history(Data_Profunctor_Strong.strongFn))(Data_List_Types.Nil.value)(Data_Lens_Setter.set(_position(Data_Profunctor_Strong.strongFn))(v1.value0)(state))));
                   };
-                  throw new Error("Failed pattern match at Game.Core (line 173, column 36 - line 178, column 37): " + [ v1.constructor.name ]);
+                  throw new Error("Failed pattern match at Game.Core (line 174, column 36 - line 179, column 37): " + [ v1.constructor.name ]);
               });
           };
           if (v instanceof ToggleHelp) {
@@ -6643,7 +6670,7 @@ var PS = {};
           if (v instanceof Init) {
               return newGame(dictGame)(Control_Category.identity(Control_Category.categoryFn));
           };
-          throw new Error("Failed pattern match at Game.Core (line 156, column 1 - line 156, column 85): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Core (line 157, column 1 - line 157, column 85): " + [ v.constructor.name ]);
       };
   };
   var playA = function (dictGame) {
@@ -6673,7 +6700,7 @@ var PS = {};
                       return Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit);
                   });
               };
-              throw new Error("Failed pattern match at Game.Core (line 233, column 5 - line 244, column 26): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at Game.Core (line 234, column 5 - line 245, column 26): " + [ v1.constructor.name ]);
           }));
       };
   };
@@ -6698,7 +6725,7 @@ var PS = {};
                               return Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit);
                           });
                       };
-                      throw new Error("Failed pattern match at Game.Core (line 341, column 5 - line 345, column 71): " + [ v1.constructor.name ]);
+                      throw new Error("Failed pattern match at Game.Core (line 342, column 5 - line 346, column 71): " + [ v1.constructor.name ]);
                   });
               };
           };
@@ -6722,7 +6749,7 @@ var PS = {};
                   if (v instanceof DropOnBoard) {
                       return Pha_Update.purely(Data_Lens_Setter.set(_dragged(Data_Profunctor_Strong.strongFn))(Data_Maybe.Nothing.value));
                   };
-                  throw new Error("Failed pattern match at Game.Core (line 330, column 1 - line 331, column 79): " + [ _dragged.constructor.name, v.constructor.name ]);
+                  throw new Error("Failed pattern match at Game.Core (line 331, column 1 - line 332, column 79): " + [ _dragged.constructor.name, v.constructor.name ]);
               };
           };
       };
@@ -7095,7 +7122,7 @@ var PS = {};
           };
       })(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget)));
   }, function (state) {
-      return Data_Functor.mapFlipped(Control_Monad_Free.freeFunctor)(Pha_Random.randomInt(2 * Data_Lens_Getter.viewOn(state)(_nbBases(Data_Lens_Internal_Forget.strongForget)) | 0))(function (i) {
+      return Data_Functor.mapFlipped(Control_Monad_Free.freeFunctor)(Pha_Random["int'"](2 * Data_Lens_Getter.viewOn(state)(_nbBases(Data_Lens_Internal_Forget.strongForget)) | 0))(function (i) {
           return Data_Lens_Setter.set(_missingPeg(Data_Profunctor_Strong.strongFn))(i)(state);
       });
   }, function (state) {
@@ -8722,14 +8749,14 @@ var PS = {};
       return Control_Bind.bind(Control_Monad_Free.freeBind)((function () {
           var $64 = Data_Eq.eq(eqSoapMode)(Data_Lens_Getter.viewOn(state)(_soapMode(Data_Lens_Internal_Forget.strongForget)))(StandardMode.value);
           if ($64) {
-              return Pha_Random.randomInt(Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)));
+              return Pha_Random["int'"](Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)));
           };
           return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(0);
       })())(function (v) {
           return Control_Bind.bind(Control_Monad_Free.freeBind)((function () {
               var $66 = Data_Eq.notEq(eqSoapMode)(Data_Lens_Getter.viewOn(state)(_soapMode(Data_Lens_Internal_Forget.strongForget)))(CornerMode.value);
               if ($66) {
-                  return Pha_Random.randomInt(Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget)));
+                  return Pha_Random["int'"](Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget)));
               };
               return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(0);
           })())(function (v1) {
@@ -11135,7 +11162,7 @@ var PS = {};
           if (v instanceof Data_Maybe.Just) {
               return Data_Functor.map(Data_Maybe.functorMaybe)(zone(Data_Lens_Getter.viewOn(state)(Game_Labete_Model["_selectedColor"](Data_Lens_Internal_Forget.strongForget)))(v.value0))(Data_Lens_Getter.viewOn(state)(Game_Core["_pointer"](Data_Lens_Internal_Forget.strongForget)));
           };
-          throw new Error("Failed pattern match at Game.Labete.View (line 117, column 26 - line 119, column 80): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Labete.View (line 110, column 26 - line 112, column 80): " + [ v.constructor.name ]);
       })()) ])) ]);
       var scoreDialog = function (v) {
           return UI_Template.bestScoreDialog(Game_Labete_Model.withcore)(Game_Labete_Model.scoregameLabete)(state)(function (position) {
@@ -11307,11 +11334,12 @@ var PS = {};
   $PS["Game.Nim.Model"] = $PS["Game.Nim.Model"] || {};
   var exports = $PS["Game.Nim.Model"];
   var Control_Applicative = $PS["Control.Applicative"];
-  var Control_Bind = $PS["Control.Bind"];
+  var Control_Apply = $PS["Control.Apply"];
   var Control_Monad_Free = $PS["Control.Monad.Free"];
   var Data_Array = $PS["Data.Array"];
   var Data_Eq = $PS["Data.Eq"];
   var Data_Foldable = $PS["Data.Foldable"];
+  var Data_Functor = $PS["Data.Functor"];
   var Data_HeytingAlgebra = $PS["Data.HeytingAlgebra"];
   var Data_Int_Bits = $PS["Data.Int.Bits"];
   var Data_Lens_Getter = $PS["Data.Lens.Getter"];
@@ -11408,8 +11436,8 @@ var PS = {};
           };
           if (v1 instanceof Data_Maybe.Just) {
               return v.value1 !== v1.value0.value0 && (v.value1 !== v1.value0.value1 && (function () {
-                  var $24 = Data_Eq.eq(Game_Core.eqTurn)(Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)))(Game_Core.Turn1.value);
-                  if ($24) {
+                  var $22 = Data_Eq.eq(Game_Core.eqTurn)(Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)))(Game_Core.Turn1.value);
+                  if ($22) {
                       return v.value1 < v1.value0.value1;
                   };
                   return v.value1 > v1.value0.value0;
@@ -11419,17 +11447,17 @@ var PS = {};
       };
   };
   var _ext$prime = function (dictStrong) {
-      var $56 = Game_Core["_ext"](dictStrong);
-      var $57 = Data_Lens_Iso.iso(function (v) {
+      var $52 = Game_Core["_ext"](dictStrong);
+      var $53 = Data_Lens_Iso.iso(function (v) {
           return v;
       })(Ext)(dictStrong.Profunctor0());
-      return function ($58) {
-          return $56($57($58));
+      return function ($54) {
+          return $52($53($54));
       };
   };
   var _length = function (dictStrong) {
-      var $59 = _ext$prime(dictStrong);
-      var $60 = Data_Lens_Lens.lens(function (v) {
+      var $55 = _ext$prime(dictStrong);
+      var $56 = Data_Lens_Lens.lens(function (v) {
           return v.length;
       })(function (v) {
           return function (v1) {
@@ -11439,13 +11467,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($61) {
-          return $59($60($61));
+      return function ($57) {
+          return $55($56($57));
       };
   };
   var _nbPiles = function (dictStrong) {
-      var $62 = _ext$prime(dictStrong);
-      var $63 = Data_Lens_Lens.lens(function (v) {
+      var $58 = _ext$prime(dictStrong);
+      var $59 = Data_Lens_Lens.lens(function (v) {
           return v.nbPiles;
       })(function (v) {
           return function (v1) {
@@ -11455,27 +11483,27 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($64) {
-          return $62($63($64));
+      return function ($60) {
+          return $58($59($60));
       };
   };
   var nimGame2 = new Game_Core.TwoPlayersGame(function () {
       return nimGame;
   }, (function () {
-      var $65 = Data_Foldable.foldr(Data_Foldable.foldableArray)(function (t) {
+      var $61 = Data_Foldable.foldr(Data_Foldable.foldableArray)(function (t) {
           return Data_Int_Bits.xor((Data_Tuple.snd(t) - Data_Tuple.fst(t) | 0) - 1 | 0);
       })(0);
-      var $66 = Data_Lens_Getter.view(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
-      return function ($67) {
+      var $62 = Data_Lens_Getter.view(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
+      return function ($63) {
           return (function (v) {
               return v === 0;
-          })($65($66($67)));
+          })($61($62($63)));
       };
   })(), function (state) {
       return Data_Array.sortWith(Data_Ord.ordInt)(function (v) {
           return Data_Maybe.maybe(0)(function (x) {
-              var $32 = Data_Eq.eq(Game_Core.eqTurn)(Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)))(Game_Core.Turn1.value);
-              if ($32) {
+              var $30 = Data_Eq.eq(Game_Core.eqTurn)(Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)))(Game_Core.Turn1.value);
+              if ($30) {
                   return Data_Tuple.fst(x) - v.value1 | 0;
               };
               return v.value1 - Data_Tuple.snd(x) | 0;
@@ -11484,21 +11512,17 @@ var PS = {};
   });
   var nimGame = new Game_Core.Game(Game_Core["computerMove'"](nimGame2), function (state) {
       return Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Free.freeApplicative)(Data_Array.replicate(Data_Lens_Getter.viewOn(state)(_nbPiles(Data_Lens_Internal_Forget.strongForget)))((function () {
-          var $35 = Data_Lens_Getter.viewOn(state)(_length(Data_Lens_Internal_Forget.strongForget)) === 5;
-          if ($35) {
+          var $33 = Data_Lens_Getter.viewOn(state)(_length(Data_Lens_Internal_Forget.strongForget)) === 5;
+          if ($33) {
               return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(new Data_Tuple.Tuple(0, 4));
           };
-          return Control_Bind.bind(Control_Monad_Free.freeBind)(Pha_Random.randomInt(5))(function (v) {
-              return Control_Bind.bind(Control_Monad_Free.freeBind)(Pha_Random.randomInt(5))(function (v1) {
-                  return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(new Data_Tuple.Tuple(v, v1 + 5 | 0));
-              });
-          });
+          return Control_Apply.apply(Control_Monad_Free.freeApply)(Data_Functor.map(Control_Monad_Free.freeFunctor)(Data_Tuple.Tuple.create)(Pha_Random["int"](0)(4)))(Pha_Random["int"](0)(9));
       })()));
   }, function (state) {
       return Data_Foldable.all(Data_Foldable.foldableArray)(Data_HeytingAlgebra.heytingAlgebraBoolean)(function (v) {
           return (v.value1 - v.value0 | 0) === 1 && v.value0 === (function () {
-              var $39 = Data_Eq.eq(Game_Core.eqTurn)(Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)))(Game_Core.Turn2.value);
-              if ($39) {
+              var $35 = Data_Eq.eq(Game_Core.eqTurn)(Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)))(Game_Core.Turn2.value);
+              if ($35) {
                   return Data_Lens_Getter.viewOn(state)(_length(Data_Lens_Internal_Forget.strongForget)) - 2 | 0;
               };
               return 0;
@@ -11506,11 +11530,11 @@ var PS = {};
       })(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget)));
   }, Game_Core.defaultOnNewGame, function (state) {
       return function (v) {
-          var $44 = canPlay(state)(v);
-          if ($44) {
+          var $40 = canPlay(state)(v);
+          if ($40) {
               return Data_Array.modifyAt(v.value0)(function (v1) {
-                  var $46 = Data_Eq.eq(Game_Core.eqTurn)(Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)))(Game_Core.Turn1.value);
-                  if ($46) {
+                  var $42 = Data_Eq.eq(Game_Core.eqTurn)(Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)))(Game_Core.Turn1.value);
+                  if ($42) {
                       return new Data_Tuple.Tuple(v.value1, v1.value1);
                   };
                   return new Data_Tuple.Tuple(v1.value0, v.value1);
@@ -11534,7 +11558,7 @@ var PS = {};
       if (v instanceof Play) {
           return Game_Core.playA(nimGame)(v.value0);
       };
-      throw new Error("Failed pattern match at Game.Nim.Model (line 80, column 1 - line 80, column 33): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Nim.Model (line 78, column 1 - line 78, column 33): " + [ v.constructor.name ]);
   };
   exports["Move"] = Move;
   exports["istate"] = istate;
@@ -11580,7 +11604,7 @@ var PS = {};
           };
           return "rouge";
       })() + "s gagnent");
-      var rules = [ Pha.text("Essaie de bloquer ton adversaire."), Pha_Elements.br, Pha.text("\xc0 chaque tour, tu peux d\xe9placer un de tes jetons vers la gauche ou vers la droite"), Pha_Elements.br, Pha.text("d'autant de cases que tu veux mais tu ne peux pas sauter par-dessus le jeton adverse."), Pha_Elements.br, Pha.text("Tu es oblig\xe9 de d\xe9placer un jeton d'au moins une case, tu ne peux pas passer ton tour."), Pha_Elements.br, Pha.text("Tu gagnes la partie si ton adversaire n'a aucun mouvement possible.") ];
+      var rules = [ Pha.text("Le but du jeu est d'acculer chacun des jetons de l'adversaire au bord du plateau de telle fa\xe7on qu'il ne puisse plus en d\xe9placer."), Pha_Elements.br, Pha.text("\xc0 chaque tour, tu peux d\xe9placer un de tes jetons vers la gauche ou vers la droite d'autant de cases que tu veux mais tu ne peux pas sauter par-dessus un jeton adverse."), Pha_Elements.br, Pha.text("Tu es oblig\xe9 de d\xe9placer un jeton d'au moins une case, tu ne peux pas passer ton tour."), Pha_Elements.br, Pha.text("Tu gagnes la partie si ton adversaire n'a aucun mouvement possible.") ];
       var nbPiles = Data_Lens_Getter.viewOn(state)(Game_Nim_Model["_nbPiles"](Data_Lens_Internal_Forget.strongForget));
       var length = Data_Lens_Getter.viewOn(state)(Game_Nim_Model["_length"](Data_Lens_Internal_Forget.strongForget));
       var drawSquare = function (i) {
@@ -11897,8 +11921,8 @@ var PS = {};
   };
   var genRandomBoard = function (state) {
       var size = Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)) * Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget)) | 0;
-      return Control_Bind.bind(Control_Monad_Free.freeBind)(Pha_Random.randomInt(size + 1 | 0))(function (v) {
-          return Control_Bind.bind(Control_Monad_Free.freeBind)(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Free.freeApplicative)(Data_Array.replicate(v)(Pha_Random.randomInt(size))))(function (v1) {
+      return Control_Bind.bind(Control_Monad_Free.freeBind)(Pha_Random["int"](0)(size))(function (v) {
+          return Control_Bind.bind(Control_Monad_Free.freeBind)(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Free.freeApplicative)(Data_Array.replicate(v)(Pha_Random["int'"](size))))(function (v1) {
               return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Foldable.foldr(Data_Foldable.foldableArray)(toggleCell(state))(Data_Array.replicate(size)(true))(v1));
           });
       });
@@ -11992,7 +12016,7 @@ var PS = {};
               return _keySequence(dictStrong);
           })(Pha_Update.purely(Data_Lens_Setter.set(_maxLevels(Data_Profunctor_Strong.strongFn))([ 6, 6, 6, 6 ])))(v.value0);
       };
-      throw new Error("Failed pattern match at Game.Noirblanc.Model (line 119, column 1 - line 119, column 33): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Noirblanc.Model (line 120, column 1 - line 120, column 33): " + [ v.constructor.name ]);
   };
   exports["istate"] = istate;
   exports["_mode"] = _mode;
@@ -12149,7 +12173,7 @@ var PS = {};
       };
   };
   var view = function (state) {
-      var rules = [ Pha.text("Le but de \"Tout noir, tout blanc\" est de retourner des tuiles pour que toutes soient face noire."), Pha_Elements.br, Pha.text("Le probl\xe8me est que lorsque tu retournes une tuile, tu es oblig\xe9 de retourner \xe9galement les tuiles adjacentes."), Pha_Elements.br, Pha.text("Ce jeu poss\xe8de d'autres modes. Selon le mode choisi, la mani\xe8re de retourner les tuiles est diff\xe9rente.") ];
+      var rules = [ Pha.text("Le but du jeu est de retourner des tuiles pour que toutes soient face noire."), Pha_Elements.br, Pha.text("La difficult\xe9 est que lorsque tu retournes une tuile, les tuiles adjacentes sont \xe9galement retourn\xe9es."), Pha_Elements.br, Pha.text("Ce jeu poss\xe8de diff\xe9rents niveaux d\xe9bloqu\xe9s au fur et \xe0 mesure ainsi que d'autres modes de jeu. Selon le mode choisi, les r\xe8gles pour retourner les tuiles changent.") ];
       var rows = Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget));
       var position = Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
       var config = UI_Template.card("Tout noir tout blanc")([ UI_Icons.iconSelectGroup(UI_Icons.defint)(Data_Eq.eqInt)(state)("Mode jeu")([ 0, 1, 2, 3 ])(Data_Lens_Getter.viewOn(state)(Game_Noirblanc_Model["_mode"](Data_Lens_Internal_Forget.strongForget)))(Game_Noirblanc_Model.SelectMode.create)(function (i) {
@@ -12424,7 +12448,7 @@ var PS = {};
       return Data_Functor.map(Control_Monad_Free.freeFunctor)(Data_Function.flip(Data_Lens_Setter.set(_exit(Data_Profunctor_Strong.strongFn)))(state))((function () {
           var $43 = Data_Eq.eq(eqMode)(Data_Lens_Getter.viewOn(state)(_mode(Data_Lens_Internal_Forget.strongForget)))(Mode1.value);
           if ($43) {
-              return Data_Functor.mapFlipped(Control_Monad_Free.freeFunctor)(Pha_Random.randomInt(Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)) * Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget)) | 0))(Data_Maybe.Just.create);
+              return Data_Functor.mapFlipped(Control_Monad_Free.freeFunctor)(Pha_Random["int'"](Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)) * Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget)) | 0))(Data_Maybe.Just.create);
           };
           return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Maybe.Nothing.value);
       })());
@@ -13881,6 +13905,7 @@ var PS = {};
   exports["game"] = game;
 })(PS);
 (function($PS) {
+  // Generated by purs version 0.13.5
   "use strict";
   $PS["Game.Sansmot.Model"] = $PS["Game.Sansmot.Model"] || {};
   var exports = $PS["Game.Sansmot.Model"];
@@ -14297,7 +14322,7 @@ var PS = {};
       if (v instanceof RandomBoard) {
           return "random";
       };
-      throw new Error("Failed pattern match at Game.Solitaire.Model (line 18, column 1 - line 23, column 32): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Solitaire.Model (line 19, column 1 - line 24, column 32): " + [ v.constructor.name ]);
   });
   var istate = Game_Core.genState([  ])(function (v) {
       return {
@@ -14541,7 +14566,7 @@ var PS = {};
           if (v1 instanceof CircleBoard) {
               return {
                   holes: Data_Array.replicate(rows)(true),
-                  position: Data_Functor.mapFlipped(Control_Monad_Free.freeFunctor)(Pha_Random.randomInt(rows))(function (x) {
+                  position: Data_Functor.mapFlipped(Control_Monad_Free.freeFunctor)(Pha_Random["int'"](rows - 1 | 0))(function (x) {
                       return Lib_Util.tabulate(rows)(function (v2) {
                           return v2 !== x;
                       });
@@ -14561,13 +14586,13 @@ var PS = {};
           if (v1 instanceof RandomBoard) {
               return {
                   holes: Data_Array.replicate(3 * Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget)) | 0)(true),
-                  position: Data_Functor.mapFlipped(Control_Monad_Free.freeFunctor)(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Free.freeApplicative)(Data_Array.replicate(columns)(Pha_Random.randomBool)))(function (bools) {
+                  position: Data_Functor.mapFlipped(Control_Monad_Free.freeFunctor)(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Free.freeApplicative)(Data_Array.replicate(columns)(Pha_Random.bool)))(function (bools) {
                       return Data_Semigroup.append(Data_Semigroup.semigroupArray)(bools)(Data_Semigroup.append(Data_Semigroup.semigroupArray)(Data_Array.replicate(columns)(true))(Data_Functor.mapFlipped(Data_Functor.functorArray)(bools)(Data_HeytingAlgebra.not(Data_HeytingAlgebra.heytingAlgebraBoolean))));
                   }),
                   customSize: true
               };
           };
-          throw new Error("Failed pattern match at Game.Solitaire.Model (line 109, column 13 - line 127, column 18): " + [ v1.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Solitaire.Model (line 110, column 13 - line 128, column 18): " + [ v1.constructor.name ]);
       })();
       return Data_Functor.mapFlipped(Control_Monad_Free.freeFunctor)(v.position)(function (p) {
           return Data_Lens_Setter.set(Game_Core["_customSize"](Data_Profunctor_Strong.strongFn))(v.customSize)(Data_Lens_Setter.set(Game_Core["_position"](Data_Profunctor_Strong.strongFn))(p)(Data_Lens_Setter.set(_holes(Data_Profunctor_Strong.strongFn))(v.holes)(state)));
@@ -14633,7 +14658,7 @@ var PS = {};
               return Data_Lens_Setter.set(Game_Core["_nbColumns"](Data_Profunctor_Strong.strongFn))(7)(Data_Lens_Setter.set(Game_Core["_nbRows"](Data_Profunctor_Strong.strongFn))(7)(st2));
           });
       };
-      throw new Error("Failed pattern match at Game.Solitaire.Model (line 148, column 1 - line 148, column 33): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Solitaire.Model (line 149, column 1 - line 149, column 33): " + [ v.constructor.name ]);
   };
   exports["FrenchBoard"] = FrenchBoard;
   exports["EnglishBoard"] = EnglishBoard;
@@ -15768,7 +15793,7 @@ var PS = {};
   var tricolorGame = new Game_Core.Game(function (v) {
       return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Maybe.Nothing.value);
   }, function (state) {
-      return Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Free.freeApplicative)(Data_Array.replicate(Data_Lens_Getter.viewOn(state)(_size(Data_Lens_Internal_Forget.strongForget)))(Pha_Random.randomInt(Data_Lens_Getter.viewOn(state)(_nbColors(Data_Lens_Internal_Forget.strongForget)))));
+      return Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Free.freeApplicative)(Data_Array.replicate(Data_Lens_Getter.viewOn(state)(_size(Data_Lens_Internal_Forget.strongForget)))(Pha_Random["int'"](Data_Lens_Getter.viewOn(state)(_nbColors(Data_Lens_Internal_Forget.strongForget)))));
   }, function (state) {
       return Data_Foldable.all(Data_Foldable.foldableArray)(Data_HeytingAlgebra.heytingAlgebraBoolean)(function (v) {
           return v === 0;
@@ -15863,7 +15888,7 @@ var PS = {};
   var colors = [ "green", "yellow", "red", "magenta", "blue" ];
   var view = function (state) {
       var size = Data_Lens_Getter.viewOn(state)(Game_Tricolor_Model["_size"](Data_Lens_Internal_Forget.strongForget));
-      var rules = [  ];
+      var rules = [ Pha.text("Ce jeu est une variante de \"Tout noir ou tout blanc\" mais avec plusieurs couleurs."), Pha_Elements.br, Pha.text("Lorsque tu cliques un jeton, celui-ci change de couleurs ainsi que tous les jetons proches jusqu'\xe0 la distance choisie dans \"Port\xe9e\"."), Pha_Elements.br, Pha.text("Le but est que tous les jetons soient de couleur verte.") ];
       var nbColors = Data_Lens_Getter.viewOn(state)(Game_Tricolor_Model["_nbColors"](Data_Lens_Internal_Forget.strongForget));
       var levelFinished = Game_Core.isLevelFinished(Game_Tricolor_Model.tricolorGame)(state);
       var drawColorCycle = Data_Semigroup.append(Data_Semigroup.semigroupArray)(Data_FoldableWithIndex.foldMapWithIndex(Data_FoldableWithIndex.foldableWithIndexArray)(Data_Monoid.monoidArray)(function (i) {

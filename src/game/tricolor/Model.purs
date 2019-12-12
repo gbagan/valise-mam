@@ -2,7 +2,7 @@ module Game.Tricolor.Model where
 
 import MyPrelude
 import Lib.Util (abs)
-import Pha.Random (randomInt)
+import Pha.Random as R
 import Pha.Update (Update, purely)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class MsgWithCore, GState, CoreMsg,
@@ -50,7 +50,7 @@ instance tricolorGame ∷ Game (Array Int) ExtState Int where
             (color + 1) `mod` (state^._nbColors)
         else
             color
-    initialPosition state = sequence $ replicate (state^._size) $ randomInt (state^._nbColors)
+    initialPosition state = sequence $ replicate (state^._size) $ R.int' (state^._nbColors)
     isLevelFinished state = state^._position # all (_ == 0)
 
     onNewGame = pure

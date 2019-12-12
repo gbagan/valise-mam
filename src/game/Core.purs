@@ -3,7 +3,8 @@ import MyPrelude
 import Data.List (List(..))
 import Data.List (last, null) as L
 import Data.Map (Map, empty) as M
-import Pha.Random (Random, sample)
+import Pha.Random (Random)
+import Pha.Random as R
 import Pha.Update (Update, getState, setState, purely)
 import Game.Effs (RNG, EFFS, delay, DELAY, randomGenerate, randomly)
 
@@ -290,7 +291,7 @@ computerMove' state
         ) in
             case bestMove of
                 Just _ → pure bestMove
-                Nothing → sample moves
+                Nothing → R.element' moves
 
 data Objective = Minimize | Maximize
 derive instance eqObjective ∷ Eq Objective 

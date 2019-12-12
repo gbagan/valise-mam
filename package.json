@@ -12,6 +12,7 @@
   "scripts": {
     "build": "spago bundle-app --to dist/bundle.js",
     "buildcss": "rollup --config",
-    "deploy:test": "scp -r dist/* gbagan@connect.liris.cnrs.fr:~/valisetest/"
+    "deploy:test": "scp -r dist/* gbagan@connect.liris.cnrs.fr:~/valisetest/",
+    "minimize": "terser --ecma 7 -c unsafe_arrows -m -o dist/bundle.js dist/bundle.js"
   }
 }

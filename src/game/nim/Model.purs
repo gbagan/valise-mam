@@ -3,7 +3,7 @@ import MyPrelude
 import Data.Int.Bits (xor)
 import Lib.Util (tabulate2)
 import Pha.Update (Update)
-import Pha.Random (randomInt)
+import Pha.Random as R
 import Game.Effs (EFFS)
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, GState, Mode(..), Turn(..),
             coreUpdate, playA,
@@ -54,9 +54,7 @@ instance nimGame ∷ Game (Array (Tuple Int Int)) ExtState Move where
             if state^._length == 5 then
                 pure (0 ∧ 4)
             else do 
-                x ← randomInt 5
-                y ← randomInt 5
-                pure (x ∧ (y + 5))
+                Tuple <$> (R.int 0 4) <*> (R.int 0 9)
 
     computerMove = computerMove'
 

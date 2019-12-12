@@ -2,7 +2,7 @@ module Game.Chocolat.Model where
 import MyPrelude
 import Data.Int.Bits ((.^.))
 import Lib.Util ((..))
-import Pha.Random (randomInt)
+import Pha.Random as R
 import Pha.Update (Update, purely)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, SizeLimit(..), GState, Mode(..),
@@ -52,8 +52,8 @@ instance game ∷ Game {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int
     initialPosition st = pure { left: 0, right: st^._nbColumns, top: 0, bottom: st^._nbRows }
 
     onNewGame state = do
-        row ← if state^._soapMode == StandardMode then randomInt (state^._nbRows) else pure 0
-        col ← if state^._soapMode /= CornerMode then randomInt (state^._nbColumns) else pure 0
+        row ← if state^._soapMode == StandardMode then R.int' (state^._nbRows) else pure 0
+        col ← if state^._soapMode /= CornerMode then R.int' (state^._nbColumns) else pure 0
         pure $ state # _soap .~ {row, col}
 
     sizeLimit = const (SizeLimit 4 4 10 10)

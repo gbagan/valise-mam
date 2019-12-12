@@ -2,7 +2,8 @@ module Game.Solitaire.Model where
 import MyPrelude
 import Data.FoldableWithIndex (allWithIndex)
 import Pha.Update (Update, purely)
-import Pha.Random (Random, randomInt, randomBool)
+import Pha.Random (Random)
+import Pha.Random as R
 import Lib.Util (tabulate, tabulate2, dCoords)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class ScoreGame, class MsgWithCore, class MsgWithDnd,
@@ -111,7 +112,7 @@ instance solitaireGame ∷ Game (Array Boolean) ExtState {from ∷ Int, to ∷ I
                 FrenchBoard → generateBoard 7 7 24 \row col → min row (6 - row) + min col (6 - col) >= 2
                 CircleBoard → {
                     holes: replicate rows true,
-                    position: randomInt rows <#> \x → tabulate rows (_ /= x),
+                    position: R.int' (rows - 1) <#> \x → tabulate rows (_ /= x),
                     customSize: true
 
                 }
@@ -122,7 +123,7 @@ instance solitaireGame ∷ Game (Array Boolean) ExtState {from ∷ Int, to ∷ I
                 }
                 RandomBoard → {
                     holes: replicate (3 * state^._nbColumns) true,
-                    position: (sequence $ replicate columns randomBool) <#> \bools → bools <> replicate columns true <> (bools <#> not),
+                    position: (sequence $ replicate columns R.bool) <#> \bools → bools <> replicate columns true <> (bools <#> not),
                     customSize: true
                 }
 

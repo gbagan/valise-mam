@@ -4,10 +4,11 @@ import MyPrelude
 import Lib.Util (tabulate2)
 import Game.Core (_position, _nbRows, _nbColumns, possibleMoves)
 import Game.Chocolat.Model (State, Msg(..), Move(..), SoapMode(..), _soap, _soapMode, _moveWhenHover, cutLine) 
-import Pha (VDom, text, (<??>), key, class_, class')
+import Pha (VDom, text, (<??>), key, class_, class', style)
 import Pha.Elements (div, span, br)
 import Pha.Events (onclick, onpointerenter, onpointerleave)
 import Pha.Svg (svg, rect, line, circle, use, viewBox, fill, width, height, x_, y_, cx, cy, r, x1, x2, y1, y2)
+import Pha.Util (translate, px')
 import UI.Template (template, card, gridStyle, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, icons2Players, iconSelectGroup, iundo, iredo, ireset, irules)
@@ -52,13 +53,10 @@ view state = template {config, board, rules, winTitle} state where
         [   svg [viewBox (-7) (-7) (50 * columns + 14) (50 * rows + 14)] $ concat 
             [   tabulate2 rows columns \row col →
                 rect 
-                [   x_ $ show (50.0 * toNumber col + 7.0)
-                ,   y_ $ show (50.0 * toNumber row + 7.0)
-                ,   width "36"
-                ,   height "36"
-                ,   key $ "choc" <> show (row * columns + col)
+                [   key $ "choc" <> show (row * columns + col)
+                ,   style "transform" $ translate (px' $ 50 * col) (px' $ 50 * row)
                 ,   class_ "chocolat-square"
-                ,   class' "soap" (row == soapRow && col == soapCol)
+                ,   class' "soap" $ row == soapRow && col == soapCol
                 ,   class' "hidden" $ not (inside state row col)
                 ]
             ,   possibleMoves state >>= case _ of
@@ -72,7 +70,7 @@ view state = template {config, board, rules, winTitle} state where
                     ,   width "26"
                     ,   height "26"
                     ,   key "skull"
-                    ,   fill "#20AF20"
+                    ,   class_ "chocolat-skull"
                     ]
                 ,   state^._moveWhenHover <??> \m →
                         let {x1: px1, x2: px2, y1: py1, y2: py2} = cutLine state m in
@@ -82,7 +80,7 @@ view state = template {config, board, rules, winTitle} state where
                         ,   x2 $ show (50 * px2)
                         ,   y2 $ show (50 * py2)
                         ,   key "line"
-                        ,   class_ "chocolat-line-to-pointer"
+                        ,   class_ "chocolat-cut-line"
                         ]
                 ]
             ]

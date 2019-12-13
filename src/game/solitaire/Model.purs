@@ -110,22 +110,22 @@ instance solitaireGame ∷ Game (Array Boolean) ExtState {from ∷ Int, to ∷ I
             case state^._board of
                 EnglishBoard → generateBoard 7 7 24 \row col → min row (6 - row) >= 2 || min col (6 - col) >= 2
                 FrenchBoard → generateBoard 7 7 24 \row col → min row (6 - row) + min col (6 - col) >= 2
-                CircleBoard → {
-                    holes: replicate rows true,
-                    position: R.int' (rows - 1) <#> \x → tabulate rows (_ /= x),
-                    customSize: true
-
-                }
-                Grid3Board → {
-                    holes: replicate (3 * state^._nbColumns) true,
-                    position: pure $ tabulate (3 * state^._nbColumns) (_ < 2 * columns),
-                    customSize: true
-                }
-                RandomBoard → {
-                    holes: replicate (3 * state^._nbColumns) true,
-                    position: (sequence $ replicate columns R.bool) <#> \bools → bools <> replicate columns true <> (bools <#> not),
-                    customSize: true
-                }
+                CircleBoard →
+                    {   holes: replicate rows true
+                    ,   position: R.int' (rows - 1) <#> \x → tabulate rows (_ /= x)
+                    ,   customSize: true
+                    }
+                Grid3Board →
+                    {   holes: replicate (3 * state^._nbColumns) true
+                    ,   position: pure (tabulate (3 * state^._nbColumns) (_ < 2 * columns))
+                    ,   customSize: true
+                    }
+                RandomBoard →
+                    {   holes: replicate (3 * state^._nbColumns) true
+                    ,   position: replicateA columns R.bool <#> \bools →
+                                bools <> replicate columns true <> (bools <#> not)
+                    ,   customSize: true
+                    }
 
     sizeLimit state = case state^._board of
         CircleBoard → SizeLimit   3 1 12 1

@@ -4,7 +4,7 @@ import Pha (VDom, text, maybeN, (<??>),class_)
 import Pha.Elements (div, button, span, br)
 import Pha.Events (onclick, oncontextmenu)
 import Pha.Attributes (disabled)
-import Pha.Svg (svg, line, circle, viewBox, stroke, fill, x1, x2, y1, y2, cx, cy, r, strokeWidth, strokeDasharray)
+import Pha.Svg (svg, line, circle, viewBox, stroke, fill, x1, x2, y1, y2, cx, cy, r)
 import Game.Core (canPlay, _position, _pointer)
 import Game.Dessin.Model (State, Msg(..), Graph, Position, Edge, (↔), edgesOf, nbRaises, _graph, _graphIndex)
 import UI.Template (template, card, trackPointer)
@@ -57,8 +57,7 @@ view state = template {config, board, rules, winTitle} state where
                         ,   y1 $ show (20.0 * py1)
                         ,   x2 $ show (20.0 * px2)
                         ,   y2 $ show (20.0 * py2)
-                        ,   stroke "grey"
-                        ,   strokeDasharray "3,1"
+                        ,   class_ "dessin-line1"
                         ]
                 ,   edgesOf (state^._position) <#> \edge →
                     getCoordsOfEdge graph edge <??> \{px1, px2, py1, py2} → 
@@ -67,18 +66,17 @@ view state = template {config, board, rules, winTitle} state where
                         ,   y1 $ show (20.0 * py1)
                         ,   x2 $ show (20.0 * px2)
                         ,   y2 $ show (20.0 * py2)
-                        ,   stroke "red"
-                        ,   strokeWidth "1.5"
+                        ,   class_ "dessin-line2"
                         ]
                 ,   graph.vertices # mapWithIndex \i {x, y} →
-                    circle
-                    [   cx $ show (20.0 * x)
-                    ,   cy $ show (20.0 * y)
-                    ,   r "3"
-                    ,   stroke $ if Just (Just i) == last position then "red" else "blue"
-                    ,   fill "blue"
-                    ,   onclick $ Play (Just i)
-                    ]
+                        circle
+                        [   cx $ show (20.0 * x)
+                        ,   cy $ show (20.0 * y)
+                        ,   r "3"
+                        ,   stroke $ if Just (Just i) == last position then "red" else "blue"
+                        ,   fill "blue"
+                        ,   onclick $ Play (Just i)
+                        ]
                 ,   [maybeN $ currentLine <$> (state^._pointer) <*> (getCoords graph =<< join (last position))]
                 ]
             ,   span [class_ "dessin-raise-info dessin-raise-info"] [

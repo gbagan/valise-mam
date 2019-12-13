@@ -88,12 +88,12 @@ view state = template {config, board, rules} state where
                 ) (
                 [   class_ "roue-wheel-part"
                 ,   fill $ if not align then  "#F0B27A" else if validRotation' state then "lightgreen" else "#F5B7B1"
-                ] <> dndItemProps 
+                ] <> dndItemProps state
                     {   currentDragged: state^._dragged
                     ,   draggable: isJust pos
                     ,   droppable: true
                     ,   id: Wheel i
-                    } state
+                    }
                 )
         ] <> (catMaybes $ position # mapWithIndex \index c → c <#> \color → 
             div
@@ -116,12 +116,12 @@ view state = template {config, board, rules} state where
                 div ([
                     class_ "roue-select-color ui-flex-center",
                     style "background-color" color
-                ] <> dndItemProps {
+                ] <> dndItemProps state {
                     currentDragged: state^._dragged,
                     draggable: true,
                     droppable: false,
                     id: Panel i
-                } state) [
+                }) [
                     elem (Just i) position <&&> \_ →
                         span [] [text "✓"]
                 ]

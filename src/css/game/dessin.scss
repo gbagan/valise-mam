@@ -7,6 +7,16 @@
     display: block;
 }
 
+.dessin-line1 {
+    stroke: grey;
+    stroke-dasharray: 3,1;
+}
+
+.dessin-line2 {
+    stroke: red;
+    stroke-width: 1.5;
+}
+
 .dessin-line-to-pointer {
     stroke: red;
     stroke-width: 1.5;

@@ -27,22 +27,16 @@ view state = template {config, board, rules, winTitle} state where
 
     drawRow i =
         rect
-        [   x_ $ if length == 5 then "25" else "0"
+        [   key $ "pile" <> show i
+        ,   class_ "nim-row"
+        ,   class_ $ if length == 5 then "nim-row-5" else "nim-row-10"
         ,   y_ $ show (10 + 19 * i)
-        ,   width $ if length == 5 then "50" else "100"
-        ,   height "10"
-        ,   key $ "pile" <> show i
-        ,   fill "snow"
         ]
 
     drawSquare i j =
         rect
-        [   x_ "-2.5"
-        ,   y_ "-2.5"
-        ,   width "5"
-        ,   height "5"
-        ,   key $ "base-" <> show i <> "-" <> show j
-        ,   fill "gray"
+        [   key $ "base-" <> show i <> "-" <> show j
+        ,   class_ "nim-square"
         ,   onclick $ Play (Move i j)
         ,   style "transform" $
                     translate (px' $ (if length == 5 then 30 else 5) + 10 * j) (px' $ 15 + 19 * i)

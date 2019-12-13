@@ -22,7 +22,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
         ,    iconBestScore state
         ]
 
-    cursor pp _ = div ([class' "ui-cursor jetons-cursor" true] <> cursorStyle pp rows columns 0.6) []
+    cursor pp _ = div ([class_ "ui-cursor jetons-cursor"] <> cursorStyle pp rows columns 0.6) []
 
     piece i val props =
         let {row, col} = coords columns i in
@@ -42,12 +42,12 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
         [   position # mapWithIndex \i val →
                 val /= 0 <&&> \_ →
                     piece i val ([key $ show i] <> 
-                        dndItemProps {
-                            currentDragged: state^._dragged,
-                            draggable: true,
-                            droppable: true,
-                            id: i
-                        } state)
+                        dndItemProps state
+                        {   currentDragged: state^._dragged
+                        ,   draggable: true
+                        ,   droppable: true
+                        ,   id: i
+                        })
         ,   [maybeN $ cursor <$> state^._pointer <*> state^._dragged]
         ]
     ]

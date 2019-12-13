@@ -8232,8 +8232,8 @@ var PS = {};
   var dndItemProps = function (dictEq) {
       return function (dictMsgWithDnd) {
           return function (dictGame) {
-              return function (v) {
-                  return function (state) {
+              return function (state) {
+                  return function (v) {
                       var dragged = v.draggable && Data_Eq.eq(Data_Maybe.eqMaybe(dictEq))(new Data_Maybe.Just(v.id))(v.currentDragged);
                       var candrop = v.droppable && Data_Maybe.maybe(false)(function (d) {
                           return Game_Core.canPlay(dictGame)(state)({
@@ -8408,7 +8408,7 @@ var PS = {};
       var config = UI_Template.card("Baseball multicolore")([ UI_Icons.iconSelectGroup(UI_Icons.defint)(Data_Eq.eqInt)(state)("Nombres de bases")([ 4, 5, 6, 7, 8 ])(nbBases)(Game_Baseball_Model.SetNbBases.create)(Data_Function["const"](Control_Category.identity(Control_Category.categoryFn))), UI_Icons.icongroup("Options")([ UI_Icons.iundo(Game_Baseball_Model.withcore)(state), UI_Icons.iredo(Game_Baseball_Model.withcore)(state), UI_Icons.ireset(Game_Baseball_Model.withcore)(state), UI_Icons.irules(Game_Baseball_Model.withcore)(state) ]) ]);
       var board = Pha_Elements.div([ Pha.class_("ui-board baseball-board") ])([ Pha_Svg.svg([ Pha_Svg.viewBox(0)(0)(100)(100) ])(Data_Array.concat([ Data_Array.mapWithIndex(function (i) {
           return function (color) {
-              return Pha_Svg.rect([ Pha.key("b" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.x_("-10"), Pha_Svg.y_("-10"), Pha_Svg.width("20"), Pha_Svg.height("20"), Pha.class_("baseball-base"), Pha_Svg.stroke(color), Pha.style("transform")(transformBase(i)(nbBases)) ]);
+              return Pha_Svg.rect([ Pha.key("b" + Data_Show.show(Data_Show.showInt)(i)), Pha.class_("baseball-base"), Pha_Svg.stroke(color), Pha.style("transform")(transformBase(i)(nbBases)) ]);
           };
       })(Data_Array.take(nbBases)(colors)), Lib_Util.map2(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget)))(dupColors)(function (peg) {
           return function (pos) {
@@ -8864,6 +8864,7 @@ var PS = {};
   var Pha_Elements = $PS["Pha.Elements"];
   var Pha_Events = $PS["Pha.Events"];
   var Pha_Svg = $PS["Pha.Svg"];
+  var Pha_Util = $PS["Pha.Util"];
   var UI_Icon = $PS["UI.Icon"];
   var UI_Icons = $PS["UI.Icons"];
   var UI_Template = $PS["UI.Template"];                
@@ -8891,7 +8892,7 @@ var PS = {};
       };
       var grid = Pha_Elements.div(Data_Semigroup.append(Data_Semigroup.semigroupArray)(UI_Template.gridStyle(rows)(columns)(3))([ Pha.class_("ui-board") ]))([ Pha_Svg.svg([ Pha_Svg.viewBox(-7 | 0)(-7 | 0)((50 * columns | 0) + 14 | 0)((50 * rows | 0) + 14 | 0) ])(Data_Array.concat([ Lib_Util.tabulate2(rows)(columns)(function (row) {
           return function (col) {
-              return Pha_Svg.rect([ Pha_Svg.x_(Data_Show.show(Data_Show.showNumber)(50.0 * Data_Int.toNumber(col) + 7.0)), Pha_Svg.y_(Data_Show.show(Data_Show.showNumber)(50.0 * Data_Int.toNumber(row) + 7.0)), Pha_Svg.width("36"), Pha_Svg.height("36"), Pha.key("choc" + Data_Show.show(Data_Show.showInt)((row * columns | 0) + col | 0)), Pha.class_("chocolat-square"), Pha["class'"]("soap")(row === v.row && col === v.col), Pha["class'"]("hidden")(!inside(state)(row)(col)) ]);
+              return Pha_Svg.rect([ Pha.key("choc" + Data_Show.show(Data_Show.showInt)((row * columns | 0) + col | 0)), Pha.style("transform")(Pha_Util.translate(Pha_Util["px'"](50 * col | 0))(Pha_Util["px'"](50 * row | 0))), Pha.class_("chocolat-square"), Pha["class'"]("soap")(row === v.row && col === v.col), Pha["class'"]("hidden")(!inside(state)(row)(col)) ]);
           };
       }), Control_Bind.bind(Control_Bind.bindArray)(Game_Core.possibleMoves(Game_Chocolat_Model.game_)(state))(function (v1) {
           if (v1 instanceof Game_Chocolat_Model.FromLeft) {
@@ -8906,10 +8907,10 @@ var PS = {};
           if (v1 instanceof Game_Chocolat_Model.FromBottom) {
               return [ cutter(v1.value0)(pos.left)(new Game_Chocolat_Model.FromBottom(v1.value0)), cutter(v1.value0)(pos.right)(new Game_Chocolat_Model.FromBottom(v1.value0)) ];
           };
-          throw new Error("Failed pattern match at Game.Chocolat.View (line 64, column 41 - line 68, column 105): " + [ v1.constructor.name ]);
-      }), [ Pha_Svg.use("#skull")([ Pha_Svg.x_(Data_Show.show(Data_Show.showInt)((50 * v.col | 0) + 12 | 0)), Pha_Svg.y_(Data_Show.show(Data_Show.showInt)((50 * v.row | 0) + 12 | 0)), Pha_Svg.width("26"), Pha_Svg.height("26"), Pha.key("skull"), Pha_Svg.fill("#20AF20") ]), Pha.maybe(Data_Lens_Getter.viewOn(state)(Game_Chocolat_Model["_moveWhenHover"](Data_Lens_Internal_Forget.strongForget)))(function (m) {
+          throw new Error("Failed pattern match at Game.Chocolat.View (line 62, column 41 - line 66, column 105): " + [ v1.constructor.name ]);
+      }), [ Pha_Svg.use("#skull")([ Pha_Svg.x_(Data_Show.show(Data_Show.showInt)((50 * v.col | 0) + 12 | 0)), Pha_Svg.y_(Data_Show.show(Data_Show.showInt)((50 * v.row | 0) + 12 | 0)), Pha_Svg.width("26"), Pha_Svg.height("26"), Pha.key("skull"), Pha.class_("chocolat-skull") ]), Pha.maybe(Data_Lens_Getter.viewOn(state)(Game_Chocolat_Model["_moveWhenHover"](Data_Lens_Internal_Forget.strongForget)))(function (m) {
           var v1 = Game_Chocolat_Model.cutLine(state)(m);
-          return Pha_Svg.line([ Pha_Svg.x1(Data_Show.show(Data_Show.showInt)(50 * v1.x1 | 0)), Pha_Svg.y1(Data_Show.show(Data_Show.showInt)(50 * v1.y1 | 0)), Pha_Svg.x2(Data_Show.show(Data_Show.showInt)(50 * v1.x2 | 0)), Pha_Svg.y2(Data_Show.show(Data_Show.showInt)(50 * v1.y2 | 0)), Pha.key("line"), Pha.class_("chocolat-line-to-pointer") ]);
+          return Pha_Svg.line([ Pha_Svg.x1(Data_Show.show(Data_Show.showInt)(50 * v1.x1 | 0)), Pha_Svg.y1(Data_Show.show(Data_Show.showInt)(50 * v1.y1 | 0)), Pha_Svg.x2(Data_Show.show(Data_Show.showInt)(50 * v1.x2 | 0)), Pha_Svg.y2(Data_Show.show(Data_Show.showInt)(50 * v1.y2 | 0)), Pha.key("line"), Pha.class_("chocolat-cut-line") ]);
       }) ] ])) ]);
       var config = UI_Template.card("Barre de chocolat")([ UI_Icons.iconSizesGroup(Game_Chocolat_Model.withcore)(state)([ new Data_Tuple.Tuple(6, 7) ])(true), UI_Icons.iconSelectGroup(UI_Icons.defa)(Game_Chocolat_Model.eqSoapMode)(state)("Emplacement du savon")([ Game_Chocolat_Model.CornerMode.value, Game_Chocolat_Model.BorderMode.value, Game_Chocolat_Model.StandardMode.value ])(Data_Lens_Getter.viewOn(state)(Game_Chocolat_Model["_soapMode"](Data_Lens_Internal_Forget.strongForget)))(Game_Chocolat_Model.SetSoapMode.create)(function (mode) {
           return function (opt) {
@@ -8949,7 +8950,7 @@ var PS = {};
                       style: opt.style
                   };
               };
-              throw new Error("Failed pattern match at Game.Chocolat.View (line 30, column 60 - line 33, column 103): " + [ mode.constructor.name ]);
+              throw new Error("Failed pattern match at Game.Chocolat.View (line 31, column 60 - line 34, column 103): " + [ mode.constructor.name ]);
           };
       }), UI_Icons.icons2Players(Game_Chocolat_Model.withcore)(Game_Chocolat_Model.game)(state), UI_Icons.icongroup("Options")(Data_Functor.mapFlipped(Data_Functor.functorArray)([ UI_Icons.iundo(Game_Chocolat_Model.withcore), UI_Icons.iredo(Game_Chocolat_Model.withcore), UI_Icons.ireset(Game_Chocolat_Model.withcore), UI_Icons.irules(Game_Chocolat_Model.withcore) ])(function (x) {
           return x(state);
@@ -9435,11 +9436,11 @@ var PS = {};
       })) ]);
       var board = Pha_Elements.div(Data_Semigroup.append(Data_Semigroup.semigroupArray)(UI_Template.trackPointer(Game_Dessin_Model.withcore))([ Pha.class_("ui-board dessin-board"), Pha_Events.oncontextmenu(new Game_Dessin_Model.Play(Data_Maybe.Nothing.value)) ]))([ Pha_Svg.svg([ Pha.class_("dessin-svg"), Pha_Svg.viewBox(0)(0)(100)(100) ])(Data_Array.concat([ Data_Functor.mapFlipped(Data_Functor.functorArray)(graph.edges)(function (edge) {
           return Pha.maybe(getCoordsOfEdge(graph)(edge))(function (v) {
-              return Pha_Svg.line([ Pha_Svg.x1(Data_Show.show(Data_Show.showNumber)(20.0 * v.px1)), Pha_Svg.y1(Data_Show.show(Data_Show.showNumber)(20.0 * v.py1)), Pha_Svg.x2(Data_Show.show(Data_Show.showNumber)(20.0 * v.px2)), Pha_Svg.y2(Data_Show.show(Data_Show.showNumber)(20.0 * v.py2)), Pha_Svg.stroke("grey"), Pha_Svg.strokeDasharray("3,1") ]);
+              return Pha_Svg.line([ Pha_Svg.x1(Data_Show.show(Data_Show.showNumber)(20.0 * v.px1)), Pha_Svg.y1(Data_Show.show(Data_Show.showNumber)(20.0 * v.py1)), Pha_Svg.x2(Data_Show.show(Data_Show.showNumber)(20.0 * v.px2)), Pha_Svg.y2(Data_Show.show(Data_Show.showNumber)(20.0 * v.py2)), Pha.class_("dessin-line1") ]);
           });
       }), Data_Functor.mapFlipped(Data_Functor.functorArray)(Game_Dessin_Model.edgesOf(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))))(function (edge) {
           return Pha.maybe(getCoordsOfEdge(graph)(edge))(function (v) {
-              return Pha_Svg.line([ Pha_Svg.x1(Data_Show.show(Data_Show.showNumber)(20.0 * v.px1)), Pha_Svg.y1(Data_Show.show(Data_Show.showNumber)(20.0 * v.py1)), Pha_Svg.x2(Data_Show.show(Data_Show.showNumber)(20.0 * v.px2)), Pha_Svg.y2(Data_Show.show(Data_Show.showNumber)(20.0 * v.py2)), Pha_Svg.stroke("red"), Pha_Svg.strokeWidth("1.5") ]);
+              return Pha_Svg.line([ Pha_Svg.x1(Data_Show.show(Data_Show.showNumber)(20.0 * v.px1)), Pha_Svg.y1(Data_Show.show(Data_Show.showNumber)(20.0 * v.py1)), Pha_Svg.x2(Data_Show.show(Data_Show.showNumber)(20.0 * v.px2)), Pha_Svg.y2(Data_Show.show(Data_Show.showNumber)(20.0 * v.py2)), Pha.class_("dessin-line2") ]);
           });
       }), Data_Array.mapWithIndex(function (i) {
           return function (v) {
@@ -9836,7 +9837,6 @@ var PS = {};
   exports["withcore"] = withcore;
 })(PS);
 (function($PS) {
-  // Generated by purs version 0.13.5
   "use strict";
   $PS["Game.Frog.View"] = $PS["Game.Frog.View"] || {};
   var exports = $PS["Game.Frog.View"];
@@ -10242,7 +10242,7 @@ var PS = {};
       var columns = Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget));
       var cursor = function (pp) {
           return function (v) {
-              return Pha_Elements.div(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha["class'"]("ui-cursor jetons-cursor")(true) ])(UI_Template.cursorStyle(pp)(rows)(columns)(0.6)))([  ]);
+              return Pha_Elements.div(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.class_("ui-cursor jetons-cursor") ])(UI_Template.cursorStyle(pp)(rows)(columns)(0.6)))([  ]);
           };
       };
       var piece = function (i) {
@@ -10267,12 +10267,12 @@ var PS = {};
       var board = UI_Template.incDecGrid(Game_Jetons_Model.withcore)(Game_Jetons_Model.game)(state)([ Pha_Elements.div(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.class_("ui-board") ])(Data_Semigroup.append(Data_Semigroup.semigroupArray)(UI_Template.dndBoardProps(Game_Jetons_Model.withcore)(Game_Jetons_Model.withdnd))(UI_Template.gridStyle(rows)(columns)(3))))(Data_Array.concat([ Data_Array.mapWithIndex(function (i) {
           return function (val) {
               return Pha.when(val !== 0)(function (v) {
-                  return piece(i)(val)(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key(Data_Show.show(Data_Show.showInt)(i)) ])(UI_Template.dndItemProps(Data_Eq.eqInt)(Game_Jetons_Model.withdnd)(Game_Jetons_Model.game)({
+                  return piece(i)(val)(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key(Data_Show.show(Data_Show.showInt)(i)) ])(UI_Template.dndItemProps(Data_Eq.eqInt)(Game_Jetons_Model.withdnd)(Game_Jetons_Model.game)(state)({
                       currentDragged: Data_Lens_Getter.viewOn(state)(Game_Jetons_Model["_dragged"](Data_Lens_Internal_Forget.strongForget)),
                       draggable: true,
                       droppable: true,
                       id: i
-                  })(state)));
+                  })));
               });
           };
       })(position), [ Pha.maybeN(Control_Apply.apply(Data_Maybe.applyMaybe)(Data_Functor.map(Data_Maybe.functorMaybe)(cursor)(Data_Lens_Getter.viewOn(state)(Game_Core["_pointer"](Data_Lens_Internal_Forget.strongForget))))(Data_Lens_Getter.viewOn(state)(Game_Jetons_Model["_dragged"](Data_Lens_Internal_Forget.strongForget)))) ] ])) ]);
@@ -11331,6 +11331,24 @@ var PS = {};
 (function($PS) {
   // Generated by purs version 0.13.5
   "use strict";
+  $PS["MyPrelude"] = $PS["MyPrelude"] || {};
+  var exports = $PS["MyPrelude"];
+  var Data_Array = $PS["Data.Array"];
+  var Data_Traversable = $PS["Data.Traversable"];                
+  var replicateA = function (dictApplicative) {
+      return function (n) {
+          var $1 = Data_Traversable.sequence(Data_Traversable.traversableArray)(dictApplicative);
+          var $2 = Data_Array.replicate(n);
+          return function ($3) {
+              return $1($2($3));
+          };
+      };
+  };
+  exports["replicateA"] = replicateA;
+})(PS);
+(function($PS) {
+  // Generated by purs version 0.13.5
+  "use strict";
   $PS["Game.Nim.Model"] = $PS["Game.Nim.Model"] || {};
   var exports = $PS["Game.Nim.Model"];
   var Control_Applicative = $PS["Control.Applicative"];
@@ -11350,10 +11368,10 @@ var PS = {};
   var Data_Maybe = $PS["Data.Maybe"];
   var Data_Ord = $PS["Data.Ord"];
   var Data_Profunctor_Strong = $PS["Data.Profunctor.Strong"];
-  var Data_Traversable = $PS["Data.Traversable"];
   var Data_Tuple = $PS["Data.Tuple"];
   var Game_Core = $PS["Game.Core"];
   var Lib_Util = $PS["Lib.Util"];
+  var MyPrelude = $PS["MyPrelude"];
   var Pha_Random = $PS["Pha.Random"];                
   var Move = (function () {
       function Move(value0, value1) {
@@ -11511,13 +11529,13 @@ var PS = {};
       })(Data_Array.filter(canPlay(state))(Lib_Util.tabulate2(Data_Lens_Getter.viewOn(state)(_nbPiles(Data_Lens_Internal_Forget.strongForget)))(Data_Lens_Getter.viewOn(state)(_length(Data_Lens_Internal_Forget.strongForget)))(Move.create)));
   });
   var nimGame = new Game_Core.Game(Game_Core["computerMove'"](nimGame2), function (state) {
-      return Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Free.freeApplicative)(Data_Array.replicate(Data_Lens_Getter.viewOn(state)(_nbPiles(Data_Lens_Internal_Forget.strongForget)))((function () {
+      return MyPrelude.replicateA(Control_Monad_Free.freeApplicative)(Data_Lens_Getter.viewOn(state)(_nbPiles(Data_Lens_Internal_Forget.strongForget)))((function () {
           var $33 = Data_Lens_Getter.viewOn(state)(_length(Data_Lens_Internal_Forget.strongForget)) === 5;
           if ($33) {
               return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(new Data_Tuple.Tuple(0, 4));
           };
           return Control_Apply.apply(Control_Monad_Free.freeApply)(Data_Functor.map(Control_Monad_Free.freeFunctor)(Data_Tuple.Tuple.create)(Pha_Random["int"](0)(4)))(Pha_Random["int"](0)(9));
-      })()));
+      })());
   }, function (state) {
       return Data_Foldable.all(Data_Foldable.foldableArray)(Data_HeytingAlgebra.heytingAlgebraBoolean)(function (v) {
           return (v.value1 - v.value0 | 0) === 1 && v.value0 === (function () {
@@ -11609,7 +11627,7 @@ var PS = {};
       var length = Data_Lens_Getter.viewOn(state)(Game_Nim_Model["_length"](Data_Lens_Internal_Forget.strongForget));
       var drawSquare = function (i) {
           return function (j) {
-              return Pha_Svg.rect([ Pha_Svg.x_("-2.5"), Pha_Svg.y_("-2.5"), Pha_Svg.width("5"), Pha_Svg.height("5"), Pha.key("base-" + (Data_Show.show(Data_Show.showInt)(i) + ("-" + Data_Show.show(Data_Show.showInt)(j)))), Pha_Svg.fill("gray"), Pha_Events.onclick(new Game_Nim_Model.Play(new Game_Nim_Model.Move(i, j))), Pha.style("transform")(Pha_Util.translate(Pha_Util["px'"]((function () {
+              return Pha_Svg.rect([ Pha.key("base-" + (Data_Show.show(Data_Show.showInt)(i) + ("-" + Data_Show.show(Data_Show.showInt)(j)))), Pha.class_("nim-square"), Pha_Events.onclick(new Game_Nim_Model.Play(new Game_Nim_Model.Move(i, j))), Pha.style("transform")(Pha_Util.translate(Pha_Util["px'"]((function () {
                   var $2 = length === 5;
                   if ($2) {
                       return 30;
@@ -11625,32 +11643,26 @@ var PS = {};
           };
       };
       var drawRow = function (i) {
-          return Pha_Svg.rect([ Pha_Svg.x_((function () {
+          return Pha_Svg.rect([ Pha.key("pile" + Data_Show.show(Data_Show.showInt)(i)), Pha.class_("nim-row"), Pha.class_((function () {
               var $4 = length === 5;
               if ($4) {
-                  return "25";
+                  return "nim-row-5";
               };
-              return "0";
-          })()), Pha_Svg.y_(Data_Show.show(Data_Show.showInt)(10 + (19 * i | 0) | 0)), Pha_Svg.width((function () {
-              var $5 = length === 5;
-              if ($5) {
-                  return "50";
-              };
-              return "100";
-          })()), Pha_Svg.height("10"), Pha.key("pile" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.fill("snow") ]);
+              return "nim-row-10";
+          })()), Pha_Svg.y_(Data_Show.show(Data_Show.showInt)(10 + (19 * i | 0) | 0)) ]);
       };
       var drawPeg = function (i) {
           return function (player) {
               return function (j) {
                   return Pha_Svg.use("#meeple")([ Pha.key("p-" + (Data_Show.show(Data_Show.showInt)(i) + ("-" + Data_Show.show(Data_Show.showInt)(player)))), Pha_Svg.width("8"), Pha_Svg.height("8"), Pha.class_("nim-player"), Pha_Svg.fill((function () {
-                      var $6 = player === 0;
-                      if ($6) {
+                      var $5 = player === 0;
+                      if ($5) {
                           return "blue";
                       };
                       return "red";
                   })()), Pha.style("transform")(Pha_Util.translate(Pha_Util["px'"]((function () {
-                      var $7 = length === 5;
-                      if ($7) {
+                      var $6 = length === 5;
+                      if ($6) {
                           return 26;
                       };
                       return 1;
@@ -11666,12 +11678,12 @@ var PS = {};
               return Data_Array.concat([ [ drawRow(i) ], Lib_Util.tabulate(length)(drawSquare(i)), Data_Array.mapWithIndex(drawPeg(i))([ v.value0, v.value1 ]) ]);
           };
       })(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget)))), Pha_Elements.span([ Pha.class_("nim-turn-message") ])([ Pha.text((function () {
-          var $11 = Game_Core.isLevelFinished(Game_Nim_Model.nimGame)(state);
-          if ($11) {
+          var $10 = Game_Core.isLevelFinished(Game_Nim_Model.nimGame)(state);
+          if ($10) {
               return "Partie finie";
           };
-          var $12 = Data_Eq.eq(Game_Core.eqTurn)(Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)))(Game_Core.Turn1.value);
-          if ($12) {
+          var $11 = Data_Eq.eq(Game_Core.eqTurn)(Data_Lens_Getter.viewOn(state)(Game_Core["_turn"](Data_Lens_Internal_Forget.strongForget)))(Game_Core.Turn1.value);
+          if ($11) {
               return "Tour du joueur bleu";
           };
           return "Tour du joueur rouge";
@@ -11715,6 +11727,7 @@ var PS = {};
   var Data_Array = $PS["Data.Array"];
   var Data_EuclideanRing = $PS["Data.EuclideanRing"];
   var Data_Foldable = $PS["Data.Foldable"];
+  var Data_Functor = $PS["Data.Functor"];
   var Data_HeytingAlgebra = $PS["Data.HeytingAlgebra"];
   var Data_Lens_Getter = $PS["Data.Lens.Getter"];
   var Data_Lens_Index = $PS["Data.Lens.Index"];
@@ -11726,11 +11739,11 @@ var PS = {};
   var Data_Maybe = $PS["Data.Maybe"];
   var Data_Ord = $PS["Data.Ord"];
   var Data_Profunctor_Strong = $PS["Data.Profunctor.Strong"];
-  var Data_Traversable = $PS["Data.Traversable"];
   var Data_Tuple = $PS["Data.Tuple"];
   var Game_Core = $PS["Game.Core"];
   var Lib_KonamiCode = $PS["Lib.KonamiCode"];
   var Lib_Util = $PS["Lib.Util"];
+  var MyPrelude = $PS["MyPrelude"];
   var Pha_Random = $PS["Pha.Random"];
   var Pha_Update = $PS["Pha.Update"];
   var Run = $PS["Run"];                
@@ -11784,8 +11797,8 @@ var PS = {};
   };
   var withcore = new Game_Core.MsgWithCore(Core.create);
   var sizes = [ new Data_Tuple.Tuple(3, 3), new Data_Tuple.Tuple(4, 4), new Data_Tuple.Tuple(2, 10), new Data_Tuple.Tuple(3, 10), new Data_Tuple.Tuple(5, 5), new Data_Tuple.Tuple(8, 8), new Data_Tuple.Tuple(8, 8) ];
-  var onKeyDown = function ($58) {
-      return Data_Maybe.Just.create(Konami.create($58));
+  var onKeyDown = function ($56) {
+      return Data_Maybe.Just.create(Konami.create($56));
   };
   var istate = Game_Core.genState({
       light: [  ],
@@ -11821,17 +11834,17 @@ var PS = {};
       })(dictStrong);
   };
   var _ext$prime = function (dictStrong) {
-      var $59 = Game_Core["_ext"](dictStrong);
-      var $60 = Data_Lens_Iso.iso(function (v) {
+      var $57 = Game_Core["_ext"](dictStrong);
+      var $58 = Data_Lens_Iso.iso(function (v) {
           return v;
       })(Ext)(dictStrong.Profunctor0());
-      return function ($61) {
-          return $59($60($61));
+      return function ($59) {
+          return $57($58($59));
       };
   };
   var _keySequence = function (dictStrong) {
-      var $62 = _ext$prime(dictStrong);
-      var $63 = Data_Lens_Lens.lens(function (v) {
+      var $60 = _ext$prime(dictStrong);
+      var $61 = Data_Lens_Lens.lens(function (v) {
           return v.keySequence;
       })(function (v) {
           return function (v1) {
@@ -11843,13 +11856,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($64) {
-          return $62($63($64));
+      return function ($62) {
+          return $60($61($62));
       };
   };
   var _level = function (dictStrong) {
-      var $65 = _ext$prime(dictStrong);
-      var $66 = Data_Lens_Lens.lens(function (v) {
+      var $63 = _ext$prime(dictStrong);
+      var $64 = Data_Lens_Lens.lens(function (v) {
           return v.level;
       })(function (v) {
           return function (v1) {
@@ -11861,13 +11874,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($67) {
-          return $65($66($67));
+      return function ($65) {
+          return $63($64($65));
       };
   };
   var _maxLevels = function (dictStrong) {
-      var $68 = _ext$prime(dictStrong);
-      var $69 = Data_Lens_Lens.lens(function (v) {
+      var $66 = _ext$prime(dictStrong);
+      var $67 = Data_Lens_Lens.lens(function (v) {
           return v.maxLevels;
       })(function (v) {
           return function (v1) {
@@ -11879,13 +11892,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($70) {
-          return $68($69($70));
+      return function ($68) {
+          return $66($67($68));
       };
   };
   var _mode = function (dictStrong) {
-      var $71 = _ext$prime(dictStrong);
-      var $72 = Data_Lens_Lens.lens(function (v) {
+      var $69 = _ext$prime(dictStrong);
+      var $70 = Data_Lens_Lens.lens(function (v) {
           return v.mode;
       })(function (v) {
           return function (v1) {
@@ -11897,8 +11910,8 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($73) {
-          return $71($72($73));
+      return function ($71) {
+          return $69($70($71));
       };
   };
   var neighbor = function (state) {
@@ -11922,9 +11935,7 @@ var PS = {};
   var genRandomBoard = function (state) {
       var size = Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)) * Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget)) | 0;
       return Control_Bind.bind(Control_Monad_Free.freeBind)(Pha_Random["int"](0)(size))(function (v) {
-          return Control_Bind.bind(Control_Monad_Free.freeBind)(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Free.freeApplicative)(Data_Array.replicate(v)(Pha_Random["int'"](size))))(function (v1) {
-              return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Foldable.foldr(Data_Foldable.foldableArray)(toggleCell(state))(Data_Array.replicate(size)(true))(v1));
-          });
+          return Data_Functor.mapFlipped(Control_Monad_Free.freeFunctor)(MyPrelude.replicateA(Control_Monad_Free.freeApplicative)(v)(Pha_Random["int'"](size)))(Data_Foldable.foldr(Data_Foldable.foldableArray)(toggleCell(state))(Data_Array.replicate(size)(true)));
       });
   };
   var noirblancGame = new Game_Core.Game(function (v) {
@@ -11932,8 +11943,8 @@ var PS = {};
   }, function (state) {
       var size = Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)) * Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget)) | 0;
       return Control_Bind.bind(Control_Monad_Free.freeBind)((function () {
-          var $44 = Data_Lens_Getter.viewOn(state)(_level(Data_Lens_Internal_Forget.strongForget)) >= 6;
-          if ($44) {
+          var $42 = Data_Lens_Getter.viewOn(state)(_level(Data_Lens_Internal_Forget.strongForget)) >= 6;
+          if ($42) {
               return genRandomBoard(state);
           };
           return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Array.replicate(size)(true));
@@ -11951,10 +11962,10 @@ var PS = {};
   }, function (state) {
       return function (index) {
           return Data_Maybe.Just.create(Data_Lens_Setter.over((function () {
-              var $74 = _played(Data_Profunctor_Strong.strongFn);
-              var $75 = Data_Lens_Index.ix(Data_Lens_Index.indexArray)(index)(Data_Lens_Internal_Wander.wanderFunction);
-              return function ($76) {
-                  return $74($75($76));
+              var $72 = _played(Data_Profunctor_Strong.strongFn);
+              var $73 = Data_Lens_Index.ix(Data_Lens_Index.indexArray)(index)(Data_Lens_Internal_Wander.wanderFunction);
+              return function ($74) {
+                  return $72($73($74));
               };
           })())(Data_HeytingAlgebra.not(Data_HeytingAlgebra.heytingAlgebraBoolean))(Data_Lens_Setter.over(_light(Data_Profunctor_Strong.strongFn))(toggleCell(state)(index))(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget)))));
       };
@@ -11967,23 +11978,23 @@ var PS = {};
       var mode = Data_Lens_Getter.viewOn(v)(_mode(Data_Lens_Internal_Forget.strongForget));
       return Control_Applicative.when(Run.applicativeRun)(Game_Core.isLevelFinished(noirblancGame)(v))((function () {
           var nextLevel = (function () {
-              var $50 = Data_Lens_Getter.viewOn(v)(_level(Data_Lens_Internal_Forget.strongForget)) >= 4;
-              if ($50) {
+              var $48 = Data_Lens_Getter.viewOn(v)(_level(Data_Lens_Internal_Forget.strongForget)) >= 4;
+              if ($48) {
                   return 6;
               };
               return Data_Lens_Getter.viewOn(v)(_level(Data_Lens_Internal_Forget.strongForget)) + (function () {
-                  var $51 = mode === 0 || mode === 3;
-                  if ($51) {
+                  var $49 = mode === 0 || mode === 3;
+                  if ($49) {
                       return 1;
                   };
                   return 2;
               })() | 0;
           })();
           return Control_Bind.discard(Control_Bind.discardUnit)(Run.bindRun)(Pha_Update.setState(Data_Lens_Setter.set((function () {
-              var $77 = _maxLevels(Data_Profunctor_Strong.strongFn);
-              var $78 = Data_Lens_Index.ix(Data_Lens_Index.indexArray)(mode)(Data_Lens_Internal_Wander.wanderFunction);
-              return function ($79) {
-                  return $77($78($79));
+              var $75 = _maxLevels(Data_Profunctor_Strong.strongFn);
+              var $76 = Data_Lens_Index.ix(Data_Lens_Index.indexArray)(mode)(Data_Lens_Internal_Wander.wanderFunction);
+              return function ($77) {
+                  return $75($76($77));
               };
           })())(nextLevel)))(function () {
               return Game_Core.newGame(noirblancGame)(Data_Lens_Setter.over(_level(Data_Profunctor_Strong.strongFn))(function (lvl) {
@@ -11998,10 +12009,10 @@ var PS = {};
       };
       if (v instanceof SelectMode) {
           return Game_Core.newGame(noirblancGame)((function () {
-              var $80 = Data_Lens_Setter.set(_mode(Data_Profunctor_Strong.strongFn))(v.value0);
-              var $81 = Data_Lens_Setter.set(_level(Data_Profunctor_Strong.strongFn))(0);
-              return function ($82) {
-                  return $80($81($82));
+              var $78 = Data_Lens_Setter.set(_mode(Data_Profunctor_Strong.strongFn))(v.value0);
+              var $79 = Data_Lens_Setter.set(_level(Data_Profunctor_Strong.strongFn))(0);
+              return function ($80) {
+                  return $78($79($80));
               };
           })());
       };
@@ -12060,12 +12071,12 @@ var PS = {};
           return function (props) {
               return Pha_Elements.div(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.class_("noirblanc-square") ])(props))([ Pha_Elements.div([ Pha.class_("noirblanc-square-inner"), Pha["class'"]("blanc")(light) ])([ Pha_Elements.div([ Pha.class_("noirblanc-square-blanc") ])((function () {
                   if (cross) {
-                      return [ Pha_Svg.svg([ Pha_Svg.width("100%"), Pha_Svg.height("100%"), Pha.class_("ui-absolute noirblanc-cross") ])([ Pha_Svg.use("#cross")([  ]) ]) ];
+                      return [ Pha_Svg.svg([ Pha.class_("ui-absolute noirblanc-cross") ])([ Pha_Svg.use("#cross")([  ]) ]) ];
                   };
                   return [  ];
               })()), Pha_Elements.div([ Pha.class_("noirblanc-square-noir") ])((function () {
                   if (cross) {
-                      return [ Pha_Svg.svg([ Pha_Svg.width("100%"), Pha_Svg.height("100%"), Pha.class_("ui-absolute noirblanc-cross") ])([ Pha_Svg.use("#cross")([  ]) ]) ];
+                      return [ Pha_Svg.svg([ Pha.class_("ui-absolute noirblanc-cross") ])([ Pha_Svg.use("#cross")([  ]) ]) ];
                   };
                   return [  ];
               })()) ]) ]);
@@ -12551,10 +12562,10 @@ var PS = {};
       };
   };
   var heroCursor = function (pp) {
-      return Pha_Svg.use(" #meeplehat")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key("chero"), Pha_Svg.x_("-40"), Pha_Svg.y_("-40"), Pha_Svg.width("80"), Pha_Svg.height("80"), Pha.attr("opacity")("0.6"), Pha.attr("pointer-events")("none") ])(UI_Template.svgCursorStyle(pp)));
+      return Pha_Svg.use("#meeplehat")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key("chero"), Pha.class_("paths-cursor"), Pha_Svg.x_("-40"), Pha_Svg.y_("-40"), Pha_Svg.width("80"), Pha_Svg.height("80") ])(UI_Template.svgCursorStyle(pp)));
   };
   var doorCursor = function (pp) {
-      return Pha_Svg.use(" #paths-door")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key("cdoor"), Pha_Svg.x_("-50"), Pha_Svg.y_("-50"), Pha_Svg.width("100"), Pha_Svg.height("100"), Pha.attr("opacity")("0.6"), Pha.attr("pointer-events")("none") ])(UI_Template.svgCursorStyle(pp)));
+      return Pha_Svg.use("#paths-door")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key("cdoor"), Pha.class_("paths-cursor"), Pha_Svg.x_("-50"), Pha_Svg.y_("-50"), Pha_Svg.width("100"), Pha_Svg.height("100") ])(UI_Template.svgCursorStyle(pp)));
   };
   var view = function (state) {
       var rules = [ Pha_Elements.p([  ])([ Pha.text("Apr\xe8s moultes p\xe9rip\xe9ties dans le temple maudit de Berge, le professeur Hamilton Jones se retrouve dans la derni\xe8re salle"), Pha_Elements.br, Pha.text("Pour sortir de celle-ci, il doit s'enfuir par une porte au-dessous de lui."), Pha_Elements.br, Pha.text("Celle-ci ne peut \xeatre ouverte qu'en marchant sur chacune des dalles dans la salle.") ]), Pha_Elements.p([  ])([ Pha.text("Malheusement, ces dalles sont pi\xe9g\xe9es, le pi\xe8ge se d\xe9clenchant peu de temps apr\xe8s avoir march\xe9 dessus."), Pha_Elements.br, Pha.text("Donc, Hamilton ne peut pas remarcher sur une dalle sur laquelle il a d\xe9j\xe0 \xe9t\xe9."), Pha_Elements.br, Pha.text("N'ayant plus l'aisance de sa jeunesse, Hamilton ne peut se d\xe9placer que d'une dalle \xe0 la fois et ne peut le faire en diagonale.") ]), Pha_Elements.p([  ])([ Pha.text("Trouve un parcours pour r\xe9soudre l'\xe9nigme. Ca semble facile ? Mais, cela est-il possible pour toutes les tailles de grille ?") ]), Pha_Elements.p([  ])([ Pha.text("Dans le deuxi\xe8me mode de jeu, tu peux choisir la position de d\xe9part d'Hamilton ainsi que celle de la porte."), Pha_Elements.br, Pha.text("Tu remarqueras qu'il n'y a pas toujours de solution."), Pha_Elements.br, Pha.text("Trouve des crit\xe8res sur les positions d'Hamilton et de la porte pour qu'une solution soit possible.") ]) ];
@@ -12589,7 +12600,7 @@ var PS = {};
                   };
               };
           };
-          throw new Error("Failed pattern match at Game.Paths.View (line 61, column 90 - line 63, column 85): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Paths.View (line 59, column 90 - line 61, column 85): " + [ v.constructor.name ]);
       }), UI_Icons.iconSizesGroup(Game_Paths_Model.withcore)(state)([ new Data_Tuple.Tuple(4, 6), new Data_Tuple.Tuple(5, 5), new Data_Tuple.Tuple(3, 8) ])(true), UI_Icons.icongroup("Options")(Data_Functor.mapFlipped(Data_Functor.functorArray)([ UI_Icons.ihelp(Game_Paths_Model.withcore), UI_Icons.iundo(Game_Paths_Model.withcore), UI_Icons.iredo(Game_Paths_Model.withcore), UI_Icons.ireset(Game_Paths_Model.withcore), UI_Icons.irules(Game_Paths_Model.withcore) ])(function (x) {
           return x(state);
       })) ]);
@@ -13833,12 +13844,12 @@ var PS = {};
                           return "lightgreen";
                       };
                       return "#F5B7B1";
-                  })()) ])(UI_Template.dndItemProps(Game_Roue_Model.eqLoc)(Game_Roue_Model.withdnd)(Game_Roue_Model.roueGame)({
+                  })()) ])(UI_Template.dndItemProps(Game_Roue_Model.eqLoc)(Game_Roue_Model.withdnd)(Game_Roue_Model.roueGame)(state)({
                       currentDragged: Data_Lens_Getter.viewOn(state)(Game_Roue_Model["_dragged"](Data_Lens_Internal_Forget.strongForget)),
                       draggable: Data_Maybe.isJust(pos),
                       droppable: true,
                       id: new Game_Roue_Model.Wheel(i)
-                  })(state)));
+                  })));
               };
           };
       })) ])(Data_Array.catMaybes(Data_Array.mapWithIndex(function (index) {
@@ -13850,12 +13861,12 @@ var PS = {};
       })(position))));
       var drawButtons = Pha_Elements.div([ Pha.class_("roue-buttons") ])(Data_Array.concat([ [ Pha_Elements.button([ Pha.class_("ui-button ui-button-primary roue-button"), Pha_Attributes.disabled(Data_Lens_Getter.viewOn(state)(Game_Core["_locked"](Data_Lens_Internal_Forget.strongForget))), Pha_Events.onclick(new Game_Roue_Model.Rotate(-1 | 0)) ])([ Pha.text("\u21b6") ]) ], Data_Array.mapWithIndex(function (i) {
           return function (color) {
-              return Pha_Elements.div(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.class_("roue-select-color ui-flex-center"), Pha.style("background-color")(color) ])(UI_Template.dndItemProps(Game_Roue_Model.eqLoc)(Game_Roue_Model.withdnd)(Game_Roue_Model.roueGame)({
+              return Pha_Elements.div(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.class_("roue-select-color ui-flex-center"), Pha.style("background-color")(color) ])(UI_Template.dndItemProps(Game_Roue_Model.eqLoc)(Game_Roue_Model.withdnd)(Game_Roue_Model.roueGame)(state)({
                   currentDragged: Data_Lens_Getter.viewOn(state)(Game_Roue_Model["_dragged"](Data_Lens_Internal_Forget.strongForget)),
                   draggable: true,
                   droppable: false,
                   id: new Game_Roue_Model.Panel(i)
-              })(state)))([ Pha.when(Data_Foldable.elem(Data_Foldable.foldableArray)(Data_Maybe.eqMaybe(Data_Eq.eqInt))(new Data_Maybe.Just(i))(position))(function (v) {
+              })))([ Pha.when(Data_Foldable.elem(Data_Foldable.foldableArray)(Data_Maybe.eqMaybe(Data_Eq.eqInt))(new Data_Maybe.Just(i))(position))(function (v) {
                   return Pha_Elements.span([  ])([ Pha.text("\u2713") ]);
               }) ]);
           };
@@ -14233,10 +14244,10 @@ var PS = {};
   var Data_Semigroup = $PS["Data.Semigroup"];
   var Data_Show = $PS["Data.Show"];
   var Data_String_Common = $PS["Data.String.Common"];
-  var Data_Traversable = $PS["Data.Traversable"];
   var Data_Tuple = $PS["Data.Tuple"];
   var Game_Core = $PS["Game.Core"];
   var Lib_Util = $PS["Lib.Util"];
+  var MyPrelude = $PS["MyPrelude"];
   var Pha_Random = $PS["Pha.Random"];
   var Pha_Update = $PS["Pha.Update"];                
   var FrenchBoard = (function () {
@@ -14586,13 +14597,13 @@ var PS = {};
           if (v1 instanceof RandomBoard) {
               return {
                   holes: Data_Array.replicate(3 * Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget)) | 0)(true),
-                  position: Data_Functor.mapFlipped(Control_Monad_Free.freeFunctor)(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Free.freeApplicative)(Data_Array.replicate(columns)(Pha_Random.bool)))(function (bools) {
+                  position: Data_Functor.mapFlipped(Control_Monad_Free.freeFunctor)(MyPrelude.replicateA(Control_Monad_Free.freeApplicative)(columns)(Pha_Random.bool))(function (bools) {
                       return Data_Semigroup.append(Data_Semigroup.semigroupArray)(bools)(Data_Semigroup.append(Data_Semigroup.semigroupArray)(Data_Array.replicate(columns)(true))(Data_Functor.mapFlipped(Data_Functor.functorArray)(bools)(Data_HeytingAlgebra.not(Data_HeytingAlgebra.heytingAlgebraBoolean))));
                   }),
                   customSize: true
               };
           };
-          throw new Error("Failed pattern match at Game.Solitaire.Model (line 110, column 13 - line 128, column 18): " + [ v1.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Solitaire.Model (line 110, column 13 - line 128, column 22): " + [ v1.constructor.name ]);
       })();
       return Data_Functor.mapFlipped(Control_Monad_Free.freeFunctor)(v.position)(function (p) {
           return Data_Lens_Setter.set(Game_Core["_customSize"](Data_Profunctor_Strong.strongFn))(v.customSize)(Data_Lens_Setter.set(Game_Core["_position"](Data_Profunctor_Strong.strongFn))(p)(Data_Lens_Setter.set(_holes(Data_Profunctor_Strong.strongFn))(v.holes)(state)));
@@ -14801,7 +14812,7 @@ var PS = {};
                           style: opt.style
                       };
                   };
-                  throw new Error("Failed pattern match at Game.Solitaire.View (line 43, column 86 - line 48, column 90): " + [ i.constructor.name ]);
+                  throw new Error("Failed pattern match at Game.Solitaire.View (line 45, column 86 - line 50, column 90): " + [ i.constructor.name ]);
               };
           }), UI_Icons.icongroup("Options")(Data_Functor.mapFlipped(Data_Functor.functorArray)([ UI_Icons.ihelp(Game_Solitaire_Model.withcore), UI_Icons.iundo(Game_Solitaire_Model.withcore), UI_Icons.iredo(Game_Solitaire_Model.withcore), UI_Icons.ireset(Game_Solitaire_Model.withcore), UI_Icons.irules(Game_Solitaire_Model.withcore) ])(function (x) {
               return x(state);
@@ -14817,23 +14828,23 @@ var PS = {};
       };
       var drawHole = function (i) {
           return [ Pha.when(Data_Lens_Getter.viewOn(state)(Game_Solitaire_Model["_help"](Data_Lens_Internal_Forget.strongForget)) > 0 && !isCircleBoard)(function (v) {
-              return Pha_Svg.rect([ Pha_Svg.x_("-25.0"), Pha_Svg.y_("-25"), Pha_Svg.width("50"), Pha_Svg.height("50"), Pha.key("rect" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.fill(tricolor(i)(columns)(Data_Lens_Getter.viewOn(state)(Game_Solitaire_Model["_help"](Data_Lens_Internal_Forget.strongForget)))), Pha.style("transform")(itemStyle(i)) ]);
-          }), Pha_Svg.circle(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key("h" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.r("17"), Pha_Svg.fill("url(#soli-hole)"), Pha["class'"]("solitaire-hole")(true), Pha.style("transform")(itemStyle(i)) ])(UI_Template.dndItemProps(Data_Eq.eqInt)(Game_Solitaire_Model.withdnd)(Game_Solitaire_Model.solitaireGame)({
+              return Pha_Svg.rect([ Pha_Svg.x_("-25"), Pha_Svg.y_("-25"), Pha_Svg.width("50"), Pha_Svg.height("50"), Pha.key("rect" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.fill(tricolor(i)(columns)(Data_Lens_Getter.viewOn(state)(Game_Solitaire_Model["_help"](Data_Lens_Internal_Forget.strongForget)))), Pha.style("transform")(itemStyle(i)) ]);
+          }), Pha_Svg.circle(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key("h" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.r("17"), Pha.class_("solitaire-hole"), Pha.style("transform")(itemStyle(i)) ])(UI_Template.dndItemProps(Data_Eq.eqInt)(Game_Solitaire_Model.withdnd)(Game_Solitaire_Model.solitaireGame)(state)({
               currentDragged: Data_Lens_Getter.viewOn(state)(Game_Solitaire_Model["_dragged"](Data_Lens_Internal_Forget.strongForget)),
               draggable: false,
               droppable: true,
               id: i
-          })(state))) ];
+          }))) ];
       };
       var drawPeg = function (i) {
-          return Pha_Svg.circle(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Svg.r("20"), Pha.key("p" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.fill("url(#soli-peg)"), Pha["class'"]("solitaire-peg")(true), Pha.style("transform")(itemStyle(i)) ])(UI_Template.dndItemProps(Data_Eq.eqInt)(Game_Solitaire_Model.withdnd)(Game_Solitaire_Model.solitaireGame)({
+          return Pha_Svg.circle(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha_Svg.r("20"), Pha.key("p" + Data_Show.show(Data_Show.showInt)(i)), Pha.class_("solitaire-peg"), Pha.style("transform")(itemStyle(i)) ])(UI_Template.dndItemProps(Data_Eq.eqInt)(Game_Solitaire_Model.withdnd)(Game_Solitaire_Model.solitaireGame)(state)({
               draggable: true,
               droppable: false,
               currentDragged: Data_Lens_Getter.viewOn(state)(Game_Solitaire_Model["_dragged"](Data_Lens_Internal_Forget.strongForget)),
               id: i
-          })(state)));
+          })));
       };
-      var grid = Pha_Elements.div(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha["class'"]("ui-board")(true) ])(Data_Semigroup.append(Data_Semigroup.semigroupArray)(UI_Template.dndBoardProps(Game_Solitaire_Model.withcore)(Game_Solitaire_Model.withdnd))((function () {
+      var grid = Pha_Elements.div(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.class_("ui-board") ])(Data_Semigroup.append(Data_Semigroup.semigroupArray)(UI_Template.dndBoardProps(Game_Solitaire_Model.withcore)(Game_Solitaire_Model.withdnd))((function () {
           if (isCircleBoard) {
               return [ Pha.style("width")("100%"), Pha.style("height")("100%") ];
           };
@@ -14844,7 +14855,7 @@ var PS = {};
           };
           return Pha_Svg.viewBox(0)(0)(50 * columns | 0)(50 * rows | 0);
       })() ])(Data_Array.concat([ [ Pha.when(isCircleBoard)(function (v) {
-          return Pha_Svg.circle([ Pha_Svg.cx("125"), Pha_Svg.cy("125"), Pha_Svg.r("90"), Pha_Svg.stroke("grey"), Pha_Svg.fill("transparent"), Pha_Svg.strokeWidth("5") ]);
+          return Pha_Svg.circle([ Pha_Svg.cx("125"), Pha_Svg.cy("125"), Pha_Svg.r("90"), Pha.class_("solitaire-circle") ]);
       }) ], Data_Array.concat(Data_Array.mapWithIndex(function (i) {
           return function (hasHole) {
               if (hasHole) {
@@ -14872,7 +14883,7 @@ var PS = {};
                   };
                   return Pha_Svg.viewBox(0)(0)(50 * columns | 0)(50 * rows | 0);
               })() ])(Data_Array.concat([ [ Pha.when(isCircleBoard)(function (v1) {
-                  return Pha_Svg.circle([ Pha_Svg.cx("125"), Pha_Svg.cy("125"), Pha_Svg.r("90"), Pha_Svg.stroke("grey"), Pha_Svg.fill("transparent"), Pha_Svg.strokeWidth("5") ]);
+                  return Pha_Svg.circle([ Pha_Svg.cx("125"), Pha_Svg.cy("125"), Pha_Svg.r("90"), Pha.class_("solitaire-circle") ]);
               }) ], Data_Array.mapWithIndex(function (i) {
                   return function (v1) {
                       return Pha.when(v1)(function (v2) {
@@ -15631,10 +15642,10 @@ var PS = {};
   var Data_Maybe = $PS["Data.Maybe"];
   var Data_Ord = $PS["Data.Ord"];
   var Data_Profunctor_Strong = $PS["Data.Profunctor.Strong"];
-  var Data_Traversable = $PS["Data.Traversable"];
   var Data_Tuple = $PS["Data.Tuple"];
   var Game_Core = $PS["Game.Core"];
   var Lib_Util = $PS["Lib.Util"];
+  var MyPrelude = $PS["MyPrelude"];
   var Pha_Random = $PS["Pha.Random"];
   var Pha_Update = $PS["Pha.Update"];                
   var Core = (function () {
@@ -15793,7 +15804,7 @@ var PS = {};
   var tricolorGame = new Game_Core.Game(function (v) {
       return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Maybe.Nothing.value);
   }, function (state) {
-      return Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Free.freeApplicative)(Data_Array.replicate(Data_Lens_Getter.viewOn(state)(_size(Data_Lens_Internal_Forget.strongForget)))(Pha_Random["int'"](Data_Lens_Getter.viewOn(state)(_nbColors(Data_Lens_Internal_Forget.strongForget)))));
+      return MyPrelude.replicateA(Control_Monad_Free.freeApplicative)(Data_Lens_Getter.viewOn(state)(_size(Data_Lens_Internal_Forget.strongForget)))(Pha_Random["int'"](Data_Lens_Getter.viewOn(state)(_nbColors(Data_Lens_Internal_Forget.strongForget))));
   }, function (state) {
       return Data_Foldable.all(Data_Foldable.foldableArray)(Data_HeytingAlgebra.heytingAlgebraBoolean)(function (v) {
           return v === 0;

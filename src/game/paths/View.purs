@@ -21,33 +21,31 @@ square {darken, trap, door, x, y} props =
             use "#paths-door" pos
     ,   use "#paths-trap" (pos <> 
         [   class_ "paths-trap"
-        ,   class' "visible" $ trap && not door
+        ,   class' "visible" (trap && not door)
         ])
     ]
     where pos = [x_ $ show x, y_ $ show y, width "100", height "100"]
 
 doorCursor ∷ ∀a. PointerPosition → VDom a
 doorCursor pp =
-    use " #paths-door" $ 
+    use "#paths-door" $ 
     [   key "cdoor"
+    ,   class_ "paths-cursor"
     ,   x_ "-50"
     ,   y_ "-50"
     ,   width "100"
     ,   height "100"
-    ,   attr "opacity" "0.6"
-    ,   attr "pointer-events" "none"
     ] <> svgCursorStyle pp
         
 heroCursor ∷ ∀a. PointerPosition → VDom a
 heroCursor pp =
-    use " #meeplehat" $
+    use "#meeplehat" $
     [   key "chero"
+    ,   class_ "paths-cursor"
     ,   x_ "-40"
     ,   y_ "-40"
     ,   width "80"
     ,   height "80"
-    ,   attr "opacity" "0.6"
-    ,   attr "pointer-events" "none"
     ] <> svgCursorStyle pp
 
 view ∷ State → VDom Msg

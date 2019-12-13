@@ -43,10 +43,6 @@ view state = template {config, board, rules} state where
         [   take nbBases colors # mapWithIndex \i color →
                 rect
                 [   key $ "b" <> show i
-                ,   x_ "-10"
-                ,   y_ "-10"
-                ,   width "20"
-                ,   height "20"
                 ,   class_ "baseball-base"
                 ,   stroke color
                 ,   style "transform" $ transformBase i nbBases

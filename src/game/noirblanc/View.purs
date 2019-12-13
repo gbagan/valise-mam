@@ -31,11 +31,11 @@ square light cross props =
     [   div [class_ "noirblanc-square-inner", class' "blanc" light]
         [   div [class_ "noirblanc-square-blanc"] $ 
                 if cross then [
-                    svg [width "100%", height "100%", class_ "ui-absolute noirblanc-cross"] [use "#cross" []]
+                    svg [class_ "ui-absolute noirblanc-cross"] [use "#cross" []]
                 ]  else []
         ,   div [class_ "noirblanc-square-noir"] $
                 if cross then [
-                    svg [width "100%", height "100%", class_ "ui-absolute noirblanc-cross"] [use "#cross" []]
+                    svg [class_ "ui-absolute noirblanc-cross"] [use "#cross" []]
                 ] else []
         ]
     ]

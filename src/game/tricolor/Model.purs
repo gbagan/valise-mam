@@ -50,7 +50,7 @@ instance tricolorGame ∷ Game (Array Int) ExtState Int where
             (color + 1) `mod` (state^._nbColors)
         else
             color
-    initialPosition state = sequence $ replicate (state^._size) $ R.int' (state^._nbColors)
+    initialPosition state = replicateA (state^._size) (R.int' (state^._nbColors))
     isLevelFinished state = state^._position # all (_ == 0)
 
     onNewGame = pure

@@ -149,13 +149,13 @@ dndBoardProps = [
 
 -- | gère le drag and drop pour une item en renvoyant une liste d'attributs
 dndItemProps ∷ ∀pos ext msg id. Eq id ⇒ MsgWithDnd msg id ⇒ Game pos ext {from ∷ id, to ∷ id} ⇒
-    {
+    (GState pos ext) → {
         draggable ∷ Boolean,
         droppable ∷ Boolean,
         id ∷ id,
         currentDragged ∷ Maybe id
-    } → (GState pos ext) → Array (Prop msg)
-dndItemProps {draggable, droppable, id, currentDragged} state =
+    } → Array (Prop msg)
+dndItemProps state {draggable, droppable, id, currentDragged} =
     [   class' "dragged" dragged
     ,   class' "candrop" candrop
     ,   releasePointerCaptureOn "pointerdown" $ always (if draggable then Just $ dndmsg (Drag id) else Nothing)

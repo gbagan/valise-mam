@@ -55,5 +55,5 @@ update ToggleSwitch = purely $ _isSwitchOn %~ not
 update (SetDrag d) = purely _{drag = d}
 update (MoveObject {x, y}) = purely \state →
     case state.drag of
-        Just {name, x: x2, y: y2} → state # _positions ∘ at name .~ Just {x: x-x2, y:y-y2} 
+        Just {name, x: x2, y: y2} → state # _positions ∘ at name .~ Just {x: x-x2, y: y-y2} 
         _ → state

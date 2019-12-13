@@ -18,6 +18,11 @@
     }
 }
 
+.paths-cursor {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
 .paths-hero {
     transition: all 500ms linear;
     pointer-events: none;

@@ -5,6 +5,28 @@
     background-color: lightblue;
 }
 
+.nim-square {
+    x: -2.5px;
+    y: -2.5px;
+    width: 5px;
+    height: 5px;
+    fill: grey;
+}
+
+.nim-row {
+    height: 10px;
+    fill: snow;
+}
+
+.nim-row-5 {
+    x: 25px;
+    width: 50px;
+}
+
+.nim-row-10 {
+    width: 100px;
+}
+
 .nim-player {
     cursor: not-allowed;
     transition: all 0.5s linear;

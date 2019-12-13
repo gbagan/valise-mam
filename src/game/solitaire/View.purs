@@ -4,7 +4,7 @@ import MyPrelude
 import Lib.Util (coords)
 import Pha (VDom, text, (<&&>), maybeN, key, class_, class', style)
 import Pha.Elements (div, br)
-import Pha.Svg (svg, rect, circle, viewBox, x_, y_, width, height, cx, cy, r, fill, stroke, strokeWidth)
+import Pha.Svg (svg, rect, circle, viewBox, x_, y_, width, height, cx, cy, r, fill)
 import Pha.Util (px, translate)
 import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointer, scoreFn)
 import Game.Solitaire.Model (State, Msg(..), Board(..), _board, _holes, _dragged, _help)
@@ -35,7 +35,9 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                 (px $ 125.0 + sin(2.0 * pi * toNumber i / toNumber rows) * 90.0)
                 (px $ 125.0 + cos(2.0 * pi * toNumber i / toNumber rows) * 90.0)
         else
-            translate (px $ 50.0 * toNumber col + 25.0) (px $ 50.0 * toNumber row + 25.0)
+            translate
+                (px $ 50.0 * toNumber col + 25.0)
+                (px $ 50.0 * toNumber row + 25.0)
 
     config =
         let boards = [CircleBoard, Grid3Board, RandomBoard, EnglishBoard, FrenchBoard] in        
@@ -53,26 +55,25 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
     drawHole i = 
         [   state^._help > 0 && not isCircleBoard <&&> \_ →
                 rect
-                [   x_ "-25.0"
+                [   x_ "-25"
                 ,   y_ "-25"
                 ,   width "50"
                 ,   height "50"
                 ,   key $ "rect" <> show i
                 ,   fill $ tricolor i columns (state^._help)
-                ,   style "transform" $ itemStyle i
+                ,   style "transform" (itemStyle i)
                 ]
         ,   circle (
             [   key $ "h" <> show i
             ,   r "17"
-            ,   fill "url(#soli-hole)"
-            ,   class' "solitaire-hole" true
-            ,   style "transform" $ itemStyle i
-            ] <> dndItemProps 
+            ,   class_ "solitaire-hole"
+            ,   style "transform" (itemStyle i)
+            ] <> dndItemProps state 
                 {   currentDragged: state^._dragged
                 ,   draggable: false
                 ,   droppable: true
                 ,   id: i
-                } state
+                }
             )
         ]
 
@@ -80,29 +81,29 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
         circle (
         [   r "20"
         ,   key $ "p" <> show i
-        ,   fill "url(#soli-peg)"
-        ,   class' "solitaire-peg" true
+        ,   class_ "solitaire-peg"
         ,   style "transform" $ itemStyle i
-        ] <> dndItemProps
+        ] <> dndItemProps state
             {   draggable: true
             ,   droppable: false
             ,   currentDragged: state^._dragged
             ,   id: i
-            } state
+            }
         )
 
 
     grid =
-        div ([
-            class' "ui-board" true
-        ] <> dndBoardProps <> (if isCircleBoard then
-                            [style "width" "100%", style "height" "100%"] 
-                        else 
-                            gridStyle rows columns 5
-        ))
+        div (
+            [class_ "ui-board"] 
+            <> dndBoardProps 
+            <> (if isCircleBoard then
+                    [style "width" "100%", style "height" "100%"] 
+                else 
+                    gridStyle rows columns 5
+            ))
         [   svg [if isCircleBoard then viewBox 0 0 250 250 else viewBox 0 0 (50 * columns) (50 * rows)] $ concat
             [   [isCircleBoard <&&> \_ →
-                    circle [cx "125", cy "125", r "90", stroke "grey", fill "transparent", strokeWidth "5"]
+                    circle [cx "125", cy "125", r "90", class_ "solitaire-circle"]
                 ]
             ,   concat $ state^._holes # mapWithIndex \i hasHole →
                     if hasHole then drawHole i else []
@@ -120,20 +121,20 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                                     [style "width" "100%", style "height" "100%"] 
                                 else 
                                     gridStyle rows columns 5
-            )) [
-                svg [if isCircleBoard then viewBox 0 0 250 250 else viewBox 0 0 (50 * columns) (50 * rows)] $ concat [
-                    [isCircleBoard <&&> \_ →
-                        circle [cx "125", cy "125", r "90", stroke "grey", fill "transparent", strokeWidth "5"]
-                    ],
-                    state^._holes # mapWithIndex \i → (_ <&&> \_ →
+            ))
+            [   svg [if isCircleBoard then viewBox 0 0 250 250 else viewBox 0 0 (50 * columns) (50 * rows)] $ concat
+                [   [isCircleBoard <&&> \_ →
+                        circle [cx "125", cy "125", r "90", class_ "solitaire-circle"]
+                    ]
+                ,   state^._holes # mapWithIndex \i → (_ <&&> \_ →
                         circle
                         [   key $ "h" <> show i
                         ,   r "17"
                         ,   class_ "solitaire-hole"
                         ,   style "transform" $ itemStyle i
                         ]
-                    ),
-                    position # mapWithIndex \i → (_ <&&> \_ →
+                    )
+                ,   position # mapWithIndex \i → (_ <&&> \_ →
                         circle
                         [   key $ "p" <> show i
                         ,   r "20"

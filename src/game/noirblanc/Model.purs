@@ -73,8 +73,8 @@ genRandomBoard ∷ State → Random (Array Boolean)
 genRandomBoard state = do
     let size = state^._nbRows * state^._nbColumns
     nbMoves ← R.int 0 size
-    rints ← sequence $ replicate nbMoves (R.int' size)
-    pure $ foldr (toggleCell state) (replicate size true) rints
+    replicateA nbMoves (R.int' size) <#>
+        foldr (toggleCell state) (replicate size true)
 
 instance noirblancGame ∷ Game { light ∷ Array Boolean, played ∷ Array Boolean } ExtState Int where
     play state index = Just $ state^._position 
@@ -83,14 +83,14 @@ instance noirblancGame ∷ Game { light ∷ Array Boolean, played ∷ Array Bool
 
     initialPosition state = do
         let size = state^._nbRows * state^._nbColumns
-        board ← if state^._level >= 6 then genRandomBoard state else pure $ replicate size true
+        board ← if state^._level >= 6 then genRandomBoard state else pure (replicate size true)
         pure $ { light: board, played: replicate size false }
     
     isLevelFinished state = all not (state^._position).light
 
     onNewGame state = 
         let rows ∧ columns = fromMaybe (8∧8) (sizes !! (state^._level)) in
-        pure $ state # _nbRows .~ rows # _nbColumns .~ columns
+        pure (state # _nbRows .~ rows # _nbColumns .~ columns)
 
     computerMove _ = pure Nothing
     sizeLimit _ = SizeLimit 3 3 10 10
@@ -122,7 +122,7 @@ update (Core msg) = coreUpdate msg
 update (SelectMode mode) = newGame $ (_mode .~ mode) ∘ (_level .~ 0)
 update (SelectLevel level) = newGame (_level .~ level)
 update (Play move) = playA move *> afterPlay
-update (Konami k) = k # konamiCode _keySequence (purely $ _maxLevels .~ [6, 6, 6, 6])
+update (Konami k) = konamiCode _keySequence (purely $ _maxLevels .~ [6, 6, 6, 6]) k
 
 onKeyDown ∷ String → Maybe Msg
 onKeyDown = Just <<< Konami

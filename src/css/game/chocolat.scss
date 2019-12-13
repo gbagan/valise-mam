@@ -2,6 +2,10 @@
     fill: #b37b47;
     stroke: black;
     stroke-width: 3;
+    x: 7px;
+    y: 7px;
+    width: 36px;
+    height: 36px;
 
     &.soap {
         fill: cyan;
@@ -12,11 +16,15 @@
     }
 }
 
+.chocolat-skull {
+    fill: #20AF20;
+}
+
 .chocolat-cutter {
     fill: blue;
 }
 
-.chocolat-line-to-pointer {
+.chocolat-cut-line {
     stroke: red;
     stroke-width: 2;
     stroke-dasharray: 10;

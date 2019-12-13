@@ -50,7 +50,7 @@ instance nimGame ∷ Game (Array (Tuple Int Int)) ExtState Move where
         \(p1 ∧ p2) → p2 - p1 == 1 && p1 == (if state^._turn == Turn2 then state^._length - 2 else 0)
 
     initialPosition state = 
-        sequence $ replicate (state^._nbPiles) $
+        replicateA (state^._nbPiles) $
             if state^._length == 5 then
                 pure (0 ∧ 4)
             else do 

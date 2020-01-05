@@ -108,7 +108,7 @@ type GameWrapperF st msg =
     ,   msgmap ∷ msg → Msg
     }
 
-foreign import data GameWrapper ∷ Type
+data GameWrapper
 
 gameWrap ∷ ∀st msg. GenericGame st msg → (RootState → st) → (msg → Msg) → GameWrapper
 gameWrap core map msgmap = unsafeCoerce {core, map, msgmap}

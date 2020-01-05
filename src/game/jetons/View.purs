@@ -53,8 +53,8 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
     ]
 
     scoreDialog _ = bestScoreDialog state \pos → [
-        div [class' "ui-flex-center jetons-bestscore-grid-container" true] [ 
-            div (gridStyle rows columns 3 <> [class' "ui-board" true]) (
+        div [class_ "ui-flex-center jetons-bestscore-grid-container"] [ 
+            div (gridStyle rows columns 3 <> [class_ "ui-board"]) (
                 pos # mapWithIndex \i val → val /= 0 <&&> \_ →
                     piece i val [key $ show i]
             )

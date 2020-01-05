@@ -35,11 +35,11 @@ _range = _ext' ∘ lens _.range _{range = _}
 _hoverCell ∷ Lens' State (Maybe Int)
 _hoverCell = _ext' ∘ lens _.hoverCell _{hoverCell = _}
 
--- état initial
+-- | état initial
 istate ∷ State
 istate = genState [] identity (Ext { size: 5, nbColors: 2, range: 1, hoverCell: Nothing })
 
--- teste si le sommet i' va changer de couleur si on active le sommet i
+-- | teste si le sommet i' va changer de couleur si on active le sommet i
 inRange ∷ State → Int → Int → Boolean
 inRange state i i' = min diff (state^._size - diff) <= state^._range
     where diff = abs (i - i')

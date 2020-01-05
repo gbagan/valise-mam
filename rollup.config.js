@@ -19,12 +19,13 @@ export default {
             minimize: true
         }),
         commonjs(),
-        terser({
-                ecma: 6,
+        /*terser({
+                ecma: 7,
                 compress: {
                     unsafe_arrows: true
                 }
         })
+        */
     ]
 };
 

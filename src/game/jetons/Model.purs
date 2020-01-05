@@ -59,7 +59,7 @@ instance game ∷ Game (Array Int) Ext { from ∷ Int, to ∷ Int } where
 
 instance scoregame ∷ ScoreGame (Array Int) Ext { from ∷ Int, to ∷ Int } where
     objective state = Minimize
-    scoreFn = length ∘ filter (_ > 0) ∘ view _position
+    scoreFn = view _position >>> filter (_ > 0) >>> length
     scoreHash state = show (state^._nbRows) <> "-" <> show (state^._nbColumns)
     isCustomGame _ = false
 

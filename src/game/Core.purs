@@ -188,7 +188,7 @@ coreUpdate (SetGridSize nbRows nbColumns customSize) =
         else
             state
         where SizeLimit minrows mincols maxrows maxcols = sizeLimit state
-coreUpdate (SetCustomSize b) = purely $ _customSize .~ true
+coreUpdate (SetCustomSize bool) = purely $ _customSize .~ bool
 coreUpdate SetNoDialog = purely $ _dialog .~ NoDialog
 coreUpdate SetRulesDialog = purely $ _dialog .~ Rules
 coreUpdate SetScoreDialog = purely $ _dialog .~ ScoreDialog

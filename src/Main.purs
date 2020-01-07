@@ -210,7 +210,7 @@ viewGame st = callByName st.location emptyNode
                     \game → game.core.view (game.map st) <#> game.msgmap
 
 main ∷ Effect Unit
-main = app 
+main = app
     {   init: state ∧ init
     ,   view
     ,   update

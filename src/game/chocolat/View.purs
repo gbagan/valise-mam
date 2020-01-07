@@ -7,7 +7,7 @@ import Game.Chocolat.Model (State, Msg(..), Move(..), SoapMode(..), _soap, _soap
 import Pha (VDom, text, (<??>), key, class_, class', style)
 import Pha.Elements (div, span, br)
 import Pha.Events (onclick, onpointerenter, onpointerleave)
-import Pha.Svg (svg, rect, line, circle, use, viewBox, fill, width, height, x_, y_, cx, cy, r, x1, x2, y1, y2)
+import Pha.Svg (svg, rect, line, circle, use, viewBox, width, height, x_, y_, cx, cy, r, x1, x2, y1, y2)
 import Pha.Util (translate, px')
 import UI.Template (template, card, gridStyle, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icon (Icon(..))

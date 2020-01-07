@@ -112,7 +112,7 @@ instance solitaireGame ∷ Game (Array Boolean) ExtState {from ∷ Int, to ∷ I
                 FrenchBoard → generateBoard 7 7 24 \row col → min row (6 - row) + min col (6 - col) >= 2
                 CircleBoard →
                     {   holes: replicate rows true
-                    ,   position: R.int' (rows - 1) <#> \x → tabulate rows (_ /= x)
+                    ,   position: R.int' rows <#> \x → tabulate rows (_ /= x)
                     ,   customSize: true
                     }
                 Grid3Board →

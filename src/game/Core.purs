@@ -1,14 +1,15 @@
 module Game.Core where
 import MyPrelude
 import Data.List (List(..))
-import Data.List (last, null) as L
-import Data.Map (Map, empty) as M
+import Data.List as L
+import Data.Map (Map)
+import Data.Map as M
 import Pha.Random (Random)
 import Pha.Random as R
 import Pha.Update (Update, getState, setState, purely)
 import Game.Effs (RNG, EFFS, delay, DELAY, randomGenerate, randomly)
 
--- ConfirmNewGame contient le futur state si l'utilisateur valide de commencer une nouvelle partie
+-- ConfirmNewGame contient le futur état d'une nouvelle partie
 data Dialog a = Rules | NoDialog | ConfirmNewGameDialog a | ScoreDialog | CustomDialog
 
 data Mode = SoloMode | RandomMode | ExpertMode | DuelMode
@@ -32,7 +33,7 @@ type CoreState pos ext = {
     help ∷ Boolean, --- si l'aide est activée ou non
     locked ∷ Boolean,  ---- quand locked est à true, aucune action de l'utiliateur n'est possible
     showWin ∷ Boolean,
-    scores ∷ M.Map String (Tuple Int pos),
+    scores ∷ Map String (Tuple Int pos),
     pointer ∷ Maybe PointerPosition --- position du pointeur en % relativement au plateau de jeu
 }
 
@@ -60,6 +61,7 @@ defaultCoreState p = {
 genState ∷ ∀pos ext. pos → (CoreState pos ext → CoreState pos ext) → ext → GState pos ext
 genState p f ext = State (f $ defaultCoreState p) ext
 
+-- lenses 
 _core ∷ ∀pos ext. Lens' (GState pos ext) (CoreState pos ext)
 _core = lens (\(State c e) → c) \(State _ e) c → State c e
 
@@ -105,7 +107,7 @@ _showWin = _core ∘ lens _.showWin _{showWin = _}
 _pointer ∷ ∀pos ext. Lens' (GState pos ext) (Maybe PointerPosition)
 _pointer = _core ∘ lens _.pointer _{pointer = _}
 
-_scores ∷ ∀pos ext. Lens' (GState pos ext) (M.Map String (Tuple Int pos))
+_scores ∷ ∀pos ext. Lens' (GState pos ext) (Map String (Tuple Int pos))
 _scores = _core ∘ lens  _.scores _{scores = _}
 
 data SizeLimit = SizeLimit Int Int Int Int
@@ -243,6 +245,7 @@ playA move = lockAction $ do
                 delay 1000 *> computerPlay
             else 
                 pure unit
+
 -- | Empêche d'autres actions d'être effectués durant la durée de l'action
 -- | en mettant locked à true au début de l'action et à false à la fin de l'action.
 -- | L'action n'est pas executé si locked est déjà à true
@@ -252,6 +255,7 @@ lockAction act = unlessM (view _locked <$> getState) do
         act
         setState (_locked .~ false)
 
+-- | fonction auxiliaire pour newGame
 newGameAux :: ∀pos ext mov. Game pos ext mov ⇒
         (GState pos ext → GState pos ext) → GState pos ext → Random (GState pos ext)
 newGameAux f state = do 
@@ -265,6 +269,13 @@ newGameAux f state = do
         # _help .~ false
         # _scores ∘ at "custom" .~ Nothing
 
+
+-- | créé une nouvelle partie en applicant la fonction f donnée en argument.
+-- | Par défault, ouvre une boite de dialogue pour confirmer la nouvelle partie
+-- | L'état qu'il y aura après une nouvelle partie est stockée dans ConfirmNewGameDialog s
+-- | Si l'utilisateur confirme, on remplace l'état courant par s
+-- | Si l'historique est vide ou si la partie est finie, on lance une nouvelle partie
+-- | sans demander confirmation à l'utilisateur
 newGame ∷ ∀pos ext mov effs. Game pos ext mov ⇒
     (GState pos ext → GState pos ext) → Update (GState pos ext) (rng ∷ RNG | effs)
 newGame f = randomly \state →
@@ -274,10 +285,15 @@ newGame f = randomly \state →
     else
         rstate <#> \s → state # _dialog .~ ConfirmNewGameDialog s
 
+-- | classe facilitant l'implétentation d'une IA pour les jeux à deux joueurs
+-- | nécessite de pouvoir calculer efficacement l'ensemble des coups légaux pour un joueur
+-- | et déterminer si une position est perdante ou non
 class Game pos ext mov <= TwoPlayersGame pos ext mov | ext → pos mov  where
     isLosingPosition ∷ GState pos ext → Boolean
     possibleMoves ∷ GState pos ext → Array mov
 
+-- | implémentation de la fonction computerMove de la classe Game
+-- | nécessite l'implémentation de la classe TwoPlayersGame
 computerMove' ∷ ∀pos ext mov. TwoPlayersGame pos ext mov ⇒ GState pos ext → Random (Maybe mov)
 computerMove' state
     | isLevelFinished state = pure Nothing
@@ -298,6 +314,15 @@ derive instance eqObjective ∷ Eq Objective
 data ShowWinPolicy = AlwaysShowWin | NeverShowWin | ShowWinOnNewRecord
 derive instance eqSws ∷ Eq ShowWinPolicy
 
+-- | classe pour les jeux consistant à minimiser ou maximiser un score
+-- | permet d'indiquer le score de la partie en cours et de sauvegarder les meilleurs scores 
+-- | 
+-- | objective: détermine si c'est un jeu de minimisation ou maximisation
+-- | scoreFn: renvoie un score (entier) en fonction de la position actuelle
+-- | scoreHash: renvoie un string qui identifie une partie en fonction de ses paramètres
+-- |           par exemple, pour le jeu reines, les paramètres sont la dimension de la grille et les pièces autorisées
+-- | isCustomGame: détermine si la partie courante est une partie personnalisée
+-- |               si c'est le cas, le score n'est pas conservé lorsque l'on créé une nouvelle partie
 class Game pos ext mov <= ScoreGame pos ext mov | ext → pos mov  where
     objective ∷ GState pos ext → Objective
     scoreFn ∷ GState pos ext → Int
@@ -309,6 +334,11 @@ scoreHash' state
     | isCustomGame state = "custom"
     | otherwise = scoreHash state
 
+-- | implémentation de la fonction updateScore de la classe Game
+-- | prend un argument supplémentaire de type ShowWinPolicy qui détermine si la popup de partie gagnée s'affiche ou non
+-- | AlwaysShowWin: la popup s'affiche à chaque fois que l'on est dans une position gagnante (exemple: solitaire)
+-- | NeverShowWin: n'affiche jamais de popup (exemple: jeu des reines)
+-- | ShowWinOnNewRecord: affiche la popup seulement si le meilleur score a été battu (exemple: la bête)
 updateScore' ∷ ∀pos ext mov. ScoreGame pos ext mov ⇒ ShowWinPolicy → GState pos ext → Tuple (GState pos ext) Boolean
 updateScore' strat state =
     let score = scoreFn state
@@ -320,6 +350,8 @@ updateScore' strat state =
         st2 = state # _scores ∘ at hash %~ if isNewRecord then \_ → Just (score ∧ (state^._position)) else identity
     in st2 ∧ isNewRecord'
 
+-- | renvoie le meilleur score pour la partie actuelle
+-- | un meilleur score est une paire composée du score représenté par un entier et de la position témoignant du score
 bestScore ∷ ∀pos ext mov. ScoreGame pos ext mov ⇒ GState pos ext → Maybe (Tuple Int pos)
 bestScore state = state ^. (_scores ∘ at (scoreHash' state))
 

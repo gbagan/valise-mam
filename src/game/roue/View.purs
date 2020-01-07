@@ -5,7 +5,7 @@ import MyPrelude
 import Game.Core (PointerPosition, _position, _pointer, _locked)
 import Game.Roue.Model (State, Msg(..), Location(..), _size, _rotation, _dragged, aligned, validRotation, validRotation')
 import Lib.Util (map2)
-import Pha (VDom, text, (<&&>), maybeN, key, class_, class', style)
+import Pha (VDom, text, (<&&>), maybeN, key, class_, style)
 import Pha.Attributes (disabled)
 import Pha.Elements (br, button, div, span)
 import Pha.Events (onclick)
@@ -36,7 +36,7 @@ pizza cx cy radius startAngle endAngle =
         e = polarToCartesian cx cy radius endAngle
 
 innerWheel ∷ ∀a. Int → VDom a
-innerWheel size = div [class' "roue-inner" true] [
+innerWheel size = div [class_ "roue-inner"] [
     svg [viewBox 0 0 100 100] $ take size colors # mapWithIndex \i color →
         path (pizza 50.0 50.0 50.0 (2.0 * pi * (toNumber i - 0.5) / toNumber size) (2.0 * pi * (toNumber i + 0.5) / toNumber size)) [
             fill color,
@@ -46,7 +46,7 @@ innerWheel size = div [class' "roue-inner" true] [
 
 cursor ∷ ∀a. PointerPosition → String → VDom a
 cursor {x, y} color = div [
-    class' "ui-cursor roue-select-color roue-cursor" true,
+    class_ "ui-cursor roue-select-color roue-cursor",
     style "left" $ pc x,
     style "top" $ pc y,
     style "background-color" color
@@ -74,7 +74,7 @@ view state = template {config, board, rules} state where
         in colors !! colorIndex
 
     outerWheel = div [
-        class' "roue-outer" true,
+        class_ "roue-outer",
         style "transform" $ "rotate(" <> show (360.0 * toNumber (state^._rotation) / toNumber size) <> "deg)"
     ] $
         [svg [key "svg", viewBox 0 0 100 100] $ map2 position (aligned state) \i pos align →

@@ -42,7 +42,7 @@ istate =
         }
     )
 
-instance baseballGame ∷ Game (Array Int) ExtState Int where
+instance game ∷ Game (Array Int) ExtState Int where
     play state i = do
         let position = state^._position
         let nbBases = state^._nbBases

@@ -119,6 +119,8 @@ instance queensGame ∷ Game (Array Piece) Ext Int where
 
     initialPosition state = pure $ replicate (state^._nbRows * state^._nbColumns) Empty
 
+    -- le nom de la fonction est trompeur ici, la partie n'est jamais finie
+    -- indique si il n'y a pas de pièce posée qui en capture une autre
     isLevelFinished state = and $ map2 (capturableSquares state) (state^._position)
                             \_ captured piece → not captured || piece == Empty
     

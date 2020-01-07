@@ -1,7 +1,7 @@
 module Game.Tiling.View (view) where
 import MyPrelude
 import Lib.Util (coords)
-import Pha (VDom, Prop, text, (<&&>), (<??>), key, attr, style, class')
+import Pha (VDom, Prop, text, (<&&>), (<??>), key, attr, style, class', class_)
 import Pha.Elements (div, br)
 import Pha.Events (onclick, oncontextmenu, onpointerenter, onpointerleave)
 import Pha.Svg (svg, g, rect, line, use,
@@ -51,7 +51,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
     tileCursor pp =
         g (svgCursorStyle pp)
         [   g [
-                class' "tiling-cursor" true,
+                class_ "tiling-cursor",
                 style "transform" $ "rotate(" <> show (90 * state^._rotation) <> "deg)"
             ] $ state^._tile <#> \{row, col} →
                 use "#tile2"
@@ -72,7 +72,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
 
     grid =
         div (gridStyle rows columns 5 <> trackPointer <> [
-            class' "ui-board" true,
+            class_ "ui-board",
             oncontextmenu Rotate
         ]) [
             svg [viewBox 0 0 (50 * columns) (50 * rows)] $ concat
@@ -108,8 +108,8 @@ view state = template {config, board, rules, winTitle, customDialog} state where
     board = incDecGrid state [grid]
 
     customDialog _ = dialog "Personnalise ta tuile" [
-        div [class' "tiling-customtile-grid-container" true] [
-            div [class' "tiling-grid" true] [
+        div [class_ "tiling-customtile-grid-container"] [
+            div [class_ "tiling-grid"] [
                 svg [viewBox 0 0 250 250] (
                     state  ^. (_tile ∘ _isoCustom) # mapWithIndex \index hasBlock →
                         let {row, col} = coords 5 index

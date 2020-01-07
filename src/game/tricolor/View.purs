@@ -1,7 +1,6 @@
 module Game.Tricolor.View where
 
 import MyPrelude
-
 import Data.FoldableWithIndex (foldMapWithIndex)
 import Game.Core (isLevelFinished, _position)
 import Game.Tricolor.Model (State, Msg(..), _size, _nbColors, _range, _hoverCell, inRange)

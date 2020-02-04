@@ -1,7 +1,7 @@
 module Game.Chocolat.View  (view) where
   
 import MyPrelude
-import Lib.Util (tabulate2)
+import Lib.Util (repeat2)
 import Game.Core (_position, _nbRows, _nbColumns, possibleMoves)
 import Game.Chocolat.Model (State, Msg(..), Move(..), SoapMode(..), _soap, _soapMode, _moveWhenHover, cutLine) 
 import Pha (VDom, text, (<??>), key, class_, class', style)
@@ -51,7 +51,7 @@ view state = template {config, board, rules, winTitle} state where
     grid =
         div (gridStyle rows columns 3 <> [class_ "ui-board"])
         [   svg [viewBox (-7) (-7) (50 * columns + 14) (50 * rows + 14)] $ concat 
-            [   tabulate2 rows columns \row col →
+            [   repeat2 rows columns \row col →
                 rect 
                 [   key $ "choc" <> show (row * columns + col)
                 ,   style "transform" $ translate (px' $ 50 * col) (px' $ 50 * row)

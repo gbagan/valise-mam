@@ -1,7 +1,7 @@
 module Game.Paths.View (view) where
 import MyPrelude
 import Data.FoldableWithIndex (foldMapWithIndex)
-import Lib.Util (coords, tabulate)
+import Lib.Util (coords, repeat)
 import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _pointer)
 import Game.Paths.Model (State, Msg(..), Mode(..), _exit, _mode)
 import Pha (VDom, Prop, text, emptyNode, (<&&>), (<??>), class_, class', key, style)
@@ -80,7 +80,7 @@ view state = template {config, board, rules} state where
     
     grid = div (gridStyle rows columns 5 <> trackPointer) [
         svg [viewBox 0 0 (100 * columns) (100 * rows)] $
-            (tabulate (rows * columns) \index →
+            (repeat (rows * columns) \index →
                 let {row, col} = coords columns index in
                 square
                 {   darken: state^._help && even (row + col)

@@ -2,7 +2,7 @@ module Game.Frog.Model where
 
 import MyPrelude
 import Data.Lazy (defer, force)
-import Lib.Util (tabulate, (..))
+import Lib.Util (repeat, (..))
 import Data.Array.NonEmpty (NonEmptyArray, singleton, fromArray, cons) as N
 import Lib.KonamiCode (konamiCode)
 import Pha.Update (Update, purely)
@@ -60,12 +60,12 @@ canPlay state v = elem (position - v) moves || position > 0 && v == 0 && positio
 -- | renvoie l'ensemble des positions gagnantes pour une taille et un ensemble de mouvements donnés
 winningPositions ∷ ∀t. Foldable t ⇒ Int → t Int → Array Boolean
 winningPositions size moves = t <#> force where
-    t = tabulate size \i → defer
+    t = repeat size \i → defer
             \_ → i == 0 || (moves # all \m → maybe false (not ∘ force) (t !! (i - m)))
 
 -- | renvoie les positions accessibles depluis la position courante
 reachableArray ∷ State → Array Boolean
-reachableArray state = tabulate (state^._nbRows + 1) (canPlay state)
+reachableArray state = repeat (state^._nbRows + 1) (canPlay state)
 
 instance game ∷ Game Int ExtState Int where
     play state v = if canPlay state v then Just v else Nothing

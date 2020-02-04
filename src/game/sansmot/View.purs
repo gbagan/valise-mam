@@ -2,7 +2,7 @@ module Game.Sansmot.View where
 
 import MyPrelude
 import Data.Map (Map, fromFoldable) as M
-import Lib.Util (tabulate)
+import Lib.Util (repeat)
 import Pha (VDom, Prop, text, key, class_, attr, style)
 import Pha.Elements (div, p, h1, h2)
 import Pha.Events (onclick)
@@ -86,9 +86,9 @@ animCaroll {anim} =
             path "M 400 250 h 250 v -100 h -100 v 50 h -150 Z" $ [fill "blue"] <> f "e",
             path "M 0 250 h 400 v -150 Z"                    $ [fill "green"] <> f "e"
         ],
-        tabulate 28 \i →
+        repeat 28 \i →
             line' (50 * i) (-10) (50 * i) 260 [class_ "sansmot-grid"],
-        tabulate 6 \i →
+        repeat 6 \i →
             line' (-10) (50 * i) 1360 (50 * i) [class_ "sansmot-grid"]
     ]
 

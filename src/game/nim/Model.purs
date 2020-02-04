@@ -1,7 +1,7 @@
 module Game.Nim.Model where
 import MyPrelude
 import Data.Int.Bits (xor)
-import Lib.Util (tabulate2)
+import Lib.Util (repeat2)
 import Pha.Update (Update)
 import Pha.Random as R
 import Game.Effs (EFFS)
@@ -65,7 +65,7 @@ instance nimGame ∷ Game (Array (Tuple Int Int)) ExtState Move where
 
 instance nimGame2 ∷ TwoPlayersGame (Array (Tuple Int Int)) ExtState Move where
     possibleMoves state =
-        tabulate2 (state^._nbPiles) (state^._length) Move
+        repeat2 (state^._nbPiles) (state^._length) Move
         # filter (canPlay state)
         # sortWith \(Move pile pos) → state^._position !! pile # maybe 0
             \x → if state^._turn == Turn1 then fst x - pos else pos - snd x

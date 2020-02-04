@@ -1,7 +1,7 @@
 module Game.Queens.Model where
 import MyPrelude
 import Data.FoldableWithIndex (foldrWithIndex)
-import Lib.Util (tabulate, dCoords, map2)
+import Lib.Util (repeat, dCoords, map2)
 import Data.Array.NonEmpty (NonEmptyArray, fromArray, head, singleton) as N
 import Game.Core (GState, class MsgWithCore, class Game, class ScoreGame, 
                  CoreMsg, Objective(..), Dialog(..), SizeLimit(..), ShowWinPolicy(..),
@@ -94,7 +94,7 @@ canCapture state piece index1 index2 =
 -- | renvoie l'ensemble des positions pouvant être attaqué par une pièce à la position index sous forme de tableau de booléens
 attackedBy ∷ State → Piece → Int → Array Boolean
 attackedBy state piece index =
-    tabulate (state^._nbRows * state^._nbColumns) (canCapture state piece index)
+    repeat (state^._nbRows * state^._nbColumns) (canCapture state piece index)
 
 -- | renvoie l'ensemble des cases pouvant être attaquées par une pièce sur le plateau
 capturableSquares ∷ State → Array Boolean

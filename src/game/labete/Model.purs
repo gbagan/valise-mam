@@ -1,6 +1,6 @@
 module Game.Labete.Model where
 import MyPrelude
-import Lib.Util (coords, tabulate2, abs)
+import Lib.Util (coords, repeat2, abs)
 import Pha.Update (Update, purely)
 import Game.Common (_isoCustom)
 import Game.Effs (EFFS)
@@ -96,7 +96,7 @@ allRotations beast = [beast, beast2, beast3, beast4] where
     beast4 = rotate90 beast3
 
 allTranslations ∷ Int → Int → Beast → Array Beast
-allTranslations n m beast = tabulate2 n m \row col → translate row col beast
+allTranslations n m beast = repeat2 n m \row col → translate row col beast
 
 -- | renvoie toutes les positions possibles pour une bête à plusieurs formes en prenant
 -- | en compte toutes les rotations et translations
@@ -148,7 +148,7 @@ getNewBeast state = case state^._beastType of
 
 zoneposition ∷ Int → Zone → Array Int
 zoneposition columns {row1, col1, row2, col2} =
-    tabulate2 (abs (row1 - row2) + 1) (abs(col1 - col2) + 1) \i j →
+    repeat2 (abs (row1 - row2) + 1) (abs(col1 - col2) + 1) \i j →
         (i + min row1 row2) * columns + j + (min col1 col2)
 
 colorZone ∷ State → Zone → Array Int

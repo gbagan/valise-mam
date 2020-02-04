@@ -4,7 +4,7 @@ import Data.FoldableWithIndex (allWithIndex)
 import Pha.Update (Update, purely)
 import Pha.Random (Random)
 import Pha.Random as R
-import Lib.Util (tabulate, tabulate2, dCoords)
+import Lib.Util (repeat, repeat2, dCoords)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class ScoreGame, class MsgWithCore, class MsgWithDnd,
                 GState, SizeLimit(..), Objective(..), ShowWinPolicy(..),
@@ -79,7 +79,7 @@ betweenMove2 state move@{from, to} =
 generateBoard ∷ Int → Int → Int → (Int → Int → Boolean) →
     {holes ∷ Array Boolean, position ∷ Random (Array Boolean), customSize ∷ Boolean}
 generateBoard rows columns startingHole holeFilter = {holes, position, customSize: false} where
-    holes = tabulate2 rows columns holeFilter
+    holes = repeat2 rows columns holeFilter
     position = pure $ holes # ix startingHole .~ false
 
 instance solitaireGame ∷ Game (Array Boolean) ExtState {from ∷ Int, to ∷ Int} where
@@ -112,12 +112,12 @@ instance solitaireGame ∷ Game (Array Boolean) ExtState {from ∷ Int, to ∷ I
                 FrenchBoard → generateBoard 7 7 24 \row col → min row (6 - row) + min col (6 - col) >= 2
                 CircleBoard →
                     {   holes: replicate rows true
-                    ,   position: R.int' rows <#> \x → tabulate rows (_ /= x)
+                    ,   position: R.int' rows <#> \x → repeat rows (_ /= x)
                     ,   customSize: true
                     }
                 Grid3Board →
                     {   holes: replicate (3 * state^._nbColumns) true
-                    ,   position: pure (tabulate (3 * state^._nbColumns) (_ < 2 * columns))
+                    ,   position: pure (repeat (3 * state^._nbColumns) (_ < 2 * columns))
                     ,   customSize: true
                     }
                 RandomBoard →

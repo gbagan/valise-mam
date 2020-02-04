@@ -6,7 +6,7 @@ import Pha.Elements (div, span, br)
 import Pha.Events ( onclick)
 import Pha.Svg (svg, rect, use, fill, viewBox, y_, width, height)
 import Pha.Util (translate, px')
-import Lib.Util (tabulate)
+import Lib.Util (repeat)
 import Game.Core (Turn(..), canPlay, isLevelFinished, _position, _turn)
 import Game.Nim.Model (State, Msg(..), Move(..), _nbPiles, _length)
 import UI.Template (template, card)
@@ -59,7 +59,7 @@ view state = template {config, board, rules, winTitle} state where
         [   svg [viewBox 0 0 100 100] (
                 state^._position # foldMapWithIndex \i (p1 /\ p2) → concat
                     [   [drawRow i]
-                    ,   tabulate length (drawSquare i)
+                    ,   repeat length (drawSquare i)
                     ,   [p1, p2] # mapWithIndex (drawPeg i)
                     ]
             )

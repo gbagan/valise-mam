@@ -2,7 +2,7 @@ module Game.Frog.View (view) where
 
 import MyPrelude
 import Data.FoldableWithIndex (foldMapWithIndex)
-import Lib.Util (map2, tabulate, pairwise, rangeWithStep')
+import Lib.Util (map2, repeat, pairwise, rangeWithStep')
 import Pha (VDom, text, (<&&>), (<??>), key, class_, class', style)
 import Pha.Elements (div, span, br)
 import Pha.Events (on)
@@ -44,7 +44,7 @@ spiral center startRadius radiusStep startTheta endTheta thetaStep =
     # joinWith " "
 
 spiralPointsPolar ∷ Int → Array Polar
-spiralPointsPolar n = reverse $ tabulate (n + 1) \i →
+spiralPointsPolar n = reverse $ repeat (n + 1) \i →
     let theta = sqrt(if i == n then 21.0 else toNumber i * 20.0 / toNumber n) * 1.36 * pi
         radius = 61.0 * theta / (2.0 * pi)
     in { theta, radius }

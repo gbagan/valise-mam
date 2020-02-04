@@ -21,6 +21,7 @@ import Game.Effs (EFFS, getLocation, interpretLocation, interpretDelay, interpre
 import Game.Baseball as Baseball
 import Game.Chocolat as Chocolat
 import Game.Dessin as Dessin
+import Game.Eternal as Eternal
 import Game.Frog as Frog
 import Game.Jetons as Jetons
 import Game.Labete as Labete
@@ -45,6 +46,7 @@ type RootState =
     {   baseball ∷ Baseball.State
     ,   chocolat ∷ Chocolat.State
     ,   dessin ∷ Dessin.State
+    ,   eternal ∷ Eternal.State
     ,   frog ∷ Frog.State
     ,   jetons ∷ Jetons.State
     ,   labete ∷ Labete.State
@@ -66,6 +68,7 @@ state =
     {   baseball: Baseball.istate
     ,   chocolat: Chocolat.istate
     ,   dessin: Dessin.istate
+    ,   eternal: Eternal.istate
     ,   frog: Frog.istate
     ,   jetons: Jetons.istate
     ,   labete: Labete.istate
@@ -86,6 +89,7 @@ data Msg =
       BaseballMsg Baseball.Msg
     | ChocolatMsg Chocolat.Msg
     | DessinMsg Dessin.Msg
+    | EternalMsg Eternal.Msg
     | FrogMsg Frog.Msg
     | JetonsMsg Jetons.Msg
     | LabeteMsg Labete.Msg
@@ -120,6 +124,7 @@ games = Map.fromFoldable
     [   "baseball"  ∧ gameWrap Baseball.game  _.baseball  BaseballMsg
     ,   "chocolat"  ∧ gameWrap Chocolat.game  _.chocolat  ChocolatMsg
     ,   "dessin"    ∧ gameWrap Dessin.game    _.dessin    DessinMsg
+    ,   "eternal"   ∧ gameWrap Eternal.game   _.eternal   EternalMsg
     ,   "frog"      ∧ gameWrap Frog.game      _.frog      FrogMsg
     ,   "jetons"    ∧ gameWrap Jetons.game    _.jetons    JetonsMsg
     ,   "labete"    ∧ gameWrap Labete.game    _.labete    LabeteMsg
@@ -155,6 +160,7 @@ update ∷ Msg → Update RootState EFFS
 update (BaseballMsg msg)  = lens _.baseball _{baseball = _}   .~> Baseball.update msg
 update (ChocolatMsg msg)  = lens _.chocolat _{chocolat = _}   .~> Chocolat.update msg
 update (DessinMsg msg)    = lens _.dessin _{dessin = _}       .~> Dessin.update msg
+update (EternalMsg msg)   = lens _.eternal _{eternal = _}     .~> Eternal.update msg
 update (FrogMsg msg)      = lens _.frog _{frog = _}           .~> Frog.update msg
 update (JetonsMsg msg)    = lens _.jetons _{jetons = _}       .~> Jetons.update msg
 update (LabeteMsg msg)    = lens _.labete _{labete = _}       .~> Labete.update msg

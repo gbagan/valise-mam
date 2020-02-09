@@ -1,5 +1,6 @@
 module Game.Eternal.View (view) where
 import MyPrelude
+import Data.Unfoldable as Unfoldable
 import Pha (VDom, key, text, maybeN, (<??>), class_, style)
 import Pha.Elements (div, button, span, br)
 import Pha.Events (onclick, oncontextmenu)
@@ -7,12 +8,12 @@ import Pha.Attributes (disabled)
 import Pha.Svg (svg, line, circle, viewBox, use, stroke, fill, width, height, x_, y_, x1, x2, y1, y2, cx, cy, r)
 import Pha.Util (translate, pc)
 import Game.Core (canPlay, _position, _pointer)
-import Game.Eternal.Model (State, Msg(..), Graph, Position, Edge, (↔), _graph, _guards)
+import Game.Eternal.Model (State, Msg(..), Graph, Pos, Edge, (↔), _graph)
 import UI.Template (template, card, trackPointer)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 
-getCoords ∷ Graph → Int → Maybe Position
+getCoords ∷ Graph → Int → Maybe Pos
 getCoords graph u = graph.vertices !! u
 
 getCoordsOfEdge ∷ Graph → Edge → Maybe {px1 ∷ Number, px2 ∷ Number, py1 ∷ Number, py2 ∷ Number}
@@ -21,7 +22,7 @@ getCoordsOfEdge graph (u ↔ v) = do
     {x: px2, y: py2} ← getCoords graph v
     pure {px1, px2, py1, py2}
 
-translateGuard ∷ Position → String
+translateGuard ∷ Pos → String
 translateGuard {x, y} = translate (pc x) (pc y)
 
 {-
@@ -47,7 +48,7 @@ view ∷ State → VDom Msg
 view state = template {config, board, rules, winTitle} state where
     position = state^._position
     graph = state^._graph
-    guards = state^._guards
+    guards = (state^._position).guards
 
     config =    
         card "Eternal" 
@@ -55,9 +56,9 @@ view state = template {config, board, rules, winTitle} state where
 
     board =
         div (
-            [   class_ "ui-board dessin-board"
+            [   class_ "ui-board eternal-board"
             ])
-            [   svg [class_ "dessin-svg", viewBox 0 0 100 100] $ concat 
+            [   svg [class_ "eternal-svg", viewBox 0 0 100 100] $ concat 
                 [   graph.edges <#> \edge →
                     getCoordsOfEdge graph edge <??> \{px1, px2, py1, py2} →
                         line 
@@ -73,7 +74,7 @@ view state = template {config, board, rules, winTitle} state where
                         ,   cy $ show (100.0 * y)
                         ,   r "3"
                         ,   fill "blue"
-                        -- ,   onclick $ Play (Just i)
+                        ,   onclick $ Play i
                         ]
                 ,   guards # mapWithIndex \i index →
                     use "#firetruck"
@@ -82,7 +83,17 @@ view state = template {config, board, rules, winTitle} state where
                         ,   height "8"
                         ,   x_ "-4"
                         ,   y_ "-4"
+                        ,   class_ "eternal-guard"
                         ,   style "transform" $ fromMaybe "none" (translateGuard <$> getCoords graph index)
+                        ]
+                ,   Unfoldable.fromMaybe position.attacked <#> \attack →
+                    use "#eternal-attack"
+                        [   key "attack"
+                        ,   width "8"
+                        ,   height "8"
+                        ,   x_ "-4"
+                        ,   y_ "-4"
+                        ,   style "transform" $ fromMaybe "none" (translateGuard <$> getCoords graph attack)
                         ]
                 ]
             ]

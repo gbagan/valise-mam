@@ -1,0 +1,18 @@
+.eternal-board {
+    width: 75vmin;
+    height: 75vmin;
+}
+
+.eternal-svg {
+    display: block;
+}
+
+.eternal-line1 {
+    stroke: grey;
+    stroke-dasharray: 3,1;
+}
+
+.eternal-guard {
+    transition: transform 0.5s linear;
+    pointer-events: none;
+}

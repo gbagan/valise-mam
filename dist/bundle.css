@@ -431,7 +431,8 @@ html, body {
 
 .eternal-board {
   width: 75vmin;
-  height: 75vmin; }
+  height: 75vmin;
+  position: relative; }
 
 .eternal-svg {
   display: block; }
@@ -443,6 +444,14 @@ html, body {
 .eternal-guard {
   transition: transform 0.5s linear;
   pointer-events: none; }
+
+.eternal-info {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  font-size: 1.5rem;
+  color: blue;
+  padding: 0; }
 
 .frog-board {
   width: 100%;

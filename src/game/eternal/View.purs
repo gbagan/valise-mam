@@ -1,17 +1,20 @@
 module Game.Eternal.View (view) where
+
 import MyPrelude
+
 import Data.Unfoldable as Unfoldable
+import Effect.Exception (throwException)
+import Game.Core (canPlay, isLevelFinished, _position, _pointer)
+import Game.Eternal.Model (State, Msg(..), Graph, Phase(..), GraphKind(..), Pos, Edge, (↔), _graph, _phase, _graphkind)
 import Pha (VDom, key, text, maybeN, (<??>), class_, style)
+import Pha.Attributes (disabled)
 import Pha.Elements (div, button, span, br)
 import Pha.Events (onclick, oncontextmenu)
-import Pha.Attributes (disabled)
 import Pha.Svg (svg, line, circle, viewBox, use, stroke, fill, width, height, x_, y_, x1, x2, y1, y2, cx, cy, r)
 import Pha.Util (translate, pc)
-import Game.Core (canPlay, _position, _pointer)
-import Game.Eternal.Model (State, Msg(..), Graph, Pos, Edge, (↔), _graph)
-import UI.Template (template, card, trackPointer)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
+import UI.Template (template, card, trackPointer, incDecGrid)
 
 getCoords ∷ Graph → Int → Maybe Pos
 getCoords graph u = graph.vertices !! u
@@ -51,18 +54,24 @@ view state = template {config, board, rules, winTitle} state where
     guards = (state^._position).guards
 
     config =    
-        card "Eternal" 
-        []
+        card "Domination éternelle" 
+        [   iconSelectGroup state "Type de graphe" [Path, Cycle] (state^._graphkind) SetGraphKind (case _ of 
+                Path → _{icon = IconText "P" }
+                Cycle → _{icon = IconText "C" }
+            )
+        ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x → x state
+        ]
 
-    board =
+    grid =
         div (
-            [   class_ "ui-board eternal-board"
+            [   class_ "ui-board", style "width" "100%", style "height" "100%"
             ])
             [   svg [class_ "eternal-svg", viewBox 0 0 100 100] $ concat 
                 [   graph.edges <#> \edge →
                     getCoordsOfEdge graph edge <??> \{px1, px2, py1, py2} →
                         line 
-                        [   x1 $ show (100.0 * px1)
+                        [   -- key?
+                            x1 $ show (100.0 * px1)
                         ,   y1 $ show (100.0 * py1)
                         ,   x2 $ show (100.0 * px2)
                         ,   y2 $ show (100.0 * py2)
@@ -70,7 +79,8 @@ view state = template {config, board, rules, winTitle} state where
                         ]
                 ,   graph.vertices # mapWithIndex \i {x, y} →
                         circle
-                        [   cx $ show (100.0 * x)
+                        [   key $ "v" <> show i
+                        ,   cx $ show (100.0 * x)
                         ,   cy $ show (100.0 * y)
                         ,   r "3"
                         ,   fill "blue"
@@ -78,7 +88,7 @@ view state = template {config, board, rules, winTitle} state where
                         ]
                 ,   guards # mapWithIndex \i index →
                     use "#firetruck"
-                        [   key $ show i
+                        [   key $ "g" <> show i
                         ,   width "8"
                         ,   height "8"
                         ,   x_ "-4"
@@ -96,7 +106,26 @@ view state = template {config, board, rules, winTitle} state where
                         ,   style "transform" $ fromMaybe "none" (translateGuard <$> getCoords graph attack)
                         ]
                 ]
+            ,   span [class_ "eternal-info"] [
+                    text (
+                        if isLevelFinished state then
+                            "Le sommet attaqué ne peut être défendu"
+                        else if state^._phase == PrepPhase then
+                            "Choisis la position initiale des gardes"
+                        else if isJust (position.attacked) then
+                            "Défend le sommet attaqué"
+                        else
+                            "Choisis un sommet à attaquer"
+                    )
+                ]
+            ,   button
+                [   class_ "ui-button ui-button-primary dessin-raise"
+                ,   onclick StartGame
+                ]
+                [   text "Valider"]
             ]
+
+    board = incDecGrid state [grid]
 
     rules = 
         [   text "Le but du jeu est de dessiner le motif indiqué en pointillé en levant le moins souvent possible le crayon."
@@ -104,4 +133,4 @@ view state = template {config, board, rules, winTitle} state where
         ,   text "Pour lever le crayon, tu peux cliquer sur le bouton prévu pour ou utiliser le clic droit."
         ]
 
-    winTitle = ""
+    winTitle = "Perdu"

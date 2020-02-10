@@ -9553,6 +9553,20 @@ var PS = {};
   var $$Math = $PS["Math"];
   var Pha_Update = $PS["Pha.Update"];
   var Run = $PS["Run"];                
+  var OneGuard = (function () {
+      function OneGuard() {
+
+      };
+      OneGuard.value = new OneGuard();
+      return OneGuard;
+  })();
+  var ManyGuards = (function () {
+      function ManyGuards() {
+
+      };
+      ManyGuards.value = new ManyGuards();
+      return ManyGuards;
+  })();
   var PrepPhase = (function () {
       function PrepPhase() {
 
@@ -9617,6 +9631,15 @@ var PS = {};
       };
       return SetGraphKind;
   })();
+  var SetRules = (function () {
+      function SetRules(value0) {
+          this.value0 = value0;
+      };
+      SetRules.create = function (value0) {
+          return new SetRules(value0);
+      };
+      return SetRules;
+  })();
   var AddToMultimove = (function () {
       function AddToMultimove(value0, value1) {
           this.value0 = value0;
@@ -9628,6 +9651,38 @@ var PS = {};
           };
       };
       return AddToMultimove;
+  })();
+  var DragGuard = (function () {
+      function DragGuard(value0) {
+          this.value0 = value0;
+      };
+      DragGuard.create = function (value0) {
+          return new DragGuard(value0);
+      };
+      return DragGuard;
+  })();
+  var DropGuard = (function () {
+      function DropGuard(value0) {
+          this.value0 = value0;
+      };
+      DropGuard.create = function (value0) {
+          return new DropGuard(value0);
+      };
+      return DropGuard;
+  })();
+  var LeaveGuard = (function () {
+      function LeaveGuard() {
+
+      };
+      LeaveGuard.value = new LeaveGuard();
+      return LeaveGuard;
+  })();
+  var DropOnBoard = (function () {
+      function DropOnBoard() {
+
+      };
+      DropOnBoard.value = new DropOnBoard();
+      return DropOnBoard;
   })();
   var StartGame = (function () {
       function StartGame() {
@@ -9672,8 +9727,8 @@ var PS = {};
   var withcore = new Game_Core.MsgWithCore(Core.create);
   var toggleGuard = function (x) {
       return function (l) {
-          var $52 = Data_Foldable.elem(Data_Foldable.foldableArray)(Data_Eq.eqInt)(x)(l);
-          if ($52) {
+          var $62 = Data_Foldable.elem(Data_Foldable.foldableArray)(Data_Eq.eqInt)(x)(l);
+          if ($62) {
               return Data_Array.filter(function (v) {
                   return v !== x;
               })(l);
@@ -9698,8 +9753,8 @@ var PS = {};
       return function (multimove) {
           return Data_Foldable.foldr(Data_Foldable.foldableArray)(function (v) {
               return Data_Functor.map(Data_Functor.functorArray)(function (x) {
-                  var $54 = x === v.from;
-                  if ($54) {
+                  var $64 = x === v.from;
+                  if ($64) {
                       return v.to;
                   };
                   return x;
@@ -9729,9 +9784,22 @@ var PS = {};
       };
   })({
       graphkind: Path.value,
-      graph: path(6),
+      graph: path(1),
       multimove: [  ],
-      phase: PrepPhase.value
+      phase: PrepPhase.value,
+      draggedGuard: Data_Maybe.Nothing.value,
+      rules: OneGuard.value
+  });
+  var eqrules = new Data_Eq.Eq(function (x) {
+      return function (y) {
+          if (x instanceof OneGuard && y instanceof OneGuard) {
+              return true;
+          };
+          if (x instanceof ManyGuards && y instanceof ManyGuards) {
+              return true;
+          };
+          return false;
+      };
   });
   var eqgkind = new Data_Eq.Eq(function (x) {
       return function (y) {
@@ -9780,30 +9848,32 @@ var PS = {};
       })(dictStrong);
   };
   var _ext$prime = function (dictStrong) {
-      var $102 = Game_Core["_ext"](dictStrong);
-      var $103 = Data_Lens_Iso.iso(function (v) {
+      var $117 = Game_Core["_ext"](dictStrong);
+      var $118 = Data_Lens_Iso.iso(function (v) {
           return v;
       })(Ext)(dictStrong.Profunctor0());
-      return function ($104) {
-          return $102($103($104));
+      return function ($119) {
+          return $117($118($119));
       };
   };
   var _graph = function (dictStrong) {
-      var $105 = _ext$prime(dictStrong);
-      var $106 = Data_Lens_Lens.lens(function (v) {
+      var $120 = _ext$prime(dictStrong);
+      var $121 = Data_Lens_Lens.lens(function (v) {
           return v.graph;
       })(function (v) {
           return function (v1) {
               return {
                   graph: v1,
+                  draggedGuard: v.draggedGuard,
                   graphkind: v.graphkind,
                   multimove: v.multimove,
-                  phase: v.phase
+                  phase: v.phase,
+                  rules: v.rules
               };
           };
       })(dictStrong);
-      return function ($107) {
-          return $105($106($107));
+      return function ($122) {
+          return $120($121($122));
       };
   };
   var isValidMultimove = function (st) {
@@ -9821,25 +9891,27 @@ var PS = {};
                   return Data_Foldable.elem(Data_Foldable.foldableArray)(eqEdge)(new Edge(v1.from, v1.to))(edges);
               })(mmove);
           };
-          throw new Error("Failed pattern match at Game.Eternal.Model (line 94, column 5 - line 101, column 68): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Eternal.Model (line 102, column 5 - line 109, column 68): " + [ v.constructor.name ]);
       };
   };
   var _graphkind = function (dictStrong) {
-      var $108 = _ext$prime(dictStrong);
-      var $109 = Data_Lens_Lens.lens(function (v) {
+      var $123 = _ext$prime(dictStrong);
+      var $124 = Data_Lens_Lens.lens(function (v) {
           return v.graphkind;
       })(function (v) {
           return function (v1) {
               return {
                   graphkind: v1,
+                  draggedGuard: v.draggedGuard,
                   graph: v.graph,
                   multimove: v.multimove,
-                  phase: v.phase
+                  phase: v.phase,
+                  rules: v.rules
               };
           };
       })(dictStrong);
-      return function ($110) {
-          return $108($109($110));
+      return function ($125) {
+          return $123($124($125));
       };
   };
   var game = new Game_Core.Game(function (v) {
@@ -9861,7 +9933,7 @@ var PS = {};
               return !Data_Foldable.elem(Data_Foldable.foldableArray)(eqEdge)(new Edge(guard, v.value0))(edges);
           })(guards);
       };
-      throw new Error("Failed pattern match at Game.Eternal.Model (line 139, column 9 - line 142, column 72): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Eternal.Model (line 147, column 9 - line 150, column 72): " + [ v.constructor.name ]);
   }, function (state) {
       var v = Data_Lens_Getter.viewOn(state)(_graphkind(Data_Lens_Internal_Forget.strongForget));
       if (v instanceof Path) {
@@ -9870,14 +9942,14 @@ var PS = {};
       if (v instanceof Cycle) {
           return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Lens_Setter.set(_graph(Data_Profunctor_Strong.strongFn))(cycle(Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget))))(state));
       };
-      throw new Error("Failed pattern match at Game.Eternal.Model (line 131, column 9 - line 133, column 68): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Eternal.Model (line 139, column 9 - line 141, column 68): " + [ v.constructor.name ]);
   }, function (state) {
       return function (v) {
           if (v instanceof Defense) {
               var v1 = (Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).attacked;
               if (v1 instanceof Data_Maybe.Just) {
-                  var $79 = isValidMultimove(state)(v.value0);
-                  if ($79) {
+                  var $91 = isValidMultimove(state)(v.value0);
+                  if ($91) {
                       var guards = moveGuards((Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).guards)(v.value0);
                       return new Data_Maybe.Just({
                           attacked: Data_Maybe.Nothing.value,
@@ -9889,8 +9961,8 @@ var PS = {};
               return Data_Maybe.Nothing.value;
           };
           if (v instanceof Attack) {
-              var $82 = Data_Foldable.elem(Data_Foldable.foldableArray)(Data_Eq.eqInt)(v.value0)((Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).guards) || Data_Maybe.isJust((Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).attacked);
-              if ($82) {
+              var $94 = Data_Foldable.elem(Data_Foldable.foldableArray)(Data_Eq.eqInt)(v.value0)((Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).guards) || Data_Maybe.isJust((Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).attacked);
+              if ($94) {
                   return Data_Maybe.Nothing.value;
               };
               return Data_Maybe.Just.create((function () {
@@ -9901,45 +9973,89 @@ var PS = {};
                   };
               })());
           };
-          throw new Error("Failed pattern match at Game.Eternal.Model (line 110, column 1 - line 147, column 31): " + [ state.constructor.name, v.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Eternal.Model (line 118, column 1 - line 155, column 31): " + [ state.constructor.name, v.constructor.name ]);
       };
   }, Data_Function["const"](new Game_Core.SizeLimit(3, 0, 10, 0)), function (st) {
       return new Data_Tuple.Tuple(st, true);
   });
   var _multimove = function (dictStrong) {
-      var $111 = _ext$prime(dictStrong);
-      var $112 = Data_Lens_Lens.lens(function (v) {
+      var $126 = _ext$prime(dictStrong);
+      var $127 = Data_Lens_Lens.lens(function (v) {
           return v.multimove;
       })(function (v) {
           return function (v1) {
               return {
                   multimove: v1,
+                  draggedGuard: v.draggedGuard,
                   graph: v.graph,
                   graphkind: v.graphkind,
-                  phase: v.phase
+                  phase: v.phase,
+                  rules: v.rules
               };
           };
       })(dictStrong);
-      return function ($113) {
-          return $111($112($113));
+      return function ($128) {
+          return $126($127($128));
       };
   };
   var _phase = function (dictStrong) {
-      var $114 = _ext$prime(dictStrong);
-      var $115 = Data_Lens_Lens.lens(function (v) {
+      var $129 = _ext$prime(dictStrong);
+      var $130 = Data_Lens_Lens.lens(function (v) {
           return v.phase;
       })(function (v) {
           return function (v1) {
               return {
                   phase: v1,
+                  draggedGuard: v.draggedGuard,
                   graph: v.graph,
                   graphkind: v.graphkind,
-                  multimove: v.multimove
+                  multimove: v.multimove,
+                  rules: v.rules
               };
           };
       })(dictStrong);
-      return function ($116) {
-          return $114($115($116));
+      return function ($131) {
+          return $129($130($131));
+      };
+  };
+  var _rules = function (dictStrong) {
+      var $132 = _ext$prime(dictStrong);
+      var $133 = Data_Lens_Lens.lens(function (v) {
+          return v.rules;
+      })(function (v) {
+          return function (v1) {
+              return {
+                  rules: v1,
+                  draggedGuard: v.draggedGuard,
+                  graph: v.graph,
+                  graphkind: v.graphkind,
+                  multimove: v.multimove,
+                  phase: v.phase
+              };
+          };
+      })(dictStrong);
+      return function ($134) {
+          return $132($133($134));
+      };
+  };
+  var _draggedGuard = function (dictStrong) {
+      var $135 = _ext$prime(dictStrong);
+      var $136 = Data_Lens_Lens.lens(function (v) {
+          return v.draggedGuard;
+      })(function (v) {
+          return function (v1) {
+              return {
+                  draggedGuard: v1,
+                  graph: v.graph,
+                  graphkind: v.graphkind,
+                  multimove: v.multimove,
+                  phase: v.phase,
+                  rules: v.rules
+              };
+          };
+      })(dictStrong);
+      return function ($137) {
+          return $135($136($137));
       };
   };
   var update = function (v) {
@@ -9949,21 +10065,36 @@ var PS = {};
       if (v instanceof SetGraphKind) {
           return Game_Core.newGame(game)(Data_Lens_Setter.set(_graphkind(Data_Profunctor_Strong.strongFn))(v.value0));
       };
+      if (v instanceof SetRules) {
+          return Game_Core.newGame(game)(Data_Lens_Setter.set(_rules(Data_Profunctor_Strong.strongFn))(v.value0));
+      };
       if (v instanceof StartGame) {
           return Pha_Update.purely(Data_Lens_Setter.set(_phase(Data_Profunctor_Strong.strongFn))(GamePhase.value));
       };
       if (v instanceof ToggleGuard) {
           return Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit);
       };
+      if (v instanceof DragGuard) {
+          return Pha_Update.purely(Data_Lens_Setter.set(_draggedGuard(Data_Profunctor_Strong.strongFn))(new Data_Maybe.Just(v.value0)));
+      };
+      if (v instanceof DropGuard) {
+          return Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit);
+      };
+      if (v instanceof LeaveGuard) {
+          return Pha_Update.purely(Data_Lens_Setter.set(_draggedGuard(Data_Profunctor_Strong.strongFn))(Data_Maybe.Nothing.value));
+      };
+      if (v instanceof DropOnBoard) {
+          return Pha_Update.purely(Data_Lens_Setter.set(_draggedGuard(Data_Profunctor_Strong.strongFn))(Data_Maybe.Nothing.value));
+      };
       if (v instanceof Play) {
           return Control_Bind.bind(Run.bindRun)(Pha_Update.getState)(function (st) {
               var v1 = new Data_Tuple.Tuple(Data_Lens_Getter.viewOn(st)(_phase(Data_Lens_Internal_Forget.strongForget)), (Data_Lens_Getter.viewOn(st)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).attacked);
               if (v1.value0 instanceof PrepPhase) {
                   return Pha_Update.purely(Data_Lens_Setter.over((function () {
-                      var $117 = Game_Core["_position"](Data_Profunctor_Strong.strongFn);
-                      var $118 = _guards(Data_Profunctor_Strong.strongFn);
-                      return function ($119) {
-                          return $117($118($119));
+                      var $138 = Game_Core["_position"](Data_Profunctor_Strong.strongFn);
+                      var $139 = _guards(Data_Profunctor_Strong.strongFn);
+                      return function ($140) {
+                          return $138($139($140));
                       };
                   })())(toggleGuard(v.value0)));
               };
@@ -9976,13 +10107,13 @@ var PS = {};
               if (v1.value0 instanceof GamePhase && v1.value1 instanceof Data_Maybe.Nothing) {
                   return Game_Core.playA(game)(new Attack(v.value0));
               };
-              throw new Error("Failed pattern match at Game.Eternal.Model (line 163, column 5 - line 166, column 49): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at Game.Eternal.Model (line 178, column 5 - line 181, column 49): " + [ v1.constructor.name ]);
           });
       };
       if (v instanceof AddToMultimove) {
           return Pha_Update.purely(Data_Lens_Setter.over(_multimove(Data_Profunctor_Strong.strongFn))(function (moves) {
-              var $97 = v.value0 === v.value1;
-              if ($97) {
+              var $112 = v.value0 === v.value1;
+              if ($112) {
                   return Data_Array.filter(function (v1) {
                       return v1.from !== v.value0;
                   })(moves);
@@ -9993,20 +10124,30 @@ var PS = {};
               });
           }));
       };
-      throw new Error("Failed pattern match at Game.Eternal.Model (line 156, column 1 - line 156, column 33): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Eternal.Model (line 166, column 1 - line 166, column 33): " + [ v.constructor.name ]);
   };
   exports["Path"] = Path;
   exports["Cycle"] = Cycle;
+  exports["OneGuard"] = OneGuard;
+  exports["ManyGuards"] = ManyGuards;
   exports["PrepPhase"] = PrepPhase;
   exports["_graph"] = _graph;
   exports["_phase"] = _phase;
   exports["_graphkind"] = _graphkind;
+  exports["_rules"] = _rules;
+  exports["_draggedGuard"] = _draggedGuard;
   exports["istate"] = istate;
   exports["SetGraphKind"] = SetGraphKind;
+  exports["SetRules"] = SetRules;
+  exports["DragGuard"] = DragGuard;
+  exports["DropGuard"] = DropGuard;
+  exports["LeaveGuard"] = LeaveGuard;
+  exports["DropOnBoard"] = DropOnBoard;
   exports["StartGame"] = StartGame;
   exports["Play"] = Play;
   exports["update"] = update;
   exports["eqgkind"] = eqgkind;
+  exports["eqrules"] = eqrules;
   exports["eqPhase"] = eqPhase;
   exports["game"] = game;
   exports["withcore"] = withcore;
@@ -10017,21 +10158,27 @@ var PS = {};
   $PS["Game.Eternal.View"] = $PS["Game.Eternal.View"] || {};
   var exports = $PS["Game.Eternal.View"];
   var Control_Applicative = $PS["Control.Applicative"];
+  var Control_Apply = $PS["Control.Apply"];
   var Control_Bind = $PS["Control.Bind"];
+  var Control_Monad_Except_Trans = $PS["Control.Monad.Except.Trans"];
   var Data_Array = $PS["Data.Array"];
   var Data_Eq = $PS["Data.Eq"];
   var Data_Functor = $PS["Data.Functor"];
+  var Data_Identity = $PS["Data.Identity"];
   var Data_Lens_Getter = $PS["Data.Lens.Getter"];
   var Data_Lens_Internal_Forget = $PS["Data.Lens.Internal.Forget"];
   var Data_Maybe = $PS["Data.Maybe"];
+  var Data_Semigroup = $PS["Data.Semigroup"];
   var Data_Show = $PS["Data.Show"];
   var Data_Unfoldable = $PS["Data.Unfoldable"];
+  var Game_Common = $PS["Game.Common"];
   var Game_Core = $PS["Game.Core"];
   var Game_Eternal_Model = $PS["Game.Eternal.Model"];
   var Lib_Util = $PS["Lib.Util"];
   var Pha = $PS["Pha"];
   var Pha_Elements = $PS["Pha.Elements"];
   var Pha_Events = $PS["Pha.Events"];
+  var Pha_Events_Decoder = $PS["Pha.Events.Decoder"];
   var Pha_Svg = $PS["Pha.Svg"];
   var Pha_Util = $PS["Pha.Util"];
   var UI_Icon = $PS["UI.Icon"];
@@ -10059,36 +10206,76 @@ var PS = {};
           });
       };
   };
+  var dndItemProps = function (state) {
+      return function (v) {
+          var dragged = v.draggable && Data_Eq.eq(Data_Maybe.eqMaybe(Data_Eq.eqInt))(new Data_Maybe.Just(v.id))(v.currentDragged);
+          var candrop = v.droppable && Data_Maybe.isJust(v.currentDragged);
+          return [ Pha["class'"]("draggable")(v.draggable), Pha["class'"]("dragged")(dragged), Pha["class'"]("candrop")(candrop), Pha_Events.releasePointerCaptureOn("pointerdown")(Pha_Events_Decoder.always((function () {
+              if (v.draggable) {
+                  return new Data_Maybe.Just(new Game_Eternal_Model.DragGuard(v.id));
+              };
+              return Data_Maybe.Nothing.value;
+          })())), Pha_Events["onpointerup'"]((function () {
+              if (candrop) {
+                  return new Data_Maybe.Just(new Game_Eternal_Model.DropGuard(v.id));
+              };
+              return Data_Maybe.Nothing.value;
+          })()) ];
+      };
+  };
+  var dndBoardProps = (function () {
+      var move = function (e) {
+          return Data_Functor.map(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Game_Core.core(Game_Eternal_Model.withcore))(Data_Functor.map(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Data_Functor.map(Data_Functor.functorFn)(Game_Core.SetPointer.create)(Data_Maybe.Just.create))(Game_Common.pointerDecoder(e)));
+      };
+      return [ Pha_Events.on("pointerdown")(move), Pha_Events.on("pointermove")(move), Pha_Events.onpointerup(Game_Eternal_Model.DropOnBoard.value), Pha_Events.onpointerleave(Game_Eternal_Model.LeaveGuard.value) ];
+  })();
+  var cursor = function (pp) {
+      return function (v) {
+          return Pha_Svg.use("#firetruck")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key("cursor"), Pha_Svg.width("8"), Pha_Svg.height("8"), Pha_Svg.x_("-4"), Pha_Svg.y_("-4"), Pha.style("pointer-cursor")("none") ])(UI_Template.svgCursorStyle(pp)));
+      };
+  };
   var view = function (state) {
       var rules = [ Pha.text("Le but du jeu est de dessiner le motif indiqu\xe9 en pointill\xe9 en levant le moins souvent possible le crayon."), Pha_Elements.br, Pha.text("Pour lever le crayon, tu peux cliquer sur le bouton pr\xe9vu pour ou utiliser le clic droit.") ];
       var position = Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
       var guards = (Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).guards;
+      var grules = Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_rules"](Data_Lens_Internal_Forget.strongForget));
       var graph = Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_graph"](Data_Lens_Internal_Forget.strongForget));
-      var grid = Pha_Elements.div([ Pha.class_("ui-board"), Pha.style("width")("100%"), Pha.style("height")("100%") ])([ Pha_Svg.svg([ Pha.class_("eternal-svg"), Pha_Svg.viewBox(0)(0)(100)(100) ])(Data_Array.concat([ Data_Functor.mapFlipped(Data_Functor.functorArray)(graph.edges)(function (edge) {
+      var grid = Pha_Elements.div(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.class_("ui-board"), Pha.style("width")("100%"), Pha.style("height")("100%") ])(dndBoardProps))([ Pha_Svg.svg([ Pha.class_("eternal-svg"), Pha_Svg.viewBox(0)(0)(100)(100) ])(Data_Array.concat([ Data_Functor.mapFlipped(Data_Functor.functorArray)(graph.edges)(function (edge) {
           return Pha.maybe(getCoordsOfEdge(graph)(edge))(function (v) {
               return Pha_Svg.line([ Pha_Svg.x1(Data_Show.show(Data_Show.showNumber)(100.0 * v.px1)), Pha_Svg.y1(Data_Show.show(Data_Show.showNumber)(100.0 * v.py1)), Pha_Svg.x2(Data_Show.show(Data_Show.showNumber)(100.0 * v.px2)), Pha_Svg.y2(Data_Show.show(Data_Show.showNumber)(100.0 * v.py2)), Pha.class_("dessin-line1") ]);
           });
       }), Data_Array.mapWithIndex(function (i) {
           return function (v) {
-              return Pha_Svg.circle([ Pha.key("v" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.cx(Data_Show.show(Data_Show.showNumber)(100.0 * v.x)), Pha_Svg.cy(Data_Show.show(Data_Show.showNumber)(100.0 * v.y)), Pha_Svg.r("3"), Pha_Svg.fill("blue"), Pha_Events.onclick(new Game_Eternal_Model.Play(i)) ]);
+              return Pha_Svg.circle([ Pha.key("v" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.cx(Data_Show.show(Data_Show.showNumber)(100.0 * v.x)), Pha_Svg.cy(Data_Show.show(Data_Show.showNumber)(100.0 * v.y)), Pha_Svg.r("3"), Pha_Svg.fill("blue"), Pha_Events["onclick'"]((function () {
+                  var $41 = Data_Eq.eq(Game_Eternal_Model.eqrules)(grules)(Game_Eternal_Model.ManyGuards.value) && Data_Maybe.isJust(position.attacked);
+                  if ($41) {
+                      return Data_Maybe.Nothing.value;
+                  };
+                  return new Data_Maybe.Just(new Game_Eternal_Model.Play(i));
+              })()) ]);
           };
       })(graph.vertices), Data_Array.mapWithIndex(function (i) {
           return function (index) {
-              return Pha_Svg.use("#firetruck")([ Pha.key("g" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.width("8"), Pha_Svg.height("8"), Pha_Svg.x_("-4"), Pha_Svg.y_("-4"), Pha.class_("eternal-guard"), Pha.style("transform")(Data_Maybe.fromMaybe("none")(Data_Functor.map(Data_Maybe.functorMaybe)(translateGuard)(getCoords(graph)(index)))) ]);
+              return Pha_Svg.use("#firetruck")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key("g" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.width("8"), Pha_Svg.height("8"), Pha_Svg.x_("-4"), Pha_Svg.y_("-4"), Pha.class_("eternal-guard"), Pha.style("transform")(Data_Maybe.fromMaybe("none")(Data_Functor.map(Data_Maybe.functorMaybe)(translateGuard)(getCoords(graph)(index)))) ])(dndItemProps(state)({
+                  draggable: Data_Eq.eq(Game_Eternal_Model.eqrules)(grules)(Game_Eternal_Model.ManyGuards.value) && Data_Maybe.isJust(position.attacked),
+                  droppable: false,
+                  id: index,
+                  currentDragged: Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_draggedGuard"](Data_Lens_Internal_Forget.strongForget))
+              })));
           };
       })(guards), Data_Functor.mapFlipped(Data_Functor.functorArray)(Data_Unfoldable.fromMaybe(Data_Unfoldable.unfoldableArray)(position.attacked))(function (attack) {
           return Pha_Svg.use("#eternal-attack")([ Pha.key("attack"), Pha_Svg.width("8"), Pha_Svg.height("8"), Pha_Svg.x_("-4"), Pha_Svg.y_("-4"), Pha.style("transform")(Data_Maybe.fromMaybe("none")(Data_Functor.map(Data_Maybe.functorMaybe)(translateGuard)(getCoords(graph)(attack)))) ]);
-      }) ])), Pha_Elements.span([ Pha.class_("eternal-info") ])([ Pha.text((function () {
-          var $30 = Game_Core.isLevelFinished(Game_Eternal_Model.game)(state);
-          if ($30) {
+      }), [ Pha.maybeN(Control_Apply.apply(Data_Maybe.applyMaybe)(Data_Functor.map(Data_Maybe.functorMaybe)(cursor)(Data_Lens_Getter.viewOn(state)(Game_Core["_pointer"](Data_Lens_Internal_Forget.strongForget))))(Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_draggedGuard"](Data_Lens_Internal_Forget.strongForget)))) ] ])), Pha_Elements.span([ Pha.class_("eternal-info") ])([ Pha.text((function () {
+          var $44 = Game_Core.isLevelFinished(Game_Eternal_Model.game)(state);
+          if ($44) {
               return "Le sommet attaqu\xe9 ne peut \xeatre d\xe9fendu";
           };
-          var $31 = Data_Eq.eq(Game_Eternal_Model.eqPhase)(Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_phase"](Data_Lens_Internal_Forget.strongForget)))(Game_Eternal_Model.PrepPhase.value);
-          if ($31) {
+          var $45 = Data_Eq.eq(Game_Eternal_Model.eqPhase)(Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_phase"](Data_Lens_Internal_Forget.strongForget)))(Game_Eternal_Model.PrepPhase.value);
+          if ($45) {
               return "Choisis la position initiale des gardes";
           };
-          var $32 = Data_Maybe.isJust(position.attacked);
-          if ($32) {
+          var $46 = Data_Maybe.isJust(position.attacked);
+          if ($46) {
               return "D\xe9fend le sommet attaqu\xe9";
           };
           return "Choisis un sommet \xe0 attaquer";
@@ -10099,7 +10286,7 @@ var PS = {};
                   return {
                       icon: new UI_Icon.IconText("P"),
                       selected: v1.selected,
-                      tooltip: v1.tooltip,
+                      tooltip: new Data_Maybe.Just("Chemin"),
                       round: v1.round,
                       large: v1.large,
                       hidden: v1.hidden,
@@ -10113,7 +10300,7 @@ var PS = {};
                   return {
                       icon: new UI_Icon.IconText("C"),
                       selected: v1.selected,
-                      tooltip: v1.tooltip,
+                      tooltip: new Data_Maybe.Just("Cycle"),
                       round: v1.round,
                       large: v1.large,
                       hidden: v1.hidden,
@@ -10122,7 +10309,37 @@ var PS = {};
                   };
               };
           };
-          throw new Error("Failed pattern match at Game.Eternal.View (line 58, column 100 - line 60, column 48): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Eternal.View (line 82, column 100 - line 84, column 72): " + [ v.constructor.name ]);
+      }), UI_Icons.iconSelectGroup(UI_Icons.defa)(Game_Eternal_Model.eqrules)(state)("R\xe8gles")([ Game_Eternal_Model.OneGuard.value, Game_Eternal_Model.ManyGuards.value ])(grules)(Game_Eternal_Model.SetRules.create)(function (v) {
+          if (v instanceof Game_Eternal_Model.OneGuard) {
+              return function (v1) {
+                  return {
+                      icon: new UI_Icon.IconText("1"),
+                      selected: v1.selected,
+                      tooltip: new Data_Maybe.Just("Un seul garde"),
+                      round: v1.round,
+                      large: v1.large,
+                      hidden: v1.hidden,
+                      disabled: v1.disabled,
+                      style: v1.style
+                  };
+              };
+          };
+          if (v instanceof Game_Eternal_Model.ManyGuards) {
+              return function (v1) {
+                  return {
+                      icon: new UI_Icon.IconText("\u221e"),
+                      selected: v1.selected,
+                      tooltip: new Data_Maybe.Just("Plusieurs gardes"),
+                      round: v1.round,
+                      large: v1.large,
+                      hidden: v1.hidden,
+                      disabled: v1.disabled,
+                      style: v1.style
+                  };
+              };
+          };
+          throw new Error("Failed pattern match at Game.Eternal.View (line 86, column 84 - line 88, column 88): " + [ v.constructor.name ]);
       }), UI_Icons.icongroup("Options")(Data_Functor.mapFlipped(Data_Functor.functorArray)([ UI_Icons.iundo(Game_Eternal_Model.withcore), UI_Icons.iredo(Game_Eternal_Model.withcore), UI_Icons.ireset(Game_Eternal_Model.withcore), UI_Icons.irules(Game_Eternal_Model.withcore) ])(function (x) {
           return x(state);
       })) ]);

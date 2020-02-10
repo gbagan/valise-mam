@@ -2,19 +2,23 @@ module Game.Eternal.View (view) where
 
 import MyPrelude
 
+import Control.Monad.State (state)
 import Data.Unfoldable as Unfoldable
 import Effect.Exception (throwException)
-import Game.Core (canPlay, isLevelFinished, _position, _pointer)
-import Game.Eternal.Model (State, Msg(..), Graph, Phase(..), GraphKind(..), Pos, Edge, (↔), _graph, _phase, _graphkind)
-import Pha (VDom, key, text, maybeN, (<??>), class_, style)
+import Game.Common (pointerDecoder)
+import Game.Core (CoreMsg(SetPointer), isLevelFinished, PointerPosition, core, _position, _pointer)
+import Game.Eternal.Model (State, Msg(..), Graph, Phase(..), Rules(..), GraphKind(..), Pos, Edge, (↔), 
+        _graph, _phase, _graphkind, _draggedGuard, _rules)
+import Pha (VDom, Prop, key, text, maybeN, (<??>), class_, class', style)
 import Pha.Attributes (disabled)
 import Pha.Elements (div, button, span, br)
-import Pha.Events (onclick, oncontextmenu)
-import Pha.Svg (svg, line, circle, viewBox, use, stroke, fill, width, height, x_, y_, x1, x2, y1, y2, cx, cy, r)
+import Pha.Events (on, onclick, onclick', releasePointerCaptureOn, onpointerup, onpointerup', onpointerleave)
+import Pha.Events.Decoder (always)
+import Pha.Svg (svg, line, circle, viewBox, use, fill, width, height, x_, y_, x1, x2, y1, y2, cx, cy, r)
 import Pha.Util (translate, pc)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
-import UI.Template (template, card, trackPointer, incDecGrid)
+import UI.Template (template, card, incDecGrid, svgCursorStyle)
 
 getCoords ∷ Graph → Int → Maybe Pos
 getCoords graph u = graph.vertices !! u
@@ -28,36 +32,60 @@ getCoordsOfEdge graph (u ↔ v) = do
 translateGuard ∷ Pos → String
 translateGuard {x, y} = translate (pc x) (pc y)
 
-{-
+cursor ∷ ∀a b. PointerPosition → b → VDom a
+cursor pp _ = use "#firetruck" $
+                [   key "cursor"
+                ,   width "8"
+                ,   height "8"
+                ,   x_ "-4"
+                ,   y_ "-4"
+                ,   style "pointer-cursor" "none"
+                ] <> svgCursorStyle pp
+
+-- les fonctions dndBoardProps et dndItemProps ne sont pas assez génériques pour Eternal
+-- todo: refactoriser
+dndBoardProps ∷ Array (Prop Msg)
+dndBoardProps = [
+    on "pointerdown" move,
+    on "pointermove" move,
+    onpointerup $ DropOnBoard,
+    onpointerleave $ LeaveGuard
+] where
+    move e = core <$> (SetPointer <$> Just <$> pointerDecoder e)
+
 dndItemProps ∷ State → 
     {
         draggable ∷ Boolean,
         droppable ∷ Boolean,
         id ∷ Int,
         currentDragged ∷ Maybe Int
-    } → Array (Prop msg)
+    } → Array (Prop Msg)
 dndItemProps state {draggable, droppable, id, currentDragged} =
-    [   class' "dragged" dragged
+    [   class' "draggable" draggable
+    ,   class' "dragged" dragged
     ,   class' "candrop" candrop
-    ,   releasePointerCaptureOn "pointerdown" $ always (if draggable then Just $ dndmsg (Drag id) else Nothing)
-    ,   onpointerup' $ if candrop then Just PrepareMove id else Nothing
+    ,   releasePointerCaptureOn "pointerdown" $ always (if draggable then Just (DragGuard id) else Nothing)
+    ,   onpointerup' $ if candrop then Just (DropGuard id) else Nothing
     ] where
-        candrop = droppable && (currentDragged # maybe false \d → canMove state d id)
+        candrop = droppable && isJust currentDragged
         dragged = draggable && Just id == currentDragged
-
--}
 
 view ∷ State → VDom Msg
 view state = template {config, board, rules, winTitle} state where
     position = state^._position
     graph = state^._graph
     guards = (state^._position).guards
+    grules = state^._rules
 
     config =    
         card "Domination éternelle" 
         [   iconSelectGroup state "Type de graphe" [Path, Cycle] (state^._graphkind) SetGraphKind (case _ of 
-                Path → _{icon = IconText "P" }
-                Cycle → _{icon = IconText "C" }
+                Path → _{icon = IconText "P", tooltip = Just "Chemin" }
+                Cycle → _{icon = IconText "C", tooltip = Just "Cycle" }
+            )
+        ,   iconSelectGroup state "Règles" [OneGuard, ManyGuards] grules SetRules (case _ of 
+                OneGuard → _{icon = IconText "1", tooltip = Just "Un seul garde" }
+                ManyGuards → _{icon = IconText "∞", tooltip = Just "Plusieurs gardes" }
             )
         ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x → x state
         ]
@@ -65,7 +93,7 @@ view state = template {config, board, rules, winTitle} state where
     grid =
         div (
             [   class_ "ui-board", style "width" "100%", style "height" "100%"
-            ])
+            ] <> dndBoardProps)
             [   svg [class_ "eternal-svg", viewBox 0 0 100 100] $ concat 
                 [   graph.edges <#> \edge →
                     getCoordsOfEdge graph edge <??> \{px1, px2, py1, py2} →
@@ -84,10 +112,10 @@ view state = template {config, board, rules, winTitle} state where
                         ,   cy $ show (100.0 * y)
                         ,   r "3"
                         ,   fill "blue"
-                        ,   onclick $ Play i
+                        ,   onclick' $ if grules == ManyGuards && isJust position.attacked then Nothing else Just (Play i)
                         ]
                 ,   guards # mapWithIndex \i index →
-                    use "#firetruck"
+                    use "#firetruck" $
                         [   key $ "g" <> show i
                         ,   width "8"
                         ,   height "8"
@@ -95,7 +123,13 @@ view state = template {config, board, rules, winTitle} state where
                         ,   y_ "-4"
                         ,   class_ "eternal-guard"
                         ,   style "transform" $ fromMaybe "none" (translateGuard <$> getCoords graph index)
-                        ]
+                        ] <> (dndItemProps state
+                            {   draggable: grules == ManyGuards && isJust position.attacked
+                            ,   droppable: false
+                            ,   id: index
+                            ,   currentDragged: state^._draggedGuard
+                            }
+                        )
                 ,   Unfoldable.fromMaybe position.attacked <#> \attack →
                     use "#eternal-attack"
                         [   key "attack"
@@ -105,6 +139,7 @@ view state = template {config, board, rules, winTitle} state where
                         ,   y_ "-4"
                         ,   style "transform" $ fromMaybe "none" (translateGuard <$> getCoords graph attack)
                         ]
+                ,   [maybeN $ cursor <$> state^._pointer <*> state^._draggedGuard]
                 ]
             ,   span [class_ "eternal-info"] [
                     text (

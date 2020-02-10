@@ -6,8 +6,7 @@ import Data.Array.NonEmpty (elemLastIndex, findLastIndex)
 import Data.Lens (to)
 import Data.Newtype (overF)
 import Effect.Exception (throwException)
-import Game.Core (class Game, class MsgWithCore, CoreMsg, GState, SizeLimit(..),
-                playA, coreUpdate, _ext, genState, newGame, _position, _nbRows)
+import Game.Core (class Game, class MsgWithCore, CoreMsg, GState, SizeLimit(..), playA, coreUpdate, _ext, genState, newGame, _position, _nbRows)
 import Game.Effs (EFFS)
 import Lib.Util (repeat)
 import Pha.Update (Update, getState, purely)
@@ -23,6 +22,9 @@ type Graph = {vertices ∷ Array Pos, edges ∷ Array Edge }
 
 data GraphKind = Path | Cycle
 derive instance eqgkind ∷ Eq GraphKind
+
+data Rules = OneGuard | ManyGuards
+derive instance eqrules ∷ Eq Rules
 
 -- | une position est composée de la position des gardes et éventuellement d'un sommet attaqué
 type Position = {guards ∷ Array Int, attacked ∷ Maybe Int}
@@ -57,6 +59,8 @@ type Ext' =
     ,   multimove ∷ Multimove
     ,   phase ∷ Phase
     ,   graphkind ∷ GraphKind
+    ,   draggedGuard ∷ Maybe Int
+    ,   rules ∷ Rules
     }
 
 newtype ExtState = Ext Ext'
@@ -74,6 +78,10 @@ _phase ∷ Lens' State Phase
 _phase = _ext' ∘ lens _.phase _{phase = _}
 _graphkind ∷ Lens' State GraphKind
 _graphkind = _ext' ∘ lens _.graphkind _{graphkind = _}
+_rules ∷ Lens' State Rules
+_rules = _ext' ∘ lens _.rules _{rules = _}
+_draggedGuard ∷ Lens' State (Maybe Int)
+_draggedGuard = _ext' ∘ lens _.draggedGuard _{draggedGuard = _}
 
 _guards ∷ Lens' Position (Array Int)
 _guards = lens _.guards _{guards = _}
@@ -86,7 +94,7 @@ istate ∷ State
 istate = genState 
             {guards: [], attacked: Nothing}
             _{nbRows = 6, customSize = true}
-            (Ext { graphkind: Path, graph: path(6), multimove: [], phase: PrepPhase})
+            (Ext { graphkind: Path, graph: path 1, multimove: [], phase: PrepPhase, draggedGuard: Nothing, rules: OneGuard})
 
 
 isValidMultimove ∷ State → Multimove → Boolean
@@ -150,14 +158,21 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
 toggleGuard ∷ Int → Array Int → Array Int
 toggleGuard x l = if elem x l then filter (_ /= x) l else l `snoc` x
 
-data Msg = Core CoreMsg | SetGraphKind GraphKind | AddToMultimove Int Int | StartGame | ToggleGuard Int | Play Int
+data Msg = Core CoreMsg | SetGraphKind GraphKind | SetRules Rules | AddToMultimove Int Int 
+            | DragGuard Int | DropGuard Int | LeaveGuard | DropOnBoard
+            | StartGame | ToggleGuard Int | Play Int
 instance withcore ∷ MsgWithCore Msg where core = Core
     
 update ∷ Msg → Update State EFFS
 update (Core msg) = coreUpdate msg
 update (SetGraphKind kind) = newGame (_graphkind .~ kind)
+update (SetRules rules) = newGame (_rules .~ rules)
 update StartGame = purely $ _phase .~ GamePhase
 update (ToggleGuard x) = pure unit
+update (DragGuard x) = purely $ _draggedGuard .~ Just x
+update (DropGuard x) = pure unit
+update LeaveGuard = purely $ _draggedGuard .~ Nothing
+update DropOnBoard = purely $ _draggedGuard .~ Nothing
 update (Play x) = do
     st <- getState
     case st^._phase /\ (st^._position).attacked  of

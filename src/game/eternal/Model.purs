@@ -2,10 +2,6 @@ module Game.Eternal.Model where
 
 import MyPrelude
 
-import Data.Array.NonEmpty (elemLastIndex, findLastIndex)
-import Data.Lens (to)
-import Data.Newtype (overF)
-import Effect.Exception (throwException)
 import Game.Core (class Game, class MsgWithCore, CoreMsg, GState, SizeLimit(..), playA, coreUpdate, _ext, genState, newGame, _position, _nbRows)
 import Game.Effs (EFFS)
 import Lib.Util (repeat)
@@ -109,11 +105,10 @@ isValidMultimove st mmove =
                 (mmove # all \{from, to} -> elem (from ↔ to) edges)
 
 moveGuards ∷ Array Int → Multimove → Array Int
-moveGuards guards multimove =
-    foldr
-        (\{from, to} → map \x → if x == from then to else x)
-        guards
-        multimove
+moveGuards guards multimove = guards <#> \guard →
+    case multimove # find \{from, to} → from == guard of
+        Nothing → guard
+        Just {from, to} → to
 
 instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState Move where
     play state (Defense mmove) =
@@ -158,6 +153,23 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
 toggleGuard ∷ Int → Array Int → Array Int
 toggleGuard x l = if elem x l then filter (_ /= x) l else l `snoc` x
 
+addToMultimove ∷ Array Edge → Int → Int → Multimove → Multimove
+addToMultimove edges from to mmove =
+    let mmove2 = mmove # filter \{from: from2} -> from /= from2 in
+    if from == to || not (elem (from ↔ to) edges) then
+        mmove2
+    else
+        mmove2 `snoc` {from, to}  
+
+dragGuard ∷ Maybe Int → State → State
+dragGuard to st =
+    case st^._draggedGuard of
+        Nothing -> st
+        Just from ->
+            let to2 = fromMaybe from to in
+            st # _multimove %~ addToMultimove (st^._graph).edges from to2 # _draggedGuard .~ Nothing
+
+
 data Msg = Core CoreMsg | SetGraphKind GraphKind | SetRules Rules | AddToMultimove Int Int 
             | DragGuard Int | DropGuard Int | LeaveGuard | DropOnBoard
             | StartGame | ToggleGuard Int | Play Int
@@ -170,9 +182,11 @@ update (SetRules rules) = newGame (_rules .~ rules)
 update StartGame = purely $ _phase .~ GamePhase
 update (ToggleGuard x) = pure unit
 update (DragGuard x) = purely $ _draggedGuard .~ Just x
-update (DropGuard x) = pure unit
+update (DropGuard to) = purely $ dragGuard (Just to)
+
 update LeaveGuard = purely $ _draggedGuard .~ Nothing
-update DropOnBoard = purely $ _draggedGuard .~ Nothing
+update DropOnBoard = purely $ dragGuard Nothing
+
 update (Play x) = do
     st <- getState
     case st^._phase /\ (st^._position).attacked  of

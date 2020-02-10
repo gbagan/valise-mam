@@ -4786,8 +4786,6 @@ var PS = {};
   $PS["Data.Unfoldable"] = $PS["Data.Unfoldable"] || {};
   var exports = $PS["Data.Unfoldable"];
   var $foreign = $PS["Data.Unfoldable"];
-  var Data_Function = $PS["Data.Function"];
-  var Data_Functor = $PS["Data.Functor"];
   var Data_Maybe = $PS["Data.Maybe"];
   var Data_Tuple = $PS["Data.Tuple"];
   var Data_Unfoldable1 = $PS["Data.Unfoldable1"];  
@@ -4801,13 +4799,7 @@ var PS = {};
   var unfoldableArray = new Unfoldable(function () {
       return Data_Unfoldable1.unfoldable1Array;
   }, $foreign.unfoldrArrayImpl(Data_Maybe.isNothing)(Data_Maybe.fromJust())(Data_Tuple.fst)(Data_Tuple.snd));
-  var fromMaybe = function (dictUnfoldable) {
-      return unfoldr(dictUnfoldable)(function (b) {
-          return Data_Functor.map(Data_Maybe.functorMaybe)(Data_Function.flip(Data_Tuple.Tuple.create)(Data_Maybe.Nothing.value))(b);
-      });
-  };
   exports["unfoldr"] = unfoldr;
-  exports["fromMaybe"] = fromMaybe;
   exports["unfoldableArray"] = unfoldableArray;
 })(PS);
 (function($PS) {
@@ -7523,6 +7515,22 @@ var PS = {};
   var oncontextmenu = function (msg) {
       return preventDefaultOn("contextmenu")(Pha_Events_Decoder.always(new Data_Tuple.Tuple(new Data_Maybe.Just(msg), true)));
   };
+  var stopPropagationOn = function (eventname) {
+      return function (decoder) {
+          return custom(eventname)((function () {
+              var $64 = Data_Functor.map(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(function (v) {
+                  return {
+                      message: v.value0,
+                      preventDefault: false,
+                      stopPropagation: v.value1
+                  };
+              });
+              return function ($65) {
+                  return $64(decoder($65));
+              };
+          })());
+      };
+  };
   exports["onclick"] = onclick;
   exports["onclick'"] = onclick$prime;
   exports["onpointerup"] = onpointerup;
@@ -7534,6 +7542,7 @@ var PS = {};
   exports["oncontextmenu"] = oncontextmenu;
   exports["on"] = on;
   exports["on'"] = on$prime;
+  exports["stopPropagationOn"] = stopPropagationOn;
   exports["releasePointerCaptureOn"] = releasePointerCaptureOn;
 })(PS);
 (function($PS) {
@@ -9727,8 +9736,8 @@ var PS = {};
   var withcore = new Game_Core.MsgWithCore(Core.create);
   var toggleGuard = function (x) {
       return function (l) {
-          var $62 = Data_Foldable.elem(Data_Foldable.foldableArray)(Data_Eq.eqInt)(x)(l);
-          if ($62) {
+          var $65 = Data_Foldable.elem(Data_Foldable.foldableArray)(Data_Eq.eqInt)(x)(l);
+          if ($65) {
               return Data_Array.filter(function (v) {
                   return v !== x;
               })(l);
@@ -9751,15 +9760,18 @@ var PS = {};
   };
   var moveGuards = function (guards) {
       return function (multimove) {
-          return Data_Foldable.foldr(Data_Foldable.foldableArray)(function (v) {
-              return Data_Functor.map(Data_Functor.functorArray)(function (x) {
-                  var $64 = x === v.from;
-                  if ($64) {
-                      return v.to;
-                  };
-                  return x;
-              });
-          })(guards)(multimove);
+          return Data_Functor.mapFlipped(Data_Functor.functorArray)(guards)(function (guard) {
+              var v = Data_Foldable.find(Data_Foldable.foldableArray)(function (v1) {
+                  return v1.from === guard;
+              })(multimove);
+              if (v instanceof Data_Maybe.Nothing) {
+                  return guard;
+              };
+              if (v instanceof Data_Maybe.Just) {
+                  return v.value0.to;
+              };
+              throw new Error("Failed pattern match at Game.Eternal.Model (line 109, column 5 - line 111, column 29): " + [ v.constructor.name ]);
+          });
       };
   };
   var istate = Game_Core.genState({
@@ -9835,6 +9847,25 @@ var PS = {};
           edges: Data_Array.snoc(g.edges)(new Edge(0, n - 1 | 0))
       };
   };
+  var addToMultimove = function (edges) {
+      return function (from) {
+          return function (to) {
+              return function (mmove) {
+                  var mmove2 = Data_Array.filter(function (v) {
+                      return from !== v.from;
+                  })(mmove);
+                  var $87 = from === to || !Data_Foldable.elem(Data_Foldable.foldableArray)(eqEdge)(new Edge(from, to))(edges);
+                  if ($87) {
+                      return mmove2;
+                  };
+                  return Data_Array.snoc(mmove2)({
+                      from: from,
+                      to: to
+                  });
+              };
+          };
+      };
+  };
   var _guards = function (dictStrong) {
       return Data_Lens_Lens.lens(function (v) {
           return v.guards;
@@ -9848,17 +9879,17 @@ var PS = {};
       })(dictStrong);
   };
   var _ext$prime = function (dictStrong) {
-      var $117 = Game_Core["_ext"](dictStrong);
-      var $118 = Data_Lens_Iso.iso(function (v) {
+      var $128 = Game_Core["_ext"](dictStrong);
+      var $129 = Data_Lens_Iso.iso(function (v) {
           return v;
       })(Ext)(dictStrong.Profunctor0());
-      return function ($119) {
-          return $117($118($119));
+      return function ($130) {
+          return $128($129($130));
       };
   };
   var _graph = function (dictStrong) {
-      var $120 = _ext$prime(dictStrong);
-      var $121 = Data_Lens_Lens.lens(function (v) {
+      var $131 = _ext$prime(dictStrong);
+      var $132 = Data_Lens_Lens.lens(function (v) {
           return v.graph;
       })(function (v) {
           return function (v1) {
@@ -9872,8 +9903,8 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($122) {
-          return $120($121($122));
+      return function ($133) {
+          return $131($132($133));
       };
   };
   var isValidMultimove = function (st) {
@@ -9891,12 +9922,12 @@ var PS = {};
                   return Data_Foldable.elem(Data_Foldable.foldableArray)(eqEdge)(new Edge(v1.from, v1.to))(edges);
               })(mmove);
           };
-          throw new Error("Failed pattern match at Game.Eternal.Model (line 102, column 5 - line 109, column 68): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Eternal.Model (line 98, column 5 - line 105, column 68): " + [ v.constructor.name ]);
       };
   };
   var _graphkind = function (dictStrong) {
-      var $123 = _ext$prime(dictStrong);
-      var $124 = Data_Lens_Lens.lens(function (v) {
+      var $134 = _ext$prime(dictStrong);
+      var $135 = Data_Lens_Lens.lens(function (v) {
           return v.graphkind;
       })(function (v) {
           return function (v1) {
@@ -9910,8 +9941,8 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($125) {
-          return $123($124($125));
+      return function ($136) {
+          return $134($135($136));
       };
   };
   var game = new Game_Core.Game(function (v) {
@@ -9933,7 +9964,7 @@ var PS = {};
               return !Data_Foldable.elem(Data_Foldable.foldableArray)(eqEdge)(new Edge(guard, v.value0))(edges);
           })(guards);
       };
-      throw new Error("Failed pattern match at Game.Eternal.Model (line 147, column 9 - line 150, column 72): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Eternal.Model (line 142, column 9 - line 145, column 72): " + [ v.constructor.name ]);
   }, function (state) {
       var v = Data_Lens_Getter.viewOn(state)(_graphkind(Data_Lens_Internal_Forget.strongForget));
       if (v instanceof Path) {
@@ -9942,14 +9973,14 @@ var PS = {};
       if (v instanceof Cycle) {
           return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Lens_Setter.set(_graph(Data_Profunctor_Strong.strongFn))(cycle(Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget))))(state));
       };
-      throw new Error("Failed pattern match at Game.Eternal.Model (line 139, column 9 - line 141, column 68): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Eternal.Model (line 134, column 9 - line 136, column 68): " + [ v.constructor.name ]);
   }, function (state) {
       return function (v) {
           if (v instanceof Defense) {
               var v1 = (Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).attacked;
               if (v1 instanceof Data_Maybe.Just) {
-                  var $91 = isValidMultimove(state)(v.value0);
-                  if ($91) {
+                  var $100 = isValidMultimove(state)(v.value0);
+                  if ($100) {
                       var guards = moveGuards((Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).guards)(v.value0);
                       return new Data_Maybe.Just({
                           attacked: Data_Maybe.Nothing.value,
@@ -9961,8 +9992,8 @@ var PS = {};
               return Data_Maybe.Nothing.value;
           };
           if (v instanceof Attack) {
-              var $94 = Data_Foldable.elem(Data_Foldable.foldableArray)(Data_Eq.eqInt)(v.value0)((Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).guards) || Data_Maybe.isJust((Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).attacked);
-              if ($94) {
+              var $103 = Data_Foldable.elem(Data_Foldable.foldableArray)(Data_Eq.eqInt)(v.value0)((Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).guards) || Data_Maybe.isJust((Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).attacked);
+              if ($103) {
                   return Data_Maybe.Nothing.value;
               };
               return Data_Maybe.Just.create((function () {
@@ -9973,14 +10004,14 @@ var PS = {};
                   };
               })());
           };
-          throw new Error("Failed pattern match at Game.Eternal.Model (line 118, column 1 - line 155, column 31): " + [ state.constructor.name, v.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Eternal.Model (line 113, column 1 - line 150, column 31): " + [ state.constructor.name, v.constructor.name ]);
       };
   }, Data_Function["const"](new Game_Core.SizeLimit(3, 0, 10, 0)), function (st) {
       return new Data_Tuple.Tuple(st, true);
   });
   var _multimove = function (dictStrong) {
-      var $126 = _ext$prime(dictStrong);
-      var $127 = Data_Lens_Lens.lens(function (v) {
+      var $137 = _ext$prime(dictStrong);
+      var $138 = Data_Lens_Lens.lens(function (v) {
           return v.multimove;
       })(function (v) {
           return function (v1) {
@@ -9994,13 +10025,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($128) {
-          return $126($127($128));
+      return function ($139) {
+          return $137($138($139));
       };
   };
   var _phase = function (dictStrong) {
-      var $129 = _ext$prime(dictStrong);
-      var $130 = Data_Lens_Lens.lens(function (v) {
+      var $140 = _ext$prime(dictStrong);
+      var $141 = Data_Lens_Lens.lens(function (v) {
           return v.phase;
       })(function (v) {
           return function (v1) {
@@ -10014,13 +10045,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($131) {
-          return $129($130($131));
+      return function ($142) {
+          return $140($141($142));
       };
   };
   var _rules = function (dictStrong) {
-      var $132 = _ext$prime(dictStrong);
-      var $133 = Data_Lens_Lens.lens(function (v) {
+      var $143 = _ext$prime(dictStrong);
+      var $144 = Data_Lens_Lens.lens(function (v) {
           return v.rules;
       })(function (v) {
           return function (v1) {
@@ -10034,13 +10065,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($134) {
-          return $132($133($134));
+      return function ($145) {
+          return $143($144($145));
       };
   };
   var _draggedGuard = function (dictStrong) {
-      var $135 = _ext$prime(dictStrong);
-      var $136 = Data_Lens_Lens.lens(function (v) {
+      var $146 = _ext$prime(dictStrong);
+      var $147 = Data_Lens_Lens.lens(function (v) {
           return v.draggedGuard;
       })(function (v) {
           return function (v1) {
@@ -10054,8 +10085,21 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($137) {
-          return $135($136($137));
+      return function ($148) {
+          return $146($147($148));
+      };
+  };
+  var dragGuard = function (to) {
+      return function (st) {
+          var v = Data_Lens_Getter.viewOn(st)(_draggedGuard(Data_Lens_Internal_Forget.strongForget));
+          if (v instanceof Data_Maybe.Nothing) {
+              return st;
+          };
+          if (v instanceof Data_Maybe.Just) {
+              var to2 = Data_Maybe.fromMaybe(v.value0)(to);
+              return Data_Lens_Setter.set(_draggedGuard(Data_Profunctor_Strong.strongFn))(Data_Maybe.Nothing.value)(Data_Lens_Setter.over(_multimove(Data_Profunctor_Strong.strongFn))(addToMultimove((Data_Lens_Getter.viewOn(st)(_graph(Data_Lens_Internal_Forget.strongForget))).edges)(v.value0)(to2))(st));
+          };
+          throw new Error("Failed pattern match at Game.Eternal.Model (line 166, column 5 - line 170, column 101): " + [ v.constructor.name ]);
       };
   };
   var update = function (v) {
@@ -10078,23 +10122,23 @@ var PS = {};
           return Pha_Update.purely(Data_Lens_Setter.set(_draggedGuard(Data_Profunctor_Strong.strongFn))(new Data_Maybe.Just(v.value0)));
       };
       if (v instanceof DropGuard) {
-          return Control_Applicative.pure(Run.applicativeRun)(Data_Unit.unit);
+          return Pha_Update.purely(dragGuard(new Data_Maybe.Just(v.value0)));
       };
       if (v instanceof LeaveGuard) {
           return Pha_Update.purely(Data_Lens_Setter.set(_draggedGuard(Data_Profunctor_Strong.strongFn))(Data_Maybe.Nothing.value));
       };
       if (v instanceof DropOnBoard) {
-          return Pha_Update.purely(Data_Lens_Setter.set(_draggedGuard(Data_Profunctor_Strong.strongFn))(Data_Maybe.Nothing.value));
+          return Pha_Update.purely(dragGuard(Data_Maybe.Nothing.value));
       };
       if (v instanceof Play) {
           return Control_Bind.bind(Run.bindRun)(Pha_Update.getState)(function (st) {
               var v1 = new Data_Tuple.Tuple(Data_Lens_Getter.viewOn(st)(_phase(Data_Lens_Internal_Forget.strongForget)), (Data_Lens_Getter.viewOn(st)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).attacked);
               if (v1.value0 instanceof PrepPhase) {
                   return Pha_Update.purely(Data_Lens_Setter.over((function () {
-                      var $138 = Game_Core["_position"](Data_Profunctor_Strong.strongFn);
-                      var $139 = _guards(Data_Profunctor_Strong.strongFn);
-                      return function ($140) {
-                          return $138($139($140));
+                      var $149 = Game_Core["_position"](Data_Profunctor_Strong.strongFn);
+                      var $150 = _guards(Data_Profunctor_Strong.strongFn);
+                      return function ($151) {
+                          return $149($150($151));
                       };
                   })())(toggleGuard(v.value0)));
               };
@@ -10107,13 +10151,13 @@ var PS = {};
               if (v1.value0 instanceof GamePhase && v1.value1 instanceof Data_Maybe.Nothing) {
                   return Game_Core.playA(game)(new Attack(v.value0));
               };
-              throw new Error("Failed pattern match at Game.Eternal.Model (line 178, column 5 - line 181, column 49): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at Game.Eternal.Model (line 192, column 5 - line 195, column 49): " + [ v1.constructor.name ]);
           });
       };
       if (v instanceof AddToMultimove) {
           return Pha_Update.purely(Data_Lens_Setter.over(_multimove(Data_Profunctor_Strong.strongFn))(function (moves) {
-              var $112 = v.value0 === v.value1;
-              if ($112) {
+              var $123 = v.value0 === v.value1;
+              if ($123) {
                   return Data_Array.filter(function (v1) {
                       return v1.from !== v.value0;
                   })(moves);
@@ -10124,14 +10168,16 @@ var PS = {};
               });
           }));
       };
-      throw new Error("Failed pattern match at Game.Eternal.Model (line 166, column 1 - line 166, column 33): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Eternal.Model (line 178, column 1 - line 178, column 33): " + [ v.constructor.name ]);
   };
+  exports["Edge"] = Edge;
   exports["Path"] = Path;
   exports["Cycle"] = Cycle;
   exports["OneGuard"] = OneGuard;
   exports["ManyGuards"] = ManyGuards;
   exports["PrepPhase"] = PrepPhase;
   exports["_graph"] = _graph;
+  exports["_multimove"] = _multimove;
   exports["_phase"] = _phase;
   exports["_graphkind"] = _graphkind;
   exports["_rules"] = _rules;
@@ -10170,7 +10216,7 @@ var PS = {};
   var Data_Maybe = $PS["Data.Maybe"];
   var Data_Semigroup = $PS["Data.Semigroup"];
   var Data_Show = $PS["Data.Show"];
-  var Data_Unfoldable = $PS["Data.Unfoldable"];
+  var Data_Tuple = $PS["Data.Tuple"];
   var Game_Common = $PS["Game.Common"];
   var Game_Core = $PS["Game.Core"];
   var Game_Eternal_Model = $PS["Game.Eternal.Model"];
@@ -10215,12 +10261,12 @@ var PS = {};
                   return new Data_Maybe.Just(new Game_Eternal_Model.DragGuard(v.id));
               };
               return Data_Maybe.Nothing.value;
-          })())), Pha_Events["onpointerup'"]((function () {
+          })())), Pha_Events.stopPropagationOn("pointerup")(Pha_Events_Decoder.always((function () {
               if (candrop) {
-                  return new Data_Maybe.Just(new Game_Eternal_Model.DropGuard(v.id));
+                  return new Data_Tuple.Tuple(new Data_Maybe.Just(new Game_Eternal_Model.DropGuard(v.id)), true);
               };
-              return Data_Maybe.Nothing.value;
-          })()) ];
+              return new Data_Tuple.Tuple(Data_Maybe.Nothing.value, false);
+          })())) ];
       };
   };
   var dndBoardProps = (function () {
@@ -10231,7 +10277,7 @@ var PS = {};
   })();
   var cursor = function (pp) {
       return function (v) {
-          return Pha_Svg.use("#firetruck")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key("cursor"), Pha_Svg.width("8"), Pha_Svg.height("8"), Pha_Svg.x_("-4"), Pha_Svg.y_("-4"), Pha.style("pointer-cursor")("none") ])(UI_Template.svgCursorStyle(pp)));
+          return Pha_Svg.use("#firetruck")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key("cursor"), Pha_Svg.width("8"), Pha_Svg.height("8"), Pha_Svg.x_("-4"), Pha_Svg.y_("-4"), Pha.style("pointer-events")("none") ])(UI_Template.svgCursorStyle(pp)));
       };
   };
   var view = function (state) {
@@ -10240,43 +10286,52 @@ var PS = {};
       var guards = (Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).guards;
       var grules = Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_rules"](Data_Lens_Internal_Forget.strongForget));
       var graph = Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_graph"](Data_Lens_Internal_Forget.strongForget));
-      var grid = Pha_Elements.div(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.class_("ui-board"), Pha.style("width")("100%"), Pha.style("height")("100%") ])(dndBoardProps))([ Pha_Svg.svg([ Pha.class_("eternal-svg"), Pha_Svg.viewBox(0)(0)(100)(100) ])(Data_Array.concat([ Data_Functor.mapFlipped(Data_Functor.functorArray)(graph.edges)(function (edge) {
+      var grid = Pha_Elements.div(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.class_("ui-board"), Pha.style("width")("100%"), Pha.style("height")("100%") ])(dndBoardProps))([ Pha_Svg.svg([ Pha.class_("eternal-svg"), Pha_Svg.viewBox(0)(0)(100)(100) ])([ Pha_Svg.g([  ])(Data_Functor.mapFlipped(Data_Functor.functorArray)(graph.edges)(function (edge) {
           return Pha.maybe(getCoordsOfEdge(graph)(edge))(function (v) {
               return Pha_Svg.line([ Pha_Svg.x1(Data_Show.show(Data_Show.showNumber)(100.0 * v.px1)), Pha_Svg.y1(Data_Show.show(Data_Show.showNumber)(100.0 * v.py1)), Pha_Svg.x2(Data_Show.show(Data_Show.showNumber)(100.0 * v.px2)), Pha_Svg.y2(Data_Show.show(Data_Show.showNumber)(100.0 * v.py2)), Pha.class_("dessin-line1") ]);
           });
-      }), Data_Array.mapWithIndex(function (i) {
+      })), Pha_Svg.g([  ])(Data_Functor.mapFlipped(Data_Functor.functorArray)(Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_multimove"](Data_Lens_Internal_Forget.strongForget)))(function (v) {
+          return Pha.maybe(getCoordsOfEdge(graph)(new Game_Eternal_Model.Edge(v.from, v.to)))(function (v1) {
+              return Pha_Svg.line([ Pha_Svg.x1(Data_Show.show(Data_Show.showNumber)(100.0 * v1.px1)), Pha_Svg.y1(Data_Show.show(Data_Show.showNumber)(100.0 * v1.py1)), Pha_Svg.x2(Data_Show.show(Data_Show.showNumber)(100.0 * v1.px2)), Pha_Svg.y2(Data_Show.show(Data_Show.showNumber)(100.0 * v1.py2)), Pha.class_("dessin-line2") ]);
+          });
+      })), Pha_Svg.g([  ])(Data_Array.mapWithIndex(function (i) {
           return function (v) {
-              return Pha_Svg.circle([ Pha.key("v" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.cx(Data_Show.show(Data_Show.showNumber)(100.0 * v.x)), Pha_Svg.cy(Data_Show.show(Data_Show.showNumber)(100.0 * v.y)), Pha_Svg.r("3"), Pha_Svg.fill("blue"), Pha_Events["onclick'"]((function () {
-                  var $41 = Data_Eq.eq(Game_Eternal_Model.eqrules)(grules)(Game_Eternal_Model.ManyGuards.value) && Data_Maybe.isJust(position.attacked);
-                  if ($41) {
+              return Pha_Svg.circle(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key("v" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.cx(Data_Show.show(Data_Show.showNumber)(100.0 * v.x)), Pha_Svg.cy(Data_Show.show(Data_Show.showNumber)(100.0 * v.y)), Pha_Svg.r("3"), Pha_Svg.fill("blue"), Pha_Events["onclick'"]((function () {
+                  var $51 = Data_Eq.eq(Game_Eternal_Model.eqrules)(grules)(Game_Eternal_Model.ManyGuards.value) && Data_Maybe.isJust(position.attacked);
+                  if ($51) {
                       return Data_Maybe.Nothing.value;
                   };
                   return new Data_Maybe.Just(new Game_Eternal_Model.Play(i));
-              })()) ]);
+              })()) ])(dndItemProps(state)({
+                  draggable: false,
+                  droppable: true,
+                  id: i,
+                  currentDragged: Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_draggedGuard"](Data_Lens_Internal_Forget.strongForget))
+              })));
           };
-      })(graph.vertices), Data_Array.mapWithIndex(function (i) {
+      })(graph.vertices)), Pha_Svg.g([  ])(Data_Array.mapWithIndex(function (i) {
           return function (index) {
               return Pha_Svg.use("#firetruck")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key("g" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.width("8"), Pha_Svg.height("8"), Pha_Svg.x_("-4"), Pha_Svg.y_("-4"), Pha.class_("eternal-guard"), Pha.style("transform")(Data_Maybe.fromMaybe("none")(Data_Functor.map(Data_Maybe.functorMaybe)(translateGuard)(getCoords(graph)(index)))) ])(dndItemProps(state)({
                   draggable: Data_Eq.eq(Game_Eternal_Model.eqrules)(grules)(Game_Eternal_Model.ManyGuards.value) && Data_Maybe.isJust(position.attacked),
-                  droppable: false,
+                  droppable: true,
                   id: index,
                   currentDragged: Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_draggedGuard"](Data_Lens_Internal_Forget.strongForget))
               })));
           };
-      })(guards), Data_Functor.mapFlipped(Data_Functor.functorArray)(Data_Unfoldable.fromMaybe(Data_Unfoldable.unfoldableArray)(position.attacked))(function (attack) {
-          return Pha_Svg.use("#eternal-attack")([ Pha.key("attack"), Pha_Svg.width("8"), Pha_Svg.height("8"), Pha_Svg.x_("-4"), Pha_Svg.y_("-4"), Pha.style("transform")(Data_Maybe.fromMaybe("none")(Data_Functor.map(Data_Maybe.functorMaybe)(translateGuard)(getCoords(graph)(attack)))) ]);
-      }), [ Pha.maybeN(Control_Apply.apply(Data_Maybe.applyMaybe)(Data_Functor.map(Data_Maybe.functorMaybe)(cursor)(Data_Lens_Getter.viewOn(state)(Game_Core["_pointer"](Data_Lens_Internal_Forget.strongForget))))(Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_draggedGuard"](Data_Lens_Internal_Forget.strongForget)))) ] ])), Pha_Elements.span([ Pha.class_("eternal-info") ])([ Pha.text((function () {
-          var $44 = Game_Core.isLevelFinished(Game_Eternal_Model.game)(state);
-          if ($44) {
+      })(guards)), Pha.maybeN(Data_Functor.mapFlipped(Data_Maybe.functorMaybe)(position.attacked)(function (attack) {
+          return Pha_Svg.use("#eternal-attack")([ Pha.key("attack"), Pha_Svg.width("8"), Pha_Svg.height("8"), Pha_Svg.x_("-4"), Pha_Svg.y_("-4"), Pha.style("transform")(Data_Maybe.fromMaybe("none")(Data_Functor.map(Data_Maybe.functorMaybe)(translateGuard)(getCoords(graph)(attack)))), Pha.style("pointer-events")("none") ]);
+      })), Pha.maybeN(Control_Apply.apply(Data_Maybe.applyMaybe)(Data_Functor.map(Data_Maybe.functorMaybe)(cursor)(Data_Lens_Getter.viewOn(state)(Game_Core["_pointer"](Data_Lens_Internal_Forget.strongForget))))(Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_draggedGuard"](Data_Lens_Internal_Forget.strongForget)))) ]), Pha_Elements.span([ Pha.class_("eternal-info") ])([ Pha.text((function () {
+          var $54 = Game_Core.isLevelFinished(Game_Eternal_Model.game)(state);
+          if ($54) {
               return "Le sommet attaqu\xe9 ne peut \xeatre d\xe9fendu";
           };
-          var $45 = Data_Eq.eq(Game_Eternal_Model.eqPhase)(Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_phase"](Data_Lens_Internal_Forget.strongForget)))(Game_Eternal_Model.PrepPhase.value);
-          if ($45) {
+          var $55 = Data_Eq.eq(Game_Eternal_Model.eqPhase)(Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_phase"](Data_Lens_Internal_Forget.strongForget)))(Game_Eternal_Model.PrepPhase.value);
+          if ($55) {
               return "Choisis la position initiale des gardes";
           };
-          var $46 = Data_Maybe.isJust(position.attacked);
-          if ($46) {
-              return "D\xe9fend le sommet attaqu\xe9";
+          var $56 = Data_Maybe.isJust(position.attacked);
+          if ($56) {
+              return "D\xe9place un garde vers le sommet attaqu\xe9";
           };
           return "Choisis un sommet \xe0 attaquer";
       })()) ]), Pha_Elements.button([ Pha.class_("ui-button ui-button-primary dessin-raise"), Pha_Events.onclick(Game_Eternal_Model.StartGame.value) ])([ Pha.text("Valider") ]) ]);
@@ -10309,7 +10364,7 @@ var PS = {};
                   };
               };
           };
-          throw new Error("Failed pattern match at Game.Eternal.View (line 82, column 100 - line 84, column 72): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Eternal.View (line 79, column 100 - line 81, column 72): " + [ v.constructor.name ]);
       }), UI_Icons.iconSelectGroup(UI_Icons.defa)(Game_Eternal_Model.eqrules)(state)("R\xe8gles")([ Game_Eternal_Model.OneGuard.value, Game_Eternal_Model.ManyGuards.value ])(grules)(Game_Eternal_Model.SetRules.create)(function (v) {
           if (v instanceof Game_Eternal_Model.OneGuard) {
               return function (v1) {
@@ -10339,7 +10394,7 @@ var PS = {};
                   };
               };
           };
-          throw new Error("Failed pattern match at Game.Eternal.View (line 86, column 84 - line 88, column 88): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Eternal.View (line 83, column 84 - line 85, column 88): " + [ v.constructor.name ]);
       }), UI_Icons.icongroup("Options")(Data_Functor.mapFlipped(Data_Functor.functorArray)([ UI_Icons.iundo(Game_Eternal_Model.withcore), UI_Icons.iredo(Game_Eternal_Model.withcore), UI_Icons.ireset(Game_Eternal_Model.withcore), UI_Icons.irules(Game_Eternal_Model.withcore) ])(function (x) {
           return x(state);
       })) ]);

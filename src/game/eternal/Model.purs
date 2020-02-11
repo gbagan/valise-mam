@@ -2,6 +2,7 @@ module Game.Eternal.Model where
 
 import MyPrelude
 
+import Debug.Trace (spy)
 import Game.Core (class Game, class MsgWithCore, CoreMsg, GState, SizeLimit(..), playA, coreUpdate, _ext, genState, newGame, _position, _nbRows)
 import Game.Effs (EFFS)
 import Lib.Util (repeat)
@@ -27,8 +28,7 @@ type Position = {guards ∷ Array Int, attacked ∷ Maybe Int}
 
 -- | un move est soit un sommet attaqué en cas d'attaque,
 -- | soit un ensemble de déplacéments de gardes en cas de défense
-type Multimove = Array {from ∷ Int, to ∷ Int}
-data Move = Attack Int | Defense Multimove
+data Move = Attack Int | Defense (Array Int)
 
 data Phase = PrepPhase | GamePhase
 derive instance eqPhase ∷ Eq Phase
@@ -52,7 +52,7 @@ graphs = [house, ex1, ex2, ex3, cross]
 
 type Ext' = 
     {   graph ∷ Graph
-    ,   multimove ∷ Multimove
+    ,   nextmove ∷ Array Int
     ,   phase ∷ Phase
     ,   graphkind ∷ GraphKind
     ,   draggedGuard ∷ Maybe Int
@@ -68,8 +68,8 @@ _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _graph ∷ Lens' State Graph
 _graph = _ext' ∘ lens _.graph _{graph = _}
-_multimove ∷ Lens' State Multimove
-_multimove = _ext' ∘ lens _.multimove _{multimove = _}
+_nextmove ∷ Lens' State (Array Int)
+_nextmove = _ext' ∘ lens _.nextmove _{nextmove = _}
 _phase ∷ Lens' State Phase
 _phase = _ext' ∘ lens _.phase _{phase = _}
 _graphkind ∷ Lens' State GraphKind
@@ -90,34 +90,35 @@ istate ∷ State
 istate = genState 
             {guards: [], attacked: Nothing}
             _{nbRows = 6, customSize = true}
-            (Ext { graphkind: Path, graph: path 1, multimove: [], phase: PrepPhase, draggedGuard: Nothing, rules: OneGuard})
+            (Ext { graphkind: Path, graph: path 1, nextmove: [], phase: PrepPhase, draggedGuard: Nothing, rules: OneGuard})
 
 
-isValidMultimove ∷ State → Multimove → Boolean
-isValidMultimove st mmove =
+isValidNextMove ∷ State → Array Int → Boolean
+isValidNextMove st dests =
     case (st^._position).attacked of
         Nothing → false
         Just attack →
-            let edges = (st^._graph).edges 
-                dests = mmove <#> _.to
+            let edges = (st^._graph).edges
+                srcs = (st^._position).guards
+                moveEdges = zipWith (↔) srcs dests
             in
-            elem attack dests && 
-                (mmove # all \{from, to} -> elem (from ↔ to) edges)
+            elem attack dests
+            && (moveEdges # all \edge@(from↔to) -> from == to || elem edge edges)
 
+{-
 moveGuards ∷ Array Int → Multimove → Array Int
 moveGuards guards multimove = guards <#> \guard →
     case multimove # find \{from, to} → from == guard of
         Nothing → guard
         Just {from, to} → to
+-}
 
 instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState Move where
-    play state (Defense mmove) =
+    play state (Defense nextmove) =
         case (state^._position).attacked of
             Just attacked ->
-                if isValidMultimove state mmove then
-                    let guards = moveGuards (state^._position).guards mmove
-                    in
-                    Just {attacked: Nothing, guards}
+                if isValidNextMove state nextmove then
+                    Just {attacked: Nothing, guards: nextmove}
                 else
                     Nothing
             _ -> Nothing
@@ -128,12 +129,17 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
         else
             Just $ (state^._position) { attacked = Just x}
 
-    initialPosition _ = pure {guards: [1, 3], attacked: Nothing}
+    initialPosition _ = pure {guards: [], attacked: Nothing}
     
     onNewGame state =
+        let state2 = state 
+                        # _nextmove .~ [] 
+                        # _phase .~ PrepPhase 
+                        # _draggedGuard .~ Nothing
+        in
         case state^._graphkind of
-            Path -> pure (state # _graph .~ path (state^._nbRows))
-            Cycle -> pure(state # _graph .~ cycle (state^._nbRows))
+            Path -> pure (state2 # _graph .~ path (state^._nbRows))
+            Cycle -> pure(state2 # _graph .~ cycle (state^._nbRows))
 
     isLevelFinished state =
         let guards = (state^._position).guards 
@@ -153,13 +159,13 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
 toggleGuard ∷ Int → Array Int → Array Int
 toggleGuard x l = if elem x l then filter (_ /= x) l else l `snoc` x
 
-addToMultimove ∷ Array Edge → Int → Int → Multimove → Multimove
-addToMultimove edges from to mmove =
-    let mmove2 = mmove # filter \{from: from2} -> from /= from2 in
-    if from == to || not (elem (from ↔ to) edges) then
-        mmove2
-    else
-        mmove2 `snoc` {from, to}  
+addToNextMove ∷ Array Edge → Int → Int → Array Int → Array Int → Array Int
+addToNextMove edges from to srcs dests
+    | elem (from ↔ to) edges =
+        case elemIndex from srcs of
+            Nothing -> spy "1" dests
+            Just i -> spy "2" (dests # ix i .~ to) 
+    | otherwise = spy "3" dests
 
 dragGuard ∷ Maybe Int → State → State
 dragGuard to st =
@@ -167,10 +173,10 @@ dragGuard to st =
         Nothing -> st
         Just from ->
             let to2 = fromMaybe from to in
-            st # _multimove %~ addToMultimove (st^._graph).edges from to2 # _draggedGuard .~ Nothing
+            st # _nextmove %~ addToNextMove (st^._graph).edges from to2 (st^._position).guards  # _draggedGuard .~ Nothing
 
 
-data Msg = Core CoreMsg | SetGraphKind GraphKind | SetRules Rules | AddToMultimove Int Int 
+data Msg = Core CoreMsg | SetGraphKind GraphKind | SetRules Rules 
             | DragGuard Int | DropGuard Int | LeaveGuard | DropOnBoard
             | StartGame | ToggleGuard Int | Play Int
 instance withcore ∷ MsgWithCore Msg where core = Core
@@ -179,7 +185,7 @@ update ∷ Msg → Update State EFFS
 update (Core msg) = coreUpdate msg
 update (SetGraphKind kind) = newGame (_graphkind .~ kind)
 update (SetRules rules) = newGame (_rules .~ rules)
-update StartGame = purely $ _phase .~ GamePhase
+update StartGame = purely $ \st -> st # _phase .~ GamePhase # _nextmove .~ (st^._position).guards
 update (ToggleGuard x) = pure unit
 update (DragGuard x) = purely $ _draggedGuard .~ Just x
 update (DropGuard to) = purely $ dragGuard (Just to)
@@ -189,13 +195,8 @@ update DropOnBoard = purely $ dragGuard Nothing
 
 update (Play x) = do
     st <- getState
+    let guards = (st^._position).guards
     case st^._phase /\ (st^._position).attacked  of
-        PrepPhase /\ _ -> purely $ _position <<< _guards %~ toggleGuard x
-        GamePhase /\ Just attacked -> playA (Defense [{from: x, to: attacked}])
+        PrepPhase /\ _ -> purely $ _position ∘ _guards %~ toggleGuard x
+        GamePhase /\ Just attacked -> playA $ Defense (addToNextMove (st^._graph).edges x attacked guards guards)
         GamePhase /\ Nothing -> playA (Attack x)
-
-update (AddToMultimove from to) = purely $ over _multimove \moves →
-    if from == to then
-        moves # filter \{from: f} → f /= from
-    else
-        moves `snoc` {from, to}

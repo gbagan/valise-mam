@@ -4,11 +4,12 @@ import MyPrelude
 import Game.Common (pointerDecoder)
 import Game.Core (CoreMsg(SetPointer), isLevelFinished, PointerPosition, core, _position, _pointer)
 import Game.Eternal.Model (State, Msg(..), Graph, Phase(..), Rules(..), GraphKind(..), Pos, Edge, (↔), 
-        _graph, _phase, _graphkind, _draggedGuard, _rules, _multimove)
-import Pha (VDom, Prop, key, text, maybeN, (<??>), class_, class', style)
+        isValidNextMove,
+        _graph, _phase, _graphkind, _draggedGuard, _rules, _nextmove)
+import Pha (VDom, Prop, key, text, maybeN, (<&&>), (<??>), class_, class', style)
 import Pha.Attributes (disabled)
 import Pha.Elements (div, button, span, br)
-import Pha.Events (on, onclick, onclick', releasePointerCaptureOn, stopPropagationOn, onpointerup, onpointerup', onpointerleave)
+import Pha.Events (on, onclick, onclick', releasePointerCaptureOn, stopPropagationOn, onpointerup, onpointerleave)
 import Pha.Events.Decoder (always)
 import Pha.Svg (svg, g, line, circle, viewBox, use, fill, width, height, x_, y_, x1, x2, y1, y2, cx, cy, r)
 import Pha.Util (translate, pc)
@@ -103,17 +104,18 @@ view state = template {config, board, rules, winTitle} state where
                                 ,   y2 $ show (100.0 * py2)
                                 ,   class_ "dessin-line1"
                                 ]
-                ,   g [] $ 
-                        state^._multimove <#> \{from, to} →
-                            getCoordsOfEdge graph (from ↔ to) <??> \{px1, px2, py1, py2} →
-                                line 
-                                [   -- key?
-                                    x1 $ show (100.0 * px1)
-                                ,   y1 $ show (100.0 * py1)
-                                ,   x2 $ show (100.0 * px2)
-                                ,   y2 $ show (100.0 * py2)
-                                ,   class_ "dessin-line2"
-                                ]
+                ,   grules == ManyGuards <&&> \_ ->
+                        g [] $  ----- todo
+                            (zip guards (state^._nextmove)) <#> \(from /\ to) →
+                                getCoordsOfEdge graph (from ↔ to) <??> \{px1, px2, py1, py2} →
+                                    line 
+                                    [   -- key?
+                                        x1 $ show (100.0 * px1)
+                                    ,   y1 $ show (100.0 * py1)
+                                    ,   x2 $ show (100.0 * px2)
+                                    ,   y2 $ show (100.0 * py2)
+                                    ,   class_ "dessin-line2"
+                                    ]
                 ,   g [] $ 
                         graph.vertices # mapWithIndex \i {x, y} →
                             circle $
@@ -173,6 +175,7 @@ view state = template {config, board, rules, winTitle} state where
                 ]
             ,   button
                 [   class_ "ui-button ui-button-primary dessin-raise"
+                ,   disabled $ state^._phase == GamePhase  && (isNothing position.attacked || isValidNextMove state (state^._nextmove))
                 ,   onclick StartGame
                 ]
                 [   text "Valider"]

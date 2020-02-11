@@ -10282,7 +10282,7 @@ var PS = {};
   })();
   var cursor = function (pp) {
       return function (v) {
-          return Pha_Svg.use("#firetruck")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key("cursor"), Pha_Svg.width("8"), Pha_Svg.height("8"), Pha_Svg.x_("-4"), Pha_Svg.y_("-4"), Pha.style("pointer-events")("none") ])(UI_Template.svgCursorStyle(pp)));
+          return Pha_Svg.use("#roman")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key("cursor"), Pha_Svg.width("6"), Pha_Svg.height("12"), Pha_Svg.x_("-3"), Pha_Svg.y_("-6"), Pha.style("pointer-events")("none") ])(UI_Template.svgCursorStyle(pp)));
       };
   };
   var view = function (state) {
@@ -10318,7 +10318,7 @@ var PS = {};
           };
       })(graph.vertices)), Pha_Svg.g([  ])(Data_Array.mapWithIndex(function (i) {
           return function (index) {
-              return Pha_Svg.use("#firetruck")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key("g" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.width("8"), Pha_Svg.height("8"), Pha_Svg.x_("-4"), Pha_Svg.y_("-4"), Pha.class_("eternal-guard"), Pha.style("transform")(Data_Maybe.fromMaybe("none")(Data_Functor.map(Data_Maybe.functorMaybe)(translateGuard)(getCoords(graph)(index)))) ])(dndItemProps(state)({
+              return Pha_Svg.use("#roman")(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key("g" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.width("6"), Pha_Svg.height("12"), Pha_Svg.x_("-3"), Pha_Svg.y_("-6"), Pha.class_("eternal-guard"), Pha.style("transform")(Data_Maybe.fromMaybe("none")(Data_Functor.map(Data_Maybe.functorMaybe)(translateGuard)(getCoords(graph)(index)))) ])(dndItemProps(state)({
                   draggable: Data_Eq.eq(Game_Eternal_Model.eqrules)(grules)(Game_Eternal_Model.ManyGuards.value) && Data_Maybe.isJust(position.attacked),
                   droppable: true,
                   id: index,
@@ -10330,7 +10330,7 @@ var PS = {};
       })), Pha.maybeN(Control_Apply.apply(Data_Maybe.applyMaybe)(Data_Functor.map(Data_Maybe.functorMaybe)(cursor)(Data_Lens_Getter.viewOn(state)(Game_Core["_pointer"](Data_Lens_Internal_Forget.strongForget))))(Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_draggedGuard"](Data_Lens_Internal_Forget.strongForget)))) ]), Pha_Elements.span([ Pha.class_("eternal-info") ])([ Pha.text((function () {
           var $55 = Game_Core.isLevelFinished(Game_Eternal_Model.game)(state);
           if ($55) {
-              return "Le sommet attaqu\xe9 ne peut pas \xeatre d\xe9fendu";
+              return "Le sommet attaqu\xe9 ne peut \xeatre d\xe9fendu";
           };
           var $56 = Data_Eq.eq(Game_Eternal_Model.eqPhase)(Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_phase"](Data_Lens_Internal_Forget.strongForget)))(Game_Eternal_Model.PrepPhase.value);
           if ($56) {
@@ -10341,7 +10341,7 @@ var PS = {};
               return "D\xe9place un garde vers le sommet attaqu\xe9";
           };
           return "Choisis un sommet \xe0 attaquer";
-      })()) ]), Pha_Elements.button([ Pha.class_("ui-button ui-button-primary dessin-raise"), Pha_Attributes.disabled(Data_Eq.eq(Game_Eternal_Model.eqPhase)(Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_phase"](Data_Lens_Internal_Forget.strongForget)))(Game_Eternal_Model.GamePhase.value) && (Data_Maybe.isNothing(position.attacked) || !Game_Eternal_Model.isValidNextMove(state)(Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_nextmove"](Data_Lens_Internal_Forget.strongForget))))), Pha_Events.onclick((function () {
+      })()) ]), Pha_Elements.button([ Pha.class_("ui-button ui-button-primary dessin-raise"), Pha_Attributes.disabled(Data_Eq.eq(Game_Eternal_Model.eqPhase)(Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_phase"](Data_Lens_Internal_Forget.strongForget)))(Game_Eternal_Model.GamePhase.value) && (Data_Eq.eq(Game_Eternal_Model.eqrules)(Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_rules"](Data_Lens_Internal_Forget.strongForget)))(Game_Eternal_Model.OneGuard.value) || (Data_Maybe.isNothing(position.attacked) || !Game_Eternal_Model.isValidNextMove(state)(Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_nextmove"](Data_Lens_Internal_Forget.strongForget)))))), Pha_Events.onclick((function () {
           var $58 = Data_Eq.eq(Game_Eternal_Model.eqPhase)(Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_phase"](Data_Lens_Internal_Forget.strongForget)))(Game_Eternal_Model.GamePhase.value);
           if ($58) {
               return Game_Eternal_Model.MoveGuards.value;

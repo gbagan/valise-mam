@@ -31,12 +31,12 @@ translateGuard ∷ Pos → String
 translateGuard {x, y} = translate (pc x) (pc y)
 
 cursor ∷ ∀a b. PointerPosition → b → VDom a
-cursor pp _ = use "#firetruck" $
+cursor pp _ = use "#roman" $
                 [   key "cursor"
-                ,   width "8"
-                ,   height "8"
-                ,   x_ "-4"
-                ,   y_ "-4"
+                ,   width "6"
+                ,   height "12"
+                ,   x_ "-3"
+                ,   y_ "-6"
                 ,   style "pointer-events" "none"
                 ] <> svgCursorStyle pp
 
@@ -134,12 +134,12 @@ view state = template {config, board, rules, winTitle} state where
                             )
                 ,   g [] $
                         guards # mapWithIndex \i index →
-                            use "#firetruck" $
+                            use "#roman" $
                             [   key $ "g" <> show i
-                            ,   width "8"
-                            ,   height "8"
-                            ,   x_ "-4"
-                            ,   y_ "-4"
+                            ,   width "6"
+                            ,   height "12"
+                            ,   x_ "-3"
+                            ,   y_ "-6"
                             ,   class_ "eternal-guard"
                             ,   style "transform" $ fromMaybe "none" (translateGuard <$> getCoords graph index)
                             ] <> (dndItemProps state
@@ -164,7 +164,7 @@ view state = template {config, board, rules, winTitle} state where
             ,   span [class_ "eternal-info"] [
                     text (
                         if isLevelFinished state then
-                            "Le sommet attaqué ne peut pas être défendu"
+                            "Le sommet attaqué ne peut être défendu"
                         else if state^._phase == PrepPhase then
                             "Choisis la position initiale des gardes"
                         else if isJust (position.attacked) then
@@ -175,7 +175,7 @@ view state = template {config, board, rules, winTitle} state where
                 ]
             ,   button
                 [   class_ "ui-button ui-button-primary dessin-raise"
-                ,   disabled $ state^._phase == GamePhase  && (isNothing position.attacked || not (isValidNextMove state (state^._nextmove)))
+                ,   disabled $ state^._phase == GamePhase  && (state^._rules == OneGuard || isNothing position.attacked || not (isValidNextMove state (state^._nextmove)))
                 ,   onclick (if state^._phase == GamePhase then MoveGuards else StartGame)
                 ]
                 [   text "Valider"]

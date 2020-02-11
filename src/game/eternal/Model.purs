@@ -1,8 +1,6 @@
 module Game.Eternal.Model where
 
 import MyPrelude
-
-import Debug.Trace (spy)
 import Game.Core (class Game, class MsgWithCore, CoreMsg, GState, SizeLimit(..), playA, coreUpdate, _ext, genState, newGame, _position, _nbRows)
 import Game.Effs (EFFS)
 import Lib.Util (repeat)
@@ -104,6 +102,7 @@ isValidNextMove st dests =
             in
             elem attack dests
             && (moveEdges # all \edge@(from↔to) -> from == to || elem edge edges)
+            && length (nub dests) == length dests
 
 {-
 moveGuards ∷ Array Int → Multimove → Array Int
@@ -161,11 +160,11 @@ toggleGuard x l = if elem x l then filter (_ /= x) l else l `snoc` x
 
 addToNextMove ∷ Array Edge → Int → Int → Array Int → Array Int → Array Int
 addToNextMove edges from to srcs dests
-    | elem (from ↔ to) edges =
+    | from == to || elem (from ↔ to) edges =
         case elemIndex from srcs of
-            Nothing -> spy "1" dests
-            Just i -> spy "2" (dests # ix i .~ to) 
-    | otherwise = spy "3" dests
+            Nothing -> dests
+            Just i -> dests # ix i .~ to 
+    | otherwise = dests
 
 dragGuard ∷ Maybe Int → State → State
 dragGuard to st =
@@ -178,7 +177,7 @@ dragGuard to st =
 
 data Msg = Core CoreMsg | SetGraphKind GraphKind | SetRules Rules 
             | DragGuard Int | DropGuard Int | LeaveGuard | DropOnBoard
-            | StartGame | ToggleGuard Int | Play Int
+            | StartGame | MoveGuards | ToggleGuard Int | Play Int
 instance withcore ∷ MsgWithCore Msg where core = Core
     
 update ∷ Msg → Update State EFFS
@@ -186,6 +185,9 @@ update (Core msg) = coreUpdate msg
 update (SetGraphKind kind) = newGame (_graphkind .~ kind)
 update (SetRules rules) = newGame (_rules .~ rules)
 update StartGame = purely $ \st -> st # _phase .~ GamePhase # _nextmove .~ (st^._position).guards
+update MoveGuards = do
+    st <- getState
+    playA $ Defense (st^._nextmove)
 update (ToggleGuard x) = pure unit
 update (DragGuard x) = purely $ _draggedGuard .~ Just x
 update (DropGuard to) = purely $ dragGuard (Just to)

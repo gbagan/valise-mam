@@ -164,7 +164,7 @@ view state = template {config, board, rules, winTitle} state where
             ,   span [class_ "eternal-info"] [
                     text (
                         if isLevelFinished state then
-                            "Le sommet attaqué ne peut être défendu"
+                            "Le sommet attaqué ne peut pas être défendu"
                         else if state^._phase == PrepPhase then
                             "Choisis la position initiale des gardes"
                         else if isJust (position.attacked) then
@@ -175,8 +175,8 @@ view state = template {config, board, rules, winTitle} state where
                 ]
             ,   button
                 [   class_ "ui-button ui-button-primary dessin-raise"
-                ,   disabled $ state^._phase == GamePhase  && (isNothing position.attacked || isValidNextMove state (state^._nextmove))
-                ,   onclick StartGame
+                ,   disabled $ state^._phase == GamePhase  && (isNothing position.attacked || not (isValidNextMove state (state^._nextmove)))
+                ,   onclick (if state^._phase == GamePhase then MoveGuards else StartGame)
                 ]
                 [   text "Valider"]
             ]

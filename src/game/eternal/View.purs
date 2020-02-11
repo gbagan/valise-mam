@@ -1,11 +1,12 @@
 module Game.Eternal.View (view) where
 
 import MyPrelude
+
+import Foreign (F)
+import Debug.Trace (traceM)
 import Game.Common (pointerDecoder)
 import Game.Core (CoreMsg(SetPointer), isLevelFinished, PointerPosition, core, _position, _pointer)
-import Game.Eternal.Model (State, Msg(..), Graph, Phase(..), Rules(..), GraphKind(..), Pos, Edge, (↔), 
-        isValidNextMove,
-        _graph, _phase, _graphkind, _draggedGuard, _rules, _nextmove)
+import Game.Eternal.Model (State, Msg(..), Graph, Phase(..), Rules(..), GraphKind(..), Pos, Edge, (↔), isValidNextMove, _graph, _phase, _graphkind, _draggedGuard, _rules, _nextmove)
 import Pha (VDom, Prop, key, text, maybeN, (<&&>), (<??>), class_, class', style)
 import Pha.Attributes (disabled)
 import Pha.Elements (div, button, span, br)
@@ -40,16 +41,22 @@ cursor pp _ = use "#roman" $
                 ,   style "pointer-events" "none"
                 ] <> svgCursorStyle pp
 
--- les fonctions dndBoardProps et dndItemProps ne sont pas assez génériques pour Eternal
+-- les fonctions dndBoardProps et dndItemProps de Game.Core ne sont pas assez génériques pour Eternal
 -- todo: refactoriser
 dndBoardProps ∷ Array (Prop Msg)
-dndBoardProps = [
-    on "pointerdown" move,
-    on "pointermove" move,
-    onpointerup $ DropOnBoard,
-    onpointerleave $ LeaveGuard
-] where
-    move e = core <$> (SetPointer <$> Just <$> pointerDecoder e)
+dndBoardProps =
+    [   on "pointerdown" move
+    ,   on "pointermove" move
+    ,   onpointerup DropOnBoard
+    ,   onpointerleave LeaveGuard
+    ] where
+        move e = core <$> (SetPointer <$> Just <$> pointerDecoder e)
+
+always2 ∷ ∀msg a. msg → a → F msg
+always2 msg ev = do
+    traceM "pointerup" 
+    traceM ev
+    pure msg
 
 dndItemProps ∷ State → 
     {
@@ -62,7 +69,7 @@ dndItemProps state {draggable, droppable, id, currentDragged} =
     [   class' "draggable" draggable
     ,   class' "dragged" dragged
     ,   class' "candrop" candrop
-    ,   releasePointerCaptureOn "pointerdown" $ always (if draggable then Just (DragGuard id) else Nothing)
+    ,   releasePointerCaptureOn "pointerdown" $ always2 (if draggable then Just (DragGuard id) else Nothing)
     ,   stopPropagationOn "pointerup" $ always (if candrop then Just (DropGuard id) /\ true else Nothing /\ false)
     ] where
         candrop = droppable && isJust currentDragged
@@ -89,11 +96,11 @@ view state = template {config, board, rules, winTitle} state where
         ]
 
     grid =
-        div (
-            [   class_ "ui-board", style "width" "100%", style "height" "100%"
-            ] <> dndBoardProps)
+        div (dndBoardProps <>
+            [   class_ "ui-board eternal-board", style "width" "100%", style "height" "100%"
+            ])
             [   svg [class_ "eternal-svg", viewBox 0 0 100 100]
-                [   g [] $ 
+                [   g [] $
                         graph.edges <#> \edge →
                             getCoordsOfEdge graph edge <??> \{px1, px2, py1, py2} →
                                 line 
@@ -125,7 +132,7 @@ view state = template {config, board, rules, winTitle} state where
                             ,   r "3"
                             ,   fill "blue"
                             ,   onclick' $ if grules == ManyGuards && isJust position.attacked then Nothing else Just (Play i)
-                            ] <> (dndItemProps state
+                            ]  <> (dndItemProps state
                                 {   draggable: false
                                 ,   droppable: true
                                 ,   id: i

@@ -2,7 +2,7 @@ module UI.Template where
 import MyPrelude
 import Pha (VDom, Prop, text, emptyNode, (<??>), class_, class', style)
 import Pha.Elements (div)
-import Pha.Events (on, onpointerup, onpointerup', onpointerleave, releasePointerCaptureOn)
+import Pha.Events (on, onpointerup, onpointerleave, releasePointerCaptureOn, stopPropagationOn)
 import Pha.Events.Decoder (always)
 import Pha.Util (pc, translate)
 import Game.Core (class Game, class ScoreGame, GState, Mode(..), Turn(..), SizeLimit(..), Dialog(..),
@@ -158,8 +158,8 @@ dndItemProps ∷ ∀pos ext msg id. Eq id ⇒ MsgWithDnd msg id ⇒ Game pos ext
 dndItemProps state {draggable, droppable, id, currentDragged} =
     [   class' "dragged" dragged
     ,   class' "candrop" candrop
-    ,   releasePointerCaptureOn "pointerdown" $ always (if draggable then Just $ dndmsg (Drag id) else Nothing)
-    ,   onpointerup' $ if candrop then Just $ dndmsg (Drop id) else Nothing
+    ,   releasePointerCaptureOn "pointerdown" $ always (if draggable then Just (dndmsg (Drag id)) else Nothing)
+    ,   stopPropagationOn "pointerup" $ always (if candrop then Just (dndmsg (Drop id)) /\ true else Nothing /\ false)
     ] where
         candrop = droppable && (currentDragged # maybe false \d → canPlay state {from: d, to: id})
         dragged = draggable && Just id == currentDragged

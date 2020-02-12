@@ -1,7 +1,6 @@
 module Game.Eternal.Model where
 
 import MyPrelude
-import Debug.Trace (spy)
 import Game.Core (class Game, class MsgWithCore, CoreMsg, GState, SizeLimit(..), playA, coreUpdate, _ext, genState, newGame, _position, _nbRows)
 import Game.Effs (EFFS)
 import Lib.Util (repeat)
@@ -185,13 +184,13 @@ update ∷ Msg → Update State EFFS
 update (Core msg) = coreUpdate msg
 update (SetGraphKind kind) = newGame (_graphkind .~ kind)
 update (SetRules rules) = newGame (_rules .~ rules)
-update StartGame = purely $ \st -> spy "start" $ st # _phase .~ GamePhase # _nextmove .~ (st^._position).guards
+update StartGame = purely $ \st -> st # _phase .~ GamePhase # _nextmove .~ (st^._position).guards
 update MoveGuards = do
     st <- getState
     playA $ Defense (st^._nextmove)
 update (ToggleGuard x) = pure unit
 update (DragGuard x) = purely $ _draggedGuard .~ Just x
-update (DropGuard to) = purely $ spy (show to) $ dragGuard (Just to)
+update (DropGuard to) = purely $ dragGuard (Just to)
 update LeaveGuard = purely $ _draggedGuard .~ Nothing
 update DropOnBoard = purely $ dragGuard Nothing
 

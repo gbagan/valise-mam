@@ -2,8 +2,6 @@ module Game.Eternal.View (view) where
 
 import MyPrelude
 
-import Foreign (F)
-import Debug.Trace (traceM)
 import Game.Common (pointerDecoder)
 import Game.Core (CoreMsg(SetPointer), isLevelFinished, PointerPosition, core, _position, _pointer)
 import Game.Eternal.Model (State, Msg(..), Graph, Phase(..), Rules(..), GraphKind(..), Pos, Edge, (↔), isValidNextMove, _graph, _phase, _graphkind, _draggedGuard, _rules, _nextmove)
@@ -52,12 +50,6 @@ dndBoardProps =
     ] where
         move e = core <$> (SetPointer <$> Just <$> pointerDecoder e)
 
-always2 ∷ ∀msg a. msg → a → F msg
-always2 msg ev = do
-    traceM "pointerup" 
-    traceM ev
-    pure msg
-
 dndItemProps ∷ State → 
     {
         draggable ∷ Boolean,
@@ -69,7 +61,7 @@ dndItemProps state {draggable, droppable, id, currentDragged} =
     [   class' "draggable" draggable
     ,   class' "dragged" dragged
     ,   class' "candrop" candrop
-    ,   releasePointerCaptureOn "pointerdown" $ always2 (if draggable then Just (DragGuard id) else Nothing)
+    ,   releasePointerCaptureOn "pointerdown" $ always (if draggable then Just (DragGuard id) else Nothing)
     ,   stopPropagationOn "pointerup" $ always (if candrop then Just (DropGuard id) /\ true else Nothing /\ false)
     ] where
         candrop = droppable && isJust currentDragged
@@ -133,7 +125,7 @@ view state = template {config, board, rules, winTitle} state where
                             ,   fill "blue"
                             ,   onclick' $ if grules == ManyGuards && isJust position.attacked then Nothing else Just (Play i)
                             ]  <> (dndItemProps state
-                                {   draggable: false
+                                {   draggable: grules == ManyGuards && isJust position.attacked
                                 ,   droppable: true
                                 ,   id: i
                                 ,   currentDragged: state^._draggedGuard
@@ -149,13 +141,14 @@ view state = template {config, board, rules, winTitle} state where
                             ,   y_ "-6"
                             ,   class_ "eternal-guard"
                             ,   style "transform" $ fromMaybe "none" (translateGuard <$> getCoords graph index)
-                            ] <> (dndItemProps state
+                            ] {- <> (dndItemProps state
                                 {   draggable: grules == ManyGuards && isJust position.attacked
                                 ,   droppable: true
                                 ,   id: index
                                 ,   currentDragged: state^._draggedGuard
                                 }
                             )
+                            -}
                 ,   maybeN $ position.attacked <#> \attack →
                         use "#eternal-attack"
                         [   key "attack"

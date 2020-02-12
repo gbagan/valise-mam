@@ -443,9 +443,6 @@ html, body {
   transition: transform 0.5s linear;
   pointer-events: none; }
 
-.eternal-guard.draggable {
-  pointer-events: auto; }
-
 .eternal-info {
   position: absolute;
   bottom: 1rem;

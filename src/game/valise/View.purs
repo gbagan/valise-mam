@@ -99,6 +99,10 @@ valise state =
                     180 130 50 50
                     []
                     []
+        ,   object {symbol: "eternal-attack", link: Just "eternal", help: "Jeu: domination éternelle", drag: false}
+                    260 125 40 40
+                    []
+                    []
         ,   object {symbol: "chocolate", link: Just "chocolat", help: "Jeu: chocolat", drag: false}
                     200 200 60 60
                     [transform "rotate(40)"]

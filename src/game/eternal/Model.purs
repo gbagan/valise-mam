@@ -1,7 +1,10 @@
 module Game.Eternal.Model where
 
 import MyPrelude
-import Game.Core (class Game, class MsgWithCore, CoreMsg, GState, SizeLimit(..), playA, coreUpdate, _ext, genState, newGame, _position, _nbRows)
+import Game.Core (class Game, class MsgWithCore, CoreMsg(Undo, Redo, Reset), GState, SizeLimit(..), Turn(..),
+                  playA, coreUpdate, _ext, genState, newGame, _position, _nbRows, _history, _redoHistory, _turn, changeTurn)
+import Data.List (List(..))
+import Data.List as L
 import Game.Effs (EFFS)
 import Lib.Util (repeat)
 import Pha.Update (Update, getState, purely)
@@ -181,6 +184,32 @@ data Msg = Core CoreMsg | SetGraphKind GraphKind | SetRules Rules
 instance withcore ∷ MsgWithCore Msg where core = Core
     
 update ∷ Msg → Update State EFFS
+update (Core Undo) = purely \state → case state^._history of
+    Nil → state
+    Cons h rest →
+        state # changeTurn
+              # _position .~ h
+              # _history .~ rest
+              # _redoHistory %~ Cons (state^._position)
+              # _nextmove .~ h.guards
+
+update (Core Redo) = purely \state → case state^._redoHistory of
+    Nil → state
+    Cons h rest →
+        state # changeTurn
+              # _position .~ h
+              # _redoHistory .~ rest
+              # _history %~ Cons (state^._position)
+              # _nextmove .~ h.guards
+
+update (Core Reset) = purely \state → case L.last (state^._history) of
+    Nothing → state
+    Just x → state # _position .~ x
+                    # _history .~ Nil
+                    # _redoHistory .~ Nil
+                    # _turn .~ Turn1
+                    # _nextmove .~ x.guards
+
 update (Core msg) = coreUpdate msg
 update (SetGraphKind kind) = newGame (_graphkind .~ kind)
 update (SetRules rules) = newGame (_rules .~ rules)

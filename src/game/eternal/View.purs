@@ -2,6 +2,7 @@ module Game.Eternal.View (view) where
 
 import MyPrelude
 
+import Math (acos)
 import Game.Common (pointerDecoder)
 import Game.Core (CoreMsg(SetPointer), isLevelFinished, PointerPosition, core, _position, _pointer)
 import Game.Eternal.Model (State, Msg(..), Graph, Phase(..), Rules(..), GraphKind(..), Pos, Edge, (↔), isValidNextMove, _graph, _phase, _graphkind, _draggedGuard, _rules, _nextmove)
@@ -10,7 +11,7 @@ import Pha.Attributes (disabled)
 import Pha.Elements (br, button, div, span)
 import Pha.Events (on, onclick, onclick', releasePointerCaptureOn, stopPropagationOn, onpointerup, onpointerleave)
 import Pha.Events.Decoder (always)
-import Pha.Svg (svg, g, line, rect, circle, viewBox, use, fill, width, height, x_, y_, x1, x2, y1, y2, cx, cy, r)
+import Pha.Svg (svg, g, line, rect, circle, viewBox, use, path, fill, width, height, x_, y_, x1, x2, y1, y2, cx, cy, r)
 import Pha.Util (translate, pc)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
@@ -67,6 +68,36 @@ dndItemProps state {draggable, droppable, id, currentDragged} =
         candrop = droppable && isJust currentDragged
         dragged = draggable && Just id == currentDragged
 
+
+drawArrow ∷ ∀a. Number → Number → Number → Number → VDom a
+drawArrow px1 px2 py1 py2 =
+    let arrowSize = 6.0
+        dx = px2 - px1
+        dy = py2 - py1
+        len = sqrt (dx*dx + dy*dy)
+        angle' = acos (dx / len)
+        angle = if dy >= 0.0 then 2.0 * pi - angle' else angle'
+        x3 = px2 + arrowSize * sin (angle - pi / 3.0)
+        y3 = py2 + arrowSize * cos (angle - pi / 3.0)
+        x4 = px2 + arrowSize * sin (angle - 2.0 * pi / 3.0)
+        y4 = py2 + arrowSize * cos (angle - 2.0 * pi / 3.0)
+        arrowPath = "M" <> show px2 <> "," <> show py2 
+                    <> "L" <> show x3 <> "," <> show y3
+                    <> "L" <> show x4 <> "," <> show y4 <> "z"
+    in g 
+        []
+        [   line 
+            [   -- key?
+                x1 $ show px1
+            ,   y1 $ show py1
+            ,   x2 $ show px2
+            ,   y2 $ show py2
+            ,   class_ "dessin-line2"
+            ]
+        ,   path arrowPath [fill "red"]
+        ]
+
+
 view ∷ State → VDom Msg
 view state = template {config, board, rules, winTitle} state where
     position = state^._position
@@ -107,35 +138,20 @@ view state = template {config, board, rules, winTitle} state where
                         g [] $  ----- todo
                             (zip guards (state^._nextmove)) <#> \(from /\ to) →
                                 getCoordsOfEdge graph (from ↔ to) <??> \{px1, px2, py1, py2} →
-                                    line 
-                                    [   -- key?
-                                        x1 $ show (100.0 * px1)
-                                    ,   y1 $ show (100.0 * py1)
-                                    ,   x2 $ show (100.0 * px2)
-                                    ,   y2 $ show (100.0 * py2)
-                                    ,   class_ "dessin-line2"
-                                    ]
+                                    drawArrow (px1 * 100.0) (px2 * 100.0) (py1 * 100.0) (py2 * 100.0)
                 ,   g [] $ 
                         graph.vertices # mapWithIndex \i {x, y} →
                             circle $
-                            [   key $ "v" <> show i
+                            [   key $ show i
                             ,   cx $ show (100.0 * x)
                             ,   cy $ show (100.0 * y)
                             ,   r "3"
                             ,   fill "blue"
-                            --,   onclick' $ if grules == ManyGuards && isJust position.attacked then Nothing else Just (Play i)
-                            ]  {-<> (dndItemProps state
-                                {   draggable: grules == ManyGuards && isJust position.attacked
-                                ,   droppable: true
-                                ,   id: i
-                                ,   currentDragged: state^._draggedGuard
-                                }
-                            )
-                            -}
+                            ]
                 ,   g [] $
                         guards # mapWithIndex \i index →
                             use "#roman" $
-                            [   key $ "g" <> show i
+                            [   key $ show i
                             ,   width "6"
                             ,   height "12"
                             ,   x_ "-3"
@@ -157,7 +173,7 @@ view state = template {config, board, rules, winTitle} state where
                 ,   g [] $ 
                         graph.vertices # mapWithIndex \i pos →
                             rect $
-                            [   key $ "v" <> show i
+                            [   key $ show i
                             ,   width "10"
                             ,   height "10"
                             ,   x_ "-5"
@@ -166,7 +182,7 @@ view state = template {config, board, rules, winTitle} state where
                             ,   style "transform" $ translateGuard pos
                             ,   onclick' $ if grules == ManyGuards && isJust position.attacked then Nothing else Just (Play i)
                             ]  <> (dndItemProps state
-                                {   draggable: grules == ManyGuards && isJust position.attacked
+                                {   draggable: grules == ManyGuards && isJust position.attacked && elem i guards
                                 ,   droppable: true
                                 ,   id: i
                                 ,   currentDragged: state^._draggedGuard

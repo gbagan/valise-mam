@@ -7,10 +7,10 @@ import Game.Core (CoreMsg(SetPointer), isLevelFinished, PointerPosition, core, _
 import Game.Eternal.Model (State, Msg(..), Graph, Phase(..), Rules(..), GraphKind(..), Pos, Edge, (↔), isValidNextMove, _graph, _phase, _graphkind, _draggedGuard, _rules, _nextmove)
 import Pha (VDom, Prop, key, text, maybeN, (<&&>), (<??>), class_, class', style)
 import Pha.Attributes (disabled)
-import Pha.Elements (div, button, span, br)
+import Pha.Elements (br, button, div, span)
 import Pha.Events (on, onclick, onclick', releasePointerCaptureOn, stopPropagationOn, onpointerup, onpointerleave)
 import Pha.Events.Decoder (always)
-import Pha.Svg (svg, g, line, circle, viewBox, use, fill, width, height, x_, y_, x1, x2, y1, y2, cx, cy, r)
+import Pha.Svg (svg, g, line, rect, circle, viewBox, use, fill, width, height, x_, y_, x1, x2, y1, y2, cx, cy, r)
 import Pha.Util (translate, pc)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
@@ -123,14 +123,15 @@ view state = template {config, board, rules, winTitle} state where
                             ,   cy $ show (100.0 * y)
                             ,   r "3"
                             ,   fill "blue"
-                            ,   onclick' $ if grules == ManyGuards && isJust position.attacked then Nothing else Just (Play i)
-                            ]  <> (dndItemProps state
+                            --,   onclick' $ if grules == ManyGuards && isJust position.attacked then Nothing else Just (Play i)
+                            ]  {-<> (dndItemProps state
                                 {   draggable: grules == ManyGuards && isJust position.attacked
                                 ,   droppable: true
                                 ,   id: i
                                 ,   currentDragged: state^._draggedGuard
                                 }
                             )
+                            -}
                 ,   g [] $
                         guards # mapWithIndex \i index →
                             use "#roman" $
@@ -141,14 +142,7 @@ view state = template {config, board, rules, winTitle} state where
                             ,   y_ "-6"
                             ,   class_ "eternal-guard"
                             ,   style "transform" $ fromMaybe "none" (translateGuard <$> getCoords graph index)
-                            ] {- <> (dndItemProps state
-                                {   draggable: grules == ManyGuards && isJust position.attacked
-                                ,   droppable: true
-                                ,   id: index
-                                ,   currentDragged: state^._draggedGuard
-                                }
-                            )
-                            -}
+                            ]
                 ,   maybeN $ position.attacked <#> \attack →
                         use "#eternal-attack"
                         [   key "attack"
@@ -160,6 +154,24 @@ view state = template {config, board, rules, winTitle} state where
                         ,   style "pointer-events" "none"
                         ]
                 ,   maybeN $ cursor <$> state^._pointer <*> state^._draggedGuard
+                ,   g [] $ 
+                        graph.vertices # mapWithIndex \i pos →
+                            rect $
+                            [   key $ "v" <> show i
+                            ,   width "10"
+                            ,   height "10"
+                            ,   x_ "-5"
+                            ,   y_ "-5"
+                            ,   fill "transparent"
+                            ,   style "transform" $ translateGuard pos
+                            ,   onclick' $ if grules == ManyGuards && isJust position.attacked then Nothing else Just (Play i)
+                            ]  <> (dndItemProps state
+                                {   draggable: grules == ManyGuards && isJust position.attacked
+                                ,   droppable: true
+                                ,   id: i
+                                ,   currentDragged: state^._draggedGuard
+                                }
+                            )
                 ]
             ,   span [class_ "eternal-info"] [
                     text (
@@ -184,9 +196,18 @@ view state = template {config, board, rules, winTitle} state where
     board = incDecGrid state [grid]
 
     rules = 
-        [   text "Le but du jeu est de dessiner le motif indiqué en pointillé en levant le moins souvent possible le crayon."
+        [   text "Domination Eternelle est un jeu à deux joueurs: un attaquant et un défenseur."
         ,   br
-        ,   text "Pour lever le crayon, tu peux cliquer sur le bouton prévu pour ou utiliser le clic droit."
+        ,   text "Au début de la partie, le défenseur choisit des sommets sur lesquels poser des gardes."
+        ,   br
+        ,   text "Ensuite, à chaque tour, l'attaquant choisit d'attaquer un sommet puis le défenseur doit déplacer un de ses gardes"
+        ,   text " vers le sommet attaqué mais celui doit ête adjacent au garde."
+        ,   br
+        ,   text "Si le défenseur ne peut pas déplacer de garde, il perd la partie."
+        ,   br
+        ,   text "La partie peut ne pas avoir de fin. Le but est de déterminer le nombre minimum de gardes pour défendre infiniment toute attaque."
+        ,   br
+        ,   text "Dans une variante, le défenseur peut déplacer plusieurs gardes à chaque tour."
         ]
 
     winTitle = "Perdu"

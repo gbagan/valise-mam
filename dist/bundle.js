@@ -10318,7 +10318,7 @@ var PS = {};
       };
   };
   var view = function (state) {
-      var rules = [ Pha.text("Le but du jeu est de dessiner le motif indiqu\xe9 en pointill\xe9 en levant le moins souvent possible le crayon."), Pha_Elements.br, Pha.text("Pour lever le crayon, tu peux cliquer sur le bouton pr\xe9vu pour ou utiliser le clic droit.") ];
+      var rules = [ Pha.text("Domination Eternelle est un jeu \xe0 deux joueurs: un attaquant et un d\xe9fenseur."), Pha_Elements.br, Pha.text("Au d\xe9but de la partie, le d\xe9fenseur choisit des sommets sur lesquels poser des gardes."), Pha_Elements.br, Pha.text("Ensuite, \xe0 chaque tour, l'attaquant choisit d'attaquer un sommet puis le d\xe9fenseur doit d\xe9placer un de ses gardes"), Pha.text(" vers le sommet attaqu\xe9 mais celui doit \xeate adjacent au garde."), Pha_Elements.br, Pha.text("Si le d\xe9fenseur ne peut pas d\xe9placer de garde, il perd la partie."), Pha_Elements.br, Pha.text("La partie peut ne pas avoir de fin. Le but est de d\xe9terminer le nombre minimum de gardes pour d\xe9fendre infiniment toute attaque."), Pha_Elements.br, Pha.text("Dans une variante, le d\xe9fenseur peut d\xe9placer plusieurs gardes \xe0 chaque tour.") ];
       var position = Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget));
       var guards = (Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).guards;
       var grules = Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_rules"](Data_Lens_Internal_Forget.strongForget));
@@ -10335,9 +10335,19 @@ var PS = {};
           }));
       }), Pha_Svg.g([  ])(Data_Array.mapWithIndex(function (i) {
           return function (v) {
-              return Pha_Svg.circle(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key("v" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.cx(Data_Show.show(Data_Show.showNumber)(100.0 * v.x)), Pha_Svg.cy(Data_Show.show(Data_Show.showNumber)(100.0 * v.y)), Pha_Svg.r("3"), Pha_Svg.fill("blue"), Pha_Events["onclick'"]((function () {
-                  var $52 = Data_Eq.eq(Game_Eternal_Model.eqrules)(grules)(Game_Eternal_Model.ManyGuards.value) && Data_Maybe.isJust(position.attacked);
-                  if ($52) {
+              return Pha_Svg.circle([ Pha.key("v" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.cx(Data_Show.show(Data_Show.showNumber)(100.0 * v.x)), Pha_Svg.cy(Data_Show.show(Data_Show.showNumber)(100.0 * v.y)), Pha_Svg.r("3"), Pha_Svg.fill("blue") ]);
+          };
+      })(graph.vertices)), Pha_Svg.g([  ])(Data_Array.mapWithIndex(function (i) {
+          return function (index) {
+              return Pha_Svg.use("#roman")([ Pha.key("g" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.width("6"), Pha_Svg.height("12"), Pha_Svg.x_("-3"), Pha_Svg.y_("-6"), Pha.class_("eternal-guard"), Pha.style("transform")(Data_Maybe.fromMaybe("none")(Data_Functor.map(Data_Maybe.functorMaybe)(translateGuard)(getCoords(graph)(index)))) ]);
+          };
+      })(guards)), Pha.maybeN(Data_Functor.mapFlipped(Data_Maybe.functorMaybe)(position.attacked)(function (attack) {
+          return Pha_Svg.use("#eternal-attack")([ Pha.key("attack"), Pha_Svg.width("8"), Pha_Svg.height("8"), Pha_Svg.x_("-4"), Pha_Svg.y_("-4"), Pha.style("transform")(Data_Maybe.fromMaybe("none")(Data_Functor.map(Data_Maybe.functorMaybe)(translateGuard)(getCoords(graph)(attack)))), Pha.style("pointer-events")("none") ]);
+      })), Pha.maybeN(Control_Apply.apply(Data_Maybe.applyMaybe)(Data_Functor.map(Data_Maybe.functorMaybe)(cursor)(Data_Lens_Getter.viewOn(state)(Game_Core["_pointer"](Data_Lens_Internal_Forget.strongForget))))(Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_draggedGuard"](Data_Lens_Internal_Forget.strongForget)))), Pha_Svg.g([  ])(Data_Array.mapWithIndex(function (i) {
+          return function (pos) {
+              return Pha_Svg.rect(Data_Semigroup.append(Data_Semigroup.semigroupArray)([ Pha.key("v" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.width("10"), Pha_Svg.height("10"), Pha_Svg.x_("-5"), Pha_Svg.y_("-5"), Pha_Svg.fill("transparent"), Pha.style("transform")(translateGuard(pos)), Pha_Events["onclick'"]((function () {
+                  var $54 = Data_Eq.eq(Game_Eternal_Model.eqrules)(grules)(Game_Eternal_Model.ManyGuards.value) && Data_Maybe.isJust(position.attacked);
+                  if ($54) {
                       return Data_Maybe.Nothing.value;
                   };
                   return new Data_Maybe.Just(new Game_Eternal_Model.Play(i));
@@ -10348,13 +10358,7 @@ var PS = {};
                   currentDragged: Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_draggedGuard"](Data_Lens_Internal_Forget.strongForget))
               })));
           };
-      })(graph.vertices)), Pha_Svg.g([  ])(Data_Array.mapWithIndex(function (i) {
-          return function (index) {
-              return Pha_Svg.use("#roman")([ Pha.key("g" + Data_Show.show(Data_Show.showInt)(i)), Pha_Svg.width("6"), Pha_Svg.height("12"), Pha_Svg.x_("-3"), Pha_Svg.y_("-6"), Pha.class_("eternal-guard"), Pha.style("transform")(Data_Maybe.fromMaybe("none")(Data_Functor.map(Data_Maybe.functorMaybe)(translateGuard)(getCoords(graph)(index)))) ]);
-          };
-      })(guards)), Pha.maybeN(Data_Functor.mapFlipped(Data_Maybe.functorMaybe)(position.attacked)(function (attack) {
-          return Pha_Svg.use("#eternal-attack")([ Pha.key("attack"), Pha_Svg.width("8"), Pha_Svg.height("8"), Pha_Svg.x_("-4"), Pha_Svg.y_("-4"), Pha.style("transform")(Data_Maybe.fromMaybe("none")(Data_Functor.map(Data_Maybe.functorMaybe)(translateGuard)(getCoords(graph)(attack)))), Pha.style("pointer-events")("none") ]);
-      })), Pha.maybeN(Control_Apply.apply(Data_Maybe.applyMaybe)(Data_Functor.map(Data_Maybe.functorMaybe)(cursor)(Data_Lens_Getter.viewOn(state)(Game_Core["_pointer"](Data_Lens_Internal_Forget.strongForget))))(Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_draggedGuard"](Data_Lens_Internal_Forget.strongForget)))) ]), Pha_Elements.span([ Pha.class_("eternal-info") ])([ Pha.text((function () {
+      })(graph.vertices)) ]), Pha_Elements.span([ Pha.class_("eternal-info") ])([ Pha.text((function () {
           var $55 = Game_Core.isLevelFinished(Game_Eternal_Model.game)(state);
           if ($55) {
               return "Le sommet attaqu\xe9 ne peut \xeatre d\xe9fendu";

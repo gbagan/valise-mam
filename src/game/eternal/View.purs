@@ -229,4 +229,4 @@ view state = template {config, board, rules, winTitle} state where
         ,   text "Dans une variante, le défenseur peut déplacer plusieurs gardes à chaque tour."
         ]
 
-    winTitle = "Perdu"
+    winTitle = "L'attaquant gagne"

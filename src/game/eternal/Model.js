@@ -225,10 +225,12 @@ exports.guardsAnswerAux = nothing => just => edsgraph => guards => attack => {
     return just(minBy(fperms, l => countBy(l, (guard, i) => guard !== guards[i])))
 };
 
-exports.attackerAnswer = arenaGraph => conf => {
+exports.attackerAnswerAux = nothing => just => arenaGraph => conf => {
+    if(!arenaGraph.attractor.has(conf.toString()))
+        return nothing;
     const attacks = arenaGraph.adj.get(conf.toString())
     const minattack = minBy(attacks, attack => arenaGraph.attractor.get(attack.toString()) || 1000)
-    return minattack[minattack.length-1];
+    return just(minattack[minattack.length-1]);
 }
 
 exports.makeEDSAux = n => edges => rulesName => k => {

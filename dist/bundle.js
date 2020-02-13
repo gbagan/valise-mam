@@ -9782,10 +9782,12 @@ var PS = {};
       return just(minBy(fperms, l => countBy(l, (guard, i) => guard !== guards[i])))
   };
 
-  exports.attackerAnswer = arenaGraph => conf => {
+  exports.attackerAnswerAux = nothing => just => arenaGraph => conf => {
+      if(!arenaGraph.attractor.has(conf.toString()))
+          return nothing;
       const attacks = arenaGraph.adj.get(conf.toString())
       const minattack = minBy(attacks, attack => arenaGraph.attractor.get(attack.toString()) || 1000)
-      return minattack[minattack.length-1];
+      return just(minattack[minattack.length-1]);
   }
 
   exports.makeEDSAux = n => edges => rulesName => k => {
@@ -9849,6 +9851,7 @@ var PS = {};
   var Game_Core = $PS["Game.Core"];
   var Lib_Util = $PS["Lib.Util"];
   var $$Math = $PS["Math"];
+  var Pha_Random = $PS["Pha.Random"];
   var Pha_Update = $PS["Pha.Update"];
   var Run = $PS["Run"];                
   var OneGuard = (function () {
@@ -10027,8 +10030,8 @@ var PS = {};
   var withcore = new Game_Core.MsgWithCore(Core.create);
   var toggleGuard = function (x) {
       return function (l) {
-          var $72 = Data_Foldable.elem(Data_Foldable.foldableArray)(Data_Eq.eqInt)(x)(l);
-          if ($72) {
+          var $74 = Data_Foldable.elem(Data_Foldable.foldableArray)(Data_Eq.eqInt)(x)(l);
+          if ($74) {
               return Data_Array.filter(function (v) {
                   return v !== x;
               })(l);
@@ -10123,8 +10126,8 @@ var PS = {};
                       y: v.value1
                   };
               }))((function () {
-                  var $78 = Data_Eq.eq(eqrules)(rules)(OneGuard.value);
-                  if ($78) {
+                  var $80 = Data_Eq.eq(eqrules)(rules)(OneGuard.value);
+                  if ($80) {
                       return "one";
                   };
                   return "many";
@@ -10169,6 +10172,7 @@ var PS = {};
           edges: Data_Array.snoc(g.edges)(new Edge(0, n - 1 | 0))
       };
   };
+  var attackerAnswer = $foreign.attackerAnswerAux(Data_Maybe.Nothing.value)(Data_Maybe.Just.create);
   var addToNextMove = function (edges) {
       return function (from) {
           return function (to) {
@@ -10182,12 +10186,12 @@ var PS = {};
                           if (v instanceof Data_Maybe.Just) {
                               return Data_Lens_Setter.set(Data_Lens_Index.ix(Data_Lens_Index.indexArray)(v.value0)(Data_Lens_Internal_Wander.wanderFunction))(to)(dests);
                           };
-                          throw new Error("Failed pattern match at Game.Eternal.Model (line 199, column 9 - line 201, column 41): " + [ v.constructor.name ]);
+                          throw new Error("Failed pattern match at Game.Eternal.Model (line 204, column 9 - line 206, column 41): " + [ v.constructor.name ]);
                       };
                       if (Data_Boolean.otherwise) {
                           return dests;
                       };
-                      throw new Error("Failed pattern match at Game.Eternal.Model (line 196, column 1 - line 196, column 75): " + [ edges.constructor.name, from.constructor.name, to.constructor.name, srcs.constructor.name, dests.constructor.name ]);
+                      throw new Error("Failed pattern match at Game.Eternal.Model (line 201, column 1 - line 201, column 75): " + [ edges.constructor.name, from.constructor.name, to.constructor.name, srcs.constructor.name, dests.constructor.name ]);
                   };
               };
           };
@@ -10206,17 +10210,17 @@ var PS = {};
       })(dictStrong);
   };
   var _ext$prime = function (dictStrong) {
-      var $153 = Game_Core["_ext"](dictStrong);
-      var $154 = Data_Lens_Iso.iso(function (v) {
+      var $158 = Game_Core["_ext"](dictStrong);
+      var $159 = Data_Lens_Iso.iso(function (v) {
           return v;
       })(Ext)(dictStrong.Profunctor0());
-      return function ($155) {
-          return $153($154($155));
+      return function ($160) {
+          return $158($159($160));
       };
   };
   var _graph = function (dictStrong) {
-      var $156 = _ext$prime(dictStrong);
-      var $157 = Data_Lens_Lens.lens(function (v) {
+      var $161 = _ext$prime(dictStrong);
+      var $162 = Data_Lens_Lens.lens(function (v) {
           return v.graph;
       })(function (v) {
           return function (v1) {
@@ -10231,8 +10235,8 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($158) {
-          return $156($157($158));
+      return function ($163) {
+          return $161($162($163));
       };
   };
   var isValidNextMove = function (st) {
@@ -10249,12 +10253,12 @@ var PS = {};
                   return v1.value0 === v1.value1 || Data_Foldable.elem(Data_Foldable.foldableArray)(eqEdge)(v1)(edges);
               })(moveEdges) && Data_Array.length(Data_Array.nub(Data_Ord.ordInt)(dests)) === Data_Array.length(dests));
           };
-          throw new Error("Failed pattern match at Game.Eternal.Model (line 125, column 5 - line 134, column 50): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Eternal.Model (line 131, column 5 - line 140, column 50): " + [ v.constructor.name ]);
       };
   };
   var _graphkind = function (dictStrong) {
-      var $159 = _ext$prime(dictStrong);
-      var $160 = Data_Lens_Lens.lens(function (v) {
+      var $164 = _ext$prime(dictStrong);
+      var $165 = Data_Lens_Lens.lens(function (v) {
           return v.graphkind;
       })(function (v) {
           return function (v1) {
@@ -10269,13 +10273,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($161) {
-          return $159($160($161));
+      return function ($166) {
+          return $164($165($166));
       };
   };
   var _nextmove = function (dictStrong) {
-      var $162 = _ext$prime(dictStrong);
-      var $163 = Data_Lens_Lens.lens(function (v) {
+      var $167 = _ext$prime(dictStrong);
+      var $168 = Data_Lens_Lens.lens(function (v) {
           return v.nextmove;
       })(function (v) {
           return function (v1) {
@@ -10290,13 +10294,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($164) {
-          return $162($163($164));
+      return function ($169) {
+          return $167($168($169));
       };
   };
   var _phase = function (dictStrong) {
-      var $165 = _ext$prime(dictStrong);
-      var $166 = Data_Lens_Lens.lens(function (v) {
+      var $170 = _ext$prime(dictStrong);
+      var $171 = Data_Lens_Lens.lens(function (v) {
           return v.phase;
       })(function (v) {
           return function (v1) {
@@ -10311,13 +10315,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($167) {
-          return $165($166($167));
+      return function ($172) {
+          return $170($171($172));
       };
   };
   var _rules = function (dictStrong) {
-      var $168 = _ext$prime(dictStrong);
-      var $169 = Data_Lens_Lens.lens(function (v) {
+      var $173 = _ext$prime(dictStrong);
+      var $174 = Data_Lens_Lens.lens(function (v) {
           return v.rules;
       })(function (v) {
           return function (v1) {
@@ -10332,13 +10336,13 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($170) {
-          return $168($169($170));
+      return function ($175) {
+          return $173($174($175));
       };
   };
   var _draggedGuard = function (dictStrong) {
-      var $171 = _ext$prime(dictStrong);
-      var $172 = Data_Lens_Lens.lens(function (v) {
+      var $176 = _ext$prime(dictStrong);
+      var $177 = Data_Lens_Lens.lens(function (v) {
           return v.draggedGuard;
       })(function (v) {
           return function (v1) {
@@ -10353,8 +10357,8 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($173) {
-          return $171($172($173));
+      return function ($178) {
+          return $176($177($178));
       };
   };
   var dragGuard = function (to) {
@@ -10367,12 +10371,12 @@ var PS = {};
               var to2 = Data_Maybe.fromMaybe(v.value0)(to);
               return Data_Lens_Setter.set(_draggedGuard(Data_Profunctor_Strong.strongFn))(Data_Maybe.Nothing.value)(Data_Lens_Setter.over(_nextmove(Data_Profunctor_Strong.strongFn))(addToNextMove((Data_Lens_Getter.viewOn(st)(_graph(Data_Lens_Internal_Forget.strongForget))).edges)(v.value0)(to2)((Data_Lens_Getter.viewOn(st)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).guards))(st));
           };
-          throw new Error("Failed pattern match at Game.Eternal.Model (line 206, column 5 - line 210, column 123): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Eternal.Model (line 211, column 5 - line 215, column 123): " + [ v.constructor.name ]);
       };
   };
   var _arena = function (dictStrong) {
-      var $174 = _ext$prime(dictStrong);
-      var $175 = Data_Lens_Lens.lens(function (v) {
+      var $179 = _ext$prime(dictStrong);
+      var $180 = Data_Lens_Lens.lens(function (v) {
           return v.arena;
       })(function (v) {
           return function (v1) {
@@ -10387,19 +10391,34 @@ var PS = {};
               };
           };
       })(dictStrong);
-      return function ($176) {
-          return $174($175($176));
+      return function ($181) {
+          return $179($180($181));
       };
   };
   var game = new Game_Core.Game(function (st) {
-      var v = new Data_Tuple.Tuple(Data_Lens_Getter.viewOn(st)(_arena(Data_Lens_Internal_Forget.strongForget)), (Data_Lens_Getter.viewOn(st)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).attacked);
-      if (v.value0 instanceof Data_Maybe.Just && v.value1 instanceof Data_Maybe.Just) {
-          return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Functor.map(Data_Maybe.functorMaybe)(Defense.create)(guardsAnwser(v.value0.value0)((Data_Lens_Getter.viewOn(st)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).guards)(v.value1.value0)));
+      if (Game_Core.isLevelFinished(game)(st)) {
+          return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Maybe.Nothing.value);
       };
-      if (v.value0 instanceof Data_Maybe.Just && v.value1 instanceof Data_Maybe.Nothing) {
-          return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Maybe.Just.create(Attack.create($foreign.attackerAnswer(v.value0.value0)((Data_Lens_Getter.viewOn(st)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).guards))));
+      if (Data_Boolean.otherwise) {
+          var v = new Data_Tuple.Tuple(Data_Lens_Getter.viewOn(st)(_arena(Data_Lens_Internal_Forget.strongForget)), (Data_Lens_Getter.viewOn(st)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).attacked);
+          if (v.value0 instanceof Data_Maybe.Just && v.value1 instanceof Data_Maybe.Just) {
+              return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Functor.map(Data_Maybe.functorMaybe)(Defense.create)(guardsAnwser(v.value0.value0)((Data_Lens_Getter.viewOn(st)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).guards)(v.value1.value0)));
+          };
+          if (v.value0 instanceof Data_Maybe.Just && v.value1 instanceof Data_Maybe.Nothing) {
+              var v1 = attackerAnswer(v.value0.value0)((Data_Lens_Getter.viewOn(st)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).guards);
+              if (v1 instanceof Data_Maybe.Just) {
+                  return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(new Data_Maybe.Just(new Attack(v1.value0)));
+              };
+              if (v1 instanceof Data_Maybe.Nothing) {
+                  return Pha_Random["element'"](Data_Functor.mapFlipped(Data_Functor.functorArray)(Data_Array.filter(function (i) {
+                      return !Data_Foldable.elem(Data_Foldable.foldableArray)(Data_Eq.eqInt)(i)((Data_Lens_Getter.viewOn(st)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).guards);
+                  })(Lib_Util["range'"](0)(Data_Array.length((Data_Lens_Getter.viewOn(st)(_graph(Data_Lens_Internal_Forget.strongForget))).vertices) - 1 | 0)))(Attack.create));
+              };
+              throw new Error("Failed pattern match at Game.Eternal.Model (line 185, column 17 - line 190, column 45): " + [ v1.constructor.name ]);
+          };
+          return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Maybe.Nothing.value);
       };
-      return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Maybe.Nothing.value);
+      throw new Error("Failed pattern match at Game.Eternal.Model (line 142, column 1 - line 196, column 31): " + [ st.constructor.name ]);
   }, function (v) {
       return Control_Applicative.pure(Control_Monad_Free.freeApplicative)({
           guards: [  ],
@@ -10417,7 +10436,7 @@ var PS = {};
               return !Data_Foldable.elem(Data_Foldable.foldableArray)(eqEdge)(new Edge(guard, v.value0))(edges);
           })(guards);
       };
-      throw new Error("Failed pattern match at Game.Eternal.Model (line 177, column 9 - line 180, column 72): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Eternal.Model (line 175, column 9 - line 178, column 72): " + [ v.constructor.name ]);
   }, function (state) {
       var state2 = Data_Lens_Setter.set(_draggedGuard(Data_Profunctor_Strong.strongFn))(Data_Maybe.Nothing.value)(Data_Lens_Setter.set(_phase(Data_Profunctor_Strong.strongFn))(PrepPhase.value)(Data_Lens_Setter.set(_nextmove(Data_Profunctor_Strong.strongFn))([  ])(state)));
       var v = Data_Lens_Getter.viewOn(state)(_graphkind(Data_Lens_Internal_Forget.strongForget));
@@ -10430,14 +10449,14 @@ var PS = {};
       if (v instanceof Grid) {
           return Control_Applicative.pure(Control_Monad_Free.freeApplicative)(Data_Lens_Setter.set(_graph(Data_Profunctor_Strong.strongFn))(grid(Data_Lens_Getter.viewOn(state)(Game_Core["_nbRows"](Data_Lens_Internal_Forget.strongForget)))(Data_Lens_Getter.viewOn(state)(Game_Core["_nbColumns"](Data_Lens_Internal_Forget.strongForget))))(state2));
       };
-      throw new Error("Failed pattern match at Game.Eternal.Model (line 168, column 9 - line 171, column 87): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Eternal.Model (line 166, column 9 - line 169, column 87): " + [ v.constructor.name ]);
   }, function (state) {
       return function (v) {
           if (v instanceof Defense) {
               var v1 = (Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).attacked;
               if (v1 instanceof Data_Maybe.Just) {
-                  var $118 = isValidNextMove(state)(v.value0);
-                  if ($118) {
+                  var $123 = isValidNextMove(state)(v.value0);
+                  if ($123) {
                       return new Data_Maybe.Just({
                           attacked: Data_Maybe.Nothing.value,
                           guards: v.value0
@@ -10448,8 +10467,8 @@ var PS = {};
               return Data_Maybe.Nothing.value;
           };
           if (v instanceof Attack) {
-              var $121 = Data_Foldable.elem(Data_Foldable.foldableArray)(Data_Eq.eqInt)(v.value0)((Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).guards) || Data_Maybe.isJust((Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).attacked);
-              if ($121) {
+              var $126 = Data_Foldable.elem(Data_Foldable.foldableArray)(Data_Eq.eqInt)(v.value0)((Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).guards) || Data_Maybe.isJust((Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).attacked);
+              if ($126) {
                   return Data_Maybe.Nothing.value;
               };
               return Data_Maybe.Just.create((function () {
@@ -10460,7 +10479,7 @@ var PS = {};
                   };
               })());
           };
-          throw new Error("Failed pattern match at Game.Eternal.Model (line 144, column 1 - line 190, column 31): " + [ state.constructor.name, v.constructor.name ]);
+          throw new Error("Failed pattern match at Game.Eternal.Model (line 142, column 1 - line 196, column 31): " + [ state.constructor.name, v.constructor.name ]);
       };
   }, function (st) {
       var v = Data_Lens_Getter.viewOn(st)(_graphkind(Data_Lens_Internal_Forget.strongForget));
@@ -10481,7 +10500,7 @@ var PS = {};
               if (v1 instanceof Data_List_Types.Cons) {
                   return Data_Lens_Setter.set(_nextmove(Data_Profunctor_Strong.strongFn))(v1.value0.guards)(Data_Lens_Setter.over(Game_Core["_redoHistory"](Data_Profunctor_Strong.strongFn))(Data_List_Types.Cons.create(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))))(Data_Lens_Setter.set(Game_Core["_history"](Data_Profunctor_Strong.strongFn))(v1.value1)(Data_Lens_Setter.set(Game_Core["_position"](Data_Profunctor_Strong.strongFn))(v1.value0)(Game_Core.changeTurn(state)))));
               };
-              throw new Error("Failed pattern match at Game.Eternal.Model (line 219, column 38 - line 226, column 38): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at Game.Eternal.Model (line 224, column 38 - line 231, column 38): " + [ v1.constructor.name ]);
           });
       };
       if (v instanceof Core && v.value0 instanceof Game_Core.Redo) {
@@ -10493,7 +10512,7 @@ var PS = {};
               if (v1 instanceof Data_List_Types.Cons) {
                   return Data_Lens_Setter.set(_nextmove(Data_Profunctor_Strong.strongFn))(v1.value0.guards)(Data_Lens_Setter.over(Game_Core["_history"](Data_Profunctor_Strong.strongFn))(Data_List_Types.Cons.create(Data_Lens_Getter.viewOn(state)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))))(Data_Lens_Setter.set(Game_Core["_redoHistory"](Data_Profunctor_Strong.strongFn))(v1.value1)(Data_Lens_Setter.set(Game_Core["_position"](Data_Profunctor_Strong.strongFn))(v1.value0)(Game_Core.changeTurn(state)))));
               };
-              throw new Error("Failed pattern match at Game.Eternal.Model (line 228, column 38 - line 235, column 38): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at Game.Eternal.Model (line 233, column 38 - line 240, column 38): " + [ v1.constructor.name ]);
           });
       };
       if (v instanceof Core && v.value0 instanceof Game_Core.Reset) {
@@ -10505,7 +10524,7 @@ var PS = {};
               if (v1 instanceof Data_Maybe.Just) {
                   return Data_Lens_Setter.set(_nextmove(Data_Profunctor_Strong.strongFn))(v1.value0.guards)(Data_Lens_Setter.set(Game_Core["_turn"](Data_Profunctor_Strong.strongFn))(Game_Core.Turn1.value)(Data_Lens_Setter.set(Game_Core["_redoHistory"](Data_Profunctor_Strong.strongFn))(Data_List_Types.Nil.value)(Data_Lens_Setter.set(Game_Core["_history"](Data_Profunctor_Strong.strongFn))(Data_List_Types.Nil.value)(Data_Lens_Setter.set(Game_Core["_position"](Data_Profunctor_Strong.strongFn))(v1.value0)(state)))));
               };
-              throw new Error("Failed pattern match at Game.Eternal.Model (line 237, column 39 - line 243, column 44): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at Game.Eternal.Model (line 242, column 39 - line 248, column 44): " + [ v1.constructor.name ]);
           });
       };
       if (v instanceof Core) {
@@ -10513,23 +10532,23 @@ var PS = {};
       };
       if (v instanceof SetGraphKind) {
           return Game_Core.newGame(game)((function () {
-              var $177 = Data_Lens_Setter.set(_graphkind(Data_Profunctor_Strong.strongFn))(v.value0);
-              var $178 = (function () {
+              var $182 = Data_Lens_Setter.set(_graphkind(Data_Profunctor_Strong.strongFn))(v.value0);
+              var $183 = (function () {
                   if (v.value0 instanceof Grid) {
-                      var $180 = Data_Lens_Setter.set(Game_Core["_nbRows"](Data_Profunctor_Strong.strongFn))(3);
-                      var $181 = Data_Lens_Setter.set(Game_Core["_nbColumns"](Data_Profunctor_Strong.strongFn))(3);
-                      return function ($182) {
-                          return $180($181($182));
+                      var $185 = Data_Lens_Setter.set(Game_Core["_nbRows"](Data_Profunctor_Strong.strongFn))(3);
+                      var $186 = Data_Lens_Setter.set(Game_Core["_nbColumns"](Data_Profunctor_Strong.strongFn))(3);
+                      return function ($187) {
+                          return $185($186($187));
                       };
                   };
-                  var $183 = Data_Lens_Setter.set(Game_Core["_nbRows"](Data_Profunctor_Strong.strongFn))(6);
-                  var $184 = Data_Lens_Setter.set(Game_Core["_nbColumns"](Data_Profunctor_Strong.strongFn))(0);
-                  return function ($185) {
-                      return $183($184($185));
+                  var $188 = Data_Lens_Setter.set(Game_Core["_nbRows"](Data_Profunctor_Strong.strongFn))(6);
+                  var $189 = Data_Lens_Setter.set(Game_Core["_nbColumns"](Data_Profunctor_Strong.strongFn))(0);
+                  return function ($190) {
+                      return $188($189($190));
                   };
               })();
-              return function ($179) {
-                  return $177($178($179));
+              return function ($184) {
+                  return $182($183($184));
               };
           })());
       };
@@ -10539,8 +10558,8 @@ var PS = {};
       if (v instanceof StartGame) {
           return Pha_Update.purely(function (st) {
               return Data_Lens_Setter.set(_arena(Data_Profunctor_Strong.strongFn))((function () {
-                  var $140 = Data_Eq.eq(Game_Core.eqMode)(Data_Lens_Getter.viewOn(st)(Game_Core["_mode"](Data_Lens_Internal_Forget.strongForget)))(Game_Core.DuelMode.value);
-                  if ($140) {
+                  var $145 = Data_Eq.eq(Game_Core.eqMode)(Data_Lens_Getter.viewOn(st)(Game_Core["_mode"](Data_Lens_Internal_Forget.strongForget)))(Game_Core.DuelMode.value);
+                  if ($145) {
                       return Data_Maybe.Nothing.value;
                   };
                   return Data_Maybe.Just.create(makeEDS(Data_Array.length((Data_Lens_Getter.viewOn(st)(_graph(Data_Lens_Internal_Forget.strongForget))).vertices))((Data_Lens_Getter.viewOn(st)(_graph(Data_Lens_Internal_Forget.strongForget))).edges)(Data_Lens_Getter.viewOn(st)(_rules(Data_Lens_Internal_Forget.strongForget)))(Data_Array.length((Data_Lens_Getter.viewOn(st)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).guards)));
@@ -10573,10 +10592,10 @@ var PS = {};
               var v1 = new Data_Tuple.Tuple(Data_Lens_Getter.viewOn(st)(_phase(Data_Lens_Internal_Forget.strongForget)), (Data_Lens_Getter.viewOn(st)(Game_Core["_position"](Data_Lens_Internal_Forget.strongForget))).attacked);
               if (v1.value0 instanceof PrepPhase) {
                   return Pha_Update.purely(Data_Lens_Setter.over((function () {
-                      var $186 = Game_Core["_position"](Data_Profunctor_Strong.strongFn);
-                      var $187 = _guards(Data_Profunctor_Strong.strongFn);
-                      return function ($188) {
-                          return $186($187($188));
+                      var $191 = Game_Core["_position"](Data_Profunctor_Strong.strongFn);
+                      var $192 = _guards(Data_Profunctor_Strong.strongFn);
+                      return function ($193) {
+                          return $191($192($193));
                       };
                   })())(toggleGuard(v.value0)));
               };
@@ -10586,10 +10605,10 @@ var PS = {};
               if (v1.value0 instanceof GamePhase && v1.value1 instanceof Data_Maybe.Nothing) {
                   return Game_Core.playA(game)(new Attack(v.value0));
               };
-              throw new Error("Failed pattern match at Game.Eternal.Model (line 275, column 5 - line 278, column 49): " + [ v1.constructor.name ]);
+              throw new Error("Failed pattern match at Game.Eternal.Model (line 280, column 5 - line 283, column 49): " + [ v1.constructor.name ]);
           });
       };
-      throw new Error("Failed pattern match at Game.Eternal.Model (line 218, column 1 - line 218, column 33): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Game.Eternal.Model (line 223, column 1 - line 223, column 33): " + [ v.constructor.name ]);
   };
   exports["Edge"] = Edge;
   exports["Path"] = Path;
@@ -10879,7 +10898,7 @@ var PS = {};
           config: config,
           board: board,
           rules: rules,
-          winTitle: "Perdu"
+          winTitle: "L'attaquant gagne"
       })(state);
   };
   exports["view"] = view;

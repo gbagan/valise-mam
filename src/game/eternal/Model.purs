@@ -1,13 +1,15 @@
 module Game.Eternal.Model where
 
 import MyPrelude
-
 import Data.List (List(..))
 import Data.List as L
-import Game.Core (class Game, class MsgWithCore, CoreMsg(Undo, Redo, Reset), GState, SizeLimit(..), Turn(..), Mode(..), playA, coreUpdate, _ext, genState, newGame, _position, _mode, _nbRows, _nbColumns, _history, _redoHistory, _turn, changeTurn)
+import Data.Newtype (overF)
+import Game.Core (class Game, class MsgWithCore, CoreMsg(Undo, Redo, Reset), GState, SizeLimit(..), Turn(..), Mode(..),
+                    playA, coreUpdate, _ext, genState, newGame, isLevelFinished,
+                    _position, _mode, _nbRows, _nbColumns, _history, _redoHistory, _turn, changeTurn)
 import Game.Effs (EFFS)
-import Lib.KonamiCode (konamiCode)
-import Lib.Util (repeat, repeat2)
+import Pha.Random as R
+import Lib.Util (repeat, repeat2, (..))
 import Pha.Update (Update, getState, purely)
 
 data Edge = Edge Int Int
@@ -67,12 +69,16 @@ graphs = [house, ex1, ex2, ex3, cross]
 foreign import data Arena :: Type
 foreign import makeEDSAux :: Int → Array {x :: Int, y :: Int} → String → Int → Arena
 foreign import guardsAnswerAux :: Maybe Int → (Int → Maybe Int) → Arena → Array Int → Int → Maybe (Array Int)
-foreign import attackerAnswer :: Arena → Array Int → Int
-guardsAnwser :: Arena -> Array Int -> Int -> Maybe (Array Int)
+foreign import attackerAnswerAux :: Maybe Int → (Int → Maybe Int) → Arena → Array Int → Maybe Int
+
+guardsAnwser :: Arena → Array Int → Int→  Maybe (Array Int)
 guardsAnwser = guardsAnswerAux Nothing Just
 
-makeEDS :: Int -> Array Edge -> Rules -> Int -> Arena
-makeEDS n edges rules = makeEDSAux n (edges <#> \(x ↔ y) -> {x, y})  (if rules == OneGuard then "one" else "many")
+attackerAnswer :: Arena → Array Int → Maybe Int
+attackerAnswer = attackerAnswerAux Nothing Just
+
+makeEDS :: Int → Array Edge → Rules → Int → Arena
+makeEDS n edges rules = makeEDSAux n (edges <#> \(x ↔ y) → {x, y})  (if rules == OneGuard then "one" else "many")
 
 type Ext' = 
     {   graph ∷ Graph
@@ -133,14 +139,6 @@ isValidNextMove st dests =
             && (moveEdges # all \edge@(from↔to) -> from == to || elem edge edges)
             && length (nub dests) == length dests
 
-{-
-moveGuards ∷ Array Int → Multimove → Array Int
-moveGuards guards multimove = guards <#> \guard →
-    case multimove # find \{from, to} → from == guard of
-        Nothing → guard
-        Just {from, to} → to
--}
-
 instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState Move where
     play state (Defense nextmove) =
         case (state^._position).attacked of
@@ -179,16 +177,23 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
             Just attack →
                 guards # all \guard → not (elem (guard ↔ attack) edges)
 
-    computerMove st = case (st^._arena /\ (st^._position).attacked) of
-        Just arena /\ Just attack → pure $ Defense <$> guardsAnwser arena (st^._position).guards attack
-        Just arena /\ Nothing → pure $ Just $ Attack $ attackerAnswer arena (st^._position).guards
-        _ → pure Nothing
+    computerMove st
+        | isLevelFinished st = pure Nothing
+        | otherwise = case (st^._arena /\ (st^._position).attacked) of
+            Just arena /\ Just attack → pure $ Defense <$> guardsAnwser arena (st^._position).guards attack
+            Just arena /\ Nothing →
+                case attackerAnswer arena (st^._position).guards of
+                    Just attack → pure $ Just (Attack attack)
+                    Nothing → (0 .. (length (st^._graph).vertices - 1)) 
+                                # filter (\i → not (elem i (st^._position).guards))
+                                <#> Attack
+                                # R.element'
+            _ → pure Nothing
 
     sizeLimit st = case st^._graphkind of
         Grid → SizeLimit 2 2 6 6
         _ → SizeLimit 3 0 10 0
     updateScore st = st ∧ true
-
 
 toggleGuard ∷ Int → Array Int → Array Int
 toggleGuard x l = if elem x l then filter (_ /= x) l else l `snoc` x

@@ -1,12 +1,13 @@
 module Game.Eternal.Model where
 
 import MyPrelude
-import Game.Core (class Game, class MsgWithCore, CoreMsg(Undo, Redo, Reset), GState, SizeLimit(..), Turn(..), Mode(..),
-                  playA, coreUpdate, _ext, genState, newGame, _position, _mode, _nbRows, _history, _redoHistory, _turn, changeTurn)
+
 import Data.List (List(..))
 import Data.List as L
+import Game.Core (class Game, class MsgWithCore, CoreMsg(Undo, Redo, Reset), GState, SizeLimit(..), Turn(..), Mode(..), playA, coreUpdate, _ext, genState, newGame, _position, _mode, _nbRows, _nbColumns, _history, _redoHistory, _turn, changeTurn)
 import Game.Effs (EFFS)
-import Lib.Util (repeat)
+import Lib.KonamiCode (konamiCode)
+import Lib.Util (repeat, repeat2)
 import Pha.Update (Update, getState, purely)
 
 data Edge = Edge Int Int
@@ -18,7 +19,7 @@ type Pos = { x ∷ Number, y ∷ Number }
 -- | une structure Graph est composée d'une liste des arêtes et de la position de chaque sommet dans le plan
 type Graph = {vertices ∷ Array Pos, edges ∷ Array Edge }
 
-data GraphKind = Path | Cycle
+data GraphKind = Path | Cycle | Grid
 derive instance eqgkind ∷ Eq GraphKind
 
 data Rules = OneGuard | ManyGuards
@@ -46,6 +47,18 @@ path n =
 cycle ∷ Int → Graph
 cycle n = g { edges = g.edges `snoc` (0 ↔ (n-1)) }
     where g = path n
+
+grid ∷ Int → Int → Graph
+grid n m =
+    let p = max n m in
+    {   vertices: repeat2 n m \i j →
+            {   x: 0.15 + 0.7 * toNumber i / toNumber (p-1)
+            ,   y: 0.1 + 0.7 * toNumber j / toNumber (p-1)
+            }
+    ,   edges: (repeat2 n (m-1) \i j → (i*m+j) ↔ (i*m+j+1))
+                <> (repeat2 (n-1) m \i j → (i*m+j) ↔ (i*m+j+m))
+    }
+
 {- 
 graphs ∷ Array Graph
 graphs = [house, ex1, ex2, ex3, cross]
@@ -153,8 +166,9 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
                         # _draggedGuard .~ Nothing
         in
         case state^._graphkind of
-            Path -> pure (state2 # _graph .~ path (state^._nbRows))
-            Cycle -> pure(state2 # _graph .~ cycle (state^._nbRows))
+            Path → pure (state2 # _graph .~ path (state^._nbRows))
+            Cycle → pure (state2 # _graph .~ cycle (state^._nbRows))
+            Grid → pure (state2 # _graph .~ grid (state^._nbRows) (state^._nbColumns))
 
     isLevelFinished state =
         let guards = (state^._position).guards 
@@ -169,7 +183,9 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
         Just arena /\ Just attack → pure $ Defense <$> guardsAnwser arena (st^._position).guards attack
         _ → pure Nothing
 
-    sizeLimit = const (SizeLimit 3 0 10 0)
+    sizeLimit st = case st^._graphkind of
+        Grid → SizeLimit 2 2 6 6
+        _ → SizeLimit 3 0 10 0
     updateScore st = st ∧ true
 
 
@@ -226,16 +242,23 @@ update (Core Reset) = purely \state → case L.last (state^._history) of
                     # _nextmove .~ x.guards
 
 update (Core msg) = coreUpdate msg
-update (SetGraphKind kind) = newGame (_graphkind .~ kind)
+update (SetGraphKind kind) = newGame ((_graphkind .~ kind) <<< ( 
+                                        case kind of
+                                            Grid → (_nbRows .~ 3) <<< (_nbColumns .~ 3)
+                                            _ → (_nbRows .~ 6) <<< (_nbColumns .~ 0)
+                                    ))
 update (SetRules rules) = newGame (_rules .~ rules)
-update StartGame = purely $ \st -> st 
+update StartGame = purely $ \st → st 
                                     # _phase .~ GamePhase 
                                     # _nextmove .~ (st^._position).guards
-                                    -- todo size à la place de st^._nbRows
                                     # _arena .~ if st^._mode == DuelMode then
                                                     Nothing 
                                                 else 
-                                                    Just $ makeEDS (st^._nbRows) (st^._graph).edges (st^._rules) (length (st^._position).guards)
+                                                    Just $ makeEDS 
+                                                        (length (st^._graph).vertices)
+                                                        (st^._graph).edges
+                                                        (st^._rules)
+                                                        (length (st^._position).guards)
 update MoveGuards = do
     st <- getState
     playA $ Defense (st^._nextmove)

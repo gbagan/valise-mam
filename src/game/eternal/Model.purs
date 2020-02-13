@@ -3,7 +3,6 @@ module Game.Eternal.Model where
 import MyPrelude
 import Data.List (List(..))
 import Data.List as L
-import Data.Newtype (overF)
 import Game.Core (class Game, class MsgWithCore, CoreMsg(Undo, Redo, Reset), GState, SizeLimit(..), Turn(..), Mode(..),
                     playA, coreUpdate, _ext, genState, newGame, isLevelFinished,
                     _position, _mode, _nbRows, _nbColumns, _history, _redoHistory, _turn, changeTurn)
@@ -61,21 +60,16 @@ grid n m =
                 <> (repeat2 (n-1) m \i j → (i*m+j) ↔ (i*m+j+m))
     }
 
-{- 
-graphs ∷ Array Graph
-graphs = [house, ex1, ex2, ex3, cross]
--}
-
 foreign import data Arena :: Type
 foreign import makeEDSAux :: Int → Array {x :: Int, y :: Int} → String → Int → Arena
 foreign import guardsAnswerAux :: Maybe Int → (Int → Maybe Int) → Arena → Array Int → Int → Maybe (Array Int)
 foreign import attackerAnswerAux :: Maybe Int → (Int → Maybe Int) → Arena → Array Int → Maybe Int
 
 guardsAnwser :: Arena → Array Int → Int→  Maybe (Array Int)
-guardsAnwser = guardsAnswerAux Nothing Just
+guardsAnwser arena guards = guardsAnswerAux Nothing Just arena (sort guards)
 
 attackerAnswer :: Arena → Array Int → Maybe Int
-attackerAnswer = attackerAnswerAux Nothing Just
+attackerAnswer arena guards = attackerAnswerAux Nothing Just arena (sort guards)
 
 makeEDS :: Int → Array Edge → Rules → Int → Arena
 makeEDS n edges rules = makeEDSAux n (edges <#> \(x ↔ y) → {x, y})  (if rules == OneGuard then "one" else "many")
@@ -186,8 +180,8 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
                     Just attack → pure $ Just (Attack attack)
                     Nothing → (0 .. (length (st^._graph).vertices - 1)) 
                                 # filter (\i → not (elem i (st^._position).guards))
-                                <#> Attack
                                 # R.element'
+                                <#> map Attack
             _ → pure Nothing
 
     sizeLimit st = case st^._graphkind of

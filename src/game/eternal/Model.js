@@ -96,8 +96,6 @@ function* permutations(list) {
     }
 }
 
-
-
 const makeArenaGraph = arena => {
     const adj = new Map();
     const reverseAdj = new Map();
@@ -150,7 +148,8 @@ const computeAttractor = (arena, adj, reverseAdj) => {
 
 const answer = (arenaGraph, conf) => {
     const defs = arenaGraph.adj.get(conf.toString());
-    return maxBy(defs, conf2 => arenaGraph.attractor.get(conf2.toString() || -1000));
+    // on prilivégie les sommets qui ne sont pas dans l'attracteur
+    return maxBy(defs, conf2 => arenaGraph.attractor.get(conf2.toString())|| 1000);
 }
 
 

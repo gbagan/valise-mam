@@ -1,11 +1,85 @@
-﻿import {Map_dec} from '../util';
-//import {update} from '@fp';
-import {hasEdge} from '../graph/graph';
-import {allDifferent} from '@/lib/sorted';
-//import {all, countBy, filter, minBy, sortBy} from '@fp';
-import {hasEdge} from '../graph/graph';
+﻿const hasEdge = (graph, v, w) => graph[v].includes(w);
 
-import {permutations, sublists} from '../util';
+const addEdge = (graph, v, w) => {
+    graph[v].push(w);
+    graph[w].push(v);
+}
+
+const graphFromEdges = (n, edges) => {
+    const g = []
+    for (let i = 0; i < n; i++)
+        g.push([]);
+    edges.forEach(({x, y}) => addEdge(g, x, y));
+    return g;
+}
+
+const Map_dec = (map, key) => {
+    let v = map.get(key.toString()) - 1;
+    map.set(key.toString(), v);
+    return v;
+};
+
+const minBy = (list, fn) => {
+    let min = undefined;
+    let bestScore = Infinity;
+    let n = list.length;
+    for (let i = 0; i < n; i++) {
+        const x = list[i];
+        const score = fn(x);
+        if (score < bestScore) {
+            bestScore = score;
+            min = x;
+        } 
+    }
+    return min;
+};
+
+const countBy = (list, fn) => {
+    let count = 0;
+    let n = list.length;
+    for (let i = 0; i < n; i++) {
+        if (fn(list[i], i))
+            count++;
+    }
+    return count;
+};
+
+const allDifferent = list => {
+    let pred = null;
+    const n = list.length;
+    for (let i = 0; i < n; i++) {
+        const x = list[i];
+        if (x === pred)
+            return false;
+        pred = x;
+    }
+    return true;
+};
+
+
+function* sublists(n, k) {
+    if (k === 0) {
+        yield [];
+    } else if (k <= n) {
+        yield * sublists(n - 1, k);
+        for (const l of sublists(n - 1, k - 1)) {
+            yield l.concat(n - 1);
+        }
+    }
+}
+
+function* permutations(list) {
+    if (list.length <= 1) {
+        yield list;
+    } else {
+        for (let i = 0; i < list.length; i++) {
+            for (const perm of permutations(list.slice(0, i).concat(list.slice(i + 1, list.length)))) {
+                yield [list[i]].concat(perm);
+            }
+        }
+    }
+}
+
 
 
 const makeArenaGraph = arena => {
@@ -26,8 +100,8 @@ const makeArenaGraph = arena => {
         }
     }
     const attractor = computeAttractor(arena, adj, reverseAdj);
-    return { adj, reverseAdj, attractor, ...arena };
-};
+    return Object.assign({adj, reverseAdj, attractor}, arena);
+}
 
 const computeAttractor = (arena, adj, reverseAdj) => {
     const attractor = new Set();
@@ -47,7 +121,7 @@ const computeAttractor = (arena, adj, reverseAdj) => {
         const elem = stack.pop();
 
         for (const pred of reverseAdj.get(elem.toString())) {
-            const rpred = pred.toString();
+            const rpred = pred.toString()
             if (!attractor.has(rpred) &&  (arena.isAConf(pred) || Map_dec(deg, pred) === 0)) {
                 attractor.add(rpred);
                 stack.push(pred);
@@ -55,18 +129,9 @@ const computeAttractor = (arena, adj, reverseAdj) => {
         }
     }
     return attractor;
-};
+}
 
-export const startingConf = arenaGraph => {
-    for (const conf of arenaGraph.AConfs()) {
-        if (!arenaGraph.attractor.has(conf.toString())) {
-            return conf;
-        }
-    }
-    return null;
-};
-
-const answer = (arenaGraph, conf) =>
+const answer = (arenaGraph, conf) => 
     arenaGraph.adj.get(conf.toString()).find(conf2 => !arenaGraph.attractor.has(conf2.toString()));
 
 function * multiMoves(graph, conf, i) {
@@ -130,40 +195,39 @@ const allRules = {
     
 const makeRules = name => name === 'one' ? oneRules : allRules;
 
-
-/*
-export const guardsAnswer = (edsgraph, guards, attack) => {
-    const ans = answer(edsgraph, sortBy(x => x, guards).concat(attack));
+exports.guardsAnswerAux = nothing => just => edsgraph => guards => attack => {
+    const ans = answer(edsgraph, guards.slice().sort((a, b) => a - b).concat(attack));
     if (!ans) {
-        return null;
+        return nothing;
     }
-
-    const perms =  [...permutations(ans)];
-    return perms
-        |> filter(all((guard, i) => guard === guards[i] || hasEdge(edsgraph.graph, guard, guards[i])))
-        |> minBy(countBy((guard, i) => guard !== guards[i]))
+    const perms = [...permutations(ans)];
+    const fperms = perms.filter(x => x.every((guard, i) => guard === guards[i] || hasEdge(edsgraph.graph, guard, guards[i])))
+    return just(minBy(fperms, l => countBy(l, (guard, i) => guard !== guards[i])))
 };
-*/
 
-export const makeEDS = (graph, k, rulesName) => {
-    const rules = makeRules(rulesName);
-    const arena = {
-        AConfs: () => sublists(graph.length, k),
-        BConfs: function * () {
-            for (const conf of sublists(graph.length, k)) {
-                for (let i = 0; i < graph.length; i++) {
-                    if (!conf.includes(i)) {
-                        yield conf.concat(i);
-                    }
+exports.makeEDSAux = n => edges => rulesName => k => {
+    const graph = graphFromEdges(n, edges)
+    const rules = makeRules(rulesName)
+    function* bconfs () {
+        for (const conf of sublists(graph.length, k)) {
+            for (let i = 0; i < n; i++) {
+                if (!conf.includes(i)) {
+                    yield conf.concat(i);
                 }
             }
-        },
-        isAConf: conf => conf.length === k,
-        neighbors: conf => conf.length === k
+        }
+    }
+
+    const arena = {
+        AConfs: (() => sublists(graph.length, k)),
+        BConfs: bconfs,
+        isAConf: (conf => conf.length === k),
+        neighbors: (conf => conf.length === k
             ? rules.attackerPossibilities(graph, conf)
             : rules.guardsPossibilities(graph, conf)
+        )
     };
 
     const arenaGraph = makeArenaGraph(arena);
-    return { graph, ...arenaGraph };
+    return Object.assign({graph}, arenaGraph);
 };

@@ -14,7 +14,7 @@ import Pha.Events.Decoder (always)
 import Pha.Svg (svg, g, line, rect, circle, viewBox, use, path, fill, width, height, x_, y_, x1, x2, y1, y2, cx, cy, r)
 import Pha.Util (translate, pc)
 import UI.Icon (Icon(..))
-import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
+import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset, irules)
 import UI.Template (template, card, incDecGrid, svgCursorStyle)
 
 
@@ -115,6 +115,7 @@ view state = template {config, board, rules, winTitle} state where
                 OneGuard → _{icon = IconText "1", tooltip = Just "Un seul garde" }
                 ManyGuards → _{icon = IconText "∞", tooltip = Just "Plusieurs gardes" }
             )
+        ,   icons2Players state
         ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x → x state
         ]
 

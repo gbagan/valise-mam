@@ -1,8 +1,8 @@
 module Game.Eternal.Model where
 
 import MyPrelude
-import Game.Core (class Game, class MsgWithCore, CoreMsg(Undo, Redo, Reset), GState, SizeLimit(..), Turn(..),
-                  playA, coreUpdate, _ext, genState, newGame, _position, _nbRows, _history, _redoHistory, _turn, changeTurn)
+import Game.Core (class Game, class MsgWithCore, CoreMsg(Undo, Redo, Reset), GState, SizeLimit(..), Turn(..), Mode(..),
+                  playA, coreUpdate, _ext, genState, newGame, _position, _mode, _nbRows, _history, _redoHistory, _turn, changeTurn)
 import Data.List (List(..))
 import Data.List as L
 import Game.Effs (EFFS)
@@ -51,6 +51,16 @@ graphs ∷ Array Graph
 graphs = [house, ex1, ex2, ex3, cross]
 -}
 
+foreign import data Arena :: Type
+foreign import makeEDSAux :: Int -> Array {x :: Int, y :: Int} -> String -> Int -> Arena
+foreign import guardsAnswerAux :: Maybe Int -> (Int -> Maybe Int) -> Arena -> Array Int -> Int -> Maybe (Array Int)
+
+guardsAnwser :: Arena -> Array Int -> Int -> Maybe (Array Int)
+guardsAnwser = guardsAnswerAux Nothing Just
+
+makeEDS :: Int -> Array Edge -> Rules -> Int -> Arena
+makeEDS n edges rules = makeEDSAux n (edges <#> \(x ↔ y) -> {x, y})  (if rules == OneGuard then "one" else "many")
+
 type Ext' = 
     {   graph ∷ Graph
     ,   nextmove ∷ Array Int
@@ -58,6 +68,7 @@ type Ext' =
     ,   graphkind ∷ GraphKind
     ,   draggedGuard ∷ Maybe Int
     ,   rules ∷ Rules
+    ,   arena ∷ Maybe Arena
     }
 
 newtype ExtState = Ext Ext'
@@ -77,6 +88,8 @@ _graphkind ∷ Lens' State GraphKind
 _graphkind = _ext' ∘ lens _.graphkind _{graphkind = _}
 _rules ∷ Lens' State Rules
 _rules = _ext' ∘ lens _.rules _{rules = _}
+_arena ∷ Lens' State (Maybe Arena)
+_arena = _ext' ∘ lens _.arena _{arena = _}
 _draggedGuard ∷ Lens' State (Maybe Int)
 _draggedGuard = _ext' ∘ lens _.draggedGuard _{draggedGuard = _}
 
@@ -90,8 +103,8 @@ _attacked = lens _.attacked _{attacked = _}
 istate ∷ State
 istate = genState 
             {guards: [], attacked: Nothing}
-            _{nbRows = 6, customSize = true}
-            (Ext { graphkind: Path, graph: path 1, nextmove: [], phase: PrepPhase, draggedGuard: Nothing, rules: OneGuard})
+            _{nbRows = 6, customSize = true, mode = DuelMode}
+            (Ext { graphkind: Path, graph: path 1, nextmove: [], phase: PrepPhase, draggedGuard: Nothing, rules: OneGuard, arena: Nothing})
 
 
 isValidNextMove ∷ State → Array Int → Boolean
@@ -152,8 +165,10 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
             Just attack →
                 guards # all \guard → not (elem (guard ↔ attack) edges)
 
+    computerMove st = case (st^._arena /\ (st^._position).attacked) of
+        Just arena /\ Just attack → pure $ Defense <$> guardsAnwser arena (st^._position).guards attack
+        _ → pure Nothing
 
-    computerMove _ = pure Nothing
     sizeLimit = const (SizeLimit 3 0 10 0)
     updateScore st = st ∧ true
 
@@ -213,7 +228,14 @@ update (Core Reset) = purely \state → case L.last (state^._history) of
 update (Core msg) = coreUpdate msg
 update (SetGraphKind kind) = newGame (_graphkind .~ kind)
 update (SetRules rules) = newGame (_rules .~ rules)
-update StartGame = purely $ \st -> st # _phase .~ GamePhase # _nextmove .~ (st^._position).guards
+update StartGame = purely $ \st -> st 
+                                    # _phase .~ GamePhase 
+                                    # _nextmove .~ (st^._position).guards
+                                    -- todo size à la place de st^._nbRows
+                                    # _arena .~ if st^._mode == DuelMode then
+                                                    Nothing 
+                                                else 
+                                                    Just $ makeEDS (st^._nbRows) (st^._graph).edges (st^._rules) (length (st^._position).guards)
 update MoveGuards = do
     st <- getState
     playA $ Defense (st^._nextmove)

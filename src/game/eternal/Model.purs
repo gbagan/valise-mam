@@ -65,9 +65,9 @@ graphs = [house, ex1, ex2, ex3, cross]
 -}
 
 foreign import data Arena :: Type
-foreign import makeEDSAux :: Int -> Array {x :: Int, y :: Int} -> String -> Int -> Arena
-foreign import guardsAnswerAux :: Maybe Int -> (Int -> Maybe Int) -> Arena -> Array Int -> Int -> Maybe (Array Int)
-
+foreign import makeEDSAux :: Int → Array {x :: Int, y :: Int} → String → Int → Arena
+foreign import guardsAnswerAux :: Maybe Int → (Int → Maybe Int) → Arena → Array Int → Int → Maybe (Array Int)
+foreign import attackerAnswer :: Arena → Array Int → Int
 guardsAnwser :: Arena -> Array Int -> Int -> Maybe (Array Int)
 guardsAnwser = guardsAnswerAux Nothing Just
 
@@ -181,6 +181,7 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
 
     computerMove st = case (st^._arena /\ (st^._position).attacked) of
         Just arena /\ Just attack → pure $ Defense <$> guardsAnwser arena (st^._position).guards attack
+        Just arena /\ Nothing → pure $ Just $ Attack $ attackerAnswer arena (st^._position).guards
         _ → pure Nothing
 
     sizeLimit st = case st^._graphkind of

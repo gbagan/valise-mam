@@ -14,8 +14,8 @@ const graphFromEdges = (n, edges) => {
 }
 
 const Map_dec = (map, key) => {
-    let v = map.get(key.toString()) - 1;
-    map.set(key.toString(), v);
+    const v = map.get(key) - 1;
+    map.set(key, v);
     return v;
 };
 
@@ -33,6 +33,22 @@ const minBy = (list, fn) => {
     }
     return min;
 };
+
+const maxBy = (list, fn) => {
+    let max = undefined;
+    let bestScore = -Infinity;
+    let n = list.length;
+    for (let i = 0; i < n; i++) {
+        const x = list[i];
+        const score = fn(x);
+        if (score > bestScore) {
+            bestScore = score;
+            max = x;
+        } 
+    }
+    return max;
+};
+
 
 const countBy = (list, fn) => {
     let count = 0;
@@ -104,7 +120,7 @@ const makeArenaGraph = arena => {
 }
 
 const computeAttractor = (arena, adj, reverseAdj) => {
-    const attractor = new Set();
+    const attractor = new Map();
     const deg = new Map();
     const stack = [];
 
@@ -113,17 +129,18 @@ const computeAttractor = (arena, adj, reverseAdj) => {
         deg.set(conf.toString(), nbor.length);
         if (nbor.length === 0) { // final winning configurations for the attacker
             stack.push(conf);
-            attractor.add(conf.toString());
+            attractor.set(conf.toString(), 1);
         }
     }
 
     while (stack.length > 0) {
-        const elem = stack.pop();
-
-        for (const pred of reverseAdj.get(elem.toString())) {
+        const elem = stack.shift();
+        const strelem = elem.toString();
+        const elemval = attractor.get(strelem)
+        for (const pred of reverseAdj.get(strelem)) {
             const rpred = pred.toString()
-            if (!attractor.has(rpred) &&  (arena.isAConf(pred) || Map_dec(deg, pred) === 0)) {
-                attractor.add(rpred);
+            if (!attractor.has(rpred) &&  (arena.isAConf(pred) || Map_dec(deg, rpred) === 0)) {
+                attractor.set(rpred, elemval+1);
                 stack.push(pred);
             }
         }
@@ -131,8 +148,11 @@ const computeAttractor = (arena, adj, reverseAdj) => {
     return attractor;
 }
 
-const answer = (arenaGraph, conf) => 
-    arenaGraph.adj.get(conf.toString()).find(conf2 => !arenaGraph.attractor.has(conf2.toString()));
+const answer = (arenaGraph, conf) => {
+    const defs = arenaGraph.adj.get(conf.toString());
+    return maxBy(defs, conf2 => arenaGraph.attractor.get(conf2.toString() || -1000));
+}
+
 
 function * multiMoves(graph, conf, i) {
     if (i === conf.length) {
@@ -204,6 +224,12 @@ exports.guardsAnswerAux = nothing => just => edsgraph => guards => attack => {
     const fperms = perms.filter(x => x.every((guard, i) => guard === guards[i] || hasEdge(edsgraph.graph, guard, guards[i])))
     return just(minBy(fperms, l => countBy(l, (guard, i) => guard !== guards[i])))
 };
+
+exports.attackerAnswer = arenaGraph => conf => {
+    const attacks = arenaGraph.adj.get(conf.toString())
+    const minattack = minBy(attacks, attack => arenaGraph.attractor.get(attack.toString()) || 1000)
+    return minattack[minattack.length-1];
+}
 
 exports.makeEDSAux = n => edges => rulesName => k => {
     const graph = graphFromEdges(n, edges)

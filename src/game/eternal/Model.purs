@@ -191,6 +191,7 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
                         # _nextmove .~ [] 
                         # _phase .~ PrepPhase 
                         # _draggedGuard .~ Nothing
+                        # _arena .~ Nothing
         in
         case state^._graphkind of
             Path → pure (state2 # _graph .~ path (state^._nbRows))

@@ -13,12 +13,6 @@ const graphFromEdges = (n, edges) => {
     return g;
 }
 
-const Map_dec = (map, key) => {
-    const v = map.get(key) - 1;
-    map.set(key, v);
-    return v;
-};
-
 const minBy = (list, fn) => {
     let min = undefined;
     let bestScore = Infinity;
@@ -97,21 +91,21 @@ function* permutations(list) {
 }
 
 const makeArenaGraph = arena => {
-    const adj = new Map();
-    const reverseAdj = new Map();
+    const adj = new Array(arena.size);
+    const reverseAdj = new Array(arena.size);
     
     const confs = [...arena.AConfs(), ...arena.BConfs()];
 
     for (const conf of confs) {
         const econf = arena.encode(conf);
-        adj.set(econf, []);
-        reverseAdj.set(econf, []);
+        adj[econf] = [];
+        reverseAdj[econf] = []
     }
 
     for (const conf of confs) {
         for (const conf2 of arena.neighbors(conf)) {
-            adj.get(arena.encode(conf)).push(conf2);
-            reverseAdj.get(arena.encode(conf2)).push(conf);
+            adj[arena.encode(conf)].push(conf2);
+            reverseAdj[arena.encode(conf2)].push(conf);
         }
     }
     const attractor = computeAttractor(arena, adj, reverseAdj);
@@ -119,28 +113,28 @@ const makeArenaGraph = arena => {
 }
 
 const computeAttractor = (arena, adj, reverseAdj) => {
-    const attractor = new Map();
-    const deg = new Map();
+    const attractor = new Array(arena.size);
+    const deg = new Array(arena.size);
     const stack = [];
 
     for (const conf of arena.BConfs()) {
         const econf = arena.encode(conf)
-        const nbor = adj.get(econf);
-        deg.set(econf, nbor.length);
+        const nbor = adj[econf];
+        deg[econf] = nbor.length;
         if (nbor.length === 0) { // final winning configurations for the attacker
             stack.push(conf);
-            attractor.set(econf, 1);
+            attractor[econf] = 1;
         }
     }
 
     while (stack.length > 0) {
         const elem = stack.shift();
         const eelem = arena.encode(elem);
-        const elemval = attractor.get(eelem)
-        for (const pred of reverseAdj.get(eelem)) {
+        const elemval = attractor[eelem]
+        for (const pred of reverseAdj[eelem]) {
             const epred = arena.encode(pred)
-            if (!attractor.has(epred) &&  (arena.isAConf(pred) || Map_dec(deg, epred) === 0)) {
-                attractor.set(epred, elemval+1);
+            if (!attractor[epred] && (arena.isAConf(pred) || --deg[epred] === 0)) {
+                attractor[epred] = elemval+1;
                 stack.push(pred);
             }
         }
@@ -149,9 +143,9 @@ const computeAttractor = (arena, adj, reverseAdj) => {
 }
 
 const answer = (arenaGraph, conf) => {
-    const defs = arenaGraph.adj.get(arenaGraph.encode(conf));
+    const defs = arenaGraph.adj[arenaGraph.encode(conf)];
     // on prilivégie les sommets qui ne sont pas dans l'attracteur
-    return maxBy(defs, conf2 => arenaGraph.attractor.get(arenaGraph.encode(conf2)) || 1000);
+    return maxBy(defs, conf2 => arenaGraph.attractor[arenaGraph.encode(conf2)] || 1000);
 }
 
 
@@ -228,10 +222,10 @@ exports.guardsAnswerAux = nothing => just => edsgraph => guards => attack => {
 
 exports.attackerAnswerAux = nothing => just => arenaGraph => conf => {
     const econf = arenaGraph.encode(conf); 
-    if(!arenaGraph.attractor.has(econf))
+    if(!arenaGraph.attractor[econf])
         return nothing;
-    const attacks = arenaGraph.adj.get(econf)
-    const minattack = minBy(attacks, attack => arenaGraph.attractor.get(arenaGraph.encode(attack)) || 1000)
+    const attacks = arenaGraph.adj[econf]
+    const minattack = minBy(attacks, attack => arenaGraph.attractor[arenaGraph.encode(attack)] || 1000)
     return just(minattack[minattack.length-1]);
 }
 
@@ -249,6 +243,7 @@ exports.makeEDSAux = n => edges => rulesName => k => {
     }
 
     const arena = {
+        size: n << k,
         AConfs: (() => sublists(graph.length, k)),
         BConfs: bconfs,
         isAConf: (conf => conf.length === k),

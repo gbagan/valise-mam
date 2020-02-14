@@ -135,6 +135,7 @@ instance solitaireGame ∷ Game (Array Boolean) ExtState {from ∷ Int, to ∷ I
 
     computerMove _ = pure Nothing
     updateScore = updateScore' AlwaysShowWin
+    onPositionChange = identity
 
 instance scoregame ∷ ScoreGame (Array Boolean) ExtState {from ∷ Int, to ∷ Int} where
     objective _ = Minimize

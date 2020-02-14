@@ -167,6 +167,7 @@ instance labeteGame ∷ Game (Array Boolean) ExtState Int where
     sizeLimit _ = SizeLimit 2 2 9 9
     computerMove _ = pure Nothing
     updateScore = updateScore' ShowWinOnNewRecord
+    onPositionChange = identity
 
 instance scoregameLabete ∷ ScoreGame (Array Boolean) ExtState Int where
     objective _ = Minimize

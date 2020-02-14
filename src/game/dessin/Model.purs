@@ -112,6 +112,7 @@ instance game ∷ Game (Array (Maybe Int)) ExtState (Maybe Int) where
     isLevelFinished state = length (edgesOf (state^._position)) == length (state^._graph).edges
     computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
+    onPositionChange = identity
     updateScore st = st ∧ true
 
 -- | nombre de levés de crayon déjà effectués

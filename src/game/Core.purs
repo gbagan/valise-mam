@@ -119,6 +119,7 @@ class Game pos ext mov | ext → pos mov where
     sizeLimit ∷ GState pos ext → SizeLimit
     computerMove ∷ GState pos ext → Random (Maybe mov)
     onNewGame ∷ GState pos ext → Random (GState pos ext)
+    onPositionChange ∷ GState pos ext → GState pos ext
     updateScore ∷ GState pos ext → Tuple (GState pos ext) Boolean
 
 canPlay ∷ ∀pos ext mov. Game pos ext mov ⇒ GState pos ext → mov → Boolean
@@ -164,6 +165,7 @@ coreUpdate Undo = purely \state → case state^._history of
               # _position .~ h
               # _history .~ rest
               # _redoHistory %~ Cons (state^._position)
+              # onPositionChange
 
 coreUpdate Redo = purely \state → case state^._redoHistory of
     Nil → state
@@ -172,6 +174,7 @@ coreUpdate Redo = purely \state → case state^._redoHistory of
               # _position .~ h
               # _redoHistory .~ rest
               # _history %~ Cons (state^._position)
+              # onPositionChange
 
 coreUpdate Reset = purely \state → case L.last (state^._history) of
     Nothing → state
@@ -179,6 +182,7 @@ coreUpdate Reset = purely \state → case L.last (state^._history) of
                     # _history .~ Nil
                     # _redoHistory .~ Nil
                     # _turn .~ Turn1
+                    # onPositionChange
 
 coreUpdate ToggleHelp =  purely $ _help %~ not
 coreUpdate (SetMode mode) = newGame (_mode .~ mode)
@@ -209,6 +213,7 @@ playAux move state =
     play state move <#> \pos →
         state # _position .~ pos
               # _turn %~ oppositeTurn
+              # onPositionChange
 
 -- met dans l'historique la position actuelle
 pushToHistory ∷ ∀pos ext. GState pos ext → GState pos ext

@@ -57,6 +57,7 @@ instance tricolorGame ∷ Game (Array Int) ExtState Int where
     computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
     updateScore st = st ∧ true 
+    onPositionChange = identity
 
 data Msg = Core CoreMsg | Play Int | SetSize Int | SetNbColors Int | SetRange Int | SetHoverCell (Maybe Int)
 instance withcore ∷ MsgWithCore Msg where core = Core

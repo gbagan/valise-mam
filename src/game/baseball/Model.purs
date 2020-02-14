@@ -63,6 +63,7 @@ instance game ∷ Game (Array Int) ExtState Int where
     computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
     updateScore st = st ∧ true 
+    onPositionChange = identity
 
 data Msg = Core CoreMsg | SetNbBases Int | Play Int
 instance withcore ∷ MsgWithCore Msg where core = Core

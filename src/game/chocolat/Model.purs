@@ -58,6 +58,7 @@ instance game ∷ Game {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int
 
     sizeLimit = const (SizeLimit 4 4 10 10)
     computerMove = computerMove'
+    onPositionChange = identity
     updateScore st = st ∧ true
 
 instance game_ ∷ TwoPlayersGame {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int} ExtState Move where

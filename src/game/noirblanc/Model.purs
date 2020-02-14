@@ -96,6 +96,7 @@ instance noirblancGame ∷ Game { light ∷ Array Boolean, played ∷ Array Bool
     sizeLimit _ = SizeLimit 3 3 10 10
 
     updateScore st = st ∧ true
+    onPositionChange = identity
 
 sizes ∷ Array (Tuple Int Int)
 sizes = [3∧3, 4∧4, 2∧10, 3∧10, 5∧5, 8∧8, 8∧8]

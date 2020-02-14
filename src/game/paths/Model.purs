@@ -87,6 +87,7 @@ instance game ∷ Game (Array Int) Ext Int where
     computerMove _ = pure Nothing
     sizeLimit _ = SizeLimit 2 2 9 9
     updateScore st = st ∧ true
+    onPositionChange = identity
 
 data Msg = Core CoreMsg | SelectVertex Int | SelectMode Mode
 instance withcore ∷ MsgWithCore Msg where core = Core

@@ -127,7 +127,8 @@ instance queensGame ∷ Game (Array Piece) Ext Int where
     onNewGame state = pure $ state # _selectedPiece .~ N.head (state^._allowedPieces)
     sizeLimit _ = SizeLimit 3 3 9 9
     computerMove _ = pure Nothing
-    updateScore = updateScore' NeverShowWin 
+    updateScore = updateScore' NeverShowWin
+    onPositionChange = identity
 
 instance queensScoreGame ∷ ScoreGame (Array Piece) Ext Int where 
     objective _ = Maximize

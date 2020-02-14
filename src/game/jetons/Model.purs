@@ -56,6 +56,7 @@ instance game ∷ Game (Array Int) Ext { from ∷ Int, to ∷ Int } where
     computerMove _ = pure Nothing
     onNewGame = defaultOnNewGame
     updateScore = updateScore' AlwaysShowWin
+    onPositionChange = identity
 
 instance scoregame ∷ ScoreGame (Array Int) Ext { from ∷ Int, to ∷ Int } where
     objective state = Minimize

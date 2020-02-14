@@ -1,11 +1,9 @@
 module Game.Eternal.Model where
 
 import MyPrelude
-import Data.List (List(..))
-import Data.List as L
-import Game.Core (class Game, class MsgWithCore, CoreMsg(Undo, Redo, Reset), GState, SizeLimit(..), Turn(..), Mode(..),
+import Game.Core (class Game, class MsgWithCore, CoreMsg, GState, SizeLimit(..), Mode(..),
                     playA, coreUpdate, _ext, genState, newGame, isLevelFinished,
-                    _position, _mode, _nbRows, _nbColumns, _history, _redoHistory, _turn, changeTurn)
+                    _position, _mode, _nbRows, _nbColumns)
 import Game.Effs (EFFS)
 import Pha.Random as R
 import Lib.Util (repeat, repeat2, (..))
@@ -153,15 +151,32 @@ isValidNextMove st dests =
             && (moveEdges # all \edge@(from↔to) -> from == to || elem edge edges)
             && length (nub dests) == length dests
 
+startGame ∷ State → State
+startGame st = st  
+                # _phase .~ GamePhase 
+                # _nextmove .~ (st^._position).guards
+                # _arena %~ \arena →
+                                if isJust arena then
+                                    arena
+                                else if st^._mode == DuelMode then
+                                    Nothing 
+                                else 
+                                    Just $ makeEDS 
+                                        (length (st^._graph).vertices)
+                                        (st^._graph).edges
+                                        (st^._rules)
+                                        (length (st^._position).guards)
+
+
 instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState Move where
     play state (Defense nextmove) =
         case (state^._position).attacked of
-            Just attacked ->
+            Just attacked →
                 if isValidNextMove state nextmove then
                     Just {attacked: Nothing, guards: nextmove}
                 else
                     Nothing
-            _ -> Nothing
+            _ → Nothing
 
     play state (Attack x) =
         if elem x (state^._position).guards || isJust (state^._position).attacked then
@@ -206,10 +221,13 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
                                 <#> map Attack
             _ → pure Nothing
 
+    onPositionChange = startGame
+
     sizeLimit st = case st^._graphkind of
         Grid → SizeLimit 2 2 6 6
         Sun → SizeLimit 3 0 6 0
         _ → SizeLimit 3 0 11 0
+
     updateScore st = st ∧ true
 
 toggleGuard ∷ Int → Array Int → Array Int
@@ -238,32 +256,6 @@ data Msg = Core CoreMsg | SetGraphKind GraphKind | SetRules Rules
 instance withcore ∷ MsgWithCore Msg where core = Core
     
 update ∷ Msg → Update State EFFS
-update (Core Undo) = purely \state → case state^._history of
-    Nil → state
-    Cons h rest →
-        state # changeTurn
-              # _position .~ h
-              # _history .~ rest
-              # _redoHistory %~ Cons (state^._position)
-              # _nextmove .~ h.guards
-
-update (Core Redo) = purely \state → case state^._redoHistory of
-    Nil → state
-    Cons h rest →
-        state # changeTurn
-              # _position .~ h
-              # _redoHistory .~ rest
-              # _history %~ Cons (state^._position)
-              # _nextmove .~ h.guards
-
-update (Core Reset) = purely \state → case L.last (state^._history) of
-    Nothing → state
-    Just x → state # _position .~ x
-                    # _history .~ Nil
-                    # _redoHistory .~ Nil
-                    # _turn .~ Turn1
-                    # _nextmove .~ x.guards
-
 update (Core msg) = coreUpdate msg
 update (SetGraphKind kind) = newGame ((_graphkind .~ kind) <<< ( 
                                         case kind of
@@ -272,17 +264,7 @@ update (SetGraphKind kind) = newGame ((_graphkind .~ kind) <<< (
                                             _ → (_nbRows .~ 6) <<< (_nbColumns .~ 0)
                                     ))
 update (SetRules rules) = newGame (_rules .~ rules)
-update StartGame = purely $ \st → st 
-                                    # _phase .~ GamePhase 
-                                    # _nextmove .~ (st^._position).guards
-                                    # _arena .~ if st^._mode == DuelMode then
-                                                    Nothing 
-                                                else 
-                                                    Just $ makeEDS 
-                                                        (length (st^._graph).vertices)
-                                                        (st^._graph).edges
-                                                        (st^._rules)
-                                                        (length (st^._position).guards)
+update StartGame = purely startGame
 update MoveGuards = do
     st <- getState
     playA $ Defense (st^._nextmove)

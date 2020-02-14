@@ -62,6 +62,7 @@ instance nimGame ∷ Game (Array (Tuple Int Int)) ExtState Move where
     sizeLimit = defaultSizeLimit
     onNewGame = defaultOnNewGame
     updateScore st = st ∧ true
+    onPositionChange = identity
 
 instance nimGame2 ∷ TwoPlayersGame (Array (Tuple Int Int)) ExtState Move where
     possibleMoves state =

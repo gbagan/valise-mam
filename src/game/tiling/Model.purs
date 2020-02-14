@@ -133,7 +133,8 @@ instance tilingGame ∷ Game (Array Int) ExtState Int where
 
     onNewGame state = pure $ state # _tile .~ getTile state # _rotation .~ 0
     computerMove _ = pure Nothing
-    updateScore st = st ∧ true 
+    updateScore st = st ∧ true
+    onPositionChange = identity
   
 data Msg = Core CoreMsg | Play Int | PutSink Int | SetNbSinks Int | SetTile TileType | Rotate
            | SetHoverSquare (Maybe Int) | FlipTile Int

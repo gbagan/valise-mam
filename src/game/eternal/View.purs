@@ -4,8 +4,9 @@ import MyPrelude
 
 import Math (acos)
 import Game.Common (pointerDecoder)
-import Game.Core (CoreMsg(SetPointer), isLevelFinished, PointerPosition, core, _position, _pointer)
-import Game.Eternal.Model (State, Msg(..), Graph, Phase(..), Rules(..), GraphKind(..), Pos, Edge, (↔), isValidNextMove, _graph, _phase, _graphkind, _draggedGuard, _rules, _nextmove)
+import Game.Core (CoreMsg(SetPointer), Mode(..), isLevelFinished, PointerPosition, core, _position, _pointer, _mode)
+import Game.Eternal.Model (State, Msg(..), Graph, Phase(..), Rules(..), GraphKind(..), Pos, Edge, (↔), isValidNextMove,
+                            _graph, _phase, _graphkind, _draggedGuard, _rules, _nextmove)
 import Pha (VDom, Prop, key, text, maybeN, (<&&>), (<??>), class_, class', style)
 import Pha.Attributes (disabled)
 import Pha.Elements (br, button, div, span)
@@ -104,6 +105,7 @@ view state = template {config, board, rules, winTitle} state where
     graph = state^._graph
     guards = (state^._position).guards
     grules = state^._rules
+    phase = state^._phase
 
     config =    
         card "Domination éternelle" 
@@ -138,7 +140,7 @@ view state = template {config, board, rules, winTitle} state where
                                 ,   y2 $ show (100.0 * py2)
                                 ,   class_ "dessin-line1"
                                 ]
-                ,   grules == ManyGuards <&&> \_ →
+                ,   grules == ManyGuards && state^._mode == DuelMode <&&> \_ →
                         g [] $  ----- todo
                             (zip guards (state^._nextmove)) <#> \(from /\ to) →
                                 from /= to <&&> \_ →
@@ -162,6 +164,7 @@ view state = template {config, board, rules, winTitle} state where
                             ,   x_ "-3"
                             ,   y_ "-6"
                             ,   class_ "eternal-guard"
+                            ,   class' "no-move" (phase == PrepPhase)
                             ,   style "transform" $ fromMaybe "none" (translateGuard <$> getCoords graph index)
                             ]
                 ,   maybeN $ position.attacked <#> \attack →
@@ -198,7 +201,7 @@ view state = template {config, board, rules, winTitle} state where
                     text (
                         if isLevelFinished state then
                             "Le sommet attaqué ne peut être défendu"
-                        else if state^._phase == PrepPhase then
+                        else if phase == PrepPhase then
                             "Choisis la position initiale des gardes"
                         else if isJust (position.attacked) then
                             "Déplace un garde vers le sommet attaqué"
@@ -222,7 +225,7 @@ view state = template {config, board, rules, winTitle} state where
         ,   text "Au début de la partie, le défenseur choisit des sommets sur lesquels poser des gardes."
         ,   br
         ,   text "Ensuite, à chaque tour, l'attaquant choisit d'attaquer un sommet puis le défenseur doit déplacer un de ses gardes"
-        ,   text " vers le sommet attaqué mais celui doit ête adjacent au garde."
+        ,   text " vers le sommet attaqué à la condition que celui soit adjacent au garde."
         ,   br
         ,   text "Si le défenseur ne peut pas déplacer de garde, il perd la partie."
         ,   br

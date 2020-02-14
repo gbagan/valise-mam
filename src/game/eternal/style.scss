@@ -11,6 +11,9 @@
 .eternal-guard {
     transition: transform 0.5s linear;
     pointer-events: none;
+    &.no-move {
+        transition: none;
+    }
 }
 
 .eternal-info {

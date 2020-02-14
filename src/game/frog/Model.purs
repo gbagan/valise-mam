@@ -76,6 +76,7 @@ instance game ∷ Game Int ExtState Int where
     isLevelFinished state = state^._position == 0
     computerMove = computerMove'
     sizeLimit _ = SizeLimit 5 0 30 0
+    onPositionChange = identity
     updateScore st = st ∧ true
 
 instance game2 ∷ TwoPlayersGame Int ExtState Int where

@@ -20,7 +20,7 @@ type Pos = { x ∷ Number, y ∷ Number }
 -- | une structure Graph est composée d'une liste des arêtes et de la position de chaque sommet dans le plan
 type Graph = {vertices ∷ Array Pos, edges ∷ Array Edge }
 
-data GraphKind = Path | Cycle | Grid
+data GraphKind = Path | Cycle | Grid | Star | Sun
 derive instance eqgkind ∷ Eq GraphKind
 
 data Rules = OneGuard | ManyGuards
@@ -60,16 +60,36 @@ grid n m =
                 <> (repeat2 (n-1) m \i j → (i*m+j) ↔ (i*m+j+m))
     }
 
+star ∷ Int → Graph
+star n =
+    {   vertices: {x: 0.5, y: 0.5} `cons` repeat (n-1) \i → 
+            {   x: 0.50 + 0.35 * cos (toNumber i * 2.0 * pi / toNumber (n-1))
+            ,   y: 0.50 + 0.35 * sin (toNumber i * 2.0 * pi / toNumber (n-1))
+            }
+    ,   edges: repeat (n - 1) \i → (i + 1) ↔ 0
+    }
+
+sun ∷ Int → Graph
+sun n =
+    {   vertices: repeat (2*n) \i → 
+            {   x: 0.50 + (if even i then 0.2 else 0.4) * cos (toNumber i * 2.0 * pi / toNumber (2*n))
+            ,   y: 0.46 + (if even i then 0.2 else 0.4) * sin (toNumber i * 2.0 * pi / toNumber (2*n))
+            }
+    ,   edges: repeat2 (2*n) (2*n) (↔) 
+                # filter \(i ↔ j) → i < j && (i + 1 == j || (even i && even j) || (i == 0 && j == 2*n-1)) 
+    }
+
+
 foreign import data Arena :: Type
 foreign import makeEDSAux :: Int → Array {x :: Int, y :: Int} → String → Int → Arena
 foreign import guardsAnswerAux :: Maybe Int → (Int → Maybe Int) → Arena → Array Int → Int → Maybe (Array Int)
 foreign import attackerAnswerAux :: Maybe Int → (Int → Maybe Int) → Arena → Array Int → Maybe Int
 
 guardsAnwser :: Arena → Array Int → Int→  Maybe (Array Int)
-guardsAnwser arena guards = guardsAnswerAux Nothing Just arena (sort guards)
+guardsAnwser = guardsAnswerAux Nothing Just
 
 attackerAnswer :: Arena → Array Int → Maybe Int
-attackerAnswer arena guards = attackerAnswerAux Nothing Just arena (sort guards)
+attackerAnswer = attackerAnswerAux Nothing Just
 
 makeEDS :: Int → Array Edge → Rules → Int → Arena
 makeEDS n edges rules = makeEDSAux n (edges <#> \(x ↔ y) → {x, y})  (if rules == OneGuard then "one" else "many")
@@ -161,6 +181,8 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
             Path → pure (state2 # _graph .~ path (state^._nbRows))
             Cycle → pure (state2 # _graph .~ cycle (state^._nbRows))
             Grid → pure (state2 # _graph .~ grid (state^._nbRows) (state^._nbColumns))
+            Star → pure (state2 # _graph .~ star (state^._nbRows))
+            Sun → pure (state2 # _graph .~ sun (state^._nbRows))
 
     isLevelFinished state =
         let guards = (state^._position).guards 
@@ -186,7 +208,8 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
 
     sizeLimit st = case st^._graphkind of
         Grid → SizeLimit 2 2 6 6
-        _ → SizeLimit 3 0 10 0
+        Sun → SizeLimit 3 0 6 0
+        _ → SizeLimit 3 0 11 0
     updateScore st = st ∧ true
 
 toggleGuard ∷ Int → Array Int → Array Int
@@ -245,6 +268,7 @@ update (Core msg) = coreUpdate msg
 update (SetGraphKind kind) = newGame ((_graphkind .~ kind) <<< ( 
                                         case kind of
                                             Grid → (_nbRows .~ 3) <<< (_nbColumns .~ 3)
+                                            Sun → (_nbRows .~ 3) <<< (_nbColumns .~ 0)
                                             _ → (_nbRows .~ 6) <<< (_nbColumns .~ 0)
                                     ))
 update (SetRules rules) = newGame (_rules .~ rules)

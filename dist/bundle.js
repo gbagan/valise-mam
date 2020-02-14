@@ -10825,7 +10825,7 @@ var PS = {};
           return Pha.maybe(getCoordsOfEdge(graph)(edge))(function (v) {
               return Pha_Svg.line([ Pha_Svg.x1(Data_Show.show(Data_Show.showNumber)(100.0 * v.px1)), Pha_Svg.y1(Data_Show.show(Data_Show.showNumber)(100.0 * v.py1)), Pha_Svg.x2(Data_Show.show(Data_Show.showNumber)(100.0 * v.px2)), Pha_Svg.y2(Data_Show.show(Data_Show.showNumber)(100.0 * v.py2)), Pha.class_("dessin-line1") ]);
           });
-      })), Pha.when(Data_Eq.eq(Game_Eternal_Model.eqrules)(grules)(Game_Eternal_Model.ManyGuards.value) && Data_Eq.eq(Game_Core.eqMode)(Data_Lens_Getter.viewOn(state)(Game_Core["_mode"](Data_Lens_Internal_Forget.strongForget)))(Game_Core.DuelMode.value))(function (v) {
+      })), Pha.when(Data_Eq.eq(Game_Eternal_Model.eqrules)(grules)(Game_Eternal_Model.ManyGuards.value))(function (v) {
           return Pha_Svg.g([  ])(Data_Functor.mapFlipped(Data_Functor.functorArray)(Data_Array.zip(guards)(Data_Lens_Getter.viewOn(state)(Game_Eternal_Model["_nextmove"](Data_Lens_Internal_Forget.strongForget))))(function (v1) {
               return Pha.when(v1.value0 !== v1.value1)(function (v2) {
                   return Pha.maybe(getCoordsOfEdge(graph)(new Game_Eternal_Model.Edge(v1.value0, v1.value1)))(function (v3) {

@@ -4,7 +4,7 @@ import MyPrelude
 
 import Math (acos)
 import Game.Common (pointerDecoder)
-import Game.Core (CoreMsg(SetPointer), Mode(..), isLevelFinished, PointerPosition, core, _position, _pointer, _mode)
+import Game.Core (CoreMsg(SetPointer), isLevelFinished, PointerPosition, core, _position, _pointer)
 import Game.Eternal.Model (State, Msg(..), Graph, Phase(..), Rules(..), GraphKind(..), Pos, Edge, (↔), isValidNextMove,
                             _graph, _phase, _graphkind, _draggedGuard, _rules, _nextmove)
 import Pha (VDom, Prop, key, text, maybeN, (<&&>), (<??>), class_, class', style)
@@ -140,7 +140,7 @@ view state = template {config, board, rules, winTitle} state where
                                 ,   y2 $ show (100.0 * py2)
                                 ,   class_ "dessin-line1"
                                 ]
-                ,   grules == ManyGuards && state^._mode == DuelMode <&&> \_ →
+                ,   grules == ManyGuards <&&> \_ →
                         g [] $  ----- todo
                             (zip guards (state^._nextmove)) <#> \(from /\ to) →
                                 from /= to <&&> \_ →

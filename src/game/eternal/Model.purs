@@ -21,7 +21,7 @@ type Pos = { x ∷ Number, y ∷ Number }
 -- | une structure Graph est composée d'une liste des arêtes et de la position de chaque sommet dans le plan (entre 0 et 1)
 type Graph = {vertices ∷ Array Pos, edges ∷ Array Edge }
 
-data GraphKind = Path | Cycle | Grid | Star | Sun
+data GraphKind = Path | Cycle | Grid | Biclique | Sun
 derive instance eqgkind ∷ Eq GraphKind
 
 -- règles du jeu: un seul garde peut se déplacer ou bien plusieurs à chaque tour
@@ -79,6 +79,16 @@ star n =
     }
 
 -- | generate a sun graph
+biclique ∷ Int → Int → Graph
+biclique m n =
+    {   vertices: repeat (n+m) \i → 
+            {   x: if i < n then 0.2 else 0.8
+            ,   y: 0.75 - 0.7 * toNumber(if i < n then i else i - n) / toNumber (if i < n then n else m)
+            }
+    ,   edges: repeat2 n m \i j → i ↔ (j + n)
+    }
+
+-- | generate a sun graph
 sun ∷ Int → Graph
 sun n =
     {   vertices: repeat (2*n) \i → 
@@ -129,10 +139,8 @@ goodPermutation graph guards answer =
         # filter (\guards2 → and (zipWith (\x y → x == y || hasEdge x y graph) guards guards2))
         # minimumBy (comparing \guards2 → zipWith (\x y → x /= y) guards guards2 # filter identity # length)
 
-{-      
-const fperms = perms.filter(x => x.every((guard, i) => guard === guards[i] || hasEdge(edsgraph.graph, guard, guards[i])))
-    return just(minBy(fperms, l => countBy(l, (guard, i) => guard !== guards[i])))
--}
+
+---- définition du State
 
 type Ext' = 
     {   graph ∷ Graph
@@ -148,7 +156,7 @@ newtype ExtState = Ext Ext'
 
 type State = GState Position ExtState
 
--- lenses
+---- définition des lenses
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _graph ∷ Lens' State Graph
@@ -193,6 +201,7 @@ isValidNextMove st dests =
             && (moveEdges # all \edge@(from↔to) -> from == to || elem edge edges)
             && length (nub dests) == length dests
 
+-- fonction déclenchée entre le passage de la phase de préparation à celle de jeu
 startGame ∷ State → State
 startGame st = st  
                 # _phase .~ GamePhase 
@@ -239,7 +248,7 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
             Path → pure (state2 # _graph .~ path (state^._nbRows))
             Cycle → pure (state2 # _graph .~ cycle (state^._nbRows))
             Grid → pure (state2 # _graph .~ grid (state^._nbRows) (state^._nbColumns))
-            Star → pure (state2 # _graph .~ star (state^._nbRows))
+            Biclique → pure (state2 # _graph .~ biclique (state^._nbRows) (state^._nbColumns))
             Sun → pure (state2 # _graph .~ sun (state^._nbRows))
 
     isLevelFinished state =
@@ -276,6 +285,7 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
     sizeLimit st = case st^._graphkind of
         Grid → SizeLimit 2 2 6 6
         Sun → SizeLimit 3 0 6 0
+        Biclique → SizeLimit 1 1 6 6
         _ → SizeLimit 3 0 11 0
 
     updateScore st = st ∧ true
@@ -310,6 +320,7 @@ update (Core msg) = coreUpdate msg
 update (SetGraphKind kind) = newGame ((_graphkind .~ kind) <<< ( 
                                         case kind of
                                             Grid → (_nbRows .~ 3) <<< (_nbColumns .~ 3)
+                                            Biclique → (_nbRows .~ 4) <<< (_nbColumns .~ 1)
                                             Sun → (_nbRows .~ 3) <<< (_nbColumns .~ 0)
                                             _ → (_nbRows .~ 6) <<< (_nbColumns .~ 0)
                                     ))

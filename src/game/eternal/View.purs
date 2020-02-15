@@ -109,10 +109,10 @@ view state = template {config, board, rules, winTitle} state where
 
     config =    
         card "Domination éternelle" 
-        [   iconSelectGroup state "Type de graphe" [Path, Cycle, Star, Grid, Sun] (state^._graphkind) SetGraphKind (case _ of 
+        [   iconSelectGroup state "Type de graphe" [Path, Cycle, Biclique, Sun, Grid] (state^._graphkind) SetGraphKind (case _ of 
                 Path → _{icon = IconText "P", tooltip = Just "Chemin" }
                 Cycle → _{icon = IconText "C", tooltip = Just "Cycle" }
-                Star → _{icon = IconText "*", tooltip = Just "Etoile" }
+                Biclique → _{icon = IconText "*", tooltip = Just "Biclique" }
                 Grid → _{icon = IconText "G", tooltip = Just "Grille" }
                 Sun → _{icon = IconText "S", tooltip = Just "Soleil" }
             )

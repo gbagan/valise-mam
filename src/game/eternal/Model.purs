@@ -9,18 +9,22 @@ import Pha.Random as R
 import Lib.Util (repeat, repeat2, (..))
 import Pha.Update (Update, getState, purely)
 
+-- type d'arête d'un graphe
 data Edge = Edge Int Int
 infix 3 Edge as ↔
 instance eqEdge ∷ Eq Edge where
     eq (u1 ↔ v1) (u2 ↔ v2) = u1 == u2  && v1 == v2 || u1 == v2 && u2 == v1
+
+
 type Pos = { x ∷ Number, y ∷ Number }
 
--- | une structure Graph est composée d'une liste des arêtes et de la position de chaque sommet dans le plan
+-- | une structure Graph est composée d'une liste des arêtes et de la position de chaque sommet dans le plan (entre 0 et 1)
 type Graph = {vertices ∷ Array Pos, edges ∷ Array Edge }
 
 data GraphKind = Path | Cycle | Grid | Star | Sun
 derive instance eqgkind ∷ Eq GraphKind
 
+-- règles du jeu: un seul garde peut se déplacer ou bien plusieurs à chaque tour
 data Rules = OneGuard | ManyGuards
 derive instance eqrules ∷ Eq Rules
 
@@ -31,9 +35,13 @@ type Position = {guards ∷ Array Int, attacked ∷ Maybe Int}
 -- | soit un ensemble de déplacéments de gardes en cas de défense
 data Move = Attack Int | Defense (Array Int)
 
+-- | PrepPhase: phase de préparation (positionnement des gardes)
+-- | GamePhase: phase où le défenseur et l'attaquant jouent
+
 data Phase = PrepPhase | GamePhase
 derive instance eqPhase ∷ Eq Phase
 
+-- | generate a path graph
 path ∷ Int → Graph
 path n =
     {   vertices: repeat n \i → 
@@ -43,10 +51,12 @@ path n =
     ,   edges: repeat (n - 1) \i → i ↔ (i + 1)
     }
 
+-- | generate a cycle graph
 cycle ∷ Int → Graph
 cycle n = g { edges = g.edges `snoc` (0 ↔ (n-1)) }
     where g = path n
 
+-- | generate a grid graph
 grid ∷ Int → Int → Graph
 grid n m =
     let p = max n m in
@@ -58,6 +68,7 @@ grid n m =
                 <> (repeat2 (n-1) m \i j → (i*m+j) ↔ (i*m+j+m))
     }
 
+-- | generate a star graph
 star ∷ Int → Graph
 star n =
     {   vertices: {x: 0.5, y: 0.5} `cons` repeat (n-1) \i → 
@@ -67,6 +78,7 @@ star n =
     ,   edges: repeat (n - 1) \i → (i + 1) ↔ 0
     }
 
+-- | generate a sun graph
 sun ∷ Int → Graph
 sun n =
     {   vertices: repeat (2*n) \i → 
@@ -77,20 +89,50 @@ sun n =
                 # filter \(i ↔ j) → i < j && (i + 1 == j || (even i && even j) || (i == 0 && j == 2*n-1)) 
     }
 
+-- | représentation d'un graphe par liste d'adjacence
+type AdjGraph = Array (Array Int)
 
-foreign import data Arena :: Type
-foreign import makeEDSAux :: Int → Array {x :: Int, y :: Int} → String → Int → Arena
-foreign import guardsAnswerAux :: Maybe Int → (Int → Maybe Int) → Arena → Array Int → Int → Maybe (Array Int)
-foreign import attackerAnswerAux :: Maybe Int → (Int → Maybe Int) → Arena → Array Int → Maybe Int
+addEdge ∷ Edge → AdjGraph → AdjGraph
+addEdge (u ↔ v) graph = graph # ix u %~ (_ `snoc` v) # ix v %~ (_ `snoc` u)
 
-guardsAnwser :: Arena → Array Int → Int→  Maybe (Array Int)
-guardsAnwser = guardsAnswerAux Nothing Just
+edgesToGraph ∷ Int → Array Edge → AdjGraph
+edgesToGraph n = foldr addEdge (replicate n [])
 
-attackerAnswer :: Arena → Array Int → Maybe Int
+foreign import data Arena ∷ Type
+foreign import makeEDSAux ∷ AdjGraph → String → Int → Arena
+foreign import guardsAnswerAux ∷ Maybe Int → (Int → Maybe Int) → Arena → Array Int → Int → Maybe (Array Int)
+foreign import attackerAnswerAux ∷ Maybe Int → (Int → Maybe Int) → Arena → Array Int → Maybe Int
+
+guardsAnwser ∷ AdjGraph → Arena → Array Int → Int → Maybe (Array Int)
+guardsAnwser graph arena guards attack = guardsAnswerAux Nothing Just arena guards attack >>= goodPermutation graph guards 
+
+attackerAnswer ∷ Arena → Array Int → Maybe Int
 attackerAnswer = attackerAnswerAux Nothing Just
 
-makeEDS :: Int → Array Edge → Rules → Int → Arena
-makeEDS n edges rules = makeEDSAux n (edges <#> \(x ↔ y) → {x, y})  (if rules == OneGuard then "one" else "many")
+makeEDS ∷ Int → Array Edge → Rules → Int → Arena
+makeEDS n edges rules = makeEDSAux (edgesToGraph n edges) (if rules == OneGuard then "one" else "many")
+
+hasEdge ∷ Int → Int → AdjGraph → Boolean
+hasEdge u v graph = maybe false (elem v) (graph !! u)
+
+permutations ∷ Array Int → Array (Array Int)
+permutations t = case uncons t of
+    Nothing → [[]]
+    Just {head, tail} → do
+        p <- permutations tail
+        i <- 0 .. (length tail)
+        maybe [] pure (insertAt i head p)
+
+goodPermutation ∷ AdjGraph → Array Int → Array Int → Maybe (Array Int)
+goodPermutation graph guards answer =
+    permutations answer
+        # filter (\guards2 → and (zipWith (\x y → x == y || hasEdge x y graph) guards guards2))
+        # minimumBy (comparing \guards2 → zipWith (\x y → x /= y) guards guards2 # filter identity # length)
+
+{-      
+const fperms = perms.filter(x => x.every((guard, i) => guard === guards[i] || hasEdge(edsgraph.graph, guard, guards[i])))
+    return just(minBy(fperms, l => countBy(l, (guard, i) => guard !== guards[i])))
+-}
 
 type Ext' = 
     {   graph ∷ Graph
@@ -212,7 +254,14 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
     computerMove st
         | isLevelFinished st = pure Nothing
         | otherwise = case (st^._arena /\ (st^._position).attacked) of
-            Just arena /\ Just attack → pure $ Defense <$> guardsAnwser arena (st^._position).guards attack
+            Just arena /\ Just attack → pure $ Defense <$> guardsAnwser
+                                                            (edgesToGraph
+                                                                (length (st^._graph).vertices)
+                                                                (st^._graph).edges
+                                                            )
+                                                            arena
+                                                            (st^._position).guards
+                                                            attack
             Just arena /\ Nothing →
                 case attackerAnswer arena (st^._position).guards of
                     Just attack → pure $ Just (Attack attack)

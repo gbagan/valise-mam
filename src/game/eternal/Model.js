@@ -1,18 +1,5 @@
 ﻿const hasEdge = (graph, v, w) => graph[v].includes(w);
 
-const addEdge = (graph, v, w) => {
-    graph[v].push(w);
-    graph[w].push(v);
-}
-
-const graphFromEdges = (n, edges) => {
-    const g = []
-    for (let i = 0; i < n; i++)
-        g.push([]);
-    edges.forEach(({x, y}) => addEdge(g, x, y));
-    return g;
-}
-
 const minBy = (list, fn) => {
     let min = undefined;
     let bestScore = Infinity;
@@ -28,31 +15,7 @@ const minBy = (list, fn) => {
     return min;
 };
 
-const maxBy = (list, fn) => {
-    let max = undefined;
-    let bestScore = -100000;
-    let n = list.length;
-    for (let i = 0; i < n; i++) {
-        const x = list[i];
-        const score = fn(x);
-        if (score > bestScore) {
-            bestScore = score;
-            max = x;
-        } 
-    }
-    return max;
-};
-
-
-const countBy = (list, fn) => {
-    let count = 0;
-    let n = list.length;
-    for (let i = 0; i < n; i++) {
-        if (fn(list[i], i))
-            count++;
-    }
-    return count;
-};
+const maxBy = (list, fn) => minBy(list, x => -fn(x))
 
 const allDifferent = list => {
     let pred = null;
@@ -74,18 +37,6 @@ function* sublists(n, k) {
         yield * sublists(n - 1, k);
         for (const l of sublists(n - 1, k - 1)) {
             yield l.concat(n - 1);
-        }
-    }
-}
-
-function* permutations(list) {
-    if (list.length <= 1) {
-        yield list;
-    } else {
-        for (let i = 0; i < list.length; i++) {
-            for (const perm of permutations(list.slice(0, i).concat(list.slice(i + 1, list.length)))) {
-                yield [list[i]].concat(perm);
-            }
         }
     }
 }
@@ -121,7 +72,7 @@ const computeAttractor = (arena, adj, reverseAdj) => {
         const econf = arena.encode(conf)
         const nbor = adj[econf];
         deg[econf] = nbor.length;
-        if (nbor.length === 0) { // final winning configurations for the attacker
+        if (nbor.length === 0) { // configurations gagnantes pour l'attaquant
             stack.push(conf);
             attractor[econf] = 1;
         }
@@ -212,12 +163,7 @@ const makeRules = name => name === 'one' ? oneRules : allRules;
 
 exports.guardsAnswerAux = nothing => just => edsgraph => guards => attack => {
     const ans = answer(edsgraph, guards.concat(attack));
-    if (!ans) {
-        return nothing;
-    }
-    const perms = [...permutations(ans)];
-    const fperms = perms.filter(x => x.every((guard, i) => guard === guards[i] || hasEdge(edsgraph.graph, guard, guards[i])))
-    return just(minBy(fperms, l => countBy(l, (guard, i) => guard !== guards[i])))
+    return !ans ? nothing : just(ans);
 };
 
 exports.attackerAnswerAux = nothing => just => arenaGraph => conf => {
@@ -229,8 +175,8 @@ exports.attackerAnswerAux = nothing => just => arenaGraph => conf => {
     return just(minattack[minattack.length-1]);
 }
 
-exports.makeEDSAux = n => edges => rulesName => k => {
-    const graph = graphFromEdges(n, edges)
+exports.makeEDSAux = graph => rulesName => k => {
+    const n = graph.length
     const rules = makeRules(rulesName)
     function* bconfs () {
         for (const conf of sublists(graph.length, k)) {
@@ -262,7 +208,5 @@ exports.makeEDSAux = n => edges => rulesName => k => {
             return acc;
         }
     };
-
-    const arenaGraph = makeArenaGraph(arena);
-    return Object.assign({graph}, arenaGraph);
+    return makeArenaGraph(arena);
 };

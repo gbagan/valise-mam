@@ -6,7 +6,7 @@ import Lib.Util (repeat)
 import Pha (VDom, Prop, text, key, class_, attr, style)
 import Pha.Elements (div, p, h1, h2)
 import Pha.Events (onclick)
-import Pha.Svg (svg, path, line, text', stroke, fill, viewBox, x_, y_, width, height, opacity)
+import Pha.Svg (svg, path, line, text', stroke, fill, viewBox, d_, x_, y_, width, height, opacity)
 import Pha.Util (pc, translate)
 import Game.Sansmot.Model (State, Msg(..), Page(..), pythaAnimation, carollAnimation)
 
@@ -50,23 +50,23 @@ animPytha {anim} =
                 let phase = anim ^. at key # fromMaybe 0 in
                 fromMaybe [] $ pythaStyles ^. at key >>= \t → t !! phase        
     in
-    svg [class_ "sansmot-svg", viewBox 0 0 700 300, style "width" "84vmin", style "height" "36vmin"] [
-        path "M 0 300 h 300 v -300 h -300 Z L 100 100 M 0 100 h 300 l -200 -100 v 300" [fill "transparent", stroke "#000"],
-        path "M 400 300 h 300 v -300 h -300 Z M 400 200 l 200 100 l 100 -200 l -200 -100 l -100 200" [fill "transparent", stroke "#000"],
-        path "M 0 300 v -200 h 100 Z" $ [fill "blue", stroke "#000"] <> f "a",
-        path "M 0 300 h 100 v -200 Z" $ [fill "yellow", stroke "#000"] <> f "b",
-        path "M 100 0 h 200 v 100 Z" $ [fill "#00FF00", stroke "#000"] <> f "c",
-        path "M 100 0 v 100 h 200 Z" $ [fill "red", stroke "#000"] <> f "d",
-        path "M 0 300 v -200 h 100 Z" $ [fill "blue", stroke "#000"] <> f "e",
-        path "M 0 300 h 100 v -200 Z" $ [fill "yellow", stroke "#000"] <> f "e",
-        path "M 100 0 h 200 v 100 Z" $ [fill "#00FF00", stroke "#000"] <> f "e",
-        path "M 100 0 v 100 h 200 0 Z" $ [fill "red", stroke "#000"] <> f "e",
-        text' "a" $ [x_ "5", y_ "55", style "font-size" "20"] <> f "e",
-        text' "a" $ [x_ "46", y_ "12", style "font-size" "20"] <> f "e",
-        text' "b" $  [x_ "105", y_ "210", style "font-size" "20"] <> f "e",
-        text' "b" $ [x_ "198", y_ "120", style "font-size" "20"] <> f "e",
-        text' "c" $ [x_ "450", y_ "98", style "font-size" "20"] <> f "e",
-        text' "c" $ [x_ "595", y_ "80", style "font-size" "20"] <> f "e"
+    svg [class_ "sansmot-svg", viewBox 0 0 700 300, style "width" "84vmin", style "height" "36vmin"]
+    [   path $ [d_ "M 0 300 h 300 v -300 h -300 Z L 100 100 M 0 100 h 300 l -200 -100 v 300", fill "transparent", stroke "#000"]
+    ,   path $ [d_ "M 400 300 h 300 v -300 h -300 Z M 400 200 l 200 100 l 100 -200 l -200 -100 l -100 200", fill "transparent", stroke "#000"]
+    ,   path $ [d_ "M 0 300 v -200 h 100 Z", fill "blue", stroke "#000"] <> f "a"
+    ,   path $ [d_ "M 0 300 h 100 v -200 Z", fill "yellow", stroke "#000"] <> f "b"
+    ,   path $ [d_ "M 100 0 h 200 v 100 Z", fill "#00FF00", stroke "#000"] <> f "c"
+    ,   path $ [d_ "M 100 0 v 100 h 200 Z", fill "red", stroke "#000"] <> f "d"
+    ,   path $ [d_ "M 0 300 v -200 h 100 Z", fill "blue", stroke "#000"] <> f "e"
+    ,   path $ [d_ "M 0 300 h 100 v -200 Z", fill "yellow", stroke "#000"] <> f "e"
+    ,   path $ [d_ "M 100 0 h 200 v 100 Z", fill "#00FF00", stroke "#000"] <> f "e"
+    ,   path $ [d_ "M 100 0 v 100 h 200 0 Z", fill "red", stroke "#000"] <> f "e"
+    ,   text' "a" $ [x_ "5", y_ "55", style "font-size" "20"] <> f "e"
+    ,   text' "a" $ [x_ "46", y_ "12", style "font-size" "20"] <> f "e"
+    ,   text' "b" $  [x_ "105", y_ "210", style "font-size" "20"] <> f "e"
+    ,   text' "b" $ [x_ "198", y_ "120", style "font-size" "20"] <> f "e"
+    ,   text' "c" $ [x_ "450", y_ "98", style "font-size" "20"] <> f "e"
+    ,   text' "c" $ [x_ "595", y_ "80", style "font-size" "20"] <> f "e"
     ]
 
 animCaroll ∷ State → VDom Msg
@@ -75,20 +75,20 @@ animCaroll {anim} =
                 let phase = anim ^. at key # fromMaybe 0 in
                 fromMaybe [] $ carollStyles ^. at key >>= \t → t !! phase        
     in
-    svg [class_ "sansmot-svg", viewBox (-10) (-10) 1370 270, width "90vw", height "19vw"] $concat [
-        [
-            path "M 400 100 h 250 v -100 Z"                    $  [fill "orange"] <> f "a",
-            path "M 400 200 h 150 v -50 h 100 v -50 h -250 Z" $ [fill "red"] <> f "b",
-            path "M 400 250 h 250 v -100 h -100 v 50 h -150 Z" $ [fill "blue"] <> f "c",
-            path "M 0 250 h 400 v -150 Z"                   $ [fill "green"] <> f "d",
-            path "M 400 100 h 250 v -100 Z"                    $  [fill "orange"] <> f "e",
-            path "M 400 200 h 150 v -50 h 100 v -50 h -250 Z"  $ [fill "red"] <> f "e", 
-            path "M 400 250 h 250 v -100 h -100 v 50 h -150 Z" $ [fill "blue"] <> f "e",
-            path "M 0 250 h 400 v -150 Z"                    $ [fill "green"] <> f "e"
-        ],
-        repeat 28 \i →
-            line' (50 * i) (-10) (50 * i) 260 [class_ "sansmot-grid"],
-        repeat 6 \i →
+    svg [class_ "sansmot-svg", viewBox (-10) (-10) 1370 270, width "90vw", height "19vw"] $concat 
+    [
+        [   path $ [d_ "M 400 100 h 250 v -100 Z"                   , fill "orange"] <> f "a"
+        ,   path $ [d_ "M 400 200 h 150 v -50 h 100 v -50 h -250 Z" , fill "red"] <> f "b"
+        ,   path $ [d_ "M 400 250 h 250 v -100 h -100 v 50 h -150 Z", fill "blue"] <> f "c"
+        ,   path $ [d_ "M 0 250 h 400 v -150 Z"                     , fill "green"] <> f "d"
+        ,   path $ [d_ "M 400 100 h 250 v -100 Z"                   , fill "orange"] <> f "e"
+        ,   path $ [d_ "M 400 200 h 150 v -50 h 100 v -50 h -250 Z" , fill "red"] <> f "e"
+        ,   path $ [d_ "M 400 250 h 250 v -100 h -100 v 50 h -150 Z", fill "blue"] <> f "e"
+        ,   path $ [d_ "M 0 250 h 400 v -150 Z"                     , fill "green"] <> f "e"
+        ]
+    ,   repeat 28 \i →
+            line' (50 * i) (-10) (50 * i) 260 [class_ "sansmot-grid"]
+    ,   repeat 6 \i →
             line' (-10) (50 * i) 1360 (50 * i) [class_ "sansmot-grid"]
     ]
 
@@ -107,14 +107,14 @@ view state =
 
         h2 [class_ "sansmot-h2"] [text "Que raconte le théorème de Pythagore ?"],
      
-        p [class_ "sansmot-center"] [
-            svg [class_ "sansmot-svg", viewBox 0 (-100) 200 250, width "20vmin", height "25vmin"] [
-                path "M 50 50 h 100 v 100 h -100 Z" [fill "yellow", stroke "black"],
-                path "M 0 0 h 50 v 50 h -50 Z" [fill "yellow", stroke "black"],
-                path "M 50 0 l 100 50 l 50 -100 l -100 -50 Z" [fill "#00ff00", stroke "black"],
-                text' "a²" [x_ "90", y_ "105", attr "font-size" "35"],
-                text' "b²" [x_ "18", y_ "35", attr "font-size" "35"],
-                text' "c²" [x_ "110", y_ "-10", attr "font-size" "35"]
+        p [class_ "sansmot-center"]
+        [   svg [class_ "sansmot-svg", viewBox 0 (-100) 200 250, width "20vmin", height "25vmin"]
+            [   path [d_ "M 50 50 h 100 v 100 h -100 Z", fill "yellow", stroke "black"]
+            ,   path [d_ "M 0 0 h 50 v 50 h -50 Z", fill "yellow", stroke "black"]
+            ,   path [d_ "M 50 0 l 100 50 l 50 -100 l -100 -50 Z", fill "#00ff00", stroke "black"]
+            ,   text' "a²" [x_ "90", y_ "105", attr "font-size" "35"]
+            ,   text' "b²" [x_ "18", y_ "35", attr "font-size" "35"]
+            ,   text' "c²" [x_ "110", y_ "-10", attr "font-size" "35"]
             ]
         ],
 

@@ -4,7 +4,7 @@ import Pha (VDom, text, maybeN, (<??>),class_)
 import Pha.Elements (div, button, span, br)
 import Pha.Events (onclick, oncontextmenu)
 import Pha.Attributes (disabled)
-import Pha.Svg (svg, line, circle, viewBox, stroke, fill, x1, x2, y1, y2, cx, cy, r)
+import Pha.Svg (svg, line, circle, viewBox, stroke, fill, x1_, x2_, y1_, y2_, cx, cy, r_)
 import Game.Core (canPlay, _position, _pointer)
 import Game.Dessin.Model (State, Msg(..), Graph, Position, Edge, (↔), edgesOf, nbRaises, _graph, _graphIndex)
 import UI.Template (template, card, trackPointer)
@@ -14,10 +14,10 @@ import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 currentLine ∷ ∀a. Position → Position → VDom a
 currentLine p1 p2 =
     line
-    [   x1 $ show (100.0 * p1.x)
-    ,   y1 $ show (100.0 * p1.y)
-    ,   x2 $ show (20.0 * p2.x)
-    ,   y2 $ show (20.0 * p2.y)
+    [   x1_ $ show (100.0 * p1.x)
+    ,   y1_ $ show (100.0 * p1.y)
+    ,   x2_ $ show (20.0 * p2.x)
+    ,   y2_ $ show (20.0 * p2.y)
     ,   class_ "dessin-line-to-pointer"
     ]
 
@@ -53,26 +53,26 @@ view state = template {config, board, rules, winTitle} state where
                 [   graph.edges <#> \edge →
                     getCoordsOfEdge graph edge <??> \{px1, px2, py1, py2} →
                         line 
-                        [   x1 $ show (20.0 * px1)
-                        ,   y1 $ show (20.0 * py1)
-                        ,   x2 $ show (20.0 * px2)
-                        ,   y2 $ show (20.0 * py2)
+                        [   x1_ $ show (20.0 * px1)
+                        ,   y1_ $ show (20.0 * py1)
+                        ,   x2_ $ show (20.0 * px2)
+                        ,   y2_ $ show (20.0 * py2)
                         ,   class_ "dessin-line1"
                         ]
                 ,   edgesOf (state^._position) <#> \edge →
                     getCoordsOfEdge graph edge <??> \{px1, px2, py1, py2} → 
                         line
-                        [   x1 $ show (20.0 * px1)
-                        ,   y1 $ show (20.0 * py1)
-                        ,   x2 $ show (20.0 * px2)
-                        ,   y2 $ show (20.0 * py2)
+                        [   x1_ $ show (20.0 * px1)
+                        ,   y1_ $ show (20.0 * py1)
+                        ,   x2_ $ show (20.0 * px2)
+                        ,   y2_ $ show (20.0 * py2)
                         ,   class_ "dessin-line2"
                         ]
                 ,   graph.vertices # mapWithIndex \i {x, y} →
                         circle
                         [   cx $ show (20.0 * x)
                         ,   cy $ show (20.0 * y)
-                        ,   r "3"
+                        ,   r_ "3"
                         ,   stroke $ if Just (Just i) == last position then "red" else "blue"
                         ,   fill "blue"
                         ,   onclick $ Play (Just i)

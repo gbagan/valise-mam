@@ -3,9 +3,10 @@ import MyPrelude
 import Lib.Util (coords)
 import Pha (VDom, Prop, text, (<&&>), (<??>), key, attr, style, class', class_)
 import Pha.Elements (div, br)
+import Pha.Attributes (href)
 import Pha.Events (onclick, oncontextmenu, onpointerenter, onpointerleave)
 import Pha.Svg (svg, g, rect, line, use,
-                viewBox, fill, stroke, x_, y_, x1, x2, y1, y2, width, height, strokeWidth, transform)
+                viewBox, fill, stroke, x_, y_, x1_, x2_, y1_, y2_, width, height, strokeWidth, transform)
 import Pha.Util (translate)
 import Game.Common (_isoCustom)
 import Game.Core (_position, _nbRows, _nbColumns, _pointer, _help)
@@ -25,9 +26,9 @@ square {isDark, hasBlock, hasSink, row, col} props =
     ] <> props) [
         rect [width "50", height "50", key "conc", fill "url(#concrete)"],
         hasBlock <&&> \_ →
-            use "#tile2" [width "50", height "50", key "tile"],
+            use [href "#tile2", width "50", height "50", key "tile"],
         hasSink <&&> \_ →
-            use "#sink" [width "50", height "50", key "sink"]
+            use [href "#sink", width "50", height "50", key "sink"]
     ]
     
 view ∷ State → VDom Msg
@@ -54,8 +55,9 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                 class_ "tiling-cursor",
                 style "transform" $ "rotate(" <> show (90 * state^._rotation) <> "deg)"
             ] $ state^._tile <#> \{row, col} →
-                use "#tile2"
-                [   x_ $ show (50.0 * toNumber col - 25.0)
+                use
+                [   href "#tile2"
+                ,   x_ $ show (50.0 * toNumber col - 25.0)
                 ,   y_ $ show (50.0 * toNumber row - 25.0)
                 ,   width "50"
                 ,   height "50"
@@ -65,8 +67,8 @@ view state = template {config, board, rules, winTitle, customDialog} state where
         ]
         
     sinkCursor pp =
-        use "#sink" ([
-            x_ "-25", y_ "-25", width "50", height "50",
+        use ([
+            href "#sink", x_ "-25", y_ "-25", width "50", height "50",
             attr "pointer-events" "none"
         ] <> svgCursorStyle pp)
 
@@ -93,13 +95,13 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                     let {row, col} = coords columns index in
                     g [transform $ translate (show $ 50 * col) (show $ 50 * row)]
                     [   pos > 0 && border index (-1) <&&> \_ →
-                            line [x1 "0", y1 "0", x2 "0", y2 "50", stroke "#000", strokeWidth "2"]
+                            line [x1_ "0", y1_ "0", x2_ "0", y2_ "50", stroke "#000", strokeWidth "2"]
                     ,   pos > 0 && border index 1 <&&> \_ →
-                            line [x1 "50", y1 "0", x2 "50", y2 "50", stroke "#000", strokeWidth "2"]
+                            line [x1_ "50", y1_ "0", x2_ "50", y2_ "50", stroke "#000", strokeWidth "2"]
                     ,   pos > 0 && border index (-columns) <&&> \_ →
-                            line [x1 "0", y1 "0", x2 "50", y2 "0", stroke "#000", strokeWidth "2"]
+                            line [x1_ "0", y1_ "0", x2_ "50", y2_ "0", stroke "#000", strokeWidth "2"]
                     ,   pos > 0 && border index columns <&&> \_ →
-                            line [x1 "0", y1 "50", x2 "50", y2 "50", stroke "#000", strokeWidth "2"]    
+                            line [x1_ "0", y1_ "50", x2_ "50", y2_ "50", stroke "#000", strokeWidth "2"]    
                     ]
             ,   [state^._pointer <??> (if length (sinks state) < state^._nbSinks then sinkCursor else tileCursor)]
             ]

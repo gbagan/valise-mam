@@ -7,7 +7,7 @@ import Game.Tricolor.Model (State, Msg(..), _size, _nbColors, _range, _hoverCell
 import Pha (VDom, attr, class', class_, key, style, text)
 import Pha.Elements (br, div)
 import Pha.Events (onclick, onpointerenter, onpointerleave)
-import Pha.Svg (svg, circle, text', stroke, fill, viewBox, x_, y_, cx, cy, r)
+import Pha.Svg (svg, circle, text', stroke, fill, viewBox, x_, y_, cx, cy, r_)
 import Pha.Util (pc, translate)
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 import UI.Template (template, card)
@@ -36,7 +36,7 @@ view state = template {config, board, rules} state where
 
     drawCell i color =
         circle 
-        [   r "7.5"
+        [   r_ "7.5"
         ,   class_ "tricolor-cell"
         ,   class' "finished" levelFinished
         ,   stroke $ if (inRange state i <$> state^._hoverCell) == Just true then "lightgreen" else "black"
@@ -53,7 +53,7 @@ view state = template {config, board, rules} state where
                 [   circle
                     [   cx $ show (95 + 15 * (i - nbColors))
                     ,   cy "95"
-                    ,   r "3"
+                    ,   r_ "3"
                     ,   key $ "c" <> show i
                     ,   fill color
                     ]
@@ -64,7 +64,7 @@ view state = template {config, board, rules} state where
                     ,   attr "font-size" "7"
                     ]
                 ]
-        ) <> [circle [cx "95", cy "95",  r "3", key "fc", fill "green"]]
+        ) <> [circle [cx "95", cy "95",  r_ "3", key "fc", fill "green"]]
 
     board =
         div [class_ "ui-board tricolor-board"]

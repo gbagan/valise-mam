@@ -6,8 +6,9 @@ import Game.Core (_position, _nbRows, _nbColumns, possibleMoves)
 import Game.Chocolat.Model (State, Msg(..), Move(..), SoapMode(..), _soap, _soapMode, _moveWhenHover, cutLine) 
 import Pha (VDom, text, (<??>), key, class_, class', style)
 import Pha.Elements (div, span, br)
+import Pha.Attributes (href)
 import Pha.Events (onclick, onpointerenter, onpointerleave)
-import Pha.Svg (svg, rect, line, circle, use, viewBox, width, height, x_, y_, cx, cy, r, x1, x2, y1, y2)
+import Pha.Svg (svg, rect, line, circle, use, viewBox, width, height, x_, y_, cx, cy, r_, x1_, x2_, y1_, y2_)
 import Pha.Util (translate, px')
 import UI.Template (template, card, gridStyle, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icon (Icon(..))
@@ -40,7 +41,7 @@ view state = template {config, board, rules, winTitle} state where
         circle
         [   cx $ show (50.0 * toNumber col)
         ,   cy $ show (50.0 * toNumber row)
-        ,   r "7"
+        ,   r_ "7"
         ,   key $ "c" <> show (row * (columns + 1) + col)
         ,   class_ "chocolat-cutter"
         ,   onpointerenter $ SetHover (Just move)
@@ -64,8 +65,9 @@ view state = template {config, board, rules, winTitle} state where
                     FromRight i → [cutter pos.top i (FromRight i), cutter pos.bottom i (FromRight i)]
                     FromTop i → [cutter i pos.left (FromTop i), cutter i pos.right (FromTop i)]
                     FromBottom i → [cutter i pos.left (FromBottom i), cutter i pos.right (FromBottom i)],
-                [   use "#skull"
-                    [   x_ $ show (50 * soapCol + 12)
+                [   use 
+                    [   href "#skull"
+                    ,   x_ $ show (50 * soapCol + 12)
                     ,   y_ $ show (50 * soapRow + 12)
                     ,   width "26"
                     ,   height "26"
@@ -73,12 +75,12 @@ view state = template {config, board, rules, winTitle} state where
                     ,   class_ "chocolat-skull"
                     ]
                 ,   state^._moveWhenHover <??> \m →
-                        let {x1: px1, x2: px2, y1: py1, y2: py2} = cutLine state m in
+                        let {x1, x2, y1, y2} = cutLine state m in
                         line
-                        [   x1 $ show (50 * px1)
-                        ,   y1 $ show (50 * py1)
-                        ,   x2 $ show (50 * px2)
-                        ,   y2 $ show (50 * py2)
+                        [   x1_ $ show (50 * x1)
+                        ,   y1_ $ show (50 * y1)
+                        ,   x2_ $ show (50 * x2)
+                        ,   y2_ $ show (50 * y2)
                         ,   key "line"
                         ,   class_ "chocolat-cut-line"
                         ]

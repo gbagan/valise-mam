@@ -3,7 +3,8 @@ import MyPrelude
 import Data.FoldableWithIndex (foldMapWithIndex)
 import Pha (VDom, text, class_, key, style)
 import Pha.Elements (div, span, br)
-import Pha.Events ( onclick)
+import Pha.Attributes (href)
+import Pha.Events (onclick)
 import Pha.Svg (svg, rect, use, fill, viewBox, y_, width, height)
 import Pha.Util (translate, px')
 import Lib.Util (repeat)
@@ -45,8 +46,9 @@ view state = template {config, board, rules, winTitle} state where
         ]
 
     drawPeg i player j =
-        use "#meeple"
-        [   key $ "p-" <> show i <> "-" <> show player
+        use 
+        [   href "#meeple"
+        ,   key $ "p-" <> show i <> "-" <> show player
         ,   width "8"
         ,   height "8"
         ,   class_ "nim-player"

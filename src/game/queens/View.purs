@@ -5,6 +5,7 @@ import Lib.Util (map2, map3)
 import Data.Array.NonEmpty (toArray, head) as N
 import Pha (VDom, Prop, text, (<??>), class_, class', key, style)
 import Pha.Elements (div, br)
+import Pha.Attributes (href)
 import Pha.Events (onclick, onclick', onpointerenter, onpointerleave)
 import Pha.Svg (svg, use, x_, y_, width, height)
 import Pha.Util (pc)
@@ -33,7 +34,7 @@ square { piece, capturable, selected, nonavailable} props =
         class' "queens-square-selected" selected
     ]) $ if piece == Empty then [] else [
         svg [width "100%", height "100%", class_ "queens-piece"] [
-            use ("#piece-" <> show piece) [x_ "10%", y_ "10%", width "80%", height "80%"]
+            use [href $ "#piece-" <> show piece, x_ "10%", y_ "10%", width "80%", height "80%"]
         ]
     ]
 
@@ -83,7 +84,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
     cursor pp =
         div ([class_ "ui-cursor"] <> cursorStyle pp rows columns 0.8)
         [   svg [width "100%", height "100%"]
-            [   use ("#piece-" <> show (state^._selectedPiece)) []
+            [   use [href $ "#piece-" <> show (state^._selectedPiece)]
             ]
         ]
 

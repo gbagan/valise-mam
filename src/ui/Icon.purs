@@ -4,7 +4,7 @@ import MyPrelude
 import Data.Tuple (uncurry)
 import Pha (VDom, Prop, text, emptyNode, (<??>), class_, class', style)
 import Pha.Elements (button, span)
-import Pha.Attributes (disabled)
+import Pha.Attributes (disabled, href)
 import Lib.Util (partialUpdate, class PartialRecord)
 import Pha.Svg (svg, use, width, height)
 
@@ -45,7 +45,7 @@ iconbutton opts props =
     ] <> props) $ [
         case icon of
             IconSymbol symbol → svg ((uncurry style <$> st) <> [width "100%", height "100%"]) [
-                use symbol [class_ "ui-icon-symbol"]
+                use [href symbol, class_ "ui-icon-symbol"]
             ]
             IconText t → span [class_ "ui-icon-text"] [text t]
             IconNone → emptyNode,

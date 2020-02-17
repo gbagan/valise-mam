@@ -9,7 +9,7 @@ import Pha (VDom, text, (<&&>), maybeN, key, class_, style)
 import Pha.Attributes (disabled)
 import Pha.Elements (br, button, div, span)
 import Pha.Events (onclick)
-import Pha.Svg (svg, path, viewBox, fill, stroke)
+import Pha.Svg (svg, path, viewBox, fill, stroke, d_)
 import Pha.Util (pc)
 import UI.Icons (icongroup, iconSelectGroup, ireset, irules)
 import UI.Template (template, card, dndBoardProps, dndItemProps)
@@ -36,13 +36,14 @@ pizza cx cy radius startAngle endAngle =
         e = polarToCartesian cx cy radius endAngle
 
 innerWheel ∷ ∀a. Int → VDom a
-innerWheel size = div [class_ "roue-inner"] [
-    svg [viewBox 0 0 100 100] $ take size colors # mapWithIndex \i color →
-        path (pizza 50.0 50.0 50.0 (2.0 * pi * (toNumber i - 0.5) / toNumber size) (2.0 * pi * (toNumber i + 0.5) / toNumber size)) [
-            fill color,
-            stroke "black"
+innerWheel size = div [class_ "roue-inner"] 
+    [   svg [viewBox 0 0 100 100] $ take size colors # mapWithIndex \i color →
+        path 
+        [   d_ $ pizza 50.0 50.0 50.0 (2.0 * pi * (toNumber i - 0.5) / toNumber size) (2.0 * pi * (toNumber i + 0.5) / toNumber size)
+        ,   fill color
+        ,   stroke "black"
         ]
-]
+    ]
 
 cursor ∷ ∀a. PointerPosition → String → VDom a
 cursor {x, y} color = div [
@@ -78,15 +79,14 @@ view state = template {config, board, rules} state where
         style "transform" $ "rotate(" <> show (360.0 * toNumber (state^._rotation) / toNumber size) <> "deg)"
     ] $
         [svg [key "svg", viewBox 0 0 100 100] $ map2 position (aligned state) \i pos align →
-            path 
-                (pizza
-                    50.0
-                    50.0
-                    50.0
-                    (2.0 * pi * (toNumber i - 0.5) / toNumber size)
-                    (2.0 * pi * (toNumber i + 0.5) / toNumber size)
-                ) (
-                [   class_ "roue-wheel-part"
+            path (
+                [   d_ $ pizza
+                            50.0
+                            50.0
+                            50.0
+                            (2.0 * pi * (toNumber i - 0.5) / toNumber size)
+                            (2.0 * pi * (toNumber i + 0.5) / toNumber size)
+                ,   class_ "roue-wheel-part"
                 ,   fill $ if not align then  "#F0B27A" else if validRotation' state then "lightgreen" else "#F5B7B1"
                 ] <> dndItemProps state
                     {   currentDragged: state^._dragged

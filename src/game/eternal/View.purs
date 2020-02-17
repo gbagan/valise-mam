@@ -8,11 +8,12 @@ import Game.Core (CoreMsg(SetPointer), isLevelFinished, PointerPosition, core, _
 import Game.Eternal.Model (State, Msg(..), Graph, Phase(..), Rules(..), GraphKind(..), Pos, Edge, (↔), isValidNextMove,
                             _graph, _phase, _graphkind, _draggedGuard, _rules, _nextmove)
 import Pha (VDom, Prop, key, text, maybeN, (<&&>), (<??>), class_, class', style)
-import Pha.Attributes (disabled)
+import Pha.Attributes (href, disabled)
 import Pha.Elements (br, button, div, span)
 import Pha.Events (on, onclick, onclick', releasePointerCaptureOn, stopPropagationOn, onpointerup, onpointerleave)
 import Pha.Events.Decoder (always)
-import Pha.Svg (svg, g, line, rect, circle, viewBox, use, path, fill, width, height, x_, y_, x1, x2, y1, y2, cx, cy, r)
+import Pha.Svg (svg, g, line, rect, circle, viewBox, use, path,
+                fill, width, height, d_, x_, y_, x1_, x2_, y1_, y2_, cx, cy, r_)
 import Pha.Util (translate, pc)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset, irules)
@@ -22,18 +23,19 @@ import UI.Template (template, card, incDecGrid, svgCursorStyle)
 getCoords ∷ Graph → Int → Maybe Pos
 getCoords graph u = graph.vertices !! u
 
-getCoordsOfEdge ∷ Graph → Edge → Maybe {px1 ∷ Number, px2 ∷ Number, py1 ∷ Number, py2 ∷ Number}
+getCoordsOfEdge ∷ Graph → Edge → Maybe {x1 ∷ Number, x2 ∷ Number, y1 ∷ Number, y2 ∷ Number}
 getCoordsOfEdge graph (u ↔ v) = do
-    {x: px1, y: py1} ← getCoords graph u
-    {x: px2, y: py2} ← getCoords graph v
-    pure {px1, px2, py1, py2}
+    {x: x1, y: y1} ← getCoords graph u
+    {x: x2, y: y2} ← getCoords graph v
+    pure {x1, x2, y1, y2}
 
 translateGuard ∷ Pos → String
 translateGuard {x, y} = translate (pc x) (pc y)
 
 cursor ∷ ∀a b. PointerPosition → b → VDom a
-cursor pp _ = use "#roman" $
+cursor pp _ = use $ 
                 [   key "cursor"
+                ,   href "#roman"
                 ,   width "6"
                 ,   height "12"
                 ,   x_ "-3"
@@ -71,31 +73,31 @@ dndItemProps state {draggable, droppable, id, currentDragged} =
 
 
 drawArrow ∷ ∀a. Number → Number → Number → Number → VDom a
-drawArrow px1 px2 py1 py2 =
+drawArrow x1 x2 y1 y2 =
     let arrowSize = 6.0
-        dx = px2 - px1
-        dy = py2 - py1
+        dx = x2 - x1
+        dy = y2 - y1
         len = sqrt (dx*dx + dy*dy)
         angle' = acos (dx / len)
         angle = if dy >= 0.0 then 2.0 * pi - angle' else angle'
-        x3 = px2 + arrowSize * sin (angle - pi / 3.0)
-        y3 = py2 + arrowSize * cos (angle - pi / 3.0)
-        x4 = px2 + arrowSize * sin (angle - 2.0 * pi / 3.0)
-        y4 = py2 + arrowSize * cos (angle - 2.0 * pi / 3.0)
-        arrowPath = "M" <> show px2 <> "," <> show py2 
+        x3 = x2 + arrowSize * sin (angle - pi / 3.0)
+        y3 = y2 + arrowSize * cos (angle - pi / 3.0)
+        x4 = x2 + arrowSize * sin (angle - 2.0 * pi / 3.0)
+        y4 = y2 + arrowSize * cos (angle - 2.0 * pi / 3.0)
+        arrowPath = "M" <> show x2 <> "," <> show y2 
                     <> "L" <> show x3 <> "," <> show y3
                     <> "L" <> show x4 <> "," <> show y4 <> "z"
     in g 
         []
         [   line 
             [   -- key?
-                x1 $ show px1
-            ,   y1 $ show py1
-            ,   x2 $ show px2
-            ,   y2 $ show py2
+                x1_ $ show x1
+            ,   y1_ $ show y1
+            ,   x2_ $ show x2
+            ,   y2_ $ show y2
             ,   class_ "dessin-line2"
             ]
-        ,   path arrowPath [fill "red"]
+        ,   path [d_ arrowPath, fill "red"]
         ]
 
 
@@ -131,34 +133,35 @@ view state = template {config, board, rules, winTitle} state where
             [   svg [class_ "eternal-svg", viewBox 0 0 100 100]
                 [   g [] $
                         graph.edges <#> \edge →
-                            getCoordsOfEdge graph edge <??> \{px1, px2, py1, py2} →
+                            getCoordsOfEdge graph edge <??> \{x1, x2, y1, y2} →
                                 line 
                                 [   -- key?
-                                    x1 $ show (100.0 * px1)
-                                ,   y1 $ show (100.0 * py1)
-                                ,   x2 $ show (100.0 * px2)
-                                ,   y2 $ show (100.0 * py2)
+                                    x1_ $ show (100.0 * x1)
+                                ,   y1_ $ show (100.0 * y1)
+                                ,   x2_ $ show (100.0 * x2)
+                                ,   y2_ $ show (100.0 * y2)
                                 ,   class_ "dessin-line1"
                                 ]
                 ,   grules == ManyGuards <&&> \_ →
                         g [] $  ----- todo
                             (zip guards (state^._nextmove)) <#> \(from /\ to) →
                                 from /= to <&&> \_ →
-                                    getCoordsOfEdge graph (from ↔ to) <??> \{px1, px2, py1, py2} →
-                                        drawArrow (px1 * 100.0) (px2 * 100.0) (py1 * 100.0) (py2 * 100.0)
+                                    getCoordsOfEdge graph (from ↔ to) <??> \{x1, x2, y1, y2} →
+                                        drawArrow (x1 * 100.0) (x2 * 100.0) (y1 * 100.0) (y2 * 100.0)
                 ,   g [] $ 
                         graph.vertices # mapWithIndex \i {x, y} →
                             circle $
                             [   key $ show i
                             ,   cx $ show (100.0 * x)
                             ,   cy $ show (100.0 * y)
-                            ,   r "3"
+                            ,   r_ "3"
                             ,   fill "blue"
                             ]
                 ,   g [] $
                         guards # mapWithIndex \i index →
-                            use "#roman" $
+                            use
                             [   key $ show i
+                            ,   href "#roman"
                             ,   width "6"
                             ,   height "12"
                             ,   x_ "-3"
@@ -168,8 +171,9 @@ view state = template {config, board, rules, winTitle} state where
                             ,   style "transform" $ fromMaybe "none" (translateGuard <$> getCoords graph index)
                             ]
                 ,   maybeN $ position.attacked <#> \attack →
-                        use "#eternal-attack"
+                        use 
                         [   key "attack"
+                        ,   href "#eternal-attack"
                         ,   width "8"
                         ,   height "8"
                         ,   x_ "-4"

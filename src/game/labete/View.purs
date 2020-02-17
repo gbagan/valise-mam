@@ -5,6 +5,7 @@ import Lib.Util (coords, map3)
 import Math (abs)
 import Pha (VDom, Prop, text, (<&&>), maybeN, key, attr, class_, class', style)
 import Pha.Elements (div, br)
+import Pha.Attributes (href)
 import Pha.Events (on', onclick, onpointerdown, onpointerup, onpointerleave)
 import Pha.Events.Decoder (shiftKey)
 import Pha.Svg (svg, g, rect, use, fill, x_, y_, width, height, transform, viewBox)
@@ -38,11 +39,11 @@ modes = [StandardMode, CylinderMode, TorusMode]
 square ∷ ∀a. { color ∷ Int, hasTrap ∷ Boolean, hasBeast ∷ Boolean, row ∷ Int, col ∷ Int} → Array (Prop a) → VDom a
 square { color, hasTrap, hasBeast, row, col } props =
     g ([transform $ translate (show $ 50 * col) (show $ 50 * row)] <> props)
-    [   use "#grass" [width "50", height "50", fill $ colors !! color # fromMaybe ""]
+    [   use [href "#grass", width "50", height "50", fill $ colors !! color # fromMaybe ""]
     ,   rect [width "51", height "51",  class_ "labete-square-borders"]
-    ,   use "#paw" [x_ "5", y_ "5", width "40", height "40", class_ "labete-beast", class' "visible" hasBeast]
+    ,   use [href "#paw", x_ "5", y_ "5", width "40", height "40", class_ "labete-beast", class' "visible" hasBeast]
     ,   hasTrap <&&> \_ →
-            use "#trap" [x_ "5", y_ "5", width "40", height "40"]
+            use [href "#trap", x_ "5", y_ "5", width "40", height "40"]
     ]
 
 ihelp ∷ State → VDom Msg
@@ -78,8 +79,9 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
         ,   iconBestScore state
         ]
 
-    cursor pp = use "#trap" (svgCursorStyle pp <>
-        [  key "cursor"
+    cursor pp = use (svgCursorStyle pp <>
+        [   key "cursor"
+        ,   href "#trap"
         ,   x_ "-20"
         ,   y_ "-20"
         ,   width "40"

@@ -161,7 +161,7 @@ view state =
     [   div []
         [   div [class_ "valise-logo"]
             [   svg [width "100%", height "100%"]
-                [   use "#logo" []]
+                [   use [href "#logo"]]
             ]
         ,   div [class_ "valise-container"]
             [   valise state

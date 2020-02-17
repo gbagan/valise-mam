@@ -4,6 +4,7 @@ import MyPrelude
 import Lib.Util (map2)
 import Pha (VDom, text, (<&&>), class_, key, style)
 import Pha.Elements (div, br)
+import Pha.Attributes (href)
 import Pha.Events (onclick)
 import Pha.Svg (svg, g, rect, use, stroke, fill, viewBox, width, height)
 import Pha.Util (pc, translate)
@@ -54,8 +55,9 @@ view state = template {config, board, rules} state where
                     ,   style "transform" $ translatePeg pos nbBases
                     ,   key $ "p" <> show peg
                     ]
-                    [   use "#meeple"
-                        [   width "7"
+                    [   use 
+                        [   href "#meeple"
+                        ,   width "7"
                         ,   height "7"
                         ,   onclick $ Play peg
                         ,   fill color

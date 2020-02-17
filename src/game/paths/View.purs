@@ -6,8 +6,9 @@ import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _point
 import Game.Paths.Model (State, Msg(..), Mode(..), _exit, _mode)
 import Pha (VDom, Prop, text, emptyNode, (<&&>), (<??>), class_, class', key, style)
 import Pha.Elements (div, p, br)
+import Pha.Attributes (href)
 import Pha.Events (onclick)
-import Pha.Svg (svg, g, path, use, viewBox, x_, y_, width, height)
+import Pha.Svg (svg, g, path, use, viewBox, d_, x_, y_, width, height)
 import Pha.Util (pc, translate)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, iconSelectGroup, ihelp, iundo, iredo, ireset, irules)
@@ -16,11 +17,12 @@ import UI.Template (template, card, incDecGrid, gridStyle, svgCursorStyle, track
 square ∷ ∀a. {darken ∷ Boolean, trap ∷ Boolean, door ∷ Boolean, x ∷ Number, y ∷ Number} → Array (Prop a) → VDom a
 square {darken, trap, door, x, y} props =
     g ([class' "paths-darken" darken] <> props)
-    [   use "#paths-background" pos
+    [   use ([href "#paths-background"] <> pos)
     ,   door <&&> \_ →
-            use "#paths-door" pos
-    ,   use "#paths-trap" (pos <> 
-        [   class_ "paths-trap"
+            use ([href "#paths-door"] <> pos)
+    ,   use (pos <> 
+        [   href "#paths-trap" 
+        ,   class_ "paths-trap"
         ,   class' "visible" (trap && not door)
         ])
     ]
@@ -28,8 +30,9 @@ square {darken, trap, door, x, y} props =
 
 doorCursor ∷ ∀a. PointerPosition → VDom a
 doorCursor pp =
-    use "#paths-door" $ 
-    [   key "cdoor"
+    use $
+    [   href "#paths-door" 
+    ,   key "cdoor"
     ,   class_ "paths-cursor"
     ,   x_ "-50"
     ,   y_ "-50"
@@ -39,8 +42,9 @@ doorCursor pp =
         
 heroCursor ∷ ∀a. PointerPosition → VDom a
 heroCursor pp =
-    use "#meeplehat" $
-    [   key "chero"
+    use $
+    [   href "#meeplehat"
+    ,    key "chero"
     ,   class_ "paths-cursor"
     ,   x_ "-40"
     ,   y_ "-40"
@@ -65,8 +69,9 @@ view state = template {config, board, rules} state where
 
     hero h = 
         let {row, col} = coords columns h in
-        use "#meeplehat"
-        [   key "hero"
+        use 
+        [   href "#meeplehat"
+        ,   key "hero"
         ,   width "80"
         ,   height "80"
         ,   class_ "paths-hero"
@@ -93,7 +98,7 @@ view state = template {config, board, rules} state where
                 ,   onclick $ SelectVertex index
                 ]
             ) <>
-            [   path pathdec [class_ "paths-path"]
+            [   path [d_ pathdec, class_ "paths-path"]
             ,   last position <??> hero,
                     state^._pointer <??> \pp →
                         if null position then

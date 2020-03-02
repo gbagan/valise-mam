@@ -36,9 +36,9 @@ La librairie s'occupe de générérer le html. En cas de mise à jour, la librai
 L'application est composée de
 - un modèle (ou état) immutable initial
 - de messages (représentés par une somme de types)
-- une fonction pure model -> vdom   où vdom est un arbre DOM virtuel
+- une fonction pure model → vdom   où vdom est un arbre DOM virtuel
    - le vdom peut associer des messages à certaintements évènements (click de souris, etc)
-- une fonction update msg -> model -> model qui créé un nouveau modele en fonction de l'ancien et du message reçu.
+- une fonction update msg → model → model qui créé un nouveau modele en fonction de l'ancien et du message reçu.
    - la fonction peut-être pure où utiliser certains effets non purs à travers un run (voir plus bas)
    - ce ne sont pas réellement des effets mais des symboles qui devont être interprétés par l'application. Cela facile la testabilité de
       l'application et permet à update d'être pure.
@@ -205,7 +205,7 @@ Les fonctions
     ou le jeu n'est pas concerné par une IA.
 - onNewGame est similaire à initialPosition mais réinitialise certains autres paramètres pour garder l'état cohérent
 - updateScore renvoie un nouvel état en cas d'un record battu et un booléen indiquant s'il faut afficher un message de victoire
-   lorsqu'une partie est finie. Pour les parties sans score, on renverra souvent ```state -> Tuple state true```` 
+   lorsqu'une partie est finie. Pour les parties sans score, on renverra souvent ```state → Tuple state true```` 
    Dans le cas d'une partie avec score, cette fonction est générée par la classe ScoreGame (voir plus bas)
    
 ### La classe ScoreGame

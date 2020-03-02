@@ -94,42 +94,37 @@ animCaroll {anim} =
 
 view ∷ State → VDom Msg
 view state = 
-    div [class_ "sansmot-main"] [
-        div [class_ "sansmot-menu"] [
-            div [class_ "sansmot-pagelink", onclick $ SetPage PythaPage] [text "1"],
-            div [class_ "sansmot-pagelink", onclick $ SetPage CarollPage] [text "2"]
-        ],
-        main state.page
+    div [class_ "sansmot-main"] 
+    [   div [class_ "sansmot-menu"] 
+        [   div [class_ "sansmot-pagelink", onclick $ SetPage PythaPage] [text "1"]
+        ,   div [class_ "sansmot-pagelink", onclick $ SetPage CarollPage] [text "2"]
+        ]
+    ,   main state.page
     ] where
     
-    main PythaPage = div [key "pytha"] [
-        h1 [class_ "sansmot-title"] [text "Preuve sans mot"],
-
-        h2 [class_ "sansmot-h2"] [text "Que raconte le théorème de Pythagore ?"],
-     
-        p [class_ "sansmot-center"]
-        [   svg [class_ "sansmot-svg", viewBox 0 (-100) 200 250, width "20vmin", height "25vmin"]
-            [   path [d_ "M 50 50 h 100 v 100 h -100 Z", fill "yellow", stroke "black"]
-            ,   path [d_ "M 0 0 h 50 v 50 h -50 Z", fill "yellow", stroke "black"]
-            ,   path [d_ "M 50 0 l 100 50 l 50 -100 l -100 -50 Z", fill "#00ff00", stroke "black"]
-            ,   text' "a²" [x_ "90", y_ "105", attr "font-size" "35"]
-            ,   text' "b²" [x_ "18", y_ "35", attr "font-size" "35"]
-            ,   text' "c²" [x_ "110", y_ "-10", attr "font-size" "35"]
+    main PythaPage =
+        div [key "pytha"]
+        [   h1 [class_ "sansmot-title"] [text "Preuve sans mot"]
+        ,   h2 [class_ "sansmot-h2"] [text "Que raconte le théorème de Pythagore ?"]
+        ,   p [class_ "sansmot-center"]
+            [   svg [class_ "sansmot-svg", viewBox 0 (-100) 200 250, width "20vmin", height "25vmin"]
+                [   path [d_ "M 50 50 h 100 v 100 h -100 Z", fill "yellow", stroke "black"]
+                ,   path [d_ "M 0 0 h 50 v 50 h -50 Z", fill "yellow", stroke "black"]
+                ,   path [d_ "M 50 0 l 100 50 l 50 -100 l -100 -50 Z", fill "#00ff00", stroke "black"]
+                ,   text' "a²" [x_ "90", y_ "105", attr "font-size" "35"]
+                ,   text' "b²" [x_ "18", y_ "35", attr "font-size" "35"]
+                ,   text' "c²" [x_ "110", y_ "-10", attr "font-size" "35"]
+                ]
             ]
-        ],
+        ,   h2 [class_ "sansmot-h2"] [text "Preuve sans mot due à un auteur chinois inconnu qui vivait vers 200 avant J.-C."]
+        ,   p [class_ "sansmot-center"] [animPytha state]
+        ,   p [class_ "sansmot-center sansmot-link", onclick $ Animate pythaAnimation] [text "Lancer l'animation"]
+        ]
 
-        h2 [class_ "sansmot-h2"] [text "Preuve sans mot due à un auteur chinois inconnu qui vivait vers 200 avant J.-C."],
-        p [class_ "sansmot-center"] [
-            animPytha state
-        ],
-        p [class_ "sansmot-center sansmot-link", onclick $ Animate pythaAnimation] [text "Lancer l'animation"]
-    ]
-
-    main CarollPage = div [key "caroll"] [
-        h1 [class_ "sansmot-title"] [text "Preuve sans mot"],
-        h2 [class_ "sansmot-h2"] [text "Où est passé le carré manquant ?"],
-        p [class_ "sansmot-center"] [
-            animCaroll state
-        ],
-        p [class_ "sansmot-center sansmot-link", onclick $ Animate carollAnimation] [text "Lancer l'animation"]
-    ]
+    main CarollPage =
+        div [key "caroll"]
+        [   h1 [class_ "sansmot-title"] [text "Preuve sans mot"]
+        ,   h2 [class_ "sansmot-h2"] [text "Où est passé le carré manquant ?"]
+        ,   p [class_ "sansmot-center"] [animCaroll state]
+        ,   p [class_ "sansmot-center sansmot-link", onclick $ Animate carollAnimation] [text "Lancer l'animation"]
+        ]

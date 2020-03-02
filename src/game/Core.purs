@@ -261,7 +261,7 @@ lockAction act = unlessM (view _locked <$> getState) do
         setState (_locked .~ false)
 
 -- | fonction auxiliaire pour newGame
-newGameAux :: ∀pos ext mov. Game pos ext mov ⇒
+newGameAux ∷ ∀pos ext mov. Game pos ext mov ⇒
         (GState pos ext → GState pos ext) → GState pos ext → Random (GState pos ext)
 newGameAux f state = do 
     let state2 = f state

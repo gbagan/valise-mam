@@ -59,7 +59,7 @@ view state = template {config, board, rules, winTitle} state where
     board =
         div [class_ "ui-board nim-board"]
         [   svg [viewBox 0 0 100 100] (
-                state^._position # foldMapWithIndex \i (p1 /\ p2) → concat
+                state^._position # foldMapWithIndex \i (p1 ∧ p2) → concat
                     [   [drawRow i]
                     ,   repeat length (drawSquare i)
                     ,   [p1, p2] # mapWithIndex (drawPeg i)

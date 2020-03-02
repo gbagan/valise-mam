@@ -63,7 +63,7 @@ lockAction act = unlessM (getState <#> _.locked) do
         setState _{locked = false}
 
 update ∷ Msg → Update State EFFS
-update (SetPage page) = purely \st ->
+update (SetPage page) = purely \st →
     if st^._locked then
         st
     else

@@ -46,12 +46,12 @@ innerWheel size = div [class_ "roue-inner"]
     ]
 
 cursor ∷ ∀a. PointerPosition → String → VDom a
-cursor {x, y} color = div [
-    class_ "ui-cursor roue-select-color roue-cursor",
-    style "left" $ pc x,
-    style "top" $ pc y,
-    style "background-color" color
-] []
+cursor {x, y} color = div 
+    [   class_ "ui-cursor roue-select-color roue-cursor"
+    ,   style "left" $ pc x
+    ,   style "top" $ pc y
+    ,   style "background-color" color
+    ] []
 
 
 view ∷ State → VDom Msg
@@ -74,27 +74,27 @@ view state = template {config, board, rules} state where
                             _ → -1
         in colors !! colorIndex
 
-    outerWheel = div [
-        class_ "roue-outer",
-        style "transform" $ "rotate(" <> show (360.0 * toNumber (state^._rotation) / toNumber size) <> "deg)"
-    ] $
-        [svg [key "svg", viewBox 0 0 100 100] $ map2 position (aligned state) \i pos align →
-            path (
-                [   d_ $ pizza
-                            50.0
-                            50.0
-                            50.0
-                            (2.0 * pi * (toNumber i - 0.5) / toNumber size)
-                            (2.0 * pi * (toNumber i + 0.5) / toNumber size)
-                ,   class_ "roue-wheel-part"
-                ,   fill $ if not align then  "#F0B27A" else if validRotation' state then "lightgreen" else "#F5B7B1"
-                ] <> dndItemProps state
-                    {   currentDragged: state^._dragged
-                    ,   draggable: isJust pos
-                    ,   droppable: true
-                    ,   id: Wheel i
-                    }
-                )
+    outerWheel = div 
+        [   class_ "roue-outer"
+        ,   style "transform" $ "rotate(" <> show (360.0 * toNumber (state^._rotation) / toNumber size) <> "deg)"
+        ] $
+        [   svg [key "svg", viewBox 0 0 100 100] $ map2 position (aligned state) \i pos align →
+                path (
+                    [   d_ $ pizza
+                                50.0
+                                50.0
+                                50.0
+                                (2.0 * pi * (toNumber i - 0.5) / toNumber size)
+                                (2.0 * pi * (toNumber i + 0.5) / toNumber size)
+                    ,   class_ "roue-wheel-part"
+                    ,   fill $ if not align then  "#F0B27A" else if validRotation' state then "lightgreen" else "#F5B7B1"
+                    ] <> dndItemProps state
+                        {   currentDragged: state^._dragged
+                        ,   draggable: isJust pos
+                        ,   droppable: true
+                        ,   id: Wheel i
+                        }
+                    )
         ] <> (catMaybes $ position # mapWithIndex \index c → c <#> \color → 
             div
             [   class_ "roue-outer-piece"

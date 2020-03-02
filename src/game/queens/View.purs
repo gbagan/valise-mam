@@ -27,16 +27,17 @@ tooltip _ = "Pièce personnalisée"
 
 square ∷ ∀a. { piece ∷ Piece, capturable ∷ Boolean, selected ∷ Boolean, nonavailable ∷ Boolean} → Array (Prop a) → VDom a
 square { piece, capturable, selected, nonavailable} props =
-    div (props <> [
-        class_ "queens-square",
-        class' "queens-square-capturable" capturable,
-        class' "queens-square-nonavailable" nonavailable,
-        class' "queens-square-selected" selected
-    ]) $ if piece == Empty then [] else [
-        svg [width "100%", height "100%", class_ "queens-piece"] [
-            use [href $ "#piece-" <> show piece, x_ "10%", y_ "10%", width "80%", height "80%"]
+    div (props <> 
+        [   class_ "queens-square"
+        ,   class' "queens-square-capturable" capturable
+        ,   class' "queens-square-nonavailable" nonavailable
+        ,   class' "queens-square-selected" selected
+        ]) $
+        if piece == Empty then [] else [
+            svg [width "100%", height "100%", class_ "queens-piece"] [
+                use [href $ "#piece-" <> show piece, x_ "10%", y_ "10%", width "80%", height "80%"]
+            ]
         ]
-    ]
 
 view ∷ State → VDom Msg
 view state = template {config, board, rules, customDialog, scoreDialog} state where

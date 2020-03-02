@@ -1,6 +1,5 @@
 module Game.Paths.Model where
 import MyPrelude
-import Data.Array (nub)
 import Data.Array.NonEmpty (fromArray, head, last, init, tail) as N
 import Pha.Random as R
 import Lib.Util (dCoords, rangeWithStep)

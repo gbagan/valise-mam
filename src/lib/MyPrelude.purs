@@ -20,5 +20,5 @@ import Prelude ((<<<))
 infixr 9 Exports.compose as ∘
 infix 6 Exports.Tuple as ∧
 
-replicateA :: forall m a. Exports.Applicative m => Int -> m a -> m (Array a)
+replicateA ∷ forall m a. Exports.Applicative m => Int → m a → m (Array a)
 replicateA n = Exports.sequence <<< (Exports.replicate n)

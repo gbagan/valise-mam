@@ -66,7 +66,7 @@ dndItemProps state {draggable, droppable, id, currentDragged} =
     ,   class' "dragged" dragged
     ,   class' "candrop" candrop
     ,   releasePointerCaptureOn "pointerdown" $ always (if draggable then Just (DragGuard id) else Nothing)
-    ,   stopPropagationOn "pointerup" $ always (if candrop then Just (DropGuard id) /\ true else Nothing /\ false)
+    ,   stopPropagationOn "pointerup" $ always (if candrop then Just (DropGuard id) ∧ true else Nothing ∧ false)
     ] where
         candrop = droppable && isJust currentDragged
         dragged = draggable && Just id == currentDragged
@@ -143,8 +143,8 @@ view state = template {config, board, rules, winTitle} state where
                                 ,   class_ "dessin-line1"
                                 ]
                 ,   grules == ManyGuards <&&> \_ →
-                        g [] $  ----- todo
-                            (zip guards (state^._nextmove)) <#> \(from /\ to) →
+                        g [] $  ----- todo pas zipWith?
+                            (zip guards (state^._nextmove)) <#> \(from ∧ to) →
                                 from /= to <&&> \_ →
                                     getCoordsOfEdge graph (from ↔ to) <??> \{x1, x2, y1, y2} →
                                         drawArrow (x1 * 100.0) (x2 * 100.0) (y1 * 100.0) (y2 * 100.0)

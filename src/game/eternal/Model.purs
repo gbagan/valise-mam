@@ -129,8 +129,8 @@ permutations ∷ Array Int → Array (Array Int)
 permutations t = case uncons t of
     Nothing → [[]]
     Just {head, tail} → do
-        p <- permutations tail
-        i <- 0 .. (length tail)
+        p ← permutations tail
+        i ← 0 .. (length tail)
         maybe [] pure (insertAt i head p)
 
 goodPermutation ∷ AdjGraph → Array Int → Array Int → Maybe (Array Int)
@@ -262,8 +262,8 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
 
     computerMove st
         | isLevelFinished st = pure Nothing
-        | otherwise = case (st^._arena /\ (st^._position).attacked) of
-            Just arena /\ Just attack → pure $ Defense <$> guardsAnwser
+        | otherwise = case (st^._arena ∧ (st^._position).attacked) of
+            Just arena ∧ Just attack → pure $ Defense <$> guardsAnwser
                                                             (edgesToGraph
                                                                 (length (st^._graph).vertices)
                                                                 (st^._graph).edges
@@ -271,7 +271,7 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
                                                             arena
                                                             (st^._position).guards
                                                             attack
-            Just arena /\ Nothing →
+            Just arena ∧ Nothing →
                 case attackerAnswer arena (st^._position).guards of
                     Just attack → pure $ Just (Attack attack)
                     Nothing → (0 .. (length (st^._graph).vertices - 1)) 
@@ -297,15 +297,15 @@ addToNextMove ∷ Array Edge → Int → Int → Array Int → Array Int → Arr
 addToNextMove edges from to srcs dests
     | from == to || elem (from ↔ to) edges =
         case elemIndex from srcs of
-            Nothing -> dests
-            Just i -> dests # ix i .~ to 
+            Nothing → dests
+            Just i → dests # ix i .~ to 
     | otherwise = dests
 
 dragGuard ∷ Maybe Int → State → State
 dragGuard to st =
     case st^._draggedGuard of
-        Nothing -> st
-        Just from ->
+        Nothing → st
+        Just from →
             let to2 = fromMaybe from to in
             st # _nextmove %~ addToNextMove (st^._graph).edges from to2 (st^._position).guards  # _draggedGuard .~ Nothing
 
@@ -327,7 +327,7 @@ update (SetGraphKind kind) = newGame ((_graphkind .~ kind) <<< (
 update (SetRules rules) = newGame (_rules .~ rules)
 update StartGame = purely startGame
 update MoveGuards = do
-    st <- getState
+    st ← getState
     playA $ Defense (st^._nextmove)
 update (ToggleGuard x) = pure unit
 update (DragGuard x) = purely $ _draggedGuard .~ Just x
@@ -336,9 +336,9 @@ update LeaveGuard = purely $ _draggedGuard .~ Nothing
 update DropOnBoard = purely $ dragGuard Nothing
 
 update (Play x) = do
-    st <- getState
+    st ← getState
     let guards = (st^._position).guards
-    case st^._phase /\ (st^._position).attacked  of
-        PrepPhase /\ _ -> purely $ _position ∘ _guards %~ toggleGuard x
-        GamePhase /\ Just attacked -> playA $ Defense (addToNextMove (st^._graph).edges x attacked guards guards)
-        GamePhase /\ Nothing -> playA (Attack x)
+    case st^._phase ∧ (st^._position).attacked  of
+        PrepPhase ∧ _ → purely $ _position ∘ _guards %~ toggleGuard x
+        GamePhase ∧ Just attacked → playA $ Defense (addToNextMove (st^._graph).edges x attacked guards guards)
+        GamePhase ∧ Nothing → playA (Attack x)

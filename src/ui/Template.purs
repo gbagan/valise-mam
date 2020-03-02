@@ -159,7 +159,7 @@ dndItemProps state {draggable, droppable, id, currentDragged} =
     [   class' "dragged" dragged
     ,   class' "candrop" candrop
     ,   releasePointerCaptureOn "pointerdown" $ always (if draggable then Just (dndmsg (Drag id)) else Nothing)
-    ,   stopPropagationOn "pointerup" $ always (if candrop then Just (dndmsg (Drop id)) /\ true else Nothing /\ false)
+    ,   stopPropagationOn "pointerup" $ always (if candrop then Just (dndmsg (Drop id)) ∧ true else Nothing ∧ false)
     ] where
         candrop = droppable && (currentDragged # maybe false \d → canPlay state {from: d, to: id})
         dragged = draggable && Just id == currentDragged

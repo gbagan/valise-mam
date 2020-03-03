@@ -11,3 +11,4 @@
 /bundle.*
 /yarn*
 /packages.dhall
+/dist/bundle.js

@@ -112,11 +112,11 @@ view state = template {config, board, rules, winTitle} state where
     config =    
         card "Domination éternelle" 
         [   iconSelectGroup state "Type de graphe" [Path, Cycle, Biclique, Sun, Grid] (state^._graphkind) SetGraphKind (case _ of 
-                Path → _{icon = IconText "P", tooltip = Just "Chemin" }
-                Cycle → _{icon = IconText "C", tooltip = Just "Cycle" }
-                Biclique → _{icon = IconText "*", tooltip = Just "Biclique" }
-                Grid → _{icon = IconText "G", tooltip = Just "Grille" }
-                Sun → _{icon = IconText "S", tooltip = Just "Soleil" }
+                Path → _{icon = IconSymbol "#graph-path", tooltip = Just "Chemin" }
+                Cycle → _{icon = IconSymbol "#graph-cycle", tooltip = Just "Cycle" }
+                Biclique → _{icon = IconSymbol "#graph-biclique", tooltip = Just "Biclique" }
+                Grid → _{icon = IconSymbol "#graph-grid", tooltip = Just "Grille" }
+                Sun → _{icon = IconSymbol "#graph-sun", tooltip = Just "Soleil" }
             )
         ,   iconSelectGroup state "Règles" [OneGuard, ManyGuards] grules SetRules (case _ of 
                 OneGuard → _{icon = IconText "1", tooltip = Just "Un seul garde" }

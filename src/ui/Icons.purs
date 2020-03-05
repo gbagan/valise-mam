@@ -53,6 +53,15 @@ ireset state =
         }
         [onclick $ core Reset]
 
+iclear ∷ ∀msg pos ext. MsgWithCore msg ⇒ GState pos ext → VDom msg
+iclear state =
+    iconbutton
+        state
+        {   icon: I.IconSymbol "#clear"
+        ,   tooltip: Just "Réinitialise le jeu"
+        }
+        [onclick $ core Clear]
+
 ihelp ∷ ∀msg pos ext. MsgWithCore msg ⇒ GState pos ext → VDom msg
 ihelp state =
     iconbutton

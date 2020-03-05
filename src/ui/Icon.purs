@@ -5,6 +5,8 @@ import Data.Tuple (uncurry)
 import Pha (VDom, Prop, text, emptyNode, (<??>), class_, class', style)
 import Pha.Elements (button, span)
 import Pha.Attributes (disabled, href)
+import Pha.Events (preventDefaultOn)
+import Pha.Events.Decoder (always)
 import Lib.Util (partialUpdate, class PartialRecord)
 import Pha.Svg (svg, use, width, height)
 
@@ -36,12 +38,13 @@ defaultOptions = {
 iconbutton ∷ ∀a opts.  (PartialRecord opts Options) ⇒ Record opts → Array (Prop a) → VDom a
 iconbutton opts props =
     let {icon, selected, tooltip, round, large, hidden, disabled: d, style: st} = partialUpdate opts defaultOptions in
-    button ([
-        class_ "ui-icon",
-        class' "selected" selected,
-        class' "round" large,
-        class' "hidden" hidden,
-        disabled d
+    button (
+        [   class_ "ui-icon"
+        ,   class' "selected" selected
+        ,   class' "round" large
+        ,   class' "hidden" hidden
+        ,   disabled d
+        ,   preventDefaultOn "contextmenu" $ always (Nothing /\ true)
     ] <> props) $ [
         case icon of
             IconSymbol symbol → svg ((uncurry style <$> st) <> [width "100%", height "100%"]) [

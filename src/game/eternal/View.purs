@@ -16,7 +16,7 @@ import Pha.Svg (svg, g, line, rect, circle, viewBox, use, path,
                 fill, width, height, d_, x_, y_, x1_, x2_, y1_, y2_, cx, cy, r_)
 import Pha.Util (translate, pc)
 import UI.Icon (Icon(..))
-import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset, irules)
+import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset, iclear, irules)
 import UI.Template (template, card, incDecGrid, svgCursorStyle)
 
 
@@ -123,7 +123,7 @@ view state = template {config, board, rules, winTitle} state where
                 ManyGuards → _{icon = IconText "∞", tooltip = Just "Plusieurs gardes" }
             )
         ,   icons2Players state
-        ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x → x state
+        ,   icongroup "Options" $ [iundo, iredo, ireset, iclear, irules] <#> \x → x state
         ]
 
     grid =
@@ -215,7 +215,7 @@ view state = template {config, board, rules, winTitle} state where
                 ]
             ,   button
                 [   class_ "ui-button ui-button-primary dessin-raise"
-                ,   disabled $ state^._phase == GamePhase  && (state^._rules == OneGuard || isNothing position.attacked || not (isValidNextMove state (state^._nextmove)))
+                ,   disabled $ null position.guards || state^._phase == GamePhase && (state^._rules == OneGuard || isNothing position.attacked || not (isValidNextMove state (state^._nextmove)))
                 ,   onclick (if state^._phase == GamePhase then MoveGuards else StartGame)
                 ]
                 [   text "Valider"]

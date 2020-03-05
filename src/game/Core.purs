@@ -141,7 +141,8 @@ changeTurn state = state # _turn %~ \x → if state^._mode == DuelMode then oppo
 data CoreMsg = 
       Undo
     | Redo 
-    | Reset 
+    | Reset
+    | Clear
     | ToggleHelp
     | SetMode Mode 
     | SetGridSize Int Int Boolean
@@ -183,7 +184,7 @@ coreUpdate Reset = purely \state → case L.last (state^._history) of
                     # _redoHistory .~ Nil
                     # _turn .~ Turn1
                     # onPositionChange
-
+coreUpdate Clear = newGame identity
 coreUpdate ToggleHelp =  purely $ _help %~ not
 coreUpdate (SetMode mode) = newGame (_mode .~ mode)
 coreUpdate (SetGridSize nbRows nbColumns customSize) = 

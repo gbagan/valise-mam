@@ -137,7 +137,7 @@ valise state =
                     ] []
                 ,   link <??> \l →
                         a
-                        [href $ "#" <> l]
+                        [href l]
                         [   rect (
                             [   width "100%"
                             ,   height "100%"

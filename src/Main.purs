@@ -1,33 +1,23 @@
 module Main where
 
 import MyPrelude hiding (view)
-import Data.String (drop, indexOf) as S
-import Data.String.Pattern (Pattern (..))
+
 import Data.Map as Map
-import Unsafe.Coerce (unsafeCoerce)
+import Data.String as String
+import Data.String.Pattern (Pattern(..))
 import Effect (Effect)
-import Run as Run
-import Pha (VDom, emptyNode, (<&&>), key, class_)
-import Pha.Subs as Subs
-import Pha.App (app, Document, attachTo)
-import Pha.Update (Update, getState, setState)
-import Pha.Events.Decoder (always)
-import Pha.Lens (updateOver)
-import Pha.Elements (div, a)
-import Pha.Attributes (href)
-import Pha.Svg (svg, use, width, height)
-import Game.Generic (GenericGame)
-import Game.Effs (EFFS, getLocation, interpretLocation, interpretDelay, interpretRng)
 import Game.Baseball as Baseball
 import Game.Chocolat as Chocolat
 import Game.Dessin as Dessin
+import Game.Effs (EFFS, interpretDelay, interpretRng, interpretNav)
 import Game.Eternal as Eternal
 import Game.Frog as Frog
+import Game.Generic (GenericGame)
 import Game.Jetons as Jetons
 import Game.Labete as Labete
 import Game.Nim as Nim
 import Game.Noirblanc as Noirblanc
-import Game.Paths  as Paths
+import Game.Paths as Paths
 import Game.Queens as Queens
 import Game.Roue as Roue
 import Game.Sansmot as Sansmot
@@ -35,12 +25,24 @@ import Game.Solitaire as Solitaire
 import Game.Tiling as Tiling
 import Game.Tricolor as Tricolor
 import Game.Valise as Valise
+import Pha (VDom, emptyNode, (<&&>), key, class_)
+import Pha.App (Document, attachTo)
+import Pha.App.Router (Url, UrlRequest(..), appWithRouter)
+import Pha.Attributes (href)
+import Pha.Effects.Nav as Nav
+import Pha.Elements (div, a)
+import Pha.Lens (updateOver)
+import Pha.Subs as Subs
+import Pha.Svg (svg, use, width, height)
+import Pha.Update (Update, getState, setState)
+import Run as Run
+import Unsafe.Coerce (unsafeCoerce)
 
 infix 2 updateOver as .~>
 
 extractLocation ∷ String → String → String
-extractLocation url defaultValue =
-    S.indexOf (Pattern "#") url # maybe defaultValue \i → S.drop (i + 1) url 
+extractLocation pathname defaultValue =
+    String.lastIndexOf (Pattern "/") pathname # maybe defaultValue \i → String.drop (i + 1) pathname
 
 type RootState = 
     {   baseball ∷ Baseball.State
@@ -103,8 +105,9 @@ data Msg =
     | ValiseMsg Valise.Msg
     | TilingMsg Tiling.Msg
     | TricolorMsg Tricolor.Msg
+    | UrlChanged Url
+    | UrlRequested UrlRequest
     | OnKeyDown String
-    | OnHashChange
 
 type GameWrapperF st msg =
     {   core ∷ GenericGame st msg
@@ -137,24 +140,13 @@ games = Map.fromFoldable
     ,   "solitaire" ∧ gameWrap Solitaire.game _.solitaire SolitaireMsg
     ,   "tiling"    ∧ gameWrap Tiling.game    _.tiling    TilingMsg
     ,   "tricolor"  ∧ gameWrap Tricolor.game  _.tricolor  TricolorMsg
-    ,   "valise"    ∧ gameWrap Valise.game    _.valise    ValiseMsg
+    ,   "main"      ∧ gameWrap Valise.game    _.valise    ValiseMsg
     ]
 
 callByName ∷ ∀r. String → r → (∀st msg. GameWrapperF st msg → r) → r
 callByName name default f = case games # Map.lookup name of
                                 Nothing → default
-                                Just game → game # gameRun f
- 
-hashChange ∷ Update RootState EFFS
-hashChange = do
-    loc ← getLocation
-    let location = extractLocation loc.hash "valise"
-    setState _{location = location}
-    if location == "valise" then
-        lens _.valise _{valise = _} .~> Valise.enterA
-    else
-        pure unit
-    
+                                Just game → game # gameRun f 
  
 update ∷ Msg → Update RootState EFFS
 update (BaseballMsg msg)  = lens _.baseball _{baseball = _}   .~> Baseball.update msg
@@ -180,15 +172,32 @@ update (OnKeyDown k) = do
             case game.core.onKeydown k of
                 Nothing → pure unit
                 Just msg → update (game.msgmap msg)
-update OnHashChange = hashChange
+update (UrlChanged url) = do
+    let location = extractLocation url.pathname ""
+    let location2 = if location == "" then "main" else location
+    setState _{location = location2}
+    if location2 == "main" then
+        lens _.valise _{valise = _} .~> Valise.enterA
+    else
+        pure unit
 
-init ∷ Update RootState EFFS
-init = do
+update (UrlRequested (Internal url)) = Nav.goTo url.href
+update (UrlRequested _) = pure unit
+
+
+init ∷ Url → Update RootState EFFS
+init url = do
     for_ (Map.values games) $
         gameRun \game → case game.core.init of
                             Nothing → pure unit
                             Just i → update $ game.msgmap i
-    hashChange
+    let location = extractLocation url.pathname "valise"
+    if location == "" then
+        Nav.redirectTo $ url.href <> "main"
+    else
+        pure unit
+    update (UrlChanged url)
+    
 
 view ∷ RootState → Document Msg
 view st = {
@@ -197,12 +206,12 @@ view st = {
         div
         [   key st.location
         ,   class_ "main-main-container"
-        ,   class_ (if st.location == "valise" then "valise" else "game")
+        ,   class_ (if st.location == "main" then "valise" else "game")
         ]
-        [   st.location /= "valise" <&&> \_ →
+        [   st.location /= "main" <&&> \_ →
                 a
                 [   class_ "main-minivalise-link"
-                ,   href "#valise"
+                ,   href "main"
                 ]
                 [   svg [width "100%", height "100%"]
                     [   use [href "#valise"]]
@@ -216,17 +225,16 @@ viewGame st = callByName st.location emptyNode
                     \game → game.core.view (game.map st) <#> game.msgmap
 
 main ∷ Effect Unit
-main = app
-    {   init: state ∧ init
+main = appWithRouter
+    {   init: \url → state ∧ init url
     ,   view
     ,   update
-    ,   subscriptions: const
-        [   Subs.onKeyDown (Just <<< OnKeyDown)
-        ,   Subs.on "hashchange" (always OnHashChange)
-        ]
+    ,   onUrlChange: UrlChanged
+    ,   onUrlRequest: UrlRequested
+    ,   subscriptions: const [Subs.onKeyDown (Just <<< OnKeyDown)]
     ,   interpreter: Run.match 
         {   delay: interpretDelay
         ,   rng: interpretRng
-        ,   location: interpretLocation
+        ,   nav: interpretNav
         }
     } # attachTo "root"

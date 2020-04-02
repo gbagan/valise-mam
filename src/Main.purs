@@ -107,7 +107,7 @@ data Msg =
     | TricolorMsg Tricolor.Msg
     | UrlChanged Url
     | UrlRequested UrlRequest
-    | OnKeyDown String
+    | KeyDown String
 
 type GameWrapperF st msg =
     {   core ∷ GenericGame st msg
@@ -140,7 +140,7 @@ games = Map.fromFoldable
     ,   "solitaire" ∧ gameWrap Solitaire.game _.solitaire SolitaireMsg
     ,   "tiling"    ∧ gameWrap Tiling.game    _.tiling    TilingMsg
     ,   "tricolor"  ∧ gameWrap Tricolor.game  _.tricolor  TricolorMsg
-    ,   "main"      ∧ gameWrap Valise.game    _.valise    ValiseMsg
+    ,   ""          ∧ gameWrap Valise.game    _.valise    ValiseMsg
     ]
 
 callByName ∷ ∀r. String → r → (∀st msg. GameWrapperF st msg → r) → r
@@ -166,7 +166,7 @@ update (SolitaireMsg msg) = lens _.solitaire _{solitaire = _} .~> Solitaire.upda
 update (TilingMsg msg)    = lens _.tiling _{tiling = _}       .~> Tiling.update msg
 update (TricolorMsg msg)  = lens _.tricolor _{tricolor = _}   .~> Tricolor.update msg
 update (ValiseMsg msg)    = lens _.valise _{valise = _}       .~> Valise.update msg
-update (OnKeyDown k) = do 
+update (KeyDown k) = do 
         st ← getState
         callByName st.location (pure unit) \game →
             case game.core.onKeydown k of
@@ -174,9 +174,8 @@ update (OnKeyDown k) = do
                 Just msg → update (game.msgmap msg)
 update (UrlChanged url) = do
     let location = extractLocation url.pathname ""
-    let location2 = if location == "" then "main" else location
-    setState _{location = location2}
-    if location2 == "main" then
+    setState _{location = location}
+    if location == "" then
         lens _.valise _{valise = _} .~> Valise.enterA
     else
         pure unit
@@ -190,12 +189,8 @@ init url = do
     for_ (Map.values games) $
         gameRun \game → case game.core.init of
                             Nothing → pure unit
-                            Just i → update $ game.msgmap i
+                            Just init' → update $ game.msgmap init'
     let location = extractLocation url.pathname "valise"
-    if location == "" then
-        Nav.redirectTo $ url.href <> "main"
-    else
-        pure unit
     update (UrlChanged url)
     
 
@@ -206,12 +201,12 @@ view st = {
         div
         [   key st.location
         ,   class_ "main-main-container"
-        ,   class_ (if st.location == "main" then "valise" else "game")
+        ,   class_ (if st.location == "" then "valise" else "game")
         ]
-        [   st.location /= "main" <&&> \_ →
+        [   st.location /= "" <&&> \_ →
                 a
                 [   class_ "main-minivalise-link"
-                ,   href "main"
+                ,   href "."
                 ]
                 [   svg [width "100%", height "100%"]
                     [   use [href "#valise"]]
@@ -231,7 +226,7 @@ main = appWithRouter
     ,   update
     ,   onUrlChange: UrlChanged
     ,   onUrlRequest: UrlRequested
-    ,   subscriptions: const [Subs.onKeyDown (Just <<< OnKeyDown)]
+    ,   subscriptions: const [Subs.onKeyDown (Just <<< KeyDown)]
     ,   interpreter: Run.match 
         {   delay: interpretDelay
         ,   rng: interpretRng

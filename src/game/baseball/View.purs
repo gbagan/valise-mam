@@ -31,12 +31,14 @@ transformBase i nbBases = translate (pc x) (pc y)  <> " rotate(45deg)" where
 
 view ∷ State → VDom Msg
 view state = template {config, board, rules} state where
-    nbBases = state^._nbBases
+    position = state ^. _position
+    nbBases = state ^. _nbBases
     levelFinished = isLevelFinished state
+    missingPeg = state ^. _missingPeg
 
     config = card "Baseball multicolore" [
         iconSelectGroup state "Nombres de bases" [4, 5, 6, 7, 8] nbBases SetNbBases (const identity),
-        icongroup "Options" $ [iundo state, iredo state, ireset state, irules state]
+        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
     ]
 
     board = div [class_ "ui-board baseball-board"] [
@@ -48,8 +50,8 @@ view state = template {config, board, rules} state where
                 ,   stroke color
                 ,   style "transform" $ transformBase i nbBases
                 ]
-        ,   map2 (state^._position) dupColors \peg pos color →
-                peg /= state^._missingPeg <&&> \_ →
+        ,   map2 position dupColors \peg pos color →
+                peg /= missingPeg <&&> \_ →
                     g
                     [   class_ "baseball-player"
                     ,   style "transform" $ translatePeg pos nbBases

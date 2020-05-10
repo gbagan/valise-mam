@@ -44,9 +44,9 @@ istate =
 
 instance game ∷ Game (Array Int) ExtState Int where
     play state i = do
-        let position = state^._position
-        let nbBases = state^._nbBases
-        let j = state^._missingPeg
+        let position = state ^. _position
+        let nbBases = state ^. _nbBases
+        let j = state ^. _missingPeg
         x ← position !! i
         y ← position !! j
         if elem (x / 2 - y / 2) [1, nbBases-1, -1, 1-nbBases] then
@@ -54,10 +54,10 @@ instance game ∷ Game (Array Int) ExtState Int where
         else
             Nothing
 
-    initialPosition state = R.shuffle (0 .. (2 * state^._nbBases - 1))
-    isLevelFinished state = state^._position # allWithIndex \i j → i / 2 == j / 2
+    initialPosition state = R.shuffle (0 .. (2 * state ^. _nbBases - 1))
+    isLevelFinished state = state ^. _position # allWithIndex \i j → i / 2 == j / 2
     -- on tire aléatoirement le jeton manquant
-    onNewGame state = R.int' (2 * state^._nbBases) <#> \i → state # _missingPeg .~ i
+    onNewGame state = R.int' (2 * state ^. _nbBases) <#> \i → state # _missingPeg .~ i
     
     -- fonctions par défault
     computerMove _ = pure Nothing

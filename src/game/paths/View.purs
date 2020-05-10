@@ -54,17 +54,21 @@ heroCursor pp =
 
 view ∷ State → VDom Msg
 view state = template {config, board, rules} state where
-    position = state^._position
-    rows = state^._nbRows
-    columns = state^._nbColumns
-    
+    position = state ^. _position
+    rows = state ^. _nbRows
+    columns = state ^. _nbColumns
+    exit = state ^. _exit
+    mode = state ^. _mode
+    help = state ^. _help
+    pointer = state ^. _pointer
+
     config =
         card "Chemins"
-        [   iconSelectGroup state "Mode de jeu" [Mode1, Mode2] (state^._mode) SelectMode case _ of
+        [   iconSelectGroup state "Mode de jeu" [Mode1, Mode2] mode SelectMode case _ of
                 Mode1 → _{icon = IconSymbol "#paths-mode0", tooltip = Just "Mode 1"}
                 Mode2 → _{icon = IconSymbol "#paths-mode1", tooltip = Just "Mode 2"}
         ,   iconSizesGroup state [4∧6, 5∧5, 3∧8] true
-        ,   icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x → x state
+        ,   icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> (_ $ state)
         ]
 
     hero h = 
@@ -88,9 +92,9 @@ view state = template {config, board, rules} state where
             (repeat (rows * columns) \index →
                 let {row, col} = coords columns index in
                 square
-                {   darken: state^._help && even (row + col)
+                {   darken: help && even (row + col)
                 ,   trap: elem index position && Just index /= last position
-                ,   door: state^._exit == Just index     --- door
+                ,   door: exit == Just index
                 ,   x: toNumber (100 * col)
                 ,   y: toNumber (100 * row)
                 }
@@ -100,10 +104,10 @@ view state = template {config, board, rules} state where
             ) <>
             [   path [d_ pathdec, class_ "paths-path"]
             ,   last position <??> hero,
-                    state^._pointer <??> \pp →
+                    pointer <??> \pp →
                         if null position then
                             heroCursor pp
-                        else if isNothing $ state^._exit then
+                        else if isNothing exit then
                             doorCursor pp
                         else
                             emptyNode

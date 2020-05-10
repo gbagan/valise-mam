@@ -41,27 +41,35 @@ square { piece, capturable, selected, nonavailable} props =
 
 view ∷ State → VDom Msg
 view state = template {config, board, rules, customDialog, scoreDialog} state where
-    position = state^._position
-    rows = state^._nbRows
-    columns = state^._nbColumns
-        
+    position = state ^. _position
+    rows = state ^. _nbRows
+    columns = state ^. _nbColumns
+    allowedPieces = state ^. _allowedPieces
+    multiPieces = state ^. _multiPieces
+    selectedPiece = state ^. _selectedPiece
+    selectedSquare = state ^. _selectedSquare
+    help = state ^. _help
+    pointer = state ^. _pointer
+    customLocalMoves = state ^. _customLocalMoves
+    customDirections = state ^. _customDirections
+
     config =
         card "Les reines"
         [   iconSizesGroup state [4∧4, 5∧5, 7∧7, 8∧8] true
-        ,   iconSelectGroupM state "Pièces disponibles" piecesList (state^._allowedPieces) SelectAllowedPiece \piece →
+        ,   iconSelectGroupM state "Pièces disponibles" piecesList allowedPieces SelectAllowedPiece \piece →
                 _{  icon = IconSymbol $ "#piece-" <> show piece
                 ,   tooltip = Just $ tooltip piece
                 }
         ,   icongroup "Options" $ 
             [   iconbutton state
                 {   icon: IconSymbol "#customize"
-                ,   selected: N.head (state^._allowedPieces) == Custom
+                ,   selected: N.head allowedPieces == Custom
                 ,   tooltip: Just "Crée ta propre propre pièce"
                 }
                 [onclick Customize]
             ,   iconbutton state
                 {   icon: IconSymbol "#piece-mix"
-                ,   selected: state^._multiPieces
+                ,   selected: multiPieces
                 ,   tooltip: Just "Mode mixte"
                 } [
                     onclick ToggleMultiPieces
@@ -72,10 +80,10 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
 
     pieceSelector =
         div [class_ "ui-flex-center gutter2 queens-pieceselector"] $
-            N.toArray (state^._allowedPieces) <#> \piece →
+            N.toArray allowedPieces <#> \piece →
                 let name = show piece in
                 iconbutton state
-                {   selected: piece == state^._selectedPiece
+                {   selected: piece == selectedPiece
                 ,   icon: IconSymbol $ "#piece-" <> name
                 } 
                 [   key name
@@ -85,7 +93,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
     cursor pp =
         div ([class_ "ui-cursor"] <> cursorStyle pp rows columns 0.8)
         [   svg [width "100%", height "100%"]
-            [   use [href $ "#piece-" <> show (state^._selectedPiece)]
+            [   use [href $ "#piece-" <> show selectedPiece]
             ]
         ]
 
@@ -94,8 +102,8 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
         [   map3 position (attackedBySelected state) (capturableSquares state) \index piece attacked capturable →
                 square
                 {   piece
-                ,   selected: attacked || state^._selectedSquare == Just index
-                ,   nonavailable: state^._help && (piece /= Empty || capturable)
+                ,   selected: attacked || selectedSquare == Just index
+                ,   nonavailable: help && (piece /= Empty || capturable)
                 ,   capturable
                 }
                 [   style "width" $ pc (1.0 / toNumber columns)
@@ -104,7 +112,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
                 ,   onpointerenter $ SelectSquare (Just index)
                 ,   onpointerleave $ SelectSquare Nothing
                 ]
-        ,   [state^._pointer <??> cursor]
+        ,   [pointer <??> cursor]
         ]
 
     board = 
@@ -119,7 +127,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
         dialog "Personnalise ta pièce"
         [   div [class_ "flex queens-custompiece"]
             [   div [class_ "queens-grid queens-custompiece-grid"] (
-                    state^._customLocalMoves # mapWithIndex \index selected →
+                    customLocalMoves # mapWithIndex \index selected →
                         square
                         {   piece: if index == 12 then Custom else Empty
                         ,   selected: selected
@@ -132,8 +140,8 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
                         ,   onclick' if index /= 12 then Just (FlipLocalMove index) else Nothing
                         ]
                 )
-            ,   div [class_ "flex queens-custompiece-directions"] (
-                    map2 (state^._customDirections) angles \i selected angle →
+            ,   div [class_ "flex  queens-custompiece-directions"] (
+                    map2 customDirections angles \i selected angle →
                         iconbutton state 
                         {   selected: selected
                         ,       icon: if i == 4 then IconNone else IconSymbol "#arrow"

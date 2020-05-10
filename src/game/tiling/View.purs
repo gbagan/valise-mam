@@ -33,28 +33,33 @@ square {isDark, hasBlock, hasSink, row, col} props =
     
 view ∷ State → VDom Msg
 view state = template {config, board, rules, winTitle, customDialog} state where
-    position = state^._position
-    rows = state^._nbRows
-    columns = state^._nbColumns
-
+    position = state ^. _position
+    rows = state ^. _nbRows
+    columns = state ^. _nbColumns
+    tileType = state ^. _tileType
+    nbSinks = state ^. _nbSinks
+    tile = state ^. _tile
+    rotation = state ^. _rotation
+    help = state ^. _help
+    pointer = state ^. _pointer
+    
     border i di = position !! i /= position !! (i + di)
-
 
     config =
         card "Carrelage"
         [   iconSizesGroup state [4∧5, 5∧5, 5∧6, 8∧8] true
-        ,   iconSelectGroup state "Motif de la tuile" [Type1, Type2, Type3, CustomTile] (state^._tileType) SetTile \t →
+        ,   iconSelectGroup state "Motif de la tuile" [Type1, Type2, Type3, CustomTile] tileType SetTile \t →
                 _{icon = IconSymbol ("#" <> show t)}
-        ,   iconSelectGroup state "Nombre d'éviers" [0, 1, 2] (state^._nbSinks) SetNbSinks (const identity)
-        ,   icongroup "Options" [ihelp state, ireset state, irules state]
+        ,   iconSelectGroup state "Nombre d'éviers" [0, 1, 2] nbSinks SetNbSinks (const identity)
+        ,   icongroup "Options" $ [ihelp, ireset, irules] <#> (_ $ state)
         ]
 
     tileCursor pp =
         g (svgCursorStyle pp)
         [   g [
                 class_ "tiling-cursor",
-                style "transform" $ "rotate(" <> show (90 * state^._rotation) <> "deg)"
-            ] $ state^._tile <#> \{row, col} →
+                style "transform" $ "rotate(" <> show (90 * rotation) <> "deg)"
+            ] $ tile <#> \{row, col} →
                 use
                 [   href "#tile2"
                 ,   x_ $ show (50.0 * toNumber col - 25.0)
@@ -81,7 +86,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
             [   position # mapWithIndex \index pos →
                     let {row, col} = coords columns index in
                     square
-                    {   isDark: state^._help && even (row + col)
+                    {   isDark: help && even (row + col)
                     ,   hasBlock: pos > 0
                     ,   hasSink: pos == -1
                     ,   row
@@ -103,7 +108,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                     ,   pos > 0 && border index columns <&&> \_ →
                             line [x1_ "0", y1_ "50", x2_ "50", y2_ "50", stroke "#000", strokeWidth "2"]    
                     ]
-            ,   [state^._pointer <??> (if length (sinks state) < state^._nbSinks then sinkCursor else tileCursor)]
+            ,   [pointer <??> if length (sinks state) < nbSinks then sinkCursor else tileCursor]
             ]
         ]
 
@@ -113,7 +118,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
         div [class_ "tiling-customtile-grid-container"] [
             div [class_ "tiling-grid"] [
                 svg [viewBox 0 0 250 250] (
-                    state  ^. (_tile ∘ _isoCustom) # mapWithIndex \index hasBlock →
+                    tile ^. _isoCustom # mapWithIndex \index hasBlock →
                         let {row, col} = coords 5 index
                         in square {hasBlock, row, col, hasSink: false, isDark: false}
                             [key (show index), onclick $ FlipTile index]

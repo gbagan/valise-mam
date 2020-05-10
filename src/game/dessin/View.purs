@@ -41,7 +41,7 @@ view state = template {config, board, rules, winTitle} state where
         card "Dessin" 
         [   iconSelectGroup state "Dessin" [0, 1, 2, 3, 4] (state^._graphIndex) SetGraphIndex
                 \i → _{icon = IconText (show (i + 1)) }
-        ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x → x state
+        ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
         ]
 
     board =

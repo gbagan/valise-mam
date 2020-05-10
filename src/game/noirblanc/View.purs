@@ -41,23 +41,27 @@ square light cross props =
     ]
 
 view ∷ State → VDom Msg
-view state = template {config, board, rules, winTitle} state where
-    rows = state^._nbRows
-    columns = state^._nbColumns
-    position = state^._position
+view state = template {config, board, rules} state where
+    rows = state ^. _nbRows
+    columns = state ^. _nbColumns
+    position = state ^. _position
+    level = state ^. _level
+    mode = state ^. _mode
+    maxLevels = state ^. _maxLevels
+    help = state^._help
 
     config = card "Tout noir tout blanc" [
-        iconSelectGroup state "Mode jeu" [0, 1, 2, 3] (state^._mode) SelectMode \i →
+        iconSelectGroup state "Mode jeu" [0, 1, 2, 3] mode SelectMode \i →
             _{icon = IconSymbol $ "#lo-mode" <> show (i + 1)},
-        iconSelectGroup state "Difficulté" [0, 1, 2, 3, 4, 5, 6] (state^._level) SelectLevel \i →
-            levelOptions i (Just i > (state^._maxLevels) !! (state^._mode)),
-        icongroup "Options" $ [ihelp state, ireset state, irules state]
+        iconSelectGroup state "Difficulté" [0, 1, 2, 3, 4, 5, 6] level SelectLevel \i →
+            levelOptions i (Just i > maxLevels !! mode),
+        icongroup "Options" $ [ihelp, ireset, irules] <#> (_ $ state)
     ]
 
     grid = div ([class_ "ui-board"] <> gridStyle rows columns 4) $
         map2 position.light position.played \index light played →
             let {row, col} = coords columns index in
-            square light (state^._help && played)
+            square light (help && played)
             [   key $ show index
             ,   style "height" $ pc (0.86 / toNumber rows)
             ,   style "width" $ pc (0.86 / toNumber columns)
@@ -75,5 +79,3 @@ view state = template {config, board, rules, winTitle} state where
         ,   br
         ,   text "Ce jeu possède différents niveaux débloqués au fur et à mesure ainsi que d'autres modes de jeu. Selon le mode choisi, les règles pour retourner les tuiles changent."
         ]
-
-    winTitle = "GAGNÉ"

@@ -12,13 +12,15 @@ import UI.Icons (icongroup, iconBestScore, iconSizesGroup, iundo, iredo, ireset,
 
 view ∷ State → VDom Msg
 view state = template {config, board, rules, winTitle, scoreDialog} state where
-    position = state^._position
-    columns = state^._nbColumns
-    rows = state^._nbRows
+    position = state ^. _position
+    columns = state ^. _nbColumns
+    rows = state ^. _nbRows
+    dragged = state ^. _dragged
+    pointer = state ^. _pointer
 
     config = card "Jeu des jetons"
         [    iconSizesGroup state [2∧2, 4∧4, 5∧5, 6∧6] true
-        ,    icongroup "Options" $ [iundo state, iredo state, ireset state, irules state]
+        ,    icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
         ,    iconBestScore state
         ]
 
@@ -43,12 +45,12 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                 val /= 0 <&&> \_ →
                     piece i val ([key $ show i] <> 
                         dndItemProps state
-                        {   currentDragged: state^._dragged
+                        {   currentDragged: dragged
                         ,   draggable: true
                         ,   droppable: true
                         ,   id: i
                         })
-        ,   [maybeN $ cursor <$> state^._pointer <*> state^._dragged]
+        ,   [maybeN $ cursor <$> pointer <*> dragged]
         ]
     ]
 

@@ -123,7 +123,7 @@ view state = template {config, board, rules, winTitle} state where
                 ManyGuards → _{icon = IconText "∞", tooltip = Just "Plusieurs gardes" }
             )
         ,   icons2Players state
-        ,   icongroup "Options" $ [iundo, iredo, ireset, iclear, irules] <#> \x → x state
+        ,   icongroup "Options" $ [iundo, iredo, ireset, iclear, irules] <#> (_ $ state)
         ]
 
     grid =
@@ -193,6 +193,8 @@ view state = template {config, board, rules, winTitle} state where
                             ,   fill "transparent"
                             ,   style "transform" $ translateGuard pos
                             ,   onclick' $ if grules == ManyGuards && isJust position.attacked then Nothing else Just (Play i)
+                            ,   class' "eternal-sel" $ phase == PrepPhase || isJust position.attacked && (grules == ManyGuards) == elem i guards 
+                                                                          || not (isJust position.attacked) && not (elem i guards)
                             ]  <> (dndItemProps state
                                 {   draggable: grules == ManyGuards && isJust position.attacked && elem i guards
                                 ,   droppable: true

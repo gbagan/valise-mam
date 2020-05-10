@@ -34,7 +34,7 @@ view state = template {config, board, rules, winTitle} state where
                     BorderMode → opt{icon = IconSymbol "#choc-mode1", tooltip = Just "Sur un bord"}
                     StandardMode → opt{icon = IconSymbol "#choc-mode2", tooltip = Just "N'importe où"}
         ,   icons2Players state
-        ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x → x state
+        ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
         ]
 
     cutter row col move =

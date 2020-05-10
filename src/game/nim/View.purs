@@ -15,15 +15,17 @@ import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset
 
 view ∷ State → VDom Msg
 view state = template {config, board, rules, winTitle} state where
-    nbPiles = state^._nbPiles
-    length = state^._length
+    position = state ^. _position
+    nbPiles = state ^. _nbPiles
+    length = state ^. _length
+    turn = state ^. _turn
 
     config =
         card "Poker Nim"
         [   iconSelectGroup state "Nombre de rangées" [1, 2, 3, 4, 5] nbPiles SetNbPiles (const identity)
         ,   iconSelectGroup state "Taille des rangées" [10, 5] length SetLength (const identity)
         ,   icons2Players state
-        ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> \x → x state
+        ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
         ]
 
     drawRow i =
@@ -59,7 +61,7 @@ view state = template {config, board, rules, winTitle} state where
     board =
         div [class_ "ui-board nim-board"]
         [   svg [viewBox 0 0 100 100] (
-                state^._position # foldMapWithIndex \i (p1 ∧ p2) → concat
+                position # foldMapWithIndex \i (p1 ∧ p2) → concat
                     [   [drawRow i]
                     ,   repeat length (drawSquare i)
                     ,   [p1, p2] # mapWithIndex (drawPeg i)
@@ -69,7 +71,7 @@ view state = template {config, board, rules, winTitle} state where
             text (
                 if isLevelFinished state then
                     "Partie finie"
-                    else if state^._turn == Turn1 then
+                    else if turn == Turn1 then
                     "Tour du joueur bleu"
                 else
                     "Tour du joueur rouge"
@@ -87,4 +89,4 @@ view state = template {config, board, rules, winTitle} state where
         ,   text "Tu gagnes la partie si ton adversaire n'a aucun mouvement possible."
         ]
 
-    winTitle = "Les " <> (if state^._turn == Turn2 then "bleu" else "rouge") <> "s gagnent"
+    winTitle = "Les " <> (if turn == Turn2 then "bleu" else "rouge") <> "s gagnent"

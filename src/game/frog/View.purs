@@ -88,16 +88,21 @@ lily i x y reachable hidden =
         
 view ∷ State → VDom Msg
 view state = template {config, board, rules, winTitle} state where
-    position = state^._position
+    position = state ^. _position
+    moves = state ^. _moves
     reachable = reachableArray state
-    spoints = spiralPoints (state^._nbRows)
-    pointsPolar = spiralPointsPolar $ state^._nbRows
+    spoints = spiralPoints (state ^. _nbRows)
+    pointsPolar = spiralPointsPolar $ state ^. _nbRows
+    marked = state ^. _marked
+    locked = state ^. _locked
+    help = state ^. _help
+    nbRows = state ^. _nbRows
 
     config =
         card "La grenouille"
-        [   iconSelectGroupM state "Déplacements autorisés" [1, 2, 3, 4, 5] (state^._moves) SelectMove (const identity)
+        [   iconSelectGroupM state "Déplacements autorisés" [1, 2, 3, 4, 5] moves SelectMove (const identity)
         ,   icons2Players state
-        ,   icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x → x state
+        ,   icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> (_ $ state)
         ]
 
     drawFrog =
@@ -125,7 +130,7 @@ view state = template {config, board, rules, winTitle} state where
             ]
 
     drawMarked =
-        map2 (state^._marked) spoints \i mark {x, y} →
+        map2 marked spoints \i mark {x, y} →
             mark && i /= position <&&> \_ →
                 use 
                 [   href "#frog2"
@@ -144,8 +149,8 @@ view state = template {config, board, rules, winTitle} state where
             ,   on "click" $ shiftKey >>> map (if _ then Mark i else Play i)
             ]
             [   lily i x y false false
-            ,   lily i x y true (not reach || state^._locked)
-            ,   text' (if state^._help then show $ (state^._nbRows) - i else "")
+            ,   lily i x y true (not reach || locked)
+            ,   text' (if help then show $ nbRows - i else "")
                 [   x_ $ show x, y_ $ show y, class_ "frog-index"
                 ]
             ]

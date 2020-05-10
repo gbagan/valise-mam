@@ -75,7 +75,7 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
                 TorusMode → _{icon = IconSymbol "#grid-torus", tooltip = Just "Torique"}
 
         ,   iconSizesGroup state [3∧3, 5∧5, 6∧6] true
-        ,   icongroup "Options" $ [ihelp state, ireset state, irules state]
+        ,   icongroup "Options" $ [ihelp, ireset, irules] <#> (_ $ state)
         ,   iconBestScore state
         ]
 

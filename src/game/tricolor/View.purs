@@ -22,16 +22,19 @@ translateCell i size = translate (pc x) (pc y) where
 
 view ∷ State → VDom Msg
 view state = template {config, board, rules} state where
-    size = state^._size
-    nbColors = state^._nbColors
+    position = state ^. _position
+    size = state ^. _size
+    nbColors = state ^. _nbColors
+    range = state ^. _range
     levelFinished = isLevelFinished state
+    hoverCell = state ^. _hoverCell
 
     config =
         card "Feux tricolores" 
         [   iconSelectGroup state "Nombre de lumières" [4, 5, 6, 7, 8] size SetSize (const identity)
         ,   iconSelectGroup state "Nombre de couleurs" [2, 3, 4, 5] nbColors SetNbColors (const identity)
-        ,   iconSelectGroup state "Portée" [1, 2, 3] (state^._range) SetRange (const identity)
-        ,   icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> \x → x state
+        ,   iconSelectGroup state "Portée" [1, 2, 3] range SetRange (const identity)
+        ,   icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> (_ $ state)
         ]
 
     drawCell i color =
@@ -39,7 +42,7 @@ view state = template {config, board, rules} state where
         [   r_ "7.5"
         ,   class_ "tricolor-cell"
         ,   class' "finished" levelFinished
-        ,   stroke $ if (inRange state i <$> state^._hoverCell) == Just true then "lightgreen" else "black"
+        ,   stroke $ if (inRange state i <$> hoverCell) == Just true then "lightgreen" else "black"
         ,   key $ "b" <> show i
         ,   style "fill" $ if levelFinished then "" else colors !! color # fromMaybe ""
         ,   style "transform" (translateCell i size)
@@ -69,7 +72,7 @@ view state = template {config, board, rules} state where
     board =
         div [class_ "ui-board tricolor-board"]
         [   svg [viewBox 0 0 100 100] $ concat
-            [   state^._position # mapWithIndex drawCell
+            [   position # mapWithIndex drawCell
             ,   drawColorCycle
             ]
         ]

@@ -56,9 +56,12 @@ cursor {x, y} color = div
 
 view ∷ State → VDom Msg
 view state = template {config, board, rules} state where
-    size = state^._size
-    position = state^._position
+    size = state ^. _size
+    position = state ^. _position
     valid = validRotation state
+    dragged = state ^. _dragged
+    pointer = state ^. _pointer
+    locked = state ^. _locked
 
     config =
         card "Roue des couleurs"
@@ -67,7 +70,7 @@ view state = template {config, board, rules} state where
         ]
 
     draggedColor ∷ Maybe String 
-    draggedColor = state^._dragged >>= \d →
+    draggedColor = state ^. _dragged >>= \d →
         let colorIndex = case d of
                             Panel i → i
                             Wheel i → fromMaybe (-1) $ join (position !! i)
@@ -76,7 +79,7 @@ view state = template {config, board, rules} state where
 
     outerWheel = div 
         [   class_ "roue-outer"
-        ,   style "transform" $ "rotate(" <> show (360.0 * toNumber (state^._rotation) / toNumber size) <> "deg)"
+        ,   style "transform" $ "rotate(" <> show (360.0 * toNumber (state ^. _rotation) / toNumber size) <> "deg)"
         ] $
         [   svg [key "svg", viewBox 0 0 100 100] $ map2 position (aligned state) \i pos align →
                 path (
@@ -89,7 +92,7 @@ view state = template {config, board, rules} state where
                     ,   class_ "roue-wheel-part"
                     ,   fill $ if not align then  "#F0B27A" else if validRotation' state then "lightgreen" else "#F5B7B1"
                     ] <> dndItemProps state
-                        {   currentDragged: state^._dragged
+                        {   currentDragged: dragged
                         ,   draggable: isJust pos
                         ,   droppable: true
                         ,   id: Wheel i
@@ -109,7 +112,7 @@ view state = template {config, board, rules} state where
         div [class_ "roue-buttons"] $ concat
         [   [button [
                 class_ "ui-button ui-button-primary roue-button",
-                disabled $ state^._locked,
+                disabled locked,
                 onclick $ Rotate (-1)
             ] [text "↶"]]
         ,   take size colors # mapWithIndex \i color →
@@ -117,7 +120,7 @@ view state = template {config, board, rules} state where
                     class_ "roue-select-color ui-flex-center",
                     style "background-color" color
                 ] <> dndItemProps state {
-                    currentDragged: state^._dragged,
+                    currentDragged: dragged,
                     draggable: true,
                     droppable: false,
                     id: Panel i
@@ -127,7 +130,7 @@ view state = template {config, board, rules} state where
                 ]
         ,   [button [
                 class_ "ui-button ui-button-primary roue-button",
-                    disabled $ state^._locked,
+                    disabled locked,
                     onclick $ Rotate 1 -- lockAction n'est pas nécessaire
             ] [text "↷"]]
         ]
@@ -141,7 +144,7 @@ view state = template {config, board, rules} state where
             ,   innerWheel size
             ,   button
                 [   class_ "ui-button ui-button-primary roue-validate"
-                ,   disabled $ not valid || state^._locked
+                ,   disabled $ not valid || locked
                 ,   onclick Check
                 ]
                 [text "Valider"]
@@ -152,7 +155,7 @@ view state = template {config, board, rules} state where
                         span [class_ "invalid"] [text "✗"]
                 ]
             ]
-        ,   maybeN $ cursor <$> state^._pointer <*> draggedColor
+        ,   maybeN $ cursor <$> pointer <*> draggedColor
         ]
 
     rules = 

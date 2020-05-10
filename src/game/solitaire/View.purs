@@ -24,9 +24,15 @@ cursor pp _ = circle ([r_ "20", class_ "solitaire-cursor"] <> svgCursorStyle pp)
 
 view ∷ State → VDom Msg
 view state = template {config, board, rules, winTitle, scoreDialog} state where
-    columns = state^._nbColumns
-    rows = state^._nbRows
-    isCircleBoard = state^._board == CircleBoard
+    position = state ^. _position
+    columns = state ^. _nbColumns
+    rows = state ^. _nbRows
+    isCircleBoard = state ^. _board == CircleBoard
+    board_ = state ^. _board
+    help = state ^. _help
+    pointer = state ^. _pointer
+    dragged = state ^. _dragged
+    holes = state ^. _holes
 
     itemStyle i = 
         let {row, col} = coords columns i in
@@ -42,7 +48,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
     config =
         let boards = [CircleBoard, Grid3Board, RandomBoard, EnglishBoard, FrenchBoard] in        
         card "Jeu du solitaire"
-        [   iconSelectGroup state "Plateau" boards (state^._board) SetBoard \i opt → case i of
+        [   iconSelectGroup state "Plateau" boards board_ SetBoard \i opt → case i of
                 CircleBoard → opt{icon = IconSymbol "#circle", tooltip = Just "Cercle"}
                 Grid3Board → opt{icon = IconText "3xN", tooltip = Just "3xN"}
                 RandomBoard → opt{icon = IconSymbol "#shuffle", tooltip = Just "Aléatoire"}
@@ -53,14 +59,14 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
         ]
 
     drawHole i = 
-        [   state^._help > 0 && not isCircleBoard <&&> \_ →
+        [   help > 0 && not isCircleBoard <&&> \_ →
                 rect
                 [   x_ "-25"
                 ,   y_ "-25"
                 ,   width "50"
                 ,   height "50"
                 ,   key $ "rect" <> show i
-                ,   fill $ tricolor i columns (state^._help)
+                ,   fill $ tricolor i columns help
                 ,   style "transform" (itemStyle i)
                 ]
         ,   circle (
@@ -69,7 +75,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
             ,   class_ "solitaire-hole"
             ,   style "transform" (itemStyle i)
             ] <> dndItemProps state 
-                {   currentDragged: state^._dragged
+                {   currentDragged: dragged
                 ,   draggable: false
                 ,   droppable: true
                 ,   id: i
@@ -86,7 +92,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
         ] <> dndItemProps state
             {   draggable: true
             ,   droppable: false
-            ,   currentDragged: state^._dragged
+            ,   currentDragged: dragged
             ,   id: i
             }
         )
@@ -105,17 +111,17 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
             [   [isCircleBoard <&&> \_ →
                     circle [cx "125", cy "125", r_ "90", class_ "solitaire-circle"]
                 ]
-            ,   concat $ state^._holes # mapWithIndex \i hasHole →
+            ,   concat $ holes # mapWithIndex \i hasHole →
                     if hasHole then drawHole i else []
-            ,   state^._position # mapWithIndex \i hasPeg →
+            ,   position # mapWithIndex \i hasPeg →
                     hasPeg <&&> \_ → drawPeg i
-            ,   [maybeN $ cursor <$> state^._pointer <*> state^._dragged]
+            ,   [maybeN $ cursor <$> pointer <*> dragged]
             ]
         ]
 
     board = incDecGrid state [grid]
 
-    scoreDialog _ = bestScoreDialog state \position → [
+    scoreDialog _ = bestScoreDialog state \bestPosition → [
         div [class_ "ui-flex-center solitaire-scoredialog"] [
             div([class_ "ui-board"] <> (if isCircleBoard then 
                                     [style "width" "100%", style "height" "100%"] 
@@ -126,7 +132,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                 [   [isCircleBoard <&&> \_ →
                         circle [cx "125", cy "125", r_ "90", class_ "solitaire-circle"]
                     ]
-                ,   state^._holes # mapWithIndex \i → (_ <&&> \_ →
+                ,   holes # mapWithIndex \i → (_ <&&> \_ →
                         circle
                         [   key $ "h" <> show i
                         ,   r_ "17"
@@ -134,7 +140,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                         ,   style "transform" $ itemStyle i
                         ]
                     )
-                ,   position # mapWithIndex \i → (_ <&&> \_ →
+                ,   bestPosition # mapWithIndex \i → (_ <&&> \_ →
                         circle
                         [   key $ "p" <> show i
                         ,   r_ "20"

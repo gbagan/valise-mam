@@ -442,6 +442,9 @@ html, body {
   .eternal-guard.no-move {
     transition: none; }
 
+.eternal-sel {
+  cursor: pointer; }
+
 .eternal-info {
   position: absolute;
   bottom: 1rem;

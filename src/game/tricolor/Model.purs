@@ -3,7 +3,7 @@ module Game.Tricolor.Model where
 import MyPrelude
 import Lib.Util (abs)
 import Pha.Random as R
-import Pha.Update (Update, purely)
+import Pha.Update (Update, modify)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class MsgWithCore, GState, CoreMsg,
                 coreUpdate, playA, _ext, genState, newGame, _position, defaultSizeLimit)
@@ -68,4 +68,4 @@ update (Play i) = playA i
 update (SetSize size) = newGame $ _size .~ size
 update (SetNbColors n) = newGame $ _nbColors .~ n
 update (SetRange n) = newGame $ _range .~ n
-update (SetHoverCell i) = purely $ _hoverCell .~ i
+update (SetHoverCell i) = modify $ _hoverCell .~ i

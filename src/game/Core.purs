@@ -6,7 +6,7 @@ import Data.Map (Map)
 import Data.Map as M
 import Pha.Random (Random)
 import Pha.Random as R
-import Pha.Update (Update, getState, setState, purely)
+import Pha.Update (Update, get, modify, put)
 import Game.Effs (RNG, EFFS, delay, DELAY, randomGenerate, randomly)
 
 -- ConfirmNewGame contient le futur état d'une nouvelle partie
@@ -159,7 +159,7 @@ class MsgWithCore a where
     core ∷ CoreMsg → a
 
 coreUpdate ∷ ∀pos ext mov. Game pos ext mov ⇒ CoreMsg → Update (GState pos ext) EFFS
-coreUpdate Undo = purely \state → case state^._history of
+coreUpdate Undo = modify \state → case state^._history of
     Nil → state
     Cons h rest →
         state # changeTurn
@@ -168,7 +168,7 @@ coreUpdate Undo = purely \state → case state^._history of
               # _redoHistory %~ Cons (state^._position)
               # onPositionChange
 
-coreUpdate Redo = purely \state → case state^._redoHistory of
+coreUpdate Redo = modify \state → case state^._redoHistory of
     Nil → state
     Cons h rest →
         state # changeTurn
@@ -177,7 +177,7 @@ coreUpdate Redo = purely \state → case state^._redoHistory of
               # _history %~ Cons (state^._position)
               # onPositionChange
 
-coreUpdate Reset = purely \state → case L.last (state^._history) of
+coreUpdate Reset = modify \state → case L.last (state^._history) of
     Nothing → state
     Just x → state # _position .~ x
                     # _history .~ Nil
@@ -185,7 +185,7 @@ coreUpdate Reset = purely \state → case L.last (state^._history) of
                     # _turn .~ Turn1
                     # onPositionChange
 coreUpdate Clear = newGame identity
-coreUpdate ToggleHelp =  purely $ _help %~ not
+coreUpdate ToggleHelp = modify $ _help %~ not
 coreUpdate (SetMode mode) = newGame (_mode .~ mode)
 coreUpdate (SetGridSize nbRows nbColumns customSize) = 
     newGame $ setSize' ∘ (_customSize .~ customSize) where
@@ -195,17 +195,17 @@ coreUpdate (SetGridSize nbRows nbColumns customSize) =
         else
             state
         where SizeLimit minrows mincols maxrows maxcols = sizeLimit state
-coreUpdate (SetCustomSize bool) = purely $ _customSize .~ bool
-coreUpdate SetNoDialog = purely $ _dialog .~ NoDialog
-coreUpdate SetRulesDialog = purely $ _dialog .~ Rules
-coreUpdate SetScoreDialog = purely $ _dialog .~ ScoreDialog
-coreUpdate ConfirmNewGame = purely \state →
+coreUpdate (SetCustomSize bool) = modify $ _customSize .~ bool
+coreUpdate SetNoDialog = modify $ _dialog .~ NoDialog
+coreUpdate SetRulesDialog = modify $ _dialog .~ Rules
+coreUpdate SetScoreDialog = modify $ _dialog .~ ScoreDialog
+coreUpdate ConfirmNewGame = modify \state →
                         case state^._dialog of
                             ConfirmNewGameDialog st → st
                             _ → state
-coreUpdate (SetPointer pos) = purely $ _pointer .~ pos
+coreUpdate (SetPointer pos) = modify $ _pointer .~ pos
 coreUpdate ComputerStarts = do
-    setState $ pushToHistory >>> (_turn %~ oppositeTurn)
+    modify $ pushToHistory >>> (_turn %~ oppositeTurn)
     computerPlay
 coreUpdate Init = newGame identity
 
@@ -222,30 +222,30 @@ pushToHistory state = state # _history %~ Cons (state^._position) # _redoHistory
 
 showVictory ∷ ∀pos ext effs. Update (GState pos ext) (delay ∷ DELAY | effs)
 showVictory = do
-    setState $ _showWin .~ true
+    modify $ _showWin .~ true
     delay 1000
-    setState $ _showWin .~ false
+    modify $ _showWin .~ false
 
 computerPlay ∷ ∀pos ext mov effs. Game pos ext mov ⇒ Update (GState pos ext) (rng ∷ RNG, delay ∷ DELAY | effs)
 computerPlay = do
-    state ← getState
+    state ← get
     move ← randomGenerate $ computerMove state
     case flip playAux state =<< move of
         Nothing → pure unit
         Just st2 → do
-            setState (const st2)
+            put st2
             when (isLevelFinished st2) showVictory
 
 playA ∷ ∀pos ext mov effs. Game pos ext mov ⇒ mov → Update (GState pos ext) (delay ∷ DELAY, rng ∷ RNG | effs)
 playA move = lockAction $ do
-    state ← getState
+    state ← get
     case playAux move $ pushToHistory $ state of
         Nothing → pure unit
         Just st2 → do
-            setState \_ → st2
+            put st2
             if isLevelFinished st2 then do
                 let st3 ∧ isNewRecord = updateScore st2
-                setState \_ → st3
+                put st3
                 when isNewRecord showVictory
             else if st2^._mode == ExpertMode || st2^._mode == RandomMode then
                 delay 1000 *> computerPlay
@@ -256,10 +256,10 @@ playA move = lockAction $ do
 -- | en mettant locked à true au début de l'action et à false à la fin de l'action.
 -- | L'action n'est pas executé si locked est déjà à true
 lockAction ∷ ∀pos ext effs. Update (GState pos ext) effs → Update (GState pos ext) effs 
-lockAction act = unlessM (view _locked <$> getState) do
-        setState (_locked .~ true)
-        act
-        setState (_locked .~ false)
+lockAction action = unlessM (view _locked <$> get) do
+        modify (_locked .~ true)
+        action
+        modify (_locked .~ false)
 
 -- | fonction auxiliaire pour newGame
 newGameAux ∷ ∀pos ext mov. Game pos ext mov ⇒
@@ -368,17 +368,17 @@ class MsgWithDnd msg i | msg → i where
 
 dndUpdate ∷ ∀pos ext i. Eq i ⇒ Game pos ext {from ∷ i, to ∷ i} ⇒ 
     Lens' (GState pos ext) (Maybe i) → DndMsg i → Update (GState pos ext) EFFS
-dndUpdate _dragged (Drag i) = purely $ _dragged .~ Just i
+dndUpdate _dragged (Drag i) = modify $ _dragged .~ Just i
 dndUpdate _dragged (Drop i) = dropA _dragged i
-dndUpdate _dragged Leave = purely $ _dragged .~ Nothing
-dndUpdate _dragged DropOnBoard = purely $ _dragged .~ Nothing
+dndUpdate _dragged Leave = modify $ _dragged .~ Nothing
+dndUpdate _dragged DropOnBoard = modify $ _dragged .~ Nothing
 
 dropA ∷ ∀pos ext dnd effs. Eq dnd ⇒  Game pos ext {from ∷ dnd, to ∷ dnd} ⇒
             Lens' (GState pos ext) (Maybe dnd) → dnd → Update (GState pos ext) (rng ∷ RNG, delay ∷ DELAY | effs)
 dropA dragLens to = do
-    state ← getState
+    state ← get
     case state ^. dragLens of
         Nothing → pure unit
         Just drag → do
-            setState (dragLens .~ Nothing)
+            modify (dragLens .~ Nothing)
             if drag /= to then playA { from: drag, to } else pure unit

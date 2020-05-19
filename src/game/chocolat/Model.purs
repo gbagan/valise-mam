@@ -3,7 +3,7 @@ import MyPrelude
 import Data.Int.Bits ((.^.))
 import Lib.Util ((..))
 import Pha.Random as R
-import Pha.Update (Update, purely)
+import Pha.Update (Update, modify)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, SizeLimit(..), GState, Mode(..),
                 coreUpdate, playA, _ext, genState, newGame, computerMove', _position, _nbRows, _nbColumns)
@@ -86,6 +86,6 @@ instance withcore ∷ MsgWithCore Msg where core = Core
     
 update ∷ Msg → Update State EFFS
 update (Core msg) = coreUpdate msg
-update (SetHover a) = purely $ _moveWhenHover .~ a 
+update (SetHover a) = modify $ _moveWhenHover .~ a 
 update (SetSoapMode m) = newGame (_soapMode .~ m)
-update (Play move) = purely (_moveWhenHover .~ Nothing) *> playA move
+update (Play move) = modify (_moveWhenHover .~ Nothing) *> playA move

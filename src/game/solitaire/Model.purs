@@ -1,7 +1,7 @@
 module Game.Solitaire.Model where
 import MyPrelude
 import Data.FoldableWithIndex (allWithIndex)
-import Pha.Update (Update, purely)
+import Pha.Update (Update, modify)
 import Pha.Random (Random)
 import Pha.Random as R
 import Lib.Util (repeat, repeat2, dCoords)
@@ -148,7 +148,7 @@ instance withcore ∷ MsgWithCore Msg where core = Core
 instance withdnd ∷ MsgWithDnd Msg Int where dndmsg = DnD  
     
 update ∷ Msg → Update State EFFS
-update (Core ToggleHelp) = purely $ _help %~ \x → (x + 1) `mod` 3
+update (Core ToggleHelp) = modify $ _help %~ \x → (x + 1) `mod` 3
 update (Core msg) = coreUpdate msg
 update (DnD msg) = dndUpdate _dragged msg
 update (SetBoard board) = newGame \state →

@@ -5,7 +5,7 @@ import Data.Lazy (defer, force)
 import Lib.Util (repeat, (..))
 import Data.Array.NonEmpty (NonEmptyArray, singleton, fromArray, cons) as N
 import Lib.KonamiCode (konamiCode)
-import Pha.Update (Update, purely)
+import Pha.Update (Update, modify)
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, Mode(..), GState, SizeLimit(..),
               playA,  _ext, coreUpdate, newGame, computerMove', genState, _position, _nbRows)
 import Game.Effs (EFFS)
@@ -96,9 +96,9 @@ update (SelectMove move) = newGame $ _moves %~ selectMove where
         # N.fromArray
         # fromMaybe moves
 -- place/retire une marque à la position i
-update (Mark i) = purely $ _marked ∘ ix i %~ not
+update (Mark i) = modify $ _marked ∘ ix i %~ not
 update (Play i) = playA i
-update (Konami s) = s # konamiCode _keySequence (purely \st → st # _marked .~ st^._winning)
+update (Konami s) = s # konamiCode _keySequence (modify \st → st # _marked .~ st^._winning)
 
 onKeyDown ∷ String → Maybe Msg
 onKeyDown = Just <<< Konami 

@@ -68,10 +68,10 @@ instance nimGame2 ∷ TwoPlayersGame (Array (Tuple Int Int)) ExtState Move where
     possibleMoves state =
         repeat2 (state^._nbPiles) (state^._length) Move
         # filter (canPlay state)
-        # sortWith \(Move pile pos) → state^._position !! pile # maybe 0
-            \x → if state^._turn == Turn1 then fst x - pos else pos - snd x
+        # sortWith \(Move pile pos) → state ^. _position !! pile # maybe 0
+            \x → if state ^. _turn == Turn1 then fst x - pos else pos - snd x
 
-    isLosingPosition = view _position >>> foldr (\t → xor (snd t - fst t - 1)) 0 >>> (_ == 0)
+    isLosingPosition st = (st ^. _position # foldr (\(x /\ y) → xor (y - x - 1)) 0) == 0
 
 data Msg = Core CoreMsg | SetNbPiles Int | SetLength Int | Play Move
 instance withcore ∷ MsgWithCore Msg where core = Core

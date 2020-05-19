@@ -1,13 +1,13 @@
 module Game.Paths.Model where
 import MyPrelude
-import Data.Array.NonEmpty (fromArray, head, last, init, tail) as N
+import Data.Array (init)
 import Pha.Random as R
 import Lib.Util (dCoords, rangeWithStep)
 import Game.Effs (EFFS)
 import Game.Core (GState, class Game, class MsgWithCore, CoreMsg, SizeLimit(..), 
         coreUpdate,
         _ext, newGame, genState, _nbRows, _nbColumns, _position, playA)
-import Pha.Update (Update, getState, purely)
+import Pha.Update (Update, get, modify)
 
 data Mode = Mode1 | Mode2
 derive instance eqMode ∷ Eq Mode
@@ -33,7 +33,7 @@ _exit = _ext' ∘ lens _.exit _{exit = _}
 _mode ∷ Lens' State Mode
 _mode = _ext' ∘ lens _.mode _{mode = _}
 
--- renvoie un chemin horizontal ou vertical entre u et v si celui ci existe (u exclus)
+-- renvoie un chemin horizontal ou vertical entre u et v si celui ci existe (u exclus du chemin)
 pathBetween ∷ Int → Int → Int → Maybe (Array Int)
 pathBetween columns u v =
     let {row, col} = dCoords columns u v in
@@ -48,13 +48,11 @@ pathBetween columns u v =
 -- on ne peut pas passer par le sommet de sortie sauf si c'est le sommet final
 isValidPath ∷ State → Array Int → Boolean
 isValidPath state path = fromMaybe true $ do
-    exit ← state^._exit
-    path' ← N.fromArray path
-    let path2 = N.init path'
-    path2' ← N.fromArray path2
-    let path3 = N.tail path2'    
-    let begin = N.head path'
-    let end = N.last path'
+    exit ← state ^. _exit
+    path2 ← init path
+    path3 ← tail path2
+    begin ← head path
+    end ← last path
     pure $ length (nub path2) == length path2 && not (elem exit path3) && not (elem end path3) && (
         begin /= end || length path == (state^._nbRows) * (state^._nbColumns) + (if begin == exit then 1 else 0) && end == exit
     )
@@ -79,12 +77,14 @@ instance game ∷ Game (Array Int) Ext Int where
 
     onNewGame state = flip (set _exit) state <$>
         if state^._mode == Mode1 then
-            R.int' (state^._nbRows * state^._nbColumns) <#> Just
+            Just <$> R.int' (state^._nbRows * state^._nbColumns) 
         else
             pure Nothing
 
-    computerMove _ = pure Nothing
     sizeLimit _ = SizeLimit 2 2 9 9
+
+    -- méthodes par défault
+    computerMove _ = pure Nothing
     updateScore st = st ∧ true
     onPositionChange = identity
 
@@ -95,11 +95,11 @@ update ∷ Msg → Update State EFFS
 update (Core msg) = coreUpdate msg
 
 update (SelectVertex v) = do
-    state ← getState
+    state ← get
     if null (state^._position) then
-        purely (_position .~ [v])
+        modify (_position .~ [v])
     else if isNothing (state^._exit) then
-        purely (_exit .~ Just v)
+        modify (_exit .~ Just v)
     else
         playA v
 

@@ -1,7 +1,7 @@
 module Game.Labete.Model where
 import MyPrelude
 import Lib.Util (coords, repeat2, abs)
-import Pha.Update (Update, purely)
+import Pha.Update (Update, modify)
 import Game.Common (_isoCustom)
 import Game.Effs (EFFS)
 import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, 
@@ -139,7 +139,7 @@ nonTrappedBeastOnGrid st =
           columns = st^._nbColumns
 
 getNewBeast ∷ State → Array Beast
-getNewBeast state = case state^._beastType of
+getNewBeast state = case state ^. _beastType of
     Type1 → [type1]
     Type2 → [type2]
     Type3 → [type3]
@@ -183,7 +183,7 @@ instance withcore ∷ MsgWithCore Msg where core = Core
 update ∷ Msg → Update State EFFS
 update (Core msg) = coreUpdate msg
 update (SetMode m) = newGame $ _mode .~ m
-update (SetHelp a) = purely $ _help .~ a
+update (SetHelp a) = modify $ _help .~ a
 update (SetBeast ttype) = newGame $ 
                             (_beastType .~ ttype) >>> 
                             (if ttype == CustomBeast then
@@ -191,13 +191,13 @@ update (SetBeast ttype) = newGame $
                             else
                                 identity
                             )
-update (IncSelectedColor i) = purely $ _selectedColor %~ \x → (x + i) `mod` 9
+update (IncSelectedColor i) = modify $ _selectedColor %~ \x → (x + i) `mod` 9
 -- le début d'une zone est décomposé en deux actions
 -- startZoneA est activé lors  du onpointerdown sur l'élément html réprésentant le carré
-update (StartZone s) = purely $ _startSquare .~ Just s
+update (StartZone s) = modify $ _startSquare .~ Just s
 -- startZone2A est appliqué lors du onpointerdown sur l'élément html réprésentant le plateu
-update (StartZone2 pos) = purely $ _startPointer .~ Just pos
-update (FinishZone index1) = purely \state → case state^._startSquare of
+update (StartZone2 pos) = modify $ _startPointer .~ Just pos
+update (FinishZone index1) = modify \state → case state^._startSquare of
     Nothing → state
     Just index2 →
         let {row: row1, col: col1} = coords (state^._nbColumns) index1

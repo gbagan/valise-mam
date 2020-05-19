@@ -8,7 +8,7 @@ import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, GState,
     CoreMsg,  DndMsg(DropOnBoard),
     coreUpdate, dndUpdate,
     genState, newGame, lockAction, _ext, _position, _showWin, defaultSizeLimit)
-import Pha.Update (Update, purely, getState, setState)
+import Pha.Update (Update, get, modify)
 import Pha.Effects.Delay  (delay)
 
 type Position = Array (Maybe Int)
@@ -86,25 +86,25 @@ instance withdnd ∷ MsgWithDnd Msg Location where dndmsg = DnD
     
 update ∷ Msg → Update State EFFS
 update (Core msg) = coreUpdate msg
-update (DnD DropOnBoard) = purely \state →
+update (DnD DropOnBoard) = modify \state →
         let state2 = state # _dragged .~ Nothing in
         case state^._dragged of
             Just (Wheel i) → state2 # _position ∘ ix i .~ Nothing
             _ → state2
 update (DnD msg) = dndUpdate _dragged msg
-update (Rotate i) = purely $ rotate i
+update (Rotate i) = modify $ rotate i
 update (SetSize i) = newGame $ _size .~ i
-update Check = lockAction $ getState >>= \st → tailRecM go (st^._size) where
+update Check = lockAction $ get >>= \st → tailRecM go (st^._size) where
         go 0 = do
-            setState (_showWin .~ true)
-            delay $ 1000
-            setState (_showWin .~ false)
+            modify $ _showWin .~ true
+            delay 1000
+            modify $ _showWin .~ false
             pure (Done unit)
         go i = do
-            st2 ← getState
+            st2 ← get
             if not (validRotation st2) then
-                pure (Done unit)
+                pure $ Done unit
             else do
-                setState (rotate 1)
+                modify $ rotate 1
                 delay 600
                 pure $ Loop (i-1)

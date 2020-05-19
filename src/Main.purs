@@ -34,7 +34,7 @@ import Pha.Elements (div, a)
 import Pha.Lens (updateOver)
 import Pha.Subs as Subs
 import Pha.Svg (svg, use, width, height)
-import Pha.Update (Update, getState, setState)
+import Pha.Update (Update, get, modify)
 import Run as Run
 import Unsafe.Coerce (unsafeCoerce)
 
@@ -167,14 +167,14 @@ update (TilingMsg msg)    = lens _.tiling _{tiling = _}       .~> Tiling.update 
 update (TricolorMsg msg)  = lens _.tricolor _{tricolor = _}   .~> Tricolor.update msg
 update (ValiseMsg msg)    = lens _.valise _{valise = _}       .~> Valise.update msg
 update (KeyDown k) = do 
-        st ← getState
+        st ← get
         callByName st.location (pure unit) \game →
             case game.core.onKeydown k of
                 Nothing → pure unit
                 Just msg → update (game.msgmap msg)
 update (UrlChanged url) = do
     let location = extractLocation url.pathname ""
-    setState _{location = location}
+    modify _{location = location}
     if location == "" then
         lens _.valise _{valise = _} .~> Valise.enterA
     else

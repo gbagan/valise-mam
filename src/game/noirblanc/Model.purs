@@ -4,7 +4,7 @@ import Pha.Random (Random)
 import Pha.Random as R
 import Lib.Util (dCoords)
 import Lib.KonamiCode (konamiCode)
-import Pha.Update (Update, getState, setState, purely)
+import Pha.Update (Update, get, modify)
 import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg, 
          _ext, coreUpdate, playA, isLevelFinished, _position, _nbColumns, _nbRows, newGame, genState)
 import Game.Effs (EFFS, RNG, DELAY)
@@ -13,8 +13,8 @@ import Game.Effs (EFFS, RNG, DELAY)
 -- light indique si la case de numéro i est allumée
 -- played indique si l'on a joué sur la case de numéro i
 -- un coup (move) est représenté par le numéro de case que l'on active
-
 type Position = { light ∷ Array Boolean, played ∷ Array Boolean }
+
 type Ext' = 
     {   mode ∷ Int                 -- entre 0 et 3
     ,   level ∷ Int                -- le niveau en cours
@@ -92,9 +92,10 @@ instance noirblancGame ∷ Game { light ∷ Array Boolean, played ∷ Array Bool
         let rows ∧ columns = fromMaybe (8∧8) (sizes !! (state^._level)) in
         pure (state # _nbRows .~ rows # _nbColumns .~ columns)
 
-    computerMove _ = pure Nothing
     sizeLimit _ = SizeLimit 3 3 10 10
 
+    -- méthodes par default
+    computerMove _ = pure Nothing
     updateScore st = st ∧ true
     onPositionChange = identity
 
@@ -105,14 +106,14 @@ sizes = [3∧3, 4∧4, 2∧10, 3∧10, 5∧5, 8∧8, 8∧8]
 -- | et l'on passe au niveau suivant
 afterPlay ∷ ∀effs. Update State (rng ∷ RNG, delay ∷ DELAY | effs)
 afterPlay = do
-    state ← getState
+    state ← get
     let mode = state^._mode
     when (isLevelFinished state) do
         let nextLevel = if state^._level >= 4 then
                         6
                     else
                         state^._level + (if mode == 0 || mode == 3 then 1 else 2)
-        setState $ _maxLevels ∘ ix mode .~ nextLevel
+        modify $ _maxLevels ∘ ix mode .~ nextLevel
         newGame $ _level %~ \lvl → min (lvl + 1) 6
 
 data Msg = Core CoreMsg | SelectMode Int | SelectLevel Int | Play Int | Konami String
@@ -123,7 +124,7 @@ update (Core msg) = coreUpdate msg
 update (SelectMode mode) = newGame $ (_mode .~ mode) ∘ (_level .~ 0)
 update (SelectLevel level) = newGame (_level .~ level)
 update (Play move) = playA move *> afterPlay
-update (Konami k) = konamiCode _keySequence (purely $ _maxLevels .~ [6, 6, 6, 6]) k
+update (Konami k) = konamiCode _keySequence (modify $ _maxLevels .~ [6, 6, 6, 6]) k
 
 onKeyDown ∷ String → Maybe Msg
 onKeyDown = Just <<< Konami

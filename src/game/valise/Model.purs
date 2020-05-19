@@ -1,6 +1,6 @@
 module Game.Valise.Model where
 import MyPrelude
-import Pha.Update (Update, purely, setState)
+import Pha.Update (Update, put, modify)
 import Data.Map (Map, empty) as M
 import Game.Effs (EFFS, DELAY, delay)
 
@@ -42,18 +42,18 @@ _isSwitchOn = lens _.isSwitchOn _{isSwitchOn = _}
 
 enterA ∷ ∀effs. Update State (delay ∷ DELAY | effs) 
 enterA = do
-    setState \_ → istate
+    put istate
     delay 1500
-    setState _{isOpen = true}
+    modify _{isOpen = true}
 
 data Msg = ShowHelp String | ToggleSwitch | SetDrag (Maybe { name ∷ String, x ∷ Number, y ∷ Number })
           | MoveObject {x ∷ Number, y ∷ Number}
 
 update ∷ Msg → Update State EFFS
-update (ShowHelp help) = purely $ (_help %~ if help == "" then identity else const help) >>> (_helpVisible .~ (help /= ""))
-update ToggleSwitch = purely $ _isSwitchOn %~ not
-update (SetDrag d) = purely _{drag = d}
-update (MoveObject {x, y}) = purely \state →
+update (ShowHelp help) = modify $ (_help %~ if help == "" then identity else const help) >>> (_helpVisible .~ (help /= ""))
+update ToggleSwitch = modify $ _isSwitchOn %~ not
+update (SetDrag d) = modify _{drag = d}
+update (MoveObject {x, y}) = modify \state →
     case state.drag of
         Just {name, x: x2, y: y2} → state # _positions ∘ at name .~ Just {x: x-x2, y: y-y2} 
         _ → state

@@ -7,7 +7,7 @@ import Game.Core (class Game, class MsgWithCore, CoreMsg, GState, SizeLimit(..),
 import Game.Effs (EFFS)
 import Pha.Random as R
 import Lib.Util (repeat, repeat2, (..))
-import Pha.Update (Update, getState, purely)
+import Pha.Update (Update, get, modify)
 
 -- type d'arête d'un graphe
 data Edge = Edge Int Int
@@ -309,7 +309,6 @@ dragGuard to st =
             let to2 = fromMaybe from to in
             st # _nextmove %~ addToNextMove (st^._graph).edges from to2 (st^._position).guards  # _draggedGuard .~ Nothing
 
-
 data Msg = Core CoreMsg | SetGraphKind GraphKind | SetRules Rules 
             | DragGuard Int | DropGuard Int | LeaveGuard | DropOnBoard
             | StartGame | MoveGuards | ToggleGuard Int | Play Int
@@ -325,20 +324,20 @@ update (SetGraphKind kind) = newGame ((_graphkind .~ kind) <<< (
                                             _ → (_nbRows .~ 6) <<< (_nbColumns .~ 0)
                                     ))
 update (SetRules rules) = newGame (_rules .~ rules)
-update StartGame = purely startGame
+update StartGame = modify startGame
 update MoveGuards = do
-    st ← getState
-    playA $ Defense (st^._nextmove)
+    st ← get
+    playA $ Defense (st ^. _nextmove)
 update (ToggleGuard x) = pure unit
-update (DragGuard x) = purely $ _draggedGuard .~ Just x
-update (DropGuard to) = purely $ dragGuard (Just to)
-update LeaveGuard = purely $ _draggedGuard .~ Nothing
-update DropOnBoard = purely $ dragGuard Nothing
+update (DragGuard x) = modify $ _draggedGuard .~ Just x
+update (DropGuard to) = modify $ dragGuard (Just to)
+update LeaveGuard = modify $ _draggedGuard .~ Nothing
+update DropOnBoard = modify $ dragGuard Nothing
 
 update (Play x) = do
-    st ← getState
+    st ← get
     let guards = (st^._position).guards
     case st^._phase ∧ (st^._position).attacked  of
-        PrepPhase ∧ _ → purely $ _position ∘ _guards %~ toggleGuard x
+        PrepPhase ∧ _ → modify $ _position ∘ _guards %~ toggleGuard x
         GamePhase ∧ Just attacked → playA $ Defense (addToNextMove (st^._graph).edges x attacked guards guards)
         GamePhase ∧ Nothing → playA (Attack x)

@@ -29,6 +29,8 @@ istate ∷ State
 istate = genState [] _{nbRows = 4, nbColumns = 4} (Ext { dragged: Nothing })
 
 instance game ∷ Game (Array Int) Ext { from ∷ Int, to ∷ Int } where
+    name _ = "jetons"
+
     play state {from, to} = do
         let position = state^._position
         let {row, col} = dCoords (state^._nbColumns) from to
@@ -57,6 +59,8 @@ instance game ∷ Game (Array Int) Ext { from ∷ Int, to ∷ Int } where
     onNewGame = defaultOnNewGame
     updateScore = updateScore' AlwaysShowWin
     onPositionChange = identity
+    saveToJson _ = Nothing
+    loadFromJson st _ = st
 
 instance scoregame ∷ ScoreGame (Array Int) Ext { from ∷ Int, to ∷ Int } where
     objective state = Minimize

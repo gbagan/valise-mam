@@ -43,6 +43,8 @@ istate =
     )
 
 instance game ∷ Game (Array Int) ExtState Int where
+    name _ = "baseball"
+
     play state i = do
         let position = state ^. _position
         let nbBases = state ^. _nbBases
@@ -64,6 +66,8 @@ instance game ∷ Game (Array Int) ExtState Int where
     sizeLimit = defaultSizeLimit
     updateScore st = st ∧ true 
     onPositionChange = identity
+    saveToJson _ = Nothing
+    loadFromJson st _ = st
 
 data Msg = Core CoreMsg | SetNbBases Int | Play Int
 instance withcore ∷ MsgWithCore Msg where core = Core

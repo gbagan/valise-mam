@@ -7,8 +7,9 @@ import Game.Noirblanc.Model (State, Msg(..), _level, _mode, _maxLevels)
 import Lib.Util (coords, map2)
 import Pha (Prop, VDom, text, class_, class', key, style)
 import Pha.Elements (br, div)
+import Pha.Attributes (href)
 import Pha.Events (onclick)
-import Pha.Svg (svg, use, d_)
+import Pha.Svg (svg, use)
 import Pha.Util (pc)
 import UI.Icon (Icon(..), Options)
 import UI.Icons (icongroup, ihelp, ireset, irules, iconSelectGroup)
@@ -31,11 +32,11 @@ square light cross props =
     [   div [class_ "noirblanc-square-inner", class' "blanc" light]
         [   div [class_ "noirblanc-square-blanc"] $ 
                 if cross then [
-                    svg [class_ "ui-absolute noirblanc-cross"] [use [d_ "#cross"]]
+                    svg [class_ "ui-absolute noirblanc-cross"] [use [href "#cross"]]
                 ]  else []
         ,   div [class_ "noirblanc-square-noir"] $
                 if cross then [
-                    svg [class_ "ui-absolute noirblanc-cross"] [use [d_ "#cross"]]
+                    svg [class_ "ui-absolute noirblanc-cross"] [use [href "#cross"]]
                 ] else []
         ]
     ]

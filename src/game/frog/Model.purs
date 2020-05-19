@@ -68,6 +68,7 @@ reachableArray ∷ State → Array Boolean
 reachableArray state = repeat (state^._nbRows + 1) (canPlay state)
 
 instance game ∷ Game Int ExtState Int where
+    name _ = "frog"
     play state v = if canPlay state v then Just v else Nothing
     initialPosition state = pure $ state^._nbRows
     onNewGame state = pure $ state
@@ -78,6 +79,8 @@ instance game ∷ Game Int ExtState Int where
     sizeLimit _ = SizeLimit 5 0 30 0
     onPositionChange = identity
     updateScore st = st ∧ true
+    saveToJson _ = Nothing
+    loadFromJson st _ = st
 
 instance game2 ∷ TwoPlayersGame Int ExtState Int where
     possibleMoves state = filter (canPlay state) (0 .. (state^._nbRows))

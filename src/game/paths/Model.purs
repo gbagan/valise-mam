@@ -58,6 +58,8 @@ isValidPath state path = fromMaybe true $ do
     )
 
 instance game ∷ Game (Array Int) Ext Int where
+    name _ = "paths"
+
     play state v =
         case last (state^._position) of
             Nothing → if state^._mode == Mode2 then Just [v] else Nothing
@@ -87,6 +89,8 @@ instance game ∷ Game (Array Int) Ext Int where
     computerMove _ = pure Nothing
     updateScore st = st ∧ true
     onPositionChange = identity
+    saveToJson _ = Nothing
+    loadFromJson st _ = st
 
 data Msg = Core CoreMsg | SelectVertex Int | SelectMode Mode
 instance withcore ∷ MsgWithCore Msg where core = Core

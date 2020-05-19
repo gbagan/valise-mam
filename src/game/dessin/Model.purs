@@ -95,6 +95,8 @@ edgesOf = mapMaybe toEdge ∘ pairwise where
     toEdge _ = Nothing
 
 instance game ∷ Game (Array (Maybe Int)) ExtState (Maybe Int) where
+    name _ = "dessin"
+
     play state x = 
         let position = state^._position in 
         case x ∧ last position of
@@ -114,6 +116,8 @@ instance game ∷ Game (Array (Maybe Int)) ExtState (Maybe Int) where
     sizeLimit = defaultSizeLimit
     onPositionChange = identity
     updateScore st = st ∧ true
+    saveToJson _ = Nothing
+    loadFromJson st _ = st
 
 -- | nombre de levés de crayon déjà effectués
 nbRaises ∷ State → Int

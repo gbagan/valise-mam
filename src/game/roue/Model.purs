@@ -57,6 +57,8 @@ validRotation ∷ State → Boolean
 validRotation state = validRotation' state && (all isJust $ state^._position )
 
 instance roueGame ∷ Game (Array (Maybe Int)) Ext {from ∷ Location, to ∷ Location} where
+    name _ = "roue"
+
     play state move = act (state^._position) where
         act = case move of 
             {from: Panel from, to: Wheel to} → updateAt to (Just from)
@@ -74,7 +76,8 @@ instance roueGame ∷ Game (Array (Maybe Int)) Ext {from ∷ Location, to ∷ Lo
     sizeLimit = defaultSizeLimit
     updateScore st = st ∧ true
     onPositionChange = identity
-
+    saveToJson _ = Nothing
+    loadFromJson st _ = st
 
 -- | tourne la roue de i crans
 rotate ∷ Int → State → State

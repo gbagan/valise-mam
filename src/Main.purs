@@ -9,7 +9,7 @@ import Effect (Effect)
 import Game.Baseball as Baseball
 import Game.Chocolat as Chocolat
 import Game.Dessin as Dessin
-import Game.Effs (EFFS, interpretDelay, interpretRng, interpretNav)
+import Game.Effs (EFFS, interpretDelay, interpretRng, interpretNav, interpretStorage)
 import Game.Eternal as Eternal
 import Game.Frog as Frog
 import Game.Generic (GenericGame)
@@ -231,5 +231,6 @@ main = appWithRouter
         {   delay: interpretDelay
         ,   rng: interpretRng
         ,   nav: interpretNav
+        ,   storage: interpretStorage
         }
     } # attachTo "root"

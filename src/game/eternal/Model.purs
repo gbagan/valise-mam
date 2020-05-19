@@ -220,6 +220,8 @@ startGame st = st
 
 
 instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState Move where
+    name _ = "eternal"
+
     play state (Defense nextmove) =
         case (state^._position).attacked of
             Just attacked →
@@ -289,6 +291,8 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
         _ → SizeLimit 3 0 11 0
 
     updateScore st = st ∧ true
+    saveToJson _ = Nothing
+    loadFromJson st _ = st
 
 toggleGuard ∷ Int → Array Int → Array Int
 toggleGuard x l = if elem x l then filter (_ /= x) l else l `snoc` x

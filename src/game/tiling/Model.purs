@@ -109,6 +109,8 @@ needSinks ∷ State → Boolean
 needSinks state = length (sinks state) < state^._nbSinks
 
 instance tilingGame ∷ Game (Array Int) ExtState Int where
+    name _ = "tiling"
+
     play state index =
         -- si on peut poser la tuile à l'emplacement de la souris, on le fait
         -- on choisit un numéro non attribué m comme numéro de tuile
@@ -135,6 +137,8 @@ instance tilingGame ∷ Game (Array Int) ExtState Int where
     computerMove _ = pure Nothing
     updateScore st = st ∧ true
     onPositionChange = identity
+    saveToJson _ = Nothing
+    loadFromJson st _ = st
   
 data Msg = Core CoreMsg | Play Int | PutSink Int | SetNbSinks Int | SetTile TileType | Rotate
            | SetHoverSquare (Maybe Int) | FlipTile Int

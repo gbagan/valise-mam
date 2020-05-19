@@ -1,13 +1,17 @@
 module Game.Noirblanc.Model where
+
 import MyPrelude
+
+import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg, _ext, coreUpdate, playA, isLevelFinished, saveToStorage,
+                _position, _nbColumns, _nbRows, newGame, genState)
+import Game.Effs (EFFS, RNG, DELAY, STORAGE)
+import Lib.KonamiCode (konamiCode)
+import Lib.Util (dCoords)
 import Pha.Random (Random)
 import Pha.Random as R
-import Lib.Util (dCoords)
-import Lib.KonamiCode (konamiCode)
 import Pha.Update (Update, get, modify)
-import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg, 
-         _ext, coreUpdate, playA, isLevelFinished, _position, _nbColumns, _nbRows, newGame, genState)
-import Game.Effs (EFFS, RNG, DELAY)
+import Data.Argonaut.Encode (encodeJson)
+import Data.Argonaut.Decode (decodeJson)
 
 -- une position est composée de 2 tableaux light et played
 -- light indique si la case de numéro i est allumée
@@ -76,7 +80,9 @@ genRandomBoard state = do
     replicateA nbMoves (R.int' size) <#>
         foldr (toggleCell state) (replicate size true)
 
-instance noirblancGame ∷ Game { light ∷ Array Boolean, played ∷ Array Boolean } ExtState Int where
+instance game ∷ Game { light ∷ Array Boolean, played ∷ Array Boolean } ExtState Int where
+    name _ = "noirblanc"
+
     play state index = Just $ state^._position 
                         # _light %~ toggleCell state index 
                         # _played ∘ ix index %~ not
@@ -94,6 +100,12 @@ instance noirblancGame ∷ Game { light ∷ Array Boolean, played ∷ Array Bool
 
     sizeLimit _ = SizeLimit 3 3 10 10
 
+    saveToJson st = Just $ encodeJson (st ^. _maxLevels)
+    loadFromJson st json =
+        case decodeJson json of
+            Left _ -> st
+            Right maxLevels -> st # _maxLevels .~ maxLevels 
+
     -- méthodes par default
     computerMove _ = pure Nothing
     updateScore st = st ∧ true
@@ -104,7 +116,7 @@ sizes = [3∧3, 4∧4, 2∧10, 3∧10, 5∧5, 8∧8, 8∧8]
 
 -- | si le niveau est fini, on met à jour les nivaux débloqués
 -- | et l'on passe au niveau suivant
-afterPlay ∷ ∀effs. Update State (rng ∷ RNG, delay ∷ DELAY | effs)
+afterPlay ∷ ∀effs. Update State (rng ∷ RNG, delay ∷ DELAY, storage ∷ STORAGE | effs)
 afterPlay = do
     state ← get
     let mode = state^._mode
@@ -114,6 +126,7 @@ afterPlay = do
                     else
                         state^._level + (if mode == 0 || mode == 3 then 1 else 2)
         modify $ _maxLevels ∘ ix mode .~ nextLevel
+        saveToStorage
         newGame $ _level %~ \lvl → min (lvl + 1) 6
 
 data Msg = Core CoreMsg | SelectMode Int | SelectLevel Int | Play Int | Konami String

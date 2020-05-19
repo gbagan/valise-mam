@@ -1,13 +1,17 @@
 module Game.Core where
+
 import MyPrelude
+
+import Data.Argonaut.Core (Json, stringify)
+import Data.Argonaut.Parser (jsonParser)
 import Data.List (List(..))
 import Data.List as L
 import Data.Map (Map)
 import Data.Map as M
+import Game.Effs (RNG, EFFS, delay, DELAY, STORAGE, storageGet, storagePut, randomGenerate, randomly)
 import Pha.Random (Random)
 import Pha.Random as R
 import Pha.Update (Update, get, modify, put)
-import Game.Effs (RNG, EFFS, delay, DELAY, randomGenerate, randomly)
 
 -- ConfirmNewGame contient le futur état d'une nouvelle partie
 data Dialog a = Rules | NoDialog | ConfirmNewGameDialog a | ScoreDialog | CustomDialog
@@ -113,6 +117,7 @@ _scores = _core ∘ lens  _.scores _{scores = _}
 data SizeLimit = SizeLimit Int Int Int Int
 
 class Game pos ext mov | ext → pos mov where
+    name ∷ GState pos ext → String
     play ∷ GState pos ext → mov → Maybe pos
     initialPosition ∷ GState pos ext → Random pos
     isLevelFinished ∷ GState pos ext → Boolean
@@ -121,6 +126,8 @@ class Game pos ext mov | ext → pos mov where
     onNewGame ∷ GState pos ext → Random (GState pos ext)
     onPositionChange ∷ GState pos ext → GState pos ext
     updateScore ∷ GState pos ext → Tuple (GState pos ext) Boolean
+    saveToJson ∷ GState pos ext → Maybe Json
+    loadFromJson ∷ GState pos ext → Json → GState pos ext
 
 canPlay ∷ ∀pos ext mov. Game pos ext mov ⇒ GState pos ext → mov → Boolean
 canPlay st mov = isJust (play st mov)
@@ -207,7 +214,17 @@ coreUpdate (SetPointer pos) = modify $ _pointer .~ pos
 coreUpdate ComputerStarts = do
     modify $ pushToHistory >>> (_turn %~ oppositeTurn)
     computerPlay
-coreUpdate Init = newGame identity
+coreUpdate Init = do
+    newGame identity
+    st ← get
+    val ← storageGet ("valise-" <> name st)
+    case val of
+        Nothing → pure unit
+        Just text →
+            case jsonParser text of
+                Left _ → pure unit
+                Right json → do
+                    put $ loadFromJson st json
 
 playAux ∷ ∀pos ext mov. Game pos ext mov ⇒ mov → GState pos ext → Maybe (GState pos ext)
 playAux move state =
@@ -235,6 +252,13 @@ computerPlay = do
         Just st2 → do
             put st2
             when (isLevelFinished st2) showVictory
+
+saveToStorage ∷ ∀pos ext mov effs. Game pos ext mov ⇒ Update (GState pos ext) (storage ∷ STORAGE | effs)
+saveToStorage = do
+    state ← get
+    case saveToJson state of
+        Nothing → pure unit
+        Just json → storagePut ("valise-" <> name state) (stringify json)
 
 playA ∷ ∀pos ext mov effs. Game pos ext mov ⇒ mov → Update (GState pos ext) (delay ∷ DELAY, rng ∷ RNG | effs)
 playA move = lockAction $ do

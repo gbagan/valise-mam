@@ -39,6 +39,8 @@ istate = genState {left: 0, top: 0, right: 0, bottom: 0} _{nbRows = 6, nbColumns
         (Ext { soap: {row: 0, col: 0}, soapMode: CornerMode, moveWhenHover: Nothing})
 
 instance game ∷ Game {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int} ExtState Move where
+    name _ = "chocolat"
+
     -- les coups proposées par la vue sont toujours valides
     play st = case _ of
             FromLeft x → Just p{left = x}
@@ -60,6 +62,8 @@ instance game ∷ Game {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int
     computerMove = computerMove'
     onPositionChange = identity
     updateScore st = st ∧ true
+    saveToJson _ = Nothing
+    loadFromJson st _ = st
 
 instance game_ ∷ TwoPlayersGame {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int} ExtState Move where
     isLosingPosition st = (col - left) .^. (right - col - 1) .^. (row - top) .^. (bottom - row - 1) == 0 where

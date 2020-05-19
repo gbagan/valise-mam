@@ -38,7 +38,9 @@ canPlay state (Move pile pos) =
         Nothing → false 
         Just (p1 ∧ p2) → pos /= p1 && pos /= p2 && if state^._turn == Turn1 then pos < p2 else pos > p1
 
-instance nimGame ∷ Game (Array (Tuple Int Int)) ExtState Move where
+instance game ∷ Game (Array (Tuple Int Int)) ExtState Move where
+    name _ = "nim"
+    
     play state move@(Move pile pos) = 
         if canPlay state move then
             state^._position # modifyAt pile
@@ -63,6 +65,8 @@ instance nimGame ∷ Game (Array (Tuple Int Int)) ExtState Move where
     onNewGame = defaultOnNewGame
     updateScore st = st ∧ true
     onPositionChange = identity
+    saveToJson _ = Nothing
+    loadFromJson st _ = st
 
 instance nimGame2 ∷ TwoPlayersGame (Array (Tuple Int Int)) ExtState Move where
     possibleMoves state =

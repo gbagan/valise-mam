@@ -5,6 +5,7 @@ import Data.Tuple (Tuple(..), fst, snd) as Exports
 import Data.Tuple.Nested ((/\)) as Exports
 import Math (cos, sin, pi, sqrt) as Exports
 import Data.Maybe (Maybe(..), maybe, fromMaybe, isJust, isNothing) as Exports
+import Data.Either (Either(..)) as Exports
 import Data.Foldable (class Foldable, foldl, foldr, elem, any, all, and, or, for_, minimumBy) as Exports
 import Data.Traversable (sequence, for) as Exports
 import Data.Array ((!!), head, last, cons, snoc, filter, find, take, null, length, mapMaybe, catMaybes, nub, elemIndex, sort, uncons,

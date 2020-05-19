@@ -45,6 +45,8 @@ inRange state i i' = min diff (state^._size - diff) <= state^._range
     where diff = abs (i - i')
     
 instance tricolorGame ∷ Game (Array Int) ExtState Int where
+    name _ = "tricolor"
+
     play state i = Just $ state^._position # mapWithIndex \i' color →
         if inRange state i i' then
             (color + 1) `mod` (state^._nbColors)
@@ -58,6 +60,9 @@ instance tricolorGame ∷ Game (Array Int) ExtState Int where
     sizeLimit = defaultSizeLimit
     updateScore st = st ∧ true 
     onPositionChange = identity
+    saveToJson _ = Nothing
+    loadFromJson st _ = st
+
 
 data Msg = Core CoreMsg | Play Int | SetSize Int | SetNbColors Int | SetRange Int | SetHoverCell (Maybe Int)
 instance withcore ∷ MsgWithCore Msg where core = Core

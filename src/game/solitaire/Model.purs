@@ -83,6 +83,8 @@ generateBoard rows columns startingHole holeFilter = {holes, position, customSiz
     position = pure $ holes # ix startingHole .~ false
 
 instance solitaireGame ∷ Game (Array Boolean) ExtState {from ∷ Int, to ∷ Int} where
+    name _ = "solitaire"
+
     play state move@{from, to} = do
         let position = state^._position
         between ← betweenMove2 state move
@@ -136,6 +138,8 @@ instance solitaireGame ∷ Game (Array Boolean) ExtState {from ∷ Int, to ∷ I
     computerMove _ = pure Nothing
     updateScore = updateScore' AlwaysShowWin
     onPositionChange = identity
+    saveToJson _ = Nothing
+    loadFromJson st _ = st
 
 instance scoregame ∷ ScoreGame (Array Boolean) ExtState {from ∷ Int, to ∷ Int} where
     objective _ = Minimize

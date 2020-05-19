@@ -113,6 +113,8 @@ toggleAllowedPiece piece true pieces = N.fromArray pieces2 # fromMaybe pieces wh
     pieces2 = piecesList # filter \p2 → (p2 == piece) /= elem p2 pieces
 
 instance queensGame ∷ Game (Array Piece) Ext Int where 
+    name _ = "queens"
+
     play state index = 
         let selectedPiece = state^._selectedPiece
         in state^._position # modifyAt index \t → if t == selectedPiece then Empty else selectedPiece
@@ -128,7 +130,11 @@ instance queensGame ∷ Game (Array Piece) Ext Int where
     sizeLimit _ = SizeLimit 3 3 9 9
     computerMove _ = pure Nothing
     updateScore = updateScore' NeverShowWin
+    
+    -- methodes par défaut
     onPositionChange = identity
+    saveToJson _ = Nothing
+    loadFromJson st _ = st
 
 instance queensScoreGame ∷ ScoreGame (Array Piece) Ext Int where 
     objective _ = Maximize

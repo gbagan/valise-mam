@@ -4,7 +4,6 @@ import MyPrelude hiding (view)
 
 import Data.Map as Map
 import Data.String as String
-import Data.String.Pattern (Pattern(..))
 import Effect (Effect)
 import Game.Baseball as Baseball
 import Game.Chocolat as Chocolat
@@ -39,10 +38,6 @@ import Run as Run
 import Unsafe.Coerce (unsafeCoerce)
 
 infix 2 updateOver as .~>
-
-extractLocation ∷ String → String → String
-extractLocation pathname defaultValue =
-    String.lastIndexOf (Pattern "/") pathname # maybe defaultValue \i → String.drop (i + 1) pathname
 
 type RootState = 
     {   baseball ∷ Baseball.State
@@ -173,7 +168,7 @@ update (KeyDown k) = do
                 Nothing → pure unit
                 Just msg → update (game.msgmap msg)
 update (UrlChanged url) = do
-    let location = extractLocation url.pathname ""
+    let location = String.drop 1 url.hash
     modify _{location = location}
     if location == "" then
         lens _.valise _{valise = _} .~> Valise.enterA
@@ -190,7 +185,6 @@ init url = do
         gameRun \game → case game.core.init of
                             Nothing → pure unit
                             Just init' → update $ game.msgmap init'
-    let location = extractLocation url.pathname "valise"
     update (UrlChanged url)
     
 

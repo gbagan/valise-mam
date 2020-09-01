@@ -297,6 +297,7 @@ newGameAux f state = do
         # _history .~ Nil
         # _redoHistory .~ Nil
         # _help .~ false
+        # _turn .~ Turn1
         # _scores ∘ at "custom" .~ Nothing
 
 

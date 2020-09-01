@@ -1,11 +1,11 @@
 module Game.Dessin.View (view) where
 import MyPrelude
-import Pha (VDom, text, maybeN, (<??>),class_)
+import Pha (VDom, text, maybeN, (<??>), (<&&>), class_)
 import Pha.Elements (div, button, span, br)
 import Pha.Events (onclick, oncontextmenu)
 import Pha.Attributes (disabled)
 import Pha.Svg (svg, line, circle, viewBox, stroke, fill, x1_, x2_, y1_, y2_, cx, cy, r_)
-import Game.Core (canPlay, _position, _pointer)
+import Game.Core (canPlay, isLevelFinished, _position, _pointer)
 import Game.Dessin.Model (State, Msg(..), Graph, Position, Edge, (↔), edgesOf, nbRaises, _graph, _graphIndex)
 import UI.Template (template, card, trackPointer)
 import UI.Icon (Icon(..))
@@ -36,6 +36,7 @@ view state = template {config, board, rules, winTitle} state where
     graph = state^._graph
     raises = nbRaises state
     s = if raises > 1 then "s" else ""
+    levelFinished = isLevelFinished state
 
     config =    
         card "Dessin" 
@@ -77,14 +78,14 @@ view state = template {config, board, rules, winTitle} state where
                         ,   fill "blue"
                         ,   onclick $ Play (Just i)
                         ]
-                ,   [maybeN $ currentLine <$> (state^._pointer) <*> (getCoords graph =<< join (last position))]
+                ,   [not levelFinished <&&> \_ → maybeN $ currentLine <$> (state^._pointer) <*> (getCoords graph =<< join (last position))]
                 ]
             ,   span [class_ "dessin-raise-info dessin-raise-info"] [
                 text $ show raises <> " levé" <> s <> " de crayon"
                 ]
             ,   button
                 [   class_ "ui-button ui-button-primary dessin-raise"
-                ,   disabled $ not (canPlay state Nothing)
+                ,   disabled $ not (canPlay state Nothing) || levelFinished
                 ,   onclick $ Play Nothing
                 ]
                 [   text "Lever le crayon"]

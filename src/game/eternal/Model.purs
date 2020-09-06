@@ -198,7 +198,7 @@ isValidNextMove st dests =
                 moveEdges = zipWith (↔) srcs dests
             in
             elem attack dests
-            && (moveEdges # all \edge@(from↔to) -> from == to || elem edge edges)
+            && (moveEdges # all \edge@(from↔to) → from == to || elem edge edges)
             && length (nub dests) == length dests
 
 -- fonction déclenchée entre le passage de la phase de préparation à celle de jeu
@@ -265,14 +265,11 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
     computerMove st
         | isLevelFinished st = pure Nothing
         | otherwise = case (st^._arena ∧ (st^._position).attacked) of
-            Just arena ∧ Just attack → pure $ Defense <$> guardsAnwser
-                                                            (edgesToGraph
-                                                                (length (st^._graph).vertices)
-                                                                (st^._graph).edges
-                                                            )
-                                                            arena
-                                                            (st^._position).guards
-                                                            attack
+            Just arena ∧ Just attack →
+                let graph = edgesToGraph (length (st^._graph).vertices) (st^._graph).edges
+                    answer = guardsAnwser graph arena (st^._position).guards attack
+                in
+                pure $ Defense <$> answer
             Just arena ∧ Nothing →
                 case attackerAnswer arena (st^._position).guards of
                     Just attack → pure $ Just (Attack attack)
@@ -311,7 +308,8 @@ dragGuard to st =
         Nothing → st
         Just from →
             let to2 = fromMaybe from to in
-            st # _nextmove %~ addToNextMove (st^._graph).edges from to2 (st^._position).guards  # _draggedGuard .~ Nothing
+            st # _nextmove %~ addToNextMove (st^._graph).edges from to2 (st^._position).guards
+               # _draggedGuard .~ Nothing
 
 data Msg = Core CoreMsg | SetGraphKind GraphKind | SetRules Rules 
             | DragGuard Int | DropGuard Int | LeaveGuard | DropOnBoard

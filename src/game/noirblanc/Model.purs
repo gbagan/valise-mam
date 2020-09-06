@@ -103,8 +103,8 @@ instance game ∷ Game { light ∷ Array Boolean, played ∷ Array Boolean } Ext
     saveToJson st = Just $ encodeJson (st ^. _maxLevels)
     loadFromJson st json =
         case decodeJson json of
-            Left _ -> st
-            Right maxLevels -> st # _maxLevels .~ maxLevels 
+            Left _ → st
+            Right maxLevels → st # _maxLevels .~ maxLevels 
 
     -- méthodes par default
     computerMove _ = pure Nothing

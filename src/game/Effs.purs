@@ -7,7 +7,7 @@ import Pha.Effects.Nav (NAV, interpretNav) as E
 import Pha.Effects.Random (RNG, randomGenerate, randomly, interpretRng) as E
 import Run (FProxy, Run, SProxy(..), lift)
 
-data StorageF a = StorageGet String (Maybe String -> a) | StoragePut String String a
+data StorageF a = StorageGet String (Maybe String → a) | StoragePut String String a
 derive instance functorStorage ∷ Functor StorageF
 type STORAGE = FProxy StorageF
 _storage = SProxy ∷ SProxy "storage"

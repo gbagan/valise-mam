@@ -18,13 +18,10 @@ const minBy = (list, fn) => {
 const maxBy = (list, fn) => minBy(list, x => -fn(x))
 
 const allDifferent = list => {
-    let pred = null;
-    const n = list.length;
+    const n = list.length - 1;
     for (let i = 0; i < n; i++) {
-        const x = list[i];
-        if (x === pred)
+        if (list[i] === list[i+1])
             return false;
-        pred = x;
     }
     return true;
 };

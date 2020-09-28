@@ -24,15 +24,14 @@ import Game.Solitaire as Solitaire
 import Game.Tiling as Tiling
 import Game.Tricolor as Tricolor
 import Game.Valise as Valise
-import Pha (VDom, emptyNode, (<&&>), key, class_)
 import Pha.App (Document, attachTo)
 import Pha.App.Router (Url, UrlRequest(..), appWithRouter)
-import Pha.Attributes (href)
+import Pha as H
+import Pha.Elements as HH
+import Pha.Attributes as P
 import Pha.Effects.Nav as Nav
-import Pha.Elements (div, a)
 import Pha.Lens (updateOver)
 import Pha.Subs as Subs
-import Pha.Svg (svg, use, width, height)
 import Pha.Update (Update, get, modify)
 import Run as Run
 import Unsafe.Coerce (unsafeCoerce)
@@ -192,25 +191,25 @@ view ∷ RootState → Document Msg
 view st = {
     title: "Valise MaM",
     body:
-        div
-        [   key st.location
-        ,   class_ "main-main-container"
-        ,   class_ (if st.location == "" then "valise" else "game")
+        HH.div
+        [   H.key st.location
+        ,   H.class_ "main-main-container"
+        ,   H.class_ (if st.location == "" then "valise" else "game")
         ]
-        [   st.location /= "" <&&> \_ →
-                a
-                [   class_ "main-minivalise-link"
-                ,   href "."
+        [   H.when (st.location /= "") \_ →
+                HH.a
+                [   H.class_ "main-minivalise-link"
+                ,   P.href "."
                 ]
-                [   svg [width "100%", height "100%"]
-                    [   use [href "#valise"]]
+                [   HH.svg [P.width "100%", P.height "100%"]
+                    [   HH.use [P.href "#valise"]]
                 ]
         ,   viewGame st
         ]
 }
 
-viewGame ∷ RootState → VDom Msg
-viewGame st = callByName st.location emptyNode 
+viewGame ∷ RootState → H.VDom Msg
+viewGame st = callByName st.location H.emptyNode 
                     \game → game.core.view (game.map st) <#> game.msgmap
 
 main ∷ Effect Unit

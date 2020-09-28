@@ -1,130 +1,129 @@
 module Game.Sansmot.View where
 
 import MyPrelude
-import Data.Map (Map, fromFoldable) as M
+import Data.Map (Map, fromFoldable) as Map
 import Lib.Util (repeat)
-import Pha (VDom, Prop, text, key, class_, attr, style)
-import Pha.Elements (div, p, h1, h2)
-import Pha.Events (onclick)
-import Pha.Svg (svg, path, line, text', stroke, fill, viewBox, d_, x_, y_, width, height, opacity)
+import Pha as H
+import Pha.Elements as HH
+import Pha.Attributes as P
+import Pha.Events as E
 import Pha.Util (pc, translate)
 import Game.Sansmot.Model (State, Msg(..), Page(..), pythaAnimation, carollAnimation)
 
-line' ∷ ∀a. Int → Int → Int → Int → Array (Prop a) → VDom a
-line' x1_ y1_ x2_ y2_ props = line ([attr "x1" (show x1_), attr "x2" (show x2_), attr "y1" (show y1_), attr "y2" (show y2_)] <> props)
+line' ∷ ∀a. Int → Int → Int → Int → Array (H.Prop a) → H.VDom a
+line' x1 y1 x2 y2 props = HH.line ([P.x1 $ show x1, P.x2 $ show x2, P.y1 $ show y1, P.y2 $ show y2] <> props)
 
 -- besoin d'un transform par défault pour empécher un bug sous safari
-defaultStyle ∷ ∀a. Array (Prop a)
-defaultStyle = [style "transform" "translate(0px, 0px)"]
+defaultStyle ∷ ∀a. Array (H.Prop a)
+defaultStyle = [H.style "transform" "translate(0px, 0px)"]
 
-compStyle ∷ ∀a. Number → Number → {rotation ∷ Int, translation ∷ Tuple Int Int, duration ∷ Int} → Array (Prop a)
+compStyle ∷ ∀a. Number → Number → {rotation ∷ Int, translation ∷ Tuple Int Int, duration ∷ Int} → Array (H.Prop a)
 compStyle width height { rotation, translation: x ∧ y, duration} = [
-    style "transform" $ 
+    H.style "transform" $ 
         translate (pc $ toNumber x / width) (pc $ toNumber y / height),
-    style "transition" $ "transform linear " <> show duration <> "ms"
+    H.style "transition" $ "transform linear " <> show duration <> "ms"
 ]
 
-pythaStyles ∷ ∀a. M.Map String (Array (Array (Prop a)))
-pythaStyles = M.fromFoldable [
-    "a" ∧ [[opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 400 ∧ (-100), rotation: 0, duration: 600 }],
-    "b" ∧ [[opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 600 ∧ 0,      rotation: 0, duration: 600 }],
-    "c" ∧ [[opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 400 ∧ 0,      rotation: 0, duration: 600 }],
-    "d" ∧ [[opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 300 ∧ 200,    rotation: 0, duration: 600 }],
-    "e" ∧ [[opacity "0"], []]
+pythaStyles ∷ ∀a. Map.Map String (Array (Array (H.Prop a)))
+pythaStyles = Map.fromFoldable [
+    "a" ∧ [[P.opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 400 ∧ (-100), rotation: 0, duration: 600 }],
+    "b" ∧ [[P.opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 600 ∧ 0,      rotation: 0, duration: 600 }],
+    "c" ∧ [[P.opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 400 ∧ 0,      rotation: 0, duration: 600 }],
+    "d" ∧ [[P.opacity "0"], defaultStyle, compStyle 700.0 300.0 { translation: 300 ∧ 200,    rotation: 0, duration: 600 }],
+    "e" ∧ [[P.opacity "0"], []]
 ]
 
-carollStyles ∷ ∀a. M.Map String (Array (Array (Prop a)))
-carollStyles = M.fromFoldable [
-    "a" ∧ [defaultStyle, compStyle 1370.0 270.0 { translation: 300 ∧ 150, rotation: 0, duration: 600 }],
-    "b" ∧ [defaultStyle, compStyle 1370.0 270.0 { translation: 550 ∧ 50,   rotation: 0, duration: 600 }],
-    "c" ∧ [defaultStyle, compStyle 1370.0 270.0 { translation: 700 ∧ 0,       rotation: 0, duration: 600 }],
-    "d" ∧ [defaultStyle, compStyle 1370.0 270.0 { translation: 950 ∧ (-100),     rotation: 0, duration: 600 }],
-    "e" ∧ [[opacity "0"], []]
+carollStyles ∷ ∀a. Map.Map String (Array (Array (H.Prop a)))
+carollStyles = Map.fromFoldable [
+    "a" ∧ [defaultStyle, compStyle 1370.0 270.0 { translation: 300 ∧ 150,    rotation: 0, duration: 600 }],
+    "b" ∧ [defaultStyle, compStyle 1370.0 270.0 { translation: 550 ∧ 50,     rotation: 0, duration: 600 }],
+    "c" ∧ [defaultStyle, compStyle 1370.0 270.0 { translation: 700 ∧ 0,      rotation: 0, duration: 600 }],
+    "d" ∧ [defaultStyle, compStyle 1370.0 270.0 { translation: 950 ∧ (-100), rotation: 0, duration: 600 }],
+    "e" ∧ [[P.opacity "0"], []]
 ]
 
-
--- const bbbb = styles ⇒ state ⇒ styles |> omap((style, name) ⇒ style[state.anim[name] || 0]);
-animPytha ∷ State → VDom Msg
+animPytha ∷ State → H.VDom Msg
 animPytha {anim} =
     let f key = 
                 let phase = anim ^. at key # fromMaybe 0 in
                 fromMaybe [] $ pythaStyles ^. at key >>= \t → t !! phase        
     in
-    svg [class_ "sansmot-svg", viewBox 0 0 700 300, style "width" "84vmin", style "height" "36vmin"]
-    [   path $ [d_ "M 0 300 h 300 v -300 h -300 Z L 100 100 M 0 100 h 300 l -200 -100 v 300", fill "transparent", stroke "#000"]
-    ,   path $ [d_ "M 400 300 h 300 v -300 h -300 Z M 400 200 l 200 100 l 100 -200 l -200 -100 l -100 200", fill "transparent", stroke "#000"]
-    ,   path $ [d_ "M 0 300 v -200 h 100 Z", fill "blue", stroke "#000"] <> f "a"
-    ,   path $ [d_ "M 0 300 h 100 v -200 Z", fill "yellow", stroke "#000"] <> f "b"
-    ,   path $ [d_ "M 100 0 h 200 v 100 Z", fill "#00FF00", stroke "#000"] <> f "c"
-    ,   path $ [d_ "M 100 0 v 100 h 200 Z", fill "red", stroke "#000"] <> f "d"
-    ,   path $ [d_ "M 0 300 v -200 h 100 Z", fill "blue", stroke "#000"] <> f "e"
-    ,   path $ [d_ "M 0 300 h 100 v -200 Z", fill "yellow", stroke "#000"] <> f "e"
-    ,   path $ [d_ "M 100 0 h 200 v 100 Z", fill "#00FF00", stroke "#000"] <> f "e"
-    ,   path $ [d_ "M 100 0 v 100 h 200 0 Z", fill "red", stroke "#000"] <> f "e"
-    ,   text' "a" $ [x_ "5", y_ "55", style "font-size" "20"] <> f "e"
-    ,   text' "a" $ [x_ "46", y_ "12", style "font-size" "20"] <> f "e"
-    ,   text' "b" $  [x_ "105", y_ "210", style "font-size" "20"] <> f "e"
-    ,   text' "b" $ [x_ "198", y_ "120", style "font-size" "20"] <> f "e"
-    ,   text' "c" $ [x_ "450", y_ "98", style "font-size" "20"] <> f "e"
-    ,   text' "c" $ [x_ "595", y_ "80", style "font-size" "20"] <> f "e"
+    HH.svg [H.class_ "sansmot-svg", P.viewBox 0 0 700 300, H.style "width" "84vmin", H.style "height" "36vmin"]
+    [   HH.path $ [P.d "M 0 300 h 300 v -300 h -300 Z L 100 100 M 0 100 h 300 l -200 -100 v 300", P.fill "transparent", P.stroke "#000"]
+    ,   HH.path $ [P.d "M 400 300 h 300 v -300 h -300 Z M 400 200 l 200 100 l 100 -200 l -200 -100 l -100 200", 
+                    P.fill "transparent", P.stroke "#000"]
+    ,   HH.path $ [P.d "M 0 300 v -200 h 100 Z", P.fill "blue", P.stroke "#000"] <> f "a"
+    ,   HH.path $ [P.d "M 0 300 h 100 v -200 Z", P.fill "yellow", P.stroke "#000"] <> f "b"
+    ,   HH.path $ [P.d "M 100 0 h 200 v 100 Z", P.fill "#00FF00", P.stroke "#000"] <> f "c"
+    ,   HH.path $ [P.d "M 100 0 v 100 h 200 Z", P.fill "red", P.stroke "#000"] <> f "d"
+    ,   HH.path $ [P.d "M 0 300 v -200 h 100 Z", P.fill "blue", P.stroke "#000"] <> f "e"
+    ,   HH.path $ [P.d "M 0 300 h 100 v -200 Z", P.fill "yellow", P.stroke "#000"] <> f "e"
+    ,   HH.path $ [P.d "M 100 0 h 200 v 100 Z", P.fill "#00FF00", P.stroke "#000"] <> f "e"
+    ,   HH.path $ [P.d "M 100 0 v 100 h 200 0 Z", P.fill "red", P.stroke "#000"] <> f "e"
+    ,   HH.text "a" $ [P.x "5", P.y "55", H.style "font-size" "20"] <> f "e"
+    ,   HH.text "a" $ [P.x "46", P.y "12", H.style "font-size" "20"] <> f "e"
+    ,   HH.text "b" $ [P.x "105", P.y "210", H.style "font-size" "20"] <> f "e"
+    ,   HH.text "b" $ [P.x "198", P.y "120", H.style "font-size" "20"] <> f "e"
+    ,   HH.text "c" $ [P.x "450", P.y "98", H.style "font-size" "20"] <> f "e"
+    ,   HH.text "c" $ [P.x "595", P.y "80", H.style "font-size" "20"] <> f "e"
     ]
 
-animCaroll ∷ State → VDom Msg
+animCaroll ∷ State → H.VDom Msg
 animCaroll {anim} =
     let f key = 
                 let phase = anim ^. at key # fromMaybe 0 in
                 fromMaybe [] $ carollStyles ^. at key >>= \t → t !! phase        
     in
-    svg [class_ "sansmot-svg", viewBox (-10) (-10) 1370 270, width "90vw", height "19vw"] $concat 
+    HH.svg [H.class_ "sansmot-svg", P.viewBox (-10) (-10) 1370 270, P.width "90vw", P.height "19vw"] $ concat 
     [
-        [   path $ [d_ "M 400 100 h 250 v -100 Z"                   , fill "orange"] <> f "a"
-        ,   path $ [d_ "M 400 200 h 150 v -50 h 100 v -50 h -250 Z" , fill "red"] <> f "b"
-        ,   path $ [d_ "M 400 250 h 250 v -100 h -100 v 50 h -150 Z", fill "blue"] <> f "c"
-        ,   path $ [d_ "M 0 250 h 400 v -150 Z"                     , fill "green"] <> f "d"
-        ,   path $ [d_ "M 400 100 h 250 v -100 Z"                   , fill "orange"] <> f "e"
-        ,   path $ [d_ "M 400 200 h 150 v -50 h 100 v -50 h -250 Z" , fill "red"] <> f "e"
-        ,   path $ [d_ "M 400 250 h 250 v -100 h -100 v 50 h -150 Z", fill "blue"] <> f "e"
-        ,   path $ [d_ "M 0 250 h 400 v -150 Z"                     , fill "green"] <> f "e"
+        [   HH.path $ [P.d "M 400 100 h 250 v -100 Z"                   , P.fill "orange"] <> f "a"
+        ,   HH.path $ [P.d "M 400 200 h 150 v -50 h 100 v -50 h -250 Z" , P.fill "red"] <> f "b"
+        ,   HH.path $ [P.d "M 400 250 h 250 v -100 h -100 v 50 h -150 Z", P.fill "blue"] <> f "c"
+        ,   HH.path $ [P.d "M 0 250 h 400 v -150 Z"                     , P.fill "green"] <> f "d"
+        ,   HH.path $ [P.d "M 400 100 h 250 v -100 Z"                   , P.fill "orange"] <> f "e"
+        ,   HH.path $ [P.d "M 400 200 h 150 v -50 h 100 v -50 h -250 Z" , P.fill "red"] <> f "e"
+        ,   HH.path $ [P.d "M 400 250 h 250 v -100 h -100 v 50 h -150 Z", P.fill "blue"] <> f "e"
+        ,   HH.path $ [P.d "M 0 250 h 400 v -150 Z"                     , P.fill "green"] <> f "e"
         ]
     ,   repeat 28 \i →
-            line' (50 * i) (-10) (50 * i) 260 [class_ "sansmot-grid"]
+            line' (50 * i) (-10) (50 * i) 260 [H.class_ "sansmot-grid"]
     ,   repeat 6 \i →
-            line' (-10) (50 * i) 1360 (50 * i) [class_ "sansmot-grid"]
+            line' (-10) (50 * i) 1360 (50 * i) [H.class_ "sansmot-grid"]
     ]
 
-view ∷ State → VDom Msg
+view ∷ State → H.VDom Msg
 view state = 
-    div [class_ "sansmot-main"] 
-    [   div [class_ "sansmot-menu"] 
-        [   div [class_ "sansmot-pagelink", onclick $ SetPage PythaPage] [text "1"]
-        ,   div [class_ "sansmot-pagelink", onclick $ SetPage CarollPage] [text "2"]
+    HH.div [H.class_ "sansmot-main"] 
+    [   HH.div [H.class_ "sansmot-menu"] 
+        [   HH.div [H.class_ "sansmot-pagelink", E.onclick $ SetPage PythaPage] [H.text "1"]
+        ,   HH.div [H.class_ "sansmot-pagelink", E.onclick $ SetPage CarollPage] [H.text "2"]
         ]
     ,   main state.page
     ] where
     
     main PythaPage =
-        div [key "pytha"]
-        [   h1 [class_ "sansmot-title"] [text "Preuve sans mot"]
-        ,   h2 [class_ "sansmot-h2"] [text "Que raconte le théorème de Pythagore ?"]
-        ,   p [class_ "sansmot-center"]
-            [   svg [class_ "sansmot-svg", viewBox 0 (-100) 200 250, width "20vmin", height "25vmin"]
-                [   path [d_ "M 50 50 h 100 v 100 h -100 Z", fill "yellow", stroke "black"]
-                ,   path [d_ "M 0 0 h 50 v 50 h -50 Z", fill "yellow", stroke "black"]
-                ,   path [d_ "M 50 0 l 100 50 l 50 -100 l -100 -50 Z", fill "#00ff00", stroke "black"]
-                ,   text' "a²" [x_ "90", y_ "105", attr "font-size" "35"]
-                ,   text' "b²" [x_ "18", y_ "35", attr "font-size" "35"]
-                ,   text' "c²" [x_ "110", y_ "-10", attr "font-size" "35"]
+        HH.div [H.key "pytha"]
+        [   HH.h1 [H.class_ "sansmot-title"] [H.text "Preuve sans mot"]
+        ,   HH.h2 [H.class_ "sansmot-h2"] [H.text "Que raconte le théorème de Pythagore ?"]
+        ,   HH.p [H.class_ "sansmot-center"]
+            [   HH.svg [H.class_ "sansmot-svg", P.viewBox 0 (-100) 200 250, P.width "20vmin", P.height "25vmin"]
+                [   HH.path [P.d "M 50 50 h 100 v 100 h -100 Z", P.fill "yellow", P.stroke "black"]
+                ,   HH.path [P.d "M 0 0 h 50 v 50 h -50 Z", P.fill "yellow", P.stroke "black"]
+                ,   HH.path [P.d "M 50 0 l 100 50 l 50 -100 l -100 -50 Z", P.fill "#00ff00", P.stroke "black"]
+                ,   HH.text "a²" [P.x "90", P.y "105", H.attr "font-size" "35"]
+                ,   HH.text "b²" [P.x "18", P.y "35", H.attr "font-size" "35"]
+                ,   HH.text "c²" [P.x "110", P.y "-10", H.attr "font-size" "35"]
                 ]
             ]
-        ,   h2 [class_ "sansmot-h2"] [text "Preuve sans mot due à un auteur chinois inconnu qui vivait vers 200 avant J.-C."]
-        ,   p [class_ "sansmot-center"] [animPytha state]
-        ,   p [class_ "sansmot-center sansmot-link", onclick $ Animate pythaAnimation] [text "Lancer l'animation"]
+        ,   HH.h2 [H.class_ "sansmot-h2"] [H.text "Preuve sans mot due à un auteur chinois inconnu qui vivait vers 200 avant J.-C."]
+        ,   HH.p [H.class_ "sansmot-center"] [animPytha state]
+        ,   HH.p [H.class_ "sansmot-center sansmot-link", E.onclick $ Animate pythaAnimation] [H.text "Lancer l'animation"]
         ]
 
     main CarollPage =
-        div [key "caroll"]
-        [   h1 [class_ "sansmot-title"] [text "Preuve sans mot"]
-        ,   h2 [class_ "sansmot-h2"] [text "Où est passé le carré manquant ?"]
-        ,   p [class_ "sansmot-center"] [animCaroll state]
-        ,   p [class_ "sansmot-center sansmot-link", onclick $ Animate carollAnimation] [text "Lancer l'animation"]
+        HH.div [H.key "caroll"]
+        [   HH.h1 [H.class_ "sansmot-title"] [H.text "Preuve sans mot"]
+        ,   HH.h2 [H.class_ "sansmot-h2"] [H.text "Où est passé le carré manquant ?"]
+        ,   HH.p [H.class_ "sansmot-center"] [animCaroll state]
+        ,   HH.p [H.class_ "sansmot-center sansmot-link", E.onclick $ Animate carollAnimation] [H.text "Lancer l'animation"]
         ]

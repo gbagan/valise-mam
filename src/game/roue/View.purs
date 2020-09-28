@@ -5,11 +5,10 @@ import MyPrelude
 import Game.Core (PointerPosition, _position, _pointer, _locked)
 import Game.Roue.Model (State, Msg(..), Location(..), _size, _rotation, _dragged, aligned, validRotation, validRotation')
 import Lib.Util (map2)
-import Pha (VDom, text, (<&&>), maybeN, key, class_, style)
-import Pha.Attributes (disabled)
-import Pha.Elements (br, button, div, span)
-import Pha.Events (onclick)
-import Pha.Svg (svg, path, viewBox, fill, stroke, d_)
+import Pha as H
+import Pha.Elements as HH
+import Pha.Attributes as P
+import Pha.Events as E
 import Pha.Util (pc)
 import UI.Icons (icongroup, iconSelectGroup, ireset, irules)
 import UI.Template (template, card, dndBoardProps, dndItemProps)
@@ -35,26 +34,26 @@ pizza cx cy radius startAngle endAngle =
         s = polarToCartesian cx cy radius startAngle
         e = polarToCartesian cx cy radius endAngle
 
-innerWheel ∷ ∀a. Int → VDom a
-innerWheel size = div [class_ "roue-inner"] 
-    [   svg [viewBox 0 0 100 100] $ take size colors # mapWithIndex \i color →
-        path 
-        [   d_ $ pizza 50.0 50.0 50.0 (2.0 * pi * (toNumber i - 0.5) / toNumber size) (2.0 * pi * (toNumber i + 0.5) / toNumber size)
-        ,   fill color
-        ,   stroke "black"
-        ]
+innerWheel ∷ ∀a. Int → H.VDom a
+innerWheel size = HH.div [H.class_ "roue-inner"] 
+    [   HH.svg [P.viewBox 0 0 100 100] $ take size colors # mapWithIndex \i color →
+            HH.path 
+            [   P.d $ pizza 50.0 50.0 50.0 (2.0 * pi * (toNumber i - 0.5) / toNumber size) (2.0 * pi * (toNumber i + 0.5) / toNumber size)
+            ,   P.fill color
+            ,   P.stroke "black"
+            ]
     ]
 
-cursor ∷ ∀a. PointerPosition → String → VDom a
-cursor {x, y} color = div 
-    [   class_ "ui-cursor roue-select-color roue-cursor"
-    ,   style "left" $ pc x
-    ,   style "top" $ pc y
-    ,   style "background-color" color
+cursor ∷ ∀a. PointerPosition → String → H.VDom a
+cursor {x, y} color = HH.div 
+    [   H.class_ "ui-cursor roue-select-color roue-cursor"
+    ,   H.style "left" $ pc x
+    ,   H.style "top" $ pc y
+    ,   H.style "background-color" color
     ] []
 
 
-view ∷ State → VDom Msg
+view ∷ State → H.VDom Msg
 view state = template {config, board, rules} state where
     size = state ^. _size
     position = state ^. _position
@@ -77,20 +76,20 @@ view state = template {config, board, rules} state where
                             _ → -1
         in colors !! colorIndex
 
-    outerWheel = div 
-        [   class_ "roue-outer"
-        ,   style "transform" $ "rotate(" <> show (360.0 * toNumber (state ^. _rotation) / toNumber size) <> "deg)"
+    outerWheel = HH.div 
+        [   H.class_ "roue-outer"
+        ,   H.style "transform" $ "rotate(" <> show (360.0 * toNumber (state ^. _rotation) / toNumber size) <> "deg)"
         ] $
-        [   svg [key "svg", viewBox 0 0 100 100] $ map2 position (aligned state) \i pos align →
-                path (
-                    [   d_ $ pizza
+        [   HH.svg [H.key "svg", P.viewBox 0 0 100 100] $ map2 position (aligned state) \i pos align →
+                HH.path (
+                    [   P.d $ pizza
                                 50.0
                                 50.0
                                 50.0
                                 (2.0 * pi * (toNumber i - 0.5) / toNumber size)
                                 (2.0 * pi * (toNumber i + 0.5) / toNumber size)
-                    ,   class_ "roue-wheel-part"
-                    ,   fill $ if not align then  "#F0B27A" else if validRotation' state then "lightgreen" else "#F5B7B1"
+                    ,   H.class_ "roue-wheel-part"
+                    ,   P.fill $ if not align then  "#F0B27A" else if validRotation' state then "lightgreen" else "#F5B7B1"
                     ] <> dndItemProps state
                         {   currentDragged: dragged
                         ,   draggable: isJust pos
@@ -99,69 +98,69 @@ view state = template {config, board, rules} state where
                         }
                     )
         ] <> (catMaybes $ position # mapWithIndex \index c → c <#> \color → 
-            div
-            [   class_ "roue-outer-piece"
-            ,   key $ show index
-            ,   style "left" $ pc $ 0.44 + 0.4 * cos(toNumber index * 2.0 * pi / toNumber size)
-            ,   style "top" $ pc $ 0.44 + 0.4 * sin(toNumber index * 2.0 * pi / toNumber size)
-            ,   style "background-color" $ colors !! color # fromMaybe ""
+            HH.div
+            [   H.class_ "roue-outer-piece"
+            ,   H.key $ show index
+            ,   H.style "left" $ pc $ 0.44 + 0.4 * cos(toNumber index * 2.0 * pi / toNumber size)
+            ,   H.style "top" $ pc $ 0.44 + 0.4 * sin(toNumber index * 2.0 * pi / toNumber size)
+            ,   H.style "background-color" $ colors !! color # fromMaybe ""
             ] []
         )
 
     drawButtons =
-        div [class_ "roue-buttons"] $ concat
-        [   [button [
-                class_ "ui-button ui-button-primary roue-button",
-                disabled locked,
-                onclick $ Rotate (-1)
-            ] [text "↶"]]
+        HH.div [H.class_ "roue-buttons"] $ concat
+        [   [HH.button [
+                H.class_ "ui-button ui-button-primary roue-button",
+                P.disabled locked,
+                E.onclick $ Rotate (-1)
+            ] [H.text "↶"]]
         ,   take size colors # mapWithIndex \i color →
-                div ([
-                    class_ "roue-select-color ui-flex-center",
-                    style "background-color" color
+                HH.div ([
+                    H.class_ "roue-select-color ui-flex-center",
+                    H.style "background-color" color
                 ] <> dndItemProps state {
                     currentDragged: dragged,
                     draggable: true,
                     droppable: false,
                     id: Panel i
                 }) [
-                    elem (Just i) position <&&> \_ →
-                        span [] [text "✓"]
+                    H.when (elem (Just i) position) \_ →
+                        HH.span [] [H.text "✓"]
                 ]
-        ,   [button [
-                class_ "ui-button ui-button-primary roue-button",
-                    disabled locked,
-                    onclick $ Rotate 1 -- lockAction n'est pas nécessaire
-            ] [text "↷"]]
+        ,   [HH.button [
+                H.class_ "ui-button ui-button-primary roue-button",
+                    P.disabled locked,
+                    E.onclick $ Rotate 1 -- lockAction n'est pas nécessaire
+            ] [H.text "↷"]]
         ]
 
 
     board =
-        div (dndBoardProps <> [class_ "roue-board"])
+        HH.div (dndBoardProps <> [H.class_ "roue-board"])
         [   drawButtons
-        ,   div [class_ "roue-roue"]
+        ,   HH.div [H.class_ "roue-roue"]
             [   outerWheel
             ,   innerWheel size
-            ,   button
-                [   class_ "ui-button ui-button-primary roue-validate"
-                ,   disabled $ not valid || locked
-                ,   onclick Check
+            ,   HH.button
+                [   H.class_ "ui-button ui-button-primary roue-validate"
+                ,   P.disabled $ not valid || locked
+                ,   E.onclick Check
                 ]
-                [text "Valider"]
-            ,   div [class_ "roue-valid-rotation"]
+                [H.text "Valider"]
+            ,   HH.div [H.class_ "roue-valid-rotation"]
                 [   if valid then
-                        span [class_ "valid"] [text "✓"]
+                        HH.span [H.class_ "valid"] [H.text "✓"]
                     else
-                        span [class_ "invalid"] [text "✗"]
+                        HH.span [H.class_ "invalid"] [H.text "✗"]
                 ]
             ]
-        ,   maybeN $ cursor <$> pointer <*> draggedColor
+        ,   H.maybeN $ cursor <$> pointer <*> draggedColor
         ]
 
-    rules = 
-        [   text "Le but du jeu est de poser une bille sur chaque emplacement de la roue et effectuer un tour complet de la roue en respectant la condition suivante:"
-        ,   br
-        ,   text "à chaque moment durant la rotation de la roue, exactement une bille a sa couleur qui correspond avec la couleur de la roue."
-        ,   br
-        ,   text "Tu peux tester en faisant varier le nombre de couleurs de la roue mais également en faisant varier le nombre de couleurs que tu utilises."
+    rules =
+        [   H.text "Le but du jeu est de poser une bille sur chaque emplacement de la roue et effectuer un tour complet de la roue en respectant la condition suivante:"
+        ,   HH.br
+        ,   H.text "à chaque moment durant la rotation de la roue, exactement une bille a sa couleur qui correspond avec la couleur de la roue."
+        ,   HH.br
+        ,   H.text "Tu peux tester en faisant varier le nombre de couleurs de la roue mais également en faisant varier le nombre de couleurs que tu utilises."
         ]

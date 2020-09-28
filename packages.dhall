@@ -126,7 +126,7 @@ let overrides = {=}
 let additions =  { pha =
        { dependencies = ["run"]
        , repo = "https://github.com/gbagan/purescript-pha.git"
-       , version = "v0.3.1"
+       , version = "v0.3.3"
        }
 }
 

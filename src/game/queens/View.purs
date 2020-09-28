@@ -2,12 +2,11 @@ module Game.Queens.View (view) where
 
 import MyPrelude
 import Lib.Util (map2, map3)
-import Data.Array.NonEmpty (toArray, head) as N
-import Pha (VDom, Prop, text, (<??>), class_, class', key, style)
-import Pha.Elements (div, br)
-import Pha.Attributes (href)
-import Pha.Events (onclick, onclick', onpointerenter, onpointerleave)
-import Pha.Svg (svg, use, x_, y_, width, height)
+import Data.Array.NonEmpty as N
+import Pha as H
+import Pha.Elements as HH
+import Pha.Attributes as P
+import Pha.Events as E
 import Pha.Util (pc)
 import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer)
 import Game.Queens.Model (State, Msg(..), Piece(..),
@@ -25,21 +24,21 @@ tooltip Bishop = "Fou"
 tooltip Knight = "Cavalier"
 tooltip _ = "Pièce personnalisée"
 
-square ∷ ∀a. { piece ∷ Piece, capturable ∷ Boolean, selected ∷ Boolean, nonavailable ∷ Boolean} → Array (Prop a) → VDom a
+square ∷ ∀a. { piece ∷ Piece, capturable ∷ Boolean, selected ∷ Boolean, nonavailable ∷ Boolean} → Array (H.Prop a) → H.VDom a
 square { piece, capturable, selected, nonavailable} props =
-    div (props <> 
-        [   class_ "queens-square"
-        ,   class' "queens-square-capturable" capturable
-        ,   class' "queens-square-nonavailable" nonavailable
-        ,   class' "queens-square-selected" selected
+    HH.div (props <> 
+        [   H.class_ "queens-square"
+        ,   H.class' "queens-square-capturable" capturable
+        ,   H.class' "queens-square-nonavailable" nonavailable
+        ,   H.class' "queens-square-selected" selected
         ]) $
         if piece == Empty then [] else [
-            svg [width "100%", height "100%", class_ "queens-piece"] [
-                use [href $ "#piece-" <> show piece, x_ "10%", y_ "10%", width "80%", height "80%"]
+            HH.svg [P.width "100%", P.height "100%", H.class_ "queens-piece"] [
+                HH.use [P.href $ "#piece-" <> show piece, P.x "10%", P.y "10%", P.width "80%", P.height "80%"]
             ]
         ]
 
-view ∷ State → VDom Msg
+view ∷ State → H.VDom Msg
 view state = template {config, board, rules, customDialog, scoreDialog} state where
     position = state ^. _position
     rows = state ^. _nbRows
@@ -66,39 +65,39 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
                 ,   selected: N.head allowedPieces == Custom
                 ,   tooltip: Just "Crée ta propre propre pièce"
                 }
-                [onclick Customize]
+                [E.onclick Customize]
             ,   iconbutton state
                 {   icon: IconSymbol "#piece-mix"
                 ,   selected: multiPieces
                 ,   tooltip: Just "Mode mixte"
                 } [
-                    onclick ToggleMultiPieces
+                    E.onclick ToggleMultiPieces
                 ]
             ] <> [ihelp state, ireset state, irules state]
         ,   iconBestScore state
         ]   
 
     pieceSelector =
-        div [class_ "ui-flex-center gutter2 queens-pieceselector"] $
+        HH.div [H.class_ "ui-flex-center gutter2 queens-pieceselector"] $
             N.toArray allowedPieces <#> \piece →
                 let name = show piece in
                 iconbutton state
                 {   selected: piece == selectedPiece
                 ,   icon: IconSymbol $ "#piece-" <> name
                 } 
-                [   key name
-                ,   onclick $ SelectPiece piece
+                [   H.key name
+                ,   E.onclick $ SelectPiece piece
                 ]
 
     cursor pp =
-        div ([class_ "ui-cursor"] <> cursorStyle pp rows columns 0.8)
-        [   svg [width "100%", height "100%"]
-            [   use [href $ "#piece-" <> show selectedPiece]
+        HH.div ([H.class_ "ui-cursor"] <> cursorStyle pp rows columns 0.8)
+        [   HH.svg [P.width "100%", P.height "100%"]
+            [   HH.use [P.href $ "#piece-" <> show selectedPiece]
             ]
         ]
 
     grid = 
-        div ([class_ "ui-board"] <> gridStyle rows columns 5 <> trackPointer) $ concat
+        HH.div ([H.class_ "ui-board"] <> gridStyle rows columns 5 <> trackPointer) $ concat
         [   map3 position (attackedBySelected state) (capturableSquares state) \index piece attacked capturable →
                 square
                 {   piece
@@ -106,17 +105,17 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
                 ,   nonavailable: help && (piece /= Empty || capturable)
                 ,   capturable
                 }
-                [   style "width" $ pc (1.0 / toNumber columns)
-                ,   style "height" $ pc (1.0 / toNumber rows)
-                ,   onclick $ Play index
-                ,   onpointerenter $ SelectSquare (Just index)
-                ,   onpointerleave $ SelectSquare Nothing
+                [   H.style "width" $ pc (1.0 / toNumber columns)
+                ,   H.style "height" $ pc (1.0 / toNumber rows)
+                ,   E.onclick $ Play index
+                ,   E.onpointerenter $ SelectSquare (Just index)
+                ,   E.onpointerleave $ SelectSquare Nothing
                 ]
-        ,   [pointer <??> cursor]
+        ,   [H.maybe pointer cursor]
         ]
 
     board = 
-        div []
+        HH.div []
         [   pieceSelector
         ,   incDecGrid state [grid]
         ]
@@ -125,8 +124,8 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
 
     customDialog _ = 
         dialog "Personnalise ta pièce"
-        [   div [class_ "flex queens-custompiece"]
-            [   div [class_ "queens-grid queens-custompiece-grid"] (
+        [   HH.div [H.class_ "flex queens-custompiece"]
+            [   HH.div [H.class_ "queens-grid queens-custompiece-grid"] (
                     customLocalMoves # mapWithIndex \index selected →
                         square
                         {   piece: if index == 12 then Custom else Empty
@@ -134,44 +133,44 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
                         ,   capturable: false
                         ,   nonavailable: false
                         } 
-                        [   key $ show index 
-                        ,   style "width" "20%"
-                        ,   style "height" "20%"
-                        ,   onclick' if index /= 12 then Just (FlipLocalMove index) else Nothing
+                        [   H.key $ show index 
+                        ,   H.style "width" "20%"
+                        ,   H.style "height" "20%"
+                        ,   E.onclick' if index /= 12 then Just (FlipLocalMove index) else Nothing
                         ]
                 )
-            ,   div [class_ "flex  queens-custompiece-directions"] (
+            ,   HH.div [H.class_ "flex  queens-custompiece-directions"] (
                     map2 customDirections angles \i selected angle →
                         iconbutton state 
                         {   selected: selected
                         ,       icon: if i == 4 then IconNone else IconSymbol "#arrow"
                         ,   style: ["transform" ∧ ("rotate(" <> show angle <> "deg)")]
                         }
-                        [   key $ show i
-                        ,    onclick' $ if i /= 4 then Just (FlipDirection i) else Nothing
+                        [   H.key $ show i
+                        ,   E.onclick' $ if i /= 4 then Just (FlipDirection i) else Nothing
                         ]
             )
         ]
     ]    
         
     scoreDialog _ = bestScoreDialog state \pos → [
-        div [class_ "ui-flex-center queens-bestscore-container"] [
-            div (gridStyle rows columns 5 <> [class_ "ui-board queens-grid"]) (
+        HH.div [H.class_ "ui-flex-center queens-bestscore-container"] [
+            HH.div (gridStyle rows columns 5 <> [H.class_ "ui-board queens-grid"]) (
                 pos <#> \piece →
                     square { piece, capturable: false, selected: false, nonavailable: false}
-                    [   style "width" $ pc (1.0 / toNumber columns)
-                    ,   style "height" $ pc (1.0 / toNumber rows)
+                    [   H.style "width" $ pc (1.0 / toNumber columns)
+                    ,   H.style "height" $ pc (1.0 / toNumber rows)
                     ]
             )
         ]
     ]
 
     rules = 
-        [   text "Place le plus de pièces possible sur ta grille sans qu\'aucune ne soit menacée par une autre pièce."
-        ,   br
-        ,   text "Tu peux choisir de jouer avec différentes pièces comme celles du jeu d\'échecs."
-        ,   br
-        ,   text "Le mode mixte permet de jouer avec plusieurs pièces différentes."
-        ,   br
-        ,   text "Tu peux jouer avec une pièce personnalisée si tu le souhaites."
+        [   H.text "Place le plus de pièces possible sur ta grille sans qu\'aucune ne soit menacée par une autre pièce."
+        ,   HH.br
+        ,   H.text "Tu peux choisir de jouer avec différentes pièces comme celles du jeu d\'échecs."
+        ,   HH.br
+        ,   H.text "Le mode mixte permet de jouer avec plusieurs pièces différentes."
+        ,   HH.br
+        ,   H.text "Tu peux jouer avec une pièce personnalisée si tu le souhaites."
         ]

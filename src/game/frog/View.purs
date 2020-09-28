@@ -3,13 +3,11 @@ module Game.Frog.View (view) where
 import MyPrelude
 import Data.FoldableWithIndex (foldMapWithIndex)
 import Lib.Util (map2, repeat, pairwise, rangeWithStep')
-import Pha (VDom, text, (<&&>), (<??>), key, class_, class', style)
-import Pha.Elements (div, span, br)
-import Pha.Attributes (href)
-import Pha.Events (on)
+import Pha as H
+import Pha.Elements as HH
+import Pha.Attributes as P
+import Pha.Events as E
 import Pha.Events.Decoder (shiftKey)
-import Pha.Svg (svg, g, use, line, path, text',
-               d_,  x_, y_, x1_, y1_, x2_, y2_, width, height, viewBox, stroke, fill, strokeDasharray, strokeWidth)
 import Pha.Util (px, translate)
 import UI.Template (template, card, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icons (icongroup, iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
@@ -57,36 +55,36 @@ spiralPoints n = spiralPointsPolar n <#> polarToCartesian
 spiralPath ∷ String
 spiralPath = spiral { x: 0.0, y: 0.0 } 0.0 61.0 0.0 (37.0 / 6.0 * pi) (pi / 6.0)
 
-drawSpiral ∷ ∀a. Array (VDom a)
+drawSpiral ∷ ∀a. Array (H.VDom a)
 drawSpiral =
-    [   path [d_ spiralPath, fill "none", stroke "black", strokeWidth "3"]
-    ,   line [x1_ "153", y1_ "9", x2_ "207", y2_ "20", stroke "black", strokeDasharray "5", strokeWidth "6"]
-    ,   line [x1_ "153", y1_ "7", x2_ "153", y2_ "39", stroke "black", strokeWidth "3"]
-    ,   line [x1_ "207", y1_ "18", x2_ "207", y2_ "50", stroke "black", strokeWidth "3"]
+    [   HH.path [P.d spiralPath, P.fill "none", P.stroke "black", P.strokeWidth "3"]
+    ,   HH.line [P.x1 "153", P.y1 "9", P.x2 "207", P.y2 "20", P.stroke "black", P.strokeDasharray "5", P.strokeWidth "6"]
+    ,   HH.line [P.x1 "153", P.y1 "7", P.x2 "153", P.y2 "39", P.stroke "black", P.strokeWidth "3"]
+    ,   HH.line [P.x1 "207", P.y1 "18", P.x2 "207", P.y2 "50", P.stroke "black", P.strokeWidth "3"]
     ]
 
-lily ∷ ∀a. Int → Number → Number → Boolean → Boolean → VDom a
+lily ∷ ∀a. Int → Number → Number → Boolean → Boolean → H.VDom a
 lily i x y reachable hidden =
-    use (pos <> 
-        [   href "#lily"
-        ,   class_ "frog-lily"
-        ,   class' "reachable" reachable
-        ,   class' "hidden" hidden
+    HH.use (pos <> 
+        [   P.href "#lily"
+        ,   H.class_ "frog-lily"
+        ,   H.class' "reachable" reachable
+        ,   H.class' "hidden" hidden
     ]) where
     pos = if i == 0 then
-            [   x_ $ show (x - 30.0)
-            ,   y_ $ show (y - 45.0)
-            ,   width "80"
-            ,   height "80"
+            [   P.x $ show (x - 30.0)
+            ,   P.y $ show (y - 45.0)
+            ,   P.width "80"
+            ,   P.height "80"
             ] 
         else
-            [   x_ $ show (x - 24.0)
-            ,   y_ $ show (y - 24.0)
-            ,   width "48"
-            ,   height "48"
+            [   P.x $ show (x - 24.0)
+            ,   P.y $ show (y - 24.0)
+            ,   P.width "48"
+            ,   P.height "48"
             ]
         
-view ∷ State → VDom Msg
+view ∷ State → H.VDom Msg
 view state = template {config, board, rules, winTitle} state where
     position = state ^. _position
     moves = state ^. _moves
@@ -106,78 +104,78 @@ view state = template {config, board, rules, winTitle} state where
         ]
 
     drawFrog =
-        pointsPolar !! position <??> \{radius, theta} →
-            g
-            [   key "frog"
-            ,   class_ "frog-frog-container"
-            ,   style "transform" $ translate (px radius) "0" <> " rotate(" <> show (theta * 180.0 / pi) <> "deg)"
-            ,   style "transform-origin" $ px (-radius) <> " 0"
+        H.maybe (pointsPolar !! position) \{radius, theta} →
+            HH.g
+            [   H.key "frog"
+            ,   H.class_ "frog-frog-container"
+            ,   H.style "transform" $ translate (px radius) "0" <> " rotate(" <> show (theta * 180.0 / pi) <> "deg)"
+            ,   H.style "transform-origin" $ px (-radius) <> " 0"
             ]
-            [   g
-                [   class_ "frog-frog-container"
-                ,   style "transform" $ "rotate(" <> show (-theta * 180.0 / pi) <> "deg)"
+            [   HH.g
+                [   H.class_ "frog-frog-container"
+                ,   H.style "transform" $ "rotate(" <> show (-theta * 180.0 / pi) <> "deg)"
                 ]
-                [   use 
-                    [   href "#frog2"
-                    ,   x_ "-20"
-                    ,   y_ "-20"
-                    ,   width "40"
-                    ,   height "40"
-                    ,   class_ "frog-frog"
-                    ,   class' "goal" $ position == 0
+                [   HH.use 
+                    [   P.href "#frog2"
+                    ,   P.x "-20"
+                    ,   P.y "-20"
+                    ,   P.width "40"
+                    ,   P.height "40"
+                    ,   H.class_ "frog-frog"
+                    ,   H.class' "goal" $ position == 0
                     ]
                 ]
             ]
 
     drawMarked =
         map2 marked spoints \i mark {x, y} →
-            mark && i /= position <&&> \_ →
-                use 
-                [   href "#frog2"
-                ,   x_ $ show (x - 20.0)
-                ,   y_ $ show (y - 20.0)
-                ,   width "32"
-                ,   height "32"
-                ,   key $ "reach" <> show i
-                ,   class_ "frog-frog marked"
+            H.when (mark && i /= position) \_ →
+                HH.use 
+                [   P.href "#frog2"
+                ,   P.x $ show (x - 20.0)
+                ,   P.y $ show (y - 20.0)
+                ,   P.width "32"
+                ,   P.height "32"
+                ,   H.key $ "reach" <> show i
+                ,   H.class_ "frog-frog marked"
                 ]
     
     drawLilypads =
         map2 spoints reachable \i {x, y} reach →
-            g
-            [   key $ "lily" <> show i
-            ,   on "click" $ shiftKey >>> map (if _ then Mark i else Play i)
+            HH.g
+            [   H.key $ "lily" <> show i
+            ,   E.on "click" $ shiftKey >>> map (if _ then Mark i else Play i)
             ]
             [   lily i x y false false
             ,   lily i x y true (not reach || locked)
-            ,   text' (if help then show $ nbRows - i else "")
-                [   x_ $ show x, y_ $ show y, class_ "frog-index"
+            ,   HH.text (if help then show $ nbRows - i else "")
+                [   P.x $ show x, P.y $ show y, H.class_ "frog-index"
                 ]
             ]
 
     grid = 
-        div [class_ "ui-board frog-board"]
-        [   svg [viewBox (-190) (-200) 400 400] $ concat
+        HH.div [H.class_ "ui-board frog-board"]
+        [   HH.svg [P.viewBox (-190) (-200) 400 400] $ concat
             [   drawSpiral
             ,   drawLilypads
             ,   drawMarked
             ,   [drawFrog]
             ]
-        ,   span [] [text (turnMessage state)]
+        ,   HH.span [] [H.text (turnMessage state)]
         ]
 
     board = incDecGrid state [grid]
 
     rules =
-        [   text "Le jeu de la grenouille est un jeu à deux joueurs."
-        ,   br
-        ,   text "A chaque tour, un joueur peut avancer la grenouille d'un nombre de cases parmi ceux indiqués dans \"Déplacements autorisés\"."
-        ,   br
-        ,   text "Le premier joueur à atteindre le nénuphar final a gagné."
-        ,   br
-        ,   text "Pour éviter une situation bloquante, un joueur peut se déplacer vers le nénuphar final en utilisant moins de déplacements que ce qui lui est autorisé."
-        ,   br
-        ,   text "Par exemple, si les mouvements autorisés sont {3, 4, 5}, le joueur a quand même le droit de se déplacer de 1 ou 2 cases si cela lui permet d'atteindre le nénuphar final."
+        [   H.text "Le jeu de la grenouille est un jeu à deux joueurs."
+        ,   HH.br
+        ,   H.text "A chaque tour, un joueur peut avancer la grenouille d'un nombre de cases parmi ceux indiqués dans \"Déplacements autorisés\"."
+        ,   HH.br
+        ,   H.text "Le premier joueur à atteindre le nénuphar final a gagné."
+        ,   HH.br
+        ,   H.text "Pour éviter une situation bloquante, un joueur peut se déplacer vers le nénuphar final en utilisant moins de déplacements que ce qui lui est autorisé."
+        ,   HH.br
+        ,   H.text "Par exemple, si les mouvements autorisés sont {3, 4, 5}, le joueur a quand même le droit de se déplacer de 1 ou 2 cases si cela lui permet d'atteindre le nénuphar final."
     ]
     
     winTitle = winTitleFor2Players state

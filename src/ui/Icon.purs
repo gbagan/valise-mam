@@ -2,13 +2,12 @@ module UI.Icon where
 
 import MyPrelude
 import Data.Tuple (uncurry)
-import Pha (VDom, Prop, text, emptyNode, (<??>), class_, class', style)
-import Pha.Elements (button, span)
-import Pha.Attributes (disabled, href)
-import Pha.Events (preventDefaultOn)
+import Pha as H
+import Pha.Elements as HH
+import Pha.Attributes as P
+import Pha.Events as E
 import Pha.Events.Decoder (always)
 import Lib.Util (partialUpdate, class PartialRecord)
-import Pha.Svg (svg, use, width, height)
 
 data Icon = IconText String | IconSymbol String | IconNone
 
@@ -35,22 +34,22 @@ defaultOptions = {
     style: []
 }
 
-iconbutton ∷ ∀a opts.  (PartialRecord opts Options) ⇒ Record opts → Array (Prop a) → VDom a
+iconbutton ∷ ∀a opts. PartialRecord opts Options ⇒ Record opts → Array (H.Prop a) → H.VDom a
 iconbutton opts props =
     let {icon, selected, tooltip, round, large, hidden, disabled: d, style: st} = partialUpdate opts defaultOptions in
-    button (
-        [   class_ "ui-icon"
-        ,   class' "selected" selected
-        ,   class' "round" large
-        ,   class' "hidden" hidden
-        ,   disabled d
-        ,   preventDefaultOn "contextmenu" $ always (Nothing /\ true)
+    HH.button (
+        [   H.class_ "ui-icon"
+        ,   H.class' "selected" selected
+        ,   H.class' "round" large
+        ,   H.class' "hidden" hidden
+        ,   P.disabled d
+        ,   E.preventDefaultOn "contextmenu" $ always (Nothing /\ true)
     ] <> props) $ [
         case icon of
-            IconSymbol symbol → svg ((uncurry style <$> st) <> [width "100%", height "100%"]) [
-                use [href symbol, class_ "ui-icon-symbol"]
+            IconSymbol symbol → HH.svg ((uncurry H.style <$> st) <> [P.width "100%", P.height "100%"]) [
+                HH.use [P.href symbol, H.class_ "ui-icon-symbol"]
             ]
-            IconText t → span [class_ "ui-icon-text"] [text t]
-            IconNone → emptyNode,
-        tooltip <??> \t → span [class_ "ui-icon-tooltip"] [text t]
+            IconText t → HH.span [H.class_ "ui-icon-text"] [H.text t]
+            IconNone → H.emptyNode,
+        H.maybe tooltip \t → HH.span [H.class_ "ui-icon-tooltip"] [H.text t]
     ]

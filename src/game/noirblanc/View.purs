@@ -5,11 +5,10 @@ import MyPrelude
 import Game.Core (_position, _nbRows, _nbColumns, _help)
 import Game.Noirblanc.Model (State, Msg(..), _level, _mode, _maxLevels)
 import Lib.Util (coords, map2)
-import Pha (Prop, VDom, text, class_, class', key, style)
-import Pha.Elements (br, div)
-import Pha.Attributes (href)
-import Pha.Events (onclick)
-import Pha.Svg (svg, use)
+import Pha as H
+import Pha.Elements as HH
+import Pha.Attributes as P
+import Pha.Events as E
 import Pha.Util (pc)
 import UI.Icon (Icon(..), Options)
 import UI.Icons (icongroup, ihelp, ireset, irules, iconSelectGroup)
@@ -26,22 +25,22 @@ levelOptions level _ opt = case level of
     5 → opt{ icon = IconText "NxM", tooltip = Just "Dimensions personnalisées" }
     _ → opt{ icon = IconSymbol "#lo-rand", tooltip = Just "Grille aléatoire" }
 
-square ∷ ∀a. Boolean → Boolean → Array (Prop a) → VDom a
+square ∷ ∀a. Boolean → Boolean → Array (H.Prop a) → H.VDom a
 square light cross props = 
-    div ([class_ "noirblanc-square"] <> props)
-    [   div [class_ "noirblanc-square-inner", class' "blanc" light]
-        [   div [class_ "noirblanc-square-blanc"] $ 
+    HH.div ([H.class_ "noirblanc-square"] <> props)
+    [   HH.div [H.class_ "noirblanc-square-inner", H.class' "blanc" light]
+        [   HH.div [H.class_ "noirblanc-square-blanc"] $ 
                 if cross then [
-                    svg [class_ "ui-absolute noirblanc-cross"] [use [href "#cross"]]
+                    HH.svg [H.class_ "ui-absolute noirblanc-cross"] [HH.use [P.href "#cross"]]
                 ]  else []
-        ,   div [class_ "noirblanc-square-noir"] $
+        ,   HH.div [H.class_ "noirblanc-square-noir"] $
                 if cross then [
-                    svg [class_ "ui-absolute noirblanc-cross"] [use [href "#cross"]]
+                    HH.svg [H.class_ "ui-absolute noirblanc-cross"] [HH.use [P.href "#cross"]]
                 ] else []
         ]
     ]
 
-view ∷ State → VDom Msg
+view ∷ State → H.VDom Msg
 view state = template {config, board, rules} state where
     rows = state ^. _nbRows
     columns = state ^. _nbColumns
@@ -59,24 +58,24 @@ view state = template {config, board, rules} state where
         icongroup "Options" $ [ihelp, ireset, irules] <#> (_ $ state)
     ]
 
-    grid = div ([class_ "ui-board"] <> gridStyle rows columns 4) $
+    grid = HH.div ([H.class_ "ui-board"] <> gridStyle rows columns 4) $
         map2 position.light position.played \index light played →
             let {row, col} = coords columns index in
             square light (help && played)
-            [   key $ show index
-            ,   style "height" $ pc (0.86 / toNumber rows)
-            ,   style "width" $ pc (0.86 / toNumber columns)
-            ,   style "left" $ pc ((toNumber col + 0.07) / toNumber columns)
-            ,   style "top" $ pc ((toNumber row + 0.07) / toNumber rows)
-            ,   onclick $ Play index
+            [   H.key $ show index
+            ,   H.style "height" $ pc (0.86 / toNumber rows)
+            ,   H.style "width" $ pc (0.86 / toNumber columns)
+            ,   H.style "left" $ pc ((toNumber col + 0.07) / toNumber columns)
+            ,   H.style "top" $ pc ((toNumber row + 0.07) / toNumber rows)
+            ,   E.onclick $ Play index
             ]
 
     board = incDecGrid state [grid]
 
     rules =
-        [   text "Le but du jeu est de retourner des tuiles pour que toutes soient face noire."
-        ,   br
-        ,   text "La difficulté est que lorsque tu retournes une tuile, les tuiles adjacentes sont également retournées."
-        ,   br
-        ,   text "Ce jeu possède différents niveaux débloqués au fur et à mesure ainsi que d'autres modes de jeu. Selon le mode choisi, les règles pour retourner les tuiles changent."
+        [   H.text "Le but du jeu est de retourner des tuiles pour que toutes soient face noire."
+        ,   HH.br
+        ,   H.text "La difficulté est que lorsque tu retournes une tuile, les tuiles adjacentes sont également retournées."
+        ,   HH.br
+        ,   H.text "Ce jeu possède différents niveaux débloqués au fur et à mesure ainsi que d'autres modes de jeu. Selon le mode choisi, les règles pour retourner les tuiles changent."
         ]

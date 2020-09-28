@@ -1,11 +1,10 @@
 module Game.Nim.View where
 import MyPrelude
 import Data.FoldableWithIndex (foldMapWithIndex)
-import Pha (VDom, text, class_, key, style)
-import Pha.Elements (div, span, br)
-import Pha.Attributes (href)
-import Pha.Events (onclick)
-import Pha.Svg (svg, rect, use, fill, viewBox, y_, width, height)
+import Pha as H
+import Pha.Elements as HH
+import Pha.Attributes as P
+import Pha.Events as E
 import Pha.Util (translate, px')
 import Lib.Util (repeat)
 import Game.Core (Turn(..), canPlay, isLevelFinished, _position, _turn)
@@ -13,7 +12,7 @@ import Game.Nim.Model (State, Msg(..), Move(..), Position(..), _nbPiles, _length
 import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset, irules)
 
-view ∷ State → VDom Msg
+view ∷ State → H.VDom Msg
 view state = template {config, board, rules, winTitle} state where
     position = state ^. _position
     nbPiles = state ^. _nbPiles
@@ -29,46 +28,46 @@ view state = template {config, board, rules, winTitle} state where
         ]
 
     drawRow i =
-        rect
-        [   key $ "pile" <> show i
-        ,   class_ "nim-row"
-        ,   class_ $ if length == 5 then "nim-row-5" else "nim-row-10"
-        ,   y_ $ show (10 + 19 * i)
+        HH.rect
+        [   H.key $ "pile" <> show i
+        ,   H.class_ "nim-row"
+        ,   H.class_ $ if length == 5 then "nim-row-5" else "nim-row-10"
+        ,   P.y $ show (10 + 19 * i)
         ]
 
     drawSquare i j =
-        rect
-        [   key $ "base-" <> show i <> "-" <> show j
-        ,   class_ "nim-square"
-        ,   onclick $ Play (Move i j)
-        ,   style "transform" $
+        HH.rect
+        [   H.key $ "base-" <> show i <> "-" <> show j
+        ,   H.class_ "nim-square"
+        ,   E.onclick $ Play (Move i j)
+        ,   H.style "transform" $
                     translate (px' $ (if length == 5 then 30 else 5) + 10 * j) (px' $ 15 + 19 * i)
                     <> " rotate(45deg)"
-        ,   style "cursor" $ if canPlay state (Move i j) then "pointer" else "not-allowed"
+        ,   H.style "cursor" $ if canPlay state (Move i j) then "pointer" else "not-allowed"
         ]
 
     drawPeg i player j =
-        use 
-        [   href "#meeple"
-        ,   key $ "p-" <> show i <> "-" <> show player
-        ,   width "8"
-        ,   height "8"
-        ,   class_ "nim-player"
-        ,   fill $ if player == 0 then "blue" else "red"
-        ,   style "transform" $ translate (px' $ (if length == 5 then 26 else 1) + 10 * j) (px' $ 11 + 19 * i)
+        HH.use 
+        [   P.href "#meeple"
+        ,   H.key $ "p-" <> show i <> "-" <> show player
+        ,   P.width "8"
+        ,   P.height "8"
+        ,   H.class_ "nim-player"
+        ,   P.fill $ if player == 0 then "blue" else "red"
+        ,   H.style "transform" $ translate (px' $ (if length == 5 then 26 else 1) + 10 * j) (px' $ 11 + 19 * i)
         ]
 
     board =
-        div [class_ "ui-board nim-board"]
-        [   svg [viewBox 0 0 100 100] (
+        HH.div [H.class_ "ui-board nim-board"]
+        [   HH.svg [P.viewBox 0 0 100 100] (
                 position # foldMapWithIndex \i (Position p1 p2) → concat
                     [   [drawRow i]
                     ,   repeat length (drawSquare i)
                     ,   [p1, p2] # mapWithIndex (drawPeg i)
                     ]
             )
-        ,   span [class_ "nim-turn-message"] [
-            text (
+        ,   HH.span [H.class_ "nim-turn-message"] [
+            H.text (
                 if isLevelFinished state then
                     "Partie finie"
                     else if turn == Turn1 then
@@ -80,13 +79,13 @@ view state = template {config, board, rules, winTitle} state where
         ]
 
     rules = 
-        [   text "Le but du jeu est d'acculer chacun des jetons de l'adversaire au bord du plateau de telle façon qu'il ne puisse plus en déplacer."
-        ,   br
-        ,   text "À chaque tour, tu peux déplacer un de tes jetons vers la gauche ou vers la droite d'autant de cases que tu veux mais tu ne peux pas sauter par-dessus un jeton adverse."
-        ,   br
-        ,   text "Tu es obligé de déplacer un jeton d'au moins une case, tu ne peux pas passer ton tour."
-        ,   br
-        ,   text "Tu gagnes la partie si ton adversaire n'a aucun mouvement possible."
+        [   H.text "Le but du jeu est d'acculer chacun des jetons de l'adversaire au bord du plateau de telle façon qu'il ne puisse plus en déplacer."
+        ,   HH.br
+        ,   H.text "À chaque tour, tu peux déplacer un de tes jetons vers la gauche ou vers la droite d'autant de cases que tu veux mais tu ne peux pas sauter par-dessus un jeton adverse."
+        ,   HH.br
+        ,   H.text "Tu es obligé de déplacer un jeton d'au moins une case, tu ne peux pas passer ton tour."
+        ,   HH.br
+        ,   H.text "Tu gagnes la partie si ton adversaire n'a aucun mouvement possible."
         ]
 
     winTitle = "Les " <> (if turn == Turn2 then "bleu" else "rouge") <> "s gagnent"

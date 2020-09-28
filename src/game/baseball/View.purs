@@ -2,11 +2,10 @@ module Game.Baseball.View (view) where
 
 import MyPrelude
 import Lib.Util (map2)
-import Pha (VDom, text, (<&&>), class_, key, style)
-import Pha.Elements (div, br)
-import Pha.Attributes (href)
-import Pha.Events (onclick)
-import Pha.Svg (svg, g, rect, use, stroke, fill, viewBox, width, height)
+import Pha as H
+import Pha.Elements as HH
+import Pha.Attributes as P
+import Pha.Events as E
 import Pha.Util (pc, translate)
 import Game.Core (canPlay, isLevelFinished, _position)
 import Game.Baseball.Model (State, Msg(..), _nbBases, _missingPeg)
@@ -29,7 +28,7 @@ transformBase i nbBases = translate (pc x) (pc y)  <> " rotate(45deg)" where
     x = 0.50 + 0.35 * cos (toNumber i * 2.0 * pi / toNumber nbBases)
     y = 0.50 + 0.35 * sin (toNumber i * 2.0 * pi / toNumber nbBases)
 
-view ∷ State → VDom Msg
+view ∷ State → H.VDom Msg
 view state = template {config, board, rules} state where
     position = state ^. _position
     nbBases = state ^. _nbBases
@@ -41,44 +40,44 @@ view state = template {config, board, rules} state where
         icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
     ]
 
-    board = div [class_ "ui-board baseball-board"] [
-        svg [viewBox 0 0 100 100] $ concat
+    board = HH.div [H.class_ "ui-board baseball-board"] [
+        HH.svg [P.viewBox 0 0 100 100] $ concat
         [   take nbBases colors # mapWithIndex \i color →
-                rect
-                [   key $ "b" <> show i
-                ,   class_ "baseball-base"
-                ,   stroke color
-                ,   style "transform" $ transformBase i nbBases
+                HH.rect
+                [   H.key $ "b" <> show i
+                ,   H.class_ "baseball-base"
+                ,   P.stroke color
+                ,   H.style "transform" $ transformBase i nbBases
                 ]
         ,   map2 position dupColors \peg pos color →
-                peg /= missingPeg <&&> \_ →
-                    g
-                    [   class_ "baseball-player"
-                    ,   style "transform" $ translatePeg pos nbBases
-                    ,   key $ "p" <> show peg
+                H.when (peg /= missingPeg) \_ →
+                    HH.g
+                    [   H.class_ "baseball-player"
+                    ,   H.style "transform" $ translatePeg pos nbBases
+                    ,   H.key $ "p" <> show peg
                     ]
-                    [   use 
-                        [   href "#meeple"
-                        ,   width "7"
-                        ,   height "7"
-                        ,   onclick $ Play peg
-                        ,   fill color
-                        ,   style "animation"
+                    [   HH.use 
+                        [   P.href "#meeple"
+                        ,   P.width "7"
+                        ,   P.height "7"
+                        ,   E.onclick $ Play peg
+                        ,   P.fill color
+                        ,   H.style "animation"
                                 if levelFinished then
                                     "baseballHola 4s linear " <> show (1000 + 2000 * peg / nbBases) <> "ms infinite"
                                 else
                                     "none"
-                        ,   style "cursor" (if canPlay state peg then "pointer" else "not-allowed")
+                        ,   H.style "cursor" (if canPlay state peg then "pointer" else "not-allowed")
                         ]
                     ]
         ]
     ]
 
     rules =
-        [   text "Le but du jeu est d'amener chaque jeton dans sa base (celle qui a la même couleur que le jeton)."
-        ,   br
-        ,   text "Pour cela, tu peux déplacer un jeton vers une base adjacente si celle-ci possède un emplacement libre."
-        ,   br
-        ,   text "Pour déplacer un jeton, il te suffit de cliquer dessus."
+        [   H.text "Le but du jeu est d'amener chaque jeton dans sa base (celle qui a la même couleur que le jeton)."
+        ,   HH.br
+        ,   H.text "Pour cela, tu peux déplacer un jeton vers une base adjacente si celle-ci possède un emplacement libre."
+        ,   HH.br
+        ,   H.text "Pour déplacer un jeton, il te suffit de cliquer dessus."
         ]
     

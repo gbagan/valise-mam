@@ -2,9 +2,9 @@ module Game.Solitaire.View where
 
 import MyPrelude
 import Lib.Util (coords)
-import Pha (VDom, text, (<&&>), maybeN, key, class_, style)
-import Pha.Elements (div, br)
-import Pha.Svg (svg, rect, circle, viewBox, x_, y_, width, height, cx, cy, r_, fill)
+import Pha as H
+import Pha.Elements as HH
+import Pha.Attributes as P
 import Pha.Util (px, translate)
 import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointer, scoreFn)
 import Game.Solitaire.Model (State, Msg(..), Board(..), _board, _holes, _dragged, _help)
@@ -19,10 +19,10 @@ tricolor i columns help =
         1 → "blue"
         _ → "green"
 
-cursor ∷ ∀a b. PointerPosition → b → VDom a
-cursor pp _ = circle ([r_ "20", class_ "solitaire-cursor"] <> svgCursorStyle pp)
+cursor ∷ ∀a b. PointerPosition → b → H.VDom a
+cursor pp _ = HH.circle ([P.r "20", H.class_ "solitaire-cursor"] <> svgCursorStyle pp)
 
-view ∷ State → VDom Msg
+view ∷ State → H.VDom Msg
 view state = template {config, board, rules, winTitle, scoreDialog} state where
     position = state ^. _position
     columns = state ^. _nbColumns
@@ -59,21 +59,21 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
         ]
 
     drawHole i = 
-        [   help > 0 && not isCircleBoard <&&> \_ →
-                rect
-                [   x_ "-25"
-                ,   y_ "-25"
-                ,   width "50"
-                ,   height "50"
-                ,   key $ "rect" <> show i
-                ,   fill $ tricolor i columns help
-                ,   style "transform" (itemStyle i)
+        [   H.when (help > 0 && not isCircleBoard) \_ →
+                HH.rect
+                [   P.x "-25"
+                ,   P.y "-25"
+                ,   P.width "50"
+                ,   P.height "50"
+                ,   H.key $ "rect" <> show i
+                ,   P.fill $ tricolor i columns help
+                ,   H.style "transform" (itemStyle i)
                 ]
-        ,   circle (
-            [   key $ "h" <> show i
-            ,   r_ "17"
-            ,   class_ "solitaire-hole"
-            ,   style "transform" (itemStyle i)
+        ,   HH.circle (
+            [   H.key $ "h" <> show i
+            ,   P.r "17"
+            ,   H.class_ "solitaire-hole"
+            ,   H.style "transform" (itemStyle i)
             ] <> dndItemProps state 
                 {   currentDragged: dragged
                 ,   draggable: false
@@ -84,11 +84,11 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
         ]
 
     drawPeg i =
-        circle (
-        [   r_ "20"
-        ,   key $ "p" <> show i
-        ,   class_ "solitaire-peg"
-        ,   style "transform" $ itemStyle i
+        HH.circle (
+        [   P.r "20"
+        ,   H.key $ "p" <> show i
+        ,   H.class_ "solitaire-peg"
+        ,   H.style "transform" $ itemStyle i
         ] <> dndItemProps state
             {   draggable: true
             ,   droppable: false
@@ -99,53 +99,58 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
 
 
     grid =
-        div (
-            [class_ "ui-board"] 
+        HH.div (
+            [H.class_ "ui-board"] 
             <> dndBoardProps 
             <> (if isCircleBoard then
-                    [style "width" "100%", style "height" "100%"] 
+                    [H.style "width" "100%", H.style "height" "100%"] 
                 else 
                     gridStyle rows columns 5
             ))
-        [   svg [if isCircleBoard then viewBox 0 0 250 250 else viewBox 0 0 (50 * columns) (50 * rows)] $ concat
-            [   [isCircleBoard <&&> \_ →
-                    circle [cx "125", cy "125", r_ "90", class_ "solitaire-circle"]
+        [   HH.svg [if isCircleBoard then P.viewBox 0 0 250 250 else P.viewBox 0 0 (50 * columns) (50 * rows)] $ concat
+            [   [H.when isCircleBoard \_ →
+                    HH.circle [P.cx "125", P.cy "125", P.r "90", H.class_ "solitaire-circle"]
                 ]
             ,   concat $ holes # mapWithIndex \i hasHole →
                     if hasHole then drawHole i else []
             ,   position # mapWithIndex \i hasPeg →
-                    hasPeg <&&> \_ → drawPeg i
-            ,   [maybeN $ cursor <$> pointer <*> dragged]
+                    H.when hasPeg \_ → drawPeg i
+            ,   [H.maybeN $ cursor <$> pointer <*> dragged]
             ]
         ]
 
     board = incDecGrid state [grid]
 
     scoreDialog _ = bestScoreDialog state \bestPosition → [
-        div [class_ "ui-flex-center solitaire-scoredialog"] [
-            div([class_ "ui-board"] <> (if isCircleBoard then 
-                                    [style "width" "100%", style "height" "100%"] 
+        HH.div [H.class_ "ui-flex-center solitaire-scoredialog"] [
+            HH.div([H.class_ "ui-board"] <> (if isCircleBoard then 
+                                    [H.style "width" "100%", H.style "height" "100%"] 
                                 else 
                                     gridStyle rows columns 5
             ))
-            [   svg [if isCircleBoard then viewBox 0 0 250 250 else viewBox 0 0 (50 * columns) (50 * rows)] $ concat
-                [   [isCircleBoard <&&> \_ →
-                        circle [cx "125", cy "125", r_ "90", class_ "solitaire-circle"]
+            [   HH.svg [if isCircleBoard then P.viewBox 0 0 250 250 else P.viewBox 0 0 (50 * columns) (50 * rows)] $ concat
+                [   [H.when isCircleBoard \_ →
+                        HH.circle 
+                        [   P.cx "125"
+                        ,   P.cy "125"
+                        ,   P.r "90"
+                        ,   H.class_ "solitaire-circle"
+                        ]
                     ]
-                ,   holes # mapWithIndex \i → (_ <&&> \_ →
-                        circle
-                        [   key $ "h" <> show i
-                        ,   r_ "17"
-                        ,   class_ "solitaire-hole"
-                        ,   style "transform" $ itemStyle i
+                ,   holes # mapWithIndex \i → (_ `H.when` \_ →
+                        HH.circle
+                        [   H.key $ "h" <> show i
+                        ,   P.r "17"
+                        ,   H.class_ "solitaire-hole"
+                        ,   H.style "transform" $ itemStyle i
                         ]
                     )
-                ,   bestPosition # mapWithIndex \i → (_ <&&> \_ →
-                        circle
-                        [   key $ "p" <> show i
-                        ,   r_ "20"
-                        ,   class_ "solitaire-peg"
-                        ,   style "transform" $ itemStyle i
+                ,   bestPosition # mapWithIndex \i → (_ `H.when` \_ →
+                        HH.circle
+                        [   H.key $ "p" <> show i
+                        ,   P.r "20"
+                        ,   H.class_ "solitaire-peg"
+                        ,   H.style "transform" $ itemStyle i
                         ]
                     )
                 ]
@@ -154,7 +159,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
     ]
 
 
-    rules = [text "Jeu du solitaire", br, text "blah blah"]
+    rules = [H.text "Jeu du solitaire", HH.br, H.text "blah blah"]
 
     nbPegs = scoreFn state
     s = if nbPegs > 1 then "s" else ""

@@ -9,7 +9,7 @@ import Pha.Svg (svg, rect, use, fill, viewBox, y_, width, height)
 import Pha.Util (translate, px')
 import Lib.Util (repeat)
 import Game.Core (Turn(..), canPlay, isLevelFinished, _position, _turn)
-import Game.Nim.Model (State, Msg(..), Move(..), _nbPiles, _length)
+import Game.Nim.Model (State, Msg(..), Move(..), Position(..), _nbPiles, _length)
 import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset, irules)
 
@@ -61,7 +61,7 @@ view state = template {config, board, rules, winTitle} state where
     board =
         div [class_ "ui-board nim-board"]
         [   svg [viewBox 0 0 100 100] (
-                position # foldMapWithIndex \i (p1 ∧ p2) → concat
+                position # foldMapWithIndex \i (Position p1 p2) → concat
                     [   [drawRow i]
                     ,   repeat length (drawSquare i)
                     ,   [p1, p2] # mapWithIndex (drawPeg i)

@@ -12,13 +12,15 @@ import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, 
 -- une position donne pour chaque numéro de rangée une paire indiquant la position de chaque jetons
 -- un coup (move) est du type Move i j où i est le numéro de pile et j la position dans la pile
 
+data Position = Position Int Int
 data Move = Move Int Int -- pile et position dans la pile
+
 type Ext' = 
     {   nbPiles ∷ Int    -- nombre de rangées
     ,   length ∷ Int     -- nombre de cases sur une rangée
     }
 newtype ExtState = Ext Ext'
-type State = GState (Array (Tuple Int Int)) ExtState
+type State = GState (Array Position) ExtState
 
 -- état initial
 istate ∷ State
@@ -36,27 +38,27 @@ canPlay ∷ State → Move → Boolean
 canPlay state (Move pile pos) =
     case state^._position !! pile of
         Nothing → false 
-        Just (p1 ∧ p2) → pos /= p1 && pos /= p2 && if state^._turn == Turn1 then pos < p2 else pos > p1
+        Just (Position p1 p2) → pos /= p1 && pos /= p2 && if state^._turn == Turn1 then pos < p2 else pos > p1
 
-instance game ∷ Game (Array (Tuple Int Int)) ExtState Move where
+instance game ∷ Game (Array Position) ExtState Move where
     name _ = "nim"
     
     play state move@(Move pile pos) = 
         if canPlay state move then
             state^._position # modifyAt pile
-                \(p1 ∧ p2) → if state^._turn == Turn1 then pos ∧ p2 else p1 ∧ pos
+                \(Position p1 p2) → if state^._turn == Turn1 then Position pos p2 else Position p1 pos
         else
             Nothing
     
     isLevelFinished state = state^._position # all
-        \(p1 ∧ p2) → p2 - p1 == 1 && p1 == (if state^._turn == Turn2 then state^._length - 2 else 0)
+        \(Position p1 p2) → p2 - p1 == 1 && p1 == (if state^._turn == Turn2 then state^._length - 2 else 0)
 
     initialPosition state = 
         replicateA (state^._nbPiles) $
             if state^._length == 5 then
-                pure (0 ∧ 4)
-            else do 
-                Tuple <$> (R.int 0 4) <*> (R.int 0 9)
+                pure (Position 0 4)
+            else
+                Position <$> R.int 0 4 <*> R.int 5 9
 
     computerMove = computerMove'
 
@@ -68,14 +70,14 @@ instance game ∷ Game (Array (Tuple Int Int)) ExtState Move where
     saveToJson _ = Nothing
     loadFromJson st _ = st
 
-instance nimGame2 ∷ TwoPlayersGame (Array (Tuple Int Int)) ExtState Move where
+instance nimGame2 ∷ TwoPlayersGame (Array Position) ExtState Move where
     possibleMoves state =
         repeat2 (state^._nbPiles) (state^._length) Move
         # filter (canPlay state)
         # sortWith \(Move pile pos) → state ^. _position !! pile # maybe 0
-            \x → if state ^. _turn == Turn1 then fst x - pos else pos - snd x
+            \(Position x y) → if state ^. _turn == Turn1 then x - pos else pos - y
 
-    isLosingPosition st = (st ^. _position # foldr (\(x /\ y) → xor (y - x - 1)) 0) == 0
+    isLosingPosition st = (st ^. _position # foldr (\(Position x y) → xor (y - x - 1)) 0) == 0
 
 data Msg = Core CoreMsg | SetNbPiles Int | SetLength Int | Play Move
 instance withcore ∷ MsgWithCore Msg where core = Core

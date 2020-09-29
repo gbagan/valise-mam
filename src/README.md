@@ -205,7 +205,7 @@ Les fonctions
     ou le jeu n'est pas concerné par une IA.
 - onNewGame est similaire à initialPosition mais réinitialise certains autres paramètres pour garder l'état cohérent
 - updateScore renvoie un nouvel état en cas d'un record battu et un booléen indiquant s'il faut afficher un message de victoire
-   lorsqu'une partie est finie. Pour les parties sans score, on renverra souvent ```state → Tuple state true```` 
+   lorsqu'une partie est finie. Pour les parties sans score, on renverra souvent ```purescript state → Tuple state true``` 
    Dans le cas d'une partie avec score, cette fonction est générée par la classe ScoreGame (voir plus bas)
    
 ### La classe ScoreGame
@@ -258,7 +258,7 @@ donne une implémentation pour la fonction computerMove de Game
 
 La vue générée par la fonction template dans UI.Template
 
-pour cela, il faut implémenter (éventuellement partiellement les attributs de
+pour cela, il faut implémenter (éventuellement partiellement) les attributs de
 ```purescript
 type Elements a = {
     board ∷ VDom a,
@@ -271,7 +271,7 @@ type Elements a = {
 ```
 - board est le plateau principal. On toruve dans UI.Template plusieurs fonctions utilitaires pour aider à sa création
 - config est le panneau des options à droite. On trouve dans UI.Icons plusieurs fonctions pour aider à sa création
-- rules donne les régèles du jeu. C'est en général un tableau alternant du text et des br.
+- rules donne les règles du jeu. C'est en général un tableau alternant du text et des br.
 - winTitle: le message de victoire. La fonction winTitleFor2Players donne une implémentation par défaut pour les jeux à deux joueurs.
 - customDialog et scoreDialog sont des boites de dialogue pour faire une pièce (ou autre objet) personnalisée et d'affichage du meilleur score respectivement
 

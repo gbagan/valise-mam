@@ -3,7 +3,7 @@ module Game.Chocolat.View  (view) where
 import MyPrelude
 import Lib.Util (repeat2)
 import Game.Core (_position, _nbRows, _nbColumns, possibleMoves)
-import Game.Chocolat.Model (State, Msg(..), Move(..), SoapMode(..), _soap, _soapMode, _moveWhenHover, cutLine) 
+import Game.Chocolat.Model (State, Msg(..), Move(..), SoapMode(..), _soap, _soapMode, _moveWhenHover, cutLine)
 import Pha as H
 import Pha.Elements as HH
 import Pha.Attributes as P

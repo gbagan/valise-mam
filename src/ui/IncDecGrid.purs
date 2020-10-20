@@ -1,9 +1,9 @@
 module UI.IncDecGrid where 
 
 import MyPrelude
-import Pha (VDom, text, (<&&>), class_)
-import Pha.Elements (div, span)
-import Pha.Events (onclick)
+import Pha as H
+import Pha.Elements as HH
+import Pha.Events as E
 import UI.Icon (iconbutton, Icon(..))
 
 type IncDecGridOptions msg =
@@ -16,45 +16,45 @@ type IncDecGridOptions msg =
     ,   resize ∷ Int → Int → msg
     }
 
-incDecGrid ∷ ∀msg. IncDecGridOptions msg → Array (VDom msg) → VDom msg   
+incDecGrid ∷ ∀msg. IncDecGridOptions msg → Array (H.VDom msg) → H.VDom msg   
 incDecGrid {locked, nbRows, nbColumns, customSize, showRowButtons, showColButtons, resize} children =
-    div [class_ "ui-incdecgrid"]
-    [   div [class_ "flex"]
-        [   div [class_ "ui-flex-center ui-incdecgrid-container"] children
-        ,   showRowButtons <&&> \_ →
-                div [class_ "ui-flex-center ui-incdecgrid-rows"]
+    HH.div [H.class_ "ui-incdecgrid"]
+    [   HH.div [H.class_ "flex"]
+        [   HH.div [H.class_ "ui-flex-center ui-incdecgrid-container"] children
+        ,   H.when showRowButtons \_ →
+                HH.div [H.class_ "ui-flex-center ui-incdecgrid-rows"]
                 [   iconbutton
                     {   round: true
                     ,   icon: IconSymbol "#plus"
                     ,   disabled: locked
                     ,   hidden: not customSize
                     }
-                    [onclick $ resize (nbRows + 1) nbColumns]
-                ,   div [class_ "ui-incdecgrid-text"] [ span [] [ text $ show nbRows ] ]
+                    [E.onclick $ resize (nbRows + 1) nbColumns]
+                ,   HH.div [H.class_ "ui-incdecgrid-text"] [ HH.span [] [ H.text $ show nbRows ] ]
                 ,   iconbutton
                     {   round: true
                     ,   icon: IconSymbol "#minus"
                     ,   disabled: locked
                     ,   hidden: not customSize
                     }
-                    [onclick $ resize (nbRows - 1) nbColumns]
+                    [E.onclick $ resize (nbRows - 1) nbColumns]
                 ]
         ]
-    ,   showColButtons <&&> \_ →
-            div [class_ "ui-flex-center ui-incdecgrid-cols"]
+    ,   H.when showColButtons \_ →
+            HH.div [H.class_ "ui-flex-center ui-incdecgrid-cols"]
             [   iconbutton
                 {   round: true
                 ,   icon: IconSymbol "#minus"
                 ,   disabled: locked
                 ,   hidden: not customSize
                 }
-                [onclick $ resize nbRows (nbColumns - 1)]
-            ,   div [class_ "ui-incdecgrid-text"] [ span [] [ text $ show nbColumns ] ]
+                [E.onclick $ resize nbRows (nbColumns - 1)]
+            ,   HH.div [H.class_ "ui-incdecgrid-text"] [ HH.span [] [ H.text $ show nbColumns ] ]
             ,   iconbutton
                 {   round: true
                 ,   icon: IconSymbol "#plus"
                 ,   disabled: locked, hidden: not customSize
                 }
-                [onclick $ resize nbRows (nbColumns + 1)]
+                [E.onclick $ resize nbRows (nbColumns + 1)]
             ]
     ]

@@ -209,7 +209,7 @@ Les fonctions
    Dans le cas d'une partie avec score, cette fonction est générée par la classe ScoreGame (voir plus bas)
    
 ### La classe ScoreGame
-c'est une classe pour les jeux à score (la bêete, 8 reines, etc)
+c'est une classe pour les jeux à score (la bête, 8 reines, etc)
 
 Sa signature est 
 

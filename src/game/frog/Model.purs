@@ -5,10 +5,9 @@ import Data.Lazy (defer, force)
 import Lib.Util (repeat, (..))
 import Data.Array.NonEmpty (NonEmptyArray, singleton, fromArray, cons) as N
 import Lib.KonamiCode (konamiCode)
-import Pha.Update (Update, modify)
+import Lib.Update (Update, modify)
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, Mode(..), GState, SizeLimit(..),
               playA,  _ext, coreUpdate, newGame, computerMove', genState, _position, _nbRows)
-import Game.Effs (EFFS)
 
 -- une position est la case sur laquelle se trouve de la grenouille
 -- les positions vont de 0 à nbRows
@@ -89,7 +88,7 @@ instance game2 ∷ TwoPlayersGame Int ExtState Int where
 data Msg = Core CoreMsg | SelectMove Int | Mark Int | Play Int | Konami String
 instance withcore ∷ MsgWithCore Msg where core = Core
 
-update ∷ Msg → Update State EFFS
+update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
 -- ajoute ou enlève un mouvement dans la liste des mouvements permis
 update (SelectMove move) = newGame $ _moves %~ selectMove where

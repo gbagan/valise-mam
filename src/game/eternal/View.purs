@@ -11,7 +11,6 @@ import Pha as H
 import Pha.Elements as HH
 import Pha.Attributes as P
 import Pha.Events as E
-import Pha.Events.Decoder (always)
 import Pha.Util (translate, pc)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset, iclear, irules)
@@ -50,7 +49,7 @@ dndBoardProps =
     ,   E.onpointerup DropOnBoard
     ,   E.onpointerleave LeaveGuard
     ] where
-        move e = core <$> (SetPointer <$> Just <$> pointerDecoder e)
+        move e = map (core <<< SetPointer <<< Just) <$> pointerDecoder e
 
 dndItemProps ∷ State → 
     {
@@ -63,8 +62,8 @@ dndItemProps state {draggable, droppable, id, currentDragged} =
     [   H.class' "draggable" draggable
     ,   H.class' "dragged" dragged
     ,   H.class' "candrop" candrop
-    ,   E.releasePointerCaptureOn "pointerdown" $ always (if draggable then Just (DragGuard id) else Nothing)
-    ,   E.stopPropagationOn "pointerup" $ always (if candrop then Just (DropGuard id) ∧ true else Nothing ∧ false)
+    ,   E.releasePointerCaptureOn "pointerdown" $ E.always (if draggable then Just (DragGuard id) else Nothing)
+    ,   E.stopPropagationOn "pointerup" $ E.always (if candrop then Just (DropGuard id) ∧ true else Nothing ∧ false)
     ] where
         candrop = droppable && isJust currentDragged
         dragged = draggable && Just id == currentDragged

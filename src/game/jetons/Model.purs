@@ -1,8 +1,7 @@
 module Game.Jetons.Model where
 
 import MyPrelude
-import Pha.Update (Update)
-import Game.Effs (EFFS)
+import Lib.Update (Update)
 import Lib.Util ((..), dCoords)
 import Game.Core (class Game, class ScoreGame, class MsgWithCore, class MsgWithDnd, CoreMsg, DndMsg,
                  GState, SizeLimit (..), Objective(..), ShowWinPolicy(..),
@@ -72,6 +71,6 @@ data Msg = Core CoreMsg | DnD (DndMsg Int)
 instance withcore ∷ MsgWithCore Msg where core = Core
 instance withdnd ∷ MsgWithDnd Msg Int where dndmsg = DnD  
 
-update ∷ Msg → Update State EFFS
+update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
 update (DnD msg) = dndUpdate _dragged msg

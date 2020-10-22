@@ -1,10 +1,7 @@
 module Game.Sansmot.Model where
 import MyPrelude
 import Data.Map(Map, empty) as M
-import Pha.Update (Update, get, modify)
-import Pha.Effects.Delay (delay)
-import Game.Effs (EFFS)
-
+import Lib.Update (Update, get, modify, delay)
 
 data Page = PythaPage | CarollPage
 
@@ -56,13 +53,13 @@ _page = lens _.page _{page = _}
 
 data Msg = SetPage Page | Animate (Array AnimationStep)
 
-lockAction ∷ ∀effs. Update State effs → Update State effs 
+lockAction ∷ Update State → Update State
 lockAction action = unlessM (get <#> _.locked) do
         modify _{locked = true}
         action
         modify _{locked = false}
 
-update ∷ Msg → Update State EFFS
+update ∷ Msg → Update State
 update (SetPage page) = modify \st →
     if st^._locked then
         st

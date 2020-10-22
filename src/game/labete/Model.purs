@@ -1,9 +1,8 @@
 module Game.Labete.Model where
 import MyPrelude
 import Lib.Util (coords, repeat2, abs)
-import Pha.Update (Update, modify)
+import Lib.Update (Update, modify)
 import Game.Common (_isoCustom)
-import Game.Effs (EFFS)
 import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, 
                  SizeLimit(..), GState, Objective(..), ShowWinPolicy(..), PointerPosition, Dialog(..),
                playA, coreUpdate,  _ext, genState, newGame, _position, _nbRows, _nbColumns, _help, _dialog, updateScore')
@@ -186,7 +185,7 @@ data Msg = Core CoreMsg | SetMode Mode | SetHelp Boolean | SetBeast BeastType | 
          | StartZone Int | StartZone2 { x ∷ Number, y ∷ Number} | FinishZone Int | FlipCustomBeast Int
 instance withcore ∷ MsgWithCore Msg where core = Core
 
-update ∷ Msg → Update State EFFS
+update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
 update (SetMode m) = newGame $ _mode .~ m
 update (SetHelp a) = modify $ _help .~ a

@@ -1,13 +1,12 @@
 module Game.Paths.Model where
 import MyPrelude
 import Data.Array (init)
-import Pha.Random as R
+import Lib.Random as R
 import Lib.Util (dCoords, rangeWithStep)
-import Game.Effs (EFFS)
 import Game.Core (GState, class Game, class MsgWithCore, CoreMsg, SizeLimit(..), 
         coreUpdate,
         _ext, newGame, genState, _nbRows, _nbColumns, _position, playA)
-import Pha.Update (Update, get, modify)
+import Lib.Update (Update, get, modify)
 
 data Mode = Mode1 | Mode2
 derive instance eqMode ∷ Eq Mode
@@ -95,7 +94,7 @@ instance game ∷ Game (Array Int) Ext Int where
 data Msg = Core CoreMsg | SelectVertex Int | SelectMode Mode
 instance withcore ∷ MsgWithCore Msg where core = Core
     
-update ∷ Msg → Update State EFFS
+update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
 
 update (SelectVertex v) = do

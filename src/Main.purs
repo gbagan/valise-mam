@@ -8,7 +8,6 @@ import Effect (Effect)
 import Game.Baseball as Baseball
 import Game.Chocolat as Chocolat
 import Game.Dessin as Dessin
-import Game.Effs (EFFS, interpretDelay, interpretRng, interpretNav, interpretStorage)
 import Game.Eternal as Eternal
 import Game.Frog as Frog
 import Game.Generic (GenericGame)
@@ -29,11 +28,8 @@ import Pha.App.Router (Url, UrlRequest(..), appWithRouter)
 import Pha as H
 import Pha.Elements as HH
 import Pha.Attributes as P
-import Pha.Effects.Nav as Nav
-import Pha.Lens (updateOver)
+import Lib.Update (Update, get, modify, goTo, updateOver, interpret)
 import Pha.Subs as Subs
-import Pha.Update (Update, get, modify)
-import Run as Run
 import Unsafe.Coerce (unsafeCoerce)
 
 infix 2 updateOver as .~>
@@ -102,6 +98,7 @@ data Msg =
     | UrlChanged Url
     | UrlRequested UrlRequest
     | KeyDown String
+    | Init Url
 
 type GameWrapperF st msg =
     {   core ∷ GenericGame st msg
@@ -142,7 +139,7 @@ callByName name default f = case games # Map.lookup name of
                                 Nothing → default
                                 Just game → game # gameRun f 
  
-update ∷ Msg → Update RootState EFFS
+update ∷ Msg → Update RootState
 update (BaseballMsg msg)  = lens _.baseball _{baseball = _}   .~> Baseball.update msg
 update (ChocolatMsg msg)  = lens _.chocolat _{chocolat = _}   .~> Chocolat.update msg
 update (DessinMsg msg)    = lens _.dessin _{dessin = _}       .~> Dessin.update msg
@@ -160,7 +157,8 @@ update (SolitaireMsg msg) = lens _.solitaire _{solitaire = _} .~> Solitaire.upda
 update (TilingMsg msg)    = lens _.tiling _{tiling = _}       .~> Tiling.update msg
 update (TricolorMsg msg)  = lens _.tricolor _{tricolor = _}   .~> Tricolor.update msg
 update (ValiseMsg msg)    = lens _.valise _{valise = _}       .~> Valise.update msg
-update (KeyDown k) = do 
+update (Init url) = init url
+update (KeyDown k) = do
         st ← get
         callByName st.location (pure unit) \game →
             case game.core.onKeydown k of
@@ -174,11 +172,11 @@ update (UrlChanged url) = do
     else
         pure unit
 
-update (UrlRequested (Internal url)) = Nav.goTo url.href
+update (UrlRequested (Internal url)) = goTo url.href
 update (UrlRequested _) = pure unit
 
 
-init ∷ Url → Update RootState EFFS
+init ∷ Url → Update RootState
 init url = do
     for_ (Map.values games) $
         gameRun \game → case game.core.init of
@@ -214,16 +212,10 @@ viewGame st = callByName st.location H.emptyNode
 
 main ∷ Effect Unit
 main = appWithRouter
-    {   init: \url → state ∧ init url
+    {   init: \url → {state, action: Just $ Init url}
     ,   view
-    ,   update
+    ,   update: \helpers msg → interpret helpers (update msg)
     ,   onUrlChange: UrlChanged
     ,   onUrlRequest: UrlRequested
     ,   subscriptions: const [Subs.onKeyDown (Just <<< KeyDown)]
-    ,   interpreter: Run.match 
-        {   delay: interpretDelay
-        ,   rng: interpretRng
-        ,   nav: interpretNav
-        ,   storage: interpretStorage
-        }
     } # attachTo "root"

@@ -4,10 +4,9 @@ import MyPrelude
 import Game.Core (class Game, class MsgWithCore, CoreMsg, GState, SizeLimit(..), Mode(..),
                     playA, coreUpdate, _ext, genState, newGame, isLevelFinished,
                     _position, _mode, _nbRows, _nbColumns)
-import Game.Effs (EFFS)
-import Pha.Random as R
+import Lib.Random as R
 import Lib.Util (repeat, repeat2, (..))
-import Pha.Update (Update, get, modify)
+import Lib.Update (Update, get, modify)
 
 -- type d'arête d'un graphe
 data Edge = Edge Int Int
@@ -316,7 +315,7 @@ data Msg = Core CoreMsg | SetGraphKind GraphKind | SetRules Rules
             | StartGame | MoveGuards | ToggleGuard Int | Play Int
 instance withcore ∷ MsgWithCore Msg where core = Core
     
-update ∷ Msg → Update State EFFS
+update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
 update (SetGraphKind kind) = newGame ((_graphkind .~ kind) <<< ( 
                                         case kind of

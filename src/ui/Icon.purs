@@ -6,7 +6,6 @@ import Pha as H
 import Pha.Elements as HH
 import Pha.Attributes as P
 import Pha.Events as E
-import Pha.Events.Decoder (always)
 import Lib.Util (partialUpdate, class PartialRecord)
 
 data Icon = IconText String | IconSymbol String | IconNone
@@ -43,7 +42,7 @@ iconbutton opts props =
         ,   H.class' "round" large
         ,   H.class' "hidden" hidden
         ,   P.disabled d
-        ,   E.preventDefaultOn "contextmenu" $ always (Nothing /\ true)
+        ,   E.preventDefaultOn "contextmenu" $ E.always (Nothing /\ true)
     ] <> props) $ [
         case icon of
             IconSymbol symbol → HH.svg ((uncurry H.style <$> st) <> [P.width "100%", P.height "100%"]) [

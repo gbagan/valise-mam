@@ -3,9 +3,8 @@ module Game.Baseball.Model where
 import MyPrelude
 import Data.FoldableWithIndex (allWithIndex)
 import Lib.Util ((..))
-import Pha.Random as R
-import Pha.Update (Update)
-import Game.Effs (EFFS)
+import Lib.Random as R
+import Lib.Update (Update)
 import Game.Core (class Game, GState, class MsgWithCore, CoreMsg,
                  playA, coreUpdate, _ext, genState, newGame, _position, defaultSizeLimit)
 
@@ -72,7 +71,7 @@ instance game ∷ Game (Array Int) ExtState Int where
 data Msg = Core CoreMsg | SetNbBases Int | Play Int
 instance withcore ∷ MsgWithCore Msg where core = Core
 
-update ∷ Msg → Update State EFFS
+update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
 update (SetNbBases n) = newGame $ _nbBases .~ n
 update (Play m) = playA m

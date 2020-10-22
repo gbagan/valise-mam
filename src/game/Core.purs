@@ -8,10 +8,9 @@ import Data.List (List(..))
 import Data.List as L
 import Data.Map (Map)
 import Data.Map as M
-import Game.Effs (RNG, EFFS, delay, DELAY, STORAGE, storageGet, storagePut, randomGenerate, randomly)
-import Pha.Random (Random)
-import Pha.Random as R
-import Pha.Update (Update, get, modify, put)
+import Lib.Random (Random)
+import Lib.Random as R
+import Lib.Update (Update, get, modify, put, delay, randomEval, randomly, storageGet, storagePut)
 
 -- ConfirmNewGame contient le futur état d'une nouvelle partie
 data Dialog a = Rules | NoDialog | ConfirmNewGameDialog a | ScoreDialog | CustomDialog
@@ -165,7 +164,7 @@ data CoreMsg =
 class MsgWithCore a where
     core ∷ CoreMsg → a
 
-coreUpdate ∷ ∀pos ext mov. Game pos ext mov ⇒ CoreMsg → Update (GState pos ext) EFFS
+coreUpdate ∷ ∀pos ext mov. Game pos ext mov ⇒ CoreMsg → Update (GState pos ext)
 coreUpdate Undo = modify \state → case state^._history of
     Nil → state
     Cons h rest →
@@ -237,30 +236,30 @@ playAux move state =
 pushToHistory ∷ ∀pos ext. GState pos ext → GState pos ext
 pushToHistory state = state # _history %~ Cons (state^._position) # _redoHistory .~ Nil
 
-showVictory ∷ ∀pos ext effs. Update (GState pos ext) (delay ∷ DELAY | effs)
+showVictory ∷ ∀pos ext. Update (GState pos ext)
 showVictory = do
     modify $ _showWin .~ true
     delay 1000
     modify $ _showWin .~ false
 
-computerPlay ∷ ∀pos ext mov effs. Game pos ext mov ⇒ Update (GState pos ext) (rng ∷ RNG, delay ∷ DELAY | effs)
+computerPlay ∷ ∀pos ext mov. Game pos ext mov ⇒ Update (GState pos ext)
 computerPlay = do
     state ← get
-    move ← randomGenerate $ computerMove state
+    move ← randomEval $ computerMove state
     case flip playAux state =<< move of
         Nothing → pure unit
         Just st2 → do
             put st2
             when (isLevelFinished st2) showVictory
 
-saveToStorage ∷ ∀pos ext mov effs. Game pos ext mov ⇒ Update (GState pos ext) (storage ∷ STORAGE | effs)
+saveToStorage ∷ ∀pos ext mov. Game pos ext mov ⇒ Update (GState pos ext)
 saveToStorage = do
     state ← get
     case saveToJson state of
         Nothing → pure unit
         Just json → storagePut ("valise-" <> name state) (stringify json)
 
-playA ∷ ∀pos ext mov effs. Game pos ext mov ⇒ mov → Update (GState pos ext) (delay ∷ DELAY, rng ∷ RNG | effs)
+playA ∷ ∀pos ext mov. Game pos ext mov ⇒ mov → Update (GState pos ext)
 playA move = lockAction $ do
     state ← get
     case playAux move $ pushToHistory $ state of
@@ -279,7 +278,7 @@ playA move = lockAction $ do
 -- | Empêche d'autres actions d'être effectués durant la durée de l'action
 -- | en mettant locked à true au début de l'action et à false à la fin de l'action.
 -- | L'action n'est pas executé si locked est déjà à true
-lockAction ∷ ∀pos ext effs. Update (GState pos ext) effs → Update (GState pos ext) effs 
+lockAction ∷ ∀pos ext. Update (GState pos ext) → Update (GState pos ext)
 lockAction action = unlessM (view _locked <$> get) do
         modify (_locked .~ true)
         action
@@ -307,8 +306,8 @@ newGameAux f state = do
 -- | Si l'utilisateur confirme, on remplace l'état courant par s
 -- | Si l'historique est vide ou si la partie est finie, on lance une nouvelle partie
 -- | sans demander confirmation à l'utilisateur
-newGame ∷ ∀pos ext mov effs. Game pos ext mov ⇒
-    (GState pos ext → GState pos ext) → Update (GState pos ext) (rng ∷ RNG | effs)
+newGame ∷ ∀pos ext mov. Game pos ext mov ⇒
+    (GState pos ext → GState pos ext) → Update (GState pos ext)
 newGame f = randomly \state →
     let rstate = newGameAux f state in
     if L.null (state^._history) || isLevelFinished state then
@@ -392,14 +391,14 @@ class MsgWithDnd msg i | msg → i where
     dndmsg ∷ DndMsg i → msg
 
 dndUpdate ∷ ∀pos ext i. Eq i ⇒ Game pos ext {from ∷ i, to ∷ i} ⇒ 
-    Lens' (GState pos ext) (Maybe i) → DndMsg i → Update (GState pos ext) EFFS
+    Lens' (GState pos ext) (Maybe i) → DndMsg i → Update (GState pos ext)
 dndUpdate _dragged (Drag i) = modify $ _dragged .~ Just i
 dndUpdate _dragged (Drop i) = dropA _dragged i
 dndUpdate _dragged Leave = modify $ _dragged .~ Nothing
 dndUpdate _dragged DropOnBoard = modify $ _dragged .~ Nothing
 
-dropA ∷ ∀pos ext dnd effs. Eq dnd ⇒  Game pos ext {from ∷ dnd, to ∷ dnd} ⇒
-            Lens' (GState pos ext) (Maybe dnd) → dnd → Update (GState pos ext) (rng ∷ RNG, delay ∷ DELAY | effs)
+dropA ∷ ∀pos ext dnd. Eq dnd ⇒  Game pos ext {from ∷ dnd, to ∷ dnd} ⇒
+            Lens' (GState pos ext) (Maybe dnd) → dnd → Update (GState pos ext)
 dropA dragLens to = do
     state ← get
     case state ^. dragLens of

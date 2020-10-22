@@ -7,8 +7,8 @@ import Pha as H
 import Pha.Elements as HH
 import Pha.Attributes as P
 import Pha.Events as E
-import Pha.Events.Decoder (shiftKey)
 import Pha.Util (pc, translate)
+import Web.UIEvent.MouseEvent as ME
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, scoreFn)
 import Game.Common (pointerDecoder, _isoCustom)
 import Game.Labete.Model (State, Msg(..), Mode(..), BeastType(..), nonTrappedBeastOnGrid,
@@ -90,22 +90,21 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
     ])
 
     grid = HH.div (gridStyle rows columns 5 <> trackPointer <> [H.class_ "ui-board",
-        E.on' "pointerdown" $ \ev → shiftKey ev >>= (if _ then
-                            Just <$> StartZone2 <$> pointerDecoder ev
+        E.onpointerdown_ $ \ev → if ME.shiftKey ev then
+                            map StartZone2 <$> pointerDecoder (ME.toEvent ev)
                         else
                             pure Nothing
-                        )
     ]) [
         HH.svg [P.viewBox 0 0 (50 * columns) (50 * rows)] (
             (map3 (state^._position) nonTrappedBeast  (state^._squareColors) \index hasTrap hasBeast color →
                 let {row, col} = coords columns index in
-                square { color, row, col, hasTrap, hasBeast: hasBeast && state^._help } [
-                    H.key $ show index,
-                    E.on' "click" $ shiftKey >>> map (if _ then Nothing else Just (Play index)),
+                square { color, row, col, hasTrap, hasBeast: hasBeast && state^._help }
+                [   H.key $ show index
+                ,   E.onclick_ $ \ev → pure $ if ME.shiftKey ev then Nothing else Just (Play index)
                     -- pointerenter: [actions.setSquareHover, index], todo
                     -- ponterleave: [actions.setSquareHover, null],
-                    E.onpointerup $ FinishZone index,
-                    E.on' "pointerdown" $ shiftKey >>> map (if _ then Just (StartZone index) else Nothing)
+                ,    E.onpointerup $ FinishZone index
+                ,    E.onpointerdown_  $ \ev → pure $ if ME.shiftKey ev then Just (StartZone index) else Nothing
                 ]
             ) <> [
                 H.maybeN $ case state^._startPointer of

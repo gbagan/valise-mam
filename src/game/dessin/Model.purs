@@ -1,10 +1,9 @@
 module Game.Dessin.Model where
 import MyPrelude
 import Lib.Util (pairwise)
-import Pha.Update (Update)
+import Lib.Update (Update)
 import Game.Core (class Game, class MsgWithCore, CoreMsg, GState,
                   playA, coreUpdate, _ext, genState, newGame, _position, defaultSizeLimit)
-import Game.Effs (EFFS)
 
 data Edge = Edge Int Int
 infix 3 Edge as ↔
@@ -14,7 +13,6 @@ type Position = { x ∷ Number, y ∷ Number }
 
 -- | une structure Graph est composé d'une liste des arêtes et de la position de chaque sommet dans le plan
 type Graph = {vertices ∷ Array Position, edges ∷ Array Edge }
-
 
 house ∷ Graph
 house = {
@@ -126,7 +124,7 @@ nbRaises = view _position >>> filter isNothing >>> length
 data Msg = Core CoreMsg | SetGraphIndex Int | Play (Maybe Int)
 instance withcore ∷ MsgWithCore Msg where core = Core
     
-update ∷ Msg → Update State EFFS
+update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
-update (SetGraphIndex i) = newGame (_graphIndex .~ i)
+update (SetGraphIndex i) = newGame $ _graphIndex .~ i
 update (Play m) = playA m

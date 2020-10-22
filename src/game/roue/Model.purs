@@ -3,13 +3,11 @@ module Game.Roue.Model where
 import MyPrelude
 import Lib.Util (swap)
 import Control.Monad.Rec.Class (tailRecM, Step(..))
-import Game.Effs (EFFS)
 import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, GState,
     CoreMsg,  DndMsg(DropOnBoard),
     coreUpdate, dndUpdate,
     genState, newGame, lockAction, _ext, _position, _showWin, defaultSizeLimit)
-import Pha.Update (Update, get, modify)
-import Pha.Effects.Delay  (delay)
+import Lib.Update (Update, get, modify, delay)
 
 type Position = Array (Maybe Int)
 
@@ -87,7 +85,7 @@ data Msg = Core CoreMsg | DnD (DndMsg Location) | Rotate Int | SetSize Int | Che
 instance withcore ∷ MsgWithCore Msg where core = Core
 instance withdnd ∷ MsgWithDnd Msg Location where dndmsg = DnD  
     
-update ∷ Msg → Update State EFFS
+update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
 update (DnD DropOnBoard) = modify \state →
         let state2 = state # _dragged .~ Nothing in

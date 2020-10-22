@@ -1,14 +1,12 @@
-{-
-Welcome to a Spago project!
-You can edit this file as you like.
--}
 { name = "purescript"
 , dependencies =
   [ "argonaut-codecs"
   , "arrays"
   , "debug"
   , "effect"
-  , "foreign"
+  , "exists"
+  , "free"
+  , "js-timers"
   , "maybe"
   , "pha"
   , "prelude"

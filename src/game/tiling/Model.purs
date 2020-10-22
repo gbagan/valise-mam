@@ -6,8 +6,7 @@ import Game.Common (_isoCustom)
 import Game.Core (GState, Dialog(..), class Game, class MsgWithCore, CoreMsg, SizeLimit(..),
             coreUpdate, playA,     
             _ext, canPlay, genState, newGame, _position, _nbColumns, _nbRows, _dialog)
-import Pha.Update (Update, modify)
-import Game.Effs (EFFS)
+import Lib.Update (Update, modify)
 
 type Coord = {row ∷ Int, col ∷ Int}
 type Tile = Array Coord
@@ -144,7 +143,7 @@ data Msg = Core CoreMsg | Play Int | PutSink Int | SetNbSinks Int | SetTile Tile
            | SetHoverSquare (Maybe Int) | FlipTile Int
 instance withcore ∷ MsgWithCore Msg where core = Core
       
-update ∷ Msg → Update State EFFS
+update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg  
 update (Play m) = playA m
 update (PutSink i) = modify $ _position ∘ ix i .~ (-1)

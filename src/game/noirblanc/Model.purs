@@ -4,12 +4,11 @@ import MyPrelude
 
 import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg, _ext, coreUpdate, playA, isLevelFinished, saveToStorage,
                 _position, _nbColumns, _nbRows, newGame, genState)
-import Game.Effs (EFFS, RNG, DELAY, STORAGE)
 import Lib.KonamiCode (konamiCode)
 import Lib.Util (dCoords)
-import Pha.Random (Random)
-import Pha.Random as R
-import Pha.Update (Update, get, modify)
+import Lib.Random (Random)
+import Lib.Random as R
+import Lib.Update (Update, get, modify)
 import Data.Argonaut.Encode (encodeJson)
 import Data.Argonaut.Decode (decodeJson)
 
@@ -116,7 +115,7 @@ sizes = [3∧3, 4∧4, 2∧10, 3∧10, 5∧5, 8∧8, 8∧8]
 
 -- | si le niveau est fini, on met à jour les nivaux débloqués
 -- | et l'on passe au niveau suivant
-afterPlay ∷ ∀effs. Update State (rng ∷ RNG, delay ∷ DELAY, storage ∷ STORAGE | effs)
+afterPlay ∷ Update State
 afterPlay = do
     state ← get
     let mode = state^._mode
@@ -132,7 +131,7 @@ afterPlay = do
 data Msg = Core CoreMsg | SelectMode Int | SelectLevel Int | Play Int | Konami String
 instance withcore ∷ MsgWithCore Msg where core = Core
 
-update ∷ Msg → Update State EFFS
+update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
 update (SelectMode mode) = newGame $ (_mode .~ mode) ∘ (_level .~ 0)
 update (SelectLevel level) = newGame (_level .~ level)

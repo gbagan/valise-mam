@@ -2,9 +2,8 @@ module Game.Nim.Model where
 import MyPrelude
 import Data.Int.Bits (xor)
 import Lib.Util (repeat2)
-import Pha.Update (Update)
-import Pha.Random as R
-import Game.Effs (EFFS)
+import Lib.Update (Update)
+import Lib.Random as R
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, GState, Mode(..), Turn(..),
             coreUpdate, playA,
             _ext, genState, newGame, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
@@ -82,7 +81,7 @@ instance nimGame2 ∷ TwoPlayersGame (Array Position) ExtState Move where
 data Msg = Core CoreMsg | SetNbPiles Int | SetLength Int | Play Move
 instance withcore ∷ MsgWithCore Msg where core = Core
 
-update ∷ Msg → Update State EFFS
+update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
 update (SetNbPiles n) = newGame $ _nbPiles .~ n
 update (SetLength n) = newGame $ _length .~ n

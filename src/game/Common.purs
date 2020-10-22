@@ -1,6 +1,9 @@
 module Game.Common where
 import MyPrelude
-import Pha.Events.Decoder (Decoder, readNumber, readProp, currentTarget, getBoundingClientRect)
+import Pha (EventHandler)
+import Web.Event.Event as E
+import Web.HTML.HTMLElement as HE
+import Web.UIEvent.MouseEvent as ME
 
 -- fonction utile pour labete et tiling
 -- isomorphisme entre 2 façons de réprésenter une bête/tuile
@@ -10,12 +13,13 @@ _isoCustom = iso from to where
         from = flip updateAtIndices (replicate 25 false) ∘  map \{row, col} → (row * 5 + col + 12) ∧ true
         to = catMaybes ∘ mapWithIndex \i → if _ then Just {row: i / 5 - 2, col: i `mod` 5 - 2} else Nothing
 
-pointerDecoder ∷ Decoder { x ∷ Number, y ∷ Number }
-pointerDecoder f = do
-    {left, top, width, height} ← f # currentTarget >>= getBoundingClientRect
-    x ← f # readProp "clientX" >>= readNumber
-    y ← f # readProp "clientY" >>= readNumber
-    pure {
-        x: (x - left) / width,
-        y: (y - top) / height
-    }
+pointerDecoder ∷ EventHandler { x ∷ Number, y ∷ Number }
+pointerDecoder ev = do
+    case ME.fromEvent ev /\ (E.currentTarget ev >>= HE.fromEventTarget) of
+        Just mouseEv /\ Just el → do
+            {left, top, width, height} ← HE.getBoundingClientRect el
+            pure $ Just {
+                x: (toNumber(ME.clientX mouseEv) - left) / width,
+                y: (toNumber(ME.clientY mouseEv) - top) / height
+            }
+        _ → pure Nothing

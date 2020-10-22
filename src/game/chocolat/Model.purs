@@ -2,9 +2,8 @@ module Game.Chocolat.Model where
 import MyPrelude
 import Data.Int.Bits ((.^.))
 import Lib.Util ((..))
-import Pha.Random as R
-import Pha.Update (Update, modify)
-import Game.Effs (EFFS)
+import Lib.Random as R
+import Lib.Update (Update, modify)
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, SizeLimit(..), GState, Mode(..),
                 coreUpdate, playA, _ext, genState, newGame, computerMove', _position, _nbRows, _nbColumns)
 
@@ -88,7 +87,7 @@ cutLine state = case _ of
 data Msg = Core CoreMsg | SetHover (Maybe Move) | SetSoapMode SoapMode | Play Move
 instance withcore ∷ MsgWithCore Msg where core = Core
     
-update ∷ Msg → Update State EFFS
+update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
 update (SetHover a) = modify $ _moveWhenHover .~ a 
 update (SetSoapMode m) = newGame (_soapMode .~ m)

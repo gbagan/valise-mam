@@ -12,7 +12,7 @@ valise ∷ State → H.VDom Msg
 valise state =
     HH.svg
     [   P.viewBox 0 0 825 690
-    ,   E.on "pointermove" $ pointerDecoder >>> (map MoveObject)
+    ,   E.on "pointermove" $ pointerDecoder >>> map (map MoveObject)
     ,   E.onpointerup $ SetDrag Nothing
     ]
     [   HH.use 

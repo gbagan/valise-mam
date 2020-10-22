@@ -7,8 +7,8 @@ import Pha as H
 import Pha.Elements as HH
 import Pha.Attributes as P
 import Pha.Events as E
-import Pha.Events.Decoder (shiftKey)
 import Pha.Util (px, translate)
+import Web.UIEvent.MouseEvent as ME
 import UI.Template (template, card, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icons (icongroup, iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
 import Game.Core (_nbRows, _position, _help, _locked)
@@ -144,7 +144,7 @@ view state = template {config, board, rules, winTitle} state where
         map2 spoints reachable \i {x, y} reach →
             HH.g
             [   H.key $ "lily" <> show i
-            ,   E.on "click" $ shiftKey >>> map (if _ then Mark i else Play i)
+            ,   E.onclick_ \ev → pure $ Just $ if ME.shiftKey ev then Mark i else Play i
             ]
             [   lily i x y false false
             ,   lily i x y true (not reach || locked)

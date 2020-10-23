@@ -2,12 +2,13 @@ module Lib.Update where
 
 import MyPrelude
 
-import Control.Monad.Free (Free, liftF, hoistFree, runFreeM)
+import Control.Monad.Free (Free, liftF, hoistFree, runFreeM, resume')
 import Data.Exists (Exists, mkExists, runExists)
 import Effect (Effect)
-import Lib.Random (Random)
+import Lib.Random (Random, RandomF(..))
 import Pha.App.Router as Router
 import Effect.Timer (setTimeout)
+import Effect.Random as R
 import Unsafe.Coerce (unsafeCoerce)
 
 data GenWrapper a b = GenWrapper (Random b) (b → a)
@@ -33,22 +34,51 @@ instance functorCommandF ∷ Functor (CommandF st) where
 type Command st = Free (CommandF st)
 type Update st = Command st Unit
 
+
 updateOver ∷ ∀st st'. Lens' st st' → Command st' ~> Command st
 updateOver lens = hoistFree case _ of
     Get a → Get (a <<< view lens)
     Modify f a → Modify (lens %~ f) a
     x → unsafeCoerce x
 
+resume
+  ∷ ∀ a b r. Functor r =>
+  (r (Free r a) → b)
+  → (a → b)
+  → Free r a
+  → b
+resume k1 k2 = resume' (\x f → k1 (f <$> x)) k2
+
+runCont
+  ∷ ∀ m a b r
+  . Functor r =>
+  (r (m b) → m b)
+  → (a → m b)
+  → Free r a
+  → m b
+runCont k1 k2 = loop
+  where
+  loop ∷ Free r a → m b
+  loop = resume (\b -> k1 (loop <$> b)) k2
+
 interpret ∷ ∀st. {get ∷ Effect st, modify ∷ (st → st) → Effect Unit} → Update st → Effect Unit
-interpret {get: get', modify: modify'} = runFreeM go
+interpret {get: get', modify: modify'} = runCont go $ const (pure unit)
     where
-    go (Get a) = get' <#> a
-    go (Modify f a) = modify' f *> pure a
-    -- go (Delay ms a) = void $ setTimeout ms (pure a)
-    go (GoTo url a) = Router.goTo url *> pure a
-    go (StorageGet n a) = storageGetImpl Nothing Just n <#> a
-    go (StoragePut n v a) = storagePutImpl n v *> pure a
-    go _ = unsafeCoerce 1
+    go (Get cont) = get' >>= cont
+    go (Modify f cont) = modify' f *> cont
+    go (Rng cont) = runExists f cont where
+        f :: forall b. GenWrapper (Effect Unit) b → Effect Unit
+        f (GenWrapper rndData next) = evalRng rndData >>= next
+    go (Delay ms cont) = void $ setTimeout ms cont
+    go (GoTo url cont) = Router.goTo url *> cont
+    go (StorageGet n cont) = storageGetImpl Nothing Just n >>= cont
+    go (StoragePut n v cont) = storagePutImpl n v *> cont
+
+
+evalRng :: forall a. Random a → Effect a
+evalRng = runFreeM go where
+    go (RandomInt m next) = R.randomInt 0 (m-1) <#> next
+    go (RandomNumber next) = R.random <#> next
 
 foreign import storagePutImpl :: String → String → Effect Unit 
 foreign import storageGetImpl :: Maybe String → (String → Maybe String) → String → Effect (Maybe String)

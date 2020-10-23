@@ -11,6 +11,7 @@
   , "pha"
   , "prelude"
   , "profunctor-lenses"
+  , "random"
   , "strings"
   , "typelevel-prelude"
   , "web-html"

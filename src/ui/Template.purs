@@ -157,7 +157,7 @@ dndItemProps ∷ ∀pos ext msg id. Eq id ⇒ MsgWithDnd msg id ⇒ Game pos ext
 dndItemProps state {draggable, droppable, id, currentDragged} =
     [   class' "dragged" dragged
     ,   class' "candrop" candrop
-    ,   E.releasePointerCaptureOn "pointerdown" $ E.always (if draggable then Just (dndmsg (Drag id)) else Nothing)
+    ,   E.releasePointerCaptureOn "pointerdown" $ \_ -> pure (if draggable then Just (dndmsg (Drag id)) else Nothing)
     ,   E.stopPropagationOn "pointerup" $ E.always (if candrop then Just (dndmsg (Drop id)) ∧ true else Nothing ∧ false)
     ] where
         candrop = droppable && (currentDragged # maybe false \d → canPlay state {from: d, to: id})

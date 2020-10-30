@@ -49,7 +49,7 @@ dndBoardProps =
     ,   E.onpointerup DropOnBoard
     ,   E.onpointerleave LeaveGuard
     ] where
-        move e = map (core <<< SetPointer <<< Just) <$> pointerDecoder e
+        move e = map (core ∘ SetPointer ∘ Just) <$> pointerDecoder e
 
 dndItemProps ∷ State → 
     {

@@ -126,7 +126,7 @@ instance tilingGame ∷ Game (Array Int) ExtState Int where
             pos = state^._position 
             tilePos = tilePositions state index
 
-    isLevelFinished = all (_ /= 0) <<< view _position
+    isLevelFinished = all (_ /= 0) ∘ view _position
 
     initialPosition state = pure $ replicate (state^._nbRows * state^._nbColumns) 0
 

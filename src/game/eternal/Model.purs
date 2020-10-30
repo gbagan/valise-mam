@@ -317,12 +317,12 @@ instance withcore ∷ MsgWithCore Msg where core = Core
     
 update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
-update (SetGraphKind kind) = newGame ((_graphkind .~ kind) <<< ( 
+update (SetGraphKind kind) = newGame ((_graphkind .~ kind) ∘ ( 
                                         case kind of
-                                            Grid → (_nbRows .~ 3) <<< (_nbColumns .~ 3)
-                                            Biclique → (_nbRows .~ 4) <<< (_nbColumns .~ 1)
-                                            Sun → (_nbRows .~ 3) <<< (_nbColumns .~ 0)
-                                            _ → (_nbRows .~ 6) <<< (_nbColumns .~ 0)
+                                            Grid → (_nbRows .~ 3) ∘ (_nbColumns .~ 3)
+                                            Biclique → (_nbRows .~ 4) ∘ (_nbColumns .~ 1)
+                                            Sun → (_nbRows .~ 3) ∘ (_nbColumns .~ 0)
+                                            _ → (_nbRows .~ 6) ∘ (_nbColumns .~ 0)
                                     ))
 update (SetRules rules) = newGame (_rules .~ rules)
 update StartGame = modify startGame

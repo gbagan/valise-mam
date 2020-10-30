@@ -96,7 +96,6 @@ const answer = (arenaGraph, conf) => {
     return maxBy(defs, conf2 => arenaGraph.attractor[arenaGraph.encode(conf2)] || 1000);
 }
 
-
 function * multiMoves(graph, conf, i) {
     if (i === conf.length) {
         yield conf;
@@ -145,7 +144,7 @@ function * allGuardsPossibilities (graph, conf) {
         }
     }
 }
-    
+
 const oneRules = {
     attackerPossibilities,
     guardsPossibilities: oneGuardPossibilities
@@ -158,12 +157,12 @@ const allRules = {
     
 const makeRules = name => name === 'one' ? oneRules : allRules;
 
-exports.guardsAnswerAux = nothing => just => edsgraph => guards => attack => {
+const guardsAnswerAux = nothing => just => edsgraph => guards => attack => {
     const ans = answer(edsgraph, guards.concat(attack));
     return !ans ? nothing : just(ans);
 };
 
-exports.attackerAnswerAux = nothing => just => arenaGraph => conf => {
+const attackerAnswerAux = nothing => just => arenaGraph => conf => {
     const econf = arenaGraph.encode(conf); 
     if(!arenaGraph.attractor[econf])
         return nothing;
@@ -172,7 +171,7 @@ exports.attackerAnswerAux = nothing => just => arenaGraph => conf => {
     return just(minattack[minattack.length-1]);
 }
 
-exports.makeEDSAux = graph => rulesName => k => {
+const makeEDSAux = graph => rulesName => k => {
     const n = graph.length
     const rules = makeRules(rulesName)
     function* bconfs () {
@@ -205,5 +204,9 @@ exports.makeEDSAux = graph => rulesName => k => {
             return acc;
         }
     };
-    return makeArenaGraph(arena);
-};
+    return makeArenaGraph(arena)
+}
+
+exports.guardsAnswerAux = guardsAnswerAux
+exports.attackerAnswerAux = attackerAnswerAux
+exports.makeEDSAux = makeEDSAux

@@ -383,7 +383,7 @@ updateScore' strat state =
 -- | renvoie le meilleur score pour la partie actuelle
 -- | un meilleur score est une paire composée du score représenté par un entier et de la position témoignant du score
 bestScore ∷ ∀pos ext mov. ScoreGame pos ext mov ⇒ GState pos ext → Maybe (Tuple Int pos)
-bestScore state = state ^. (_scores ∘ at (scoreHash' state))
+bestScore state = state ^. _scores ∘ at (scoreHash' state)
 
 data DndMsg i = Drag i | Drop i | Leave | DropOnBoard
 

@@ -217,5 +217,5 @@ main = appWithRouter
     ,   update: \helpers msg → interpret helpers (update msg)
     ,   onUrlChange: UrlChanged
     ,   onUrlRequest: UrlRequested
-    ,   subscriptions: const [Subs.onKeyDown (Just <<< KeyDown)]
+    ,   subscriptions: const [Subs.onKeyDown (Just ∘ KeyDown)]
     } # attachTo "root"

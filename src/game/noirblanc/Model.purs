@@ -139,4 +139,4 @@ update (Play move) = playA move *> afterPlay
 update (Konami k) = konamiCode _keySequence (modify $ _maxLevels .~ [6, 6, 6, 6]) k
 
 onKeyDown ∷ String → Maybe Msg
-onKeyDown = Just <<< Konami
+onKeyDown = Just ∘ Konami

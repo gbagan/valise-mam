@@ -103,4 +103,4 @@ update (Play i) = playA i
 update (Konami s) = s # konamiCode _keySequence (modify \st → st # _marked .~ st^._winning)
 
 onKeyDown ∷ String → Maybe Msg
-onKeyDown = Just <<< Konami 
+onKeyDown = Just ∘ Konami 

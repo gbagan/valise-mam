@@ -134,7 +134,7 @@ trackPointer = [
     E.onpointerleave $ core (SetPointer Nothing),
     E.on "pointerdown" move
 ] where
-    move e = map (core <<< SetPointer <<< Just) <$> pointerDecoder e
+    move e = map (core ∘ SetPointer ∘ Just) <$> pointerDecoder e
 
 -- | même chose que trackPointer mais gère le drag and drop par l'intermédiaire d'un lens
 dndBoardProps ∷ ∀msg id. MsgWithCore msg ⇒ MsgWithDnd msg id ⇒ Array (Prop msg)
@@ -144,7 +144,7 @@ dndBoardProps = [
     E.onpointerup $ dndmsg DropOnBoard,
     E.onpointerleave $ dndmsg Leave
 ] where
-    move e = map (core <<< SetPointer <<< Just) <$> pointerDecoder e
+    move e = map (core ∘ SetPointer ∘ Just) <$> pointerDecoder e
 
 -- | gère le drag and drop pour une item en renvoyant une liste d'attributs
 dndItemProps ∷ ∀pos ext msg id. Eq id ⇒ MsgWithDnd msg id ⇒ Game pos ext {from ∷ id, to ∷ id} ⇒

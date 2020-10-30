@@ -2,6 +2,7 @@
 /node_modules/
 /.pulp-cache/
 /output/
+/dce-output/
 /generated-docs/
 /package-lock.json
 /.psc-package/

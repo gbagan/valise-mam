@@ -16,10 +16,9 @@ import Data.Lens.At (at) as Exports
 import Data.Lens.Lens.Product (_1, _2) as Exports
 import Data.String (joinWith) as Exports
 import Control.Alt ((<|>)) as Exports
-import Prelude ((<<<))
 
 infixr 9 Exports.compose as ∘
 infix 6 Exports.Tuple as ∧
 
 replicateA ∷ forall m a. Exports.Applicative m => Int → m a → m (Array a)
-replicateA n = Exports.sequence <<< (Exports.replicate n)
+replicateA n = Exports.sequence ∘ (Exports.replicate n)

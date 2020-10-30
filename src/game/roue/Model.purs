@@ -68,7 +68,7 @@ instance roueGame ∷ Game (Array (Maybe Int)) Ext {from ∷ Location, to ∷ Lo
 
     isLevelFinished _ = false
     
-    onNewGame = pure <<< (_rotation .~ 0)
+    onNewGame = pure ∘ (_rotation .~ 0)
 
     computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit

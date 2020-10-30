@@ -18,7 +18,7 @@ dupColors ∷ Array String
 dupColors = colors >>= \x → [x, x]
 
 translatePeg ∷ Int → Int → String
-translatePeg position nbBases = translate (pc x) (pc y)  where
+translatePeg position nbBases = translate (pc x) (pc y) where
     mid = toNumber (position / 2)
     x = 0.42 + 0.35 * cos (mid * 2.0 * pi / toNumber nbBases) + 0.1 * toNumber (position `mod` 2)
     y = 0.46 + 0.35 * sin (mid * 2.0 * pi / toNumber nbBases)

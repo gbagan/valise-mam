@@ -1,4 +1,4 @@
-module Main where
+module Main (main) where
 
 import MyPrelude hiding (view)
 
@@ -197,7 +197,7 @@ view st = {
         [   H.when (st.location /= "") \_ →
                 HH.a
                 [   H.class_ "main-minivalise-link"
-                ,   P.href "."
+                ,   P.href "#"
                 ]
                 [   HH.svg [P.width "100%", P.height "100%"]
                     [   HH.use [P.href "#valise"]]

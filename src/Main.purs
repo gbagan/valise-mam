@@ -23,12 +23,12 @@ import Game.Solitaire as Solitaire
 import Game.Tiling as Tiling
 import Game.Tricolor as Tricolor
 import Game.Valise as Valise
-import Pha.App (Document, attachTo)
-import Pha.App.Router (Url, UrlRequest(..), appWithRouter)
+import Pha.App (app)
+import Pha (VDom)
 import Pha as H
 import Pha.Elements as HH
 import Pha.Attributes as P
-import Lib.Update (Update, get, modify, goTo, updateOver, interpret)
+import Lib.Update (Update, get, modify, getHash, updateOver, interpret)
 import Pha.Subs as Subs
 import Unsafe.Coerce (unsafeCoerce)
 
@@ -95,10 +95,9 @@ data Msg =
     | ValiseMsg Valise.Msg
     | TilingMsg Tiling.Msg
     | TricolorMsg Tricolor.Msg
-    | UrlChanged Url
-    | UrlRequested UrlRequest
     | KeyDown String
-    | Init Url
+    | HashChanged
+    | Init
 
 type GameWrapperF st msg =
     {   core ∷ GenericGame st msg
@@ -157,65 +156,58 @@ update (SolitaireMsg msg) = lens _.solitaire _{solitaire = _} .~> Solitaire.upda
 update (TilingMsg msg)    = lens _.tiling _{tiling = _}       .~> Tiling.update msg
 update (TricolorMsg msg)  = lens _.tricolor _{tricolor = _}   .~> Tricolor.update msg
 update (ValiseMsg msg)    = lens _.valise _{valise = _}       .~> Valise.update msg
-update (Init url) = init url
+update Init = init
 update (KeyDown k) = do
         st ← get
         callByName st.location (pure unit) \game →
             case game.core.onKeydown k of
                 Nothing → pure unit
                 Just msg → update (game.msgmap msg)
-update (UrlChanged url) = do
-    let location = String.drop 1 url.hash
+update HashChanged = do
+    hash ← getHash
+    let location = String.drop 1 hash
     modify _{location = location}
     if location == "" then
         lens _.valise _{valise = _} .~> Valise.enterA
     else
         pure unit
 
-update (UrlRequested (Internal url)) = goTo url.href
-update (UrlRequested _) = pure unit
-
-
-init ∷ Url → Update RootState
-init url = do
+init ∷ Update RootState
+init = do
     for_ (Map.values games) $
         gameRun \game → case game.core.init of
                             Nothing → pure unit
                             Just init' → update $ game.msgmap init'
-    update (UrlChanged url)
+    update HashChanged
     
 
-view ∷ RootState → Document Msg
-view st = {
-    title: "Valise MaM",
-    body:
-        HH.div
-        [   H.key st.location
-        ,   H.class_ "main-main-container"
-        ,   H.class_ (if st.location == "" then "valise" else "game")
+view ∷ RootState → VDom Msg
+view st =
+    HH.div
+    [   H.key st.location
+    ,   H.class_ "main-main-container"
+    ,   H.class_ (if st.location == "" then "valise" else "game")
+    ]
+    [   H.when (st.location /= "") \_ →
+        HH.a
+        [   H.class_ "main-minivalise-link"
+        ,   P.href "#"
         ]
-        [   H.when (st.location /= "") \_ →
-                HH.a
-                [   H.class_ "main-minivalise-link"
-                ,   P.href "#"
-                ]
-                [   HH.svg [P.width "100%", P.height "100%"]
-                    [   HH.use [P.href "#valise"]]
-                ]
-        ,   viewGame st
+        [   HH.svg [P.width "100%", P.height "100%"]
+            [   HH.use [P.href "#valise"]]
         ]
-}
+    ,   viewGame st
+    ]
 
 viewGame ∷ RootState → H.VDom Msg
 viewGame st = callByName st.location H.emptyNode 
                     \game → game.core.view (game.map st) <#> game.msgmap
 
 main ∷ Effect Unit
-main = appWithRouter
-    {   init: \url → {state, action: Just $ Init url}
+main = app
+    {   init: {state, action: Just $ Init}
     ,   view
     ,   update: \helpers msg → interpret helpers (update msg)
-    ,   onUrlChange: UrlChanged
-    ,   onUrlRequest: UrlRequested
-    ,   subscriptions: const [Subs.onKeyDown (Just ∘ KeyDown)]
-    } # attachTo "root"
+    ,   subscriptions: const [Subs.onKeyDown (Just ∘ KeyDown), Subs.onHashChange $ const (Just HashChanged)]
+    ,   selector: "#root"
+    }

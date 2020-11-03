@@ -11,19 +11,16 @@
 
 .valise-open {
     opacity: 0;
-    transition: opacity 0.5s ease-in 0.5s;
 }
 
 .valise-close {
     opacity: 1;
-    transition: opacity 0.5s ease-out;
 }
 
 .valise-logo {
     height: 18vmin * 1.1;
     width: 82.5vmin * 1.1;
     opacity: 0;
-    transition: opacity 1s ease-in;
 }
 
 .valise-object {
@@ -42,10 +39,12 @@
 .valise-main-container.open  {
     & .valise-open, & .valise-logo {
         opacity: 1;
+        transition: opacity 0.5s ease-in 0.5s;
     }
 
     .valise-close {
         opacity: 0;
+        transition: opacity 0.5s ease-out;
     }
 }
 

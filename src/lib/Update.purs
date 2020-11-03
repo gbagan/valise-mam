@@ -6,11 +6,11 @@ import Control.Monad.Free (Free, liftF, hoistFree, runFreeM, resume')
 import Data.Exists (Exists, mkExists, runExists)
 import Effect (Effect)
 import Lib.Random (Random, RandomF(..))
-import Pha.App.Router as Router
 import Effect.Timer (setTimeout)
 import Effect.Random as R
 import Web.HTML (window)
-import Web.HTML.Window (localStorage)
+import Web.HTML.Window (localStorage, location)
+import Web.HTML.Location as L
 import Web.Storage.Storage as Storage
 import Unsafe.Coerce (unsafeCoerce)
 
@@ -21,7 +21,7 @@ data CommandF st a =
     | Modify (st → st) a
     | Delay Int a
     | Rng (Exists (GenWrapper a))
-    | GoTo String a
+    | GetHash (String → a)
     | StorageGet String (Maybe String → a)
     | StoragePut String String a
 
@@ -30,13 +30,12 @@ instance functorCommandF ∷ Functor (CommandF st) where
     map f (Modify g a) = Modify g (f a)
     map f (Delay n a) = Delay n (f a)
     map f (Rng a) = Rng $ a # runExists \(GenWrapper d g) → mkExists (GenWrapper d (f ∘ g))
-    map f (GoTo url a) = GoTo url (f a)
+    map f (GetHash a) = GetHash (f ∘ a)
     map f (StorageGet n a) = StorageGet n (f ∘ a)
     map f (StoragePut n d a) = StoragePut n d (f a) 
 
 type Command st = Free (CommandF st)
 type Update st = Command st Unit
-
 
 updateOver ∷ ∀st st'. Lens' st st' → Command st' ~> Command st
 updateOver lens = hoistFree case _ of
@@ -74,7 +73,7 @@ interpret {get: get', modify: modify'} = do
             f :: forall b. GenWrapper (Effect Unit) b → Effect Unit
             f (GenWrapper rndData next) = evalRng rndData >>= next
         go (Delay ms cont) = void $ setTimeout ms cont
-        go (GoTo url cont) = Router.goTo url *> cont
+        go (GetHash cont) = window >>= location >>= L.hash >>= cont
         go (StorageGet n cont) = window >>= localStorage >>= Storage.getItem n >>= cont
         go (StoragePut n v cont) = (window >>= localStorage >>= Storage.setItem n v) *> cont
 
@@ -105,8 +104,8 @@ randomly f = do
     st2 <- randomEval (f st)
     put st2
 
-goTo ∷ ∀st. String → Command st Unit
-goTo url = liftF $ GoTo url unit
+getHash ∷ ∀st. Command st String
+getHash = liftF $ GetHash identity
 
 storageGet ∷ ∀st. String → Command st (Maybe String)
 storageGet name = liftF $ StorageGet name identity

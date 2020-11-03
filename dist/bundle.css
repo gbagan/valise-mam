@@ -1107,19 +1107,16 @@ html, body {
 
 .valise-open {
   opacity: 0;
-  transition: opacity 0.5s ease-in 0.5s;
 }
 
 .valise-close {
   opacity: 1;
-  transition: opacity 0.5s ease-out;
 }
 
 .valise-logo {
   height: 19.8vmin;
   width: 90.75vmin;
   opacity: 0;
-  transition: opacity 1s ease-in;
 }
 
 .valise-object {
@@ -1137,9 +1134,11 @@ html, body {
 
 .valise-main-container.open .valise-open, .valise-main-container.open .valise-logo {
   opacity: 1;
+  transition: opacity 0.5s ease-in 0.5s;
 }
 .valise-main-container.open .valise-close {
   opacity: 0;
+  transition: opacity 0.5s ease-out;
 }
 
 .valise-help {

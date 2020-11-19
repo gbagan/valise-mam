@@ -17,8 +17,8 @@ type Graph = {title ∷ String, vertices ∷ Array Position, edges ∷ Array Edg
 house ∷ Graph
 house =
     {   title: "Maison"
-    ,   vertices: [{x: 1.0, y: 4.0}, {x: 3.0, y: 4.0 }, {x: 1.0, y: 2.0}, {x: 3.0, y: 2.0}, {x: 2.0, y: 1.0}]
-    ,   edges: [0↔1, 0↔2, 0↔3, 1↔2, 1↔3, 2↔3, 2↔4, 3↔4]
+    ,   vertices: [{x: 1.0, y: 4.0}, {x: 3.0, y: 4.0 }, {x: 2.0, y: 3.0}, {x: 1.0, y: 2.0}, {x: 3.0, y: 2.0}, {x: 2.0, y: 1.0}]
+    ,   edges: [0↔1, 1↔4, 4↔3, 3↔0, 2↔0, 2↔1, 2↔3, 2↔4, 3↔5, 4↔5]
     }
 
 
@@ -34,8 +34,9 @@ sablier =
 house2 ∷ Graph
 house2 =
     {   title: "Maison avec cave"
-    ,   vertices: [{x: 1.0, y: 3.2}, {x: 3.0, y: 3.2 }, {x: 1.0, y: 1.8}, {x: 3.0, y: 1.8}, {x: 2.0, y: 1.0}, {x: 2.0, y: 4.0}]
-    ,   edges: [0↔1, 0↔2, 0↔3, 1↔2, 1↔3, 2↔3, 2↔4, 3↔4, 0↔5, 1↔5]
+    ,   vertices: [{x: 2.0, y: 2.5}, {x: 1.0, y: 3.2}, {x: 3.0, y: 3.2 }, {x: 1.0, y: 1.8}, {x: 3.0, y: 1.8}, 
+                    {x: 2.0, y: 1.0}, {x: 2.0, y: 4.0}]
+    ,   edges: [0↔1, 0↔2, 0↔3, 0↔4, 1↔2, 2↔4, 4↔3, 3↔1, 3↔5, 4↔5, 1↔6, 2↔6]
     }
 
 interlace ∷ Graph
@@ -98,6 +99,24 @@ ex3 =
     ,   edges: [0↔1, 1↔2, 2↔3, 3↔0, 0↔8, 1↔8, 2↔8, 3↔8, 0↔4, 1↔4, 0↔5, 3↔5, 2↔6, 3↔6, 1↔7, 2↔7]
 }
 
+owl ∷ Graph
+owl =
+    {   title: "Hibou"
+    ,   vertices: [ {x: 0.0, y: 0.0}, {x: 2.0, y: 0.0},
+                    {x: 0.0, y: 1.0}, {x: 1.0, y: 1.0}, {x: 2.0, y: 1.0}, {x: 3.0, y: 1.0},
+                    {x: 0.0, y: 2.0}, {x: 1.0, y: 2.0}, {x: 2.0, y: 2.0}, {x: 3.0, y: 2.0},
+                    {x: 1.0, y: 3.0}, {x: 2.0, y: 3.0}, {x: 4.0, y: 3.0},
+                    {x: 1.0, y: 4.0}, {x: 2.0, y: 4.0}, {x: 3.0, y: 4.0}, {x: 4.0, y: 4.0},
+                    {x: 1.0, y: 5.0}, {x: 3.0, y: 5.0}
+                ] <#> \{x, y} → {x: x*0.8+0.5, y: y*0.8+0.6}
+    , edges: [0↔2, 0↔3, 1↔3, 1↔4, 2↔3, 3↔4, 4↔5,
+              2↔6, 2↔7, 3↔7, 3↔8, 4↔8, 4↔9, 5↔9, 6↔7, 7↔8,
+              7↔10, 7↔11, 8↔11, 9↔11, 9↔12, 
+              10↔14, 11↔15, 12↔15, 9↔15, 13↔14, 14↔15, 15↔16,
+              13↔17, 14↔17, 15↔18, 16↔18
+            ]
+    }
+
 rabbit ∷ Graph
 rabbit =
     {   title: "Lièvre bondissant"
@@ -132,7 +151,7 @@ cross =
     }
 
 graphs ∷ Array Graph
-graphs = [house, house2, sablier, interlace, grid, konisberg, ex1, ex2, ex3, rabbit, cross]
+graphs = [house, house2, sablier, interlace, grid, konisberg, ex1, ex2, ex3, owl, rabbit, cross]
 
 nbGraphs ∷ Int
 nbGraphs = length graphs

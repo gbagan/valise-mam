@@ -69,15 +69,18 @@ view state = template {config, board, rules, winTitle} state where
                         ,   P.y2 $ show (20.0 * py2)
                         ,   H.class_ "dessin-line2"
                         ]
-                ,   graph.vertices # mapWithIndex \i {x, y} →
-                        HH.circle
-                        [   P.cx $ show (20.0 * x)
-                        ,   P.cy $ show (20.0 * y)
-                        ,   P.r "3"
-                        ,   P.stroke $ if Just (Just i) == last position then "red" else "blue"
-                        ,   P.fill "blue"
-                        ,   E.onclick $ Play (Just i)
-                        ]
+                ,   if not levelFinished then
+                        graph.vertices # mapWithIndex \i {x, y} →
+                            HH.circle
+                            [   P.cx $ show (20.0 * x)
+                            ,   P.cy $ show (20.0 * y)
+                            ,   P.r "3"
+                            ,   P.stroke $ if Just (Just i) == last position then "red" else "blue"
+                            ,   P.fill "blue"
+                            ,   E.onclick $ Play (Just i)
+                            ]
+                    else
+                        []
                 ,   [H.when (not levelFinished) \_ →
                         H.maybeN $ currentLine <$> (state^._pointer) <*> (getCoords graph =<< join (last position))
                     ]

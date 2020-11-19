@@ -50,10 +50,8 @@ instance game ∷ Game (Array Int) ExtState Int where
         let j = state ^. _missingPeg
         x ← position !! i
         y ← position !! j
-        if elem (x / 2 - y / 2) [1, nbBases-1, -1, 1-nbBases] then
-            Just $ position # updateAtIndices [i ∧ y, j ∧ x]
-        else
-            Nothing
+        guard $ elem (x / 2 - y / 2) [1, nbBases-1, -1, 1-nbBases]
+        Just $ position # updateAtIndices [i ∧ y, j ∧ x]
 
     initialPosition state = R.shuffle (0 .. (2 * state ^. _nbBases - 1))
     isLevelFinished state = state ^. _position # allWithIndex \i j → i / 2 == j / 2

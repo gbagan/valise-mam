@@ -1,11 +1,12 @@
 module Game.Dessin.View (view) where
 import MyPrelude
+import Lib.Util ((..))
 import Pha as H
 import Pha.Elements as HH
 import Pha.Attributes as P
 import Pha.Events as E
 import Game.Core (canPlay, isLevelFinished, _position, _pointer)
-import Game.Dessin.Model (State, Msg(..), Graph, Position, Edge, (↔), edgesOf, nbRaises, _graph, _graphIndex)
+import Game.Dessin.Model (State, Msg(..), Graph, Position, Edge, (↔), nbGraphs, edgesOf, nbRaises, _graph, _graphIndex)
 import UI.Template (template, card, trackPointer)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
@@ -39,7 +40,7 @@ view state = template {config, board, rules, winTitle} state where
 
     config =
         card "Dessin" 
-        [   iconSelectGroup state "Dessin" [0, 1, 2, 3, 4] (state^._graphIndex) SetGraphIndex
+        [   iconSelectGroup state "Dessin" (0..(nbGraphs-1)) (state^._graphIndex) SetGraphIndex
                 \i → _{icon = IconText (show (i + 1)) }
         ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
         ]

@@ -64,10 +64,8 @@ instance game ∷ Game (Array Int) Ext Int where
             Nothing → if state^._mode == Mode2 then Just [v] else Nothing
             Just last → do
                 p ← pathBetween (state^._nbColumns) last v 
-                if not (null p) && isValidPath state (state^._position <> p) then
-                    Just (state^._position <> p)
-                else
-                    Nothing
+                guard $ not (null p) && isValidPath state (state^._position <> p)
+                Just (state^._position <> p)
 
     isLevelFinished state =
         length (state^._position) == state^._nbColumns * state^._nbRows + (if state^._exit == head (state^._position) then 1 else 0)
@@ -76,7 +74,7 @@ instance game ∷ Game (Array Int) Ext Int where
         Nothing → []
         Just exit → [exit]
 
-    onNewGame state = flip (set _exit) state <$>
+    onNewGame state = flip (set _exit) state <$> do
         if state^._mode == Mode1 then
             Just <$> R.int' (state^._nbRows * state^._nbColumns) 
         else

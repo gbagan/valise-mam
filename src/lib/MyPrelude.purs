@@ -16,6 +16,7 @@ import Data.Lens.At (at) as Exports
 import Data.Lens.Lens.Product (_1, _2) as Exports
 import Data.String (joinWith) as Exports
 import Control.Alt ((<|>)) as Exports
+import Control.MonadZero (guard) as Exports
 
 infixr 9 Exports.compose as ∘
 infix 6 Exports.Tuple as ∧

@@ -41,11 +41,11 @@ instance game ∷ Game {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int
     name _ = "chocolat"
 
     -- les coups proposées par la vue sont toujours valides
-    play st = case _ of
-            FromLeft x → Just p{left = x}
-            FromTop x → Just p{top = x}
-            FromRight x → Just p{right = x}
-            FromBottom x → Just p{bottom = x}
+    play st m = Just case m  of
+            FromLeft x → p{left = x}
+            FromTop x → p{top = x}
+            FromRight x → p{right = x}
+            FromBottom x → p{bottom = x}
         where p = st^._position
 
     isLevelFinished = view _position >>> \p → p.left == p.right - 1 && p.top == p.bottom - 1
@@ -67,7 +67,7 @@ instance game ∷ Game {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int
 instance game_ ∷ TwoPlayersGame {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int} ExtState Move where
     isLosingPosition st = (col - left) .^. (right - col - 1) .^. (row - top) .^. (bottom - row - 1) == 0 where
         {left, right, top, bottom} = st^._position
-        {row, col} = st^._soap 
+        {row, col} = st^._soap
 
     possibleMoves st =
         let {left, right, top, bottom} = st^._position

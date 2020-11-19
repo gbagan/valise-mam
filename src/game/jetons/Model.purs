@@ -35,10 +35,8 @@ instance game ∷ Game (Array Int) Ext { from ∷ Int, to ∷ Int } where
         let {row, col} = dCoords (state^._nbColumns) from to
         pfrom ← position !! from
         pto ← position !! to
-        if pfrom > 0 && pfrom <= pto && row * row + col * col == 1 then
-            position # updateAt from 0 >>= modifyAt to (_ + pfrom)
-        else
-            Nothing
+        guard $ pfrom > 0 && pfrom <= pto && row * row + col * col == 1
+        position # updateAt from 0 >>= modifyAt to (_ + pfrom)
     
     initialPosition state = pure $ replicate (state^._nbRows * state^._nbColumns) 1
 

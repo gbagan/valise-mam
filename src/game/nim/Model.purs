@@ -42,12 +42,10 @@ canPlay state (Move pile pos) =
 instance game ∷ Game (Array Position) ExtState Move where
     name _ = "nim"
     
-    play state move@(Move pile pos) = 
-        if canPlay state move then
-            state^._position # modifyAt pile
-                \(Position p1 p2) → if state^._turn == Turn1 then Position pos p2 else Position p1 pos
-        else
-            Nothing
+    play state move@(Move pile pos) = do
+        guard $ canPlay state move
+        state^._position # modifyAt pile
+            \(Position p1 p2) → if state^._turn == Turn1 then Position pos p2 else Position p1 pos
     
     isLevelFinished state = state^._position # all
         \(Position p1 p2) → p2 - p1 == 1 && p1 == (if state^._turn == Turn2 then state^._length - 2 else 0)

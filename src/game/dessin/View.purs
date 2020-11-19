@@ -6,7 +6,7 @@ import Pha.Elements as HH
 import Pha.Attributes as P
 import Pha.Events as E
 import Game.Core (canPlay, isLevelFinished, _position, _pointer)
-import Game.Dessin.Model (State, Msg(..), Graph, Position, Edge, (↔), nbGraphs, edgesOf, nbRaises, _graph, _graphIndex)
+import Game.Dessin.Model (State, Msg(..), Graph, Position, Edge, (↔), graphs, nbGraphs, edgesOf, nbRaises, _graph, _graphIndex)
 import UI.Template (template, card, trackPointer)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
@@ -41,7 +41,7 @@ view state = template {config, board, rules, winTitle} state where
     config =
         card "Dessin" 
         [   iconSelectGroup state "Dessin" (0..(nbGraphs-1)) (state^._graphIndex) SetGraphIndex
-                \i → _{icon = IconText (show (i + 1)) }
+                \i → _{icon = IconText (show (i + 1)), tooltip = graphs !! i <#> (_.title)}
         ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
         ]
 
@@ -82,7 +82,10 @@ view state = template {config, board, rules, winTitle} state where
                         H.maybeN $ currentLine <$> (state^._pointer) <*> (getCoords graph =<< join (last position))
                     ]
                 ]
-            ,   HH.span [H.class_ "dessin-raise-info dessin-raise-info"]
+            ,   HH.span [H.class_ "dessin-title"]
+                [   H.text $ graph.title
+                ]
+            ,   HH.span [H.class_ "dessin-raise-info"]
                 [   H.text $ show raises <> " levé" <> s <> " de crayon"
                 ]
             ,   HH.button

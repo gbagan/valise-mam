@@ -5,8 +5,9 @@ import Pha as H
 import Pha.Elements as HH
 import Pha.Attributes as P
 import Pha.Events as E
-import Game.Core (canPlay, isLevelFinished, _position, _pointer)
-import Game.Dessin.Model (State, Msg(..), Graph, Position, Edge, (↔), graphs, nbGraphs, edgesOf, nbRaises, _graph, _graphIndex)
+import Game.Core (canPlay, isLevelFinished, _position, _pointer, bestScore)
+import Game.Dessin.Model (State, Msg(..), Graph, Position, Move(..), Edge, (↔),
+                         graphs, nbGraphs, edgesOf, nbRaises, _graph, _graphIndex)
 import UI.Template (template, card, trackPointer)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
@@ -39,16 +40,18 @@ view state = template {config, board, rules, winTitle} state where
     levelFinished = isLevelFinished state
 
     config =
-        card "Dessin" 
-        [   iconSelectGroup state "Dessin" (0..(nbGraphs-1)) (state^._graphIndex) SetGraphIndex
-                \i → _{icon = IconText (show (i + 1)), tooltip = graphs !! i <#> (_.title)}
+        card "Dessin"
+        [   iconSelectGroup state 
+                ("Niveau - Meilleur score " <> maybe "∅" (show ∘ fst) (bestScore state))
+                (0..(nbGraphs-1)) (state^._graphIndex) SetGraphIndex
+                    \i → _{icon = IconText (show (i + 1)), tooltip = graphs !! i <#> (_.title)}
         ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
         ]
 
     board =
-        HH.div (trackPointer <> 
+        HH.div (trackPointer <>
             [   H.class_ "ui-board dessin-board"
-            ,   E.oncontextmenu $ Play Nothing
+            ,   E.oncontextmenu $ Play Raise
             ])
             [   HH.svg [H.class_ "dessin-svg", P.viewBox 0 0 100 100] $ concat 
                 [   graph.edges <#> \edge →
@@ -75,14 +78,16 @@ view state = template {config, board, rules, winTitle} state where
                             [   P.cx $ show (20.0 * x)
                             ,   P.cy $ show (20.0 * y)
                             ,   P.r "3"
-                            ,   P.stroke $ if Just (Just i) == last position then "red" else "blue"
+                            ,   P.stroke $ if Just (MoveTo i) == last position then "red" else "blue"
                             ,   P.fill "blue"
-                            ,   E.onclick $ Play (Just i)
+                            ,   E.onclick $ Play (MoveTo i)
                             ]
                     else
                         []
                 ,   [H.when (not levelFinished) \_ →
-                        H.maybeN $ currentLine <$> (state^._pointer) <*> (getCoords graph =<< join (last position))
+                        H.maybeN case last position of
+                            Just (MoveTo x) → currentLine <$> (state^._pointer) <*> (getCoords graph x)
+                            _ → Nothing
                     ]
                 ]
             ,   HH.span [H.class_ "dessin-title"]
@@ -93,8 +98,8 @@ view state = template {config, board, rules, winTitle} state where
                 ]
             ,   HH.button
                 [   H.class_ "ui-button ui-button-primary dessin-raise"
-                ,   P.disabled $ not (canPlay state Nothing) || levelFinished
-                ,   E.onclick $ Play Nothing
+                ,   P.disabled $ not (canPlay state Raise) || levelFinished
+                ,   E.onclick $ Play Raise
                 ]
                 [   H.text "Lever le crayon"]
             ]

@@ -2,8 +2,8 @@ module Game.Dessin.Model where
 import MyPrelude
 import Lib.Util (pairwise)
 import Lib.Update (Update)
-import Game.Core (class Game, class MsgWithCore, CoreMsg, GState,
-                  playA, coreUpdate, _ext, genState, newGame, _position, defaultSizeLimit)
+import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, GState, Objective(..), ShowWinPolicy(..),
+                  updateScore', playA, coreUpdate, _ext, genState, newGame, _position, defaultSizeLimit)
 
 data Edge = Edge Int Int
 infix 3 Edge as ↔
@@ -11,8 +11,11 @@ instance eqEdge ∷ Eq Edge where
     eq (u1 ↔ v1) (u2 ↔ v2) = u1 == u2  && v1 == v2 || u1 == v2 && u2 == v1
 type Position = { x ∷ Number, y ∷ Number }
 
--- | une structure Graph est composé d'une liste des arêtes et de la position de chaque sommet dans le plan
+-- | une structure Graph est composé d'un titre, d'une liste des arêtes et de la position de chaque sommet dans le plan
 type Graph = {title ∷ String, vertices ∷ Array Position, edges ∷ Array Edge }
+
+data Move = MoveTo Int | Raise
+derive instance eqmove ∷ Eq Move
 
 house ∷ Graph
 house =
@@ -20,7 +23,6 @@ house =
     ,   vertices: [{x: 1.0, y: 4.0}, {x: 3.0, y: 4.0 }, {x: 2.0, y: 3.0}, {x: 1.0, y: 2.0}, {x: 3.0, y: 2.0}, {x: 2.0, y: 1.0}]
     ,   edges: [0↔1, 1↔4, 4↔3, 3↔0, 2↔0, 2↔1, 2↔3, 2↔4, 3↔5, 4↔5]
     }
-
 
 sablier ∷ Graph
 sablier =
@@ -99,6 +101,27 @@ ex3 =
     ,   edges: [0↔1, 1↔2, 2↔3, 3↔0, 0↔8, 1↔8, 2↔8, 3↔8, 0↔4, 1↔4, 0↔5, 3↔5, 2↔6, 3↔6, 1↔7, 2↔7]
 }
 
+
+
+city ∷ Graph
+city =
+    {   title: "Ville folle"
+    ,   vertices: [ {x: 0.0, y: 0.0}, {x: 2.0, y: 0.0}, {x: 3.0, y: 0.0},
+                    {x: 0.0, y: 1.0}, {x: 1.0, y: 1.0}, {x: 2.0, y: 1.0}, {x: 3.0, y: 1.0},
+                    {x: 1.0, y: 2.0}, {x: 2.0, y: 2.0}, {x: 3.0, y: 2.0}, {x: 4.0, y: 2.0},
+                    {x: 1.0, y: 3.0}, {x: 2.0, y: 3.0}, {x: 4.0, y: 3.0},
+                    {x: 0.0, y: 4.0}, {x: 1.0, y: 4.0}, {x: 3.0, y: 4.0}, {x: 4.0, y: 4.0},
+                    {x: 1.0, y: 5.0}, {x: 2.0, y: 5.0}, {x: 3.0, y: 5.0}, {x: 4.0, y: 5.0}
+                ] <#> \{x, y} → {x: x*0.75+1.0, y: y*0.72+0.6}
+    , edges: [1↔2, 0↔3, 0↔4, 1↔4, 2↔5, 4↔5,
+              3↔7, 4↔8, 7↔8, 5↔8, 5↔9, 6↔9, 6↔10,
+              8↔11, 9↔12, 11↔12, 10↔13,
+              14↔15, 15↔16, 16↔17, 9↔16, 12↔16, 13↔16,
+              14↔18, 15↔19, 16↔20, 17↔21, 18↔19, 20↔21
+            ]
+    }
+
+
 owl ∷ Graph
 owl =
     {   title: "Hibou"
@@ -151,7 +174,7 @@ cross =
     }
 
 graphs ∷ Array Graph
-graphs = [house, house2, sablier, interlace, grid, konisberg, ex1, ex2, ex3, owl, rabbit, cross]
+graphs = [house, house2, sablier, interlace, grid, konisberg, ex1, ex2, ex3, city, owl, rabbit, cross]
 
 nbGraphs ∷ Int
 nbGraphs = length graphs
@@ -166,7 +189,7 @@ newtype ExtState = Ext Ext'
 -- | Just Int → un sommet
 -- | Un levé de crayon
 
-type State = GState (Array (Maybe Int)) ExtState
+type State = GState (Array Move) ExtState
 
 -- lenses
 _ext' ∷ Lens' State Ext'
@@ -181,20 +204,20 @@ istate ∷ State
 istate = genState [] identity (Ext { graphIndex: 0, graph: house})
 
 -- | l'ensemble des arêtes compososant un chemin contenant potentiellement des levés de crayon
-edgesOf ∷ Array (Maybe Int) → Array Edge
+edgesOf ∷ Array Move → Array Edge
 edgesOf = mapMaybe toEdge ∘ pairwise where
-    toEdge (Just u ∧ Just v) = Just (u ↔ v)
+    toEdge (MoveTo u ∧ MoveTo v) = Just (u ↔ v)
     toEdge _ = Nothing
 
-instance game ∷ Game (Array (Maybe Int)) ExtState (Maybe Int) where
+instance game ∷ Game (Array Move) ExtState Move where
     name _ = "dessin"
 
-    play state x = 
+    play state x =
         let position = state^._position in 
         case x ∧ last position of
-            Nothing ∧ Just (Just _) → Just (position `snoc` x)
-            Nothing ∧ _ → Nothing
-            Just u ∧ Just (Just v) →
+            Raise ∧ Just (MoveTo _) → Just (position `snoc` x)
+            Raise ∧ _ → Nothing
+            MoveTo u ∧ Just (MoveTo v) →
                     if not (elem (u↔v) (edgesOf position)) && elem (u↔v) (state^._graph).edges then
                         Just (position `snoc` x)
                     else
@@ -204,18 +227,26 @@ instance game ∷ Game (Array (Maybe Int)) ExtState (Maybe Int) where
     initialPosition _ = pure []
     onNewGame state = pure $ state # _graph .~ (graphs !! (state^._graphIndex) # fromMaybe house)
     isLevelFinished state = length (edgesOf (state^._position)) == length (state^._graph).edges
+    updateScore = updateScore' ShowWinOnNewRecord
+
     computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
     onPositionChange = identity
-    updateScore st = st ∧ true
     saveToJson _ = Nothing
     loadFromJson st _ = st
 
+instance scoregame ∷ ScoreGame (Array Move) ExtState Move where
+    objective _ = Minimize
+    scoreFn = nbRaises
+    scoreHash state = show (state^._graphIndex)
+    isCustomGame state = false          
+
+
 -- | nombre de levés de crayon déjà effectués
 nbRaises ∷ State → Int
-nbRaises = view _position >>> filter isNothing >>> length
+nbRaises = view _position >>> filter (_ == Raise) >>> length
 
-data Msg = Core CoreMsg | SetGraphIndex Int | Play (Maybe Int)
+data Msg = Core CoreMsg | SetGraphIndex Int | Play Move
 instance withcore ∷ MsgWithCore Msg where core = Core
     
 update ∷ Msg → Update State

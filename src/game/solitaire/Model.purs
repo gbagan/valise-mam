@@ -1,6 +1,8 @@
 module Game.Solitaire.Model where
 import MyPrelude
 import Data.FoldableWithIndex (allWithIndex)
+import Data.Argonaut.Decode (decodeJson)
+import Data.Argonaut.Encode (encodeJson)
 import Lib.Update (Update, modify)
 import Lib.Random (Random)
 import Lib.Random as R
@@ -9,7 +11,7 @@ import Game.Core (class Game, class ScoreGame, class MsgWithCore, class MsgWithD
                 GState, SizeLimit(..), Objective(..), ShowWinPolicy(..),
                 CoreMsg(ToggleHelp),  DndMsg,
                 coreUpdate, dndUpdate,
-                _ext, genState, canPlay, _nbColumns, _nbRows, _customSize, _position, newGame, updateScore')
+                _ext, genState, canPlay, _nbColumns, _nbRows, _customSize, _position, _scores, newGame, updateScore')
 
 type Move = {from ∷ Int, to ∷ Int}
 
@@ -134,11 +136,16 @@ instance solitaireGame ∷ Game (Array Boolean) ExtState {from ∷ Int, to ∷ I
         RandomBoard → SizeLimit 3 1 3 9
         _ → SizeLimit 7 7 7 7
 
-    computerMove _ = pure Nothing
     updateScore = updateScore' AlwaysShowWin
+
+    saveToJson st = Just $ encodeJson (st ^. _scores)
+    loadFromJson st json =
+        case decodeJson json of
+            Left _ → st
+            Right bestScore → st # _scores .~ bestScore 
+
+    computerMove _ = pure Nothing
     onPositionChange = identity
-    saveToJson _ = Nothing
-    loadFromJson st _ = st
 
 instance scoregame ∷ ScoreGame (Array Boolean) ExtState {from ∷ Int, to ∷ Int} where
     objective _ = Minimize

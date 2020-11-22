@@ -269,7 +269,9 @@ playA move = lockAction $ do
             if isLevelFinished st2 then do
                 let st3 ∧ isNewRecord = updateScore st2
                 put st3
-                when isNewRecord showVictory
+                when isNewRecord do
+                    saveToStorage   -- todo: ne va pas fonctionner pour 8 reines
+                    showVictory
             else if st2^._mode == ExpertMode || st2^._mode == RandomMode then
                 delay 1000 *> computerPlay
             else 

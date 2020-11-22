@@ -5,12 +5,12 @@ import Pha as H
 import Pha.Elements as HH
 import Pha.Attributes as P
 import Pha.Events as E
-import Game.Core (canPlay, isLevelFinished, _position, _pointer, bestScore)
+import Game.Core (canPlay, isLevelFinished, _position, _pointer)
 import Game.Dessin.Model (State, Msg(..), Graph, Position, Move(..), Edge, (↔),
                          graphs, nbGraphs, edgesOf, nbRaises, _graph, _graphIndex)
-import UI.Template (template, card, trackPointer)
+import UI.Template (template, card, trackPointer, bestScoreDialog)
 import UI.Icon (Icon(..))
-import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
+import UI.Icons (icongroup, iconSelectGroup, iconBestScore, iundo, iredo, ireset, irules)
 
 currentLine ∷ ∀a. Position → Position → H.VDom a
 currentLine p1 p2 =
@@ -32,7 +32,7 @@ getCoordsOfEdge graph (u ↔ v) = do
     pure {px1, px2, py1, py2}
 
 view ∷ State → H.VDom Msg
-view state = template {config, board, rules, winTitle} state where
+view state = template {config, board, rules, winTitle, scoreDialog} state where
     position = state^._position
     graph = state^._graph
     raises = nbRaises state
@@ -41,11 +41,10 @@ view state = template {config, board, rules, winTitle} state where
 
     config =
         card "Dessin"
-        [   iconSelectGroup state 
-                ("Niveau - Meilleur score " <> maybe "∅" (show ∘ fst) (bestScore state))
-                (0..(nbGraphs-1)) (state^._graphIndex) SetGraphIndex
-                    \i → _{icon = IconText (show (i + 1)), tooltip = graphs !! i <#> (_.title)}
+        [   iconSelectGroup state "Niveau" (0..(nbGraphs-1)) (state^._graphIndex) SetGraphIndex
+                \i → _{icon = IconText (show (i + 1)), tooltip = graphs !! i <#> _.title}
         ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
+        ,   iconBestScore state
         ]
 
     board =
@@ -103,6 +102,29 @@ view state = template {config, board, rules, winTitle} state where
                 ]
                 [   H.text "Lever le crayon"]
             ]
+
+    scoreDialog _ = bestScoreDialog state \bestPos → [
+        HH.div [H.class_ "ui-board dessin-bestscore"]
+        [   HH.svg [H.class_ "dessin-svg", P.viewBox 5 5 90 90] $ concat 
+            [   graph.edges <#> \edge →
+                H.maybe (getCoordsOfEdge graph edge) \{px1, px2, py1, py2} →
+                    HH.line 
+                    [   P.x1 $ show (20.0 * px1)
+                    ,   P.y1 $ show (20.0 * py1)
+                    ,   P.x2 $ show (20.0 * px2)
+                    ,   P.y2 $ show (20.0 * py2)
+                    ,   H.class_ "dessin-line2"
+                    ]
+            ,   edgesOf bestPos # mapWithIndex \i edge →
+                H.maybe (getCoordsOfEdge graph edge) \{px1, px2, py1, py2} → 
+                    HH.text (show (i + 1))
+                    [   P.x $ show (10.0 * (px1 + px2))
+                    ,   P.y $ show (10.0 * (py1 + py2) + 2.0)
+                    ,   H.class_ "dessin-edge-no"
+                    ]
+            ]
+        ]
+    ]
 
     rules = 
         [   H.text "Le but du jeu est de dessiner le motif indiqué en pointillé en levant le moins souvent possible le crayon."

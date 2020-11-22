@@ -473,6 +473,11 @@ html, body {
   height: 75vmin;
 }
 
+.dessin-bestscore {
+  width: 66vmin;
+  height: 66vmin;
+}
+
 .dessin-svg {
   display: block;
 }
@@ -518,6 +523,13 @@ html, body {
   font-size: 1.5rem;
   color: blue;
   font-weight: bold;
+}
+
+.dessin-edge-no {
+  fill: blue;
+  font-weight: bold;
+  font-size: 6px;
+  text-anchor: middle;
 }
 
 .eternal-svg {

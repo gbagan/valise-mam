@@ -1,9 +1,12 @@
 module Game.Dessin.Model where
+
 import MyPrelude
-import Lib.Util (pairwise)
-import Lib.Update (Update)
+import Data.Argonaut.Decode (decodeJson, class DecodeJson)
+import Data.Argonaut.Encode (encodeJson, class EncodeJson)
 import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, GState, Objective(..), ShowWinPolicy(..),
-                  updateScore', playA, coreUpdate, _ext, genState, newGame, _position, defaultSizeLimit)
+        updateScore', playA, coreUpdate, _ext, genState, newGame, _position, _scores, defaultSizeLimit)
+import Lib.Update (Update)
+import Lib.Util (pairwise)
 
 data Edge = Edge Int Int
 infix 3 Edge as ↔
@@ -16,6 +19,16 @@ type Graph = {title ∷ String, vertices ∷ Array Position, edges ∷ Array Edg
 
 data Move = MoveTo Int | Raise
 derive instance eqmove ∷ Eq Move
+
+instance decodeMove :: DecodeJson Move where
+    decodeJson json = decodeJson json <#> case _ of
+        Nothing → Raise
+        Just y → MoveTo y
+
+instance encodeMove :: EncodeJson Move where
+    encodeJson move = encodeJson case move of
+        Raise → Nothing
+        MoveTo x → Just x
 
 house ∷ Graph
 house =
@@ -229,18 +242,21 @@ instance game ∷ Game (Array Move) ExtState Move where
     isLevelFinished state = length (edgesOf (state^._position)) == length (state^._graph).edges
     updateScore = updateScore' ShowWinOnNewRecord
 
+    saveToJson st = Just $ encodeJson (st ^. _scores)
+    loadFromJson st json =
+        case decodeJson json of
+            Left _ → st
+            Right bestScore → st # _scores .~ bestScore 
+
     computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
     onPositionChange = identity
-    saveToJson _ = Nothing
-    loadFromJson st _ = st
 
 instance scoregame ∷ ScoreGame (Array Move) ExtState Move where
     objective _ = Minimize
     scoreFn = nbRaises
     scoreHash state = show (state^._graphIndex)
     isCustomGame state = false          
-
 
 -- | nombre de levés de crayon déjà effectués
 nbRaises ∷ State → Int

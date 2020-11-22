@@ -1,4 +1,3 @@
-/bower_components/
 /node_modules/
 /.pulp-cache/
 /output/
@@ -12,5 +11,4 @@
 /.spago/
 /bundle.*
 /yarn*
-/packages.dhall
 /dist/bundle.js

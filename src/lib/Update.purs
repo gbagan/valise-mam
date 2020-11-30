@@ -40,7 +40,7 @@ type Update st = Command st Unit
 updateOver ∷ ∀st st'. Lens' st st' → Command st' ~> Command st
 updateOver lens = hoistFree case _ of
     Get a → Get (a ∘ view lens)
-    Modify f a → Modify (lens %~ f) a
+    Modify f a → Modify (over lens f) a
     x → unsafeCoerce x
 
 resume
@@ -61,7 +61,7 @@ runCont
 runCont k1 k2 = loop
   where
   loop ∷ Free r a → m b
-  loop = resume (\b -> k1 (loop <$> b)) k2
+  loop = resume (\b → k1 (loop <$> b)) k2
 
 interpret ∷ ∀st. {get ∷ Effect st, modify ∷ (st → st) → Effect Unit} → Update st → Effect Unit
 interpret {get: get', modify: modify'} = do

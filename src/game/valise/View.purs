@@ -172,7 +172,7 @@ view state =
             [   valise state
             ,   HH.div 
                 [   H.class_ "valise-help"
-                ,   H.class' "visible" (state.helpVisible && state.help /= "")
+                ,   H.class' "visible" (state.helpVisible && state.help ≠ "")
                 ]
                 [H.text state.help] 
             ]

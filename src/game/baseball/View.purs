@@ -50,7 +50,7 @@ view state = template {config, board, rules} state where
                 ,   H.style "transform" $ transformBase i nbBases
                 ]
         ,   map2 position dupColors \peg pos color →
-                H.when (peg /= missingPeg) \_ →
+                H.when (peg ≠ missingPeg) \_ →
                     HH.g
                     [   H.class_ "baseball-player"
                     ,   H.style "transform" $ translatePeg pos nbBases

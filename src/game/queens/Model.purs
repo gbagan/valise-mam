@@ -84,8 +84,8 @@ sign x = if x > 0 then 1 else -1
 canCapture ∷ State → Piece → Int → Int → Boolean
 canCapture state piece index1 index2 =
     let {row, col} = dCoords (state^._nbColumns) index2 index1 in
-    if piece /= Custom then 
-        index1 /= index2 && legalMoves piece row col
+    if piece ≠ Custom then 
+        index1 ≠ index2 && legalMoves piece row col
     else
         (row * row - col * col) * row * col == 0 && (state^._customDirections) !! (3 * sign row + sign col + 4) == Just true
         || row * row + col * col <= 8 && (state^._customLocalMoves) !! (5 * row + col + 12) == Just true
@@ -109,7 +109,7 @@ attackedBySelected state = case state^._selectedSquare of
 toggleAllowedPiece ∷ Piece →  Boolean →  N.NonEmptyArray Piece → N.NonEmptyArray Piece
 toggleAllowedPiece piece false pieces = N.singleton piece
 toggleAllowedPiece piece true pieces = N.fromArray pieces2 # fromMaybe pieces where
-    pieces2 = piecesList # filter \p2 → (p2 == piece) /= elem p2 pieces
+    pieces2 = piecesList # filter \p2 → (p2 == piece) ≠ elem p2 pieces
 
 instance queensGame ∷ Game (Array Piece) Ext Int where 
     name _ = "queens"
@@ -125,7 +125,7 @@ instance queensGame ∷ Game (Array Piece) Ext Int where
     isLevelFinished state = and $ map2 (capturableSquares state) (state^._position)
                             \_ captured piece → not captured || piece == Empty
     
-    onNewGame state = pure $ state # _selectedPiece .~ N.head (state^._allowedPieces)
+    onNewGame state = pure $ state # set _selectedPiece (N.head $ state^._allowedPieces)
     sizeLimit _ = SizeLimit 3 3 9 9
     computerMove _ = pure Nothing
     updateScore = updateScore' NeverShowWin
@@ -137,7 +137,7 @@ instance queensGame ∷ Game (Array Piece) Ext Int where
 
 instance queensScoreGame ∷ ScoreGame (Array Piece) Ext Int where 
     objective _ = Maximize
-    scoreFn = length ∘ filter (_ /= Empty) ∘ view _position
+    scoreFn = length ∘ filter (_ ≠ Empty) ∘ view _position
     scoreHash state = joinWith "-" [show (state^._nbRows), show (state^._nbColumns), show (N.head $ state^._allowedPieces)]
     isCustomGame state = state^._multiPieces || N.head (state^._allowedPieces) == Custom
 
@@ -148,13 +148,13 @@ instance withcore ∷ MsgWithCore Msg where core = Core
 update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
 update (Play i) = playA i
-update (SelectPiece piece) = modify $ _selectedPiece .~ piece
-update (SelectSquare a) = modify $ _selectedSquare .~ a
-update (SelectAllowedPiece piece) = newGame $ \state → state # _allowedPieces %~ toggleAllowedPiece piece (state^._multiPieces)
-update ToggleMultiPieces = modify $ _multiPieces %~ not
-update (FlipDirection direction) = newGame $ _customDirections ∘ ix direction %~ not
-update (FlipLocalMove position) = newGame $ _customLocalMoves ∘ ix position %~ not
+update (SelectPiece piece) = modify $ set _selectedPiece piece
+update (SelectSquare a) = modify $ set _selectedSquare a
+update (SelectAllowedPiece piece) = newGame $ \state → state # over _allowedPieces (toggleAllowedPiece piece (state^._multiPieces))
+update ToggleMultiPieces = modify $ over _multiPieces not
+update (FlipDirection direction) = newGame $ over (_customDirections ∘ ix direction) not
+update (FlipLocalMove position) = newGame $ over (_customLocalMoves ∘ ix position) not
 update Customize = newGame $ 
-                        (_allowedPieces .~ N.singleton Custom)
-                        >>> (_dialog .~ CustomDialog) 
-                        >>> (_multiPieces .~ false)
+                        set _allowedPieces (N.singleton Custom)
+                        ∘ set _dialog CustomDialog
+                        ∘ set _multiPieces false

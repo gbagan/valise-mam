@@ -15,7 +15,6 @@
     "dce": "zephyr -e -f Main.main",
     "rollup": "rollup -c",
     "buildcss": "sass src/index.scss dist/bundle.css",
-    "deploy:test": "scp -r dist/* gbagan@connect.liris.cnrs.fr:~/valisetest/",
-    "minimize": "terser --ecma 7 -c unsafe_arrows -m -o dist/bundle.js dist/bundle.js"
+    "deploy:test": "scp -r dist/* gbagan@connect.liris.cnrs.fr:~/valisetest/"
   }
 }

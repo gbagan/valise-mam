@@ -93,7 +93,7 @@ view state = template {config, board, rules} state where
                 let {row, col} = coords columns index in
                 square
                 {   darken: help && even (row + col)
-                ,   trap: elem index position && Just index /= last position
+                ,   trap: elem index position && Just index ≠ last position
                 ,   door: exit == Just index
                 ,   x: toNumber (100 * col)
                 ,   y: toNumber (100 * row)

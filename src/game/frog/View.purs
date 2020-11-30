@@ -129,7 +129,7 @@ view state = template {config, board, rules, winTitle} state where
 
     drawMarked =
         map2 marked spoints \i mark {x, y} →
-            H.when (mark && i /= position) \_ →
+            H.when (mark && i ≠ position) \_ →
                 HH.use 
                 [   P.href "#frog2"
                 ,   P.x $ show (x - 20.0)

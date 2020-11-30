@@ -40,9 +40,9 @@ house =
 sablier ∷ Graph
 sablier =
     {   title: "Sablier"
-    ,   vertices: [{x: 0.5, y: 0.7}, {x: 3.5, y: 0.7}, {x: 2.0, y: 1.2}, {x: 2.0, y: 1.9},
-                    {x: 1.0, y: 1.9}, {x: 3.0, y: 1.9}, {x: 1.0, y: 2.5}, {x: 3.0, y: 2.5},
-                    {x: 2.0, y: 2.5}, {x: 2.0, y: 3.2}, {x: 0.5, y: 3.7}, {x: 3.5, y: 3.7}]
+    ,   vertices: [{x: 1.0, y: 0.7}, {x: 4.0, y: 0.7}, {x: 2.5, y: 1.2}, {x: 2.5, y: 1.9},
+                    {x: 1.5, y: 1.9}, {x: 3.5, y: 1.9}, {x: 1.5, y: 2.5}, {x: 3.5, y: 2.5},
+                    {x: 2.5, y: 2.5}, {x: 2.5, y: 3.2}, {x: 1.0, y: 3.7}, {x: 4.0, y: 3.7}]
     ,   edges: [0↔1, 0↔2, 1↔2, 2↔3, 3↔4, 3↔5, 4↔6, 5↔7, 6↔8, 7↔8, 8↔9, 9↔10, 9↔11, 10↔11]
     }
 
@@ -96,25 +96,14 @@ ex1 =
     ,   edges: [0↔1, 0↔2, 1↔2, 1↔3, 2↔3, 3↔4, 3↔5, 4↔5, 1↔4, 2↔5, 4↔6, 5↔6, 6↔7, 6↔8, 4↔7, 5↔8]  
 }
 
-ex2 ∷ Graph
-ex2 =
-    {   title: ""
-    ,   vertices: [ {x: 1.0, y: 2.0}, {x: 2.0, y: 1.0 }, {x: 3.0, y: 2.0}, {x: 2.0, y: 3.0},
-                    {x: 1.0, y: 1.0 }, {x: 1.0, y: 3.0}, {x: 3.0, y: 3.0}, {x: 3.0, y: 1.0}]
-                    <#> \{x, y} → {x: x * 1.3, y: y * 1.3 - 0.3}
-    ,   edges: [0↔1, 1↔2, 2↔3, 3↔0, 0↔2, 0↔4, 1↔4, 0↔5, 3↔5, 2↔6, 3↔6, 1↔7, 2↔7]  
-    }
-
 ex3 ∷ Graph
 ex3 =
-    {   title: ""
+    {   title: "Soleil"
     ,   vertices: [ {x: 1.0, y: 2.0}, {x: 2.0, y: 1.0 }, {x: 3.0, y: 2.0}, {x: 2.0, y: 3.0},
-                    {x: 1.0, y: 1.0 }, {x: 1.0, y: 3.0}, {x: 3.0, y: 3.0}, {x: 3.0, y: 1.0}, {x: 2.0, y: 2.0}]
-                    <#> \{x, y} → {x: x * 1.3, y: y * 1.3 - 0.3}
+                    {x: 0.5, y: 0.5 }, {x: 0.5, y: 3.5}, {x: 3.5, y: 3.5}, {x: 3.5, y: 0.5}, {x: 2.0, y: 2.0}]
+                    <#> \{x, y} → {x: x * 1.15, y: y * 1.15}
     ,   edges: [0↔1, 1↔2, 2↔3, 3↔0, 0↔8, 1↔8, 2↔8, 3↔8, 0↔4, 1↔4, 0↔5, 3↔5, 2↔6, 3↔6, 1↔7, 2↔7]
 }
-
-
 
 city ∷ Graph
 city =
@@ -187,7 +176,7 @@ cross =
     }
 
 graphs ∷ Array Graph
-graphs = [house, house2, sablier, interlace, grid, konisberg, ex1, ex2, ex3, city, owl, rabbit, cross]
+graphs = [house, house2, sablier, interlace, grid, konisberg, ex1, ex3, city, owl, rabbit, cross]
 
 nbGraphs ∷ Int
 nbGraphs = length graphs
@@ -238,7 +227,7 @@ instance game ∷ Game (Array Move) ExtState Move where
             _ → Just (position `snoc` x)
 
     initialPosition _ = pure []
-    onNewGame state = pure $ state # _graph .~ (graphs !! (state^._graphIndex) # fromMaybe house)
+    onNewGame state = pure $ state # set _graph (graphs !! (state^._graphIndex) # fromMaybe house)
     isLevelFinished state = length (edgesOf (state^._position)) == length (state^._graph).edges
     updateScore = updateScore' ShowWinOnNewRecord
 
@@ -246,7 +235,7 @@ instance game ∷ Game (Array Move) ExtState Move where
     loadFromJson st json =
         case decodeJson json of
             Left _ → st
-            Right bestScore → st # _scores .~ bestScore 
+            Right bestScore → st # set _scores bestScore 
 
     computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
@@ -267,5 +256,5 @@ instance withcore ∷ MsgWithCore Msg where core = Core
     
 update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
-update (SetGraphIndex i) = newGame $ _graphIndex .~ i
+update (SetGraphIndex i) = newGame $ set _graphIndex i
 update (Play m) = playA m

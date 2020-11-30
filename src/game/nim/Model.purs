@@ -37,7 +37,7 @@ canPlay ∷ State → Move → Boolean
 canPlay state (Move pile pos) =
     case state^._position !! pile of
         Nothing → false 
-        Just (Position p1 p2) → pos /= p1 && pos /= p2 && if state^._turn == Turn1 then pos < p2 else pos > p1
+        Just (Position p1 p2) → pos ≠ p1 && pos ≠ p2 && if state^._turn == Turn1 then pos < p2 else pos > p1
 
 instance game ∷ Game (Array Position) ExtState Move where
     name _ = "nim"
@@ -81,6 +81,6 @@ instance withcore ∷ MsgWithCore Msg where core = Core
 
 update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
-update (SetNbPiles n) = newGame $ _nbPiles .~ n
-update (SetLength n) = newGame $ _length .~ n
+update (SetNbPiles n) = newGame $ set _nbPiles n
+update (SetLength n) = newGame $ set _length n
 update (Play n) = playA n

@@ -61,14 +61,14 @@ neighbor ∷ State → Int → Int → Boolean
 neighbor state index1 index2 =
     row * row + col * col == 1
     || mode `mod` 3 == 0 && index1 == index2 
-    || mode >= 2 && index1 /= index2 && row * col == 0
+    || mode >= 2 && index1 ≠ index2 && row * col == 0
     where
         mode = state^._mode
         {row, col} = dCoords (state^._nbColumns) index1 index2
     
 -- | met à jour le tableau light en fonction du coup joué à la position index
 toggleCell ∷ State → Int → Array Boolean → Array Boolean
-toggleCell state index = mapWithIndex \i → (_ /= neighbor state index i)
+toggleCell state index = mapWithIndex \i → (_ ≠ neighbor state index i)
 
 -- | génération de plateau aléatoire pour le niveau 6
 -- | on part d'une configuration où tout est éteint et on joue des coups aléatoires
@@ -83,19 +83,21 @@ instance game ∷ Game { light ∷ Array Boolean, played ∷ Array Boolean } Ext
     name _ = "noirblanc"
 
     play state index = Just $ state^._position 
-                        # _light %~ toggleCell state index 
-                        # _played ∘ ix index %~ not
+                        # over _light (toggleCell state index)
+                        # over (_played ∘ ix index) not
 
     initialPosition state = do
         let size = state^._nbRows * state^._nbColumns
         board ← if state^._level >= 6 then genRandomBoard state else pure (replicate size true)
-        pure $ { light: board, played: replicate size false }
+        pure { light: board, played: replicate size false }
     
     isLevelFinished state = all not (state^._position).light
 
     onNewGame state = 
         let rows ∧ columns = fromMaybe (8∧8) (sizes !! (state^._level)) in
-        pure (state # _nbRows .~ rows # _nbColumns .~ columns)
+        pure $ state 
+                # set _nbRows rows 
+                # set _nbColumns columns
 
     sizeLimit _ = SizeLimit 3 3 10 10
 
@@ -103,7 +105,7 @@ instance game ∷ Game { light ∷ Array Boolean, played ∷ Array Boolean } Ext
     loadFromJson st json =
         case decodeJson json of
             Left _ → st
-            Right maxLevels → st # _maxLevels .~ maxLevels 
+            Right maxLevels → st # set _maxLevels maxLevels 
 
     -- méthodes par default
     computerMove _ = pure Nothing
@@ -124,19 +126,19 @@ afterPlay = do
                         6
                     else
                         state^._level + (if mode == 0 || mode == 3 then 1 else 2)
-        modify $ _maxLevels ∘ ix mode .~ nextLevel
+        modify $ set (_maxLevels ∘ ix mode) nextLevel
         saveToStorage
-        newGame $ _level %~ \lvl → min (lvl + 1) 6
+        newGame $ over _level \n → min (n + 1) 6
 
 data Msg = Core CoreMsg | SelectMode Int | SelectLevel Int | Play Int | Konami String
 instance withcore ∷ MsgWithCore Msg where core = Core
 
 update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
-update (SelectMode mode) = newGame $ (_mode .~ mode) ∘ (_level .~ 0)
-update (SelectLevel level) = newGame (_level .~ level)
+update (SelectMode mode) = newGame $ set _mode mode ∘ set _level 0
+update (SelectLevel level) = newGame $ set _level level
 update (Play move) = playA move *> afterPlay
-update (Konami k) = konamiCode _keySequence (modify $ _maxLevels .~ [6, 6, 6, 6]) k
+update (Konami k) = konamiCode _keySequence (modify $ set _maxLevels [6, 6, 6, 6]) k
 
 onKeyDown ∷ String → Maybe Msg
 onKeyDown = Just ∘ Konami

@@ -54,8 +54,8 @@ instance game ∷ Game {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int
 
     onNewGame state = do
         row ← if state^._soapMode == StandardMode then R.int' (state^._nbRows) else pure 0
-        col ← if state^._soapMode /= CornerMode then R.int' (state^._nbColumns) else pure 0
-        pure $ state # _soap .~ {row, col}
+        col ← if state^._soapMode ≠ CornerMode then R.int' (state^._nbColumns) else pure 0
+        pure $ state # set _soap {row, col}
 
     sizeLimit = const (SizeLimit 4 4 10 10)
     computerMove = computerMove'
@@ -89,6 +89,6 @@ instance withcore ∷ MsgWithCore Msg where core = Core
     
 update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
-update (SetHover a) = modify $ _moveWhenHover .~ a 
-update (SetSoapMode m) = newGame (_soapMode .~ m)
-update (Play move) = modify (_moveWhenHover .~ Nothing) *> playA move
+update (SetHover a) = modify $ set _moveWhenHover a 
+update (SetSoapMode m) = newGame $ set _soapMode m
+update (Play move) = modify (set _moveWhenHover Nothing) *> playA move

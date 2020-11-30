@@ -102,7 +102,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
                 square
                 {   piece
                 ,   selected: attacked || selectedSquare == Just index
-                ,   nonavailable: help && (piece /= Empty || capturable)
+                ,   nonavailable: help && (piece ≠ Empty || capturable)
                 ,   capturable
                 }
                 [   H.style "width" $ pc (1.0 / toNumber columns)
@@ -136,7 +136,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
                         [   H.key $ show index 
                         ,   H.style "width" "20%"
                         ,   H.style "height" "20%"
-                        ,   E.onclick' if index /= 12 then Just (FlipLocalMove index) else Nothing
+                        ,   E.onclick' if index ≠ 12 then Just (FlipLocalMove index) else Nothing
                         ]
                 )
             ,   HH.div [H.class_ "flex  queens-custompiece-directions"] (
@@ -147,7 +147,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
                         ,   style: ["transform" ∧ ("rotate(" <> show angle <> "deg)")]
                         }
                         [   H.key $ show i
-                        ,   E.onclick' $ if i /= 4 then Just (FlipDirection i) else Nothing
+                        ,   E.onclick' $ if i ≠ 4 then Just (FlipDirection i) else Nothing
                         ]
             )
         ]

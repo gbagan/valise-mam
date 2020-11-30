@@ -64,10 +64,10 @@ update (SetPage page) = modify \st →
     if st^._locked then
         st
     else
-        st # _page .~ page # _anim .~ M.empty
+        st # set _page page # set _anim M.empty
 
 update (Animate animation) = lockAction do
-        modify $ _anim .~ M.empty 
+        modify $ set _anim M.empty 
         for_ animation \(Step d key step) → do
             delay d
-            modify $ _anim ∘ at key .~ Just step
+            modify $ set (_anim ∘ at key) (Just step)

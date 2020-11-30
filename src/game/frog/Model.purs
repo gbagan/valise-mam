@@ -71,11 +71,12 @@ instance game ∷ Game Int ExtState Int where
     play state v = if canPlay state v then Just v else Nothing
     initialPosition state = pure $ state^._nbRows
     onNewGame state = pure $ state
-                        # _winning .~ winningPositions (state^._nbRows + 1) (state^._moves)
-                        # _marked .~ replicate (state^._nbRows + 1) false
+                            # set _winning (winningPositions (state^._nbRows + 1) (state^._moves))
+                            # set _marked (replicate (state^._nbRows + 1) false)
     isLevelFinished state = state^._position == 0
     computerMove = computerMove'
     sizeLimit _ = SizeLimit 5 0 30 0
+
     onPositionChange = identity
     updateScore st = st ∧ true
     saveToJson _ = Nothing
@@ -91,16 +92,16 @@ instance withcore ∷ MsgWithCore Msg where core = Core
 update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
 -- ajoute ou enlève un mouvement dans la liste des mouvements permis
-update (SelectMove move) = newGame $ _moves %~ selectMove where
+update (SelectMove move) = newGame $ over _moves selectMove where
     selectMove moves =
         1 .. 5 
-        # filter (\m → (m == move) /= elem m moves)
+        # filter (\m → (m == move) ≠ elem m moves)
         # N.fromArray
         # fromMaybe moves
 -- place/retire une marque à la position i
-update (Mark i) = modify $ _marked ∘ ix i %~ not
+update (Mark i) = modify $ over (_marked ∘ ix i) not
 update (Play i) = playA i
-update (Konami s) = s # konamiCode _keySequence (modify \st → st # _marked .~ st^._winning)
+update (Konami s) = s # konamiCode _keySequence (modify \st → st # set _marked (st^._winning))
 
 onKeyDown ∷ String → Maybe Msg
 onKeyDown = Just ∘ Konami 

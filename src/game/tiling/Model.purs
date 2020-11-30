@@ -102,7 +102,7 @@ sinks state = state^._position # mapWithIndex (\i v → if v == -1 then Just i e
 inConflict ∷ State → Boolean
 inConflict state = case state^._hoverSquare of
     Nothing → false
-    Just sqr → state^._position !! sqr /= Just 0 || not (canPlay state sqr)
+    Just sqr → state^._position !! sqr ≠ Just 0 || not (canPlay state sqr)
 
 needSinks ∷ State → Boolean
 needSinks state = length (sinks state) < state^._nbSinks
@@ -126,13 +126,15 @@ instance tilingGame ∷ Game (Array Int) ExtState Int where
             pos = state^._position 
             tilePos = tilePositions state index
 
-    isLevelFinished = all (_ /= 0) ∘ view _position
+    isLevelFinished = all (_ ≠ 0) ∘ view _position
 
     initialPosition state = pure $ replicate (state^._nbRows * state^._nbColumns) 0
 
     sizeLimit = const (SizeLimit 3 3 10 10)
 
-    onNewGame state = pure $ state # _tile .~ getTile state # _rotation .~ 0
+    onNewGame state = pure $ state 
+                            # set _tile (getTile state) 
+                            # set _rotation 0
     computerMove _ = pure Nothing
     updateScore st = st ∧ true
     onPositionChange = identity
@@ -146,12 +148,12 @@ instance withcore ∷ MsgWithCore Msg where core = Core
 update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg  
 update (Play m) = playA m
-update (PutSink i) = modify $ _position ∘ ix i .~ (-1)
-update (SetNbSinks n) = newGame (_nbSinks .~ n)
-update (SetTile t) = newGame $ (_tileType .~ t) >>> (if t == CustomTile then _dialog .~ CustomDialog else identity)
-update Rotate = modify $ _rotation %~ (_ + 1)
-update (SetHoverSquare a) = modify $ _hoverSquare .~ a
-update (FlipTile index) = newGame $ _tile ∘ _isoCustom ∘ ix index %~ not
+update (PutSink i) = modify $ set (_position ∘ ix i) (-1)
+update (SetNbSinks n) = newGame (set _nbSinks n)
+update (SetTile t) = newGame $ set _tileType t >>> if t == CustomTile then set _dialog CustomDialog else identity
+update Rotate = modify $ over _rotation (_ + 1)
+update (SetHoverSquare a) = modify $ set _hoverSquare a
+update (FlipTile index) = newGame $ over (_tile ∘ _isoCustom ∘ ix index) not
 
 onKeyDown ∷ String → Maybe Msg
 onKeyDown " " = Just Rotate

@@ -135,7 +135,7 @@ nonTrappedBeastOnGrid st =
     st # nonTrappedBeasts
     # pseudoRandomPick
     # fromMaybe []
-    # foldr (\p → ix (p.row * columns + p.col) .~ true) (replicate (rows * columns) false)
+    # foldr (\p → set (ix $ p.row * columns + p.col) true) (replicate (rows * columns) false)
     where rows = st^._nbRows
           columns = st^._nbColumns
 
@@ -163,8 +163,8 @@ instance game ∷ Game (Array Boolean) ExtState Int where
     isLevelFinished = null ∘ nonTrappedBeasts
     initialPosition st = pure $ replicate (st^._nbRows * st^._nbColumns) false
     onNewGame st = pure $ st
-                        # _beast .~ getNewBeast st
-                        # _squareColors .~ replicate (st^._nbRows * st^._nbColumns) 0
+                        # set _beast (getNewBeast st)
+                        # set _squareColors (replicate (st^._nbRows * st^._nbColumns) 0)
 
     sizeLimit _ = SizeLimit 2 2 9 9
 
@@ -173,7 +173,7 @@ instance game ∷ Game (Array Boolean) ExtState Int where
     loadFromJson st json =
         case decodeJson json of
             Left _ → st
-            Right bestScore → st # _scores .~ bestScore
+            Right bestScore → st # set _scores bestScore
 
     -- méthodes par défault
     computerMove _ = pure Nothing
@@ -192,30 +192,29 @@ instance withcore ∷ MsgWithCore Msg where core = Core
 
 update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
-update (SetMode m) = newGame $ _mode .~ m
-update (SetHelp a) = modify $ _help .~ a
+update (SetMode m) = newGame $ set _mode m
+update (SetHelp a) = modify $ set _help a
 update (SetBeast ttype) = newGame $ 
-                            (_beastType .~ ttype) >>> 
-                            (if ttype == CustomBeast then
-                                (_dialog .~ CustomDialog) ∘ (_beast %~ take 1)
+                            set _beastType ttype >>> 
+                            if ttype == CustomBeast then
+                                set _dialog CustomDialog ∘ over _beast (take 1)
                             else
                                 identity
-                            )
-update (IncSelectedColor i) = modify $ _selectedColor %~ \x → (x + i) `mod` 9
+update (IncSelectedColor i) = modify $ over _selectedColor \x → (x + i) `mod` 9
 -- le début d'une zone est décomposé en deux actions
 -- startZoneA est activé lors  du onpointerdown sur l'élément html réprésentant le carré
-update (StartZone s) = modify $ _startSquare .~ Just s
+update (StartZone s) = modify $ set _startSquare (Just s)
 -- startZone2A est appliqué lors du onpointerdown sur l'élément html réprésentant le plateu
-update (StartZone2 pos) = modify $ _startPointer .~ Just pos
+update (StartZone2 pos) = modify $ set _startPointer (Just pos)
 update (FinishZone index1) = modify \state → case state^._startSquare of
     Nothing → state
     Just index2 →
         let {row: row1, col: col1} = coords (state^._nbColumns) index1
             {row: row2, col: col2} = coords (state^._nbColumns) index2
-        in state # _squareColors .~ colorZone state {row1, col1, row2, col2}
-                 # _startSquare .~ Nothing
-                 # _startPointer .~ Nothing
-update (FlipCustomBeast i) = newGame $ _beast ∘ ix 0 ∘ _isoCustom ∘ ix i %~ not
+        in state # set _squareColors (colorZone state {row1, col1, row2, col2})
+                 # set _startSquare Nothing
+                 # set _startPointer Nothing
+update (FlipCustomBeast i) = newGame $ over (_beast ∘ ix 0 ∘ _isoCustom ∘ ix i) not
 update (Play m) = playA m
 
 onKeyDown ∷ String → Maybe Msg

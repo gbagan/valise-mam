@@ -142,7 +142,7 @@ view state = template {config, board, rules, winTitle} state where
                 ,   H.when (grules == ManyGuards) \_ →
                         HH.g [] $
                             (zip guards (state^._nextmove)) <#> \(from ∧ to) →
-                                H.when (from /= to) \_ →
+                                H.when (from ≠ to) \_ →
                                     H.maybe (getCoordsOfEdge graph (from ↔ to)) \{x1, x2, y1, y2} →
                                         drawArrow (x1 * 100.0) (x2 * 100.0) (y1 * 100.0) (y2 * 100.0)
                 ,   HH.g [] $

@@ -188,7 +188,7 @@ view st =
     ,   H.class_ "main-main-container"
     ,   H.class_ (if st.location == "" then "valise" else "game")
     ]
-    [   H.when (st.location /= "") \_ →
+    [   H.when (st.location ≠ "") \_ →
         HH.a
         [   H.class_ "main-minivalise-link"
         ,   P.href "#"

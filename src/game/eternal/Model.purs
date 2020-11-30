@@ -102,7 +102,9 @@ sun n =
 type AdjGraph = Array (Array Int)
 
 addEdge ∷ Edge → AdjGraph → AdjGraph
-addEdge (u ↔ v) graph = graph # ix u %~ (_ `snoc` v) # ix v %~ (_ `snoc` u)
+addEdge (u ↔ v) graph = graph 
+                        # over (ix u) (_ `snoc` v) 
+                        # over (ix v) (_ `snoc` u)
 
 edgesToGraph ∷ Int → Array Edge → AdjGraph
 edgesToGraph n = foldr addEdge (replicate n [])
@@ -136,7 +138,7 @@ goodPermutation ∷ AdjGraph → Array Int → Array Int → Maybe (Array Int)
 goodPermutation graph guards answer =
     permutations answer
         # filter (\guards2 → and (zipWith (\x y → x == y || hasEdge x y graph) guards guards2))
-        # minimumBy (comparing \guards2 → zipWith (\x y → x /= y) guards guards2 # filter identity # length)
+        # minimumBy (comparing \guards2 → zipWith (≠) guards guards2 # filter identity # length)
 
 
 ---- définition du State
@@ -202,10 +204,10 @@ isValidNextMove st dests =
 
 -- fonction déclenchée entre le passage de la phase de préparation à celle de jeu
 startGame ∷ State → State
-startGame st = st  
-                # _phase .~ GamePhase 
-                # _nextmove .~ (st^._position).guards
-                # _arena %~ \arena →
+startGame st = st
+                # set _phase GamePhase 
+                # set _nextmove (st^._position).guards
+                # over _arena \arena →
                                 if isJust arena then
                                     arena
                                 else if st^._mode == DuelMode then
@@ -240,17 +242,17 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
     
     onNewGame state =
         let state2 = state 
-                        # _nextmove .~ [] 
-                        # _phase .~ PrepPhase 
-                        # _draggedGuard .~ Nothing
-                        # _arena .~ Nothing
+                        # set _nextmove [] 
+                        # set _phase PrepPhase 
+                        # set _draggedGuard Nothing
+                        # set _arena Nothing
         in
         case state^._graphkind of
-            Path → pure (state2 # _graph .~ path (state^._nbRows))
-            Cycle → pure (state2 # _graph .~ cycle (state^._nbRows))
-            Grid → pure (state2 # _graph .~ grid (state^._nbRows) (state^._nbColumns))
-            Biclique → pure (state2 # _graph .~ biclique (state^._nbRows) (state^._nbColumns))
-            Sun → pure (state2 # _graph .~ sun (state^._nbRows))
+            Path → pure $ state2 # set _graph (path $ state^._nbRows)
+            Cycle → pure $ state2 # set _graph (cycle $ state^._nbRows)
+            Grid → pure $ state2 # set _graph (grid (state^._nbRows) (state^._nbColumns))
+            Biclique → pure $ state2 # set _graph (biclique (state^._nbRows) (state^._nbColumns))
+            Sun → pure $ state2 # set _graph (sun $ state^._nbRows)
 
     isLevelFinished state =
         let guards = (state^._position).guards 
@@ -291,14 +293,14 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
     loadFromJson st _ = st
 
 toggleGuard ∷ Int → Array Int → Array Int
-toggleGuard x l = if elem x l then filter (_ /= x) l else l `snoc` x
+toggleGuard x l = if elem x l then filter (_ ≠ x) l else l `snoc` x
 
 addToNextMove ∷ Array Edge → Int → Int → Array Int → Array Int → Array Int
 addToNextMove edges from to srcs dests
     | from == to || elem (from ↔ to) edges =
         case elemIndex from srcs of
             Nothing → dests
-            Just i → dests # ix i .~ to 
+            Just i → dests # set (ix i) to 
     | otherwise = dests
 
 dragGuard ∷ Maybe Int → State → State
@@ -307,8 +309,8 @@ dragGuard to st =
         Nothing → st
         Just from →
             let to2 = fromMaybe from to in
-            st # _nextmove %~ addToNextMove (st^._graph).edges from to2 (st^._position).guards
-               # _draggedGuard .~ Nothing
+            st # over _nextmove (addToNextMove (st^._graph).edges from to2 (st^._position).guards)
+               # set _draggedGuard Nothing
 
 data Msg = Core CoreMsg | SetGraphKind GraphKind | SetRules Rules 
             | DragGuard Int | DropGuard Int | LeaveGuard | DropOnBoard
@@ -317,28 +319,28 @@ instance withcore ∷ MsgWithCore Msg where core = Core
     
 update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
-update (SetGraphKind kind) = newGame ((_graphkind .~ kind) ∘ ( 
+update (SetGraphKind kind) = newGame $ set _graphkind kind ∘
                                         case kind of
-                                            Grid → (_nbRows .~ 3) ∘ (_nbColumns .~ 3)
-                                            Biclique → (_nbRows .~ 4) ∘ (_nbColumns .~ 1)
-                                            Sun → (_nbRows .~ 3) ∘ (_nbColumns .~ 0)
-                                            _ → (_nbRows .~ 6) ∘ (_nbColumns .~ 0)
-                                    ))
-update (SetRules rules) = newGame (_rules .~ rules)
+                                            Grid → set _nbRows 3 ∘ set _nbColumns 3
+                                            Biclique → set _nbRows 4 ∘ set _nbColumns 1
+                                            Sun → set _nbRows 3 ∘ set _nbColumns 0
+                                            _ → set _nbRows 6 ∘ set _nbColumns 0
+
+update (SetRules rules) = newGame $ set _rules rules
 update StartGame = modify startGame
 update MoveGuards = do
     st ← get
     playA $ Defense (st ^. _nextmove)
 update (ToggleGuard x) = pure unit
-update (DragGuard x) = modify $ _draggedGuard .~ Just x
+update (DragGuard x) = modify $ set _draggedGuard (Just x)
 update (DropGuard to) = modify $ dragGuard (Just to)
-update LeaveGuard = modify $ _draggedGuard .~ Nothing
+update LeaveGuard = modify $ set _draggedGuard Nothing
 update DropOnBoard = modify $ dragGuard Nothing
 
 update (Play x) = do
     st ← get
     let guards = (st^._position).guards
     case st^._phase ∧ (st^._position).attacked  of
-        PrepPhase ∧ _ → modify $ _position ∘ _guards %~ toggleGuard x
+        PrepPhase ∧ _ → modify $ over (_position ∘ _guards) (toggleGuard x)
         GamePhase ∧ Just attacked → playA $ Defense (addToNextMove (st^._graph).edges x attacked guards guards)
         GamePhase ∧ Nothing → playA (Attack x)

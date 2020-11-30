@@ -41,7 +41,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
     help = state ^. _help
     pointer = state ^. _pointer
     
-    border i di = position !! i /= position !! (i + di)
+    border i di = position !! i ≠ position !! (i + di)
 
     config =
         card "Carrelage"

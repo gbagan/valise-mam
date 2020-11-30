@@ -56,7 +56,7 @@ instance game ∷ Game (Array Int) ExtState Int where
     initialPosition state = R.shuffle (0 .. (2 * state ^. _nbBases - 1))
     isLevelFinished state = state ^. _position # allWithIndex \i j → i / 2 == j / 2
     -- on tire aléatoirement le jeton manquant
-    onNewGame state = R.int' (2 * state ^. _nbBases) <#> \i → state # _missingPeg .~ i
+    onNewGame state = R.int' (2 * state ^. _nbBases) <#> \i → state # set _missingPeg i
     
     -- fonctions par défault
     computerMove _ = pure Nothing
@@ -71,5 +71,5 @@ instance withcore ∷ MsgWithCore Msg where core = Core
 
 update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
-update (SetNbBases n) = newGame $ _nbBases .~ n
+update (SetNbBases n) = newGame $ set _nbBases n
 update (Play m) = playA m

@@ -68,7 +68,7 @@ instance roueGame ∷ Game (Array (Maybe Int)) Ext {from ∷ Location, to ∷ Lo
 
     isLevelFinished _ = false
     
-    onNewGame = pure ∘ (_rotation .~ 0)
+    onNewGame = pure ∘ set _rotation 0
 
     computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
@@ -88,18 +88,18 @@ instance withdnd ∷ MsgWithDnd Msg Location where dndmsg = DnD
 update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
 update (DnD DropOnBoard) = modify \state →
-        let state2 = state # _dragged .~ Nothing in
+        let state2 = state # set _dragged Nothing in
         case state^._dragged of
-            Just (Wheel i) → state2 # _position ∘ ix i .~ Nothing
+            Just (Wheel i) → state2 # set (_position ∘ ix i) Nothing
             _ → state2
 update (DnD msg) = dndUpdate _dragged msg
 update (Rotate i) = modify $ rotate i
-update (SetSize i) = newGame $ _size .~ i
+update (SetSize i) = newGame $ set _size i
 update Check = lockAction $ get >>= \st → tailRecM go (st^._size) where
         go 0 = do
-            modify $ _showWin .~ true
+            modify $ set _showWin true
             delay 1000
-            modify $ _showWin .~ false
+            modify $ set _showWin false
             pure (Done unit)
         go i = do
             st2 ← get

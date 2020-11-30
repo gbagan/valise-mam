@@ -142,7 +142,7 @@ oppositeTurn Turn1 = Turn2
 oppositeTurn _ = Turn1
 
 changeTurn ∷ ∀pos ext. GState pos ext → GState pos ext
-changeTurn state = state # _turn %~ \x → if state^._mode == DuelMode then oppositeTurn x else Turn1
+changeTurn state = state # over _turn \x → if state^._mode == DuelMode then oppositeTurn x else Turn1
 
 data CoreMsg = 
       Undo
@@ -169,49 +169,49 @@ coreUpdate Undo = modify \state → case state^._history of
     Nil → state
     Cons h rest →
         state # changeTurn
-              # _position .~ h
-              # _history .~ rest
-              # _redoHistory %~ Cons (state^._position)
+              # set _position h
+              # set _history rest
+              # over _redoHistory (Cons (state^._position))
               # onPositionChange
 
 coreUpdate Redo = modify \state → case state^._redoHistory of
     Nil → state
     Cons h rest →
         state # changeTurn
-              # _position .~ h
-              # _redoHistory .~ rest
-              # _history %~ Cons (state^._position)
+              # set _position h
+              # set _redoHistory rest
+              # over _history (Cons (state^._position))
               # onPositionChange
 
 coreUpdate Reset = modify \state → case L.last (state^._history) of
     Nothing → state
-    Just x → state # _position .~ x
-                    # _history .~ Nil
-                    # _redoHistory .~ Nil
-                    # _turn .~ Turn1
-                    # onPositionChange
+    Just x → state # set _position x
+                   # set _history Nil
+                   # set _redoHistory Nil
+                   # set _turn Turn1
+                   # onPositionChange
 coreUpdate Clear = newGame identity
-coreUpdate ToggleHelp = modify $ _help %~ not
-coreUpdate (SetMode mode) = newGame (_mode .~ mode)
+coreUpdate ToggleHelp = modify $ over _help not
+coreUpdate (SetMode mode) = newGame (set _mode mode)
 coreUpdate (SetGridSize nbRows nbColumns customSize) = 
-    newGame $ setSize' ∘ (_customSize .~ customSize) where
+    newGame $ setSize' ∘ (set _customSize customSize) where
     setSize' state =
         if nbRows >= minrows && nbRows <= maxrows && nbColumns >= mincols && nbColumns <= maxcols then
-            state # _nbRows .~ nbRows # _nbColumns .~ nbColumns
+            state # set _nbRows nbRows # set _nbColumns nbColumns
         else
             state
         where SizeLimit minrows mincols maxrows maxcols = sizeLimit state
-coreUpdate (SetCustomSize bool) = modify $ _customSize .~ bool
-coreUpdate SetNoDialog = modify $ _dialog .~ NoDialog
-coreUpdate SetRulesDialog = modify $ _dialog .~ Rules
-coreUpdate SetScoreDialog = modify $ _dialog .~ ScoreDialog
+coreUpdate (SetCustomSize bool) = modify $ set _customSize bool
+coreUpdate SetNoDialog = modify $ set _dialog NoDialog
+coreUpdate SetRulesDialog = modify $ set _dialog Rules
+coreUpdate SetScoreDialog = modify $ set _dialog ScoreDialog
 coreUpdate ConfirmNewGame = modify \state →
                         case state^._dialog of
                             ConfirmNewGameDialog st → st
                             _ → state
-coreUpdate (SetPointer pos) = modify $ _pointer .~ pos
+coreUpdate (SetPointer pos) = modify $ set _pointer pos
 coreUpdate ComputerStarts = do
-    modify $ pushToHistory >>> (_turn %~ oppositeTurn)
+    modify $ pushToHistory >>> (over _turn oppositeTurn)
     computerPlay
 coreUpdate Init = do
     newGame identity
@@ -228,19 +228,21 @@ coreUpdate Init = do
 playAux ∷ ∀pos ext mov. Game pos ext mov ⇒ mov → GState pos ext → Maybe (GState pos ext)
 playAux move state =
     play state move <#> \pos →
-        state # _position .~ pos
-              # _turn %~ oppositeTurn
+        state # set _position pos
+              # over _turn oppositeTurn
               # onPositionChange
 
 -- met dans l'historique la position actuelle
 pushToHistory ∷ ∀pos ext. GState pos ext → GState pos ext
-pushToHistory state = state # _history %~ Cons (state^._position) # _redoHistory .~ Nil
+pushToHistory state = state 
+                        # over _history (Cons $ state^._position) 
+                        # set _redoHistory Nil
 
 showVictory ∷ ∀pos ext. Update (GState pos ext)
 showVictory = do
-    modify $ _showWin .~ true
+    modify $ set _showWin true
     delay 1000
-    modify $ _showWin .~ false
+    modify $ set _showWin false
 
 computerPlay ∷ ∀pos ext mov. Game pos ext mov ⇒ Update (GState pos ext)
 computerPlay = do
@@ -282,9 +284,9 @@ playA move = lockAction $ do
 -- | L'action n'est pas executé si locked est déjà à true
 lockAction ∷ ∀pos ext. Update (GState pos ext) → Update (GState pos ext)
 lockAction action = unlessM (view _locked <$> get) do
-        modify (_locked .~ true)
-        action
-        modify (_locked .~ false)
+    modify (set _locked true)
+    action
+    modify (set _locked false)
 
 -- | fonction auxiliaire pour newGame
 newGameAux ∷ ∀pos ext mov. Game pos ext mov ⇒
@@ -294,13 +296,12 @@ newGameAux f state = do
     state3 ← onNewGame state2
     position ← initialPosition state3
     pure $ state3
-        # _position .~ position
-        # _history .~ Nil
-        # _redoHistory .~ Nil
-        # _help .~ false
-        # _turn .~ Turn1
-        # _scores ∘ at "custom" .~ Nothing
-
+        # set _position position
+        # set _history Nil
+        # set _redoHistory Nil
+        # set _help false
+        # set _turn Turn1
+        # set (_scores ∘ at "custom") Nothing
 
 -- | créé une nouvelle partie en applicant la fonction f donnée en argument.
 -- | Par défault, ouvre une boite de dialogue pour confirmer la nouvelle partie
@@ -315,7 +316,7 @@ newGame f = randomly \state →
     if L.null (state^._history) || isLevelFinished state then
         rstate
     else
-        rstate <#> \s → state # _dialog .~ ConfirmNewGameDialog s
+        rstate <#> \s → state # set _dialog (ConfirmNewGameDialog s)
 
 -- | classe facilitant l'implétentation d'une IA pour les jeux à deux joueurs
 -- | nécessite de pouvoir calculer efficacement l'ensemble des coups légaux pour un joueur
@@ -379,7 +380,10 @@ updateScore' strat state =
         oldScore = bestScore state
         isNewRecord = maybe true (cmp score ∘ fst) oldScore
         isNewRecord' = isNewRecord && strat == ShowWinOnNewRecord || strat == AlwaysShowWin
-        st2 = state # _scores ∘ at hash %~ if isNewRecord then \_ → Just (score ∧ (state^._position)) else identity
+        st2 = state # over (_scores ∘ at hash) \scr → if isNewRecord then
+                                                            Just (score ∧ (state^._position))
+                                                        else
+                                                            scr
     in st2 ∧ isNewRecord'
 
 -- | renvoie le meilleur score pour la partie actuelle
@@ -394,10 +398,10 @@ class MsgWithDnd msg i | msg → i where
 
 dndUpdate ∷ ∀pos ext i. Eq i ⇒ Game pos ext {from ∷ i, to ∷ i} ⇒ 
     Lens' (GState pos ext) (Maybe i) → DndMsg i → Update (GState pos ext)
-dndUpdate _dragged (Drag i) = modify $ _dragged .~ Just i
+dndUpdate _dragged (Drag i) = modify $ set _dragged (Just i)
 dndUpdate _dragged (Drop i) = dropA _dragged i
-dndUpdate _dragged Leave = modify $ _dragged .~ Nothing
-dndUpdate _dragged DropOnBoard = modify $ _dragged .~ Nothing
+dndUpdate _dragged Leave = modify $ set _dragged Nothing
+dndUpdate _dragged DropOnBoard = modify $ set _dragged Nothing
 
 dropA ∷ ∀pos ext dnd. Eq dnd ⇒  Game pos ext {from ∷ dnd, to ∷ dnd} ⇒
             Lens' (GState pos ext) (Maybe dnd) → dnd → Update (GState pos ext)
@@ -406,5 +410,5 @@ dropA dragLens to = do
     case state ^. dragLens of
         Nothing → pure unit
         Just drag → do
-            modify (dragLens .~ Nothing)
-            if drag /= to then playA { from: drag, to } else pure unit
+            modify (set dragLens Nothing)
+            if drag ≠ to then playA { from: drag, to } else pure unit

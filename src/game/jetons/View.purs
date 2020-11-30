@@ -42,7 +42,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
     board = incDecGrid state [
         div ([class_ "ui-board"] <> dndBoardProps <> gridStyle rows columns 3) $ concat
         [   position # mapWithIndex \i val →
-                val /= 0 <&&> \_ →
+                val ≠ 0 <&&> \_ →
                     piece i val ([key $ show i] <> 
                         dndItemProps state
                         {   currentDragged: dragged
@@ -57,7 +57,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
     scoreDialog _ = bestScoreDialog state \pos → [
         div [class_ "ui-flex-center jetons-bestscore-grid-container"] [ 
             div (gridStyle rows columns 3 <> [class_ "ui-board"]) (
-                pos # mapWithIndex \i val → val /= 0 <&&> \_ →
+                pos # mapWithIndex \i val → val ≠ 0 <&&> \_ →
                     piece i val [key $ show i]
             )
         ]

@@ -53,7 +53,7 @@ isValidPath state path = fromMaybe true $ do
     begin ← head path
     end ← last path
     pure $ length (nub path2) == length path2 && not (elem exit path3) && not (elem end path3) && (
-        begin /= end || length path == (state^._nbRows) * (state^._nbColumns) + (if begin == exit then 1 else 0) && end == exit
+        begin ≠ end || length path == (state^._nbRows) * (state^._nbColumns) + (if begin == exit then 1 else 0) && end == exit
     )
 
 instance game ∷ Game (Array Int) Ext Int where
@@ -98,10 +98,10 @@ update (Core msg) = coreUpdate msg
 update (SelectVertex v) = do
     state ← get
     if null (state^._position) then
-        modify (_position .~ [v])
+        modify $ set _position [v]
     else if isNothing (state^._exit) then
-        modify (_exit .~ Just v)
+        modify $ set _exit (Just v)
     else
         playA v
 
-update (SelectMode mode) = newGame (_mode .~ mode)
+update (SelectMode mode) = newGame $ set _mode mode

@@ -69,7 +69,7 @@ instance withcore ∷ MsgWithCore Msg where core = Core
 update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg    
 update (Play i) = playA i
-update (SetSize size) = newGame $ _size .~ size
-update (SetNbColors n) = newGame $ _nbColors .~ n
-update (SetRange n) = newGame $ _range .~ n
-update (SetHoverCell i) = modify $ _hoverCell .~ i
+update (SetSize size) = newGame $ set _size size
+update (SetNbColors n) = newGame $ set _nbColors n
+update (SetRange n) = newGame $ set _range n
+update (SetHoverCell i) = modify $ set _hoverCell i

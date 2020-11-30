@@ -81,7 +81,7 @@ generateBoard ∷ Int → Int → Int → (Int → Int → Boolean) →
     {holes ∷ Array Boolean, position ∷ Random (Array Boolean), customSize ∷ Boolean}
 generateBoard rows columns startingHole holeFilter = {holes, position, customSize: false} where
     holes = repeat2 rows columns holeFilter
-    position = pure $ holes # ix startingHole .~ false
+    position = pure $ holes # set (ix startingHole) false
 
 instance solitaireGame ∷ Game (Array Boolean) ExtState {from ∷ Int, to ∷ Int} where
     name _ = "solitaire"
@@ -106,7 +106,11 @@ instance solitaireGame ∷ Game (Array Boolean) ExtState {from ∷ Int, to ∷ I
                 not canPlay state { from: i, to: i + d }
             )
 
-    onNewGame state = position <#> \p → state # _holes .~ holes # _position .~ p # _customSize .~ customSize where
+    onNewGame state = position <#> \p → state 
+                                        # set _holes holes 
+                                        # set _position p 
+                                        # set _customSize customSize
+        where
         columns = state^._nbColumns
         rows = state^._nbRows
         {holes, position, customSize} =
@@ -115,7 +119,7 @@ instance solitaireGame ∷ Game (Array Boolean) ExtState {from ∷ Int, to ∷ I
                 FrenchBoard → generateBoard 7 7 24 \row col → min row (6 - row) + min col (6 - col) >= 2
                 CircleBoard →
                     {   holes: replicate rows true
-                    ,   position: R.int' rows <#> \x → repeat rows (_ /= x)
+                    ,   position: R.int' rows <#> \x → repeat rows (_ ≠ x)
                     ,   customSize: true
                     }
                 Grid3Board →
@@ -142,7 +146,7 @@ instance solitaireGame ∷ Game (Array Boolean) ExtState {from ∷ Int, to ∷ I
     loadFromJson st json =
         case decodeJson json of
             Left _ → st
-            Right bestScore → st # _scores .~ bestScore 
+            Right bestScore → st # set _scores bestScore 
 
     computerMove _ = pure Nothing
     onPositionChange = identity
@@ -158,13 +162,13 @@ instance withcore ∷ MsgWithCore Msg where core = Core
 instance withdnd ∷ MsgWithDnd Msg Int where dndmsg = DnD  
     
 update ∷ Msg → Update State
-update (Core ToggleHelp) = modify $ _help %~ \x → (x + 1) `mod` 3
+update (Core ToggleHelp) = modify $ over _help \x → (x + 1) `mod` 3
 update (Core msg) = coreUpdate msg
 update (DnD msg) = dndUpdate _dragged msg
 update (SetBoard board) = newGame \state →
-    let st2 = state # _board .~ board in 
+    let st2 = state # set _board board in 
     case board of
-        CircleBoard → st2 # _nbRows .~ 6 # _nbColumns .~ 1
-        Grid3Board → st2 # _nbRows .~ 3 # _nbColumns .~ 5
-        RandomBoard → st2 # _nbRows .~ 3 # _nbColumns .~ 5
-        _ → st2 # _nbRows .~ 7 # _nbColumns .~ 7
+        CircleBoard → st2 # set _nbRows 6 # set _nbColumns 1
+        Grid3Board → st2 # set _nbRows 3 # set _nbColumns 5
+        RandomBoard → st2 # set _nbRows 3 # set _nbColumns 5
+        _ → st2 # set _nbRows 7 # set _nbColumns 7

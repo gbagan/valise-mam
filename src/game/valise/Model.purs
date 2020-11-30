@@ -49,10 +49,11 @@ data Msg = ShowHelp String | ToggleSwitch | SetDrag (Maybe { name ∷ String, x 
           | MoveObject {x ∷ Number, y ∷ Number}
 
 update ∷ Msg → Update State
-update (ShowHelp help) = modify $ (_help %~ if help == "" then identity else const help) >>> (_helpVisible .~ (help /= ""))
-update ToggleSwitch = modify $ _isSwitchOn %~ not
+update (ShowHelp help) = modify $ over _help (if help == "" then identity else const help)
+                               >>> set _helpVisible (help ≠ "")
+update ToggleSwitch = modify $ over _isSwitchOn not
 update (SetDrag d) = modify _{drag = d}
 update (MoveObject {x, y}) = modify \state →
     case state.drag of
-        Just {name, x: x2, y: y2} → state # _positions ∘ at name .~ Just {x: x-x2, y: y-y2} 
+        Just {name, x: x2, y: y2} → state # set (_positions ∘ at name) (Just {x: x-x2, y: y-y2}) 
         _ → state

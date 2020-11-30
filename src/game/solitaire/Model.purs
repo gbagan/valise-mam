@@ -39,13 +39,13 @@ istate = genState [] _{nbRows = 5, nbColumns = 1} (Ext { board: CircleBoard, hol
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _board ∷ Lens' State Board
-_board = _ext' ∘ lens _.board _{board = _}
+_board = _ext' ∘ prop (SProxy ∷ _ "board")
 _holes ∷ Lens' State (Array Boolean)
-_holes = _ext' ∘ lens _.holes _{holes = _}
+_holes = _ext' ∘ prop (SProxy ∷ _ "holes")
 _dragged ∷ Lens' State (Maybe Int)
-_dragged = _ext' ∘ lens _.dragged _{dragged = _}
+_dragged = _ext' ∘ prop (SProxy ∷ _ "dragged")
 _help ∷ Lens' State Int
-_help = _ext' ∘ lens _.help _{help = _}
+_help = _ext' ∘ prop (SProxy ∷ _ "help")
 
 -- | retourne la position du trou situé entre les deux positions d'un coup si celui est valide
 betweenMove ∷ State → Move → Maybe Int
@@ -54,6 +54,7 @@ betweenMove state { from, to } =
     if row * row + col * col == 4 then Just $ (from + to) / 2 else Nothing
 
 -- | même chose que betweenMove mais dans un plateau circulaire    
+-- | ne traite pas le cas du plateau de taille 4
 betweenInCircle ∷ Int → Int → Int → Maybe Int
 betweenInCircle from to size =
     if from - to == 2 || to - from == 2 then
@@ -65,7 +66,8 @@ betweenInCircle from to size =
     else
         Nothing
 
--- | même chose que betweenMove dans un plateau normal ou circuaire. Traite le cas particulier du plateau circulaire de taille 4
+-- | même chose que betweenMove dans un plateau normal ou circuaire.
+-- | Traite le cas particulier du plateau circulaire de taille 4
 betweenMove2 ∷ State → Move → Maybe Int
 betweenMove2 state move@{from, to} =
     let rows = state ^._nbRows in

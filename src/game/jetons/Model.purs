@@ -22,7 +22,7 @@ type State = GState Position Ext
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _dragged ∷ Lens' State (Maybe Int)
-_dragged = _ext' ∘ lens _.dragged _{dragged = _}
+_dragged = _ext' ∘ prop (SProxy ∷ _ "dragged")
 
 -- | état initial
 istate ∷ State

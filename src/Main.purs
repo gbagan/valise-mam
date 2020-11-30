@@ -139,23 +139,23 @@ callByName name default f = case games # Map.lookup name of
                                 Just game → game # gameRun f 
  
 update ∷ Msg → Update RootState
-update (BaseballMsg msg)  = lens _.baseball _{baseball = _}   .~> Baseball.update msg
-update (ChocolatMsg msg)  = lens _.chocolat _{chocolat = _}   .~> Chocolat.update msg
-update (DessinMsg msg)    = lens _.dessin _{dessin = _}       .~> Dessin.update msg
-update (EternalMsg msg)   = lens _.eternal _{eternal = _}     .~> Eternal.update msg
-update (FrogMsg msg)      = lens _.frog _{frog = _}           .~> Frog.update msg
-update (JetonsMsg msg)    = lens _.jetons _{jetons = _}       .~> Jetons.update msg
-update (LabeteMsg msg)    = lens _.labete _{labete = _}       .~> Labete.update msg
-update (NimMsg msg)       = lens _.nim _{nim = _}             .~> Nim.update msg
-update (NoirblancMsg msg) = lens _.noirblanc _{noirblanc = _} .~> Noirblanc.update msg
-update (PathsMsg msg)     = lens _.paths _{paths = _}         .~> Paths.update msg
-update (QueensMsg msg)    = lens _.queens _{queens = _}       .~> Queens.update msg
-update (RoueMsg msg)      = lens _.roue _{roue = _}           .~> Roue.update msg
-update (SansmotMsg msg)   = lens _.sansmot _{sansmot = _}     .~> Sansmot.update msg
-update (SolitaireMsg msg) = lens _.solitaire _{solitaire = _} .~> Solitaire.update msg
-update (TilingMsg msg)    = lens _.tiling _{tiling = _}       .~> Tiling.update msg
-update (TricolorMsg msg)  = lens _.tricolor _{tricolor = _}   .~> Tricolor.update msg
-update (ValiseMsg msg)    = lens _.valise _{valise = _}       .~> Valise.update msg
+update (BaseballMsg msg)  = prop (SProxy ∷ SProxy "baseball")  .~> Baseball.update msg
+update (ChocolatMsg msg)  = prop (SProxy ∷ SProxy "chocolat")  .~> Chocolat.update msg
+update (DessinMsg msg)    = prop (SProxy ∷ SProxy "dessin")    .~> Dessin.update msg
+update (EternalMsg msg)   = prop (SProxy ∷ SProxy "eternal")   .~> Eternal.update msg
+update (FrogMsg msg)      = prop (SProxy ∷ SProxy "frog")      .~> Frog.update msg
+update (JetonsMsg msg)    = prop (SProxy ∷ SProxy "jetons")    .~> Jetons.update msg
+update (LabeteMsg msg)    = prop (SProxy ∷ SProxy "labete")    .~> Labete.update msg
+update (NimMsg msg)       = prop (SProxy ∷ SProxy "nim")       .~> Nim.update msg
+update (NoirblancMsg msg) = prop (SProxy ∷ SProxy "noirblanc") .~> Noirblanc.update msg
+update (PathsMsg msg)     = prop (SProxy ∷ SProxy "paths")     .~> Paths.update msg
+update (QueensMsg msg)    = prop (SProxy ∷ SProxy "queens")    .~> Queens.update msg
+update (RoueMsg msg)      = prop (SProxy ∷ SProxy "roue")      .~> Roue.update msg
+update (SansmotMsg msg)   = prop (SProxy ∷ SProxy "sansmot")   .~> Sansmot.update msg
+update (SolitaireMsg msg) = prop (SProxy ∷ SProxy "solitaire") .~> Solitaire.update msg
+update (TilingMsg msg)    = prop (SProxy ∷ SProxy "tiling")    .~> Tiling.update msg
+update (TricolorMsg msg)  = prop (SProxy ∷ SProxy "tricolor")  .~> Tricolor.update msg
+update (ValiseMsg msg)    = prop (SProxy ∷ SProxy "valise")    .~> Valise.update msg
 update Init = init
 update (KeyDown k) = do
         st ← get
@@ -168,7 +168,7 @@ update HashChanged = do
     let location = String.drop 1 hash
     modify _{location = location}
     if location == "" then
-        lens _.valise _{valise = _} .~> Valise.enterA
+        prop (SProxy ∷ SProxy "valise") .~> Valise.enterA
     else
         pure unit
 

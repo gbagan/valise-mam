@@ -25,19 +25,15 @@ istate =
     }
 
 _help ∷ Lens' State String
-_help = lens _.help _{help = _}
-
+_help = prop (SProxy ∷ _ "help")
 _helpVisible ∷ Lens' State Boolean
-_helpVisible = lens _.helpVisible _{helpVisible = _}
-
+_helpVisible = prop (SProxy ∷ _ "helpVisible")
 _positions ∷ Lens' State (M.Map String {x ∷ Number, y ∷ Number})
-_positions = lens _.positions _{positions = _}
-
+_positions = prop (SProxy ∷ _ "positions")
 _drag ∷ Lens' State (Maybe { name ∷ String, x ∷ Number, y ∷ Number })
-_drag = lens _.drag _{drag = _}
-
+_drag = prop (SProxy ∷ _ "drag")
 _isSwitchOn ∷ Lens' State Boolean
-_isSwitchOn = lens _.isSwitchOn _{isSwitchOn = _}
+_isSwitchOn = prop (SProxy ∷ _ "isSwitchOn")
 
 enterA ∷ Update State
 enterA = do

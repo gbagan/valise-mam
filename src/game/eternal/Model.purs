@@ -161,25 +161,24 @@ type State = GState Position ExtState
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _graph ∷ Lens' State Graph
-_graph = _ext' ∘ lens _.graph _{graph = _}
+_graph = _ext' ∘ prop (SProxy ∷ _ "graph")
 _nextmove ∷ Lens' State (Array Int)
-_nextmove = _ext' ∘ lens _.nextmove _{nextmove = _}
+_nextmove = _ext' ∘ prop (SProxy ∷ _ "nextmove")
 _phase ∷ Lens' State Phase
-_phase = _ext' ∘ lens _.phase _{phase = _}
+_phase = _ext' ∘ prop (SProxy ∷ _ "phase")
 _graphkind ∷ Lens' State GraphKind
-_graphkind = _ext' ∘ lens _.graphkind _{graphkind = _}
+_graphkind = _ext' ∘ prop (SProxy ∷ _ "graphkind")
 _rules ∷ Lens' State Rules
-_rules = _ext' ∘ lens _.rules _{rules = _}
+_rules = _ext' ∘ prop (SProxy ∷ _ "rules")
 _arena ∷ Lens' State (Maybe Arena)
-_arena = _ext' ∘ lens _.arena _{arena = _}
+_arena = _ext' ∘ prop (SProxy ∷ _ "arena")
 _draggedGuard ∷ Lens' State (Maybe Int)
-_draggedGuard = _ext' ∘ lens _.draggedGuard _{draggedGuard = _}
+_draggedGuard = _ext' ∘ prop (SProxy ∷ _ "draggedGuard")
 
 _guards ∷ Lens' Position (Array Int)
-_guards = lens _.guards _{guards = _}
+_guards = prop (SProxy ∷ _ "guards")
 _attacked ∷ Lens' Position (Maybe Int)
-_attacked = lens _.attacked _{attacked = _}
-
+_attacked = prop (SProxy ∷ _ "attacked")
 
 -- | état initial
 istate ∷ State

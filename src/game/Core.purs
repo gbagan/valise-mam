@@ -6,10 +6,8 @@ import Data.Argonaut.Core (Json, stringify)
 import Data.Argonaut.Parser (jsonParser)
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
-import Data.List (List(..))
-import Data.List as L
-import Data.Map (Map)
-import Data.Map as M
+import Data.List as List
+import Data.Map as Map
 import Lib.Random (Random)
 import Lib.Random as R
 import Lib.Update (Update, get, modify, put, delay, randomEval, randomly, storageGet, storagePut)
@@ -25,42 +23,42 @@ derive instance eqTurn ∷ Eq Turn
 
 type PointerPosition = {x ∷ Number, y ∷ Number}
 
-type CoreState pos ext = {
-    position ∷ pos,
-    history ∷ List pos,
-    redoHistory ∷ List pos,
-    dialog ∷ Dialog (GState pos ext),
-    turn ∷ Turn,
-    nbRows ∷ Int,
-    nbColumns ∷ Int,
-    customSize ∷ Boolean,
-    mode ∷ Mode,  --- mode pour les jeux à deux joueurs
-    help ∷ Boolean, --- si l'aide est activée ou non
-    locked ∷ Boolean,  ---- quand locked est à true, aucune action de l'utiliateur n'est possible
-    showWin ∷ Boolean,
-    scores ∷ Map String (Tuple Int pos),
-    pointer ∷ Maybe PointerPosition --- position du pointeur en % relativement au plateau de jeu
-}
+type CoreState pos ext =
+    {   position ∷ pos
+    ,   history ∷ List pos
+    ,   redoHistory ∷ List pos
+    ,   dialog ∷ Dialog (GState pos ext)
+    ,   turn ∷ Turn
+    ,   nbRows ∷ Int
+    ,   nbColumns ∷ Int
+    ,   customSize ∷ Boolean
+    ,   mode ∷ Mode   --- mode pour les jeux à deux joueurs
+    ,   help ∷ Boolean --- si l'aide est activée ou non
+    ,   locked ∷ Boolean   --- quand locked est à true, aucune action de l'utiliateur n'est possible
+    ,   showWin ∷ Boolean
+    ,   scores ∷ Map String (Tuple Int pos)
+    ,   pointer ∷ Maybe PointerPosition --- position du pointeur en % relativement au plateau de jeu
+    }
 
 data GState pos ext = State (CoreState pos ext) ext
 
 defaultCoreState ∷ ∀pos ext. pos → CoreState pos ext
-defaultCoreState p = {
-    position: p,
-    history: Nil,
-    redoHistory: Nil,
-    dialog: Rules,
-    turn: Turn1,
-    nbRows: 0,
-    nbColumns: 0,
-    customSize: false,
-    help: false,
-    mode: SoloMode,
-    locked: false,
-    showWin: false,
-    scores: M.empty,
-    pointer: Nothing
-}
+defaultCoreState p =
+    {   position: p
+    ,   history: Nil
+    ,   redoHistory: Nil
+    ,   dialog: Rules
+    ,   turn: Turn1
+    ,   nbRows: 0
+    ,   nbColumns: 0
+    ,   customSize: false
+    ,   help: false
+    ,   mode: SoloMode
+    ,   locked: false
+    ,   showWin: false
+    ,   scores: Map.empty
+    ,   pointer: Nothing
+    }
 
 -- fonction pour faciliter la création d'un état initial
 genState ∷ ∀pos ext. pos → (CoreState pos ext → CoreState pos ext) → ext → GState pos ext
@@ -74,46 +72,46 @@ _ext ∷ ∀pos ext. Lens' (GState pos ext) ext
 _ext = lens (\(State c e) → e) \(State c _) e → State c e
 
 _position ∷ ∀pos ext. Lens' (GState pos ext) pos
-_position = _core ∘ lens _.position _{position = _}
+_position = _core ∘ prop (SProxy ∷ _ "position")
 
 _history ∷ ∀pos ext. Lens' (GState pos ext) (List pos)
-_history = _core ∘ lens (_.history) _{history = _}
+_history = _core ∘ prop (SProxy ∷ _ "history")
 
 _redoHistory ∷ ∀pos ext. Lens' (GState pos ext) (List pos)
-_redoHistory = _core ∘ lens _.redoHistory _{redoHistory = _}
+_redoHistory = _core ∘ prop (SProxy ∷ _ "redoHistory")
 
 _mode ∷ ∀pos ext. Lens' (GState pos ext) Mode
-_mode = _core ∘ lens _.mode _{mode = _}
+_mode = _core ∘ prop (SProxy ∷ _ "mode")
 
 _help ∷ ∀pos ext. Lens' (GState pos ext) Boolean
-_help = _core ∘ lens _.help _{help = _}
+_help = _core ∘ prop (SProxy ∷ _ "help")
 
 _turn ∷ ∀pos ext. Lens' (GState pos ext) Turn
-_turn = _core ∘ lens _.turn _{turn = _}
+_turn = _core ∘ prop (SProxy ∷ _ "turn")
 
 _dialog ∷ ∀pos ext. Lens' (GState pos ext) (Dialog (GState pos ext))
-_dialog = _core ∘ lens _.dialog _{dialog = _}
+_dialog = _core ∘ prop (SProxy ∷ _ "dialog")
 
 _nbRows ∷ ∀pos ext. Lens' (GState pos ext) Int
-_nbRows = _core ∘ lens _.nbRows _{nbRows = _}
+_nbRows = _core ∘ prop (SProxy ∷ _ "nbRows")
 
 _nbColumns ∷ ∀pos ext. Lens' (GState pos ext) Int
-_nbColumns = _core ∘ lens _.nbColumns _{nbColumns = _}
+_nbColumns = _core ∘ prop (SProxy ∷ _ "nbColumns")
 
 _customSize ∷ ∀pos ext. Lens' (GState pos ext) Boolean
-_customSize = _core ∘ lens _.customSize _{customSize = _}
+_customSize = _core ∘ prop (SProxy ∷ _ "customSize")
 
 _locked ∷ ∀pos ext. Lens' (GState pos ext) Boolean
-_locked = _core ∘ lens _.locked _{locked = _}
+_locked = _core ∘ prop (SProxy ∷ _ "locked")
 
 _showWin ∷ ∀pos ext. Lens' (GState pos ext) Boolean
-_showWin = _core ∘ lens _.showWin _{showWin = _}
+_showWin = _core ∘ prop (SProxy ∷ _ "showWin")
 
 _pointer ∷ ∀pos ext. Lens' (GState pos ext) (Maybe PointerPosition)
-_pointer = _core ∘ lens _.pointer _{pointer = _}
+_pointer = _core ∘ prop (SProxy ∷ _ "pointer")
 
 _scores ∷ ∀pos ext. Lens' (GState pos ext) (Map String (Tuple Int pos))
-_scores = _core ∘ lens  _.scores _{scores = _}
+_scores = _core ∘ prop (SProxy ∷ _ "scores")
 
 data SizeLimit = SizeLimit Int Int Int Int
 
@@ -133,7 +131,7 @@ class Game pos ext mov | ext → pos mov where
 -- | implémentation de saveToJson pour les jeux à score
 saveToJson' ∷ ∀pos ext. EncodeJson pos ⇒
                 GState pos ext → Maybe Json
-saveToJson' st = Just $ encodeJson (st ^. _scores)
+saveToJson' = Just ∘ encodeJson ∘ Map.delete "custom" ∘ view _scores
 
 -- | implémentation de loadFromJson' pour les jeux à score
 loadFromJson' ∷ ∀pos ext. DecodeJson pos ⇒ 
@@ -198,7 +196,7 @@ coreUpdate Redo = modify \state → case state^._redoHistory of
               # over _history (Cons (state^._position))
               # onPositionChange
 
-coreUpdate Reset = modify \state → case L.last (state^._history) of
+coreUpdate Reset = modify \state → case List.last (state^._history) of
     Nothing → state
     Just x → state # set _position x
                    # set _history Nil
@@ -328,7 +326,7 @@ newGame ∷ ∀pos ext mov. Game pos ext mov ⇒
     (GState pos ext → GState pos ext) → Update (GState pos ext)
 newGame f = randomly \state →
     let rstate = newGameAux f state in
-    if L.null (state^._history) || isLevelFinished state then
+    if List.null (state^._history) || isLevelFinished state then
         rstate
     else
         rstate <#> \s → state # set _dialog (ConfirmNewGameDialog s)

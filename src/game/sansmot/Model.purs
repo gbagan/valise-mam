@@ -45,11 +45,11 @@ istate =
     }
 
 _anim ∷ Lens' State (M.Map String Int)
-_anim = lens _.anim _{anim = _}
+_anim = prop (SProxy ∷ _ "anim")
 _locked ∷ Lens' State Boolean
-_locked = lens _.locked _{locked = _}
+_locked = prop (SProxy ∷ _ "locked")
 _page ∷ Lens' State Page
-_page = lens _.page _{page = _}
+_page = prop (SProxy ∷ _ "page")
 
 data Msg = SetPage Page | Animate (Array AnimationStep)
 
@@ -64,7 +64,8 @@ update (SetPage page) = modify \st →
     if st^._locked then
         st
     else
-        st # set _page page # set _anim M.empty
+        st # set _page page 
+           # set _anim M.empty
 
 update (Animate animation) = lockAction do
         modify $ set _anim M.empty 

@@ -30,11 +30,11 @@ istate = genState [] identity (Ext {rotation: 0, size: 5, dragged: Nothing})
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _rotation ∷ Lens' State Int
-_rotation = _ext' ∘ lens _.rotation _{rotation = _}
+_rotation = _ext' ∘ prop (SProxy ∷ _ "rotation")
 _size ∷ Lens' State Int
-_size = _ext' ∘ lens _.size _{size = _}
+_size = _ext' ∘ prop (SProxy ∷ _ "size")
 _dragged ∷ Lens' State (Maybe Location)
-_dragged = _ext' ∘ lens _.dragged _{dragged = _}
+_dragged = _ext' ∘ prop (SProxy ∷ _ "dragged")
 
 -- | renvoie un tableau indiquant quelles sont les balles alignées avec leur couleur
 aligned ∷ State → Array Boolean

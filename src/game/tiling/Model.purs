@@ -64,15 +64,15 @@ istate = genState [] _{nbRows = 5, nbColumns = 5}
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _rotation ∷ Lens' State Int
-_rotation = _ext' ∘ lens _.rotation _{rotation = _}
+_rotation = _ext' ∘ prop (SProxy ∷ _ "rotation")
 _tile ∷ Lens' State Tile
-_tile = _ext' ∘ lens _.tile _{tile = _}
+_tile = _ext' ∘ prop (SProxy ∷ _ "tile")
 _tileType ∷ Lens' State TileType
-_tileType = _ext' ∘ lens _.tileType _{tileType = _}
+_tileType = _ext' ∘ prop (SProxy ∷ _ "tileType")
 _nbSinks ∷ Lens' State Int
-_nbSinks = _ext' ∘ lens _.nbSinks _{nbSinks = _}
+_nbSinks = _ext' ∘ prop (SProxy ∷ _ "nbSinks")
 _hoverSquare ∷ Lens' State (Maybe Int)
-_hoverSquare = _ext' ∘ lens _.hoverSquare _{hoverSquare = _}
+_hoverSquare = _ext' ∘ prop (SProxy ∷ _ "hoverSquare")
 
 getTile ∷ State → Tile
 getTile state = case state^._tileType of

@@ -1,12 +1,12 @@
 module Game.Nim.Model where
+
 import MyPrelude
+
 import Data.Int.Bits (xor)
-import Lib.Util (repeat2)
-import Lib.Update (Update)
+import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, GState, Mode(..), Turn(..), coreUpdate, playA, _ext, genState, newGame, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
 import Lib.Random as R
-import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, GState, Mode(..), Turn(..),
-            coreUpdate, playA,
-            _ext, genState, newGame, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
+import Lib.Update (Update)
+import Lib.Util (repeat2)
 
 -- une position donne pour chaque numéro de rangée une paire indiquant la position de chaque jetons
 -- un coup (move) est du type Move i j où i est le numéro de pile et j la position dans la pile
@@ -29,15 +29,17 @@ istate = genState [] _{mode = ExpertMode} (Ext {length: 10, nbPiles: 4})
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _length ∷ Lens' State Int
-_length = _ext' ∘ lens _.length _{length = _}
+_length = _ext' ∘ prop (SProxy ∷ _ "length")
 _nbPiles ∷ Lens' State Int
-_nbPiles = _ext' ∘ lens _.nbPiles _{nbPiles = _}
+_nbPiles = _ext' ∘ prop (SProxy ∷ _ "nbPiles")
 
 canPlay ∷ State → Move → Boolean
 canPlay state (Move pile pos) =
     case state^._position !! pile of
-        Nothing → false 
-        Just (Position p1 p2) → pos ≠ p1 && pos ≠ p2 && if state^._turn == Turn1 then pos < p2 else pos > p1
+        Nothing → false
+        Just (Position p1 p2) → pos ≠ p1 
+                             && pos ≠ p2
+                             && if state^._turn == Turn1 then pos < p2 else pos > p1
 
 instance game ∷ Game (Array Position) ExtState Move where
     name _ = "nim"
@@ -67,12 +69,13 @@ instance game ∷ Game (Array Position) ExtState Move where
     saveToJson _ = Nothing
     loadFromJson st _ = st
 
-instance nimGame2 ∷ TwoPlayersGame (Array Position) ExtState Move where
+instance game2 ∷ TwoPlayersGame (Array Position) ExtState Move where
     possibleMoves state =
         repeat2 (state^._nbPiles) (state^._length) Move
         # filter (canPlay state)
-        # sortWith \(Move pile pos) → state ^. _position !! pile # maybe 0
-            \(Position x y) → if state ^. _turn == Turn1 then x - pos else pos - y
+        # sortWith \(Move pile pos) → case state ^. _position !! pile of
+                                        Nothing → 0
+                                        Just (Position x y) → if state ^. _turn == Turn1 then x - pos else pos - y
 
     isLosingPosition st = (st ^. _position # foldr (\(Position x y) → xor (y - x - 1)) 0) == 0
 

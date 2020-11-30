@@ -3,7 +3,7 @@ module Game.Frog.Model where
 import MyPrelude
 import Data.Lazy (defer, force)
 import Lib.Util (repeat, (..))
-import Data.Array.NonEmpty (NonEmptyArray, singleton, fromArray, cons) as N
+import Data.Array.NonEmpty as N
 import Lib.KonamiCode (konamiCode)
 import Lib.Update (Update, modify)
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, Mode(..), GState, SizeLimit(..),
@@ -15,7 +15,7 @@ import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, 
 -- un coup (move) est la case sur laquelle on veut déplacer la grenouille
 
 type Ext' =
-    {   moves ∷ N.NonEmptyArray Int  -- la liste des mouvements autorisées (en nombre de cases)
+    {   moves ∷ NonEmptyArray Int  -- la liste des mouvements autorisées (en nombre de cases)
     ,   winning ∷ Array Boolean      -- la liste des positions gagnantes
     ,   marked ∷ Array Boolean       -- la liste des posiions marquées par l'utilisateur
     ,   keySequence ∷ Array String   -- pour le konami code
@@ -27,14 +27,14 @@ type State = GState Int ExtState
 -- lenses
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
-_moves ∷ Lens' State (N.NonEmptyArray Int)
-_moves = _ext' ∘ lens _.moves _{moves = _}
+_moves ∷ Lens' State (NonEmptyArray Int)
+_moves = _ext' ∘ prop (SProxy ∷ _ "moves")
 _winning ∷ Lens' State (Array Boolean)
-_winning = _ext' ∘ lens _.winning _{winning = _}
+_winning = _ext' ∘ prop (SProxy ∷ _ "winning")
 _marked ∷ Lens' State (Array Boolean)
-_marked = _ext' ∘ lens _.marked _{marked = _}
+_marked = _ext' ∘ prop (SProxy ∷ _ "marked")
 _keySequence ∷ Lens' State (Array String)
-_keySequence = _ext' ∘ lens _.keySequence _{keySequence = _}
+_keySequence = _ext' ∘ prop (SProxy ∷ _ "keySequence")
 
 -- | état initial
 istate ∷ State

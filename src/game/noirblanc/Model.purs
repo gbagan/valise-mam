@@ -43,17 +43,17 @@ istate = genState {light: [], played: []} identity
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _mode ∷ Lens' State Int
-_mode = _ext' ∘ lens _.mode _{mode = _}
+_mode = _ext' ∘ prop (SProxy ∷ _ "mode")
 _level ∷ Lens' State Int
-_level = _ext' ∘ lens _.level _{level = _}
+_level = _ext' ∘ prop (SProxy ∷ _ "level")
 _maxLevels ∷ Lens' State (Array Int)
-_maxLevels = _ext' ∘ lens _.maxLevels _{maxLevels = _}
+_maxLevels = _ext' ∘ prop (SProxy ∷ _ "maxLevels")
 _keySequence ∷ Lens' State (Array String)
-_keySequence = _ext' ∘ lens _.keySequence _{keySequence = _}
+_keySequence = _ext' ∘ prop (SProxy ∷ _ "keySequence")
 _light ∷ Lens' Position (Array Boolean)
-_light = lens _.light _{light = _}
+_light = prop (SProxy ∷ _ "light")
 _played ∷ Lens' Position (Array Boolean)
-_played = lens _.played _{played = _}
+_played = prop (SProxy ∷ _ "played")
 
 -- | indique si index1 est voisine de index2 selon un mode de jeu donné
 -- | c'est à dire que si l'on active index1, index2 va changer de couleur

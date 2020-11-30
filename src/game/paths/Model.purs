@@ -28,9 +28,9 @@ istate = genState [] _{nbRows = 4, nbColumns = 6} (Ext { exit: Nothing, mode: Mo
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _exit ∷ Lens' State (Maybe Int)
-_exit = _ext' ∘ lens _.exit _{exit = _}
+_exit = _ext' ∘ prop (SProxy ∷ _ "exit")
 _mode ∷ Lens' State Mode
-_mode = _ext' ∘ lens _.mode _{mode = _}
+_mode = _ext' ∘ prop (SProxy ∷ _ "mode")
 
 -- renvoie un chemin horizontal ou vertical entre u et v si celui ci existe (u exclus du chemin)
 pathBetween ∷ Int → Int → Int → Maybe (Array Int)
@@ -52,9 +52,12 @@ isValidPath state path = fromMaybe true $ do
     path3 ← tail path2
     begin ← head path
     end ← last path
-    pure $ length (nub path2) == length path2 && not (elem exit path3) && not (elem end path3) && (
-        begin ≠ end || length path == (state^._nbRows) * (state^._nbColumns) + (if begin == exit then 1 else 0) && end == exit
-    )
+    pure $ length (nub path2) == length path2 
+        && not (elem exit path3)
+        && not (elem end path3) 
+        && (begin ≠ end 
+           || length path == (state^._nbRows) * (state^._nbColumns) + (if begin == exit then 1 else 0) && end == exit
+            )
 
 instance game ∷ Game (Array Int) Ext Int where
     name _ = "paths"
@@ -68,7 +71,8 @@ instance game ∷ Game (Array Int) Ext Int where
                 Just (state^._position <> p)
 
     isLevelFinished state =
-        length (state^._position) == state^._nbColumns * state^._nbRows + (if state^._exit == head (state^._position) then 1 else 0)
+        length (state^._position) == state^._nbColumns * state^._nbRows 
+                                    + (if state^._exit == head (state^._position) then 1 else 0)
 
     initialPosition state = pure $ case state^._exit of
         Nothing → []

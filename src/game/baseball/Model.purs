@@ -21,16 +21,16 @@ type Ext' =
     { nbBases ∷ Int     -- le nombre de bases
     , missingPeg ∷ Int  -- le numéro du jeton manquant
     }
-newtype ExtState = Ext Ext'
-type State = GState (Array Int) ExtState
+newtype Ext = Ext Ext'
+type State = GState (Array Int) Ext
 
 -- lenses
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _nbBases ∷ Lens' State Int
-_nbBases = _ext' ∘ lens _.nbBases _{nbBases = _}
+_nbBases = _ext' ∘ prop (SProxy ∷ _ "nbBases")
 _missingPeg ∷ Lens' State Int
-_missingPeg = _ext' ∘ lens _.missingPeg _{missingPeg = _}
+_missingPeg = _ext' ∘ prop (SProxy ∷ _ "missingPeg")
 
 -- | état initial
 istate ∷ State
@@ -41,7 +41,7 @@ istate =
         }
     )
 
-instance game ∷ Game (Array Int) ExtState Int where
+instance game ∷ Game (Array Int) Ext Int where
     name _ = "baseball"
 
     play state i = do

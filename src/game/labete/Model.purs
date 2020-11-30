@@ -51,24 +51,23 @@ type Ext' =
 newtype ExtState = Ext Ext'
 type State = GState (Array Boolean) ExtState
 
-
 -- lenses
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _beast ∷ Lens' State Beast'
-_beast = _ext' ∘ lens _.beast _{beast = _}
+_beast = _ext' ∘ prop (SProxy ∷ _ "beast")
 _beastType ∷ Lens' State BeastType
-_beastType = _ext' ∘ lens _.beastType _{beastType = _}
+_beastType = _ext' ∘ prop (SProxy ∷ _ "beastType")
 _mode ∷ Lens' State Mode
-_mode = _ext' ∘ lens _.mode _{mode = _}
+_mode = _ext' ∘ prop (SProxy ∷ _ "mode")
 _selectedColor ∷ Lens' State Int
-_selectedColor = _ext' ∘ lens _.selectedColor _{selectedColor = _}
+_selectedColor = _ext' ∘ prop (SProxy ∷ _ "selectedColor")
 _squareColors ∷ Lens' State (Array Int)
-_squareColors = _ext' ∘ lens _.squareColors _{squareColors = _}
+_squareColors = _ext' ∘ prop (SProxy ∷ _ "squareColors")
 _startPointer ∷ Lens' State (Maybe PointerPosition)
-_startPointer = _ext' ∘ lens _.startPointer _{startPointer = _}
+_startPointer = _ext' ∘ prop (SProxy ∷ _ "startPointer")
 _startSquare ∷ Lens' State (Maybe Int)
-_startSquare = _ext' ∘ lens _.startSquare _{startSquare = _}
+_startSquare = _ext' ∘ prop (SProxy ∷ _ "startSquare")
 
 -- | état initial
 istate ∷ State

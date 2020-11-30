@@ -198,9 +198,9 @@ type State = GState (Array Move) ExtState
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _graphIndex ∷ Lens' State Int
-_graphIndex = _ext' ∘ lens _.graphIndex _{graphIndex = _}
+_graphIndex = _ext' ∘ prop (SProxy ∷ _ "graphIndex")
 _graph ∷ Lens' State Graph
-_graph = _ext' ∘ lens _.graph _{graph = _}
+_graph = _ext' ∘ prop (SProxy ∷ _ "graph")
 
 -- | état initial
 istate ∷ State

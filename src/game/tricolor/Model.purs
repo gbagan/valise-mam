@@ -26,13 +26,13 @@ type State = GState (Array Int) ExtState
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _size ∷ Lens' State Int
-_size = _ext' ∘ lens _.size _{size = _}
+_size = _ext' ∘ prop (SProxy ∷ _ "size")
 _nbColors ∷ Lens' State Int
-_nbColors = _ext' ∘ lens _.nbColors _{nbColors = _}
+_nbColors = _ext' ∘ prop (SProxy ∷ _ "nbColors")
 _range ∷ Lens' State Int
-_range = _ext' ∘ lens _.range _{range = _}
+_range = _ext' ∘ prop (SProxy ∷ _ "range")
 _hoverCell ∷ Lens' State (Maybe Int)
-_hoverCell = _ext' ∘ lens _.hoverCell _{hoverCell = _}
+_hoverCell = _ext' ∘ prop (SProxy ∷ _ "hoverCell")
 
 -- | état initial
 istate ∷ State

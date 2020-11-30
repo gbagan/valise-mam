@@ -1,10 +1,11 @@
 module Game.Dessin.Model where
 
 import MyPrelude
-import Data.Argonaut.Decode (decodeJson, class DecodeJson)
-import Data.Argonaut.Encode (encodeJson, class EncodeJson)
+import Data.Argonaut.Decode (class DecodeJson, decodeJson)
+import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, GState, Objective(..), ShowWinPolicy(..),
-        updateScore', playA, coreUpdate, _ext, genState, newGame, _position, _scores, defaultSizeLimit)
+        updateScore', playA, coreUpdate, _ext, genState, newGame, _position, defaultSizeLimit,
+        loadFromJson', saveToJson')
 import Lib.Update (Update)
 import Lib.Util (pairwise)
 
@@ -231,11 +232,8 @@ instance game ∷ Game (Array Move) ExtState Move where
     isLevelFinished state = length (edgesOf (state^._position)) == length (state^._graph).edges
     updateScore = updateScore' ShowWinOnNewRecord
 
-    saveToJson st = Just $ encodeJson (st ^. _scores)
-    loadFromJson st json =
-        case decodeJson json of
-            Left _ → st
-            Right bestScore → st # set _scores bestScore 
+    saveToJson = saveToJson'
+    loadFromJson = loadFromJson'
 
     computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit

@@ -2,12 +2,11 @@ module Game.Labete.Model where
 import MyPrelude
 import Lib.Util (coords, repeat2, abs)
 import Lib.Update (Update, modify)
-import Data.Argonaut.Decode (decodeJson)
-import Data.Argonaut.Encode (encodeJson)
 import Game.Common (_isoCustom)
 import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, 
                  SizeLimit(..), GState, Objective(..), ShowWinPolicy(..), PointerPosition, Dialog(..),
-               playA, coreUpdate,  _ext, genState, newGame, _position, _nbRows, _scores, _nbColumns, _help, _dialog, updateScore')
+               playA, coreUpdate,  _ext, genState, newGame, _position, _nbRows, _nbColumns, _help, _dialog,
+               updateScore', saveToJson', loadFromJson')
 
 type Zone = { row1 ∷ Int, row2 ∷ Int, col1 ∷ Int, col2 ∷ Int}
 
@@ -169,11 +168,8 @@ instance game ∷ Game (Array Boolean) ExtState Int where
     sizeLimit _ = SizeLimit 2 2 9 9
 
     updateScore = updateScore' ShowWinOnNewRecord
-    saveToJson st = Just $ encodeJson (st ^. _scores)
-    loadFromJson st json =
-        case decodeJson json of
-            Left _ → st
-            Right bestScore → st # set _scores bestScore
+    saveToJson = saveToJson'
+    loadFromJson = loadFromJson'
 
     -- méthodes par défault
     computerMove _ = pure Nothing

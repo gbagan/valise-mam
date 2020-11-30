@@ -4,6 +4,8 @@ import MyPrelude
 
 import Data.Argonaut.Core (Json, stringify)
 import Data.Argonaut.Parser (jsonParser)
+import Data.Argonaut.Decode (class DecodeJson, decodeJson)
+import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.List (List(..))
 import Data.List as L
 import Data.Map (Map)
@@ -127,6 +129,19 @@ class Game pos ext mov | ext → pos mov where
     updateScore ∷ GState pos ext → Tuple (GState pos ext) Boolean
     saveToJson ∷ GState pos ext → Maybe Json
     loadFromJson ∷ GState pos ext → Json → GState pos ext
+
+-- | implémentation de saveToJson pour les jeux à score
+saveToJson' ∷ ∀pos ext. EncodeJson pos ⇒
+                GState pos ext → Maybe Json
+saveToJson' st = Just $ encodeJson (st ^. _scores)
+
+-- | implémentation de loadFromJson' pour les jeux à score
+loadFromJson' ∷ ∀pos ext. DecodeJson pos ⇒ 
+                GState pos ext → Json → GState pos ext
+loadFromJson' st json =
+    case decodeJson json of
+        Left _ → st
+        Right scores → st # set _scores scores
 
 canPlay ∷ ∀pos ext mov. Game pos ext mov ⇒ GState pos ext → mov → Boolean
 canPlay st mov = isJust (play st mov)

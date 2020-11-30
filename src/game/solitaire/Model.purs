@@ -1,17 +1,16 @@
 module Game.Solitaire.Model where
+
 import MyPrelude
+
 import Data.FoldableWithIndex (allWithIndex)
-import Data.Argonaut.Decode (decodeJson)
-import Data.Argonaut.Encode (encodeJson)
-import Lib.Update (Update, modify)
+import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, class ScoreGame, 
+                CoreMsg(ToggleHelp), DndMsg, GState, Objective(..), ShowWinPolicy(..), SizeLimit(..),
+                _customSize, _ext, _nbColumns, _nbRows, _position, canPlay, coreUpdate, dndUpdate, genState, newGame, 
+                saveToJson', updateScore', loadFromJson')
 import Lib.Random (Random)
 import Lib.Random as R
+import Lib.Update (Update, modify)
 import Lib.Util (repeat, repeat2, dCoords)
-import Game.Core (class Game, class ScoreGame, class MsgWithCore, class MsgWithDnd,
-                GState, SizeLimit(..), Objective(..), ShowWinPolicy(..),
-                CoreMsg(ToggleHelp),  DndMsg,
-                coreUpdate, dndUpdate,
-                _ext, genState, canPlay, _nbColumns, _nbRows, _customSize, _position, _scores, newGame, updateScore')
 
 type Move = {from ∷ Int, to ∷ Int}
 
@@ -141,12 +140,8 @@ instance solitaireGame ∷ Game (Array Boolean) ExtState {from ∷ Int, to ∷ I
         _ → SizeLimit 7 7 7 7
 
     updateScore = updateScore' AlwaysShowWin
-
-    saveToJson st = Just $ encodeJson (st ^. _scores)
-    loadFromJson st json =
-        case decodeJson json of
-            Left _ → st
-            Right bestScore → st # set _scores bestScore 
+    saveToJson = saveToJson'
+    loadFromJson = loadFromJson'
 
     computerMove _ = pure Nothing
     onPositionChange = identity

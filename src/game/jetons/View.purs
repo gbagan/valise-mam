@@ -1,8 +1,9 @@
 module Game.Jetons.View (view) where
 
 import MyPrelude
-import Pha (VDom, text, (<&&>), maybeN, key, class_, class', style)
-import Pha.Elements (div, span, br)
+import Pha (VDom)
+import Pha as H
+import Pha.Elements as HH
 import Pha.Util (pc, rgbColor)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, scoreFn)
 import Game.Jetons.Model (State, Msg, _dragged)
@@ -24,49 +25,50 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
         ,    iconBestScore state
         ]
 
-    cursor pp _ = div ([class_ "ui-cursor jetons-cursor"] <> cursorStyle pp rows columns 0.6) []
+    cursor pp _ = HH.div ([H.class_ "ui-cursor jetons-cursor"] <> cursorStyle pp rows columns 0.6) []
 
     piece i val props =
         let {row, col} = coords columns i in
-        div (
-        [   class_ "jetons-peg"
-        ,   class' "small" $ columns >= 8
-        ,   style "background-color" $ rgbColor 255 (floor $ 255.0 * (1.0 - sqrt (toNumber val / toNumber (rows * columns)))) 0
-        ,   style "left" $ pc $ (0.15 + toNumber col) / toNumber columns
-        ,   style "top" $ pc $ (0.15 + toNumber row) / toNumber rows
-        ,   style "width" $ pc $ 0.7 / toNumber columns
-        ,   style "height" $ pc $ 0.7 / toNumber rows
-        ,   style "box-shadow" $ show (val * 2) <> "px " <> show(val * 2) <> "px 5px 0px #656565"
-        ] <> props) [ span [] [text $ show val] ]
+        HH.div (
+        [   H.class_ "jetons-peg"
+        ,   H.class' "small" $ columns >= 8
+        ,   H.style "background-color" $ rgbColor 255 (floor $ 255.0 * (1.0 - sqrt (toNumber val / toNumber (rows * columns)))) 0
+        ,   H.style "left" $ pc $ (0.15 + toNumber col) / toNumber columns
+        ,   H.style "top" $ pc $ (0.15 + toNumber row) / toNumber rows
+        ,   H.style "width" $ pc $ 0.7 / toNumber columns
+        ,   H.style "height" $ pc $ 0.7 / toNumber rows
+        ,   H.style "box-shadow" $ show (val * 2) <> "px " <> show(val * 2) <> "px 5px 0px #656565"
+        ] <> props) [ HH.span [] [H.text $ show val] ]
 
     board = incDecGrid state [
-        div ([class_ "ui-board"] <> dndBoardProps <> gridStyle rows columns 3) $ concat
+        HH.div ([H.class_ "ui-board"] <> dndBoardProps <> gridStyle rows columns 3) $ concat
         [   position # mapWithIndex \i val →
-                val ≠ 0 <&&> \_ →
-                    piece i val ([key $ show i] <> 
+                H.when (val ≠ 0) \_ →
+                    piece i val ([H.key $ show i] <> 
                         dndItemProps state
                         {   currentDragged: dragged
                         ,   draggable: true
                         ,   droppable: true
                         ,   id: i
                         })
-        ,   [maybeN $ cursor <$> pointer <*> dragged]
+        ,   [H.maybeN $ cursor <$> pointer <*> dragged]
         ]
     ]
 
     scoreDialog _ = bestScoreDialog state \pos → [
-        div [class_ "ui-flex-center jetons-bestscore-grid-container"] [ 
-            div (gridStyle rows columns 3 <> [class_ "ui-board"]) (
-                pos # mapWithIndex \i val → val ≠ 0 <&&> \_ →
-                    piece i val [key $ show i]
+        HH.div [H.class_ "ui-flex-center jetons-bestscore-grid-container"] [ 
+            HH.div (gridStyle rows columns 3 <> [H.class_ "ui-board"]) (
+                pos # mapWithIndex \i val →
+                    H.when (val ≠ 0) \_ →
+                        piece i val [H.key $ show i]
             )
         ]
     ]
 
     rules = 
-        [   text "À chaque tour de ce jeu, tu peux déplacer une pile de jetons vers une case adjacente qui contient au moins autant de jetons."
-        ,   br
-        ,   text "Le but est de finir la partie avec le moins de cases contenant des piles de jetons."
+        [   H.text "À chaque tour de ce jeu, tu peux déplacer une pile de jetons vers une case adjacente qui contient au moins autant de jetons."
+        ,   HH.br
+        ,   H.text "Le but est de finir la partie avec le moins de cases contenant des piles de jetons."
     ]
 
     score = scoreFn state

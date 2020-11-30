@@ -6,7 +6,8 @@ import Lib.Util ((..), dCoords)
 import Game.Core (class Game, class ScoreGame, class MsgWithCore, class MsgWithDnd, CoreMsg, DndMsg,
                  GState, SizeLimit (..), Objective(..), ShowWinPolicy(..),
                 coreUpdate, dndUpdate,
-                _ext, genState, updateScore', _position, _nbColumns, _nbRows, defaultOnNewGame)
+                _ext, genState, updateScore', _position, _nbColumns, _nbRows, defaultOnNewGame,
+                saveToJson', loadFromJson')
 
 -- une position représente pour chaque numéro de case le nombre de jetons sur cette case
 -- un coup (move) est du type {from, to} lorsque l'on souhaite déplacer une pile de jetons 
@@ -51,17 +52,17 @@ instance game ∷ Game (Array Int) Ext { from ∷ Int, to ∷ Int } where
             x * (y + z) == 0
 
     sizeLimit _ = SizeLimit 1 2 6 12
+    updateScore = updateScore' AlwaysShowWin
+    saveToJson = saveToJson'
+    loadFromJson = loadFromJson'
 
     computerMove _ = pure Nothing
     onNewGame = defaultOnNewGame
-    updateScore = updateScore' AlwaysShowWin
     onPositionChange = identity
-    saveToJson _ = Nothing
-    loadFromJson st _ = st
 
 instance scoregame ∷ ScoreGame (Array Int) Ext { from ∷ Int, to ∷ Int } where
     objective state = Minimize
-    scoreFn = view _position >>> filter (_ > 0) >>> length
+    scoreFn = length ∘ filter (_ > 0) ∘ view _position
     scoreHash state = show (state^._nbRows) <> "-" <> show (state^._nbColumns)
     isCustomGame _ = false
 

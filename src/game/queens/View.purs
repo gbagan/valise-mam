@@ -33,8 +33,8 @@ square { piece, capturable, selected, nonavailable} props =
         ,   H.class' "queens-square-selected" selected
         ]) $
         if piece == Empty then [] else [
-            HH.svg [P.width "100%", P.height "100%", H.class_ "queens-piece"] [
-                HH.use [P.href $ "#piece-" <> show piece, P.x "10%", P.y "10%", P.width "80%", P.height "80%"]
+            HH.svg [P.width "100%", P.height "100%", P.viewBox 0 0 100 100, H.class_ "queens-piece"] [
+                HH.use [P.href $ "#piece-" <> show piece, P.x 10.0, P.y 10.0, P.width "80", P.height "80"]
             ]
         ]
 

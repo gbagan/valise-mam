@@ -58,9 +58,9 @@ spiralPath = spiral { x: 0.0, y: 0.0 } 0.0 61.0 0.0 (37.0 / 6.0 * pi) (pi / 6.0)
 drawSpiral ∷ ∀a. Array (H.VDom a)
 drawSpiral =
     [   HH.path [P.d spiralPath, P.fill "none", P.stroke "black", P.strokeWidth "3"]
-    ,   HH.line [P.x1 "153", P.y1 "9", P.x2 "207", P.y2 "20", P.stroke "black", P.strokeDasharray "5", P.strokeWidth "6"]
-    ,   HH.line [P.x1 "153", P.y1 "7", P.x2 "153", P.y2 "39", P.stroke "black", P.strokeWidth "3"]
-    ,   HH.line [P.x1 "207", P.y1 "18", P.x2 "207", P.y2 "50", P.stroke "black", P.strokeWidth "3"]
+    ,   HH.line [P.x1 153.0, P.y1 9.0, P.x2 207.0, P.y2 20.0, P.stroke "black", P.strokeDasharray "5", P.strokeWidth "6"]
+    ,   HH.line [P.x1 153.0, P.y1 7.0, P.x2 153.0, P.y2 39.0, P.stroke "black", P.strokeWidth "3"]
+    ,   HH.line [P.x1 207.0, P.y1 18.0, P.x2 207.0, P.y2 50.0, P.stroke "black", P.strokeWidth "3"]
     ]
 
 lily ∷ ∀a. Int → Number → Number → Boolean → Boolean → H.VDom a
@@ -72,14 +72,14 @@ lily i x y reachable hidden =
         ,   H.class' "hidden" hidden
     ]) where
     pos = if i == 0 then
-            [   P.x $ show (x - 30.0)
-            ,   P.y $ show (y - 45.0)
+            [   P.x $ x - 30.0
+            ,   P.y $ y - 45.0
             ,   P.width "80"
             ,   P.height "80"
             ] 
         else
-            [   P.x $ show (x - 24.0)
-            ,   P.y $ show (y - 24.0)
+            [   P.x $ x - 24.0
+            ,   P.y $ y - 24.0
             ,   P.width "48"
             ,   P.height "48"
             ]
@@ -117,8 +117,8 @@ view state = template {config, board, rules, winTitle} state where
                 ]
                 [   HH.use 
                     [   P.href "#frog2"
-                    ,   P.x "-20"
-                    ,   P.y "-20"
+                    ,   P.x (-20.0)
+                    ,   P.y (-20.0)
                     ,   P.width "40"
                     ,   P.height "40"
                     ,   H.class_ "frog-frog"
@@ -132,8 +132,8 @@ view state = template {config, board, rules, winTitle} state where
             H.when (mark && i ≠ position) \_ →
                 HH.use 
                 [   P.href "#frog2"
-                ,   P.x $ show (x - 20.0)
-                ,   P.y $ show (y - 20.0)
+                ,   P.x $ x - 20.0
+                ,   P.y $ y - 20.0
                 ,   P.width "32"
                 ,   P.height "32"
                 ,   H.key $ "reach" <> show i
@@ -149,7 +149,7 @@ view state = template {config, board, rules, winTitle} state where
             [   lily i x y false false
             ,   lily i x y true (not reach || locked)
             ,   HH.text (if help then show $ nbRows - i else "")
-                [   P.x $ show x, P.y $ show y, H.class_ "frog-index"
+                [   P.x x, P.y y, H.class_ "frog-index"
                 ]
             ]
 

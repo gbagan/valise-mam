@@ -35,8 +35,8 @@ cursor pp _ = HH.use $
                 ,   P.href "#roman"
                 ,   P.width "6"
                 ,   P.height "12"
-                ,   P.x "-3"
-                ,   P.y "-6"
+                ,   P.x (-3.0)
+                ,   P.y (-6.0)
                 ,   H.style "pointer-events" "none"
                 ] <> svgCursorStyle pp
 
@@ -88,10 +88,10 @@ drawArrow x1 x2 y1 y2 =
         []
         [   HH.line 
             [   -- key?
-                P.x1 $ show x1
-            ,   P.y1 $ show y1
-            ,   P.x2 $ show x2
-            ,   P.y2 $ show y2
+                P.x1 x1
+            ,   P.y1 y1
+            ,   P.x2 x2
+            ,   P.y2 y2
             ,   H.class_ "dessin-line2"
             ]
         ,   HH.path [P.d arrowPath, P.fill "red"]
@@ -133,10 +133,10 @@ view state = template {config, board, rules, winTitle} state where
                             H.maybe (getCoordsOfEdge graph edge) \{x1, x2, y1, y2} →
                                 HH.line 
                                 [   -- key?
-                                    P.x1 $ show (100.0 * x1)
-                                ,   P.y1 $ show (100.0 * y1)
-                                ,   P.x2 $ show (100.0 * x2)
-                                ,   P.y2 $ show (100.0 * y2)
+                                    P.x1 $ 100.0 * x1
+                                ,   P.y1 $ 100.0 * y1
+                                ,   P.x2 $ 100.0 * x2
+                                ,   P.y2 $ 100.0 * y2
                                 ,   H.class_ "dessin-line1"
                                 ]
                 ,   H.when (grules == ManyGuards) \_ →
@@ -149,9 +149,9 @@ view state = template {config, board, rules, winTitle} state where
                         graph.vertices # mapWithIndex \i {x, y} →
                             HH.circle $
                             [   H.key $ show i
-                            ,   P.cx $ show (100.0 * x)
-                            ,   P.cy $ show (100.0 * y)
-                            ,   P.r "3"
+                            ,   P.cx $ 100.0 * x
+                            ,   P.cy $ 100.0 * y
+                            ,   P.r 3.0
                             ,   P.fill "blue"
                             ]
                 ,   HH.g [] $
@@ -161,8 +161,8 @@ view state = template {config, board, rules, winTitle} state where
                             ,   P.href "#roman"
                             ,   P.width "6"
                             ,   P.height "12"
-                            ,   P.x "-3"
-                            ,   P.y "-6"
+                            ,   P.x (-3.0)
+                            ,   P.y (-6.0)
                             ,   H.class_ "eternal-guard"
                             ,   H.class' "no-move" (phase == PrepPhase)
                             ,   H.style "transform" $ fromMaybe "none" (translateGuard <$> getCoords graph index)
@@ -173,8 +173,8 @@ view state = template {config, board, rules, winTitle} state where
                         ,   P.href "#eternal-attack"
                         ,   P.width "8"
                         ,   P.height "8"
-                        ,   P.x "-4"
-                        ,   P.y "-4"
+                        ,   P.x (-4.0)
+                        ,   P.y (-4.0)
                         ,   H.style "transform" $ fromMaybe "none" (translateGuard <$> getCoords graph attack)
                         ,   H.style "pointer-events" "none"
                         ]
@@ -185,8 +185,8 @@ view state = template {config, board, rules, winTitle} state where
                             [   H.key $ show i
                             ,   P.width "10"
                             ,   P.height "10"
-                            ,   P.x "-5"
-                            ,   P.y "-5"
+                            ,   P.x (-5.0)
+                            ,   P.y (-5.0)
                             ,   P.fill "transparent"
                             ,   H.style "transform" $ translateGuard pos
                             ,   E.onclick' $ if grules == ManyGuards && isJust position.attacked then Nothing else Just (Play i)

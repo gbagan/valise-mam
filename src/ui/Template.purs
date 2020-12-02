@@ -1,6 +1,7 @@
 module UI.Template where
 import MyPrelude
-import Pha (VDom, Prop, text, emptyNode, (<??>), class_, class', style)
+import Pha (VDom, Prop, text, emptyNode, class_, class', style)
+import Pha as H
 import Pha.Elements (div)
 import Pha.Events as E
 import Pha.Util (pc, translate)
@@ -102,7 +103,7 @@ dialog title = D.dialog {title, onCancel: Nothing, onOk: Just $ core SetNoDialog
 
 bestScoreDialog ∷ ∀msg pos ext mov. MsgWithCore msg ⇒ ScoreGame pos ext mov ⇒  
                     GState pos ext → (pos → Array (VDom msg)) → VDom msg
-bestScoreDialog state children = snd <$> bestScore state <??> \pos →
+bestScoreDialog state children = H.maybe (snd <$> bestScore state) \pos →
     dialog "Meilleur score" (children pos)
         
 

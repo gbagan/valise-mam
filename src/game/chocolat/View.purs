@@ -38,9 +38,9 @@ view state = template {config, board, rules, winTitle} state where
 
     cutter row col move =
         HH.circle
-        [   P.cx $ show (50.0 * toNumber col)
-        ,   P.cy $ show (50.0 * toNumber row)
-        ,   P.r "7"
+        [   P.cx $ 50.0 * toNumber col
+        ,   P.cy $ 50.0 * toNumber row
+        ,   P.r 7.0
         ,   H.key $ "c" <> show (row * (columns + 1) + col)
         ,   H.class_ "chocolat-cutter"
         ,   E.onpointerenter $ SetHover (Just move)
@@ -66,8 +66,8 @@ view state = template {config, board, rules, winTitle} state where
                     FromBottom i → [cutter i pos.left (FromBottom i), cutter i pos.right (FromBottom i)],
                 [   HH.use 
                     [   P.href "#skull"
-                    ,   P.x $ show (50 * soapCol + 12)
-                    ,   P.y $ show (50 * soapRow + 12)
+                    ,   P.x $ toNumber (50 * soapCol + 12)
+                    ,   P.y $ toNumber (50 * soapRow + 12)
                     ,   P.width "26"
                     ,   P.height "26"
                     ,   H.key "skull"
@@ -76,10 +76,10 @@ view state = template {config, board, rules, winTitle} state where
                 ,   H.maybe (state^._moveWhenHover) \m →
                         let {x1, x2, y1, y2} = cutLine state m in
                         HH.line
-                        [   P.x1 $ show (50 * x1)
-                        ,   P.y1 $ show (50 * y1)
-                        ,   P.x2 $ show (50 * x2)
-                        ,   P.y2 $ show (50 * y2)
+                        [   P.x1 $ toNumber (50 * x1)
+                        ,   P.y1 $ toNumber (50 * y1)
+                        ,   P.x2 $ toNumber (50 * x2)
+                        ,   P.y2 $ toNumber (50 * y2)
                         ,   H.key "line"
                         ,   H.class_ "chocolat-cut-line"
                         ]

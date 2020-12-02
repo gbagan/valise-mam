@@ -20,7 +20,7 @@ tricolor i columns help =
         _ → "green"
 
 cursor ∷ ∀a b. PointerPosition → b → H.VDom a
-cursor pp _ = HH.circle ([P.r "20", H.class_ "solitaire-cursor"] <> svgCursorStyle pp)
+cursor pp _ = HH.circle ([P.r 20.0, H.class_ "solitaire-cursor"] <> svgCursorStyle pp)
 
 view ∷ State → H.VDom Msg
 view state = template {config, board, rules, winTitle, scoreDialog} state where
@@ -61,8 +61,8 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
     drawHole i = 
         [   H.when (help > 0 && not isCircleBoard) \_ →
                 HH.rect
-                [   P.x "-25"
-                ,   P.y "-25"
+                [   P.x (-25.0)
+                ,   P.y (-25.0)
                 ,   P.width "50"
                 ,   P.height "50"
                 ,   H.key $ "rect" <> show i
@@ -71,7 +71,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                 ]
         ,   HH.circle (
             [   H.key $ "h" <> show i
-            ,   P.r "17"
+            ,   P.r 17.0
             ,   H.class_ "solitaire-hole"
             ,   H.style "transform" (itemStyle i)
             ] <> dndItemProps state 
@@ -85,7 +85,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
 
     drawPeg i =
         HH.circle (
-        [   P.r "20"
+        [   P.r 20.0
         ,   H.key $ "p" <> show i
         ,   H.class_ "solitaire-peg"
         ,   H.style "transform" $ itemStyle i
@@ -109,7 +109,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
             ))
         [   HH.svg [if isCircleBoard then P.viewBox 0 0 250 250 else P.viewBox 0 0 (50 * columns) (50 * rows)] $ concat
             [   [H.when isCircleBoard \_ →
-                    HH.circle [P.cx "125", P.cy "125", P.r "90", H.class_ "solitaire-circle"]
+                    HH.circle [P.cx 125.0, P.cy 125.0, P.r 90.0, H.class_ "solitaire-circle"]
                 ]
             ,   concat $ holes # mapWithIndex \i hasHole →
                     if hasHole then drawHole i else []
@@ -131,16 +131,16 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
             [   HH.svg [if isCircleBoard then P.viewBox 0 0 250 250 else P.viewBox 0 0 (50 * columns) (50 * rows)] $ concat
                 [   [H.when isCircleBoard \_ →
                         HH.circle 
-                        [   P.cx "125"
-                        ,   P.cy "125"
-                        ,   P.r "90"
+                        [   P.cx 125.0
+                        ,   P.cy 125.0
+                        ,   P.r 90.0
                         ,   H.class_ "solitaire-circle"
                         ]
                     ]
                 ,   holes # mapWithIndex \i → (_ `H.when` \_ →
                         HH.circle
                         [   H.key $ "h" <> show i
-                        ,   P.r "17"
+                        ,   P.r 17.0
                         ,   H.class_ "solitaire-hole"
                         ,   H.style "transform" $ itemStyle i
                         ]
@@ -148,7 +148,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                 ,   bestPosition # mapWithIndex \i → (_ `H.when` \_ →
                         HH.circle
                         [   H.key $ "p" <> show i
-                        ,   P.r "20"
+                        ,   P.r 20.0
                         ,   H.class_ "solitaire-peg"
                         ,   H.style "transform" $ itemStyle i
                         ]

@@ -15,10 +15,10 @@ import UI.Icons (icongroup, iconSelectGroup, iconBestScore, iundo, iredo, ireset
 currentLine ∷ ∀a. Position → Position → H.VDom a
 currentLine p1 p2 =
     HH.line
-    [   P.x1 $ show (100.0 * p1.x)
-    ,   P.y1 $ show (100.0 * p1.y)
-    ,   P.x2 $ show (20.0 * p2.x)
-    ,   P.y2 $ show (20.0 * p2.y)
+    [   P.x1 $ 100.0 * p1.x
+    ,   P.y1 $ 100.0 * p1.y
+    ,   P.x2 $ 20.0 * p2.x
+    ,   P.y2 $ 20.0 * p2.y
     ,   H.class_ "dessin-line-to-pointer"
     ]
 
@@ -56,27 +56,27 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                 [   graph.edges <#> \edge →
                     H.maybe (getCoordsOfEdge graph edge) \{px1, px2, py1, py2} →
                         HH.line 
-                        [   P.x1 $ show (20.0 * px1)
-                        ,   P.y1 $ show (20.0 * py1)
-                        ,   P.x2 $ show (20.0 * px2)
-                        ,   P.y2 $ show (20.0 * py2)
+                        [   P.x1 $ 20.0 * px1
+                        ,   P.y1 $ 20.0 * py1
+                        ,   P.x2 $ 20.0 * px2
+                        ,   P.y2 $ 20.0 * py2
                         ,   H.class_ "dessin-line1"
                         ]
                 ,   edgesOf (state^._position) <#> \edge →
                     H.maybe (getCoordsOfEdge graph edge) \{px1, px2, py1, py2} → 
                         HH.line
-                        [   P.x1 $ show (20.0 * px1)
-                        ,   P.y1 $ show (20.0 * py1)
-                        ,   P.x2 $ show (20.0 * px2)
-                        ,   P.y2 $ show (20.0 * py2)
+                        [   P.x1 $ 20.0 * px1
+                        ,   P.y1 $ 20.0 * py1
+                        ,   P.x2 $ 20.0 * px2
+                        ,   P.y2 $ 20.0 * py2
                         ,   H.class_ "dessin-line2"
                         ]
                 ,   if not levelFinished then
                         graph.vertices # mapWithIndex \i {x, y} →
                             HH.circle
-                            [   P.cx $ show (20.0 * x)
-                            ,   P.cy $ show (20.0 * y)
-                            ,   P.r "3"
+                            [   P.cx $ 20.0 * x
+                            ,   P.cy $ 20.0 * y
+                            ,   P.r 3.0
                             ,   P.stroke $ if Just (MoveTo i) == last position then "red" else "blue"
                             ,   P.fill "blue"
                             ,   E.onclick $ Play (MoveTo i)
@@ -109,17 +109,17 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
             [   graph.edges <#> \edge →
                 H.maybe (getCoordsOfEdge graph edge) \{px1, px2, py1, py2} →
                     HH.line 
-                    [   P.x1 $ show (20.0 * px1)
-                    ,   P.y1 $ show (20.0 * py1)
-                    ,   P.x2 $ show (20.0 * px2)
-                    ,   P.y2 $ show (20.0 * py2)
+                    [   P.x1 $ 20.0 * px1
+                    ,   P.y1 $ 20.0 * py1
+                    ,   P.x2 $ 20.0 * px2
+                    ,   P.y2 $ 20.0 * py2
                     ,   H.class_ "dessin-line2"
                     ]
             ,   edgesOf bestPos # mapWithIndex \i edge →
                 H.maybe (getCoordsOfEdge graph edge) \{px1, px2, py1, py2} → 
                     HH.text (show (i + 1))
-                    [   P.x $ show (10.0 * (px1 + px2))
-                    ,   P.y $ show (10.0 * (py1 + py2) + 2.0)
+                    [   P.x $ 10.0 * (px1 + px2)
+                    ,   P.y $ 10.0 * (py1 + py2) + 2.0
                     ,   H.class_ "dessin-edge-no"
                     ]
             ]

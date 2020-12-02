@@ -112,7 +112,7 @@ gameWrap core map msgmap = unsafeCoerce {core, map, msgmap}
 gameRun ∷ ∀r. (∀st msg. GameWrapperF st msg → r) → GameWrapper → r
 gameRun = unsafeCoerce
    
-games ∷ Map.Map String GameWrapper
+games ∷ Map String GameWrapper
 games = Map.fromFoldable 
     [   "baseball"  ∧ gameWrap Baseball.game  _.baseball  BaseballMsg
     ,   "chocolat"  ∧ gameWrap Chocolat.game  _.chocolat  ChocolatMsg

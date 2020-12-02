@@ -23,8 +23,8 @@ colors = ["#5aa02c", "blue", "red", "yellow", "magenta", "cyan", "orange", "dark
 zone ∷ ∀a. Int → {x ∷ Number, y ∷ Number} → {x ∷ Number, y ∷ Number} → H.VDom a
 zone color { x: x1, y: y1 }  {x: x2, y: y2 } =
     HH.rect 
-    [   P.x $ pc (min x1 x2)
-    ,   P.y $ pc (min y1 y2)
+    [   H.attr "x" $ pc (min x1 x2)
+    ,   H.attr "y" $ pc (min y1 y2)
     ,   P.width $ pc $ abs (x2 - x1)
     ,   P.height $ pc $ abs (y2 - y1)
     ,   H.key "zone"
@@ -40,9 +40,9 @@ square { color, hasTrap, hasBeast, row, col } props =
     HH.g ([P.transform $ translate (show $ 50 * col) (show $ 50 * row)] <> props)
     [   HH.use [P.href "#grass", P.width "50", P.height "50", P.fill $ colors !! color # fromMaybe ""]
     ,   HH.rect [P.width "51", P.height "51",  H.class_ "labete-square-borders"]
-    ,   HH.use [P.href "#paw", P.x "5", P.y "5", P.width "40", P.height "40", H.class_ "labete-beast", H.class' "visible" hasBeast]
+    ,   HH.use [P.href "#paw", P.x 5.0, P.y 5.0, P.width "40", P.height "40", H.class_ "labete-beast", H.class' "visible" hasBeast]
     ,   H.when hasTrap \_ →
-            HH.use [P.href "#trap", P.x "5", P.y "5", P.width "40", P.height "40"]
+            HH.use [P.href "#trap", P.x 5.0, P.y 5.0, P.width "40", P.height "40"]
     ]
 
 ihelp ∷ State → H.VDom Msg
@@ -81,11 +81,11 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
     cursor pp = HH.use (svgCursorStyle pp <>
         [   H.key "cursor"
         ,   P.href "#trap"
-        ,   P.x "-20"
-        ,   P.y "-20"
+        ,   P.x (-20.0)
+        ,   P.y (-20.0)
         ,   P.width "40"
         ,   P.height "40"
-        ,   P.opacity "0.7" -- todo state.position[state.squareHover] ? 0.3 : 0.7,
+        ,   P.opacity 0.7 -- todo state.position[state.squareHover] ? 0.3 : 0.7,
         ,   H.attr "pointer-events" "none"
     ])
 

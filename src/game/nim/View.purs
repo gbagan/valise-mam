@@ -32,7 +32,7 @@ view state = template {config, board, rules, winTitle} state where
         [   H.key $ "pile" <> show i
         ,   H.class_ "nim-row"
         ,   H.class_ $ if length == 5 then "nim-row-5" else "nim-row-10"
-        ,   P.y $ show (10 + 19 * i)
+        ,   P.y $ toNumber (10 + 19 * i)
         ]
 
     drawSquare i j =

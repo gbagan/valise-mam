@@ -38,7 +38,7 @@ valise state =
         ,   object { symbol: "bulbon", link: Just "noirblanc", help: "Jeu: tour noir, tout blanc", drag: false } 
                     477 280 48 48
                     [   H.attr "transition" "opacity 0.5s"
-                    ,   H.attr "opacity" $ if state.isSwitchOn then "1" else "0"
+                    ,   P.opacity $ if state.isSwitchOn then 1.0 else 0.0
                     ,   H.style "pointer-events" $ if state.isSwitchOn then "all" else "none"
                     ]
                     []
@@ -46,19 +46,11 @@ valise state =
                     549 320 40 40
                     [   P.fill "#bcd35f"
                     ]
-                    [P.x "10%", P.y "20%", P.width "80%", P.height "80%"]
-        ,   object { symbol: "flowerpot", link: Nothing, help: "Quelque chose se cache derrière ce pot", drag: true}
-                    533 300 64 64
-                    []
-                    []
+                    [P.x 10.0, P.y 20.0, P.width "80%", P.height "80%"]
         ,   object { symbol: "hanoibot", link: Just "solitaire", help: "Jeu: solitaire", drag: false}
                     500 430 75 51
                     []
-                    [P.x "30%", P.y "20%", P.width "40%", P.height "40%"]
-        ,   object { symbol: "hanoitop", link: Nothing, help: "Quelque chose se cache sous cette tour", drag: true}
-                    507 409 60 57
-                    []
-                    []
+                    [H.attr "x" "30%", H.attr "y" "20%", P.width "40%", P.height "40%"]
         ,   object {symbol: "knight", link: Just "queens", help: "Jeu: les 8 reines", drag: false}
                     461 380 24 48
                     [P.transform "rotate(40)"]
@@ -97,7 +89,7 @@ valise state =
                     []
         ,   object {symbol: "paw", link: Just "labete", help: "Jeu: la bête", drag: false}
                     300 180 40 40
-                    [P.transform "rotate(30)", H.attr "opacity" "0.5"]
+                    [P.transform "rotate(30)", P.opacity 0.5]
                     []
         ,   object {symbol: "quiet", link: Just "sansmot", help: "Jeu: preuve sans mot", drag: false}
                     180 130 50 50
@@ -110,6 +102,15 @@ valise state =
         ,   object {symbol: "chocolate", link: Just "chocolat", help: "Jeu: chocolat", drag: false}
                     200 200 60 60
                     [P.transform "rotate(40)"]
+                    []
+
+        ,   object { symbol: "flowerpot", link: Nothing, help: "Quelque chose se cache derrière ce pot", drag: true}
+                    533 300 64 64
+                    []
+                    []
+        ,   object { symbol: "hanoitop", link: Nothing, help: "Quelque chose se cache sous cette tour", drag: true}
+                    507 409 60 57
+                    []
                     []
         ]
     ] where

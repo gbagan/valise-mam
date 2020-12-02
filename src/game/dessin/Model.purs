@@ -247,7 +247,7 @@ instance scoregame ∷ ScoreGame (Array Move) ExtState Move where
 
 -- | nombre de levés de crayon déjà effectués
 nbRaises ∷ State → Int
-nbRaises = view _position >>> filter (_ == Raise) >>> length
+nbRaises =  length ∘ filter (_ == Raise) ∘ view _position
 
 data Msg = Core CoreMsg | SetGraphIndex Int | Play Move
 instance withcore ∷ MsgWithCore Msg where core = Core

@@ -25,7 +25,7 @@ square {darken, trap, door, x, y} props =
         ,   H.class' "visible" (trap && not door)
         ])
     ]
-    where pos = [P.x $ show x, P.y $ show y, P.width "100", P.height "100"]
+    where pos = [P.x x, P.y y, P.width "100", P.height "100"]
 
 doorCursor ∷ ∀a. PointerPosition → H.VDom a
 doorCursor pp =
@@ -33,8 +33,8 @@ doorCursor pp =
     [   P.href "#paths-door" 
     ,   H.key "cdoor"
     ,   H.class_ "paths-cursor"
-    ,   P.x "-50"
-    ,   P.y "-50"
+    ,   P.x (-50.0)
+    ,   P.y (-50.0)
     ,   P.width "100"
     ,   P.height "100"
     ] <> svgCursorStyle pp
@@ -45,8 +45,8 @@ heroCursor pp =
     [   P.href "#meeplehat"
     ,   H.key "chero"
     ,   H.class_ "paths-cursor"
-    ,   P.x "-40"
-    ,   P.y "-40"
+    ,   P.x (-40.0)
+    ,   P.y (-40.0)
     ,   P.width "80"
     ,   P.height "80"
     ] <> svgCursorStyle pp

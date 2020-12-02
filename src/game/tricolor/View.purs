@@ -39,7 +39,7 @@ view state = template {config, board, rules} state where
 
     drawCell i color =
         HH.circle 
-        [   P.r "7.5"
+        [   P.r 7.5
         ,   H.class_ "tricolor-cell"
         ,   H.class' "finished" levelFinished
         ,   P.stroke $ if (inRange state i <$> hoverCell) == Just true then "lightgreen" else "black"
@@ -54,20 +54,20 @@ view state = template {config, board, rules} state where
     drawColorCycle =
         (take nbColors colors # foldMapWithIndex \i color →
                 [   HH.circle
-                    [   P.cx $ show (95 + 15 * (i - nbColors))
-                    ,   P.cy "95"
-                    ,   P.r "3"
+                    [   P.cx $ toNumber (95 + 15 * (i - nbColors))
+                    ,   P.cy 95.0
+                    ,   P.r 3.0
                     ,   H.key $ "c" <> show i
                     ,   P.fill color
                     ]
                 ,   HH.text "⮕"
-                    [   P.x $ show (99 + 15 * (i - nbColors))
-                    ,   P.y "97"
+                    [   P.x $ toNumber (99 + 15 * (i - nbColors))
+                    ,   P.y 97.0
                     ,   H.key $ "t" <> show i
                     ,   H.attr "font-size" "7"
                     ]
                 ]
-        ) <> [HH.circle [P.cx "95", P.cy "95", P.r "3", H.key "fc", P.fill "green"]]
+        ) <> [HH.circle [P.cx 95.0, P.cy 95.0, P.r 3.0, H.key "fc", P.fill "green"]]
 
     board =
         HH.div [H.class_ "ui-board tricolor-board"]

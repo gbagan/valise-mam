@@ -1,6 +1,6 @@
 module Game.Sansmot.Model where
 import MyPrelude
-import Data.Map(Map, empty) as M
+import Data.Map as Map
 import Lib.Update (Update, get, modify, delay)
 
 data Page = PythaPage | CarollPage
@@ -31,7 +31,7 @@ carollAnimation =
 
 
 type State = {
-    anim ∷ M.Map String Int,
+    anim ∷ Map String Int,
     locked ∷ Boolean,
     --dialog: null,
     page ∷ Page
@@ -39,12 +39,12 @@ type State = {
 
 istate ∷ State
 istate = 
-    {   anim: M.empty
+    {   anim: Map.empty
     ,   locked: false
     ,   page: CarollPage
     }
 
-_anim ∷ Lens' State (M.Map String Int)
+_anim ∷ Lens' State (Map String Int)
 _anim = prop (SProxy ∷ _ "anim")
 _locked ∷ Lens' State Boolean
 _locked = prop (SProxy ∷ _ "locked")
@@ -65,10 +65,10 @@ update (SetPage page) = modify \st →
         st
     else
         st # set _page page 
-           # set _anim M.empty
+           # set _anim Map.empty
 
 update (Animate animation) = lockAction do
-        modify $ set _anim M.empty 
+        modify $ set _anim Map.empty 
         for_ animation \(Step d key step) → do
             delay d
             modify $ set (_anim ∘ at key) (Just step)

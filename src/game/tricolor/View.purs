@@ -9,7 +9,8 @@ import Pha.Elements as HH
 import Pha.Attributes as P
 import Pha.Events as E
 import Pha.Util (pc, translate)
-import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
+import UI.Icon (Icon(..))
+import UI.Icons (iconbutton, icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 import UI.Template (template, card)
 
 colors ∷ Array String
@@ -19,6 +20,13 @@ translateCell ∷ Int → Int → String
 translateCell i size = translate (pc x) (pc y) where
     x = 0.50 + 0.35 * cos (toNumber i * 2.0 * pi / toNumber size)
     y = 0.45 + 0.35 * sin (toNumber i * 2.0 * pi / toNumber size)
+
+irandom ∷ State → H.VDom Msg
+irandom state =
+    iconbutton
+        state {icon: IconSymbol "#shuffle", tooltip: Just "Mélanger"}
+        [   E.onclick Shuffle
+        ]
 
 view ∷ State → H.VDom Msg
 view state = template {config, board, rules} state where
@@ -34,7 +42,7 @@ view state = template {config, board, rules} state where
         [   iconSelectGroup state "Nombre de lumières" [4, 5, 6, 7, 8] size SetSize (const identity)
         ,   iconSelectGroup state "Nombre de couleurs" [2, 3, 4, 5] nbColors SetNbColors (const identity)
         ,   iconSelectGroup state "Portée" [1, 2, 3] range SetRange (const identity)
-        ,   icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> (_ $ state)
+        ,   icongroup "Options" $ [ iundo, iredo, ireset, irandom, irules ] <#> (_ $ state)
         ]
 
     drawCell i color =

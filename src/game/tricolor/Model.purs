@@ -1,11 +1,11 @@
 module Game.Tricolor.Model where
 
 import MyPrelude
-import Lib.Util (abs)
+
+import Game.Core (class Game, class MsgWithCore, GState, CoreMsg, coreUpdate, playA, _ext, genState, newGame, _position, defaultSizeLimit)
 import Lib.Random as R
 import Lib.Update (Update, modify)
-import Game.Core (class Game, class MsgWithCore, GState, CoreMsg,
-                coreUpdate, playA, _ext, genState, newGame, _position, defaultSizeLimit)
+import Lib.Util (abs)
 
 -- une position est un tableau qui indique pour chaque sommmet la couleur du sommet
 -- les couleurs sont comprises entre 0 et nbColors - 1
@@ -17,7 +17,8 @@ type Ext' = {
     size ∷ Int,   -- le nombre de sommets
     nbColors ∷ Int,
     range ∷ Int,  -- le rayon autour du sommet activé pour lequel tous les sommets changent de couleurs
-    hoverCell ∷ Maybe Int
+    hoverCell ∷ Maybe Int,
+    shuffle ∷ Boolean
 }
 newtype ExtState = Ext Ext'
 type State = GState (Array Int) ExtState
@@ -31,12 +32,14 @@ _nbColors ∷ Lens' State Int
 _nbColors = _ext' ∘ prop (SProxy ∷ _ "nbColors")
 _range ∷ Lens' State Int
 _range = _ext' ∘ prop (SProxy ∷ _ "range")
+_shuffle ∷ Lens' State Boolean
+_shuffle = _ext' ∘ prop (SProxy ∷ _ "shuffle")
 _hoverCell ∷ Lens' State (Maybe Int)
 _hoverCell = _ext' ∘ prop (SProxy ∷ _ "hoverCell")
 
 -- | état initial
 istate ∷ State
-istate = genState [] identity (Ext { size: 5, nbColors: 2, range: 1, hoverCell: Nothing })
+istate = genState [] identity (Ext { size: 5, nbColors: 2, range: 1, shuffle: false, hoverCell: Nothing })
 
 -- | teste si le sommet i' va changer de couleur si on active le sommet i
 inRange ∷ State → Int → Int → Boolean
@@ -51,10 +54,16 @@ instance tricolorGame ∷ Game (Array Int) ExtState Int where
             (color + 1) `mod` (state^._nbColors)
         else
             color
-    initialPosition state = replicateA (state^._size) (R.int' (state^._nbColors))
+    initialPosition = pure <<< view _position
     isLevelFinished state = state^._position # all (_ == 0)
 
-    onNewGame = pure
+    onNewGame state = do
+        position <- if state^._shuffle then 
+                                replicateA (state^._size) (R.int' (state^._nbColors))
+                            else
+                                pure $ replicate (state^._size) 1
+        pure $ state # set _position position # set _shuffle false
+
     computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
     updateScore st = st ∧ true 
@@ -63,7 +72,7 @@ instance tricolorGame ∷ Game (Array Int) ExtState Int where
     loadFromJson st _ = st
 
 
-data Msg = Core CoreMsg | Play Int | SetSize Int | SetNbColors Int | SetRange Int | SetHoverCell (Maybe Int)
+data Msg = Core CoreMsg | Play Int | SetSize Int | SetNbColors Int | SetRange Int | SetHoverCell (Maybe Int) | Shuffle
 instance withcore ∷ MsgWithCore Msg where core = Core
   
 update ∷ Msg → Update State
@@ -73,3 +82,4 @@ update (SetSize size) = newGame $ set _size size
 update (SetNbColors n) = newGame $ set _nbColors n
 update (SetRange n) = newGame $ set _range n
 update (SetHoverCell i) = modify $ set _hoverCell i
+update Shuffle = newGame $ set _shuffle true

@@ -1,7 +1,7 @@
 module Game.Valise.Model where
 import MyPrelude
 import Lib.Update (Update, put, modify, delay)
-import Data.Map (Map, empty) as M
+import Data.Map as Map
 
 type State = 
     {   isOpen ∷ Boolean
@@ -9,7 +9,7 @@ type State =
     ,   help ∷ String --- Maybe?
     ,   helpVisible ∷ Boolean
     ,   drag ∷ Maybe { name ∷ String, x ∷ Number, y ∷ Number }
-    ,   positions ∷ M.Map String {x ∷ Number, y ∷ Number}
+    ,   positions ∷ Map String {x ∷ Number, y ∷ Number}
     ,   isSwitchOn ∷ Boolean
     }
 
@@ -20,7 +20,7 @@ istate =
     ,   help: ""
     ,   helpVisible: false
     ,   drag: Nothing
-    ,   positions: M.empty
+    ,   positions: Map.empty
     ,   isSwitchOn: false
     }
 
@@ -28,7 +28,7 @@ _help ∷ Lens' State String
 _help = prop (SProxy ∷ _ "help")
 _helpVisible ∷ Lens' State Boolean
 _helpVisible = prop (SProxy ∷ _ "helpVisible")
-_positions ∷ Lens' State (M.Map String {x ∷ Number, y ∷ Number})
+_positions ∷ Lens' State (Map String {x ∷ Number, y ∷ Number})
 _positions = prop (SProxy ∷ _ "positions")
 _drag ∷ Lens' State (Maybe { name ∷ String, x ∷ Number, y ∷ Number })
 _drag = prop (SProxy ∷ _ "drag")

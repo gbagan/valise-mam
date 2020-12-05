@@ -54,16 +54,15 @@ instance tricolorGame ∷ Game (Array Int) ExtState Int where
             (color + 1) `mod` (state^._nbColors)
         else
             color
-    initialPosition = pure <<< view _position
-    isLevelFinished state = state^._position # all (_ == 0)
-
-    onNewGame state = do
-        position <- if state^._shuffle then 
+    
+    initialPosition state = if state^._shuffle then 
                                 replicateA (state^._size) (R.int' (state^._nbColors))
                             else
                                 pure $ replicate (state^._size) 1
-        pure $ state # set _position position # set _shuffle false
+    
+    isLevelFinished state = state^._position # all (_ == 0)
 
+    onNewGame = pure
     computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
     updateScore st = st ∧ true 
@@ -82,4 +81,4 @@ update (SetSize size) = newGame $ set _size size
 update (SetNbColors n) = newGame $ set _nbColors n
 update (SetRange n) = newGame $ set _range n
 update (SetHoverCell i) = modify $ set _hoverCell i
-update Shuffle = newGame $ set _shuffle true
+update Shuffle = newGame $ over _shuffle not

@@ -3,7 +3,7 @@ module Game.Tricolor.View where
 import MyPrelude
 import Data.FoldableWithIndex (foldMapWithIndex)
 import Game.Core (isLevelFinished, _position)
-import Game.Tricolor.Model (State, Msg(..), _size, _nbColors, _range, _hoverCell, inRange)
+import Game.Tricolor.Model (State, Msg(..), _size, _nbColors, _range, _hoverCell, _shuffle, inRange)
 import Pha as H
 import Pha.Elements as HH
 import Pha.Attributes as P
@@ -24,7 +24,7 @@ translateCell i size = translate (pc x) (pc y) where
 irandom ∷ State → H.VDom Msg
 irandom state =
     iconbutton
-        state {icon: IconSymbol "#shuffle", tooltip: Just "Mélanger"}
+        state {icon: IconSymbol "#shuffle", tooltip: Just "Mélanger", selected: state^._shuffle}
         [   E.onclick Shuffle
         ]
 

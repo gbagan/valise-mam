@@ -68,11 +68,11 @@ view state = template {config, board, rules} state where
                     ,   H.key $ "c" <> show i
                     ,   P.fill color
                     ]
-                ,   HH.text "⮕"
-                    [   P.x $ toNumber (99 + 15 * (i - nbColors))
-                    ,   P.y 97.0
+                ,   HH.path
+                    [   P.d "M0 2H4V0l3 3l-3 3v-2h-4Z"
+                    ,   P.fill "black"
+                    ,   P.transform $ translate (show $ 99 + 15 * (i - nbColors)) "92"
                     ,   H.key $ "t" <> show i
-                    ,   H.attr "font-size" "7"
                     ]
                 ]
         ) <> [HH.circle [P.cx 95.0, P.cy 95.0, P.r 3.0, H.key "fc", P.fill "green"]]

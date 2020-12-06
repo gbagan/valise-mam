@@ -1,9 +1,9 @@
 module Game.Tricolor.Model where
 
 import MyPrelude
-
-import Game.Core (class Game, class MsgWithCore, GState, CoreMsg, coreUpdate, playA, _ext, genState, newGame, _position, defaultSizeLimit)
-import Lib.Random as R
+import Game.Core (class Game, class MsgWithCore, GState, CoreMsg, coreUpdate, playA, _ext,
+                    genState, newGame, _position, defaultSizeLimit)
+import Lib.Random as Random
 import Lib.Update (Update, modify)
 import Lib.Util (abs)
 
@@ -56,12 +56,13 @@ instance tricolorGame ∷ Game (Array Int) ExtState Int where
             color
     
     initialPosition state = if state^._shuffle then 
-                                replicateA (state^._size) (R.int' (state^._nbColors))
+                                replicateA (state^._size) (Random.int' (state^._nbColors))
                             else
                                 pure $ replicate (state^._size) 1
     
-    isLevelFinished state = state^._position # all (_ == 0)
+    isLevelFinished = all (_ == 0) ∘ view _position
 
+    -- fonctions par défaut
     onNewGame = pure
     computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit

@@ -57,7 +57,7 @@ instance game ∷ Game {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int
         col ← if state^._soapMode ≠ CornerMode then R.int' (state^._nbColumns) else pure 0
         pure $ state # set _soap {row, col}
 
-    sizeLimit = const (SizeLimit 4 4 10 10)
+    sizeLimit _ = SizeLimit 4 4 10 10
     computerMove = computerMove'
 
     -- fonctions par défaut

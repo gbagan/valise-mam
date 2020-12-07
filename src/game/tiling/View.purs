@@ -98,13 +98,13 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                     let {row, col} = coords columns index in
                     HH.g [P.transform $ translate (show $ 50 * col) (show $ 50 * row)]
                     [   H.when (pos > 0 && border index (-1)) \_ →
-                            HH.line [P.x1 0.0, P.y1 0.0, P.x2 0.0, P.y2 50.0, P.stroke "#000", P.strokeWidth "2"]
+                            HH.line [P.x1 0.0, P.y1 0.0, P.x2 0.0, P.y2 50.0, P.stroke "#000", P.strokeWidth 2.0]
                     ,   H.when (pos > 0 && border index 1) \_ →
-                            HH.line [P.x1 50.0, P.y1 0.0, P.x2 50.0, P.y2 50.0, P.stroke "#000", P.strokeWidth "2"]
+                            HH.line [P.x1 50.0, P.y1 0.0, P.x2 50.0, P.y2 50.0, P.stroke "#000", P.strokeWidth 2.0]
                     ,   H.when (pos > 0 && border index (-columns)) \_ →
-                            HH.line [P.x1 0.0, P.y1 0.0, P.x2 50.0, P.y2 0.0, P.stroke "#000", P.strokeWidth "2"]
+                            HH.line [P.x1 0.0, P.y1 0.0, P.x2 50.0, P.y2 0.0, P.stroke "#000", P.strokeWidth 2.0]
                     ,   H.when (pos > 0 && border index columns) \_ →
-                            HH.line [P.x1 0.0, P.y1 50.0, P.x2 50.0, P.y2 50.0, P.stroke "#000", P.strokeWidth "2"]    
+                            HH.line [P.x1 0.0, P.y1 50.0, P.x2 50.0, P.y2 50.0, P.stroke "#000", P.strokeWidth 2.0]    
                     ]
             ,   [H.maybe pointer $ if length (sinks state) < nbSinks then sinkCursor else tileCursor]
             ]

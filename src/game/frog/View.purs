@@ -57,10 +57,10 @@ spiralPath = spiral { x: 0.0, y: 0.0 } 0.0 61.0 0.0 (37.0 / 6.0 * pi) (pi / 6.0)
 
 drawSpiral ∷ ∀a. Array (H.VDom a)
 drawSpiral =
-    [   HH.path [P.d spiralPath, P.fill "none", P.stroke "black", P.strokeWidth "3"]
-    ,   HH.line [P.x1 153.0, P.y1 9.0, P.x2 207.0, P.y2 20.0, P.stroke "black", P.strokeDasharray "5", P.strokeWidth "6"]
-    ,   HH.line [P.x1 153.0, P.y1 7.0, P.x2 153.0, P.y2 39.0, P.stroke "black", P.strokeWidth "3"]
-    ,   HH.line [P.x1 207.0, P.y1 18.0, P.x2 207.0, P.y2 50.0, P.stroke "black", P.strokeWidth "3"]
+    [   HH.path [P.d spiralPath, P.fill "none", P.stroke "black", P.strokeWidth 3.0]
+    ,   HH.line [P.x1 153.0, P.y1 9.0, P.x2 207.0, P.y2 20.0, P.stroke "black", P.strokeDasharray "5", P.strokeWidth 6.0]
+    ,   HH.line [P.x1 153.0, P.y1 7.0, P.x2 153.0, P.y2 39.0, P.stroke "black", P.strokeWidth 3.0]
+    ,   HH.line [P.x1 207.0, P.y1 18.0, P.x2 207.0, P.y2 50.0, P.stroke "black", P.strokeWidth 3.0]
     ]
 
 lily ∷ ∀a. Int → Number → Number → Boolean → Boolean → H.VDom a

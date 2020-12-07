@@ -11,4 +11,4 @@
 /.spago/
 /bundle.*
 /yarn*
-/dist/bundle.js
+/dist/bundle.*

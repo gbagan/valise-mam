@@ -5,7 +5,7 @@ import Lib.Util (coords)
 import Pha as H
 import Pha.Elements as HH
 import Pha.Attributes as P
-import Pha.Util (px, translate)
+import Pha.Util (translate)
 import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointer, scoreFn)
 import Game.Solitaire.Model (State, Msg(..), Board(..), _board, _holes, _dragged, _help)
 import UI.Icon (Icon(..))
@@ -38,12 +38,12 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
         let {row, col} = coords columns i in
         if isCircleBoard then
             translate
-                (px $ 125.0 + sin(2.0 * pi * toNumber i / toNumber rows) * 90.0)
-                (px $ 125.0 + cos(2.0 * pi * toNumber i / toNumber rows) * 90.0)
+                (show $ 125.0 + sin(2.0 * pi * toNumber i / toNumber rows) * 90.0)
+                (show $ 125.0 + cos(2.0 * pi * toNumber i / toNumber rows) * 90.0)
         else
             translate
-                (px $ 50.0 * toNumber col + 25.0)
-                (px $ 50.0 * toNumber row + 25.0)
+                (show $ 50 * col + 25)
+                (show $ 50 * row + 25)
 
     config =
         let boards = [CircleBoard, Grid3Board, RandomBoard, EnglishBoard, FrenchBoard] in        
@@ -67,13 +67,13 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                 ,   P.height "50"
                 ,   H.key $ "rect" <> show i
                 ,   P.fill $ tricolor i columns help
-                ,   H.style "transform" (itemStyle i)
+                ,   P.transform $ itemStyle i
                 ]
         ,   HH.circle (
             [   H.key $ "h" <> show i
             ,   P.r 17.0
             ,   H.class_ "solitaire-hole"
-            ,   H.style "transform" (itemStyle i)
+            ,   P.transform $ itemStyle i
             ] <> dndItemProps state 
                 {   currentDragged: dragged
                 ,   draggable: false
@@ -88,7 +88,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
         [   P.r 20.0
         ,   H.key $ "p" <> show i
         ,   H.class_ "solitaire-peg"
-        ,   H.style "transform" $ itemStyle i
+        ,   P.transform $ itemStyle i
         ] <> dndItemProps state
             {   draggable: true
             ,   droppable: false
@@ -142,7 +142,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                         [   H.key $ "h" <> show i
                         ,   P.r 17.0
                         ,   H.class_ "solitaire-hole"
-                        ,   H.style "transform" $ itemStyle i
+                        ,   P.transform $ itemStyle i
                         ]
                     )
                 ,   bestPosition # mapWithIndex \i → (_ `H.when` \_ →
@@ -150,7 +150,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                         [   H.key $ "p" <> show i
                         ,   P.r 20.0
                         ,   H.class_ "solitaire-peg"
-                        ,   H.style "transform" $ itemStyle i
+                        ,   P.transform $ itemStyle i
                         ]
                     )
                 ]

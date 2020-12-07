@@ -8,7 +8,7 @@ import Pha as H
 import Pha.Elements as HH
 import Pha.Attributes as P
 import Pha.Events as E
-import Pha.Util (translate, px')
+import Pha.Util (translate)
 import UI.Template (template, card, gridStyle, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, icons2Players, iconSelectGroup, iundo, iredo, ireset, irules)
@@ -54,7 +54,7 @@ view state = template {config, board, rules, winTitle} state where
             [   repeat2 rows columns \row col →
                 HH.rect 
                 [   H.key $ "choc" <> show (row * columns + col)
-                ,   H.style "transform" $ translate (px' $ 50 * col) (px' $ 50 * row)
+                ,   P.transform $ translate (show $ 50 * col) (show $ 50 * row)
                 ,   H.class_ "chocolat-square"
                 ,   H.class' "soap" $ row == soapRow && col == soapCol
                 ,   H.class' "hidden" $ not (inside state row col)

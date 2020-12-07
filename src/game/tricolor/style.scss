@@ -5,10 +5,9 @@
 }
 
 .tricolor-cell {
-    fill: green;
-    transition: fill 0.4s linear;
+    transition: fill 0.3s linear;
     &.finished {
-        animation: 1s infinite tricolorHola;
+        animation: 2s infinite tricolorHola;
     }
 }
 

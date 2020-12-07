@@ -13,7 +13,7 @@ import Lib.Util (abs)
 -- une position initiale aléatoire n'est pas nécessairement une position gagnante
 -- un coup (move) est représenté par le numéro du sommet que l'on souhaite activer
 
-type Ext' = { 
+type Ext' = {
     size ∷ Int,   -- le nombre de sommets
     nbColors ∷ Int,
     range ∷ Int,  -- le rayon autour du sommet activé pour lequel tous les sommets changent de couleurs
@@ -66,7 +66,7 @@ instance tricolorGame ∷ Game (Array Int) ExtState Int where
     onNewGame = pure
     computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
-    updateScore st = st ∧ true 
+    updateScore st = st ∧ true
     onPositionChange = identity
     saveToJson _ = Nothing
     loadFromJson st _ = st

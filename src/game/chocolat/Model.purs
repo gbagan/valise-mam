@@ -59,6 +59,8 @@ instance game ∷ Game {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int
 
     sizeLimit = const (SizeLimit 4 4 10 10)
     computerMove = computerMove'
+
+    -- fonctions par défaut
     onPositionChange = identity
     updateScore st = st ∧ true
     saveToJson _ = Nothing

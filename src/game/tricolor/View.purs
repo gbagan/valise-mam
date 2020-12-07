@@ -8,7 +8,7 @@ import Pha as H
 import Pha.Elements as HH
 import Pha.Attributes as P
 import Pha.Events as E
-import Pha.Util (pc, translate)
+import Pha.Util (translate)
 import UI.Icon (Icon(..))
 import UI.Icons (iconbutton, icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 import UI.Template (template, card)
@@ -17,9 +17,9 @@ colors ∷ Array String
 colors = ["green", "yellow", "red", "magenta", "blue"]
 
 translateCell ∷ Int → Int → String
-translateCell i size = translate (pc x) (pc y) where
-    x = 0.50 + 0.35 * cos (toNumber i * 2.0 * pi / toNumber size)
-    y = 0.45 + 0.35 * sin (toNumber i * 2.0 * pi / toNumber size)
+translateCell i size = translate (show x) (show y) where
+    x = 50.0 + 35.0 * cos (toNumber i * 2.0 * pi / toNumber size)
+    y = 45.0 + 35.0 * sin (toNumber i * 2.0 * pi / toNumber size)
 
 irandom ∷ State → H.VDom Msg
 irandom state =
@@ -39,7 +39,7 @@ view state = template {config, board, rules} state where
 
     config =
         card "Feux tricolores" 
-        [   iconSelectGroup state "Nombre de lumières" [4, 5, 6, 7, 8] size SetSize (const identity)
+        [   iconSelectGroup state "Nombre de feux" [4, 5, 6, 7, 8] size SetSize (const identity)
         ,   iconSelectGroup state "Nombre de couleurs" [2, 3, 4, 5] nbColors SetNbColors (const identity)
         ,   iconSelectGroup state "Portée" [1, 2, 3] range SetRange (const identity)
         ,   icongroup "Options" $ [ iundo, iredo, ireset, irandom, irules ] <#> (_ $ state)
@@ -47,13 +47,13 @@ view state = template {config, board, rules} state where
 
     drawCell i color =
         HH.circle 
-        [   P.r 7.5
+        [   H.key $ "b" <> show i
+        ,   P.r 7.5
         ,   H.class_ "tricolor-cell"
         ,   H.class' "finished" levelFinished
         ,   P.stroke $ if (inRange state i <$> hoverCell) == Just true then "lightgreen" else "black"
-        ,   H.key $ "b" <> show i
-        ,   H.style "fill" $ if levelFinished then "" else colors !! color # fromMaybe ""
-        ,   H.style "transform" (translateCell i size)
+        ,   P.fill $ if levelFinished then "" else colors !! color # fromMaybe ""
+        ,   P.transform (translateCell i size)
         ,   E.onclick $ Play i
         ,   E.onpointerenter $ SetHoverCell (Just i)
         ,   E.onpointerleave $ SetHoverCell Nothing

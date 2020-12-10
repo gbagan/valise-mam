@@ -1,8 +1,8 @@
 module Game.Tricolor.Model where
 
 import MyPrelude
-import Game.Core (class Game, class MsgWithCore, GState, CoreMsg, coreUpdate, playA, _ext,
-                    genState, newGame, _position, defaultSizeLimit)
+import Game.Core (class Game, class MsgWithCore, GState, CoreMsg,
+                   coreUpdate, playA, genState, newGame, _ext, _position, defaultSizeLimit)
 import Lib.Random as Random
 import Lib.Update (Update, modify)
 import Lib.Util (abs)
@@ -76,7 +76,7 @@ data Msg = Core CoreMsg | Play Int | SetSize Int | SetNbColors Int | SetRange In
 instance withcore ∷ MsgWithCore Msg where core = Core
   
 update ∷ Msg → Update State
-update (Core msg) = coreUpdate msg    
+update (Core msg) = coreUpdate msg
 update (Play i) = playA i
 update (SetSize size) = newGame $ set _size size
 update (SetNbColors n) = newGame $ set _nbColors n

@@ -54,8 +54,7 @@ instance game ∷ Game (Array Int) Ext Int where
         Just $ position # updateAtIndices [i ∧ y, j ∧ x]
 
     initialPosition state = Random.shuffle (0 .. (2 * state ^. _nbBases - 1))
-    isLevelFinished state = state ^. _position # allWithIndex \i j → i / 2 == j / 2
-    -- on tire aléatoirement le jeton manquant
+    isLevelFinished = view _position >>> allWithIndex \i j → i / 2 == j / 2
     onNewGame state = Random.int' (2 * state ^. _nbBases) <#> \i → set _missingPeg i state
     
     -- fonctions par défault

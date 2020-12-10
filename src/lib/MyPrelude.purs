@@ -1,4 +1,4 @@
-module MyPrelude ((∘), (∧), (≠), replicateA, module Exports) where
+module MyPrelude ((∘), (∧), (≠), module Exports) where
 import Prelude (class Applicative, class Apply, class Bind, class BooleanAlgebra, class Bounded, class Category,
                 class CommutativeRing, class Discard, class DivisionRing, class Eq, class EuclideanRing, class Field,
                 class Functor, class HeytingAlgebra, class Monad, class Monoid, class Ord, class Ring, class Semigroup,
@@ -17,6 +17,7 @@ import Math (cos, sin, pi, sqrt) as Exports
 import Data.Maybe (Maybe(..), maybe, fromMaybe, isJust, isNothing) as Exports
 import Data.Either (Either(..)) as Exports
 import Data.Foldable (class Foldable, foldl, foldr, elem, any, all, and, or, for_, minimumBy) as Exports
+import Data.Unfoldable (replicateA) as Exports
 import Data.Traversable (sequence, for) as Exports
 import Data.List (List(..)) as Exports
 import Data.Array.NonEmpty (NonEmptyArray) as Exports
@@ -36,6 +37,3 @@ import Control.MonadZero (guard) as Exports
 infixr 9 Exports.compose as ∘
 infix 6 Exports.Tuple as ∧
 infix 4 Exports.notEq as ≠
-
-replicateA ∷ forall m a. Exports.Applicative m => Int → m a → m (Array a)
-replicateA n = Exports.sequence ∘ (Exports.replicate n)

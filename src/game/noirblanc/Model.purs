@@ -76,7 +76,7 @@ genRandomBoard ∷ State → Random (Array Boolean)
 genRandomBoard state = do
     let size = state^._nbRows * state^._nbColumns
     nbMoves ← R.int 0 size
-    replicateA nbMoves (R.int' size) <#>
+    (replicateA nbMoves (R.int' size) ∷ Random (Array Int)) <#>
         foldr (toggleCell state) (replicate size true)
 
 instance game ∷ Game { light ∷ Array Boolean, played ∷ Array Boolean } ExtState Int where

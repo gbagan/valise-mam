@@ -224,7 +224,7 @@ coreUpdate ConfirmNewGame = modify \state →
                             _ → state
 coreUpdate (SetPointer pos) = modify $ set _pointer pos
 coreUpdate ComputerStarts = do
-    modify $ pushToHistory >>> (over _turn oppositeTurn)
+    modify $ pushToHistory >>> over _turn oppositeTurn
     computerPlay
 coreUpdate Init = do
     newGame identity

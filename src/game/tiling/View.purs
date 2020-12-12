@@ -18,14 +18,14 @@ type Borders = {top ∷ Boolean, left ∷ Boolean, bottom ∷ Boolean, right ∷
 
 square ∷ ∀a. {isDark ∷ Boolean, hasBlock ∷ Boolean, hasSink ∷ Boolean, row ∷ Int, col ∷ Int} → Array (H.Prop a) → H.VDom a 
 square {isDark, hasBlock, hasSink, row, col} props =
-    HH.g ([
-        H.class' "tiling-darken" isDark,
-        P.transform $ translate (show $ 50 * col) (show $ 50 * row)
-    ] <> props) [
-        HH.rect [P.width "50", P.height "50", H.key "conc", P.fill "url(#concrete)"],
-        H.when hasBlock \_ →
-            HH.use [P.href "#tile2", P.width "50", P.height "50", H.key "tile"],
-        H.when hasSink \_ →
+    HH.g (
+    [   H.class' "tiling-darken" isDark
+    ,   P.transform $ translate (show $ 50 * col) (show $ 50 * row)
+    ] <> props) 
+    [   HH.rect [P.width "50", P.height "50", H.key "conc", P.fill "url(#concrete)"]
+    ,   H.when hasBlock \_ →
+            HH.use [P.href "#tile2", P.width "50", P.height "50", H.key "tile"]
+    ,   H.when hasSink \_ →
             HH.use [P.href "#sink", P.width "50", P.height "50", H.key "sink"]
     ]
     

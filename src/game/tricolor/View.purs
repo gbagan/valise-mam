@@ -39,7 +39,7 @@ view state = template {config, board, rules} state where
 
     config =
         card "Feux tricolores" 
-        [   iconSelectGroup state "Nombre de feux" [4, 5, 6, 7, 8] size SetSize (const identity)
+        [   iconSelectGroup state "Nombre de feux" [4, 5, 6, 7, 8, 9, 10, 11, 12, 13] size SetSize (const identity)
         ,   iconSelectGroup state "Nombre de couleurs" [2, 3, 4, 5] nbColors SetNbColors (const identity)
         ,   iconSelectGroup state "Portée" [1, 2, 3] range SetRange (const identity)
         ,   icongroup "Options" $ [ iundo, iredo, ireset, irandom, irules ] <#> (_ $ state)

@@ -136,9 +136,9 @@ instance solitaireGame ∷ Game (Array Boolean) ExtState {from ∷ Int, to ∷ I
                     }
 
     sizeLimit state = case state^._board of
-        CircleBoard → SizeLimit   3 1 12 1
-        Grid3Board → SizeLimit 3 1 3 9
-        RandomBoard → SizeLimit 3 1 3 9
+        CircleBoard → SizeLimit 3 1 12 1
+        Grid3Board → SizeLimit 3 1 3 12
+        RandomBoard → SizeLimit 3 1 3 12
         _ → SizeLimit 7 7 7 7
 
     updateScore = updateScore' AlwaysShowWin

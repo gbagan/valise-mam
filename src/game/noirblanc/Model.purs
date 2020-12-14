@@ -2,15 +2,14 @@ module Game.Noirblanc.Model where
 
 import MyPrelude
 
-import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg, _ext, coreUpdate, playA, isLevelFinished, saveToStorage,
-                _position, _nbColumns, _nbRows, newGame, genState)
+import Data.Argonaut.Decode (decodeJson)
+import Data.Argonaut.Encode (encodeJson)
+import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg, _ext, coreUpdate, playA, isLevelFinished, saveToStorage, _position, _nbColumns, _nbRows, _customSize, newGame, genState)
 import Lib.KonamiCode (konamiCode)
-import Lib.Util (dCoords)
 import Lib.Random (Random)
 import Lib.Random as R
 import Lib.Update (Update, get, modify)
-import Data.Argonaut.Encode (encodeJson)
-import Data.Argonaut.Decode (decodeJson)
+import Lib.Util (dCoords)
 
 -- une position est composée de 2 tableaux light et played
 -- light indique si la case de numéro i est allumée
@@ -95,9 +94,17 @@ instance game ∷ Game { light ∷ Array Boolean, played ∷ Array Boolean } Ext
 
     onNewGame state = 
         let rows ∧ columns = fromMaybe (8∧8) (sizes !! (state^._level)) in
-        pure $ state 
-                # set _nbRows rows 
-                # set _nbColumns columns
+        pure $
+            if state^._level < 5 then
+                state # set _customSize false
+                      # set _nbRows rows 
+                      # set _nbColumns columns
+            else if not (state^._customSize) then 
+                state # set _customSize true
+                      # set _nbRows 8
+                      # set _nbColumns 8
+            else
+                state
 
     sizeLimit _ = SizeLimit 3 3 10 10
 

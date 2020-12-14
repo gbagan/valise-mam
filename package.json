@@ -15,6 +15,7 @@
     "dce": "zephyr -e -f Main.main",
     "rollup": "rollup -c",
     "buildcss": "sass src/index.scss dist/bundle.css",
+    "deploy": "scp -r dist/* mam@connect.liris.cnrs.fr:~/public_html/valise/",
     "deploy:test": "scp -r dist/* gbagan@connect.liris.cnrs.fr:~/valisetest/"
   }
 }

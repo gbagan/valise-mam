@@ -126,7 +126,8 @@ nonTrappedBeasts state =
           isValidBeast = all \{row, col} → row >= 0 && row < rows && col >= 0 && col < columns && 
                     (state^._position) !! (row * columns + col) == Just false
 
--- | Renvoie un emplacement possible pour la bête sur le plateau sous forme d'un tableau de booléens indicé par les positions du plateau.
+-- | Renvoie un emplacement possible pour la bête sur le plateau sous forme d'un tableau de booléens
+-- | indicé par les positions du plateau.
 -- | Renvoie un tableau ne contenant que la valeur false si aucun emplacement pour la bête n'est possible
 nonTrappedBeastOnGrid ∷ State → Array Boolean
 nonTrappedBeastOnGrid st = 
@@ -177,7 +178,12 @@ instance game ∷ Game (Array Boolean) ExtState Int where
 instance scoregameLabete ∷ ScoreGame (Array Boolean) ExtState Int where
     objective _ = Minimize
     scoreFn = length ∘ filter identity ∘ view _position
-    scoreHash state = joinWith "-" [show (state^._nbColumns), show (state^._nbRows), show (state^._mode), show (state^._beastType)]
+    scoreHash state = joinWith "-"
+                        [ show (state^._nbColumns)
+                        , show (state^._nbRows)
+                        , show (state^._mode)
+                        , show (state^._beastType)
+                        ]
     isCustomGame state = state^._beastType == CustomBeast
           
 

@@ -1,4 +1,4 @@
-// v 0.1.16
+// v 0.1.24
 
 const CACHE = 'cache-valise-pwa';
 

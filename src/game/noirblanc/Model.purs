@@ -74,9 +74,9 @@ toggleCell state index = mapWithIndex \i → (_ ≠ neighbor state index i)
 genRandomBoard ∷ State → Random (Array Boolean)
 genRandomBoard state = do
     let size = state^._nbRows * state^._nbColumns
-    nbMoves ← R.int 0 size
+    nbMoves ← R.int size (size+1)
     (replicateA nbMoves (R.int' size) ∷ Random (Array Int)) <#>
-        foldr (toggleCell state) (replicate size true)
+        foldr (toggleCell state) (replicate size false)
 
 instance game ∷ Game { light ∷ Array Boolean, played ∷ Array Boolean } ExtState Int where
     name _ = "noirblanc"
@@ -106,9 +106,9 @@ instance game ∷ Game { light ∷ Array Boolean, played ∷ Array Boolean } Ext
             else
                 state
 
-    sizeLimit _ = SizeLimit 3 3 10 10
+    sizeLimit _ = SizeLimit 2 2 12 12
 
-    saveToJson st = Just $ encodeJson (st ^. _maxLevels)
+    saveToJson st = Just $ encodeJson $ st ^. _maxLevels
     loadFromJson st json =
         case decodeJson json of
             Left _ → st

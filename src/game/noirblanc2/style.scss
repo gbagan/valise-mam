@@ -1,0 +1,46 @@
+.noirblanc2-square {
+    position: absolute;
+    overflow: hidden;
+    perspective: 1000px;
+}
+
+.noirblanc2-square-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+    &.blanc {
+        transform: rotateY(180deg);
+    }
+    
+    &.empty {
+        transform: rotateY(180deg);
+        opacity: 0.0
+    }
+}
+  
+.noirblanc2-square-noir, .noirblanc2-square-blanc {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border: 0.2rem solid #656565;
+    border-radius: 12%;
+}
+  
+.noirblanc2-square-noir {
+    background-color: #333;
+}
+  
+.noirblanc2-square-blanc {
+    background-color: #dfdfdf;
+    transform: rotateY(180deg);
+  }
+
+
+.noirblanc2-cross {
+    opacity: 0.7;
+    fill: blue;
+}

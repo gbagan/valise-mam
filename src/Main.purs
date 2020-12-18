@@ -15,6 +15,7 @@ import Game.Jetons as Jetons
 import Game.Labete as Labete
 import Game.Nim as Nim
 import Game.Noirblanc as Noirblanc
+import Game.Noirblanc2 as Noirblanc2
 import Game.Paths as Paths
 import Game.Queens as Queens
 import Game.Roue as Roue
@@ -44,6 +45,7 @@ type RootState =
     ,   labete ∷ Labete.State
     ,   nim ∷ Nim.State
     ,   noirblanc ∷ Noirblanc.State
+    ,   noirblanc2 ∷ Noirblanc2.State
     ,   paths ∷ Paths.State
     ,   queens ∷ Queens.State
     ,   roue ∷ Roue.State
@@ -66,6 +68,7 @@ state =
     ,   labete: Labete.istate
     ,   nim: Nim.istate
     ,   noirblanc: Noirblanc.istate
+    ,   noirblanc2: Noirblanc2.istate
     ,   paths: Paths.istate
     ,   queens: Queens.istate
     ,   roue: Roue.istate
@@ -87,6 +90,7 @@ data Msg =
     | LabeteMsg Labete.Msg
     | NimMsg Nim.Msg
     | NoirblancMsg Noirblanc.Msg
+    | Noirblanc2Msg Noirblanc2.Msg
     | PathsMsg Paths.Msg
     | QueensMsg Queens.Msg
     | RoueMsg Roue.Msg
@@ -123,6 +127,7 @@ games = Map.fromFoldable
     ,   "labete"    ∧ gameWrap Labete.game    _.labete    LabeteMsg
     ,   "nim"       ∧ gameWrap Nim.game       _.nim       NimMsg
     ,   "noirblanc" ∧ gameWrap Noirblanc.game _.noirblanc NoirblancMsg
+    ,   "noirblanc2" ∧ gameWrap Noirblanc2.game _.noirblanc2 Noirblanc2Msg
     ,   "paths"     ∧ gameWrap Paths.game     _.paths     PathsMsg
     ,   "queens"    ∧ gameWrap Queens.game    _.queens    QueensMsg
     ,   "roue"      ∧ gameWrap Roue.game      _.roue      RoueMsg
@@ -148,6 +153,7 @@ update (JetonsMsg msg)    = prop (SProxy ∷ SProxy "jetons")    .~> Jetons.upda
 update (LabeteMsg msg)    = prop (SProxy ∷ SProxy "labete")    .~> Labete.update msg
 update (NimMsg msg)       = prop (SProxy ∷ SProxy "nim")       .~> Nim.update msg
 update (NoirblancMsg msg) = prop (SProxy ∷ SProxy "noirblanc") .~> Noirblanc.update msg
+update (Noirblanc2Msg msg) = prop (SProxy ∷ SProxy "noirblanc2") .~> Noirblanc2.update msg
 update (PathsMsg msg)     = prop (SProxy ∷ SProxy "paths")     .~> Paths.update msg
 update (QueensMsg msg)    = prop (SProxy ∷ SProxy "queens")    .~> Queens.update msg
 update (RoueMsg msg)      = prop (SProxy ∷ SProxy "roue")      .~> Roue.update msg

@@ -1,20 +1,21 @@
 module Game.Chocolat.Model where
+
 import MyPrelude
+
 import Data.Int.Bits ((.^.))
-import Lib.Util ((..))
+import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, SizeLimit(..), GState, Mode(..), coreUpdate, playA, _ext, genState, newGame, computerMove', _position, _nbRows, _nbColumns)
 import Lib.Random as R
 import Lib.Update (Update, modify)
-import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, SizeLimit(..), GState, Mode(..),
-                coreUpdate, playA, _ext, genState, newGame, computerMove', _position, _nbRows, _nbColumns)
+import Lib.Util ((..))
 
 data Move = FromLeft Int | FromRight Int | FromTop Int | FromBottom Int
-data SoapMode = CornerMode | BorderMode | StandardMode
+data SoapMode = CornerMode | BorderMode | StandardMode | CustomMode
 derive instance eqSoapMode ∷ Eq SoapMode
 
 type Position = {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int}
 
 type Ext' =
-    {   soap ∷ {row ∷ Int, col ∷ Int}
+    {   soap ∷ Maybe {row ∷ Int, col ∷ Int}
     ,   soapMode ∷ SoapMode
     ,   moveWhenHover ∷ Maybe Move
     }
@@ -25,7 +26,7 @@ type State = GState Position ExtState
 -- lenses
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
-_soap ∷ Lens' State {row ∷ Int, col ∷ Int}
+_soap ∷ Lens' State (Maybe {row ∷ Int, col ∷ Int})
 _soap = _ext' ∘ prop (SProxy ∷ _ "soap")
 _soapMode ∷ Lens' State SoapMode
 _soapMode = _ext' ∘ prop (SProxy ∷ _ "soapMode")
@@ -35,7 +36,7 @@ _moveWhenHover = _ext' ∘ prop (SProxy ∷ _ "moveWhenHover")
 -- | état initial
 istate ∷ State
 istate = genState {left: 0, top: 0, right: 0, bottom: 0} _{nbRows = 6, nbColumns = 7, mode = RandomMode}
-        (Ext { soap: {row: 0, col: 0}, soapMode: CornerMode, moveWhenHover: Nothing})
+        (Ext { soap: Just {row: 0, col: 0}, soapMode: CornerMode, moveWhenHover: Nothing})
 
 instance game ∷ Game {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int} ExtState Move where
     name _ = "chocolat"
@@ -52,10 +53,13 @@ instance game ∷ Game {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int
 
     initialPosition st = pure { left: 0, right: st^._nbColumns, top: 0, bottom: st^._nbRows }
 
-    onNewGame state = do
-        row ← if state^._soapMode == StandardMode then R.int' (state^._nbRows) else pure 0
-        col ← if state^._soapMode ≠ CornerMode then R.int' (state^._nbColumns) else pure 0
-        pure $ state # set _soap {row, col}
+    onNewGame state = 
+        if state^._soapMode == CustomMode then
+            pure $ state # set _soap Nothing
+        else do
+            row ← if state^._soapMode == StandardMode then R.int' (state^._nbRows) else pure 0
+            col ← if state^._soapMode ≠ CornerMode then R.int' (state^._nbColumns) else pure 0
+            pure $ state # set _soap (Just {row, col})
 
     sizeLimit _ = SizeLimit 4 4 10 10
     computerMove = computerMove'
@@ -67,16 +71,20 @@ instance game ∷ Game {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int
     loadFromJson st _ = st
 
 instance game_ ∷ TwoPlayersGame {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int} ExtState Move where
-    isLosingPosition st = (col - left) .^. (right - col - 1) .^. (row - top) .^. (bottom - row - 1) == 0 where
-        {left, right, top, bottom} = st^._position
-        {row, col} = st^._soap
+    isLosingPosition st =
+        case st^._soap of
+            Just {row, col} → 
+                (col - left) .^. (right - col - 1) .^. (row - top) .^. (bottom - row - 1) == 0 where
+                {left, right, top, bottom} = st^._position
+            Nothing → false
 
     possibleMoves st =
-        let {left, right, top, bottom} = st^._position
-            {row, col} = st^._soap
-        in
-        ((left + 1) .. col <#> FromLeft) <> ((col + 1) .. (right - 1) <#> FromRight)
-        <> ((top + 1) .. row <#> FromTop) <> ((row + 1) .. (bottom - 1) <#> FromBottom) 
+        case st^._soap of
+            Just {row, col} → 
+                let {left, right, top, bottom} = st^._position in
+                ((left + 1) .. col <#> FromLeft) <> ((col + 1) .. (right - 1) <#> FromRight)
+                <> ((top + 1) .. row <#> FromTop) <> ((row + 1) .. (bottom - 1) <#> FromBottom) 
+            Nothing → []
 
 cutLine ∷ State → Move → {x1 ∷ Int, x2 ∷ Int, y1 ∷ Int, y2 ∷ Int}
 cutLine state = case _ of
@@ -86,7 +94,7 @@ cutLine state = case _ of
     FromBottom i → {x1: left, y1: i, x2: right, y2: i}
     where {left, right, top, bottom} = state^._position
 
-data Msg = Core CoreMsg | SetHover (Maybe Move) | SetSoapMode SoapMode | Play Move
+data Msg = Core CoreMsg | SetHover (Maybe Move) | SetSoapMode SoapMode | Play Move | SetSoap Int Int
 instance withcore ∷ MsgWithCore Msg where core = Core
     
 update ∷ Msg → Update State
@@ -94,3 +102,4 @@ update (Core msg) = coreUpdate msg
 update (SetHover a) = modify $ set _moveWhenHover a 
 update (SetSoapMode m) = newGame $ set _soapMode m
 update (Play move) = modify (set _moveWhenHover Nothing) *> playA move
+update (SetSoap row col) = modify (set _soap (Just {row, col}))

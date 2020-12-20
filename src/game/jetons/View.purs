@@ -19,7 +19,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
     dragged = state ^. _dragged
     pointer = state ^. _pointer
 
-    config = card "Jeu des jetons"
+    config = card "Jeu d'acquisition"
         [    iconSizesGroup state [2∧2, 4∧4, 5∧5, 6∧6] true
         ,    icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
         ,    iconBestScore state

@@ -2,7 +2,8 @@ module Game.Noirblanc2.Model where
 
 import MyPrelude
 
-import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg, _ext, coreUpdate, playA, isLevelFinished, saveToStorage, _position, _nbColumns, _nbRows, _customSize, newGame, genState)
+import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg,
+                _ext, coreUpdate, playA, _position, _nbColumns, _nbRows, newGame, genState)
 import Lib.Random (Random)
 import Lib.Random as R
 import Lib.Update (Update, get, modify, randomly)
@@ -66,14 +67,11 @@ instance game ∷ Game (Array Card) ExtState Int where
             Nothing
 
     initialPosition state = pure (replicate (state^._nbRows * state^._nbColumns) WhiteCard)
-    
     isLevelFinished state = all (_ /= WhiteCard) (state^._position)
-
-    onNewGame = pure 
-
     sizeLimit _ = SizeLimit 1 1 12 12
 
     -- méthodes par default
+    onNewGame = pure 
     saveToJson _ = Nothing
     loadFromJson st _ = st 
     computerMove _ = pure Nothing

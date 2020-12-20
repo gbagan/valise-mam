@@ -20,7 +20,7 @@ view state = template {config, board, rules, winTitle} state where
     turn = state ^. _turn
 
     config =
-        card "Poker Nim"
+        card "Bloque moi si tu peux"
         [   iconSelectGroup state "Nombre de rangées" [1, 2, 3, 4, 5] nbPiles SetNbPiles (const identity)
         ,   iconSelectGroup state "Taille des rangées" [10, 5] length SetLength (const identity)
         ,   icons2Players state

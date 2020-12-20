@@ -59,7 +59,7 @@ valise state =
                     610 400 60 60
                     []
                     []
-        ,   object {symbol: "stack", link: Just "jetons", help: "Jeu: jetons", drag: false}
+        ,   object {symbol: "stack", link: Just "jetons", help: "Jeu: acquisition", drag: false}
                     350 500 50 50
                     []
                     []
@@ -67,9 +67,13 @@ valise state =
                     400 205 50 50
                     [P.transform "scale(1,0.8)"]
                     []
-        ,   object {symbol: "card", link: Just "nim", help: "Jeu: Poker Nim", drag: false}
+        ,   object {symbol: "card", link: Just "noirblanc2", help: "Jeu: ???", drag: false}
                     450 130 40 50
                     [P.transform "rotate(30)"]
+                    []
+        ,   object {symbol: "block2", link: Just "nim", help: "Jeu: bloque moi si tu peux", drag: false}
+                    380 120 40 40
+                    []
                     []
         ,   object {symbol: "tile", link: Just "tiling", help: "Jeu: carrelage", drag: false}
                     280 400 120 60

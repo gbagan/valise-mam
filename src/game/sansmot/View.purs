@@ -1,8 +1,7 @@
 module Game.Sansmot.View where
 
 import MyPrelude
-import Data.Map (fromFoldable) as Map
-import Lib.Util (repeat)
+import Data.Map as Map
 import Pha as H
 import Pha.Elements as HH
 import Pha.Attributes as P

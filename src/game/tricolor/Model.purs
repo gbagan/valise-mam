@@ -5,7 +5,6 @@ import Game.Core (class Game, class MsgWithCore, GState, CoreMsg,
                    coreUpdate, playA, genState, newGame, _ext, _position, defaultSizeLimit)
 import Lib.Random as Random
 import Lib.Update (Update, modify)
-import Lib.Util (abs)
 
 -- une position est un tableau qui indique pour chaque sommmet la couleur du sommet
 -- les couleurs sont comprises entre 0 et nbColors - 1

@@ -1,6 +1,6 @@
 module Game.Labete.Model where
 import MyPrelude
-import Lib.Util (coords, repeat2, abs)
+import Lib.Util (coords, repeat2)
 import Lib.Update (Update, modify)
 import Game.Common (_isoCustom)
 import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, 

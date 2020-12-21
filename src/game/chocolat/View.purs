@@ -10,7 +10,7 @@ import Pha.Elements as HH
 import Pha.Events as E
 import Pha.Util (translate)
 import UI.Icon (Icon(..))
-import UI.Icons (icongroup, iconSizesGroup, icons2Players, iconSelectGroup, iundo, iredo, ireset, irules)
+import UI.Icons (icongroup, iconSizesGroup, icons2Players, iconSelectGroup', iundo, iredo, ireset, irules)
 import UI.Template (template, card, gridStyle, incDecGrid, turnMessage, winTitleFor2Players, svgCursorStyle, trackPointer)
 
 inside ∷ State → Int → Int → Boolean
@@ -40,12 +40,12 @@ view state = template {config, board, rules, winTitle} state where
     config =
         card "Barre de chocolat"
         [   iconSizesGroup state [6∧7] true
-        ,   iconSelectGroup state "Emplacement du savon" [CornerMode, BorderMode, StandardMode, CustomMode] 
-                (state^._soapMode) SetSoapMode \mode opt → case mode of
-                    CornerMode → opt{icon = IconSymbol "#choc-mode0", tooltip = Just "Dans le coin"}
-                    BorderMode → opt{icon = IconSymbol "#choc-mode1", tooltip = Just "Sur un bord"}
-                    StandardMode → opt{icon = IconSymbol "#choc-mode2", tooltip = Just "N'importe où"}
-                    CustomMode → opt{icon = IconSymbol "#customize", tooltip = Just "Personnalisé"}
+        ,   iconSelectGroup' state "Emplacement du savon" (state^._soapMode) SetSoapMode
+            [   CornerMode /\ _{icon = IconSymbol "#choc-mode0", tooltip = Just "Dans le coin"}
+            ,   BorderMode /\ _{icon = IconSymbol "#choc-mode1", tooltip = Just "Sur un bord"}
+            ,   StandardMode /\ _{icon = IconSymbol "#choc-mode2", tooltip = Just "N'importe où"}
+            ,   CustomMode /\ _{icon = IconSymbol "#customize", tooltip = Just "Personnalisé"}
+            ]
         ,   icons2Players state
         ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
         ]

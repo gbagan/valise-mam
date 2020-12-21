@@ -35,10 +35,11 @@ view state = template {config, board, rules} state where
     levelFinished = isLevelFinished state
     missingPeg = state ^. _missingPeg
 
-    config = card "Baseball multicolore" [
-        iconSelectGroup state "Nombres de bases" [4, 5, 6, 7, 8] nbBases SetNbBases (const identity),
-        icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
-    ]
+    config =
+        card "Baseball multicolore"
+        [   iconSelectGroup state "Nombres de bases" [4, 5, 6, 7, 8] nbBases SetNbBases (const identity)
+        ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
+        ]
 
     board = HH.div [H.class_ "ui-board baseball-board"] [
         HH.svg [P.viewBox 0 0 100 100] $ concat

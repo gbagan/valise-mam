@@ -1,19 +1,9 @@
 module Lib.Util where
 
 import MyPrelude
-import Data.Array (range)
 import Prim.Row (class Union, class Nub)
 import Record as Record
 
-abs ∷ Int → Int
-abs x = if x < 0 then -x else x
-
-range' ∷ Int → Int → Array Int
-range' n m = if n > m then [] else range n m
-infix 8 range' as ..
-
-repeat ∷ ∀a. Int → (Int → a) → Array a
-repeat n f = 0 .. (n - 1) <#> f
 
 repeat2 ∷ ∀a. Int → Int → (Int → Int → a) → Array a
 repeat2 n m f = repeat (n * m) $ \i → f (i / m) (i `mod` m)

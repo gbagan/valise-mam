@@ -1,4 +1,5 @@
-module MyPrelude ((∘), (∧), (≠), module Exports) where
+module MyPrelude ((∘), (∧), (≠), (..), abs, range', repeat, module Exports) where
+import Prelude
 import Prelude (class Applicative, class Apply, class Bind, class BooleanAlgebra, class Bounded, class Category,
                 class CommutativeRing, class Discard, class DivisionRing, class Eq, class EuclideanRing, class Field,
                 class Functor, class HeytingAlgebra, class Monad, class Monoid, class Ord, class Ring, class Semigroup,
@@ -22,6 +23,7 @@ import Data.Traversable (sequence, for) as Exports
 import Data.List (List(..)) as Exports
 import Data.Array.NonEmpty (NonEmptyArray) as Exports
 import Data.Map (Map) as Exports
+import Data.Array (range)
 import Data.Array ((!!), head, last, cons, snoc, filter, find, take, null, length, mapMaybe, catMaybes, nub, elemIndex, sort, uncons,
         replicate, reverse, modifyAt, insertAt, updateAt, updateAtIndices, mapWithIndex, concat, tail, concatMap, sortWith, zip, zipWith) as Exports
 import Data.Lens (Lens', lens, set, Iso', iso, view, over, (^.), (.~), (%~), (?~), (+~)) as Exports
@@ -33,6 +35,15 @@ import Data.String (joinWith) as Exports
 import Control.Alt ((<|>)) as Exports
 import Control.MonadZero (guard) as Exports
 
+abs ∷ Int → Int
+abs x = if x < 0 then -x else x
+
+range' ∷ Int → Int → Array Int
+range' n m = if n > m then [] else range n m
+infix 8 range' as ..
+
+repeat ∷ ∀a. Int → (Int → a) → Array a
+repeat n f = 0 .. (n - 1) <#> f
 
 infixr 9 Exports.compose as ∘
 infix 6 Exports.Tuple as ∧

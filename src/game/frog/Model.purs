@@ -2,7 +2,6 @@ module Game.Frog.Model where
 
 import MyPrelude
 import Data.Lazy (defer, force)
-import Lib.Util (repeat, (..))
 import Data.Array.NonEmpty as N
 import Lib.KonamiCode (konamiCode)
 import Lib.Update (Update, modify)

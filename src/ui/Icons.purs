@@ -103,6 +103,15 @@ iconSelectGroup state title values selected action optionFn =
             selected = val == selected
         })) [onclick (action val)]
 
+-- | groupe d'icones à choix unique, fonction alternative 
+iconSelectGroup' ∷ ∀msg pos ext sel. DefIconText sel ⇒ Eq sel ⇒
+    GState pos ext → String → sel → (sel → msg) → Array (Tuple sel (Record I.Options → Record I.Options)) → VDom msg
+iconSelectGroup' state title selected action values =
+    icongroup title $ values <#> \(val /\ optionFn) →
+        iconbutton state (optionFn (defIconText val I.defaultOptions{
+            selected = val == selected
+        })) [onclick (action val)]
+
 -- | groupe d'icones à choix multiple
 iconSelectGroupM ∷ ∀msg pos ext t sel.
     DefIconText sel ⇒ Eq sel ⇒ Foldable t ⇒

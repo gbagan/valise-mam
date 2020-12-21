@@ -1,12 +1,11 @@
 module Game.Chocolat.Model where
 
 import MyPrelude
-
 import Data.Int.Bits ((.^.))
-import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, SizeLimit(..), GState, Mode(..), coreUpdate, playA, _ext, genState, newGame, computerMove', _position, _nbRows, _nbColumns)
+import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, SizeLimit(..), GState, Mode(..), 
+                  coreUpdate, playA, _ext, genState, newGame, computerMove', _position, _nbRows, _nbColumns)
 import Lib.Random as R
 import Lib.Update (Update, modify)
-import Lib.Util ((..))
 
 data Move = FromLeft Int | FromRight Int | FromTop Int | FromBottom Int
 data SoapMode = CornerMode | BorderMode | StandardMode | CustomMode

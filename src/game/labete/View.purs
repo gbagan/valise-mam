@@ -2,7 +2,7 @@ module Game.Labete.View (view) where
 
 import MyPrelude
 import Lib.Util (coords, map3)
-import Math (abs)
+import Math as Math
 import Pha as H
 import Pha.Elements as HH
 import Pha.Attributes as P
@@ -15,7 +15,7 @@ import Game.Labete.Model (State, Msg(..), Mode(..), BeastType(..), nonTrappedBea
                           _mode, _beast, _beastType, _selectedColor, _startPointer, _squareColors)
 import UI.Template (template, card, dialog, bestScoreDialog, incDecGrid, gridStyle, trackPointer, svgCursorStyle)
 import UI.Icon (Icon(..))
-import UI.Icons (iconbutton, icongroup, iconSelectGroup, iconSizesGroup, iconBestScore, ireset, irules)
+import UI.Icons (iconbutton, icongroup, iconSelectGroup', iconSizesGroup, iconBestScore, ireset, irules)
 
 colors ∷ Array String
 colors = ["#5aa02c", "blue", "red", "yellow", "magenta", "cyan", "orange", "darkgreen", "grey"]
@@ -25,15 +25,12 @@ zone color { x: x1, y: y1 }  {x: x2, y: y2 } =
     HH.rect 
     [   H.attr "x" $ pc (min x1 x2)
     ,   H.attr "y" $ pc (min y1 y2)
-    ,   P.width $ pc $ abs (x2 - x1)
-    ,   P.height $ pc $ abs (y2 - y1)
+    ,   P.width $ pc $ Math.abs (x2 - x1)
+    ,   P.height $ pc $ Math.abs (y2 - y1)
     ,   H.key "zone"
     ,   H.class_ "labete-zone"
     ,   P.fill $ colors !! color # fromMaybe ""
     ]
-
-modes ∷ Array Mode
-modes = [StandardMode, CylinderMode, TorusMode]
 
 square ∷ ∀a. { color ∷ Int, hasTrap ∷ Boolean, hasBeast ∷ Boolean, row ∷ Int, col ∷ Int} → Array (H.Prop a) → H.VDom a
 square { color, hasTrap, hasBeast, row, col } props =
@@ -62,17 +59,18 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
     beastTypes = [Type1, Type2, Type3, Type4, CustomBeast]
 
     config = card "La bête" 
-        [   iconSelectGroup state "Forme de la bête" beastTypes (state^._beastType) SetBeast case _ of
-                Type1 → _{icon = IconSymbol "#beast1"}
-                Type2 → _{icon = IconSymbol "#beast2"}
-                Type3 → _{icon = IconSymbol "#beast3"}
-                Type4 → _{icon = IconSymbol "#beast23"}
-                CustomBeast → _{icon = IconSymbol "#customize"}
-        ,   iconSelectGroup state "Type de la grille" modes (state^._mode) SetMode case _ of
-                StandardMode → _{icon = IconSymbol "#grid-normal", tooltip = Just "Normale"}
-                CylinderMode → _{icon = IconSymbol "#grid-cylinder", tooltip = Just "Cylindrique"}
-                TorusMode → _{icon = IconSymbol "#grid-torus", tooltip = Just "Torique"}
-
+        [   iconSelectGroup' state "Forme de la bête" (state^._beastType) SetBeast
+            [   Type1 /\ _{icon = IconSymbol "#beast1"}
+            ,   Type2 /\ _{icon = IconSymbol "#beast2"}
+            ,   Type3 /\ _{icon = IconSymbol "#beast3"}
+            ,   Type4 /\ _{icon = IconSymbol "#beast23"}
+            ,   CustomBeast /\ _{icon = IconSymbol "#customize"}
+            ]
+        ,   iconSelectGroup' state "Type de la grille" (state^._mode) SetMode
+            [   StandardMode /\ _{icon = IconSymbol "#grid-normal", tooltip = Just "Normale"}
+            ,   CylinderMode /\ _{icon = IconSymbol "#grid-cylinder", tooltip = Just "Cylindrique"}
+            ,   TorusMode /\ _{icon = IconSymbol "#grid-torus", tooltip = Just "Torique"}
+            ]
         ,   iconSizesGroup state [3∧3, 5∧5, 6∧6] true
         ,   icongroup "Options" $ [ihelp, ireset, irules] <#> (_ $ state)
         ,   iconBestScore state

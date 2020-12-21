@@ -10,7 +10,7 @@ import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, class ScoreGa
 import Lib.Random (Random)
 import Lib.Random as R
 import Lib.Update (Update, modify)
-import Lib.Util (repeat, repeat2, dCoords)
+import Lib.Util (repeat2, dCoords)
 
 type Move = {from ∷ Int, to ∷ Int}
 

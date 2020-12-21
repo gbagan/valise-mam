@@ -9,7 +9,7 @@ import Pha.Util (translate)
 import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointer, scoreFn)
 import Game.Solitaire.Model (State, Msg(..), Board(..), _board, _holes, _dragged, _help)
 import UI.Icon (Icon(..))
-import UI.Icons (icongroup, iconSelectGroup, iconBestScore, ihelp, iundo, iredo, ireset, irules)
+import UI.Icons (icongroup, iconSelectGroup', iconBestScore, ihelp, iundo, iredo, ireset, irules)
 import UI.Template (template, card, bestScoreDialog, gridStyle, incDecGrid, svgCursorStyle, dndBoardProps, dndItemProps)
 
 tricolor ∷ Int → Int → Int → String
@@ -46,14 +46,14 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                 (show $ 50 * row + 25)
 
     config =
-        let boards = [CircleBoard, Grid3Board, RandomBoard, EnglishBoard, FrenchBoard] in        
         card "Jeu du solitaire"
-        [   iconSelectGroup state "Plateau" boards board_ SetBoard \i opt → case i of
-                CircleBoard → opt{icon = IconSymbol "#circle", tooltip = Just "Cercle"}
-                Grid3Board → opt{icon = IconText "3xN", tooltip = Just "3xN"}
-                RandomBoard → opt{icon = IconSymbol "#shuffle", tooltip = Just "Aléatoire"}
-                EnglishBoard → opt{icon = IconSymbol "#tea", tooltip = Just "Anglais"}
-                FrenchBoard →  opt{icon = IconSymbol "#bread", tooltip = Just "Français"}
+        [   iconSelectGroup' state "Plateau" board_ SetBoard
+            [   CircleBoard /\ _{icon = IconSymbol "#circle", tooltip = Just "Cercle"}
+            ,   Grid3Board /\ _{icon = IconText "3xN", tooltip = Just "3xN"}
+            ,   RandomBoard /\ _{icon = IconSymbol "#shuffle", tooltip = Just "Aléatoire"}
+            ,   EnglishBoard /\ _{icon = IconSymbol "#tea", tooltip = Just "Anglais"}
+            ,   FrenchBoard /\  _{icon = IconSymbol "#bread", tooltip = Just "Français"}
+            ]
         ,   icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x → x state
         ,   iconBestScore state
         ]

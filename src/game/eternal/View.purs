@@ -13,7 +13,7 @@ import Pha.Attributes as P
 import Pha.Events as E
 import Pha.Util (translate, pc)
 import UI.Icon (Icon(..))
-import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset, iclear, irules)
+import UI.Icons (icongroup, iconSelectGroup', icons2Players, iundo, iredo, ireset, iclear, irules)
 import UI.Template (template, card, incDecGrid, svgCursorStyle)
 
 
@@ -108,17 +108,17 @@ view state = template {config, board, rules, winTitle} state where
 
     config =    
         card "Domination éternelle" 
-        [   iconSelectGroup state "Type de graphe" [Path, Cycle, Biclique, Sun, Grid] (state^._graphkind) SetGraphKind (case _ of 
-                Path → _{icon = IconSymbol "#graph-path", tooltip = Just "Chemin" }
-                Cycle → _{icon = IconSymbol "#graph-cycle", tooltip = Just "Cycle" }
-                Biclique → _{icon = IconSymbol "#graph-biclique", tooltip = Just "Biclique" }
-                Grid → _{icon = IconSymbol "#graph-grid", tooltip = Just "Grille" }
-                Sun → _{icon = IconSymbol "#graph-sun", tooltip = Just "Soleil" }
-            )
-        ,   iconSelectGroup state "Règles" [OneGuard, ManyGuards] grules SetRules (case _ of 
-                OneGuard → _{icon = IconText "1", tooltip = Just "Un seul garde" }
-                ManyGuards → _{icon = IconText "∞", tooltip = Just "Plusieurs gardes" }
-            )
+        [   iconSelectGroup' state "Type de graphe" (state^._graphkind) SetGraphKind
+            [   Path /\ _{icon = IconSymbol "#graph-path", tooltip = Just "Chemin" }
+            ,   Cycle /\ _{icon = IconSymbol "#graph-cycle", tooltip = Just "Cycle" }
+            ,   Biclique /\ _{icon = IconSymbol "#graph-biclique", tooltip = Just "Biclique" }
+            ,   Grid /\ _{icon =IconSymbol "#graph-grid", tooltip = Just "Grille" }
+            ,   Sun /\ _{icon = IconSymbol "#graph-sun", tooltip = Just "Soleil" }
+            ]
+        ,   iconSelectGroup' state "Règles" grules SetRules
+            [   OneGuard /\ _{icon = IconText "1", tooltip = Just "Un seul garde" }
+            ,   ManyGuards /\ _{icon = IconText "∞", tooltip = Just "Plusieurs gardes" }
+            ]
         ,   icons2Players state
         ,   icongroup "Options" $ [iundo, iredo, ireset, iclear, irules] <#> (_ $ state)
         ]

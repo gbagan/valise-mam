@@ -6,7 +6,6 @@ import Pha.Elements as HH
 import Pha.Attributes as P
 import Pha.Events as E
 import Pha.Util (translate, px')
-import Lib.Util (repeat)
 import Game.Core (Turn(..), canPlay, isLevelFinished, _position, _turn)
 import Game.Nim.Model (State, Msg(..), Move(..), Position(..), _nbPiles, _length)
 import UI.Template (template, card)

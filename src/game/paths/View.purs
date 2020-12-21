@@ -1,7 +1,7 @@
 module Game.Paths.View (view) where
 import MyPrelude
 import Data.FoldableWithIndex (foldMapWithIndex)
-import Lib.Util (coords, repeat)
+import Lib.Util (coords)
 import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _pointer)
 import Game.Paths.Model (State, Msg(..), Mode(..), _exit, _mode)
 import Pha as H
@@ -10,7 +10,7 @@ import Pha.Attributes as P
 import Pha.Events as E
 import Pha.Util (pc, translate)
 import UI.Icon (Icon(..))
-import UI.Icons (icongroup, iconSizesGroup, iconSelectGroup, ihelp, iundo, iredo, ireset, irules)
+import UI.Icons (icongroup, iconSizesGroup, iconSelectGroup', ihelp, iundo, iredo, ireset, irules)
 import UI.Template (template, card, incDecGrid, gridStyle, svgCursorStyle, trackPointer)
 
 square ∷ ∀a. {darken ∷ Boolean, trap ∷ Boolean, door ∷ Boolean, x ∷ Number, y ∷ Number} → Array (H.Prop a) → H.VDom a
@@ -63,9 +63,10 @@ view state = template {config, board, rules} state where
 
     config =
         card "Chemins"
-        [   iconSelectGroup state "Mode de jeu" [Mode1, Mode2] mode SelectMode case _ of
-                Mode1 → _{icon = IconSymbol "#paths-mode0", tooltip = Just "Mode 1"}
-                Mode2 → _{icon = IconSymbol "#paths-mode1", tooltip = Just "Mode 2"}
+        [   iconSelectGroup' state "Mode de jeu" mode SelectMode
+            [   Mode1 /\ _{icon = IconSymbol "#paths-mode0", tooltip = Just "Mode 1"}
+            ,   Mode2 /\ _{icon = IconSymbol "#paths-mode1", tooltip = Just "Mode 2"}
+            ]
         ,   iconSizesGroup state [4∧6, 5∧5, 3∧8] true
         ,   icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> (_ $ state)
         ]

@@ -5,7 +5,7 @@ import Game.Core (class Game, class MsgWithCore, CoreMsg, GState, SizeLimit(..),
                     playA, coreUpdate, _ext, genState, newGame, isLevelFinished,
                     _position, _mode, _nbRows, _nbColumns)
 import Lib.Random as R
-import Lib.Util (repeat, repeat2, (..))
+import Lib.Util (repeat2)
 import Lib.Update (Update, get, modify)
 
 -- type d'arête d'un graphe

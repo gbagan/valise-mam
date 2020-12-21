@@ -1,6 +1,5 @@
 module Game.Dessin.View (view) where
 import MyPrelude
-import Lib.Util ((..))
 import Pha as H
 import Pha.Elements as HH
 import Pha.Attributes as P

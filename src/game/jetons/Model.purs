@@ -1,13 +1,10 @@
 module Game.Jetons.Model where
 
 import MyPrelude
+import Data.FoldableWithIndex (allWithIndex)
+import Game.Core (class Game, class ScoreGame, class MsgWithCore, class MsgWithDnd, CoreMsg, DndMsg, GState, SizeLimit(..), Objective(..), ShowWinPolicy(..), coreUpdate, dndUpdate, _ext, genState, updateScore', _position, _nbColumns, _nbRows, defaultOnNewGame, saveToJson', loadFromJson')
 import Lib.Update (Update)
-import Lib.Util ((..), dCoords)
-import Game.Core (class Game, class ScoreGame, class MsgWithCore, class MsgWithDnd, CoreMsg, DndMsg,
-                 GState, SizeLimit (..), Objective(..), ShowWinPolicy(..),
-                coreUpdate, dndUpdate,
-                _ext, genState, updateScore', _position, _nbColumns, _nbRows, defaultOnNewGame,
-                saveToJson', loadFromJson')
+import Lib.Util (dCoords)
 
 -- une position représente pour chaque numéro de case le nombre de jetons sur cette case
 -- un coup (move) est du type {from, to} lorsque l'on souhaite déplacer une pile de jetons 
@@ -45,9 +42,8 @@ instance game ∷ Game (Array Int) Ext { from ∷ Int, to ∷ Int } where
         let position = state^._position
             columns = state^._nbColumns
         in
-        (0 .. (length position - 1)) # all \i →
-            let x = fromMaybe 0 $ position !! i
-                y = if (i+1) `mod` columns == 0 then 0 else fromMaybe 0 $ position !! (i+1)
+        position # allWithIndex \i x →
+            let y = if (i+1) `mod` columns == 0 then 0 else fromMaybe 0 $ position !! (i+1)
                 z = fromMaybe 0 $ position !! (i+columns) in
             x * (y + z) == 0
 

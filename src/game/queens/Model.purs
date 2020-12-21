@@ -1,7 +1,7 @@
 module Game.Queens.Model where
 import MyPrelude
 import Data.FoldableWithIndex (foldrWithIndex)
-import Lib.Util (repeat, dCoords, map2)
+import Lib.Util (dCoords, map2)
 import Data.Array.NonEmpty as N
 import Game.Core (GState, class MsgWithCore, class Game, class ScoreGame, 
                  CoreMsg, Objective(..), Dialog(..), SizeLimit(..), ShowWinPolicy(..),

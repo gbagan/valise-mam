@@ -2,7 +2,6 @@ module Game.Baseball.Model where
 
 import MyPrelude
 import Data.FoldableWithIndex (allWithIndex)
-import Lib.Util ((..))
 import Lib.Random as Random
 import Lib.Update (Update)
 import Game.Core (class Game, GState, class MsgWithCore, CoreMsg,
@@ -53,7 +52,7 @@ instance game ∷ Game (Array Int) Ext Int where
         guard $ elem (x / 2 - y / 2) [1, nbBases-1, -1, 1-nbBases]
         Just $ position # updateAtIndices [i ∧ y, j ∧ x]
 
-    initialPosition state = Random.shuffle (0 .. (2 * state ^. _nbBases - 1))
+    initialPosition state = Random.shuffle $ 0 .. (2 * state ^. _nbBases - 1)
     isLevelFinished = view _position >>> allWithIndex \i j → i / 2 == j / 2
     onNewGame state = Random.int' (2 * state ^. _nbBases) <#> \i → set _missingPeg i state
     

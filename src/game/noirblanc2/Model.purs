@@ -56,9 +56,11 @@ neighbor ∷ State → Int → Int → Boolean
 neighbor state index1 index2 =
     row' * row' + col' * col' == 1
     where
-    {row, col} = dCoords (state^._nbColumns) index1 index2
-    row' = if state^._mode == TorusMode && abs row == state^._nbRows - 1 then 1 else row
-    col' = if state^._mode /= StandardMode && abs col == state^._nbColumns - 1 then 1 else col
+    nbRows = state^._nbRows
+    nbCols = state^._nbColumns
+    {row, col} = dCoords nbCols index1 index2
+    row' = if state^._mode == TorusMode && row /= 0 && abs row == nbRows - 1 then 1 else row
+    col' = if state^._mode /= StandardMode && col /= 0 && abs col == nbCols - 1 then 1 else col
     
 instance game ∷ Game (Array Card) ExtState Int where
     name _ = "noirblanc2"

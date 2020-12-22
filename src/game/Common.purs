@@ -16,8 +16,8 @@ _isoCustom = iso from to where
 
 pointerDecoder ∷ EventHandler { x ∷ Number, y ∷ Number }
 pointerDecoder ev = do
-    case ME.fromEvent ev /\ E.currentTarget ev of
-        Just mouseEv /\ Just el → do
+    case ME.fromEvent ev ∧ E.currentTarget ev of
+        Just mouseEv ∧ Just el → do
             -- dans l'implémentation actuelle en purescript, getBoundingClientRect ne s'applique
             -- qu'à des HTMLElement et pas à des SVG Elements
             let el' = unsafeCoerce el ∷ HE.HTMLElement

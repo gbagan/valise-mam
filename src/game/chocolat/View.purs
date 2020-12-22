@@ -41,10 +41,10 @@ view state = template {config, board, rules, winTitle} state where
         card "Barre de chocolat"
         [   iconSizesGroup state [6∧7] true
         ,   iconSelectGroup' state "Emplacement du savon" (state^._soapMode) SetSoapMode
-            [   CornerMode /\ _{icon = IconSymbol "#choc-mode0", tooltip = Just "Dans le coin"}
-            ,   BorderMode /\ _{icon = IconSymbol "#choc-mode1", tooltip = Just "Sur un bord"}
-            ,   StandardMode /\ _{icon = IconSymbol "#choc-mode2", tooltip = Just "N'importe où"}
-            ,   CustomMode /\ _{icon = IconSymbol "#customize", tooltip = Just "Personnalisé"}
+            [   CornerMode ∧ _{icon = IconSymbol "#choc-mode0", tooltip = Just "Dans le coin"}
+            ,   BorderMode ∧ _{icon = IconSymbol "#choc-mode1", tooltip = Just "Sur un bord"}
+            ,   StandardMode ∧ _{icon = IconSymbol "#choc-mode2", tooltip = Just "N'importe où"}
+            ,   CustomMode ∧ _{icon = IconSymbol "#customize", tooltip = Just "Personnalisé"}
             ]
         ,   icons2Players state
         ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)

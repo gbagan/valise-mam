@@ -2,7 +2,6 @@ module Game.Labete.View (view) where
 
 import MyPrelude
 import Lib.Util (coords, map3)
-import Math as Math
 import Pha as H
 import Pha.Elements as HH
 import Pha.Attributes as P
@@ -25,8 +24,8 @@ zone color { x: x1, y: y1 }  {x: x2, y: y2 } =
     HH.rect 
     [   H.attr "x" $ pc (min x1 x2)
     ,   H.attr "y" $ pc (min y1 y2)
-    ,   P.width $ pc $ Math.abs (x2 - x1)
-    ,   P.height $ pc $ Math.abs (y2 - y1)
+    ,   P.width $ pc $ abs (x2 - x1)
+    ,   P.height $ pc $ abs (y2 - y1)
     ,   H.key "zone"
     ,   H.class_ "labete-zone"
     ,   P.fill $ colors !! color # fromMaybe ""
@@ -60,16 +59,16 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
 
     config = card "La bête" 
         [   iconSelectGroup' state "Forme de la bête" (state^._beastType) SetBeast
-            [   Type1 /\ _{icon = IconSymbol "#beast1"}
-            ,   Type2 /\ _{icon = IconSymbol "#beast2"}
-            ,   Type3 /\ _{icon = IconSymbol "#beast3"}
-            ,   Type4 /\ _{icon = IconSymbol "#beast23"}
-            ,   CustomBeast /\ _{icon = IconSymbol "#customize"}
+            [   Type1 ∧ _{icon = IconSymbol "#beast1"}
+            ,   Type2 ∧ _{icon = IconSymbol "#beast2"}
+            ,   Type3 ∧ _{icon = IconSymbol "#beast3"}
+            ,   Type4 ∧ _{icon = IconSymbol "#beast23"}
+            ,   CustomBeast ∧ _{icon = IconSymbol "#customize"}
             ]
         ,   iconSelectGroup' state "Type de la grille" (state^._mode) SetMode
-            [   StandardMode /\ _{icon = IconSymbol "#grid-normal", tooltip = Just "Normale"}
-            ,   CylinderMode /\ _{icon = IconSymbol "#grid-cylinder", tooltip = Just "Cylindrique"}
-            ,   TorusMode /\ _{icon = IconSymbol "#grid-torus", tooltip = Just "Torique"}
+            [   StandardMode ∧ _{icon = IconSymbol "#grid-normal", tooltip = Just "Normale"}
+            ,   CylinderMode ∧ _{icon = IconSymbol "#grid-cylinder", tooltip = Just "Cylindrique"}
+            ,   TorusMode ∧ _{icon = IconSymbol "#grid-torus", tooltip = Just "Torique"}
             ]
         ,   iconSizesGroup state [3∧3, 5∧5, 6∧6] true
         ,   icongroup "Options" $ [ihelp, ireset, irules] <#> (_ $ state)

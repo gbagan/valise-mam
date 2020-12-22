@@ -75,6 +75,7 @@ legalMoves Bishop x y = x * x - y * y == 0
 legalMoves Knight x y = x * x + y * y == 5
 legalMoves _ _ _ = false
 
+-- contrairement à Data.Ord.signum, sign 0 = 0
 sign ∷ Int → Int
 sign 0 = 0
 sign x | x > 0 = 1

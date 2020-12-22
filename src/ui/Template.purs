@@ -20,8 +20,8 @@ type Position = { x ∷ Number, y ∷ Number }
 -- | widget pour l'affichage du panneau de victoire
 winPanel ∷ ∀a. String → Boolean → VDom a
 winPanel title visible =
-    div [class_ "ui-flex-center ui-absolute component-win-container"] [
-        div [class_ "component-win", class' "visible" visible] [
+    div [class_ "ui-flex-center ui-absolute ui-win-container"] [
+        div [class_ "ui-win", class' "visible" visible] [
             text title
         ]
     ]
@@ -29,25 +29,25 @@ winPanel title visible =
 -- | widget principal pour l'affichage du panneau des options
 card ∷ ∀a. String → Array (VDom a) → VDom a
 card title children =
-    div [class_ "ui-card"] [
-        div [class_ "ui-card-head ui-flex-center"] [
-            div [class_ "ui-card-title"] [text title]
-        ],
-        div [class_ "ui-card-body"] children
+    div [class_ "ui-card"]
+    [   div [class_ "ui-card-head ui-flex-center"]
+        [   div [class_ "ui-card-title"] [text title]
+        ]
+    ,   div [class_ "ui-card-body"] children
     ]
 
 -- | widget permettant de changer les dimensions d'un plateau 2D
 incDecGrid ∷ ∀msg pos ext mov. MsgWithCore msg ⇒ Game pos ext mov ⇒
     GState pos ext → Array (VDom msg) → VDom msg
-incDecGrid state = U.incDecGrid {
-    locked: state^._locked,
-    nbRows: state^._nbRows,
-    nbColumns: state^._nbColumns,
-    showRowButtons: minRows < maxRows,
-    showColButtons: minCols < maxCols,
-    customSize: state^._customSize,
-    resize: \x y → core (SetGridSize x y true)
-} where
+incDecGrid state = U.incDecGrid 
+    {   locked: state^._locked
+    ,   nbRows: state^._nbRows
+    ,   nbColumns: state^._nbColumns
+    ,   showRowButtons: minRows < maxRows
+    ,   showColButtons: minCols < maxCols
+    ,   customSize: state^._customSize
+    ,   resize: \x y → core (SetGridSize x y true)
+    } where
     SizeLimit minRows minCols maxRows maxCols = sizeLimit state 
 
 type ElementsRow a = 
@@ -107,7 +107,7 @@ bestScoreDialog state children = H.maybe (snd <$> bestScore state) \pos →
     dialog "Meilleur score" (children pos)
         
 
--- | Fonction utilaire pouré définir le style d'un plateau 2D par rapport à ses dimensions et une limite.
+-- | Fonction utilaire pour définir le style d'un plateau 2D par rapport à ses dimensions et une limite.
 -- | Le plateau essaie de prendre toute la place à sa disposition sauf si ses deux dimensions sont inférieure à la limite
 gridStyle ∷ ∀a. Int → Int → Int → Array (Prop a)
 gridStyle rows columns limit = [style "height" $ pc (toNumber rows / m),

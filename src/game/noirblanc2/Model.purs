@@ -89,10 +89,10 @@ update (Core msg) = coreUpdate msg
 update (Play move) = playA move
 update (ToggleCard i) = modify $ over (_position ∘ ix i) reverseCard
 update Shuffle = randomly \st → do
-    pos <- replicateA (length $ st^._position) randomCard
+    pos ← replicateA (length $ st^._position) randomCard
     pure $ st # set _position pos 
 update ToggleCustom = do
-    state <- get
+    state ← get
     if state^._phase == PrepPhase then
         modify $ set _phase GamePhase
     else

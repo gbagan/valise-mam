@@ -1,4 +1,4 @@
-module MyPrelude ((∘), (∧), (≠), (..), abs, range', repeat, module Exports) where
+module MyPrelude ((∘), (∧), (≠), (..), range', repeat, module Exports) where
 import Prelude
 import Prelude (class Applicative, class Apply, class Bind, class BooleanAlgebra, class Bounded, class Category,
                 class CommutativeRing, class Discard, class DivisionRing, class Eq, class EuclideanRing, class Field,
@@ -10,6 +10,7 @@ import Prelude (class Applicative, class Apply, class Bind, class BooleanAlgebra
                 unless, unlessM, void, when, whenM, zero,
                 (#), ($), ($>), (&&), (*), (*>), (+), (-), (/), (/=), (<), (<#>), (<$), (<$>), (<*), (<*>), (<<<), (<=), (<=<),
                 (<>), (<@>), (=<<), (==), (>), (>=), (>=>), (>>=), (>>>), (||)) as Exports
+import Data.Ord (abs) as Exports
 import Data.Symbol (SProxy(..)) as Exports
 import Data.Int (toNumber, floor, even) as Exports
 import Data.Tuple (Tuple(..), fst, snd) as Exports
@@ -34,9 +35,6 @@ import Data.Lens.Record (prop) as Exports
 import Data.String (joinWith) as Exports
 import Control.Alt ((<|>)) as Exports
 import Control.MonadZero (guard) as Exports
-
-abs ∷ Int → Int
-abs x = if x < 0 then -x else x
 
 range' ∷ Int → Int → Array Int
 range' n m = if n > m then [] else range n m

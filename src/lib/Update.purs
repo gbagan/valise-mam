@@ -100,8 +100,8 @@ randomEval d = liftF (Rng $ mkExists (GenWrapper d identity))
 
 randomly ∷ ∀st. (st → Random st) → Update st
 randomly f = do
-    st <- get
-    st2 <- randomEval (f st)
+    st ← get
+    st2 ← randomEval (f st)
     put st2
 
 getHash ∷ ∀st. Command st String

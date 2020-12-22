@@ -48,11 +48,11 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
     config =
         card "Jeu du solitaire"
         [   iconSelectGroup' state "Plateau" board_ SetBoard
-            [   CircleBoard /\ _{icon = IconSymbol "#circle", tooltip = Just "Cercle"}
-            ,   Grid3Board /\ _{icon = IconText "3xN", tooltip = Just "3xN"}
-            ,   RandomBoard /\ _{icon = IconSymbol "#shuffle", tooltip = Just "Aléatoire"}
-            ,   EnglishBoard /\ _{icon = IconSymbol "#tea", tooltip = Just "Anglais"}
-            ,   FrenchBoard /\  _{icon = IconSymbol "#bread", tooltip = Just "Français"}
+            [   CircleBoard ∧ _{icon = IconSymbol "#circle", tooltip = Just "Cercle"}
+            ,   Grid3Board ∧ _{icon = IconText "3xN", tooltip = Just "3xN"}
+            ,   RandomBoard ∧ _{icon = IconSymbol "#shuffle", tooltip = Just "Aléatoire"}
+            ,   EnglishBoard ∧ _{icon = IconSymbol "#tea", tooltip = Just "Anglais"}
+            ,   FrenchBoard ∧  _{icon = IconSymbol "#bread", tooltip = Just "Français"}
             ]
         ,   icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x → x state
         ,   iconBestScore state

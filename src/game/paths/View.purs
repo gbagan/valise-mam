@@ -64,8 +64,8 @@ view state = template {config, board, rules} state where
     config =
         card "Chemins"
         [   iconSelectGroup' state "Mode de jeu" mode SelectMode
-            [   Mode1 /\ _{icon = IconSymbol "#paths-mode0", tooltip = Just "Mode 1"}
-            ,   Mode2 /\ _{icon = IconSymbol "#paths-mode1", tooltip = Just "Mode 2"}
+            [   Mode1 ∧ _{icon = IconSymbol "#paths-mode0", tooltip = Just "Mode 1"}
+            ,   Mode2 ∧ _{icon = IconSymbol "#paths-mode1", tooltip = Just "Mode 2"}
             ]
         ,   iconSizesGroup state [4∧6, 5∧5, 3∧8] true
         ,   icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> (_ $ state)

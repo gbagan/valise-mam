@@ -86,39 +86,39 @@ irules state =
             Rules → true
             _ → false
 
-class DefIconText a where
-    defIconText ∷ a → Record I.Options → Record I.Options
+class IconLabel a where
+    iconLabel ∷ a → Record I.Options → Record I.Options
 
-instance defint ∷ DefIconText Int where
-    defIconText val opts = opts{icon = I.IconText $ show val}
-else instance defa ∷ DefIconText a where
-    defIconText _ opts = opts
+instance iconLabelInt ∷ IconLabel Int where
+    iconLabel val opts = opts{icon = I.IconText $ show val}
+else instance iconLabela ∷ IconLabel a where
+    iconLabel _ opts = opts
 
 -- | groupe d'icones à choix unique
-iconSelectGroup ∷ ∀msg pos ext sel. DefIconText sel ⇒ Eq sel ⇒
+iconSelectGroup ∷ ∀msg pos ext sel. IconLabel sel ⇒ Eq sel ⇒
     GState pos ext → String → Array sel → sel → (sel → msg) → (sel → Record I.Options → Record I.Options) → VDom msg
 iconSelectGroup state title values selected action optionFn =
     icongroup title $ values <#> \val →
-        iconbutton state (optionFn val (defIconText val I.defaultOptions{
+        iconbutton state (optionFn val (iconLabel val I.defaultOptions{
             selected = val == selected
         })) [onclick (action val)]
 
 -- | groupe d'icones à choix unique, fonction alternative 
-iconSelectGroup' ∷ ∀msg pos ext sel. DefIconText sel ⇒ Eq sel ⇒
+iconSelectGroup' ∷ ∀msg pos ext sel. IconLabel sel ⇒ Eq sel ⇒
     GState pos ext → String → sel → (sel → msg) → Array (Tuple sel (Record I.Options → Record I.Options)) → VDom msg
 iconSelectGroup' state title selected action values =
-    icongroup title $ values <#> \(val /\ optionFn) →
-        iconbutton state (optionFn (defIconText val I.defaultOptions{
+    icongroup title $ values <#> \(val ∧ optionFn) →
+        iconbutton state (optionFn (iconLabel val I.defaultOptions{
             selected = val == selected
         })) [onclick (action val)]
 
 -- | groupe d'icones à choix multiple
 iconSelectGroupM ∷ ∀msg pos ext t sel.
-    DefIconText sel ⇒ Eq sel ⇒ Foldable t ⇒
+    IconLabel sel ⇒ Eq sel ⇒ Foldable t ⇒
     GState pos ext → String → Array sel → t sel → (sel → msg) → (sel → Record I.Options → Record I.Options) → VDom msg
 iconSelectGroupM state title values selected action optionFn =
     icongroup title $ values <#> \val →
-        iconbutton state (optionFn val (defIconText val I.defaultOptions{
+        iconbutton state (optionFn val (iconLabel val I.defaultOptions{
             selected = elem val selected
         })) [onclick (action val)]
 

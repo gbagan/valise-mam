@@ -13,6 +13,9 @@ import Lib.Util (dCoords)
 data Card = BlackCard | WhiteCard | EmptyCard
 derive instance eqCard ∷ Eq Card
 
+data Mode = StandardMode | CylinderMode | TorusMode
+derive instance eqMode ∷ Eq Mode
+
 data Phase = PrepPhase | GamePhase
 derive instance eqPhase ∷ Eq Phase
 
@@ -27,6 +30,7 @@ randomCard ∷ Random Card
 randomCard = R.bool <#> if _ then WhiteCard else BlackCard
 
 type Ext' = {
+    mode ∷ Mode,
     phase ∷ Phase
 }
 
@@ -37,19 +41,24 @@ type State = GState Position ExtState
 istate ∷ State
 istate = genState [] _{nbRows=1, nbColumns=8, customSize=true}
         (Ext 
-            {phase: GamePhase}
+            {mode: StandardMode, phase: GamePhase}
         )
 
 -- lenses
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
+_mode ∷ Lens' State Mode
+_mode = _ext' ∘ prop (SProxy ∷ _ "mode")
 _phase ∷ Lens' State Phase
 _phase = _ext' ∘ prop (SProxy ∷ _ "phase")
 
 neighbor ∷ State → Int → Int → Boolean
 neighbor state index1 index2 =
-    row * row + col * col == 1
-    where {row, col} = dCoords (state^._nbColumns) index1 index2
+    row' * row' + col' * col' == 1
+    where
+    {row, col} = dCoords (state^._nbColumns) index1 index2
+    row' = if state^._mode == TorusMode && abs row == state^._nbRows - 1 then 1 else row
+    col' = if state^._mode /= StandardMode && abs col == state^._nbColumns - 1 then 1 else col
     
 instance game ∷ Game (Array Card) ExtState Int where
     name _ = "noirblanc2"
@@ -81,13 +90,14 @@ instance game ∷ Game (Array Card) ExtState Int where
 sizes ∷ Array (Tuple Int Int)
 sizes = [3∧3, 4∧4, 2∧10, 3∧10, 5∧5, 8∧8, 8∧8]
 
-data Msg = Core CoreMsg | Play Int | ToggleCard Int | ToggleCustom | Shuffle
+data Msg = Core CoreMsg | Play Int | ToggleCard Int | SetMode Mode | ToggleCustom | Shuffle
 instance withcore ∷ MsgWithCore Msg where core = Core
 
 update ∷ Msg → Update State
 update (Core msg) = coreUpdate msg
 update (Play move) = playA move
 update (ToggleCard i) = modify $ over (_position ∘ ix i) reverseCard
+update (SetMode mode) = newGame $ set _mode mode
 update Shuffle = randomly \st → do
     pos ← replicateA (length $ st^._position) randomCard
     pure $ st # set _position pos 

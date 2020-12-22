@@ -3,7 +3,7 @@ module Game.Noirblanc2.View where
 import MyPrelude
 
 import Game.Core (_position, _nbRows, _nbColumns)
-import Game.Noirblanc2.Model (State, Msg(..), Card(..), Phase(..), _phase)
+import Game.Noirblanc2.Model (State, Msg(..), Card(..), Phase(..), Mode(..), _mode, _phase)
 import Lib.Util (coords)
 import Pha as H
 import Pha.Elements as HH
@@ -11,7 +11,7 @@ import Pha.Events as E
 import Pha.Attributes as P
 import Pha.Util (pc)
 import UI.Icon (Icon(..))
-import UI.Icons (iconbutton, icongroup, iundo, iredo, ireset, irules)
+import UI.Icons (iconbutton, icongroup, iconSelectGroup', iundo, iredo, ireset, irules)
 import UI.Template (template, card, incDecGrid, gridStyle)
 
 square ∷ ∀a. Card → Array (H.Prop a) → H.VDom a
@@ -44,7 +44,12 @@ view state = template {config, board, rules, winTitle} state where
 
 
     config = card "??????"
-        [   icongroup "Configuration" [icustom, ishuffle]
+        [   iconSelectGroup' state "Type de la grille" (state^._mode) SetMode
+            [   StandardMode ∧ _{icon = IconSymbol "#grid-normal", tooltip = Just "Normale"}
+            ,   CylinderMode ∧ _{icon = IconSymbol "#grid-cylinder", tooltip = Just "Cylindrique"}
+            ,   TorusMode ∧ _{icon = IconSymbol "#grid-torus", tooltip = Just "Torique"}
+            ]
+        ,   icongroup "Configuration" [icustom, ishuffle]
         ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
         ]
 

@@ -55,8 +55,9 @@ spiralPoints n = spiralPointsPolar n <#> polarToCartesian
 spiralPath ∷ String
 spiralPath = spiral { x: 0.0, y: 0.0 } 0.0 61.0 0.0 (37.0 / 6.0 * pi) (pi / 6.0)
 
-drawSpiral ∷ ∀a. Array (H.VDom a)
+drawSpiral ∷ ∀a. H.VDom a
 drawSpiral =
+    HH.g []
     [   HH.path [P.d spiralPath, P.fill "none", P.stroke "black", P.strokeWidth 3.0]
     ,   HH.line [P.x1 153.0, P.y1 9.0, P.x2 207.0, P.y2 20.0, P.stroke "black", P.strokeDasharray "5", P.strokeWidth 6.0]
     ,   HH.line [P.x1 153.0, P.y1 7.0, P.x2 153.0, P.y2 39.0, P.stroke "black", P.strokeWidth 3.0]
@@ -106,8 +107,7 @@ view state = template {config, board, rules, winTitle} state where
     drawFrog =
         H.maybe (pointsPolar !! position) \{radius, theta} →
             HH.g
-            [   H.key "frog"
-            ,   H.class_ "frog-frog-container"
+            [   H.class_ "frog-frog-container"
             ,   H.style "transform" $ translate (px radius) "0" <> " rotate(" <> show (theta * 180.0 / pi) <> "deg)"
             ,   H.style "transform-origin" $ px (-radius) <> " 0"
             ]
@@ -127,39 +127,39 @@ view state = template {config, board, rules, winTitle} state where
                 ]
             ]
 
-    drawMarked =
-        map2 marked spoints \i mark {x, y} →
-            H.when (mark && i ≠ position) \_ →
-                HH.use 
-                [   P.href "#frog2"
-                ,   P.x $ x - 20.0
-                ,   P.y $ y - 20.0
-                ,   P.width "32"
-                ,   P.height "32"
-                ,   H.key $ "reach" <> show i
-                ,   H.class_ "frog-frog marked"
-                ]
+    drawMarked = 
+        HH.g [] $
+            map2 marked spoints \i mark {x, y} →
+                H.when (mark && i ≠ position) \_ →
+                    HH.use 
+                    [   P.href "#frog2"
+                    ,   P.x $ x - 20.0
+                    ,   P.y $ y - 20.0
+                    ,   P.width "32"
+                    ,   P.height "32"
+                    ,   H.class_ "frog-frog marked"
+                    ]
     
     drawLilypads =
-        map2 spoints reachable \i {x, y} reach →
-            HH.g
-            [   H.key $ "lily" <> show i
-            ,   E.onclick_ \ev → pure $ Just $ if ME.shiftKey ev then Mark i else Play i
-            ]
-            [   lily i x y false false
-            ,   lily i x y true (not reach || locked)
-            ,   HH.text (if help then show $ nbRows - i else "")
-                [   P.x x, P.y y, H.class_ "frog-index"
+        HH.g [] $
+            map2 spoints reachable \i {x, y} reach →
+                HH.g
+                [   E.onclick_ \ev → pure $ Just $ if ME.shiftKey ev then Mark i else Play i
                 ]
-            ]
+                [   lily i x y false false
+                ,   lily i x y true (not reach || locked)
+                ,   HH.text (if help then show $ nbRows - i else "")
+                    [   P.x x, P.y y, H.class_ "frog-index"
+                    ]
+                ]
 
     grid = 
         HH.div [H.class_ "ui-board frog-board"]
-        [   HH.svg [P.viewBox (-190) (-200) 400 400] $ concat
+        [   HH.svg [P.viewBox (-190) (-200) 400 400]
             [   drawSpiral
             ,   drawLilypads
             ,   drawMarked
-            ,   [drawFrog]
+            ,   drawFrog
             ]
         ,   HH.span [] [H.text (turnMessage state)]
         ]

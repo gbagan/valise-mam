@@ -5,6 +5,7 @@ import Lib.Util (map2, map3)
 import Data.Array.NonEmpty as N
 import Pha as H
 import Pha.Elements as HH
+import Pha.Keyed as HK
 import Pha.Attributes as P
 import Pha.Events as E
 import Pha.Util (pc)
@@ -78,15 +79,14 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
         ]   
 
     pieceSelector =
-        HH.div [H.class_ "ui-flex-center gutter2 queens-pieceselector"] $
+        HK.div [H.class_ "ui-flex-center gutter2 queens-pieceselector"] $
             N.toArray allowedPieces <#> \piece →
                 let name = show piece in
-                iconbutton state
+                name /\ iconbutton state
                 {   selected: piece == selectedPiece
                 ,   icon: IconSymbol $ "#piece-" <> name
                 } 
-                [   H.key name
-                ,   E.onclick $ SelectPiece piece
+                [   E.onclick $ SelectPiece piece
                 ]
 
     cursor pp =
@@ -125,16 +125,15 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
     customDialog _ = 
         dialog "Personnalise ta pièce"
         [   HH.div [H.class_ "flex queens-custompiece"]
-            [   HH.div [H.class_ "queens-grid queens-custompiece-grid"] (
+            [   HK.div [H.class_ "queens-grid queens-custompiece-grid"] (
                     customLocalMoves # mapWithIndex \index selected →
-                        square
+                        show index /\ square
                         {   piece: if index == 12 then Custom else Empty
                         ,   selected: selected
                         ,   capturable: false
                         ,   nonavailable: false
                         } 
-                        [   H.key $ show index 
-                        ,   H.style "width" "20%"
+                        [   H.style "width" "20%"
                         ,   H.style "height" "20%"
                         ,   E.onclick' if index ≠ 12 then Just (FlipLocalMove index) else Nothing
                         ]
@@ -146,8 +145,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
                         ,       icon: if i == 4 then IconNone else IconSymbol "#arrow"
                         ,   style: ["transform" ∧ ("rotate(" <> show angle <> "deg)")]
                         }
-                        [   H.key $ show i
-                        ,   E.onclick' $ if i ≠ 4 then Just (FlipDirection i) else Nothing
+                        [   E.onclick' $ if i ≠ 4 then Just (FlipDirection i) else Nothing
                         ]
             )
         ]

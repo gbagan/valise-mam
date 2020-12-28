@@ -1,6 +1,5 @@
 .noirblanc2-square {
     position: absolute;
-    overflow: hidden;
     perspective: 1000px;
 }
 
@@ -38,7 +37,7 @@
 .noirblanc2-square-blanc {
     background-color: white;
     transform: rotateY(180deg);
-  }
+}
 
 
 .noirblanc2-card {

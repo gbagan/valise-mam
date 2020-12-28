@@ -1,6 +1,6 @@
 module UI.Template where
 import MyPrelude
-import Pha (VDom, Prop, text, emptyNode, class_, class', style)
+import Pha (VDom, Prop, text, class_, class', style)
 import Pha as H
 import Pha.Elements (div)
 import Pha.Events as E
@@ -63,12 +63,12 @@ type Elements a = Record (ElementsRow a)
 
 defaultElements ∷ ∀a. Elements a
 defaultElements =
-    {   board: emptyNode
-    ,   config: emptyNode
+    {   board: text ""
+    ,   config: text ""
     ,   rules: [text "blah blah"]
     ,   winTitle: "GAGNÉ"
-    ,   customDialog: \_ → emptyNode
-    ,   scoreDialog: \_ → emptyNode
+    ,   customDialog: \_ → text ""
+    ,   scoreDialog: \_ → text ""
     }
 
 template ∷ ∀elems pos ext mov msg.
@@ -96,7 +96,7 @@ template elems state =
                 ]
         dialog' CustomDialog = customDialog unit
         dialog' ScoreDialog = scoreDialog unit
-        dialog' _ = emptyNode
+        dialog' _ = text ""
 
 dialog ∷ ∀msg. MsgWithCore msg ⇒ String → Array (VDom msg) → VDom msg
 dialog title = D.dialog {title, onCancel: Nothing, onOk: Just $ core SetNoDialog}

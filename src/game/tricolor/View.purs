@@ -6,6 +6,7 @@ import Game.Core (isLevelFinished, _position)
 import Game.Tricolor.Model (State, Msg(..), _size, _nbColors, _range, _hoverCell, _shuffle, inRange)
 import Pha as H
 import Pha.Elements as HH
+import Pha.Keyed as HK
 import Pha.Attributes as P
 import Pha.Events as E
 import Pha.Util (translate)
@@ -46,9 +47,8 @@ view state = template {config, board, rules} state where
         ]
 
     drawCell i color =
-        HH.circle 
-        [   H.key $ "b" <> show i
-        ,   P.r 7.5
+        ("b" <> show i) /\ HH.circle 
+        [   P.r 7.5
         ,   H.class_ "tricolor-cell"
         ,   H.class' "finished" levelFinished
         ,   P.stroke $ if (inRange state i <$> hoverCell) == Just true then "lightgreen" else "black"
@@ -61,25 +61,23 @@ view state = template {config, board, rules} state where
 
     drawColorCycle =
         (take nbColors colors # foldMapWithIndex \i color →
-                [   HH.circle
+                [   ("c" <> show i) /\ HH.circle
                     [   P.cx $ toNumber (95 + 15 * (i - nbColors))
                     ,   P.cy 95.0
                     ,   P.r 3.0
-                    ,   H.key $ "c" <> show i
                     ,   P.fill color
                     ]
-                ,   HH.path
+                ,   ("t" <> show i) /\ HH.path
                     [   P.d "M0 2H4V0l3 3l-3 3v-2h-4Z"
                     ,   P.fill "black"
                     ,   P.transform $ translate (show $ 99 + 15 * (i - nbColors)) "92"
-                    ,   H.key $ "t" <> show i
                     ]
                 ]
-        ) <> [HH.circle [P.cx 95.0, P.cy 95.0, P.r 3.0, H.key "fc", P.fill "green"]]
+        ) <> ["fc" /\ HH.circle [P.cx 95.0, P.cy 95.0, P.r 3.0, P.fill "green"]]
 
     board =
         HH.div [H.class_ "ui-board tricolor-board"]
-        [   HH.svg [P.viewBox 0 0 100 100] $ concat
+        [   HK.svg [P.viewBox 0 0 100 100] $ concat
             [   position # mapWithIndex drawCell
             ,   drawColorCycle
             ]

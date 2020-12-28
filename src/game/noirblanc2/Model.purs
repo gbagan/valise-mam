@@ -59,8 +59,8 @@ neighbor state index1 index2 =
     nbRows = state^._nbRows
     nbCols = state^._nbColumns
     {row, col} = dCoords nbCols index1 index2
-    row' = if state^._mode == TorusMode && row /= 0 && abs row == nbRows - 1 then 1 else row
-    col' = if state^._mode /= StandardMode && col /= 0 && abs col == nbCols - 1 then 1 else col
+    row' = if state^._mode == TorusMode && row ≠ 0 && abs row == nbRows - 1 then 1 else row
+    col' = if state^._mode ≠ StandardMode && col ≠ 0 && abs col == nbCols - 1 then 1 else col
     
 instance game ∷ Game (Array Card) ExtState Int where
     name _ = "noirblanc2"
@@ -77,8 +77,8 @@ instance game ∷ Game (Array Card) ExtState Int where
         else 
             Nothing
 
-    initialPosition state = pure (replicate (state^._nbRows * state^._nbColumns) WhiteCard)
-    isLevelFinished state = all (_ /= WhiteCard) (state^._position)
+    initialPosition state = pure $ replicate (state^._nbRows * state^._nbColumns) WhiteCard
+    isLevelFinished state = all (_ ≠ WhiteCard) (state^._position)
     sizeLimit _ = SizeLimit 1 1 12 12
 
     -- méthodes par default
@@ -88,9 +88,6 @@ instance game ∷ Game (Array Card) ExtState Int where
     computerMove _ = pure Nothing
     updateScore st = st ∧ true
     onPositionChange = identity
-
-sizes ∷ Array (Tuple Int Int)
-sizes = [3∧3, 4∧4, 2∧10, 3∧10, 5∧5, 8∧8, 8∧8]
 
 data Msg = Core CoreMsg | Play Int | ToggleCard Int | SetMode Mode | ToggleCustom | Shuffle
 instance withcore ∷ MsgWithCore Msg where core = Core

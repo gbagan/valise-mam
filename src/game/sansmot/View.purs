@@ -101,7 +101,7 @@ view state =
     ] where
     
     main PythaPage =
-        HH.div [H.key "pytha"]
+        HH.div []
         [   HH.h1 [H.class_ "sansmot-title"] [H.text "Preuve sans mot"]
         ,   HH.h2 [H.class_ "sansmot-h2"] [H.text "Que raconte le théorème de Pythagore ?"]
         ,   HH.p [H.class_ "sansmot-center"]
@@ -120,7 +120,7 @@ view state =
         ]
 
     main CarollPage =
-        HH.div [H.key "caroll"]
+        HH.div []
         [   HH.h1 [H.class_ "sansmot-title"] [H.text "Preuve sans mot"]
         ,   HH.h2 [H.class_ "sansmot-h2"] [H.text "Où est passé le carré manquant ?"]
         ,   HH.p [H.class_ "sansmot-center"] [animCaroll state]

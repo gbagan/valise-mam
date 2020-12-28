@@ -57,8 +57,7 @@ view state = template {config, board, rules, winTitle} state where
         position # mapWithIndex \index card →
             let {row, col} = coords columns index in
             square card
-            [   H.key $ show index
-            ,   H.style "height" $ pc (0.86 / toNumber rows)
+            [   H.style "height" $ pc (0.86 / toNumber rows)
             ,   H.style "width" $ pc (0.68 / toNumber columns)
             ,   H.style "left" $ pc ((toNumber col + 0.16) / toNumber columns)
             ,   H.style "top" $ pc ((toNumber row + 0.07) / toNumber rows)

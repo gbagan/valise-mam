@@ -130,11 +130,13 @@ instance tilingGame ∷ Game (Array Int) ExtState Int where
 
     initialPosition state = pure $ replicate (state^._nbRows * state^._nbColumns) 0
 
-    sizeLimit = const (SizeLimit 3 3 10 10)
+    sizeLimit _ = SizeLimit 3 3 10 10
 
     onNewGame state = pure $ state 
                             # set _tile (getTile state) 
                             # set _rotation 0
+
+    -- méthodes par défaut
     computerMove _ = pure Nothing
     updateScore st = st ∧ true
     onPositionChange = identity
@@ -158,15 +160,3 @@ update (FlipTile index) = newGame $ over (_tile ∘ _isoCustom ∘ ix index) not
 onKeyDown ∷ String → Maybe Msg
 onKeyDown " " = Just Rotate
 onKeyDown _ = Nothing
-
-{-            
-const configHash = state ⇒ `${state.rows}-${state.columns}-${state.tileIndex}-${state.nbSinks}`
-
-const updateSuccess = state ⇒ state |> set(
-    ['succeeded', configHash(state)],
-    v ⇒ (v || repeat(state.rows * state.columns, false)) |> set(sinks(state)[0], true)
-);
-        ////// todo concat if
-        whenLevelFinished: state ⇒ state |> updateSuccess |> $.newGame(null, {noDialog: true}),
-
-        successForThisConf: state.succeeded[configHash(state)] || repeat(state.columns * state.rows, false),

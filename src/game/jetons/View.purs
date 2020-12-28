@@ -44,7 +44,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
         HH.div ([H.class_ "ui-board"] <> dndBoardProps <> gridStyle rows columns 3) $ concat
         [   position # mapWithIndex \i val →
                 H.when (val ≠ 0) \_ →
-                    piece i val ([H.key $ show i] <> 
+                    piece i val ([] <> 
                         dndItemProps state
                         {   currentDragged: dragged
                         ,   draggable: true
@@ -60,7 +60,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
             HH.div (gridStyle rows columns 3 <> [H.class_ "ui-board"]) (
                 pos # mapWithIndex \i val →
                     H.when (val ≠ 0) \_ →
-                        piece i val [H.key $ show i]
+                        piece i val []
             )
         ]
     ]

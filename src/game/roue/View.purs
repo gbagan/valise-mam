@@ -7,6 +7,7 @@ import Game.Roue.Model (State, Msg(..), Location(..), _size, _rotation, _dragged
 import Lib.Util (map2)
 import Pha as H
 import Pha.Elements as HH
+import Pha.Keyed as HK
 import Pha.Attributes as P
 import Pha.Events as E
 import Pha.Util (pc)
@@ -76,11 +77,11 @@ view state = template {config, board, rules} state where
                             _ → -1
         in colors !! colorIndex
 
-    outerWheel = HH.div 
+    outerWheel = HK.div 
         [   H.class_ "roue-outer"
         ,   H.style "transform" $ "rotate(" <> show (360.0 * toNumber (state ^. _rotation) / toNumber size) <> "deg)"
         ] $
-        [   HH.svg [H.key "svg", P.viewBox 0 0 100 100] $ map2 position (aligned state) \i pos align →
+        [   "svg" /\ HH.svg [P.viewBox 0 0 100 100] (map2 position (aligned state) \i pos align →
                 HH.path (
                     [   P.d $ pizza
                                 50.0
@@ -97,10 +98,9 @@ view state = template {config, board, rules} state where
                         ,   id: Wheel i
                         }
                     )
-        ] <> (catMaybes $ position # mapWithIndex \index c → c <#> \color → 
-            HH.div
+        )] <> (catMaybes $ position # mapWithIndex \index c → c <#> \color → 
+            show index /\ HH.div
             [   H.class_ "roue-outer-piece"
-            ,   H.key $ show index
             ,   H.style "left" $ pc $ 0.44 + 0.4 * cos(toNumber index * 2.0 * pi / toNumber size)
             ,   H.style "top" $ pc $ 0.44 + 0.4 * sin(toNumber index * 2.0 * pi / toNumber size)
             ,   H.style "background-color" $ colors !! color # fromMaybe ""

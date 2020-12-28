@@ -3,6 +3,7 @@ import MyPrelude
 import Data.FoldableWithIndex (foldMapWithIndex)
 import Pha as H
 import Pha.Elements as HH
+import Pha.Keyed as HK
 import Pha.Attributes as P
 import Pha.Events as E
 import Pha.Util (translate, px')
@@ -27,17 +28,15 @@ view state = template {config, board, rules, winTitle} state where
         ]
 
     drawRow i =
-        HH.rect
-        [   H.key $ "pile" <> show i
-        ,   H.class_ "nim-row"
+        ("pile" <> show i) /\ HH.rect
+        [   H.class_ "nim-row"
         ,   H.class_ $ if length == 5 then "nim-row-5" else "nim-row-10"
         ,   P.y $ toNumber (10 + 19 * i)
         ]
 
     drawSquare i j =
-        HH.rect
-        [   H.key $ "base-" <> show i <> "-" <> show j
-        ,   H.class_ "nim-square"
+        ("s-" <> show i <> "-" <> show j) /\ HH.rect
+        [   H.class_ "nim-square"
         ,   E.onclick $ Play (Move i j)
         ,   H.style "transform" $
                     translate (px' $ (if length == 5 then 30 else 5) + 10 * j) (px' $ 15 + 19 * i)
@@ -46,9 +45,8 @@ view state = template {config, board, rules, winTitle} state where
         ]
 
     drawPeg i player j =
-        HH.use 
+        ("p-" <> show i <> "-" <> show player) /\ HH.use 
         [   P.href "#meeple"
-        ,   H.key $ "p-" <> show i <> "-" <> show player
         ,   P.width "8"
         ,   P.height "8"
         ,   H.class_ "nim-player"
@@ -58,7 +56,7 @@ view state = template {config, board, rules, winTitle} state where
 
     board =
         HH.div [H.class_ "ui-board nim-board"]
-        [   HH.svg [P.viewBox 0 0 100 100] (
+        [   HK.svg [P.viewBox 0 0 100 100] (
                 position # foldMapWithIndex \i (Position p1 p2) → concat
                     [   [drawRow i]
                     ,   repeat length (drawSquare i)

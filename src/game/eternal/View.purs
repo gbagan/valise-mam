@@ -31,8 +31,7 @@ translateGuard {x, y} = translate (pc x) (pc y)
 
 cursor ∷ ∀a b. PointerPosition → b → H.VDom a
 cursor pp _ = HH.use $ 
-                [   H.key "cursor"
-                ,   P.href "#roman"
+                [   P.href "#roman"
                 ,   P.width "6"
                 ,   P.height "12"
                 ,   P.x (-3.0)
@@ -148,8 +147,7 @@ view state = template {config, board, rules, winTitle} state where
                 ,   HH.g [] $
                         graph.vertices # mapWithIndex \i {x, y} →
                             HH.circle $
-                            [   H.key $ show i
-                            ,   P.cx $ 100.0 * x
+                            [   P.cx $ 100.0 * x
                             ,   P.cy $ 100.0 * y
                             ,   P.r 3.0
                             ,   P.fill "blue"
@@ -157,8 +155,7 @@ view state = template {config, board, rules, winTitle} state where
                 ,   HH.g [] $
                         guards # mapWithIndex \i index →
                             HH.use
-                            [   H.key $ show i
-                            ,   P.href "#roman"
+                            [   P.href "#roman"
                             ,   P.width "6"
                             ,   P.height "12"
                             ,   P.x (-3.0)
@@ -169,8 +166,7 @@ view state = template {config, board, rules, winTitle} state where
                             ]
                 ,   H.maybe (position.attacked) \attack →
                         HH.use
-                        [   H.key "attack"
-                        ,   P.href "#eternal-attack"
+                        [   P.href "#eternal-attack"
                         ,   P.width "8"
                         ,   P.height "8"
                         ,   P.x (-4.0)
@@ -182,8 +178,7 @@ view state = template {config, board, rules, winTitle} state where
                 ,   HH.g [] $ 
                         graph.vertices # mapWithIndex \i pos →
                             HH.rect $
-                            [   H.key $ show i
-                            ,   P.width "10"
+                            [   P.width "10"
                             ,   P.height "10"
                             ,   P.x (-5.0)
                             ,   P.y (-5.0)

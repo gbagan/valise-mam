@@ -4,6 +4,7 @@ import MyPrelude
 import Lib.Util (coords, map3)
 import Pha as H
 import Pha.Elements as HH
+import Pha.Keyed as HK
 import Pha.Attributes as P
 import Pha.Events as E
 import Pha.Util (pc, translate)
@@ -26,7 +27,6 @@ zone color { x: x1, y: y1 }  {x: x2, y: y2 } =
     ,   H.attr "y" $ pc (min y1 y2)
     ,   P.width $ pc $ abs (x2 - x1)
     ,   P.height $ pc $ abs (y2 - y1)
-    ,   H.key "zone"
     ,   H.class_ "labete-zone"
     ,   P.fill $ colors !! color # fromMaybe ""
     ]
@@ -76,8 +76,7 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
         ]
 
     cursor pp = HH.use (svgCursorStyle pp <>
-        [   H.key "cursor"
-        ,   P.href "#trap"
+        [   P.href "#trap"
         ,   P.x (-20.0)
         ,   P.y (-20.0)
         ,   P.width "40"
@@ -92,19 +91,18 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
                         else
                             pure Nothing
     ]) [
-        HH.svg [P.viewBox 0 0 (50 * columns) (50 * rows)] (
+        HK.svg [P.viewBox 0 0 (50 * columns) (50 * rows)] (
             (map3 (state^._position) nonTrappedBeast  (state^._squareColors) \index hasTrap hasBeast color →
                 let {row, col} = coords columns index in
-                square { color, row, col, hasTrap, hasBeast: hasBeast && state^._help }
-                [   H.key $ show index
-                ,   E.onclick_ $ \ev → pure $ if ME.shiftKey ev then Nothing else Just (Play index)
+                show index /\ square { color, row, col, hasTrap, hasBeast: hasBeast && state^._help }
+                [   E.onclick_ $ \ev → pure $ if ME.shiftKey ev then Nothing else Just (Play index)
                     -- pointerenter: [actions.setSquareHover, index], todo
                     -- ponterleave: [actions.setSquareHover, null],
-                ,    E.onpointerup $ FinishZone index
-                ,    E.onpointerdown_  $ \ev → pure $ if ME.shiftKey ev then Just (StartZone index) else Nothing
+                ,   E.onpointerup $ FinishZone index
+                ,   E.onpointerdown_  $ \ev → pure $ if ME.shiftKey ev then Just (StartZone index) else Nothing
                 ]
             ) <> [
-                H.maybeN $ case state^._startPointer of
+                "c" /\ H.maybeN case state^._startPointer of
                     Nothing → cursor <$> state^._pointer
                     Just p → zone (state^._selectedColor) p <$> state^._pointer
             ]
@@ -126,9 +124,8 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
                 state ^. (_beast ∘ ix 0 ∘ _isoCustom) #
                     mapWithIndex \index hasBeast →
                         let {row, col} = coords 5 index in
-                        square {row, col, hasBeast, hasTrap: false, color: 0} [
-                            H.key $ show index
-                        ,   E.onclick $ FlipCustomBeast index
+                        square {row, col, hasBeast, hasTrap: false, color: 0}
+                        [   E.onclick $ FlipCustomBeast index
                         ]
             )
         ]
@@ -140,7 +137,7 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
                 HH.svg [P.viewBox 0 0 (50 * columns) (50 * rows)] (
                     position # mapWithIndex \index hasTrap →
                         let {row, col} = coords columns index in
-                        square { color: 0, row, col, hasTrap, hasBeast: false } [H.key $ show index]
+                        square { color: 0, row, col, hasTrap, hasBeast: false } []
                 )
             ]
         ]

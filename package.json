@@ -1,11 +1,11 @@
 {
   "dependencies": {
     "purescript": "^0.13.8",
-    "rollup": "^2.34.2",
+    "rollup": "^2.35.1",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-terser": "^7.0.2",
     "sass": "^1.30.0",
-    "spago": "^0.17.0",
+    "spago": "^0.18.1",
     "svgo": "^1.3.2",
     "terser": "^5.5.1"
   },

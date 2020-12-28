@@ -42,34 +42,34 @@ view state = template {config, board, rules} state where
         ]
 
     board = HH.div [H.class_ "ui-board baseball-board"] [
-        HH.svg [P.viewBox 0 0 100 100] $ concat
-        [   take nbBases colors # mapWithIndex \i color →
-                HH.rect
-                [   H.key $ "b" <> show i
-                ,   H.class_ "baseball-base"
-                ,   P.stroke color
-                ,   H.style "transform" $ transformBase i nbBases
-                ]
-        ,   map2 position dupColors \peg pos color →
-                H.when (peg ≠ missingPeg) \_ →
-                    HH.g
-                    [   H.class_ "baseball-player"
-                    ,   H.style "transform" $ translatePeg pos nbBases
-                    ,   H.key $ "p" <> show peg
+        HH.svg [P.viewBox 0 0 100 100]
+        [   HH.g [] $
+                take nbBases colors # mapWithIndex \i color →
+                    HH.rect
+                    [   H.class_ "baseball-base"
+                    ,   P.stroke color
+                    ,   H.style "transform" $ transformBase i nbBases
                     ]
-                    [   HH.use 
-                        [   P.href "#meeple"
-                        ,   P.width "7"
-                        ,   P.height "7"
-                        ,   E.onclick $ Play peg
-                        ,   P.fill color
-                        ,   H.style "animation"
-                                if levelFinished then
-                                    "baseballHola 4s linear " <> show (1000 + 2000 * peg / nbBases) <> "ms infinite"
-                                else
-                                    "none"
-                        ,   H.style "cursor" (if canPlay state peg then "pointer" else "not-allowed")
+        ,   HH.g [] $
+                map2 position dupColors \peg pos color →
+                    H.when (peg ≠ missingPeg) \_ →
+                        HH.g
+                        [   H.class_ "baseball-player"
+                        ,   H.style "transform" $ translatePeg pos nbBases
                         ]
+                        [   HH.use 
+                            [   P.href "#meeple"
+                            ,   P.width "7"
+                            ,   P.height "7"
+                            ,   E.onclick $ Play peg
+                            ,   P.fill color
+                            ,   H.style "animation"
+                                    if levelFinished then
+                                        "baseballHola 4s linear " <> show (1000 + 2000 * peg / nbBases) <> "ms infinite"
+                                    else
+                                        "none"
+                            ,   H.style "cursor" (if canPlay state peg then "pointer" else "not-allowed")
+                            ]
                     ]
         ]
     ]

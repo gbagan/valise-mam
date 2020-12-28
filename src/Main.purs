@@ -28,6 +28,7 @@ import Pha.App (app)
 import Pha (VDom)
 import Pha as H
 import Pha.Elements as HH
+import Pha.Keyed as HK
 import Pha.Attributes as P
 import Lib.Update (Update, get, modify, getHash, updateOver, interpret)
 import Pha.Subs as Subs
@@ -189,24 +190,26 @@ init = do
 
 view ∷ RootState → VDom Msg
 view st =
+    HK.div []
+    [   st.location /\ 
     HH.div
-    [   H.key st.location
-    ,   H.class_ "main-main-container"
-    ,   H.class_ (if st.location == "" then "valise" else "game")
-    ]
-    [   H.when (st.location ≠ "") \_ →
-        HH.a
-        [   H.class_ "main-minivalise-link"
-        ,   P.href "#"
+        [   H.class_ "main-main-container"
+        ,   H.class_ (if st.location == "" then "valise" else "game")
         ]
-        [   HH.svg [P.width "100%", P.height "100%"]
-            [   HH.use [P.href "#valise"]]
+        [   H.when (st.location ≠ "") \_ →
+            HH.a
+            [   H.class_ "main-minivalise-link"
+            ,   P.href "#"
+            ]
+            [   HH.svg [P.width "100%", P.height "100%"]
+                [   HH.use [P.href "#valise"]]
+            ]
+        ,   viewGame st
         ]
-    ,   viewGame st
     ]
 
 viewGame ∷ RootState → H.VDom Msg
-viewGame st = callByName st.location H.emptyNode 
+viewGame st = callByName st.location (H.text "") 
                     \game → game.core.view (game.map st) <#> game.msgmap
 
 main ∷ Effect Unit

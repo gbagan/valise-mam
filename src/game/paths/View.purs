@@ -6,6 +6,7 @@ import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _point
 import Game.Paths.Model (State, Msg(..), Mode(..), _exit, _mode)
 import Pha as H
 import Pha.Elements as HH
+import Pha.Keyed as HK
 import Pha.Attributes as P
 import Pha.Events as E
 import Pha.Util (pc, translate)
@@ -31,7 +32,6 @@ doorCursor ∷ ∀a. PointerPosition → H.VDom a
 doorCursor pp =
     HH.use $
     [   P.href "#paths-door" 
-    ,   H.key "cdoor"
     ,   H.class_ "paths-cursor"
     ,   P.x (-50.0)
     ,   P.y (-50.0)
@@ -43,7 +43,6 @@ heroCursor ∷ ∀a. PointerPosition → H.VDom a
 heroCursor pp =
     HH.use $
     [   P.href "#meeplehat"
-    ,   H.key "chero"
     ,   H.class_ "paths-cursor"
     ,   P.x (-40.0)
     ,   P.y (-40.0)
@@ -75,7 +74,6 @@ view state = template {config, board, rules} state where
         let {row, col} = coords columns h in
         HH.use 
         [   P.href "#meeplehat"
-        ,   H.key "hero"
         ,   P.width "80"
         ,   P.height "80"
         ,   H.class_ "paths-hero"
@@ -89,29 +87,28 @@ view state = template {config, board, rules} state where
         [if i == 0 then "M" else "L", show $ 100 * col + 50, show $ 100 * row + 50]
     
     grid = HH.div (gridStyle rows columns 5 <> trackPointer) [
-        HH.svg [P.viewBox 0 0 (100 * columns) (100 * rows)] $
+        HK.svg [P.viewBox 0 0 (100 * columns) (100 * rows)] $
             (repeat (rows * columns) \index →
                 let {row, col} = coords columns index in
-                square
+                show index /\ square
                 {   darken: help && even (row + col)
                 ,   trap: elem index position && Just index ≠ last position
                 ,   door: exit == Just index
                 ,   x: toNumber (100 * col)
                 ,   y: toNumber (100 * row)
                 }
-                [   H.key $ show index
-                ,   E.onclick $ SelectVertex index
+                [   E.onclick $ SelectVertex index
                 ]
             ) <>
-            [   HH.path [P.d pathdec, H.class_ "paths-path"]
-            ,   H.maybe (last position) hero
-            ,   H.maybe pointer \pp →
+            [   "path" /\ HH.path [P.d pathdec, H.class_ "paths-path"]
+            ,   "hero" /\ H.maybe (last position) hero
+            ,   "cur" /\ H.maybe pointer \pp →
                     if null position then
                         heroCursor pp
                     else if isNothing exit then
                         doorCursor pp
                     else
-                        H.emptyNode
+                        H.text ""
             ]
     ]
 

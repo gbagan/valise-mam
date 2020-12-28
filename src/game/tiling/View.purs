@@ -3,6 +3,7 @@ import MyPrelude
 import Lib.Util (coords)
 import Pha as H
 import Pha.Elements as HH
+import Pha.Keyed as HK
 import Pha.Attributes as P
 import Pha.Events as E
 import Pha.Util (translate)
@@ -22,11 +23,11 @@ square {isDark, hasBlock, hasSink, row, col} props =
     [   H.class' "tiling-darken" isDark
     ,   P.transform $ translate (show $ 50 * col) (show $ 50 * row)
     ] <> props) 
-    [   HH.rect [P.width "50", P.height "50", H.key "conc", P.fill "url(#concrete)"]
+    [   HH.rect [P.width "50", P.height "50", P.fill "url(#concrete)"]
     ,   H.when hasBlock \_ →
-            HH.use [P.href "#tile2", P.width "50", P.height "50", H.key "tile"]
+            HH.use [P.href "#tile2", P.width "50", P.height "50"]
     ,   H.when hasSink \_ →
-            HH.use [P.href "#sink", P.width "50", P.height "50", H.key "sink"]
+            HH.use [P.href "#sink", P.width "50", P.height "50"]
     ]
     
 view ∷ State → H.VDom Msg
@@ -115,11 +116,11 @@ view state = template {config, board, rules, winTitle, customDialog} state where
     customDialog _ = dialog "Personnalise ta tuile" [
         HH.div [H.class_ "tiling-customtile-grid-container"] [
             HH.div [H.class_ "tiling-grid"] [
-                HH.svg [P.viewBox 0 0 250 250] (
+                HK.svg [P.viewBox 0 0 250 250] (
                     tile ^. _isoCustom # mapWithIndex \index hasBlock →
                         let {row, col} = coords 5 index
-                        in square {hasBlock, row, col, hasSink: false, isDark: false}
-                            [H.key (show index), E.onclick $ FlipTile index]
+                        in show index /\ square {hasBlock, row, col, hasSink: false, isDark: false}
+                            [E.onclick $ FlipTile index]
                 )
             ]
         ]

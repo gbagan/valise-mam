@@ -74,7 +74,7 @@ instance tricolorGame ∷ Game (Array Int) ExtState Int where
 data Msg = Core CoreMsg | Play Int | SetSize Int | SetNbColors Int | SetRange Int | SetHoverCell (Maybe Int) | Shuffle
 instance withcore ∷ MsgWithCore Msg where core = Core
   
-update ∷ Msg → Update State
+update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
 update (Play i) = playA i
 update (SetSize size) = newGame $ set _size size

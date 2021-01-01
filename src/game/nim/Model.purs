@@ -82,7 +82,7 @@ instance game2 ∷ TwoPlayersGame (Array Position) ExtState Move where
 data Msg = Core CoreMsg | SetNbPiles Int | SetLength Int | Play Move
 instance withcore ∷ MsgWithCore Msg where core = Core
 
-update ∷ Msg → Update State
+update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
 update (SetNbPiles n) = newGame $ set _nbPiles n
 update (SetLength n) = newGame $ set _length n

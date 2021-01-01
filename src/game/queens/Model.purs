@@ -147,7 +147,7 @@ data Msg = Core CoreMsg | Play Int | SelectPiece Piece | SelectSquare (Maybe Int
         | SelectAllowedPiece Piece | ToggleMultiPieces | FlipDirection Int | FlipLocalMove Int | Customize
 instance withcore ∷ MsgWithCore Msg where core = Core
         
-update ∷ Msg → Update State
+update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
 update (Play i) = playA i
 update (SelectPiece piece) = modify $ set _selectedPiece piece

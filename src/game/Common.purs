@@ -1,6 +1,6 @@
 module Game.Common where
 import MyPrelude
-import Pha (EventHandler)
+import Pha.Html (EventHandler)
 import Web.Event.Event as E
 import Web.HTML.HTMLElement as HE
 import Web.UIEvent.MouseEvent as ME

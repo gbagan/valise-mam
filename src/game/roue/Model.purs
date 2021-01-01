@@ -85,7 +85,7 @@ data Msg = Core CoreMsg | DnD (DndMsg Location) | Rotate Int | SetSize Int | Che
 instance withcore ∷ MsgWithCore Msg where core = Core
 instance withdnd ∷ MsgWithDnd Msg Location where dndmsg = DnD  
     
-update ∷ Msg → Update State
+update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
 update (DnD DropOnBoard) = modify \state →
         let state2 = state # set _dragged Nothing in
@@ -98,7 +98,7 @@ update (SetSize i) = newGame $ set _size i
 update Check = lockAction $ get >>= \st → tailRecM go (st^._size) where
         go 0 = do
             modify $ set _showWin true
-            delay 1000
+            delay $ Milliseconds 1000.0
             modify $ set _showWin false
             pure (Done unit)
         go i = do
@@ -107,5 +107,5 @@ update Check = lockAction $ get >>= \st → tailRecM go (st^._size) where
                 pure $ Done unit
             else do
                 modify $ rotate 1
-                delay 600
+                delay $ Milliseconds 600.0
                 pure $ Loop (i-1)

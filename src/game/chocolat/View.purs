@@ -4,12 +4,12 @@ import MyPrelude
 import Game.Chocolat.Model (State, Msg(..), Move(..), SoapMode(..), _soap, _soapMode, _moveWhenHover, cutLine)
 import Game.Core (_position, _nbRows, _nbColumns, _pointer, possibleMoves, PointerPosition)
 import Lib.Util (repeat2)
-import Pha as H
-import Pha.Attributes as P
-import Pha.Elements as HH
-import Pha.Keyed as HK
-import Pha.Events as E
-import Pha.Util (translate)
+import Pha.Html (Html)
+import Pha.Html as H
+import Pha.Html.Keyed as K
+import Pha.Html.Attributes as P
+import Pha.Html.Events as E
+import Pha.Html.Util (translate)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, icons2Players, iconSelectGroup', iundo, iredo, ireset, irules)
 import UI.Template (template, card, gridStyle, incDecGrid, turnMessage, winTitleFor2Players, svgCursorStyle, trackPointer)
@@ -18,9 +18,9 @@ inside ∷ State → Int → Int → Boolean
 inside state row col = col >= left && col <= right - 1 && row >= top && row <= bottom - 1
     where {left, right, top, bottom} = state^._position
 
-soapCursor ∷ ∀a. PointerPosition → H.VDom a
+soapCursor ∷ ∀a. PointerPosition → Html a
 soapCursor pp =
-    HH.use $
+    H.use $
     [   P.href "#skull"
     ,   H.class_ "paths-cursor"
     ,   P.x (-20.0)
@@ -29,7 +29,7 @@ soapCursor pp =
     ,   P.height "26"
     ] <> svgCursorStyle pp
     
-view ∷ State → H.VDom Msg
+view ∷ State → Html Msg
 view state = template {config, board, rules, winTitle} state where
     pos = state^._position
     rows = state^._nbRows
@@ -51,7 +51,7 @@ view state = template {config, board, rules, winTitle} state where
         ]
 
     cutter row col move =
-        ("cut" <> show (row * (columns + 1) + col)) /\ HH.circle
+        ("cut" <> show (row * (columns + 1) + col)) /\ H.circle
         [   P.cx $ 50.0 * toNumber col
         ,   P.cy $ 50.0 * toNumber row
         ,   P.r 7.0
@@ -62,25 +62,25 @@ view state = template {config, board, rules, winTitle} state where
         ]
 
     grid =
-        HH.div (gridStyle rows columns 3 <> trackPointer <> [H.class_ "ui-board"])
-        [   HH.svg [P.viewBox (-7) (-7) (50 * columns + 14) (50 * rows + 14)]
-            [   HH.g [] $
+        H.div (gridStyle rows columns 3 <> trackPointer <> [H.class_ "ui-board"])
+        [   H.svg [P.viewBox (-7) (-7) (50 * columns + 14) (50 * rows + 14)]
+            [   H.g [] $
                     repeat2 rows columns \row col →
-                        HH.rect 
+                        H.rect 
                         [   P.transform $ translate (show $ 50 * col) (show $ 50 * row)
                         ,   H.class_ "chocolat-square"
                         ,   H.class' "soap" $ state^._soap # maybe false \p → {row, col} == p
                         ,   H.class' "hidden" $ not (inside state row col)
                         ,   E.onclick' if isNothing soap then Just (SetSoap row col) else Nothing
                         ]
-            ,   HK.g [] $
+            ,   K.g [] $
                     possibleMoves state >>= case _ of
                         FromLeft i → [cutter pos.top i (FromLeft i), cutter pos.bottom i (FromLeft i)]
                         FromRight i → [cutter pos.top i (FromRight i), cutter pos.bottom i (FromRight i)]
                         FromTop i → [cutter i pos.left (FromTop i), cutter i pos.right (FromTop i)]
                         FromBottom i → [cutter i pos.left (FromBottom i), cutter i pos.right (FromBottom i)]
             ,   H.maybe soap \{row, col} → 
-                    HH.use 
+                    H.use 
                     [   P.href "#skull"
                     ,   P.x $ toNumber (50 * col + 12)
                     ,   P.y $ toNumber (50 * row + 12)
@@ -90,7 +90,7 @@ view state = template {config, board, rules, winTitle} state where
                     ]
             ,   H.maybe (state^._moveWhenHover) \m →
                     let {x1, x2, y1, y2} = cutLine state m in
-                    HH.line
+                    H.line
                     [   P.x1 $ toNumber (50 * x1)
                     ,   P.y1 $ toNumber (50 * y1)
                     ,   P.x2 $ toNumber (50 * x2)
@@ -108,7 +108,7 @@ view state = template {config, board, rules, winTitle} state where
     board =
         incDecGrid state
         [   grid
-        ,   HH.span [H.class_ "frog-turn-message"] [H.text $ 
+        ,   H.span [H.class_ "frog-turn-message"] [H.text $ 
                                                     if isNothing soap then
                                                         "Place le savon"
                                                     else
@@ -118,9 +118,9 @@ view state = template {config, board, rules, winTitle} state where
             
     rules =
         [   H.text "Chocolat est un jeu à deux joueurs."
-        ,   HH.br
+        ,   H.br
         ,   H.text "A chaque tour, un joueur coupe la barre de chocolat en deux et conserve celle qui contient le carré empoisonné."
-        ,   HH.br
+        ,   H.br
         ,   H.text "Lorsqu'il ne reste que le carré empoisonné, le joueur qui doit jouer a perdu."
         ]
     winTitle = winTitleFor2Players state

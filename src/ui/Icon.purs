@@ -2,10 +2,10 @@ module UI.Icon where
 
 import MyPrelude
 import Data.Tuple (uncurry)
-import Pha as H
-import Pha.Elements as HH
-import Pha.Attributes as P
-import Pha.Events as E
+import Pha.Html (Html)
+import Pha.Html as H
+import Pha.Html.Attributes as P
+import Pha.Html.Events as E
 import Lib.Util (partialUpdate, class PartialRecord)
 
 data Icon = IconText String | IconSymbol String | IconNone
@@ -33,10 +33,10 @@ defaultOptions = {
     style: []
 }
 
-iconbutton ∷ ∀a opts. PartialRecord opts Options ⇒ Record opts → Array (H.Prop a) → H.VDom a
+iconbutton ∷ ∀a opts. PartialRecord opts Options ⇒ Record opts → Array (H.Prop a) → Html a
 iconbutton opts props =
     let {icon, selected, tooltip, round, large, hidden, disabled: d, style: st} = partialUpdate opts defaultOptions in
-    HH.button (
+    H.button (
         [   H.class_ "ui-icon"
         ,   H.class' "selected" selected
         ,   H.class' "round" large
@@ -45,10 +45,10 @@ iconbutton opts props =
         ,   E.preventDefaultOn "contextmenu" $ E.always (Nothing ∧ true)
     ] <> props) $ [
         case icon of
-            IconSymbol symbol → HH.svg ((uncurry H.style <$> st) <> [P.width "100%", P.height "100%"]) [
-                HH.use [P.href symbol, H.class_ "ui-icon-symbol"]
+            IconSymbol symbol → H.svg ((uncurry H.style <$> st) <> [P.width "100%", P.height "100%"]) [
+                H.use [P.href symbol, H.class_ "ui-icon-symbol"]
             ]
-            IconText t → HH.span [H.class_ "ui-icon-text"] [H.text t]
+            IconText t → H.span [H.class_ "ui-icon-text"] [H.text t]
             IconNone → H.text "",
-        H.maybe tooltip \t → HH.span [H.class_ "ui-icon-tooltip"] [H.text t]
+        H.maybe tooltip \t → H.span [H.class_ "ui-icon-tooltip"] [H.text t]
     ]

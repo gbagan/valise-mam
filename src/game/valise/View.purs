@@ -1,28 +1,28 @@
 module Game.Valise.View where
 import MyPrelude
 import Game.Valise.Model (State, Msg(..), _positions)
-import Pha as H
-import Pha.Elements as HH
-import Pha.Attributes as P
-import Pha.Events as E
-import Pha.Util (pc, translate)
+import Pha.Html (Html)
+import Pha.Html as H
+import Pha.Html.Attributes as P
+import Pha.Html.Events as E
+import Pha.Html.Util (pc, translate)
 import Game.Common (pointerDecoder)
 
-valise ∷ State → H.VDom Msg
+valise ∷ State → Html Msg
 valise state =
-    HH.svg
+    H.svg
     [   P.viewBox 0 0 825 690
     ,   E.on "pointermove" $ pointerDecoder >>> map (map MoveObject)
     ,   E.onpointerup $ SetDrag Nothing
     ]
-    [   HH.use 
+    [   H.use 
         [   P.href "#valise"
         ,   H.class_ "valise-close"
         ,   P.width "100%"
         ,   P.height "100%"
         ]
-    ,   HH.g [H.class_ "valise-open"]
-        [   HH.use [P.href "#openvalise"]
+    ,   H.g [H.class_ "valise-open"]
+        [   H.use [P.href "#openvalise"]
         ,   object { symbol: "switch", link: Nothing, help: "", drag: false } 
                     300 460 42 60
                     [   E.onclick ToggleSwitch
@@ -120,14 +120,14 @@ valise state =
     ] where
     object {drag, link, help, symbol} x' y' w' h' props children =
         let defaultTranslate = translate (pc $ toNumber x' / 850.0)  (pc $ toNumber y' / 690.0) in
-        HH.g
+        H.g
         [   H.style "transform" $ 
                 case drag ∧ (state ^. _positions ^. at symbol) of
                     true ∧ Just {x: x2, y: y2} → translate (pc x2) (pc y2)    
                     _ → defaultTranslate
         ]
-        [   HH.g props
-            [   HH.svg (
+        [   H.g props
+            [   H.svg (
                 [   H.class_ "valise-object"
                 ,   H.class' "draggable" drag
                 ,   P.width $ show w'
@@ -141,14 +141,14 @@ valise state =
                 [   E.onpointerenter $ ShowHelp help
                 ,   E.onpointerleave $ ShowHelp ""
                 ])
-                [   HH.use
+                [   H.use
                     [   P.href $ "#" <> symbol
                     ,   H.class_ "valise-symbol"
                     ]
                 ,   H.maybe link \l →
-                        HH.a
+                        H.a
                         [   P.href $ if l == "" then "" else "#" <> l]
-                        [   HH.rect (
+                        [   H.rect (
                             [   P.width "100%"
                             ,   P.height "100%"
                             ,   H.class_ "valise-object-link"
@@ -162,20 +162,20 @@ valise state =
             ]
         ]
 
-view ∷ State → H.VDom Msg 
+view ∷ State → Html Msg 
 view state =
-    HH.div
+    H.div
     [   H.class_ "ui-flex-center valise-main-container"
     ,   H.class' "open" state.isOpen
     ]
-    [   HH.div []
-        [   HH.div [H.class_ "valise-logo"]
-            [   HH.svg [P.width "100%", P.height "100%"]
-                [   HH.use [P.href "#logo"]]
+    [   H.div []
+        [   H.div [H.class_ "valise-logo"]
+            [   H.svg [P.width "100%", P.height "100%"]
+                [   H.use [P.href "#logo"]]
             ]
-        ,   HH.div [H.class_ "valise-container"]
+        ,   H.div [H.class_ "valise-container"]
             [   valise state
-            ,   HH.div 
+            ,   H.div 
                 [   H.class_ "valise-help"
                 ,   H.class' "visible" (state.helpVisible && state.help ≠ "")
                 ]

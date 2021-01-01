@@ -1,10 +1,9 @@
 module UI.Template where
 import MyPrelude
-import Pha (VDom, Prop, text, class_, class', style)
-import Pha as H
-import Pha.Elements (div)
-import Pha.Events as E
-import Pha.Util (pc, translate)
+import Pha.Html (Html, Prop)
+import Pha.Html as H
+import Pha.Html.Events as E
+import Pha.Html.Util (pc, translate)
 import Game.Core (class Game, class ScoreGame, GState, Mode(..), Turn(..), SizeLimit(..), Dialog(..),
          _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _locked, 
         isLevelFinished, sizeLimit, bestScore, canPlay,
@@ -18,27 +17,27 @@ type Position = { x ∷ Number, y ∷ Number }
 
 
 -- | widget pour l'affichage du panneau de victoire
-winPanel ∷ ∀a. String → Boolean → VDom a
+winPanel ∷ ∀a. String → Boolean → Html a
 winPanel title visible =
-    div [class_ "ui-flex-center ui-absolute ui-win-container"] [
-        div [class_ "ui-win", class' "visible" visible] [
-            text title
+    H.div [H.class_ "ui-flex-center ui-absolute ui-win-container"] [
+        H.div [H.class_ "ui-win", H.class' "visible" visible] [
+            H.text title
         ]
     ]
 
 -- | widget principal pour l'affichage du panneau des options
-card ∷ ∀a. String → Array (VDom a) → VDom a
+card ∷ ∀a. String → Array (Html a) → Html a
 card title children =
-    div [class_ "ui-card"]
-    [   div [class_ "ui-card-head ui-flex-center"]
-        [   div [class_ "ui-card-title"] [text title]
+    H.div [H.class_ "ui-card"]
+    [   H.div [H.class_ "ui-card-head ui-flex-center"]
+        [   H.div [H.class_ "ui-card-title"] [H.text title]
         ]
-    ,   div [class_ "ui-card-body"] children
+    ,   H.div [H.class_ "ui-card-body"] children
     ]
 
 -- | widget permettant de changer les dimensions d'un plateau 2D
 incDecGrid ∷ ∀msg pos ext mov. MsgWithCore msg ⇒ Game pos ext mov ⇒
-    GState pos ext → Array (VDom msg) → VDom msg
+    GState pos ext → Array (Html msg) → Html msg
 incDecGrid state = U.incDecGrid 
     {   locked: state^._locked
     ,   nbRows: state^._nbRows
@@ -51,58 +50,58 @@ incDecGrid state = U.incDecGrid
     SizeLimit minRows minCols maxRows maxCols = sizeLimit state 
 
 type ElementsRow a = 
-    (   board ∷ VDom a
-    ,   config ∷ VDom a
-    ,   rules ∷ Array (VDom a)
+    (   board ∷ Html a
+    ,   config ∷ Html a
+    ,   rules ∷ Array (Html a)
     ,   winTitle ∷ String
-    ,   customDialog ∷ Unit → VDom a
-    ,   scoreDialog ∷ Unit → VDom a
+    ,   customDialog ∷ Unit → Html a
+    ,   scoreDialog ∷ Unit → Html a
     )
 
 type Elements a = Record (ElementsRow a)
 
 defaultElements ∷ ∀a. Elements a
 defaultElements =
-    {   board: text ""
-    ,   config: text ""
-    ,   rules: [text "blah blah"]
+    {   board: H.text ""
+    ,   config: H.text ""
+    ,   rules: [H.text "blah blah"]
     ,   winTitle: "GAGNÉ"
-    ,   customDialog: \_ → text ""
-    ,   scoreDialog: \_ → text ""
+    ,   customDialog: \_ → H.text ""
+    ,   scoreDialog: \_ → H.text ""
     }
 
 template ∷ ∀elems pos ext mov msg.
             PartialRecord elems (ElementsRow msg) ⇒
             MsgWithCore msg ⇒ Game pos ext mov ⇒
-            Record (elems) → GState pos ext → VDom msg
+            Record (elems) → GState pos ext → Html msg
 template elems state =
-    div []
-    [   div [class_ "main-container"]
-        [   div [] [board, winPanel winTitle (state^._showWin)]
+    H.div []
+    [   H.div [H.class_ "main-container"]
+        [   H.div [] [board, winPanel winTitle (state^._showWin)]
         ,   config
         ]
     ,   dialog' (state^._dialog)
     ]
     where
         {config, board, winTitle, rules, customDialog, scoreDialog} = partialUpdate elems defaultElements
-        dialog' Rules = dialog "Règles du jeu" [div [class_ "ui-rules"] rules]
+        dialog' Rules = dialog "Règles du jeu" [H.div [H.class_ "ui-rules"] rules]
         dialog' (ConfirmNewGameDialog _) =
             D.dialog
                 {   title: "Nouvelle partie"
                 ,   onCancel: Just $ core SetNoDialog
                 ,   onOk: Just $ core ConfirmNewGame
                 }
-                [   text "Tu es sur le point de créer une nouvelle partie. Ta partie en cours sera perdue. Es-tu sûr(e)?"
+                [   H.text "Tu es sur le point de créer une nouvelle partie. Ta partie en cours sera perdue. Es-tu sûr(e)?"
                 ]
         dialog' CustomDialog = customDialog unit
         dialog' ScoreDialog = scoreDialog unit
-        dialog' _ = text ""
+        dialog' _ = H.text ""
 
-dialog ∷ ∀msg. MsgWithCore msg ⇒ String → Array (VDom msg) → VDom msg
+dialog ∷ ∀msg. MsgWithCore msg ⇒ String → Array (Html msg) → Html msg
 dialog title = D.dialog {title, onCancel: Nothing, onOk: Just $ core SetNoDialog}
 
 bestScoreDialog ∷ ∀msg pos ext mov. MsgWithCore msg ⇒ ScoreGame pos ext mov ⇒  
-                    GState pos ext → (pos → Array (VDom msg)) → VDom msg
+                    GState pos ext → (pos → Array (Html msg)) → Html msg
 bestScoreDialog state children = H.maybe (snd <$> bestScore state) \pos →
     dialog "Meilleur score" (children pos)
         
@@ -110,21 +109,21 @@ bestScoreDialog state children = H.maybe (snd <$> bestScore state) \pos →
 -- | Fonction utilaire pour définir le style d'un plateau 2D par rapport à ses dimensions et une limite.
 -- | Le plateau essaie de prendre toute la place à sa disposition sauf si ses deux dimensions sont inférieure à la limite
 gridStyle ∷ ∀a. Int → Int → Int → Array (Prop a)
-gridStyle rows columns limit = [style "height" $ pc (toNumber rows / m),
-                                style "width" $ pc (toNumber columns / m)]
+gridStyle rows columns limit = [H.style "height" $ pc (toNumber rows / m),
+                                H.style "width" $ pc (toNumber columns / m)]
     where m = toNumber $ max limit $ max rows columns        
 
 cursorStyle ∷ ∀a. Position → Int → Int → Number → Array (Prop a)
 cursorStyle {x, y} rows columns size = [
-    style "left" $ pc x,
-    style "top" $ pc y,
-    style "width" $ pc (size / toNumber columns),
-    style "height" $ pc (size / toNumber rows)
+    H.style "left" $ pc x,
+    H.style "top" $ pc y,
+    H.style "width" $ pc (size / toNumber columns),
+    H.style "height" $ pc (size / toNumber rows)
 ]
 
 svgCursorStyle ∷ ∀a. Position → Array (Prop a)
 svgCursorStyle {x, y} = [
-    style "transform" $ translate (pc x) (pc y)
+    H.style "transform" $ translate (pc x) (pc y)
 ]
 
 -- | tableau d'atrributs à appliquer sur l'élément DOM représentant le plateau
@@ -156,8 +155,8 @@ dndItemProps ∷ ∀pos ext msg id. Eq id ⇒ MsgWithDnd msg id ⇒ Game pos ext
         currentDragged ∷ Maybe id
     } → Array (Prop msg)
 dndItemProps state {draggable, droppable, id, currentDragged} =
-    [   class' "dragged" dragged
-    ,   class' "candrop" candrop
+    [   H.class' "dragged" dragged
+    ,   H.class' "candrop" candrop
     ,   E.releasePointerCaptureOn "pointerdown" $ \_ -> pure (if draggable then Just (dndmsg (Drag id)) else Nothing)
     ,   E.stopPropagationOn "pointerup" $ E.always (if candrop then Just (dndmsg (Drop id)) ∧ true else Nothing ∧ false)
     ] where

@@ -316,7 +316,7 @@ data Msg = Core CoreMsg | SetGraphKind GraphKind | SetRules Rules
             | StartGame | MoveGuards | ToggleGuard Int | Play Int
 instance withcore ∷ MsgWithCore Msg where core = Core
     
-update ∷ Msg → Update State
+update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
 update (SetGraphKind kind) = newGame $ set _graphkind kind ∘
                                         case kind of

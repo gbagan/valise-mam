@@ -7,11 +7,11 @@ import Game.Common (pointerDecoder)
 import Game.Core (CoreMsg(SetPointer), isLevelFinished, PointerPosition, core, _position, _pointer)
 import Game.Eternal.Model (State, Msg(..), Graph, Phase(..), Rules(..), GraphKind(..), Pos, Edge, (↔), isValidNextMove,
                             _graph, _phase, _graphkind, _draggedGuard, _rules, _nextmove)
-import Pha as H
-import Pha.Elements as HH
-import Pha.Attributes as P
-import Pha.Events as E
-import Pha.Util (translate, pc)
+import Pha.Html (Html)
+import Pha.Html as H
+import Pha.Html.Attributes as P
+import Pha.Html.Events as E
+import Pha.Html.Util (translate, pc)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSelectGroup', icons2Players, iundo, iredo, ireset, iclear, irules)
 import UI.Template (template, card, incDecGrid, svgCursorStyle)
@@ -29,8 +29,8 @@ getCoordsOfEdge graph (u ↔ v) = do
 translateGuard ∷ Pos → String
 translateGuard {x, y} = translate (pc x) (pc y)
 
-cursor ∷ ∀a b. PointerPosition → b → H.VDom a
-cursor pp _ = HH.use $ 
+cursor ∷ ∀a b. PointerPosition → b → Html a
+cursor pp _ = H.use $ 
                 [   P.href "#roman"
                 ,   P.width "6"
                 ,   P.height "12"
@@ -68,7 +68,7 @@ dndItemProps state {draggable, droppable, id, currentDragged} =
         dragged = draggable && Just id == currentDragged
 
 
-drawArrow ∷ ∀a. Number → Number → Number → Number → H.VDom a
+drawArrow ∷ ∀a. Number → Number → Number → Number → Html a
 drawArrow x1 x2 y1 y2 =
     let arrowSize = 6.0
         dx = x2 - x1
@@ -83,9 +83,9 @@ drawArrow x1 x2 y1 y2 =
         arrowPath = "M" <> show x2 <> "," <> show y2 
                     <> "L" <> show x3 <> "," <> show y3
                     <> "L" <> show x4 <> "," <> show y4 <> "z"
-    in HH.g 
+    in H.g 
         []
-        [   HH.line 
+        [   H.line 
             [   -- key?
                 P.x1 x1
             ,   P.y1 y1
@@ -93,11 +93,11 @@ drawArrow x1 x2 y1 y2 =
             ,   P.y2 y2
             ,   H.class_ "dessin-line2"
             ]
-        ,   HH.path [P.d arrowPath, P.fill "red"]
+        ,   H.path [P.d arrowPath, P.fill "red"]
         ]
 
 
-view ∷ State → H.VDom Msg
+view ∷ State → Html Msg
 view state = template {config, board, rules, winTitle} state where
     position = state^._position
     graph = state^._graph
@@ -123,14 +123,14 @@ view state = template {config, board, rules, winTitle} state where
         ]
 
     grid =
-        HH.div (dndBoardProps <>
+        H.div (dndBoardProps <>
             [   H.class_ "ui-board eternal-board", H.style "width" "100%", H.style "height" "100%"
             ])
-            [   HH.svg [H.class_ "eternal-svg", P.viewBox 0 0 100 100]
-                [   HH.g [] $
+            [   H.svg [H.class_ "eternal-svg", P.viewBox 0 0 100 100]
+                [   H.g [] $
                         graph.edges <#> \edge →
                             H.maybe (getCoordsOfEdge graph edge) \{x1, x2, y1, y2} →
-                                HH.line 
+                                H.line 
                                 [   -- key?
                                     P.x1 $ 100.0 * x1
                                 ,   P.y1 $ 100.0 * y1
@@ -139,22 +139,22 @@ view state = template {config, board, rules, winTitle} state where
                                 ,   H.class_ "dessin-line1"
                                 ]
                 ,   H.when (grules == ManyGuards) \_ →
-                        HH.g [] $
+                        H.g [] $
                             (zip guards (state^._nextmove)) <#> \(from ∧ to) →
                                 H.when (from ≠ to) \_ →
                                     H.maybe (getCoordsOfEdge graph (from ↔ to)) \{x1, x2, y1, y2} →
                                         drawArrow (x1 * 100.0) (x2 * 100.0) (y1 * 100.0) (y2 * 100.0)
-                ,   HH.g [] $
+                ,   H.g [] $
                         graph.vertices # mapWithIndex \i {x, y} →
-                            HH.circle $
+                            H.circle $
                             [   P.cx $ 100.0 * x
                             ,   P.cy $ 100.0 * y
                             ,   P.r 3.0
                             ,   P.fill "blue"
                             ]
-                ,   HH.g [] $
+                ,   H.g [] $
                         guards # mapWithIndex \i index →
-                            HH.use
+                            H.use
                             [   P.href "#roman"
                             ,   P.width "6"
                             ,   P.height "12"
@@ -165,7 +165,7 @@ view state = template {config, board, rules, winTitle} state where
                             ,   H.style "transform" $ fromMaybe "none" (translateGuard <$> getCoords graph index)
                             ]
                 ,   H.maybe (position.attacked) \attack →
-                        HH.use
+                        H.use
                         [   P.href "#eternal-attack"
                         ,   P.width "8"
                         ,   P.height "8"
@@ -174,10 +174,10 @@ view state = template {config, board, rules, winTitle} state where
                         ,   H.style "transform" $ fromMaybe "none" (translateGuard <$> getCoords graph attack)
                         ,   H.style "pointer-events" "none"
                         ]
-                ,   H.maybeN $ cursor <$> state^._pointer <*> state^._draggedGuard
-                ,   HH.g [] $ 
+                ,   H.fromMaybe $ cursor <$> state^._pointer <*> state^._draggedGuard
+                ,   H.g [] $ 
                         graph.vertices # mapWithIndex \i pos →
-                            HH.rect $
+                            H.rect $
                             [   P.width "10"
                             ,   P.height "10"
                             ,   P.x (-5.0)
@@ -195,7 +195,7 @@ view state = template {config, board, rules, winTitle} state where
                                 }
                             )
                 ]
-            ,   HH.span [H.class_ "eternal-info"] [
+            ,   H.span [H.class_ "eternal-info"] [
                     H.text (
                         if isLevelFinished state then
                             "Le sommet attaqué ne peut être défendu"
@@ -207,7 +207,7 @@ view state = template {config, board, rules, winTitle} state where
                             "Choisis un sommet à attaquer"
                     )
                 ]
-            ,   HH.button
+            ,   H.button
                 [   H.class_ "ui-button ui-button-primary dessin-raise"
                 ,   P.disabled $ null position.guards || state^._phase == GamePhase && (state^._rules == OneGuard || isNothing position.attacked || not (isValidNextMove state (state^._nextmove)))
                 ,   E.onclick (if state^._phase == GamePhase then MoveGuards else StartGame)
@@ -219,16 +219,16 @@ view state = template {config, board, rules, winTitle} state where
 
     rules = 
         [   H.text "Domination Eternelle est un jeu à deux joueurs: un attaquant et un défenseur."
-        ,   HH.br
+        ,   H.br
         ,   H.text "Au début de la partie, le défenseur choisit des sommets sur lesquels poser des gardes."
-        ,   HH.br
+        ,   H.br
         ,   H.text "Ensuite, à chaque tour, l'attaquant choisit d'attaquer un sommet puis le défenseur doit déplacer un de ses gardes"
         ,   H.text " vers le sommet attaqué à la condition que celui soit adjacent au garde."
-        ,   HH.br
+        ,   H.br
         ,   H.text "Si le défenseur ne peut pas déplacer de garde, il perd la partie."
-        ,   HH.br
+        ,   H.br
         ,   H.text "La partie peut ne pas avoir de fin. Le but est de déterminer le nombre minimum de gardes pour défendre infiniment toute attaque."
-        ,   HH.br
+        ,   H.br
         ,   H.text "Dans une variante, le défenseur peut déplacer plusieurs gardes à chaque tour."
         ]
 

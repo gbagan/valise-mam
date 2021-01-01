@@ -191,7 +191,7 @@ data Msg = Core CoreMsg | SetMode Mode | SetHelp Boolean | SetBeast BeastType | 
          | StartZone Int | StartZone2 { x ∷ Number, y ∷ Number} | FinishZone Int | FlipCustomBeast Int
 instance withcore ∷ MsgWithCore Msg where core = Core
 
-update ∷ Msg → Update State
+update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
 update (SetMode m) = newGame $ set _mode m
 update (SetHelp a) = modify $ set _help a

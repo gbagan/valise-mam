@@ -35,16 +35,16 @@ _drag = prop (SProxy ∷ _ "drag")
 _isSwitchOn ∷ Lens' State Boolean
 _isSwitchOn = prop (SProxy ∷ _ "isSwitchOn")
 
-enterA ∷ Update State
+enterA ∷ Update State Unit
 enterA = do
     put istate
-    delay 1500
+    delay (Milliseconds 1500.0)
     modify _{isOpen = true}
 
 data Msg = ShowHelp String | ToggleSwitch | SetDrag (Maybe { name ∷ String, x ∷ Number, y ∷ Number })
           | MoveObject {x ∷ Number, y ∷ Number}
 
-update ∷ Msg → Update State
+update ∷ Msg → Update State Unit
 update (ShowHelp help) = modify $ over _help (if help == "" then identity else const help)
                                 >>> set _helpVisible (help ≠ "")
 update ToggleSwitch = modify $ over _isSwitchOn not

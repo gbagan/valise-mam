@@ -4,12 +4,12 @@ import MyPrelude
 import Data.FoldableWithIndex (foldMapWithIndex)
 import Game.Core (isLevelFinished, _position)
 import Game.Tricolor.Model (State, Msg(..), _size, _nbColors, _range, _hoverCell, _shuffle, inRange)
-import Pha as H
-import Pha.Elements as HH
-import Pha.Keyed as HK
-import Pha.Attributes as P
-import Pha.Events as E
-import Pha.Util (translate)
+import Pha.Html (Html)
+import Pha.Html as H
+import Pha.Html.Keyed as K
+import Pha.Html.Attributes as P
+import Pha.Html.Events as E
+import Pha.Html.Util (translate)
 import UI.Icon (Icon(..))
 import UI.Icons (iconbutton, icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 import UI.Template (template, card)
@@ -22,14 +22,14 @@ translateCell i size = translate (show x) (show y) where
     x = 50.0 + 35.0 * cos (toNumber i * 2.0 * pi / toNumber size)
     y = 45.0 + 35.0 * sin (toNumber i * 2.0 * pi / toNumber size)
 
-irandom ∷ State → H.VDom Msg
+irandom ∷ State → Html Msg
 irandom state =
     iconbutton
         state {icon: IconSymbol "#shuffle", tooltip: Just "Mélanger", selected: state^._shuffle}
         [   E.onclick Shuffle
         ]
 
-view ∷ State → H.VDom Msg
+view ∷ State → Html Msg
 view state = template {config, board, rules} state where
     position = state ^. _position
     size = state ^. _size
@@ -47,7 +47,7 @@ view state = template {config, board, rules} state where
         ]
 
     drawCell i color =
-        ("b" <> show i) /\ HH.circle 
+        ("b" <> show i) /\ H.circle 
         [   P.r 7.5
         ,   H.class_ "tricolor-cell"
         ,   H.class' "finished" levelFinished
@@ -61,23 +61,23 @@ view state = template {config, board, rules} state where
 
     drawColorCycle =
         (take nbColors colors # foldMapWithIndex \i color →
-                [   ("c" <> show i) /\ HH.circle
+                [   ("c" <> show i) /\ H.circle
                     [   P.cx $ toNumber (95 + 15 * (i - nbColors))
                     ,   P.cy 95.0
                     ,   P.r 3.0
                     ,   P.fill color
                     ]
-                ,   ("t" <> show i) /\ HH.path
+                ,   ("t" <> show i) /\ H.path
                     [   P.d "M0 2H4V0l3 3l-3 3v-2h-4Z"
                     ,   P.fill "black"
                     ,   P.transform $ translate (show $ 99 + 15 * (i - nbColors)) "92"
                     ]
                 ]
-        ) <> ["fc" /\ HH.circle [P.cx 95.0, P.cy 95.0, P.r 3.0, P.fill "green"]]
+        ) <> ["fc" /\ H.circle [P.cx 95.0, P.cy 95.0, P.r 3.0, P.fill "green"]]
 
     board =
-        HH.div [H.class_ "ui-board tricolor-board"]
-        [   HK.svg [P.viewBox 0 0 100 100] $ concat
+        H.div [H.class_ "ui-board tricolor-board"]
+        [   K.svg [P.viewBox 0 0 100 100] $ concat
             [   position # mapWithIndex drawCell
             ,   drawColorCycle
             ]
@@ -85,9 +85,9 @@ view state = template {config, board, rules} state where
 
     rules = 
         [   H.text "Ce jeu est une variante de \"Tout noir ou tout blanc\" mais avec plusieurs couleurs."
-        ,   HH.br
+        ,   H.br
         ,   H.text "Lorsque tu cliques un jeton, celui-ci change de couleurs ainsi que tous les jetons proches jusqu'à la distance choisie dans \"Portée\"."
-        ,   HH.br
+        ,   H.br
         ,   H.text "Le but est que tous les jetons soient de couleur verte."
         ]
         

@@ -177,7 +177,7 @@ data CoreMsg =
 class MsgWithCore a where
     core ∷ CoreMsg → a
 
-coreUpdate ∷ ∀pos ext mov. Game pos ext mov ⇒ CoreMsg → Update (GState pos ext)
+coreUpdate ∷ ∀pos ext mov. Game pos ext mov ⇒ CoreMsg → Update (GState pos ext) Unit
 coreUpdate Undo = modify \state → case state^._history of
     Nil → state
     Cons h rest →
@@ -251,13 +251,13 @@ pushToHistory state = state
                         # over _history (Cons $ state^._position) 
                         # set _redoHistory Nil
 
-showVictory ∷ ∀pos ext. Update (GState pos ext)
+showVictory ∷ ∀pos ext. Update (GState pos ext) Unit
 showVictory = do
     modify $ set _showWin true
-    delay 1000
+    delay (Milliseconds 1000.0)
     modify $ set _showWin false
 
-computerPlay ∷ ∀pos ext mov. Game pos ext mov ⇒ Update (GState pos ext)
+computerPlay ∷ ∀pos ext mov. Game pos ext mov ⇒ Update (GState pos ext) Unit
 computerPlay = do
     state ← get
     move ← randomEval $ computerMove state
@@ -267,14 +267,14 @@ computerPlay = do
             put st2
             when (isLevelFinished st2) showVictory
 
-saveToStorage ∷ ∀pos ext mov. Game pos ext mov ⇒ Update (GState pos ext)
+saveToStorage ∷ ∀pos ext mov. Game pos ext mov ⇒ Update (GState pos ext) Unit
 saveToStorage = do
     state ← get
     case saveToJson state of
         Nothing → pure unit
         Just json → storagePut ("valise-" <> name state) (stringify json)
 
-playA ∷ ∀pos ext mov. Game pos ext mov ⇒ mov → Update (GState pos ext)
+playA ∷ ∀pos ext mov. Game pos ext mov ⇒ mov → Update (GState pos ext) Unit
 playA move = lockAction $ do
     state ← get
     case playAux move $ pushToHistory $ state of
@@ -288,14 +288,14 @@ playA move = lockAction $ do
                     saveToStorage   -- todo: ne va pas fonctionner pour 8 reines
                     showVictory
             else if st2^._mode == ExpertMode || st2^._mode == RandomMode then
-                delay 1000 *> computerPlay
+                delay (Milliseconds 1000.0) *> computerPlay
             else 
                 pure unit
 
 -- | Empêche d'autres actions d'être effectués durant la durée de l'action
 -- | en mettant locked à true au début de l'action et à false à la fin de l'action.
 -- | L'action n'est pas executé si locked est déjà à true
-lockAction ∷ ∀pos ext. Update (GState pos ext) → Update (GState pos ext)
+lockAction ∷ ∀pos ext. Update (GState pos ext) Unit → Update (GState pos ext) Unit
 lockAction action = unlessM (view _locked <$> get) do
     modify (set _locked true)
     action
@@ -323,7 +323,7 @@ newGameAux f state = do
 -- | Si l'historique est vide ou si la partie est finie, on lance une nouvelle partie
 -- | sans demander confirmation à l'utilisateur
 newGame ∷ ∀pos ext mov. Game pos ext mov ⇒
-    (GState pos ext → GState pos ext) → Update (GState pos ext)
+    (GState pos ext → GState pos ext) → Update (GState pos ext) Unit
 newGame f = randomly \state →
     let rstate = newGameAux f state in
     if List.null (state^._history) || isLevelFinished state then
@@ -410,14 +410,14 @@ class MsgWithDnd msg i | msg → i where
     dndmsg ∷ DndMsg i → msg
 
 dndUpdate ∷ ∀pos ext i. Eq i ⇒ Game pos ext {from ∷ i, to ∷ i} ⇒ 
-    Lens' (GState pos ext) (Maybe i) → DndMsg i → Update (GState pos ext)
+    Lens' (GState pos ext) (Maybe i) → DndMsg i → Update (GState pos ext) Unit
 dndUpdate _dragged (Drag i) = modify $ set _dragged (Just i)
 dndUpdate _dragged (Drop i) = dropA _dragged i
 dndUpdate _dragged Leave = modify $ set _dragged Nothing
 dndUpdate _dragged DropOnBoard = modify $ set _dragged Nothing
 
 dropA ∷ ∀pos ext dnd. Eq dnd ⇒  Game pos ext {from ∷ dnd, to ∷ dnd} ⇒
-            Lens' (GState pos ext) (Maybe dnd) → dnd → Update (GState pos ext)
+            Lens' (GState pos ext) (Maybe dnd) → dnd → Update (GState pos ext) Unit
 dropA dragLens to = do
     state ← get
     case state ^. dragLens of

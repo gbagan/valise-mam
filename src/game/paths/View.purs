@@ -4,23 +4,23 @@ import Data.FoldableWithIndex (foldMapWithIndex)
 import Lib.Util (coords)
 import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _pointer)
 import Game.Paths.Model (State, Msg(..), Mode(..), _exit, _mode)
-import Pha as H
-import Pha.Elements as HH
-import Pha.Keyed as HK
-import Pha.Attributes as P
-import Pha.Events as E
-import Pha.Util (pc, translate)
+import Pha.Html (Html, Prop)
+import Pha.Html as H
+import Pha.Html.Keyed as K
+import Pha.Html.Attributes as P
+import Pha.Html.Events as E
+import Pha.Html.Util (pc, translate)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, iconSelectGroup', ihelp, iundo, iredo, ireset, irules)
 import UI.Template (template, card, incDecGrid, gridStyle, svgCursorStyle, trackPointer)
 
-square ∷ ∀a. {darken ∷ Boolean, trap ∷ Boolean, door ∷ Boolean, x ∷ Number, y ∷ Number} → Array (H.Prop a) → H.VDom a
+square ∷ ∀a. {darken ∷ Boolean, trap ∷ Boolean, door ∷ Boolean, x ∷ Number, y ∷ Number} → Array (Prop a) → Html a
 square {darken, trap, door, x, y} props =
-    HH.g ([H.class' "paths-darken" darken] <> props)
-    [   HH.use ([P.href "#paths-background"] <> pos)
+    H.g ([H.class' "paths-darken" darken] <> props)
+    [   H.use ([P.href "#paths-background"] <> pos)
     ,   H.when door \_ →
-            HH.use ([P.href "#paths-door"] <> pos)
-    ,   HH.use (pos <>
+            H.use ([P.href "#paths-door"] <> pos)
+    ,   H.use (pos <>
         [   P.href "#paths-trap" 
         ,   H.class_ "paths-trap"
         ,   H.class' "visible" (trap && not door)
@@ -28,9 +28,9 @@ square {darken, trap, door, x, y} props =
     ]
     where pos = [P.x x, P.y y, P.width "100", P.height "100"]
 
-doorCursor ∷ ∀a. PointerPosition → H.VDom a
+doorCursor ∷ ∀a. PointerPosition → Html a
 doorCursor pp =
-    HH.use $
+    H.use $
     [   P.href "#paths-door" 
     ,   H.class_ "paths-cursor"
     ,   P.x (-50.0)
@@ -39,9 +39,9 @@ doorCursor pp =
     ,   P.height "100"
     ] <> svgCursorStyle pp
         
-heroCursor ∷ ∀a. PointerPosition → H.VDom a
+heroCursor ∷ ∀a. PointerPosition → Html a
 heroCursor pp =
-    HH.use $
+    H.use $
     [   P.href "#meeplehat"
     ,   H.class_ "paths-cursor"
     ,   P.x (-40.0)
@@ -50,7 +50,7 @@ heroCursor pp =
     ,   P.height "80"
     ] <> svgCursorStyle pp
 
-view ∷ State → H.VDom Msg
+view ∷ State → Html Msg
 view state = template {config, board, rules} state where
     position = state ^. _position
     rows = state ^. _nbRows
@@ -72,7 +72,7 @@ view state = template {config, board, rules} state where
 
     hero h = 
         let {row, col} = coords columns h in
-        HH.use 
+        H.use 
         [   P.href "#meeplehat"
         ,   P.width "80"
         ,   P.height "80"
@@ -86,8 +86,8 @@ view state = template {config, board, rules} state where
         let {row, col} = coords columns v in
         [if i == 0 then "M" else "L", show $ 100 * col + 50, show $ 100 * row + 50]
     
-    grid = HH.div (gridStyle rows columns 5 <> trackPointer) [
-        HK.svg [P.viewBox 0 0 (100 * columns) (100 * rows)] $
+    grid = H.div (gridStyle rows columns 5 <> trackPointer) [
+        K.svg [P.viewBox 0 0 (100 * columns) (100 * rows)] $
             (repeat (rows * columns) \index →
                 let {row, col} = coords columns index in
                 show index /\ square
@@ -100,7 +100,7 @@ view state = template {config, board, rules} state where
                 [   E.onclick $ SelectVertex index
                 ]
             ) <>
-            [   "path" /\ HH.path [P.d pathdec, H.class_ "paths-path"]
+            [   "path" /\ H.path [P.d pathdec, H.class_ "paths-path"]
             ,   "hero" /\ H.maybe (last position) hero
             ,   "cur" /\ H.maybe pointer \pp →
                     if null position then
@@ -115,27 +115,27 @@ view state = template {config, board, rules} state where
     board = incDecGrid state [grid]
 
     rules = [
-        HH.p [] 
+        H.p [] 
         [   H.text "Après moultes péripéties dans le temple maudit de Berge, le professeur Hamilton Jones se retrouve dans la dernière salle"
-        ,   HH.br
+        ,   H.br
         ,   H.text "Pour sortir de celle-ci, il doit s\'enfuir par une porte au-dessous de lui."
-        ,   HH.br
+        ,   H.br
         ,   H.text "Celle-ci ne peut être ouverte qu\'en marchant sur chacune des dalles dans la salle."
         ],
-        HH.p [] 
+        H.p [] 
         [   H.text "Malheusement, ces dalles sont piégées, le piège se déclenchant peu de temps après avoir marché dessus."
-        ,   HH.br
+        ,   H.br
         ,   H.text "Donc, Hamilton ne peut pas remarcher sur une dalle sur laquelle il a déjà été."
-        ,   HH.br,
+        ,   H.br,
             H.text "N'ayant plus l'aisance de sa jeunesse, Hamilton ne peut se déplacer que d'une dalle à la fois et ne peut le faire en diagonale."
         ],
-        HH.p []
+        H.p []
         [   H.text "Trouve un parcours pour résoudre l\'énigme. Ca semble facile ? Mais, cela est-il possible pour toutes les tailles de grille ?"],
-        HH.p [] 
+        H.p [] 
         [   H.text "Dans le deuxième mode de jeu, tu peux choisir la position de départ d\'Hamilton ainsi que celle de la porte."
-        ,   HH.br
+        ,   H.br
         ,   H.text "Tu remarqueras qu\'il n\'y a pas toujours de solution."
-        ,   HH.br,
+        ,   H.br,
             H.text "Trouve des critères sur les positions d\'Hamilton et de la porte pour qu\'une solution soit possible."
         ]
     ]

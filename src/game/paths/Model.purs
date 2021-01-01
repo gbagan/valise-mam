@@ -96,7 +96,7 @@ instance game ∷ Game (Array Int) Ext Int where
 data Msg = Core CoreMsg | SelectVertex Int | SelectMode Mode
 instance withcore ∷ MsgWithCore Msg where core = Core
     
-update ∷ Msg → Update State
+update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
 
 update (SelectVertex v) = do

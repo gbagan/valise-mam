@@ -3,12 +3,12 @@ module Game.Queens.View (view) where
 import MyPrelude
 import Lib.Util (map2, map3)
 import Data.Array.NonEmpty as N
-import Pha as H
-import Pha.Elements as HH
-import Pha.Keyed as HK
-import Pha.Attributes as P
-import Pha.Events as E
-import Pha.Util (pc)
+import Pha.Html (Html)
+import Pha.Html as H
+import Pha.Html.Keyed as K
+import Pha.Html.Attributes as P
+import Pha.Html.Events as E
+import Pha.Html.Util (pc)
 import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer)
 import Game.Queens.Model (State, Msg(..), Piece(..),
                            _selectedPiece, _selectedSquare, _allowedPieces, _multiPieces, _customLocalMoves, _customDirections,
@@ -25,21 +25,21 @@ tooltip Bishop = "Fou"
 tooltip Knight = "Cavalier"
 tooltip _ = "Pièce personnalisée"
 
-square ∷ ∀a. { piece ∷ Piece, capturable ∷ Boolean, selected ∷ Boolean, nonavailable ∷ Boolean} → Array (H.Prop a) → H.VDom a
+square ∷ ∀a. { piece ∷ Piece, capturable ∷ Boolean, selected ∷ Boolean, nonavailable ∷ Boolean} → Array (H.Prop a) → Html a
 square { piece, capturable, selected, nonavailable} props =
-    HH.div (props <> 
+    H.div (props <> 
         [   H.class_ "queens-square"
         ,   H.class' "queens-square-capturable" capturable
         ,   H.class' "queens-square-nonavailable" nonavailable
         ,   H.class' "queens-square-selected" selected
         ]) $
         if piece == Empty then [] else [
-            HH.svg [P.width "100%", P.height "100%", P.viewBox 0 0 100 100, H.class_ "queens-piece"] [
-                HH.use [P.href $ "#piece-" <> show piece, P.x 10.0, P.y 10.0, P.width "80", P.height "80"]
+            H.svg [P.width "100%", P.height "100%", P.viewBox 0 0 100 100, H.class_ "queens-piece"] [
+                H.use [P.href $ "#piece-" <> show piece, P.x 10.0, P.y 10.0, P.width "80", P.height "80"]
             ]
         ]
 
-view ∷ State → H.VDom Msg
+view ∷ State → Html Msg
 view state = template {config, board, rules, customDialog, scoreDialog} state where
     position = state ^. _position
     rows = state ^. _nbRows
@@ -79,7 +79,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
         ]   
 
     pieceSelector =
-        HK.div [H.class_ "ui-flex-center gutter2 queens-pieceselector"] $
+        K.div [H.class_ "ui-flex-center gutter2 queens-pieceselector"] $
             N.toArray allowedPieces <#> \piece →
                 let name = show piece in
                 name /\ iconbutton state
@@ -90,14 +90,14 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
                 ]
 
     cursor pp =
-        HH.div ([H.class_ "ui-cursor"] <> cursorStyle pp rows columns 0.8)
-        [   HH.svg [P.width "100%", P.height "100%"]
-            [   HH.use [P.href $ "#piece-" <> show selectedPiece]
+        H.div ([H.class_ "ui-cursor"] <> cursorStyle pp rows columns 0.8)
+        [   H.svg [P.width "100%", P.height "100%"]
+            [   H.use [P.href $ "#piece-" <> show selectedPiece]
             ]
         ]
 
     grid = 
-        HH.div ([H.class_ "ui-board"] <> gridStyle rows columns 5 <> trackPointer) $ concat
+        H.div ([H.class_ "ui-board"] <> gridStyle rows columns 5 <> trackPointer) $ concat
         [   map3 position (attackedBySelected state) (capturableSquares state) \index piece attacked capturable →
                 square
                 {   piece
@@ -115,7 +115,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
         ]
 
     board = 
-        HH.div []
+        H.div []
         [   pieceSelector
         ,   incDecGrid state [grid]
         ]
@@ -124,8 +124,8 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
 
     customDialog _ = 
         dialog "Personnalise ta pièce"
-        [   HH.div [H.class_ "flex queens-custompiece"]
-            [   HK.div [H.class_ "queens-grid queens-custompiece-grid"] (
+        [   H.div [H.class_ "flex queens-custompiece"]
+            [   K.div [H.class_ "queens-grid queens-custompiece-grid"] (
                     customLocalMoves # mapWithIndex \index selected →
                         show index /\ square
                         {   piece: if index == 12 then Custom else Empty
@@ -138,7 +138,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
                         ,   E.onclick' if index ≠ 12 then Just (FlipLocalMove index) else Nothing
                         ]
                 )
-            ,   HH.div [H.class_ "flex  queens-custompiece-directions"] (
+            ,   H.div [H.class_ "flex  queens-custompiece-directions"] (
                     map2 customDirections angles \i selected angle →
                         iconbutton state 
                         {   selected: selected
@@ -152,8 +152,8 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
     ]    
         
     scoreDialog _ = bestScoreDialog state \pos → [
-        HH.div [H.class_ "ui-flex-center queens-bestscore-container"] [
-            HH.div (gridStyle rows columns 5 <> [H.class_ "ui-board queens-grid"]) (
+        H.div [H.class_ "ui-flex-center queens-bestscore-container"] [
+            H.div (gridStyle rows columns 5 <> [H.class_ "ui-board queens-grid"]) (
                 pos <#> \piece →
                     square { piece, capturable: false, selected: false, nonavailable: false}
                     [   H.style "width" $ pc (1.0 / toNumber columns)
@@ -165,10 +165,10 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
 
     rules = 
         [   H.text "Place le plus de pièces possible sur ta grille sans qu\'aucune ne soit menacée par une autre pièce."
-        ,   HH.br
+        ,   H.br
         ,   H.text "Tu peux choisir de jouer avec différentes pièces comme celles du jeu d\'échecs."
-        ,   HH.br
+        ,   H.br
         ,   H.text "Le mode mixte permet de jouer avec plusieurs pièces différentes."
-        ,   HH.br
+        ,   H.br
         ,   H.text "Tu peux jouer avec une pièce personnalisée si tu le souhaites."
         ]

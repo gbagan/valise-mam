@@ -124,7 +124,7 @@ sizes = [3∧3, 4∧4, 2∧10, 3∧10, 5∧5, 8∧8, 8∧8]
 
 -- | si le niveau est fini, on met à jour les nivaux débloqués
 -- | et l'on passe au niveau suivant
-afterPlay ∷ Update State
+afterPlay ∷ Update State Unit
 afterPlay = do
     state ← get
     let mode = state^._mode
@@ -140,7 +140,7 @@ afterPlay = do
 data Msg = Core CoreMsg | SelectMode Int | SelectLevel Int | Play Int | Konami String
 instance withcore ∷ MsgWithCore Msg where core = Core
 
-update ∷ Msg → Update State
+update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
 update (SelectMode mode) = newGame $ set _mode mode ∘ set _level 0
 update (SelectLevel level) = newGame $ set _level level

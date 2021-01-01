@@ -92,7 +92,7 @@ instance game ∷ Game (Array Card) ExtState Int where
 data Msg = Core CoreMsg | Play Int | ToggleCard Int | SetMode Mode | ToggleCustom | Shuffle
 instance withcore ∷ MsgWithCore Msg where core = Core
 
-update ∷ Msg → Update State
+update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
 update (Play move) = playA move
 update (ToggleCard i) = modify $ over (_position ∘ ix i) reverseCard

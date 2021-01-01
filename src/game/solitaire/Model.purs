@@ -158,7 +158,7 @@ data Msg = Core CoreMsg | DnD (DndMsg Int) | SetBoard Board
 instance withcore ∷ MsgWithCore Msg where core = Core
 instance withdnd ∷ MsgWithDnd Msg Int where dndmsg = DnD  
     
-update ∷ Msg → Update State
+update ∷ Msg → Update State Unit
 update (Core ToggleHelp) = modify $ over _help \x → (x + 1) `mod` 3
 update (Core msg) = coreUpdate msg
 update (DnD msg) = dndUpdate _dragged msg

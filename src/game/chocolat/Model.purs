@@ -96,7 +96,7 @@ cutLine state = case _ of
 data Msg = Core CoreMsg | SetHover (Maybe Move) | SetSoapMode SoapMode | Play Move | SetSoap Int Int
 instance withcore ∷ MsgWithCore Msg where core = Core
     
-update ∷ Msg → Update State
+update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
 update (SetHover a) = modify $ set _moveWhenHover a 
 update (SetSoapMode m) = newGame $ set _soapMode m

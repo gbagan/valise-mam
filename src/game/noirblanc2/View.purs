@@ -5,28 +5,28 @@ import MyPrelude
 import Game.Core (_position, _nbRows, _nbColumns)
 import Game.Noirblanc2.Model (State, Msg(..), Card(..), Phase(..), Mode(..), _mode, _phase)
 import Lib.Util (coords)
-import Pha as H
-import Pha.Elements as HH
-import Pha.Events as E
-import Pha.Attributes as P
-import Pha.Util (pc)
+import Pha.Html (Html)
+import Pha.Html as H
+import Pha.Html.Attributes as P
+import Pha.Html.Events as E
+import Pha.Html.Util (pc)
 import UI.Icon (Icon(..))
 import UI.Icons (iconbutton, icongroup, iconSelectGroup', iundo, iredo, ireset, irules)
 import UI.Template (template, card, incDecGrid, gridStyle)
 
-square ∷ ∀a. Card → Array (H.Prop a) → H.VDom a
+square ∷ ∀a. Card → Array (H.Prop a) → Html a
 square card props = 
-    HH.div ([H.class_ "noirblanc2-square"] <> props)
-    [   HH.div [H.class_ "noirblanc2-square-inner", H.class' "blanc" (card == WhiteCard),
+    H.div ([H.class_ "noirblanc2-square"] <> props)
+    [   H.div [H.class_ "noirblanc2-square-inner", H.class' "blanc" (card == WhiteCard),
                 H.class' "empty" (card == EmptyCard)]
-        [   HH.div [H.class_ "noirblanc2-square-blanc"] 
-            [    HH.svg [H.class_ "ui-absolute noirblanc2-card"] [HH.use [P.href "#card"]]
+        [   H.div [H.class_ "noirblanc2-square-blanc"] 
+            [    H.svg [H.class_ "ui-absolute noirblanc2-card"] [H.use [P.href "#card"]]
             ]
-        ,   HH.div [H.class_ "noirblanc2-square-noir"] []
+        ,   H.div [H.class_ "noirblanc2-square-noir"] []
         ]
     ]
 
-view ∷ State → H.VDom Msg
+view ∷ State → Html Msg
 view state = template {config, board, rules, winTitle} state where
     rows = state ^. _nbRows
     columns = state ^. _nbColumns
@@ -53,7 +53,7 @@ view state = template {config, board, rules, winTitle} state where
         ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
         ]
 
-    grid = HH.div ([H.class_ "ui-board"] <> gridStyle rows columns 4) $
+    grid = H.div ([H.class_ "ui-board"] <> gridStyle rows columns 4) $
         position # mapWithIndex \index card →
             let {row, col} = coords columns index in
             square card
@@ -70,6 +70,6 @@ view state = template {config, board, rules, winTitle} state where
 
     rules =
         [   H.text "Le but du jeu est de retirer toutes les cartes."
-        ,   HH.br
+        ,   H.br
         ,   H.text "Pour retirer une carte, elle doit être face blanche, et alors on retourne les cartes adjacentes."
         ]

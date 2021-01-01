@@ -35,6 +35,7 @@ import Data.Lens.Record (prop) as Exports
 import Data.String (joinWith) as Exports
 import Control.Alt ((<|>)) as Exports
 import Control.MonadZero (guard) as Exports
+import Data.Time.Duration (Milliseconds(..)) as Exports
 
 range' ∷ Int → Int → Array Int
 range' n m = if n > m then [] else range n m

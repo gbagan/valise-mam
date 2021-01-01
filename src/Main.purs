@@ -25,13 +25,13 @@ import Game.Tiling as Tiling
 import Game.Tricolor as Tricolor
 import Game.Valise as Valise
 import Pha.App (app)
-import Pha (VDom)
-import Pha as H
-import Pha.Elements as HH
-import Pha.Keyed as HK
-import Pha.Attributes as P
-import Lib.Update (Update, get, modify, getHash, updateOver, interpret)
-import Pha.Subs as Subs
+import Pha.Html (Html)
+import Pha.Html as H
+import Pha.Html.Keyed as K
+import Pha.Html.Attributes as P
+import Pha.Update.Lens (updateOver)
+import Lib.Update (Update, get, modify, getHash)
+import Pha.Subscriptions as Subs
 import Unsafe.Coerce (unsafeCoerce)
 
 infix 2 updateOver as .~>
@@ -144,7 +144,7 @@ callByName name default f = case games # Map.lookup name of
                                 Nothing → default
                                 Just game → game # gameRun f 
  
-update ∷ Msg → Update RootState
+update ∷ Msg → Update RootState Unit
 update (BaseballMsg msg)  = prop (SProxy ∷ SProxy "baseball")  .~> Baseball.update msg
 update (ChocolatMsg msg)  = prop (SProxy ∷ SProxy "chocolat")  .~> Chocolat.update msg
 update (DessinMsg msg)    = prop (SProxy ∷ SProxy "dessin")    .~> Dessin.update msg
@@ -179,7 +179,7 @@ update HashChanged = do
     else
         pure unit
 
-init ∷ Update RootState
+init ∷ Update RootState Unit
 init = do
     for_ (Map.values games) $
         gameRun \game → case game.core.init of
@@ -188,27 +188,27 @@ init = do
     update HashChanged
     
 
-view ∷ RootState → VDom Msg
+view ∷ RootState → Html Msg
 view st =
-    HK.div []
+    K.div []
     [   st.location /\ 
-    HH.div
+    H.div
         [   H.class_ "main-main-container"
         ,   H.class_ (if st.location == "" then "valise" else "game")
         ]
         [   H.when (st.location ≠ "") \_ →
-            HH.a
+            H.a
             [   H.class_ "main-minivalise-link"
             ,   P.href "#"
             ]
-            [   HH.svg [P.width "100%", P.height "100%"]
-                [   HH.use [P.href "#valise"]]
+            [   H.svg [P.width "100%", P.height "100%"]
+                [   H.use [P.href "#valise"]]
             ]
         ,   viewGame st
         ]
     ]
 
-viewGame ∷ RootState → H.VDom Msg
+viewGame ∷ RootState → Html Msg
 viewGame st = callByName st.location (H.text "") 
                     \game → game.core.view (game.map st) <#> game.msgmap
 
@@ -216,7 +216,7 @@ main ∷ Effect Unit
 main = app
     {   init: {state, action: Just $ Init}
     ,   view
-    ,   update: \helpers msg → interpret helpers (update msg)
+    ,   update
     ,   subscriptions: const [Subs.onKeyDown (Just ∘ KeyDown), Subs.onHashChange $ const (Just HashChanged)]
     ,   selector: "#root"
     }

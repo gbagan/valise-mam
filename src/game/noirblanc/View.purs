@@ -5,11 +5,11 @@ import MyPrelude
 import Game.Core (_position, _nbRows, _nbColumns, _help)
 import Game.Noirblanc.Model (State, Msg(..), _level, _mode, _maxLevels)
 import Lib.Util (coords, map2)
-import Pha as H
-import Pha.Elements as HH
-import Pha.Attributes as P
-import Pha.Events as E
-import Pha.Util (pc)
+import Pha.Html (Html)
+import Pha.Html as H
+import Pha.Html.Attributes as P
+import Pha.Html.Events as E
+import Pha.Html.Util (pc)
 import UI.Icon (Icon(..), Options)
 import UI.Icons (icongroup, ihelp, ireset, irules, iconSelectGroup)
 import UI.Template (template, card, incDecGrid, gridStyle)
@@ -25,22 +25,22 @@ levelOptions level _ opt = case level of
     5 → opt{ icon = IconText "NxM", tooltip = Just "Dimensions personnalisées" }
     _ → opt{ icon = IconSymbol "#lo-rand", tooltip = Just "Grille aléatoire" }
 
-square ∷ ∀a. Boolean → Boolean → Array (H.Prop a) → H.VDom a
+square ∷ ∀a. Boolean → Boolean → Array (H.Prop a) → Html a
 square light cross props = 
-    HH.div ([H.class_ "noirblanc-square"] <> props)
-    [   HH.div [H.class_ "noirblanc-square-inner", H.class' "blanc" light]
-        [   HH.div [H.class_ "noirblanc-square-blanc"] $ 
+    H.div ([H.class_ "noirblanc-square"] <> props)
+    [   H.div [H.class_ "noirblanc-square-inner", H.class' "blanc" light]
+        [   H.div [H.class_ "noirblanc-square-blanc"] $ 
                 if cross then [
-                    HH.svg [H.class_ "ui-absolute noirblanc-cross"] [HH.use [P.href "#cross"]]
+                    H.svg [H.class_ "ui-absolute noirblanc-cross"] [H.use [P.href "#cross"]]
                 ]  else []
-        ,   HH.div [H.class_ "noirblanc-square-noir"] $
+        ,   H.div [H.class_ "noirblanc-square-noir"] $
                 if cross then [
-                    HH.svg [H.class_ "ui-absolute noirblanc-cross"] [HH.use [P.href "#cross"]]
+                    H.svg [H.class_ "ui-absolute noirblanc-cross"] [H.use [P.href "#cross"]]
                 ] else []
         ]
     ]
 
-view ∷ State → H.VDom Msg
+view ∷ State → Html Msg
 view state = template {config, board, rules} state where
     rows = state ^. _nbRows
     columns = state ^. _nbColumns
@@ -58,7 +58,7 @@ view state = template {config, board, rules} state where
         icongroup "Options" $ [ihelp, ireset, irules] <#> (_ $ state)
     ]
 
-    grid = HH.div ([H.class_ "ui-board"] <> gridStyle rows columns 4) $
+    grid = H.div ([H.class_ "ui-board"] <> gridStyle rows columns 4) $
         map2 position.light position.played \index light played →
             let {row, col} = coords columns index in
             square light (help && played)
@@ -73,8 +73,8 @@ view state = template {config, board, rules} state where
 
     rules =
         [   H.text "Le but du jeu est de retourner des tuiles pour que toutes soient face noire."
-        ,   HH.br
+        ,   H.br
         ,   H.text "La difficulté est que lorsque tu retournes une tuile, les tuiles adjacentes sont également retournées."
-        ,   HH.br
+        ,   H.br
         ,   H.text "Ce jeu possède différents niveaux débloqués au fur et à mesure ainsi que d'autres modes de jeu. Selon le mode choisi, les règles pour retourner les tuiles changent."
         ]

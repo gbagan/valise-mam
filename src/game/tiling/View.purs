@@ -1,12 +1,12 @@
 module Game.Tiling.View (view) where
 import MyPrelude
 import Lib.Util (coords)
-import Pha as H
-import Pha.Elements as HH
-import Pha.Keyed as HK
-import Pha.Attributes as P
-import Pha.Events as E
-import Pha.Util (translate)
+import Pha.Html (Html)
+import Pha.Html as H
+import Pha.Html.Keyed as K
+import Pha.Html.Attributes as P
+import Pha.Html.Events as E
+import Pha.Html.Util (translate)
 import Game.Common (_isoCustom)
 import Game.Core (_position, _nbRows, _nbColumns, _pointer, _help)
 import Game.Tiling.Model (State, Msg(..), TileType(..), _nbSinks, _rotation, _tile, _tileType,
@@ -17,20 +17,20 @@ import UI.Icons (icongroup, iconSizesGroup, iconSelectGroup, ihelp, ireset, irul
 
 type Borders = {top ∷ Boolean, left ∷ Boolean, bottom ∷ Boolean, right ∷ Boolean}
 
-square ∷ ∀a. {isDark ∷ Boolean, hasBlock ∷ Boolean, hasSink ∷ Boolean, row ∷ Int, col ∷ Int} → Array (H.Prop a) → H.VDom a 
+square ∷ ∀a. {isDark ∷ Boolean, hasBlock ∷ Boolean, hasSink ∷ Boolean, row ∷ Int, col ∷ Int} → Array (H.Prop a) → Html a 
 square {isDark, hasBlock, hasSink, row, col} props =
-    HH.g (
+    H.g (
     [   H.class' "tiling-darken" isDark
     ,   P.transform $ translate (show $ 50 * col) (show $ 50 * row)
     ] <> props) 
-    [   HH.rect [P.width "50", P.height "50", P.fill "url(#concrete)"]
+    [   H.rect [P.width "50", P.height "50", P.fill "url(#concrete)"]
     ,   H.when hasBlock \_ →
-            HH.use [P.href "#tile2", P.width "50", P.height "50"]
+            H.use [P.href "#tile2", P.width "50", P.height "50"]
     ,   H.when hasSink \_ →
-            HH.use [P.href "#sink", P.width "50", P.height "50"]
+            H.use [P.href "#sink", P.width "50", P.height "50"]
     ]
     
-view ∷ State → H.VDom Msg
+view ∷ State → Html Msg
 view state = template {config, board, rules, winTitle, customDialog} state where
     position = state ^. _position
     rows = state ^. _nbRows
@@ -54,12 +54,12 @@ view state = template {config, board, rules, winTitle, customDialog} state where
         ]
 
     tileCursor pp =
-        HH.g (svgCursorStyle pp)
-        [   HH.g [
+        H.g (svgCursorStyle pp)
+        [   H.g [
                 H.class_ "tiling-cursor",
                 H.style "transform" $ "rotate(" <> show (90 * rotation) <> "deg)"
             ] $ tile <#> \{row, col} →
-                HH.use
+                H.use
                 [   P.href "#tile2"
                 ,   P.x $ 50.0 * toNumber col - 25.0
                 ,   P.y $ 50.0 * toNumber row - 25.0
@@ -71,17 +71,17 @@ view state = template {config, board, rules, winTitle, customDialog} state where
         ]
         
     sinkCursor pp =
-        HH.use ([
+        H.use ([
             P.href "#sink", P.x (-25.0), P.y (-25.0), P.width "50", P.height "50",
             H.attr "pointer-events" "none"
         ] <> svgCursorStyle pp)
 
     grid =
-        HH.div (gridStyle rows columns 5 <> trackPointer <> [
+        H.div (gridStyle rows columns 5 <> trackPointer <> [
             H.class_ "ui-board",
             E.oncontextmenu Rotate
         ]) [
-            HH.svg [P.viewBox 0 0 (50 * columns) (50 * rows)] $ concat
+            H.svg [P.viewBox 0 0 (50 * columns) (50 * rows)] $ concat
             [   position # mapWithIndex \index pos →
                     let {row, col} = coords columns index in
                     square
@@ -97,15 +97,15 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                     ]
             ,   position # mapWithIndex \index pos →
                     let {row, col} = coords columns index in
-                    HH.g [P.transform $ translate (show $ 50 * col) (show $ 50 * row)]
+                    H.g [P.transform $ translate (show $ 50 * col) (show $ 50 * row)]
                     [   H.when (pos > 0 && border index (-1)) \_ →
-                            HH.line [P.x1 0.0, P.y1 0.0, P.x2 0.0, P.y2 50.0, P.stroke "#000", P.strokeWidth 2.0]
+                            H.line [P.x1 0.0, P.y1 0.0, P.x2 0.0, P.y2 50.0, P.stroke "#000", P.strokeWidth 2.0]
                     ,   H.when (pos > 0 && border index 1) \_ →
-                            HH.line [P.x1 50.0, P.y1 0.0, P.x2 50.0, P.y2 50.0, P.stroke "#000", P.strokeWidth 2.0]
+                            H.line [P.x1 50.0, P.y1 0.0, P.x2 50.0, P.y2 50.0, P.stroke "#000", P.strokeWidth 2.0]
                     ,   H.when (pos > 0 && border index (-columns)) \_ →
-                            HH.line [P.x1 0.0, P.y1 0.0, P.x2 50.0, P.y2 0.0, P.stroke "#000", P.strokeWidth 2.0]
+                            H.line [P.x1 0.0, P.y1 0.0, P.x2 50.0, P.y2 0.0, P.stroke "#000", P.strokeWidth 2.0]
                     ,   H.when (pos > 0 && border index columns) \_ →
-                            HH.line [P.x1 0.0, P.y1 50.0, P.x2 50.0, P.y2 50.0, P.stroke "#000", P.strokeWidth 2.0]    
+                            H.line [P.x1 0.0, P.y1 50.0, P.x2 50.0, P.y2 50.0, P.stroke "#000", P.strokeWidth 2.0]    
                     ]
             ,   [H.maybe pointer $ if length (sinks state) < nbSinks then sinkCursor else tileCursor]
             ]
@@ -114,9 +114,9 @@ view state = template {config, board, rules, winTitle, customDialog} state where
     board = incDecGrid state [grid]
 
     customDialog _ = dialog "Personnalise ta tuile" [
-        HH.div [H.class_ "tiling-customtile-grid-container"] [
-            HH.div [H.class_ "tiling-grid"] [
-                HK.svg [P.viewBox 0 0 250 250] (
+        H.div [H.class_ "tiling-customtile-grid-container"] [
+            H.div [H.class_ "tiling-grid"] [
+                K.svg [P.viewBox 0 0 250 250] (
                     tile ^. _isoCustom # mapWithIndex \index hasBlock →
                         let {row, col} = coords 5 index
                         in show index /\ square {hasBlock, row, col, hasSink: false, isDark: false}
@@ -128,13 +128,13 @@ view state = template {config, board, rules, winTitle, customDialog} state where
 
     rules =
         [   H.text "Est-il possible de faire le carrelage de toute votre cuisine, sachant qu'elle peut avoir un ou plusieurs éviers ?"
-        ,   HH.br
+        ,   H.br
         ,   H.text "Tu peux tester avec différentes formes de tuile et différents emplacements d'éviers."
-        ,   HH.br
+        ,   H.br
         ,   H.text "Deux questions sont particulièrement intéressantes:"
-        ,   HH.br
+        ,   H.br
         ,   H.text "- Pour quelles dimensions de la grille et pour quels positions d'éviers peut-on paver une grille avec le premier type de tuiles?"
-        ,   HH.br
+        ,   H.br
         ,   H.text "- Peut-on toujours carreler une grille 8x8 avec les tuiles de type 3 et en posant un évier, et ceci, quelque soit la position de l'évier?"
         ]
 

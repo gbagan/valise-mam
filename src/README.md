@@ -261,12 +261,12 @@ La vue générée par la fonction template dans UI.Template
 pour cela, il faut implémenter (éventuellement partiellement) les attributs de
 ```purescript
 type Elements a = {
-    board ∷ VDom a,
-    config ∷ VDom a,
-    rules ∷ Array (VDom a),
+    board ∷ Html a,
+    config ∷ Html a,
+    rules ∷ Array (Html a),
     winTitle ∷ String,
-    customDialog ∷ Unit → VDom a,
-    scoreDialog ∷ Unit → VDom a
+    customDialog ∷ Unit → Html a,
+    scoreDialog ∷ Unit → Html a
 }
 ```
 - board est le plateau principal. On toruve dans UI.Template plusieurs fonctions utilitaires pour aider à sa création

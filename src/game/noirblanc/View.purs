@@ -66,7 +66,7 @@ view state = template {config, board, rules} state where
             ,   H.style "width" $ pc (0.86 / toNumber columns)
             ,   H.style "left" $ pc ((toNumber col + 0.07) / toNumber columns)
             ,   H.style "top" $ pc ((toNumber row + 0.07) / toNumber rows)
-            ,   E.onclick $ Play index
+            ,   E.onClick $ Play index
             ]
 
     board = incDecGrid state [grid]

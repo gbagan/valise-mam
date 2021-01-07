@@ -22,14 +22,14 @@ dialog {title, onOk, onCancel} children =
             [   H.maybe onCancel \action →
                     H.button 
                     [   H.class_ "ui-button ui-button-primary"
-                    ,   E.onclick action
+                    ,   E.onClick action
                     ]
                     [   H.text "Annuler"
                     ]
             ,   H.maybe onOk \action →
                     H.button
                     [   H.class_ "ui-button ui-button-primary"
-                    ,   E.onclick action
+                    ,   E.onClick action
                     ]
                     [   H.text "Ok"
                     ]

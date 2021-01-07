@@ -97,7 +97,7 @@ view state = template {config, board, rules} state where
                 ,   x: toNumber (100 * col)
                 ,   y: toNumber (100 * row)
                 }
-                [   E.onclick $ SelectVertex index
+                [   E.onClick $ SelectVertex index
                 ]
             ) <>
             [   "path" /\ H.path [P.d pathdec, H.class_ "paths-path"]
@@ -108,7 +108,7 @@ view state = template {config, board, rules} state where
                     else if isNothing exit then
                         doorCursor pp
                     else
-                        H.text ""
+                        H.empty
             ]
     ]
 

@@ -13,7 +13,7 @@ valise state =
     H.svg
     [   P.viewBox 0 0 825 690
     ,   E.on "pointermove" $ pointerDecoder >>> map (map MoveObject)
-    ,   E.onpointerup $ SetDrag Nothing
+    ,   E.onPointerUp $ SetDrag Nothing
     ]
     [   H.use 
         [   P.href "#valise"
@@ -25,7 +25,7 @@ valise state =
         [   H.use [P.href "#openvalise"]
         ,   object { symbol: "switch", link: Nothing, help: "", drag: false } 
                     300 460 42 60
-                    [   E.onclick ToggleSwitch
+                    [   E.onClick ToggleSwitch
                     ,   H.style "transform" (if state.isSwitchOn then "scale(1,-1) translateY(-8%)" else "scale(1,1)")
                     ]
                     []
@@ -132,14 +132,14 @@ valise state =
                 ,   H.class' "draggable" drag
                 ,   P.width $ show w'
                 ,   P.height $ show h'
-                ,   E.onpointerdown' $ if drag then 
+                ,   E.onPointerDown' $ if drag then 
                                         Just $ SetDrag (Just {name: symbol, x: toNumber w' / 1650.0, y: toNumber h' / 1380.0})
                                     else
                                         Nothing
                 ]
                 <> if isJust link then [] else
-                [   E.onpointerenter $ ShowHelp help
-                ,   E.onpointerleave $ ShowHelp ""
+                [   E.onPointerEnter $ ShowHelp help
+                ,   E.onPointerLeave $ ShowHelp ""
                 ])
                 [   H.use
                     [   P.href $ "#" <> symbol
@@ -152,8 +152,8 @@ valise state =
                             [   P.width "100%"
                             ,   P.height "100%"
                             ,   H.class_ "valise-object-link"
-                            ,   E.onpointerenter $ ShowHelp help
-                            ,   E.onpointerleave $ ShowHelp ""
+                            ,   E.onPointerEnter $ ShowHelp help
+                            ,   E.onPointerLeave $ ShowHelp ""
                             ] 
                             <> children
                             )

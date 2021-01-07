@@ -49,7 +49,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
     board =
         H.div (trackPointer <>
             [   H.class_ "ui-board dessin-board"
-            ,   E.oncontextmenu $ Play Raise
+            ,   E.onContextMenu $ Play Raise
             ])
             [   H.svg [H.class_ "dessin-svg", P.viewBox 0 0 100 100] $ concat 
                 [   graph.edges <#> \edge →
@@ -78,7 +78,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                             ,   P.r 3.0
                             ,   P.stroke $ if Just (MoveTo i) == last position then "red" else "blue"
                             ,   P.fill "blue"
-                            ,   E.onclick $ Play (MoveTo i)
+                            ,   E.onClick $ Play (MoveTo i)
                             ]
                     else
                         []
@@ -97,7 +97,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
             ,   H.button
                 [   H.class_ "ui-button ui-button-primary dessin-raise"
                 ,   P.disabled $ not (canPlay state Raise) || levelFinished
-                ,   E.onclick $ Play Raise
+                ,   E.onClick $ Play Raise
                 ]
                 [   H.text "Lever le crayon"]
             ]

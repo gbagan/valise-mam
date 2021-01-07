@@ -209,7 +209,7 @@ view st =
     ]
 
 viewGame ∷ RootState → Html Msg
-viewGame st = callByName st.location (H.text "") 
+viewGame st = callByName st.location H.empty
                     \game → game.core.view (game.map st) <#> game.msgmap
 
 main ∷ Effect Unit

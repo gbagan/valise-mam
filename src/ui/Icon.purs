@@ -49,6 +49,6 @@ iconbutton opts props =
                 H.use [P.href symbol, H.class_ "ui-icon-symbol"]
             ]
             IconText t → H.span [H.class_ "ui-icon-text"] [H.text t]
-            IconNone → H.text "",
+            IconNone → H.empty,
         H.maybe tooltip \t → H.span [H.class_ "ui-icon-tooltip"] [H.text t]
     ]

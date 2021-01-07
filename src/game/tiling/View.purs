@@ -79,7 +79,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
     grid =
         H.div (gridStyle rows columns 5 <> trackPointer <> [
             H.class_ "ui-board",
-            E.oncontextmenu Rotate
+            E.onContextMenu Rotate
         ]) [
             H.svg [P.viewBox 0 0 (50 * columns) (50 * rows)] $ concat
             [   position # mapWithIndex \index pos →
@@ -91,9 +91,9 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                     ,   row
                     ,   col
                     }
-                    [   E.onclick $ if needSinks state then PutSink index else Play index
-                    ,   E.onpointerenter $ SetHoverSquare (Just index)
-                    ,   E.onpointerleave $ SetHoverSquare Nothing
+                    [   E.onClick $ if needSinks state then PutSink index else Play index
+                    ,   E.onPointerEnter $ SetHoverSquare (Just index)
+                    ,   E.onPointerLeave $ SetHoverSquare Nothing
                     ]
             ,   position # mapWithIndex \index pos →
                     let {row, col} = coords columns index in
@@ -120,7 +120,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                     tile ^. _isoCustom # mapWithIndex \index hasBlock →
                         let {row, col} = coords 5 index
                         in show index /\ square {hasBlock, row, col, hasSink: false, isDark: false}
-                            [E.onclick $ FlipTile index]
+                            [E.onClick $ FlipTile index]
                 )
             ]
         ]
@@ -144,7 +144,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
         I.Icon({
                     symbol: 'cup',
                     tooltip: 'Succès',
-                    onclick: [actions.showDialog, 'success']
+                    onClick: [actions.showDialog, 'success']
 
     const HelpDialog = () ⇒ C.HelpDialog(
         'Essaie de remplir tout le plateau avec des pavés respectant un certain motif.', br,

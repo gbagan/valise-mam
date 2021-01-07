@@ -112,7 +112,7 @@ view state = template {config, board, rules} state where
         [   [H.button [
                 H.class_ "ui-button ui-button-primary roue-button",
                 P.disabled locked,
-                E.onclick $ Rotate (-1)
+                E.onClick $ Rotate (-1)
             ] [H.text "↶"]]
         ,   take size colors # mapWithIndex \i color →
                 H.div ([
@@ -130,7 +130,7 @@ view state = template {config, board, rules} state where
         ,   [H.button [
                 H.class_ "ui-button ui-button-primary roue-button",
                     P.disabled locked,
-                    E.onclick $ Rotate 1 -- lockAction n'est pas nécessaire
+                    E.onClick $ Rotate 1 -- lockAction n'est pas nécessaire
             ] [H.text "↷"]]
         ]
 
@@ -144,7 +144,7 @@ view state = template {config, board, rules} state where
             ,   H.button
                 [   H.class_ "ui-button ui-button-primary roue-validate"
                 ,   P.disabled $ not valid || locked
-                ,   E.onclick Check
+                ,   E.onClick Check
                 ]
                 [H.text "Valider"]
             ,   H.div [H.class_ "roue-valid-rotation"]

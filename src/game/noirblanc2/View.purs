@@ -35,12 +35,12 @@ view state = template {config, board, rules, winTitle} state where
     icustom = iconbutton
                 state
                 {icon: IconSymbol "#customize", selected: state^._phase == PrepPhase}
-                [E.onclick ToggleCustom]
+                [E.onClick ToggleCustom]
 
     ishuffle = iconbutton
                 state
                 {icon: IconSymbol "#shuffle", disabled: state^._phase == GamePhase}
-                [E.onclick Shuffle]
+                [E.onClick Shuffle]
 
 
     config = card "??????"
@@ -61,7 +61,7 @@ view state = template {config, board, rules, winTitle} state where
             ,   H.style "width" $ pc (0.68 / toNumber columns)
             ,   H.style "left" $ pc ((toNumber col + 0.16) / toNumber columns)
             ,   H.style "top" $ pc ((toNumber row + 0.07) / toNumber rows)
-            ,   E.onclick $ if state^._phase == PrepPhase then ToggleCard index else Play index
+            ,   E.onClick $ if state^._phase == PrepPhase then ToggleCard index else Play index
             ]
 
     board = incDecGrid state [grid]

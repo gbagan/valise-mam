@@ -45,8 +45,8 @@ dndBoardProps ∷ Array (H.Prop Msg)
 dndBoardProps =
     [   E.on "pointerdown" move
     ,   E.on "pointermove" move
-    ,   E.onpointerup DropOnBoard
-    ,   E.onpointerleave LeaveGuard
+    ,   E.onPointerUp DropOnBoard
+    ,   E.onPointerLeave LeaveGuard
     ] where
         move e = map (core ∘ SetPointer ∘ Just) <$> pointerDecoder e
 
@@ -184,7 +184,7 @@ view state = template {config, board, rules, winTitle} state where
                             ,   P.y (-5.0)
                             ,   P.fill "transparent"
                             ,   H.style "transform" $ translateGuard pos
-                            ,   E.onclick' $ if grules == ManyGuards && isJust position.attacked then Nothing else Just (Play i)
+                            ,   E.onClick' $ if grules == ManyGuards && isJust position.attacked then Nothing else Just (Play i)
                             ,   H.class' "eternal-sel" $ phase == PrepPhase || isJust position.attacked && (grules == ManyGuards) == elem i guards 
                                                                           || not (isJust position.attacked) && not (elem i guards)
                             ]  <> (dndItemProps state
@@ -210,7 +210,7 @@ view state = template {config, board, rules, winTitle} state where
             ,   H.button
                 [   H.class_ "ui-button ui-button-primary dessin-raise"
                 ,   P.disabled $ null position.guards || state^._phase == GamePhase && (state^._rules == OneGuard || isNothing position.attacked || not (isValidNextMove state (state^._nextmove)))
-                ,   E.onclick (if state^._phase == GamePhase then MoveGuards else StartGame)
+                ,   E.onClick (if state^._phase == GamePhase then MoveGuards else StartGame)
                 ]
                 [   H.text "Valider"]
             ]

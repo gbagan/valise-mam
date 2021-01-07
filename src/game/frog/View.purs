@@ -144,7 +144,7 @@ view state = template {config, board, rules, winTitle} state where
         H.g [] $
             map2 spoints reachable \i {x, y} reach →
                 H.g
-                [   E.onclick_ \ev → pure $ Just $ if ME.shiftKey ev then Mark i else Play i
+                [   E.onClick_ \ev → pure $ Just $ if ME.shiftKey ev then Mark i else Play i
                 ]
                 [   lily i x y false false
                 ,   lily i x y true (not reach || locked)

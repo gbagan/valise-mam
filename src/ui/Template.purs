@@ -62,12 +62,12 @@ type Elements a = Record (ElementsRow a)
 
 defaultElements ∷ ∀a. Elements a
 defaultElements =
-    {   board: H.text ""
-    ,   config: H.text ""
+    {   board: H.empty
+    ,   config: H.empty
     ,   rules: [H.text "blah blah"]
     ,   winTitle: "GAGNÉ"
-    ,   customDialog: \_ → H.text ""
-    ,   scoreDialog: \_ → H.text ""
+    ,   customDialog: const H.empty
+    ,   scoreDialog: const H.empty
     }
 
 template ∷ ∀elems pos ext mov msg.
@@ -95,7 +95,7 @@ template elems state =
                 ]
         dialog' CustomDialog = customDialog unit
         dialog' ScoreDialog = scoreDialog unit
-        dialog' _ = H.text ""
+        dialog' _ = H.empty
 
 dialog ∷ ∀msg. MsgWithCore msg ⇒ String → Array (Html msg) → Html msg
 dialog title = D.dialog {title, onCancel: Nothing, onOk: Just $ core SetNoDialog}
@@ -131,7 +131,7 @@ svgCursorStyle {x, y} = [
 trackPointer ∷ ∀msg. MsgWithCore msg ⇒ Array (Prop msg)
 trackPointer = [
     E.on "pointermove" move,
-    E.onpointerleave $ core (SetPointer Nothing),
+    E.onPointerLeave $ core (SetPointer Nothing),
     E.on "pointerdown" move
 ] where
     move e = map (core ∘ SetPointer ∘ Just) <$> pointerDecoder e
@@ -141,8 +141,8 @@ dndBoardProps ∷ ∀msg id. MsgWithCore msg ⇒ MsgWithDnd msg id ⇒ Array (Pr
 dndBoardProps = [
     E.on "pointerdown" move,
     E.on "pointermove" move,
-    E.onpointerup $ dndmsg DropOnBoard,
-    E.onpointerleave $ dndmsg Leave
+    E.onPointerUp $ dndmsg DropOnBoard,
+    E.onPointerLeave $ dndmsg Leave
 ] where
     move e = map (core ∘ SetPointer ∘ Just) <$> pointerDecoder e
 

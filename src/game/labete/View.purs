@@ -45,9 +45,9 @@ ihelp ∷ State → Html Msg
 ihelp state =
     iconbutton
         state {icon: IconSymbol "#help", tooltip: Just "Aide", selected: state^._help}
-        [   E.onpointerdown $ SetHelp true
-        ,   E.onpointerup $ SetHelp false
-        ,   E.onpointerleave $ SetHelp false
+        [   E.onPointerDown $ SetHelp true
+        ,   E.onPointerUp $ SetHelp false
+        ,   E.onPointerLeave $ SetHelp false
         ]
 
 view ∷ State → Html Msg
@@ -86,7 +86,7 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
     ])
 
     grid = H.div (gridStyle rows columns 5 <> trackPointer <> [H.class_ "ui-board",
-        E.onpointerdown_ $ \ev → if ME.shiftKey ev then
+        E.onPointerDown_ $ \ev → if ME.shiftKey ev then
                             map StartZone2 <$> pointerDecoder (ME.toEvent ev)
                         else
                             pure Nothing
@@ -95,11 +95,11 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
             (map3 (state^._position) nonTrappedBeast  (state^._squareColors) \index hasTrap hasBeast color →
                 let {row, col} = coords columns index in
                 show index /\ square { color, row, col, hasTrap, hasBeast: hasBeast && state^._help }
-                [   E.onclick_ $ \ev → pure $ if ME.shiftKey ev then Nothing else Just (Play index)
+                [   E.onClick_ $ \ev → pure $ if ME.shiftKey ev then Nothing else Just (Play index)
                     -- pointerenter: [actions.setSquareHover, index], todo
                     -- ponterleave: [actions.setSquareHover, null],
-                ,   E.onpointerup $ FinishZone index
-                ,   E.onpointerdown_  $ \ev → pure $ if ME.shiftKey ev then Just (StartZone index) else Nothing
+                ,   E.onPointerUp $ FinishZone index
+                ,   E.onPointerDown_  $ \ev → pure $ if ME.shiftKey ev then Just (StartZone index) else Nothing
                 ]
             ) <> [
                 "c" /\ H.fromMaybe case state^._startPointer of
@@ -125,7 +125,7 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
                     mapWithIndex \index hasBeast →
                         let {row, col} = coords 5 index in
                         square {row, col, hasBeast, hasTrap: false, color: 0}
-                        [   E.onclick $ FlipCustomBeast index
+                        [   E.onClick $ FlipCustomBeast index
                         ]
             )
         ]

@@ -4,7 +4,7 @@ import MyPrelude
 import Game.Core (class Game, class MsgWithCore, GState, CoreMsg,
                    coreUpdate, playA, genState, newGame, _ext, _position, defaultSizeLimit)
 import Lib.Random as Random
-import Lib.Update (Update, modify)
+import Lib.Update (Update)
 
 -- une position est un tableau qui indique pour chaque sommmet la couleur du sommet
 -- les couleurs sont comprises entre 0 et nbColors - 1
@@ -80,5 +80,5 @@ update (Play i) = playA i
 update (SetSize size) = newGame $ set _size size
 update (SetNbColors n) = newGame $ set _nbColors n
 update (SetRange n) = newGame $ set _range n
-update (SetHoverCell i) = modify $ set _hoverCell i
+update (SetHoverCell i) = _hoverCell .= i
 update Shuffle = newGame $ over _shuffle not

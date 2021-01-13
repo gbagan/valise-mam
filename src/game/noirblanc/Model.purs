@@ -8,7 +8,7 @@ import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg,
 import Lib.KonamiCode (konamiCode)
 import Lib.Random (Random)
 import Lib.Random as R
-import Lib.Update (Update, get, modify)
+import Lib.Update (Update, get, modify_)
 import Lib.Util (dCoords)
 
 -- une position est composée de 2 tableaux light et played
@@ -133,7 +133,7 @@ afterPlay = do
                         6
                     else
                         state^._level + (if mode == 0 || mode == 3 then 1 else 2)
-        modify $ set (_maxLevels ∘ ix mode) nextLevel
+        modify_ $ set (_maxLevels ∘ ix mode) nextLevel
         saveToStorage
         newGame $ over _level \n → min (n + 1) 6
 
@@ -145,7 +145,7 @@ update (Core msg) = coreUpdate msg
 update (SelectMode mode) = newGame $ set _mode mode ∘ set _level 0
 update (SelectLevel level) = newGame $ set _level level
 update (Play move) = playA move *> afterPlay
-update (Konami k) = konamiCode _keySequence (modify $ set _maxLevels [6, 6, 6, 6]) k
+update (Konami k) = konamiCode _keySequence (modify_ $ set _maxLevels [6, 6, 6, 6]) k
 
 onKeyDown ∷ String → Maybe Msg
 onKeyDown = Just ∘ Konami

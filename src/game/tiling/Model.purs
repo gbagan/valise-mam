@@ -6,7 +6,7 @@ import Game.Common (_isoCustom)
 import Game.Core (GState, Dialog(..), class Game, class MsgWithCore, CoreMsg, SizeLimit(..),
             coreUpdate, playA,     
             _ext, canPlay, genState, newGame, _position, _nbColumns, _nbRows, _dialog)
-import Lib.Update (Update, modify)
+import Lib.Update (Update)
 
 type Coord = {row ∷ Int, col ∷ Int}
 type Tile = Array Coord
@@ -150,11 +150,11 @@ instance withcore ∷ MsgWithCore Msg where core = Core
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg  
 update (Play m) = playA m
-update (PutSink i) = modify $ set (_position ∘ ix i) (-1)
+update (PutSink i) = (_position ∘ ix i) .= (-1)
 update (SetNbSinks n) = newGame (set _nbSinks n)
 update (SetTile t) = newGame $ set _tileType t >>> if t == CustomTile then set _dialog CustomDialog else identity
-update Rotate = modify $ over _rotation (_ + 1)
-update (SetHoverSquare a) = modify $ set _hoverSquare a
+update Rotate = _rotation += 1
+update (SetHoverSquare a) = _hoverSquare .= a
 update (FlipTile index) = newGame $ over (_tile ∘ _isoCustom ∘ ix index) not
 
 onKeyDown ∷ String → Maybe Msg

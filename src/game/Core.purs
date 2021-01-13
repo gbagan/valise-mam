@@ -10,7 +10,7 @@ import Data.List as List
 import Data.Map as Map
 import Lib.Random (Random)
 import Lib.Random as R
-import Lib.Update (Update, get, modify, put, delay, randomEval, randomly, storageGet, storagePut)
+import Lib.Update (Update, get, modify_, put, delay, randomEval, randomly, storageGet, storagePut)
 
 -- ConfirmNewGame contient le futur état d'une nouvelle partie
 data Dialog a = Rules | NoDialog | ConfirmNewGameDialog a | ScoreDialog | CustomDialog
@@ -178,7 +178,7 @@ class MsgWithCore a where
     core ∷ CoreMsg → a
 
 coreUpdate ∷ ∀pos ext mov. Game pos ext mov ⇒ CoreMsg → Update (GState pos ext) Unit
-coreUpdate Undo = modify \state → case state^._history of
+coreUpdate Undo = modify_ \state → case state^._history of
     Nil → state
     Cons h rest →
         state # changeTurn
@@ -187,7 +187,7 @@ coreUpdate Undo = modify \state → case state^._history of
               # over _redoHistory (Cons (state^._position))
               # onPositionChange
 
-coreUpdate Redo = modify \state → case state^._redoHistory of
+coreUpdate Redo = modify_ \state → case state^._redoHistory of
     Nil → state
     Cons h rest →
         state # changeTurn
@@ -196,7 +196,7 @@ coreUpdate Redo = modify \state → case state^._redoHistory of
               # over _history (Cons (state^._position))
               # onPositionChange
 
-coreUpdate Reset = modify \state → case List.last (state^._history) of
+coreUpdate Reset = modify_ \state → case List.last (state^._history) of
     Nothing → state
     Just x → state # set _position x
                    # set _history Nil
@@ -204,7 +204,7 @@ coreUpdate Reset = modify \state → case List.last (state^._history) of
                    # set _turn Turn1
                    # onPositionChange
 coreUpdate Clear = newGame identity
-coreUpdate ToggleHelp = modify $ over _help not
+coreUpdate ToggleHelp = modify_ $ over _help not
 coreUpdate (SetMode mode) = newGame (set _mode mode)
 coreUpdate (SetGridSize nbRows nbColumns customSize) = 
     newGame $ setSize' ∘ (set _customSize customSize) where
@@ -214,17 +214,17 @@ coreUpdate (SetGridSize nbRows nbColumns customSize) =
         else
             state
         where SizeLimit minrows mincols maxrows maxcols = sizeLimit state
-coreUpdate (SetCustomSize bool) = modify $ set _customSize bool
-coreUpdate SetNoDialog = modify $ set _dialog NoDialog
-coreUpdate SetRulesDialog = modify $ set _dialog Rules
-coreUpdate SetScoreDialog = modify $ set _dialog ScoreDialog
-coreUpdate ConfirmNewGame = modify \state →
+coreUpdate (SetCustomSize bool) = _customSize .= bool
+coreUpdate SetNoDialog = _dialog .= NoDialog
+coreUpdate SetRulesDialog = _dialog .= Rules
+coreUpdate SetScoreDialog = _dialog .= ScoreDialog
+coreUpdate ConfirmNewGame = modify_ \state →
                         case state^._dialog of
                             ConfirmNewGameDialog st → st
                             _ → state
-coreUpdate (SetPointer pos) = modify $ set _pointer pos
+coreUpdate (SetPointer pos) = modify_ $ set _pointer pos
 coreUpdate ComputerStarts = do
-    modify $ pushToHistory >>> over _turn oppositeTurn
+    modify_ $ pushToHistory >>> over _turn oppositeTurn
     computerPlay
 coreUpdate Init = do
     newGame identity
@@ -253,9 +253,9 @@ pushToHistory state = state
 
 showVictory ∷ ∀pos ext. Update (GState pos ext) Unit
 showVictory = do
-    modify $ set _showWin true
+    modify_ $ set _showWin true
     delay (Milliseconds 1000.0)
-    modify $ set _showWin false
+    modify_ $ set _showWin false
 
 computerPlay ∷ ∀pos ext mov. Game pos ext mov ⇒ Update (GState pos ext) Unit
 computerPlay = do
@@ -297,9 +297,9 @@ playA move = lockAction $ do
 -- | L'action n'est pas executé si locked est déjà à true
 lockAction ∷ ∀pos ext. Update (GState pos ext) Unit → Update (GState pos ext) Unit
 lockAction action = unlessM (view _locked <$> get) do
-    modify (set _locked true)
+    modify_ (set _locked true)
     action
-    modify (set _locked false)
+    modify_ (set _locked false)
 
 -- | fonction auxiliaire pour newGame
 newGameAux ∷ ∀pos ext mov. Game pos ext mov ⇒
@@ -411,10 +411,10 @@ class MsgWithDnd msg i | msg → i where
 
 dndUpdate ∷ ∀pos ext i. Eq i ⇒ Game pos ext {from ∷ i, to ∷ i} ⇒ 
     Lens' (GState pos ext) (Maybe i) → DndMsg i → Update (GState pos ext) Unit
-dndUpdate _dragged (Drag i) = modify $ set _dragged (Just i)
+dndUpdate _dragged (Drag i) = _dragged .= Just i
 dndUpdate _dragged (Drop i) = dropA _dragged i
-dndUpdate _dragged Leave = modify $ set _dragged Nothing
-dndUpdate _dragged DropOnBoard = modify $ set _dragged Nothing
+dndUpdate _dragged Leave = _dragged .= Nothing
+dndUpdate _dragged DropOnBoard = _dragged .= Nothing
 
 dropA ∷ ∀pos ext dnd. Eq dnd ⇒  Game pos ext {from ∷ dnd, to ∷ dnd} ⇒
             Lens' (GState pos ext) (Maybe dnd) → dnd → Update (GState pos ext) Unit
@@ -423,5 +423,5 @@ dropA dragLens to = do
     case state ^. dragLens of
         Nothing → pure unit
         Just drag → do
-            modify (set dragLens Nothing)
+            modify_ (set dragLens Nothing)
             if drag ≠ to then playA { from: drag, to } else pure unit

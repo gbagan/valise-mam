@@ -6,7 +6,7 @@ import Game.Core (class Game, class MsgWithCore, CoreMsg, GState, SizeLimit(..),
                     _position, _mode, _nbRows, _nbColumns)
 import Lib.Random as R
 import Lib.Util (repeat2)
-import Lib.Update (Update, get, modify)
+import Lib.Update (Update, get, modify_)
 
 -- type d'arête d'un graphe
 data Edge = Edge Int Int
@@ -326,20 +326,20 @@ update (SetGraphKind kind) = newGame $ set _graphkind kind ∘
                                             _ → set _nbRows 6 ∘ set _nbColumns 0
 
 update (SetRules rules) = newGame $ set _rules rules
-update StartGame = modify startGame
+update StartGame = modify_ startGame
 update MoveGuards = do
     st ← get
     playA $ Defense (st ^. _nextmove)
 update (ToggleGuard x) = pure unit
-update (DragGuard x) = modify $ set _draggedGuard (Just x)
-update (DropGuard to) = modify $ dragGuard (Just to)
-update LeaveGuard = modify $ set _draggedGuard Nothing
-update DropOnBoard = modify $ dragGuard Nothing
+update (DragGuard x) = _draggedGuard .= Just x
+update (DropGuard to) = modify_ $ dragGuard (Just to)
+update LeaveGuard = _draggedGuard .= Nothing
+update DropOnBoard = modify_ $ dragGuard Nothing
 
 update (Play x) = do
     st ← get
     let guards = (st^._position).guards
     case st^._phase ∧ (st^._position).attacked  of
-        PrepPhase ∧ _ → modify $ over (_position ∘ _guards) (toggleGuard x)
+        PrepPhase ∧ _ → modify_ $ over (_position ∘ _guards) (toggleGuard x)
         GamePhase ∧ Just attacked → playA $ Defense (addToNextMove (st^._graph).edges x attacked guards guards)
         GamePhase ∧ Nothing → playA (Attack x)

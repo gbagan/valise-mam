@@ -9,7 +9,7 @@ import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, class ScoreGa
                 saveToJson', updateScore', loadFromJson')
 import Lib.Random (Random)
 import Lib.Random as R
-import Lib.Update (Update, modify)
+import Lib.Update (Update)
 import Lib.Util (repeat2, dCoords)
 
 type Move = {from ∷ Int, to ∷ Int}
@@ -159,7 +159,7 @@ instance withcore ∷ MsgWithCore Msg where core = Core
 instance withdnd ∷ MsgWithDnd Msg Int where dndmsg = DnD  
     
 update ∷ Msg → Update State Unit
-update (Core ToggleHelp) = modify $ over _help \x → (x + 1) `mod` 3
+update (Core ToggleHelp) = _help %= \x → (x + 1) `mod` 3
 update (Core msg) = coreUpdate msg
 update (DnD msg) = dndUpdate _dragged msg
 update (SetBoard board) = newGame \state →

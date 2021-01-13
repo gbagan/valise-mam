@@ -1,6 +1,6 @@
 module Game.Valise.Model where
 import MyPrelude
-import Lib.Update (Update, put, modify, delay)
+import Lib.Update (Update, put, modify_, delay)
 import Data.Map as Map
 
 type State = 
@@ -39,17 +39,17 @@ enterA ∷ Update State Unit
 enterA = do
     put istate
     delay (Milliseconds 1500.0)
-    modify _{isOpen = true}
+    modify_ _{isOpen = true}
 
 data Msg = ShowHelp String | ToggleSwitch | SetDrag (Maybe { name ∷ String, x ∷ Number, y ∷ Number })
           | MoveObject {x ∷ Number, y ∷ Number}
 
 update ∷ Msg → Update State Unit
-update (ShowHelp help) = modify $ over _help (if help == "" then identity else const help)
+update (ShowHelp help) = modify_ $ over _help (if help == "" then identity else const help)
                                 >>> set _helpVisible (help ≠ "")
-update ToggleSwitch = modify $ over _isSwitchOn not
-update (SetDrag d) = modify _{drag = d}
-update (MoveObject {x, y}) = modify \state →
+update ToggleSwitch = _isSwitchOn %= not
+update (SetDrag d) = _drag .= d
+update (MoveObject {x, y}) = modify_ \state →
     case state.drag of
         Just {name, x: x2, y: y2} → state # set (_positions ∘ at name) (Just {x: x-x2, y: y-y2}) 
         _ → state

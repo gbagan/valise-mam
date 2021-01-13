@@ -7,7 +7,7 @@ import Game.Core (GState, class MsgWithCore, class Game, class ScoreGame,
                  CoreMsg, Objective(..), Dialog(..), SizeLimit(..), ShowWinPolicy(..),
                 coreUpdate, playA, genState, newGame,  updateScore',
                 _ext, _dialog, _position, _nbRows, _nbColumns)
-import Lib.Update (Update, modify)
+import Lib.Update (Update)
 
 piecesList ∷ Array Piece
 piecesList = [Rook, Bishop, King, Knight, Queen]
@@ -150,10 +150,10 @@ instance withcore ∷ MsgWithCore Msg where core = Core
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
 update (Play i) = playA i
-update (SelectPiece piece) = modify $ set _selectedPiece piece
-update (SelectSquare a) = modify $ set _selectedSquare a
+update (SelectPiece piece) = _selectedPiece .= piece
+update (SelectSquare a) = _selectedSquare .= a
 update (SelectAllowedPiece piece) = newGame $ \state → state # over _allowedPieces (toggleAllowedPiece piece (state^._multiPieces))
-update ToggleMultiPieces = modify $ over _multiPieces not
+update ToggleMultiPieces = _multiPieces %= not
 update (FlipDirection direction) = newGame $ over (_customDirections ∘ ix direction) not
 update (FlipLocalMove position) = newGame $ over (_customLocalMoves ∘ ix position) not
 update Customize = newGame $ 

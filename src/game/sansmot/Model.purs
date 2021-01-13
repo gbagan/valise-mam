@@ -1,7 +1,7 @@
 module Game.Sansmot.Model where
 import MyPrelude
 import Data.Map as Map
-import Lib.Update (Update, get, modify, delay)
+import Lib.Update (Update, get, modify_, delay)
 
 data Page = PythaPage | CarollPage
 
@@ -55,12 +55,12 @@ data Msg = SetPage Page | Animate (Array AnimationStep)
 
 lockAction ∷ Update State Unit → Update State Unit
 lockAction action = unlessM (get <#> _.locked) do
-        modify _{locked = true}
+        modify_ _{locked = true}
         action
-        modify _{locked = false}
+        modify_ _{locked = false}
 
 update ∷ Msg → Update State Unit
-update (SetPage page) = modify \st →
+update (SetPage page) = modify_ \st →
     if st^._locked then
         st
     else
@@ -68,7 +68,7 @@ update (SetPage page) = modify \st →
            # set _anim Map.empty
 
 update (Animate animation) = lockAction do
-        modify $ set _anim Map.empty 
+        modify_ $ set _anim Map.empty 
         for_ animation \(Step d key step) → do
             delay (Milliseconds $ toNumber d)
-            modify $ set (_anim ∘ at key) (Just step)
+            modify_ $ set (_anim ∘ at key) (Just step)

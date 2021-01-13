@@ -12,7 +12,7 @@ import Web.HTML.Location as L
 import Web.HTML.Window (localStorage, location)
 import Web.Storage.Storage as Storage
 
-import Pha.Update (Update, Update', get, modify, put, delay) as Exports
+import Pha.Update (Update, Update', get, modify_, put, delay) as Exports
 
 
 {-

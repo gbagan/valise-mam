@@ -5,7 +5,7 @@ import Data.Int.Bits ((.^.))
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, SizeLimit(..), GState, Mode(..), 
                   coreUpdate, playA, _ext, genState, newGame, computerMove', _position, _nbRows, _nbColumns)
 import Lib.Random as R
-import Lib.Update (Update, modify)
+import Lib.Update (Update)
 
 data Move = FromLeft Int | FromRight Int | FromTop Int | FromBottom Int
 data SoapMode = CornerMode | BorderMode | StandardMode | CustomMode
@@ -98,7 +98,7 @@ instance withcore ∷ MsgWithCore Msg where core = Core
     
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
-update (SetHover a) = modify $ set _moveWhenHover a 
+update (SetHover a) = _moveWhenHover .= a 
 update (SetSoapMode m) = newGame $ set _soapMode m
-update (Play move) = modify (set _moveWhenHover Nothing) *> playA move
-update (SetSoap row col) = modify (set _soap (Just {row, col}))
+update (Play move) = (_moveWhenHover .= Nothing) *> playA move
+update (SetSoap row col) = _soap .= Just {row, col}

@@ -30,7 +30,7 @@ import Pha.Html as H
 import Pha.Html.Keyed as K
 import Pha.Html.Attributes as P
 import Pha.Update.Lens (updateOver)
-import Lib.Update (Update, get, modify, getHash)
+import Lib.Update (Update, get, modify_, getHash)
 import Pha.Subscriptions as Subs
 import Unsafe.Coerce (unsafeCoerce)
 
@@ -173,7 +173,7 @@ update (KeyDown k) = do
 update HashChanged = do
     hash ← getHash
     let location = String.drop 1 hash
-    modify _{location = location}
+    modify_ _{location = location}
     if location == "" then
         prop (SProxy ∷ SProxy "valise") .~> Valise.enterA
     else

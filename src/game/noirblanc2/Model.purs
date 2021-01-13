@@ -6,7 +6,7 @@ import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg,
                 _ext, coreUpdate, playA, _position, _nbColumns, _nbRows, newGame, genState)
 import Lib.Random (Random)
 import Lib.Random as R
-import Lib.Update (Update, get, modify, randomly)
+import Lib.Update (Update, get, randomly)
 import Lib.Util (dCoords)
 
 
@@ -95,7 +95,7 @@ instance withcore ∷ MsgWithCore Msg where core = Core
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
 update (Play move) = playA move
-update (ToggleCard i) = modify $ over (_position ∘ ix i) reverseCard
+update (ToggleCard i) = (_position ∘ ix i) %= reverseCard
 update (SetMode mode) = newGame $ set _mode mode
 update Shuffle = randomly \st → do
     pos ← replicateA (length $ st^._position) randomCard
@@ -103,6 +103,6 @@ update Shuffle = randomly \st → do
 update ToggleCustom = do
     state ← get
     if state^._phase == PrepPhase then
-        modify $ set _phase GamePhase
+        _phase .= GamePhase
     else
         newGame $ set _phase PrepPhase

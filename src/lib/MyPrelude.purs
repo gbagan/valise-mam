@@ -27,7 +27,7 @@ import Data.Map (Map) as Exports
 import Data.Array (range)
 import Data.Array ((!!), head, last, cons, snoc, filter, find, take, null, length, mapMaybe, catMaybes, nub, elemIndex, sort, uncons,
         replicate, reverse, modifyAt, insertAt, updateAt, updateAtIndices, mapWithIndex, concat, tail, concatMap, sortWith, zip, zipWith) as Exports
-import Data.Lens (Lens', lens, set, Iso', iso, view, over, (^.), (.~), (%~), (?~), (+~)) as Exports
+import Data.Lens (Lens', lens, set, Iso', iso, view, over, (^.), (.~), (%~), (?~), (+~), (.=), (%=), (+=)) as Exports
 import Data.Lens.Index (ix) as Exports
 import Data.Lens.At (at) as Exports
 import Data.Lens.Lens.Product (_1, _2) as Exports

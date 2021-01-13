@@ -7,7 +7,7 @@ import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, GState,
     CoreMsg,  DndMsg(DropOnBoard),
     coreUpdate, dndUpdate,
     genState, newGame, lockAction, _ext, _position, _showWin, defaultSizeLimit)
-import Lib.Update (Update, get, modify, delay)
+import Lib.Update (Update, get, modify_, delay)
 
 type Position = Array (Maybe Int)
 
@@ -87,25 +87,25 @@ instance withdnd ∷ MsgWithDnd Msg Location where dndmsg = DnD
     
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
-update (DnD DropOnBoard) = modify \state →
+update (DnD DropOnBoard) = modify_ \state →
         let state2 = state # set _dragged Nothing in
         case state^._dragged of
             Just (Wheel i) → state2 # set (_position ∘ ix i) Nothing
             _ → state2
 update (DnD msg) = dndUpdate _dragged msg
-update (Rotate i) = modify $ rotate i
+update (Rotate i) = modify_ $ rotate i
 update (SetSize i) = newGame $ set _size i
 update Check = lockAction $ get >>= \st → tailRecM go (st^._size) where
         go 0 = do
-            modify $ set _showWin true
+            modify_ $ set _showWin true
             delay $ Milliseconds 1000.0
-            modify $ set _showWin false
+            modify_ $ set _showWin false
             pure (Done unit)
         go i = do
             st2 ← get
             if not (validRotation st2) then
                 pure $ Done unit
             else do
-                modify $ rotate 1
+                modify_ $ rotate 1
                 delay $ Milliseconds 600.0
                 pure $ Loop (i-1)

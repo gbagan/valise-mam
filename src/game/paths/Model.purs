@@ -6,7 +6,7 @@ import Lib.Util (dCoords, rangeWithStep)
 import Game.Core (GState, class Game, class MsgWithCore, CoreMsg, SizeLimit(..), 
         coreUpdate,
         _ext, newGame, genState, _nbRows, _nbColumns, _position, playA)
-import Lib.Update (Update, get, modify)
+import Lib.Update (Update, get)
 
 data Mode = Mode1 | Mode2
 derive instance eqMode ∷ Eq Mode
@@ -102,9 +102,9 @@ update (Core msg) = coreUpdate msg
 update (SelectVertex v) = do
     state ← get
     if null (state^._position) then
-        modify $ set _position [v]
+        _position .= [v]
     else if isNothing (state^._exit) then
-        modify $ set _exit (Just v)
+        _exit .= Just v
     else
         playA v
 

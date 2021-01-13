@@ -1,7 +1,7 @@
 module Game.Labete.Model where
 import MyPrelude
 import Lib.Util (coords, repeat2)
-import Lib.Update (Update, modify)
+import Lib.Update (Update, modify_)
 import Game.Common (_isoCustom)
 import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, 
                  SizeLimit(..), GState, Objective(..), ShowWinPolicy(..), PointerPosition, Dialog(..),
@@ -194,20 +194,20 @@ instance withcore ∷ MsgWithCore Msg where core = Core
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
 update (SetMode m) = newGame $ set _mode m
-update (SetHelp a) = modify $ set _help a
+update (SetHelp a) = _help .= a
 update (SetBeast ttype) = newGame $ 
                             set _beastType ttype >>> 
                             if ttype == CustomBeast then
                                 set _dialog CustomDialog ∘ over _beast (take 1)
                             else
                                 identity
-update (IncSelectedColor i) = modify $ over _selectedColor \x → (x + i) `mod` 9
+update (IncSelectedColor i) = _selectedColor %= \x → (x + i) `mod` 9
 -- le début d'une zone est décomposé en deux actions
 -- startZoneA est activé lors  du onpointerdown sur l'élément html réprésentant le carré
-update (StartZone s) = modify $ set _startSquare (Just s)
+update (StartZone s) = _startSquare .= Just s
 -- startZone2A est appliqué lors du onpointerdown sur l'élément html réprésentant le plateu
-update (StartZone2 pos) = modify $ set _startPointer (Just pos)
-update (FinishZone index1) = modify \state → case state^._startSquare of
+update (StartZone2 pos) = _startPointer .= Just pos
+update (FinishZone index1) = modify_ \state → case state^._startSquare of
     Nothing → state
     Just index2 →
         let {row: row1, col: col1} = coords (state^._nbColumns) index1

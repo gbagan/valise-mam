@@ -42,17 +42,17 @@ istate = genState {light: [], played: []} identity
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _mode ∷ Lens' State Int
-_mode = _ext' ∘ prop (SProxy ∷ _ "mode")
+_mode = _ext' ∘ prop (Proxy ∷ _ "mode")
 _level ∷ Lens' State Int
-_level = _ext' ∘ prop (SProxy ∷ _ "level")
+_level = _ext' ∘ prop (Proxy ∷ _ "level")
 _maxLevels ∷ Lens' State (Array Int)
-_maxLevels = _ext' ∘ prop (SProxy ∷ _ "maxLevels")
+_maxLevels = _ext' ∘ prop (Proxy ∷ _ "maxLevels")
 _keySequence ∷ Lens' State (Array String)
-_keySequence = _ext' ∘ prop (SProxy ∷ _ "keySequence")
+_keySequence = _ext' ∘ prop (Proxy ∷ _ "keySequence")
 _light ∷ Lens' Position (Array Boolean)
-_light = prop (SProxy ∷ _ "light")
+_light = prop (Proxy ∷ _ "light")
 _played ∷ Lens' Position (Array Boolean)
-_played = prop (SProxy ∷ _ "played")
+_played = prop (Proxy ∷ _ "played")
 
 -- | indique si index1 est voisine de index2 selon un mode de jeu donné
 -- | c'est à dire que si l'on active index1, index2 va changer de couleur
@@ -78,7 +78,7 @@ genRandomBoard state = do
     (replicateA nbMoves (R.int' size) ∷ Random (Array Int)) <#>
         foldr (toggleCell state) (replicate size false)
 
-instance game ∷ Game { light ∷ Array Boolean, played ∷ Array Boolean } ExtState Int where
+instance game ∷ Game Position ExtState Int where
     name _ = "noirblanc"
 
     play state index = Just $ state^._position 

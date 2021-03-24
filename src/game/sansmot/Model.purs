@@ -45,11 +45,11 @@ istate =
     }
 
 _anim ∷ Lens' State (Map String Int)
-_anim = prop (SProxy ∷ _ "anim")
+_anim = prop (Proxy ∷ _ "anim")
 _locked ∷ Lens' State Boolean
-_locked = prop (SProxy ∷ _ "locked")
+_locked = prop (Proxy ∷ _ "locked")
 _page ∷ Lens' State Page
-_page = prop (SProxy ∷ _ "page")
+_page = prop (Proxy ∷ _ "page")
 
 data Msg = SetPage Page | Animate (Array AnimationStep)
 

@@ -10,8 +10,8 @@ import Prelude (class Applicative, class Apply, class Bind, class BooleanAlgebra
                 unless, unlessM, void, when, whenM, zero,
                 (#), ($), ($>), (&&), (*), (*>), (+), (-), (/), (/=), (<), (<#>), (<$), (<$>), (<*), (<*>), (<<<), (<=), (<=<),
                 (<>), (<@>), (=<<), (==), (>), (>=), (>=>), (>>=), (>>>), (||)) as Exports
+import Type.Proxy (Proxy(..)) as Exports
 import Data.Ord (abs) as Exports
-import Data.Symbol (SProxy(..)) as Exports
 import Data.Int (toNumber, floor, even) as Exports
 import Data.Tuple (Tuple(..), fst, snd) as Exports
 import Data.Tuple.Nested ((/\)) as Exports

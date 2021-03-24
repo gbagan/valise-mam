@@ -44,7 +44,7 @@ dCoords cols x y = {
     p = coords cols x
     q = coords cols y
 
-class PartialRecord (r1 ∷ #Type) (r2 ∷ #Type) where
+class PartialRecord (r1 ∷ Row Type) (r2 ∷ Row Type) where
     partialUpdate ∷ Record r1 → Record r2 → Record r2
 
 instance precord ∷ (Union r1 r2 s, Nub s r2) ⇒ PartialRecord r1 r2 where

@@ -12,6 +12,9 @@ import Lib.Update (Update)
 -- une position initiale aléatoire n'est pas nécessairement une position gagnante
 -- un coup (move) est représenté par le numéro du sommet que l'on souhaite activer
 
+type Position = Array Int
+type Move = Int
+
 type Ext' = {
     size ∷ Int,   -- le nombre de sommets
     nbColors ∷ Int,
@@ -26,15 +29,15 @@ type State = GState (Array Int) ExtState
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _size ∷ Lens' State Int
-_size = _ext' ∘ prop (SProxy ∷ _ "size")
+_size = _ext' ∘ prop (Proxy ∷ _ "size")
 _nbColors ∷ Lens' State Int
-_nbColors = _ext' ∘ prop (SProxy ∷ _ "nbColors")
+_nbColors = _ext' ∘ prop (Proxy ∷ _ "nbColors")
 _range ∷ Lens' State Int
-_range = _ext' ∘ prop (SProxy ∷ _ "range")
+_range = _ext' ∘ prop (Proxy ∷ _ "range")
 _shuffle ∷ Lens' State Boolean
-_shuffle = _ext' ∘ prop (SProxy ∷ _ "shuffle")
+_shuffle = _ext' ∘ prop (Proxy ∷ _ "shuffle")
 _hoverCell ∷ Lens' State (Maybe Int)
-_hoverCell = _ext' ∘ prop (SProxy ∷ _ "hoverCell")
+_hoverCell = _ext' ∘ prop (Proxy ∷ _ "hoverCell")
 
 -- | état initial
 istate ∷ State
@@ -45,7 +48,7 @@ inRange ∷ State → Int → Int → Boolean
 inRange state i i' = min diff (state^._size - diff) <= state^._range
     where diff = abs (i - i')
     
-instance tricolorGame ∷ Game (Array Int) ExtState Int where
+instance game ∷ Game Position ExtState Move where
     name _ = "tricolor"
 
     play state i = Just $ state^._position # mapWithIndex \i' color →

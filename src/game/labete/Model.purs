@@ -55,19 +55,19 @@ type State = GState (Array Boolean) ExtState
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _beast ∷ Lens' State Beast'
-_beast = _ext' ∘ prop (SProxy ∷ _ "beast")
+_beast = _ext' ∘ prop (Proxy ∷ _ "beast")
 _beastType ∷ Lens' State BeastType
-_beastType = _ext' ∘ prop (SProxy ∷ _ "beastType")
+_beastType = _ext' ∘ prop (Proxy ∷ _ "beastType")
 _mode ∷ Lens' State Mode
-_mode = _ext' ∘ prop (SProxy ∷ _ "mode")
+_mode = _ext' ∘ prop (Proxy ∷ _ "mode")
 _selectedColor ∷ Lens' State Int
-_selectedColor = _ext' ∘ prop (SProxy ∷ _ "selectedColor")
+_selectedColor = _ext' ∘ prop (Proxy ∷ _ "selectedColor")
 _squareColors ∷ Lens' State (Array Int)
-_squareColors = _ext' ∘ prop (SProxy ∷ _ "squareColors")
+_squareColors = _ext' ∘ prop (Proxy ∷ _ "squareColors")
 _startPointer ∷ Lens' State (Maybe PointerPosition)
-_startPointer = _ext' ∘ prop (SProxy ∷ _ "startPointer")
+_startPointer = _ext' ∘ prop (Proxy ∷ _ "startPointer")
 _startSquare ∷ Lens' State (Maybe Int)
-_startSquare = _ext' ∘ prop (SProxy ∷ _ "startSquare")
+_startSquare = _ext' ∘ prop (Proxy ∷ _ "startSquare")
 
 -- | état initial
 istate ∷ State

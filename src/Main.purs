@@ -145,24 +145,24 @@ callByName name default f = case games # Map.lookup name of
                                 Just game → game # gameRun f 
  
 update ∷ Msg → Update RootState Unit
-update (BaseballMsg msg)  = prop (SProxy ∷ SProxy "baseball")  .~> Baseball.update msg
-update (ChocolatMsg msg)  = prop (SProxy ∷ SProxy "chocolat")  .~> Chocolat.update msg
-update (DessinMsg msg)    = prop (SProxy ∷ SProxy "dessin")    .~> Dessin.update msg
-update (EternalMsg msg)   = prop (SProxy ∷ SProxy "eternal")   .~> Eternal.update msg
-update (FrogMsg msg)      = prop (SProxy ∷ SProxy "frog")      .~> Frog.update msg
-update (JetonsMsg msg)    = prop (SProxy ∷ SProxy "jetons")    .~> Jetons.update msg
-update (LabeteMsg msg)    = prop (SProxy ∷ SProxy "labete")    .~> Labete.update msg
-update (NimMsg msg)       = prop (SProxy ∷ SProxy "nim")       .~> Nim.update msg
-update (NoirblancMsg msg) = prop (SProxy ∷ SProxy "noirblanc") .~> Noirblanc.update msg
-update (Noirblanc2Msg msg) = prop (SProxy ∷ SProxy "noirblanc2") .~> Noirblanc2.update msg
-update (PathsMsg msg)     = prop (SProxy ∷ SProxy "paths")     .~> Paths.update msg
-update (QueensMsg msg)    = prop (SProxy ∷ SProxy "queens")    .~> Queens.update msg
-update (RoueMsg msg)      = prop (SProxy ∷ SProxy "roue")      .~> Roue.update msg
-update (SansmotMsg msg)   = prop (SProxy ∷ SProxy "sansmot")   .~> Sansmot.update msg
-update (SolitaireMsg msg) = prop (SProxy ∷ SProxy "solitaire") .~> Solitaire.update msg
-update (TilingMsg msg)    = prop (SProxy ∷ SProxy "tiling")    .~> Tiling.update msg
-update (TricolorMsg msg)  = prop (SProxy ∷ SProxy "tricolor")  .~> Tricolor.update msg
-update (ValiseMsg msg)    = prop (SProxy ∷ SProxy "valise")    .~> Valise.update msg
+update (BaseballMsg msg)  = prop (Proxy ∷ Proxy "baseball")  .~> Baseball.update msg
+update (ChocolatMsg msg)  = prop (Proxy ∷ Proxy "chocolat")  .~> Chocolat.update msg
+update (DessinMsg msg)    = prop (Proxy ∷ Proxy "dessin")    .~> Dessin.update msg
+update (EternalMsg msg)   = prop (Proxy ∷ Proxy "eternal")   .~> Eternal.update msg
+update (FrogMsg msg)      = prop (Proxy ∷ Proxy "frog")      .~> Frog.update msg
+update (JetonsMsg msg)    = prop (Proxy ∷ Proxy "jetons")    .~> Jetons.update msg
+update (LabeteMsg msg)    = prop (Proxy ∷ Proxy "labete")    .~> Labete.update msg
+update (NimMsg msg)       = prop (Proxy ∷ Proxy "nim")       .~> Nim.update msg
+update (NoirblancMsg msg) = prop (Proxy ∷ Proxy "noirblanc") .~> Noirblanc.update msg
+update (Noirblanc2Msg msg) = prop (Proxy ∷ Proxy "noirblanc2") .~> Noirblanc2.update msg
+update (PathsMsg msg)     = prop (Proxy ∷ Proxy "paths")     .~> Paths.update msg
+update (QueensMsg msg)    = prop (Proxy ∷ Proxy "queens")    .~> Queens.update msg
+update (RoueMsg msg)      = prop (Proxy ∷ Proxy "roue")      .~> Roue.update msg
+update (SansmotMsg msg)   = prop (Proxy ∷ Proxy "sansmot")   .~> Sansmot.update msg
+update (SolitaireMsg msg) = prop (Proxy ∷ Proxy "solitaire") .~> Solitaire.update msg
+update (TilingMsg msg)    = prop (Proxy ∷ Proxy "tiling")    .~> Tiling.update msg
+update (TricolorMsg msg)  = prop (Proxy ∷ Proxy "tricolor")  .~> Tricolor.update msg
+update (ValiseMsg msg)    = prop (Proxy ∷ Proxy "valise")    .~> Valise.update msg
 update Init = init
 update (KeyDown k) = do
         st ← get
@@ -175,7 +175,7 @@ update HashChanged = do
     let location = String.drop 1 hash
     modify_ _{location = location}
     if location == "" then
-        prop (SProxy ∷ SProxy "valise") .~> Valise.enterA
+        prop (Proxy ∷ Proxy "valise") .~> Valise.enterA
     else
         pure unit
 

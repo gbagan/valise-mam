@@ -26,11 +26,11 @@ type State = GState Position ExtState
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _soap ∷ Lens' State (Maybe {row ∷ Int, col ∷ Int})
-_soap = _ext' ∘ prop (SProxy ∷ _ "soap")
+_soap = _ext' ∘ prop (Proxy ∷ _ "soap")
 _soapMode ∷ Lens' State SoapMode
-_soapMode = _ext' ∘ prop (SProxy ∷ _ "soapMode")
+_soapMode = _ext' ∘ prop (Proxy ∷ _ "soapMode")
 _moveWhenHover ∷ Lens' State (Maybe Move)
-_moveWhenHover = _ext' ∘ prop (SProxy ∷ _ "moveWhenHover")
+_moveWhenHover = _ext' ∘ prop (Proxy ∷ _ "moveWhenHover")
 
 -- | état initial
 istate ∷ State

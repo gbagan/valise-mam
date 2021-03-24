@@ -30,11 +30,11 @@ istate = genState [] identity (Ext {rotation: 0, size: 5, dragged: Nothing})
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _rotation ∷ Lens' State Int
-_rotation = _ext' ∘ prop (SProxy ∷ _ "rotation")
+_rotation = _ext' ∘ prop (Proxy ∷ _ "rotation")
 _size ∷ Lens' State Int
-_size = _ext' ∘ prop (SProxy ∷ _ "size")
+_size = _ext' ∘ prop (Proxy ∷ _ "size")
 _dragged ∷ Lens' State (Maybe Location)
-_dragged = _ext' ∘ prop (SProxy ∷ _ "dragged")
+_dragged = _ext' ∘ prop (Proxy ∷ _ "dragged")
 
 -- | renvoie un tableau indiquant quelles sont les balles alignées avec leur couleur
 aligned ∷ State → Array Boolean
@@ -54,7 +54,7 @@ validRotation' state = (length $ filter identity $ aligned state) == 1
 validRotation ∷ State → Boolean
 validRotation state = validRotation' state && (all isJust $ state^._position )
 
-instance roueGame ∷ Game (Array (Maybe Int)) Ext {from ∷ Location, to ∷ Location} where
+instance game ∷ Game Position Ext {from ∷ Location, to ∷ Location} where
     name _ = "roue"
 
     play state move = act (state^._position) where

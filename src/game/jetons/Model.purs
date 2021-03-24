@@ -19,13 +19,13 @@ type State = GState Position Ext
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _dragged ∷ Lens' State (Maybe Int)
-_dragged = _ext' ∘ prop (SProxy ∷ _ "dragged")
+_dragged = _ext' ∘ prop (Proxy ∷ _ "dragged")
 
 -- | état initial
 istate ∷ State
 istate = genState [] _{nbRows = 4, nbColumns = 4} (Ext { dragged: Nothing })
 
-instance game ∷ Game (Array Int) Ext { from ∷ Int, to ∷ Int } where
+instance game ∷ Game Position Ext { from ∷ Int, to ∷ Int } where
     name _ = "jetons"
 
     play state {from, to} = do
@@ -56,7 +56,7 @@ instance game ∷ Game (Array Int) Ext { from ∷ Int, to ∷ Int } where
     onNewGame = defaultOnNewGame
     onPositionChange = identity
 
-instance scoregame ∷ ScoreGame (Array Int) Ext { from ∷ Int, to ∷ Int } where
+instance scoregame ∷ ScoreGame Position Ext { from ∷ Int, to ∷ Int } where
     objective state = Minimize
     scoreFn = length ∘ filter (_ > 0) ∘ view _position
     scoreHash state = show (state^._nbRows) <> "-" <> show (state^._nbColumns)

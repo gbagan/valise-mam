@@ -14,6 +14,8 @@ import Game.Core (class Game, GState, class MsgWithCore, CoreMsg,
 -- un coup (move) est représenté par le numéro du jeton que l'on souhaite déplacer
 -- une position est gagnante si tous les jetons sont sur la base de la même couleur
 -- c'est à dire que pour tout jeton de numéro i à la position j, on a i / 2 = j / 2 (division entière)
+type Position = Array Int
+type Move = Int
 
 -- attributs supplémentaires
 type Ext' =
@@ -27,9 +29,9 @@ type State = GState (Array Int) Ext
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _nbBases ∷ Lens' State Int
-_nbBases = _ext' ∘ prop (SProxy ∷ _ "nbBases")
+_nbBases = _ext' ∘ prop (Proxy ∷ _ "nbBases")
 _missingPeg ∷ Lens' State Int
-_missingPeg = _ext' ∘ prop (SProxy ∷ _ "missingPeg")
+_missingPeg = _ext' ∘ prop (Proxy ∷ _ "missingPeg")
 
 -- | état initial
 istate ∷ State
@@ -40,7 +42,7 @@ istate =
         }
     )
 
-instance game ∷ Game (Array Int) Ext Int where
+instance game ∷ Game Position Ext Move where
     name _ = "baseball"
 
     play state i = do
@@ -64,7 +66,7 @@ instance game ∷ Game (Array Int) Ext Int where
     saveToJson _ = Nothing
     loadFromJson st _ = st
 
-data Msg = Core CoreMsg | SetNbBases Int | Play Int
+data Msg = Core CoreMsg | SetNbBases Int | Play Move
 instance withcore ∷ MsgWithCore Msg where core = Core
 
 update ∷ Msg → Update State Unit

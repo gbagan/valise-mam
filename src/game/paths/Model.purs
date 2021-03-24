@@ -28,9 +28,9 @@ istate = genState [] _{nbRows = 4, nbColumns = 6} (Ext { exit: Nothing, mode: Mo
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _exit ∷ Lens' State (Maybe Int)
-_exit = _ext' ∘ prop (SProxy ∷ _ "exit")
+_exit = _ext' ∘ prop (Proxy ∷ _ "exit")
 _mode ∷ Lens' State Mode
-_mode = _ext' ∘ prop (SProxy ∷ _ "mode")
+_mode = _ext' ∘ prop (Proxy ∷ _ "mode")
 
 -- renvoie un chemin horizontal ou vertical entre u et v si celui ci existe (u exclus du chemin)
 pathBetween ∷ Int → Int → Int → Maybe (Array Int)
@@ -59,7 +59,7 @@ isValidPath state path = fromMaybe true $ do
            || length path == (state^._nbRows) * (state^._nbColumns) + (if begin == exit then 1 else 0) && end == exit
             )
 
-instance game ∷ Game (Array Int) Ext Int where
+instance game ∷ Game Position Ext Int where
     name _ = "paths"
 
     play state v =

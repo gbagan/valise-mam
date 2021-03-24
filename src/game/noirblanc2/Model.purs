@@ -48,9 +48,9 @@ istate = genState [] _{nbRows=1, nbColumns=8, customSize=true}
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _mode ∷ Lens' State Mode
-_mode = _ext' ∘ prop (SProxy ∷ _ "mode")
+_mode = _ext' ∘ prop (Proxy ∷ _ "mode")
 _phase ∷ Lens' State Phase
-_phase = _ext' ∘ prop (SProxy ∷ _ "phase")
+_phase = _ext' ∘ prop (Proxy ∷ _ "phase")
 
 neighbor ∷ State → Int → Int → Boolean
 neighbor state index1 index2 =

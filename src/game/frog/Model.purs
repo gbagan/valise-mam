@@ -27,13 +27,13 @@ type State = GState Int ExtState
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _moves ∷ Lens' State (NonEmptyArray Int)
-_moves = _ext' ∘ prop (SProxy ∷ _ "moves")
+_moves = _ext' ∘ prop (Proxy ∷ _ "moves")
 _winning ∷ Lens' State (Array Boolean)
-_winning = _ext' ∘ prop (SProxy ∷ _ "winning")
+_winning = _ext' ∘ prop (Proxy ∷ _ "winning")
 _marked ∷ Lens' State (Array Boolean)
-_marked = _ext' ∘ prop (SProxy ∷ _ "marked")
+_marked = _ext' ∘ prop (Proxy ∷ _ "marked")
 _keySequence ∷ Lens' State (Array String)
-_keySequence = _ext' ∘ prop (SProxy ∷ _ "keySequence")
+_keySequence = _ext' ∘ prop (Proxy ∷ _ "keySequence")
 
 -- | état initial
 istate ∷ State

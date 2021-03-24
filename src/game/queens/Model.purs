@@ -54,17 +54,17 @@ istate = genState []
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _selectedPiece ∷ Lens' State Piece
-_selectedPiece = _ext' ∘ prop (SProxy ∷ _ "selectedPiece")
+_selectedPiece = _ext' ∘ prop (Proxy ∷ _ "selectedPiece")
 _selectedSquare ∷ Lens' State (Maybe Int)
-_selectedSquare = _ext' ∘ prop (SProxy ∷ _ "selectedSquare")
+_selectedSquare = _ext' ∘ prop (Proxy ∷ _ "selectedSquare")
 _allowedPieces ∷ Lens' State (NonEmptyArray Piece)
-_allowedPieces = _ext' ∘ prop (SProxy ∷ _ "allowedPieces")
+_allowedPieces = _ext' ∘ prop (Proxy ∷ _ "allowedPieces")
 _multiPieces ∷ Lens' State Boolean
-_multiPieces = _ext' ∘ prop (SProxy ∷ _ "multiPieces")
+_multiPieces = _ext' ∘ prop (Proxy ∷ _ "multiPieces")
 _customLocalMoves ∷ Lens' State (Array Boolean)
-_customLocalMoves = _ext' ∘ prop (SProxy ∷ _ "customLocalMoves")
+_customLocalMoves = _ext' ∘ prop (Proxy ∷ _ "customLocalMoves")
 _customDirections ∷ Lens' State (Array Boolean)
-_customDirections = _ext' ∘ prop (SProxy ∷ _ "customDirections")
+_customDirections = _ext' ∘ prop (Proxy ∷ _ "customDirections")
 
 -- | teste si une pièce peut se déplacer d'un vecteur (x, y)
 legalMoves ∷ Piece → Int → Int → Boolean
@@ -113,7 +113,7 @@ toggleAllowedPiece piece false pieces = N.singleton piece
 toggleAllowedPiece piece true pieces = N.fromArray pieces2 # fromMaybe pieces where
     pieces2 = piecesList # filter \p2 → (p2 == piece) ≠ elem p2 pieces
 
-instance queensGame ∷ Game (Array Piece) Ext Int where 
+instance queensGame ∷ Game Position Ext Int where 
     name _ = "queens"
 
     play state index = 

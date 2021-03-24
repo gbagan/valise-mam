@@ -12,6 +12,7 @@ import Lib.Random as R
 import Lib.Update (Update)
 import Lib.Util (repeat2, dCoords)
 
+type Position = Array Boolean
 type Move = {from ∷ Int, to ∷ Int}
 
 data Board = FrenchBoard | EnglishBoard | CircleBoard | Grid3Board | RandomBoard
@@ -39,13 +40,13 @@ istate = genState [] _{nbRows = 5, nbColumns = 1} (Ext { board: CircleBoard, hol
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _board ∷ Lens' State Board
-_board = _ext' ∘ prop (SProxy ∷ _ "board")
+_board = _ext' ∘ prop (Proxy ∷ _ "board")
 _holes ∷ Lens' State (Array Boolean)
-_holes = _ext' ∘ prop (SProxy ∷ _ "holes")
+_holes = _ext' ∘ prop (Proxy ∷ _ "holes")
 _dragged ∷ Lens' State (Maybe Int)
-_dragged = _ext' ∘ prop (SProxy ∷ _ "dragged")
+_dragged = _ext' ∘ prop (Proxy ∷ _ "dragged")
 _help ∷ Lens' State Int
-_help = _ext' ∘ prop (SProxy ∷ _ "help")
+_help = _ext' ∘ prop (Proxy ∷ _ "help")
 
 -- | retourne la position du trou situé entre les deux positions d'un coup si celui est valide
 betweenMove ∷ State → Move → Maybe Int
@@ -79,12 +80,12 @@ betweenMove2 state move@{from, to} =
 
 -- | fonction auxilaire pour onNewGame
 generateBoard ∷ Int → Int → Int → (Int → Int → Boolean) →
-    {holes ∷ Array Boolean, position ∷ Random (Array Boolean), customSize ∷ Boolean}
+    {holes ∷ Array Boolean, position ∷ Random Position, customSize ∷ Boolean}
 generateBoard rows columns startingHole holeFilter = {holes, position, customSize: false} where
     holes = repeat2 rows columns holeFilter
     position = pure $ holes # set (ix startingHole) false
 
-instance solitaireGame ∷ Game (Array Boolean) ExtState {from ∷ Int, to ∷ Int} where
+instance solitaireGame ∷ Game Position ExtState Move where
     name _ = "solitaire"
 
     play state move@{from, to} = do
@@ -94,10 +95,8 @@ instance solitaireGame ∷ Game (Array Boolean) ExtState {from ∷ Int, to ∷ I
         pbetween ← position !! between
         pto ← position !! to
         hto ← state^._holes !! to
-        if pfrom && pbetween && hto && not pto then
-            Just $ position # updateAtIndices [from ∧ false, between ∧ false, to ∧ true]
-        else
-            Nothing
+        guard $ pfrom && pbetween && hto && not pto
+        Just $ position # updateAtIndices [from ∧ false, between ∧ false, to ∧ true]
 
     initialPosition = pure ∘ view _position
 
@@ -148,7 +147,7 @@ instance solitaireGame ∷ Game (Array Boolean) ExtState {from ∷ Int, to ∷ I
     computerMove _ = pure Nothing
     onPositionChange = identity
 
-instance scoregame ∷ ScoreGame (Array Boolean) ExtState {from ∷ Int, to ∷ Int} where
+instance scoregame ∷ ScoreGame Position ExtState Move where
     objective _ = Minimize
     scoreFn = length ∘ filter identity ∘ view _position
     scoreHash state = joinWith "-" [show (state^._board), show (state^._nbRows), show (state^._nbColumns)]

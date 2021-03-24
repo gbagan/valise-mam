@@ -29,9 +29,9 @@ istate = genState [] _{mode = ExpertMode} (Ext {length: 10, nbPiles: 4})
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
 _length ∷ Lens' State Int
-_length = _ext' ∘ prop (SProxy ∷ _ "length")
+_length = _ext' ∘ prop (Proxy ∷ _ "length")
 _nbPiles ∷ Lens' State Int
-_nbPiles = _ext' ∘ prop (SProxy ∷ _ "nbPiles")
+_nbPiles = _ext' ∘ prop (Proxy ∷ _ "nbPiles")
 
 canPlay ∷ State → Move → Boolean
 canPlay state (Move pile pos) =

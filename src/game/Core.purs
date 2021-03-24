@@ -72,46 +72,46 @@ _ext ∷ ∀pos ext. Lens' (GState pos ext) ext
 _ext = lens (\(State c e) → e) \(State c _) e → State c e
 
 _position ∷ ∀pos ext. Lens' (GState pos ext) pos
-_position = _core ∘ prop (SProxy ∷ _ "position")
+_position = _core ∘ prop (Proxy ∷ _ "position")
 
 _history ∷ ∀pos ext. Lens' (GState pos ext) (List pos)
-_history = _core ∘ prop (SProxy ∷ _ "history")
+_history = _core ∘ prop (Proxy ∷ _ "history")
 
 _redoHistory ∷ ∀pos ext. Lens' (GState pos ext) (List pos)
-_redoHistory = _core ∘ prop (SProxy ∷ _ "redoHistory")
+_redoHistory = _core ∘ prop (Proxy ∷ _ "redoHistory")
 
 _mode ∷ ∀pos ext. Lens' (GState pos ext) Mode
-_mode = _core ∘ prop (SProxy ∷ _ "mode")
+_mode = _core ∘ prop (Proxy ∷ _ "mode")
 
 _help ∷ ∀pos ext. Lens' (GState pos ext) Boolean
-_help = _core ∘ prop (SProxy ∷ _ "help")
+_help = _core ∘ prop (Proxy ∷ _ "help")
 
 _turn ∷ ∀pos ext. Lens' (GState pos ext) Turn
-_turn = _core ∘ prop (SProxy ∷ _ "turn")
+_turn = _core ∘ prop (Proxy ∷ _ "turn")
 
 _dialog ∷ ∀pos ext. Lens' (GState pos ext) (Dialog (GState pos ext))
-_dialog = _core ∘ prop (SProxy ∷ _ "dialog")
+_dialog = _core ∘ prop (Proxy ∷ _ "dialog")
 
 _nbRows ∷ ∀pos ext. Lens' (GState pos ext) Int
-_nbRows = _core ∘ prop (SProxy ∷ _ "nbRows")
+_nbRows = _core ∘ prop (Proxy ∷ _ "nbRows")
 
 _nbColumns ∷ ∀pos ext. Lens' (GState pos ext) Int
-_nbColumns = _core ∘ prop (SProxy ∷ _ "nbColumns")
+_nbColumns = _core ∘ prop (Proxy ∷ _ "nbColumns")
 
 _customSize ∷ ∀pos ext. Lens' (GState pos ext) Boolean
-_customSize = _core ∘ prop (SProxy ∷ _ "customSize")
+_customSize = _core ∘ prop (Proxy ∷ _ "customSize")
 
 _locked ∷ ∀pos ext. Lens' (GState pos ext) Boolean
-_locked = _core ∘ prop (SProxy ∷ _ "locked")
+_locked = _core ∘ prop (Proxy ∷ _ "locked")
 
 _showWin ∷ ∀pos ext. Lens' (GState pos ext) Boolean
-_showWin = _core ∘ prop (SProxy ∷ _ "showWin")
+_showWin = _core ∘ prop (Proxy ∷ _ "showWin")
 
 _pointer ∷ ∀pos ext. Lens' (GState pos ext) (Maybe PointerPosition)
-_pointer = _core ∘ prop (SProxy ∷ _ "pointer")
+_pointer = _core ∘ prop (Proxy ∷ _ "pointer")
 
 _scores ∷ ∀pos ext. Lens' (GState pos ext) (Map String (Tuple Int pos))
-_scores = _core ∘ prop (SProxy ∷ _ "scores")
+_scores = _core ∘ prop (Proxy ∷ _ "scores")
 
 data SizeLimit = SizeLimit Int Int Int Int
 

@@ -1,9 +1,9 @@
-.noirblanc2-square {
+.bicolor-square {
     position: absolute;
     perspective: 1000px;
 }
 
-.noirblanc2-square-inner {
+.bicolor-square-inner {
     position: relative;
     width: 100%;
     height: 100%;
@@ -19,7 +19,7 @@
     }
 }
   
-.noirblanc2-square-noir, .noirblanc2-square-blanc {
+.bicolor-square-noir, .bicolor-square-blanc {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -30,17 +30,17 @@
     overflow: hidden;
 }
   
-.noirblanc2-square-noir {
+.bicolor-square-noir {
     background-color: #333;
 }
   
-.noirblanc2-square-blanc {
+.bicolor-square-blanc {
     background-color: white;
     transform: rotateY(180deg);
 }
 
 
-.noirblanc2-card {
+.bicolor-card {
     margin: -5%;
     width: 110%;
     height: 110%;

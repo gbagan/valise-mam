@@ -6,6 +6,7 @@ import Data.Map as Map
 import Data.String as String
 import Effect (Effect)
 import Game.Baseball as Baseball
+import Game.Bicolor as Bicolor
 import Game.Chocolat as Chocolat
 import Game.Dessin as Dessin
 import Game.Eternal as Eternal
@@ -15,7 +16,6 @@ import Game.Jetons as Jetons
 import Game.Labete as Labete
 import Game.Nim as Nim
 import Game.Noirblanc as Noirblanc
-import Game.Noirblanc2 as Noirblanc2
 import Game.Paths as Paths
 import Game.Queens as Queens
 import Game.Roue as Roue
@@ -38,6 +38,7 @@ infix 2 updateOver as .~>
 
 type RootState = 
     {   baseball ∷ Baseball.State
+    ,   bicolor ∷ Bicolor.State
     ,   chocolat ∷ Chocolat.State
     ,   dessin ∷ Dessin.State
     ,   eternal ∷ Eternal.State
@@ -46,7 +47,6 @@ type RootState =
     ,   labete ∷ Labete.State
     ,   nim ∷ Nim.State
     ,   noirblanc ∷ Noirblanc.State
-    ,   noirblanc2 ∷ Noirblanc2.State
     ,   paths ∷ Paths.State
     ,   queens ∷ Queens.State
     ,   roue ∷ Roue.State
@@ -69,7 +69,7 @@ state =
     ,   labete: Labete.istate
     ,   nim: Nim.istate
     ,   noirblanc: Noirblanc.istate
-    ,   noirblanc2: Noirblanc2.istate
+    ,   bicolor: Bicolor.istate
     ,   paths: Paths.istate
     ,   queens: Queens.istate
     ,   roue: Roue.istate
@@ -83,6 +83,7 @@ state =
 
 data Msg =
       BaseballMsg Baseball.Msg
+    | BicolorMsg Bicolor.Msg
     | ChocolatMsg Chocolat.Msg
     | DessinMsg Dessin.Msg
     | EternalMsg Eternal.Msg
@@ -91,7 +92,6 @@ data Msg =
     | LabeteMsg Labete.Msg
     | NimMsg Nim.Msg
     | NoirblancMsg Noirblanc.Msg
-    | Noirblanc2Msg Noirblanc2.Msg
     | PathsMsg Paths.Msg
     | QueensMsg Queens.Msg
     | RoueMsg Roue.Msg
@@ -120,6 +120,7 @@ gameRun = unsafeCoerce
 games ∷ Map String GameWrapper
 games = Map.fromFoldable 
     [   "baseball"  ∧ gameWrap Baseball.game  _.baseball  BaseballMsg
+    ,   "bicolor"   ∧ gameWrap Bicolor.game   _.bicolor   BicolorMsg
     ,   "chocolat"  ∧ gameWrap Chocolat.game  _.chocolat  ChocolatMsg
     ,   "dessin"    ∧ gameWrap Dessin.game    _.dessin    DessinMsg
     ,   "eternal"   ∧ gameWrap Eternal.game   _.eternal   EternalMsg
@@ -128,7 +129,6 @@ games = Map.fromFoldable
     ,   "labete"    ∧ gameWrap Labete.game    _.labete    LabeteMsg
     ,   "nim"       ∧ gameWrap Nim.game       _.nim       NimMsg
     ,   "noirblanc" ∧ gameWrap Noirblanc.game _.noirblanc NoirblancMsg
-    ,   "noirblanc2" ∧ gameWrap Noirblanc2.game _.noirblanc2 Noirblanc2Msg
     ,   "paths"     ∧ gameWrap Paths.game     _.paths     PathsMsg
     ,   "queens"    ∧ gameWrap Queens.game    _.queens    QueensMsg
     ,   "roue"      ∧ gameWrap Roue.game      _.roue      RoueMsg
@@ -146,6 +146,7 @@ callByName name default f = case games # Map.lookup name of
  
 update ∷ Msg → Update RootState Unit
 update (BaseballMsg msg)  = prop (Proxy ∷ Proxy "baseball")  .~> Baseball.update msg
+update (BicolorMsg msg)   = prop (Proxy ∷ Proxy "bicolor")   .~> Bicolor.update msg
 update (ChocolatMsg msg)  = prop (Proxy ∷ Proxy "chocolat")  .~> Chocolat.update msg
 update (DessinMsg msg)    = prop (Proxy ∷ Proxy "dessin")    .~> Dessin.update msg
 update (EternalMsg msg)   = prop (Proxy ∷ Proxy "eternal")   .~> Eternal.update msg
@@ -154,7 +155,6 @@ update (JetonsMsg msg)    = prop (Proxy ∷ Proxy "jetons")    .~> Jetons.update
 update (LabeteMsg msg)    = prop (Proxy ∷ Proxy "labete")    .~> Labete.update msg
 update (NimMsg msg)       = prop (Proxy ∷ Proxy "nim")       .~> Nim.update msg
 update (NoirblancMsg msg) = prop (Proxy ∷ Proxy "noirblanc") .~> Noirblanc.update msg
-update (Noirblanc2Msg msg) = prop (Proxy ∷ Proxy "noirblanc2") .~> Noirblanc2.update msg
 update (PathsMsg msg)     = prop (Proxy ∷ Proxy "paths")     .~> Paths.update msg
 update (QueensMsg msg)    = prop (Proxy ∷ Proxy "queens")    .~> Queens.update msg
 update (RoueMsg msg)      = prop (Proxy ∷ Proxy "roue")      .~> Roue.update msg

@@ -1,9 +1,9 @@
-module Game.Noirblanc2.View where
+module Game.Bicolor.View where
 
 import MyPrelude
 
 import Game.Core (_position, _nbRows, _nbColumns)
-import Game.Noirblanc2.Model (State, Msg(..), Card(..), Phase(..), Mode(..), _mode, _phase)
+import Game.Bicolor.Model (State, Msg(..), Card(..), Phase(..), Mode(..), _mode, _phase)
 import Lib.Util (coords)
 import Pha.Html (Html)
 import Pha.Html as H
@@ -16,13 +16,13 @@ import UI.Template (template, card, incDecGrid, gridStyle)
 
 square ∷ ∀a. Card → Array (H.Prop a) → Html a
 square card props = 
-    H.div ([H.class_ "noirblanc2-square"] <> props)
-    [   H.div [H.class_ "noirblanc2-square-inner", H.class' "blanc" (card == WhiteCard),
+    H.div ([H.class_ "bicolor-square"] <> props)
+    [   H.div [H.class_ "bicolor-square-inner", H.class' "blanc" (card == WhiteCard),
                 H.class' "empty" (card == EmptyCard)]
-        [   H.div [H.class_ "noirblanc2-square-blanc"] 
-            [    H.svg [H.class_ "ui-absolute noirblanc2-card"] [H.use [P.href "#card"]]
+        [   H.div [H.class_ "bicolor-square-blanc"] 
+            [    H.svg [H.class_ "ui-absolute bicolor-card"] [H.use [P.href "#card"]]
             ]
-        ,   H.div [H.class_ "noirblanc2-square-noir"] []
+        ,   H.div [H.class_ "bicolor-square-noir"] []
         ]
     ]
 

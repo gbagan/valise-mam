@@ -1,4 +1,4 @@
-module Game.Noirblanc2.Model where
+module Game.Bicolor.Model where
 
 import MyPrelude
 
@@ -63,7 +63,7 @@ neighbor state index1 index2 =
     col' = if state^._mode ≠ StandardMode && col ≠ 0 && abs col == nbCols - 1 then 1 else col
     
 instance game ∷ Game (Array Card) ExtState Int where
-    name _ = "noirblanc2"
+    name _ = "bicolor"
 
     play state index =
         if state^._position !! index == Just WhiteCard then

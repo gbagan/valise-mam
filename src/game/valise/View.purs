@@ -67,7 +67,7 @@ valise state =
                     400 205 50 50
                     [P.transform "scale(1,0.8)"]
                     []
-        ,   object {symbol: "card", link: Just "noirblanc2", help: "Jeu: ???", drag: false}
+        ,   object {symbol: "card", link: Just "bicolor", help: "Jeu: ???", drag: false}
                     450 130 40 50
                     [P.transform "rotate(30)"]
                     []

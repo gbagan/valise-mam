@@ -8,7 +8,7 @@ let additions =
         { dependencies =
           [ "aff", "effect", "free", "web-uievents", "unsafe-reference" ]
         , repo = "https://github.com/gbagan/purescript-pha.git"
-        , version = "v0.7.3"
+        , version = "v0.8.1"
         }
       }
 

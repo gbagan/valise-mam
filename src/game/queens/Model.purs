@@ -103,11 +103,14 @@ capturableSquares state = state^._position # foldrWithIndex
         (\index piece → if piece == Empty then identity else zipWith disj (attackedBy state piece index))
         (replicate (state^._nbRows * state^._nbColumns) false)
 
+-- | renvoie l'ensemble des cases attaquées par l'endroit du pointeur de la souris
 attackedBySelected ∷ State → Array Boolean
 attackedBySelected state = case state^._selectedSquare of
     Nothing → replicate (state^._nbRows * state^._nbColumns) false
     Just index → attackedBy state (state^._selectedPiece) index 
 
+-- | ajoute ou enlève une pièce à la liste des pièces autorisées.
+-- | Le paramètre booléen correspond à la présence du mode multipiece
 toggleAllowedPiece ∷ Piece → Boolean → NonEmptyArray Piece → NonEmptyArray Piece
 toggleAllowedPiece piece false pieces = N.singleton piece
 toggleAllowedPiece piece true pieces = N.fromArray pieces2 # fromMaybe pieces where
@@ -129,10 +132,10 @@ instance queensGame ∷ Game Position Ext Int where
     
     onNewGame state = pure $ state # set _selectedPiece (N.head $ state^._allowedPieces)
     sizeLimit _ = SizeLimit 3 3 9 9
-    computerMove _ = pure Nothing
     updateScore = updateScore' NeverShowWin
     
     -- methodes par défaut
+    computerMove _ = pure Nothing
     onPositionChange = identity
     saveToJson _ = Nothing
     loadFromJson st _ = st

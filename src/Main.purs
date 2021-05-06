@@ -214,9 +214,9 @@ viewGame st = callByName st.location H.empty
 
 main ∷ Effect Unit
 main = app
-    {   init: {state, action: Just $ Init}
+    {   init: {state, action: Just Init}
     ,   view
     ,   update
-    ,   subscriptions: const [Subs.onKeyDown (Just ∘ KeyDown), Subs.onHashChange $ const (Just HashChanged)]
+    ,   subscriptions: [Subs.onKeyDown (Just ∘ KeyDown), Subs.onHashChange $ const (Just HashChanged)]
     ,   selector: "#root"
     }

@@ -112,7 +112,7 @@ attackedBySelected state = case state^._selectedSquare of
 -- | ajoute ou enlève une pièce à la liste des pièces autorisées.
 -- | Le paramètre booléen correspond à la présence du mode multipiece
 toggleAllowedPiece ∷ Piece → Boolean → NonEmptyArray Piece → NonEmptyArray Piece
-toggleAllowedPiece piece false pieces = N.singleton piece
+toggleAllowedPiece piece false _ = N.singleton piece
 toggleAllowedPiece piece true pieces = N.fromArray pieces2 # fromMaybe pieces where
     pieces2 = piecesList # filter \p2 → (p2 == piece) ≠ elem p2 pieces
 

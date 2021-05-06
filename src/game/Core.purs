@@ -66,10 +66,10 @@ genState p f ext = State (f $ defaultCoreState p) ext
 
 -- lenses 
 _core ∷ ∀pos ext. Lens' (GState pos ext) (CoreState pos ext)
-_core = lens (\(State c e) → c) \(State _ e) c → State c e
+_core = lens (\(State c _) → c) \(State _ e) c → State c e
 
 _ext ∷ ∀pos ext. Lens' (GState pos ext) ext
-_ext = lens (\(State c e) → e) \(State c _) e → State c e
+_ext = lens (\(State _ e) → e) \(State c _) e → State c e
 
 _position ∷ ∀pos ext. Lens' (GState pos ext) pos
 _position = _core ∘ prop (Proxy ∷ _ "position")

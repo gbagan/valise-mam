@@ -57,7 +57,7 @@ instance game ∷ Game Position Ext { from ∷ Int, to ∷ Int } where
     onPositionChange = identity
 
 instance scoregame ∷ ScoreGame Position Ext { from ∷ Int, to ∷ Int } where
-    objective state = Minimize
+    objective _ = Minimize
     scoreFn = length ∘ filter (_ > 0) ∘ view _position
     scoreHash state = show (state^._nbRows) <> "-" <> show (state^._nbColumns)
     isCustomGame _ = false

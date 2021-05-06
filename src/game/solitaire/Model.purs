@@ -101,7 +101,7 @@ instance solitaireGame ∷ Game Position ExtState Move where
     initialPosition = pure ∘ view _position
 
     isLevelFinished state =
-        state^._position # allWithIndex \i val →
+        state^._position # allWithIndex \i _ →
             ([2, -2, 2 * state^._nbColumns, -2 * state^._nbColumns, state^._nbRows - 2] # all \d →
                 not canPlay state { from: i, to: i + d }
             )

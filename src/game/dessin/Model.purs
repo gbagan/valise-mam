@@ -243,7 +243,7 @@ instance scoregame ∷ ScoreGame (Array Move) ExtState Move where
     objective _ = Minimize
     scoreFn = nbRaises
     scoreHash state = show (state^._graphIndex)
-    isCustomGame state = false          
+    isCustomGame _ = false          
 
 -- | nombre de levés de crayon déjà effectués
 nbRaises ∷ State → Int

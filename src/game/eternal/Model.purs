@@ -224,7 +224,7 @@ instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState M
 
     play state (Defense nextmove) =
         case (state^._position).attacked of
-            Just attacked →
+            Just _ →
                 if isValidNextMove state nextmove then
                     Just {attacked: Nothing, guards: nextmove}
                 else
@@ -330,7 +330,7 @@ update StartGame = modify_ startGame
 update MoveGuards = do
     st ← get
     playA $ Defense (st ^. _nextmove)
-update (ToggleGuard x) = pure unit
+update (ToggleGuard _) = pure unit
 update (DragGuard x) = _draggedGuard .= Just x
 update (DropGuard to) = modify_ $ dragGuard (Just to)
 update LeaveGuard = _draggedGuard .= Nothing

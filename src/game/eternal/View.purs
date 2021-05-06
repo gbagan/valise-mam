@@ -57,7 +57,7 @@ dndItemProps ∷ State →
         id ∷ Int,
         currentDragged ∷ Maybe Int
     } → Array (H.Prop Msg)
-dndItemProps state {draggable, droppable, id, currentDragged} =
+dndItemProps _ {draggable, droppable, id, currentDragged} =
     [   H.class' "draggable" draggable
     ,   H.class' "dragged" dragged
     ,   H.class' "candrop" candrop
@@ -145,7 +145,7 @@ view state = template {config, board, rules, winTitle} state where
                                     H.maybe (getCoordsOfEdge graph (from ↔ to)) \{x1, x2, y1, y2} →
                                         drawArrow (x1 * 100.0) (x2 * 100.0) (y1 * 100.0) (y2 * 100.0)
                 ,   H.g [] $
-                        graph.vertices # mapWithIndex \i {x, y} →
+                        graph.vertices <#> \{x, y} →
                             H.circle $
                             [   P.cx $ 100.0 * x
                             ,   P.cy $ 100.0 * y
@@ -153,7 +153,7 @@ view state = template {config, board, rules, winTitle} state where
                             ,   P.fill "blue"
                             ]
                 ,   H.g [] $
-                        guards # mapWithIndex \i index →
+                        guards <#> \index →
                             H.use
                             [   P.href "#roman"
                             ,   P.width "6"

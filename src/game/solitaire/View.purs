@@ -61,7 +61,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
         ]
 
     drawHole i = 
-        [   ("rect" <> show i) /\ H.when (help > 0 && not isCircleBoard) \_ →
+        [   H.when (help > 0 && not isCircleBoard) \_ →
                 H.rect
                 [   P.x (-25.0)
                 ,   P.y (-25.0)
@@ -70,7 +70,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                 ,   P.fill $ tricolor i columns help
                 ,   P.transform $ itemStyle i
                 ]
-        ,   ("h" <> show i) /\ H.circle (
+        ,   H.circle (
             [   P.r 17.0
             ,   H.class_ "solitaire-hole"
             ,   P.transform $ itemStyle i
@@ -96,7 +96,6 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
             }
         )
 
-
     grid =
         H.div (
             [H.class_ "ui-board"] 
@@ -106,15 +105,15 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                 else 
                     gridStyle rows columns 5
             ))
-        [   K.svg [if isCircleBoard then P.viewBox 0 0 250 250 else P.viewBox 0 0 (50 * columns) (50 * rows)] $ concat
-            [   ["circ" /\ H.when isCircleBoard \_ →
+        [   H.svg [if isCircleBoard then P.viewBox 0 0 250 250 else P.viewBox 0 0 (50 * columns) (50 * rows)] $ concat
+            [   [H.when isCircleBoard \_ →
                     H.circle [P.cx 125.0, P.cy 125.0, P.r 90.0, H.class_ "solitaire-circle"]
                 ]
             ,   holes # foldMapWithIndex \i hasHole →
                     if hasHole then drawHole i else []
             ,   position # mapWithIndex \i hasPeg →
-                    ("p" <> show i) /\ H.when hasPeg \_ → drawPeg i
-            ,   ["dragged" /\ H.fromMaybe (cursor <$> pointer <*> dragged)]
+                    H.when hasPeg \_ → drawPeg i
+            ,   [H.fromMaybe (cursor <$> pointer <*> dragged)]
             ]
         ]
 

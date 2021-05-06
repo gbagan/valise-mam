@@ -55,7 +55,6 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
     rows = state^._nbRows
     columns = state^._nbColumns
     nonTrappedBeast = nonTrappedBeastOnGrid state
-    beastTypes = [Type1, Type2, Type3, Type4, CustomBeast]
 
     config = card "La bête" 
         [   iconSelectGroup' state "Forme de la bête" (state^._beastType) SetBeast

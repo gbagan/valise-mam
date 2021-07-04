@@ -1,12 +1,13 @@
 module UI.Icon where
 
 import MyPrelude
+
 import Data.Tuple (uncurry)
+import Lib.Util (partialUpdate, class PartialRecord)
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
-import Lib.Util (partialUpdate, class PartialRecord)
 
 data Icon = IconText String | IconSymbol String | IconNone
 
@@ -39,7 +40,8 @@ iconbutton opts props =
     H.button (
         [   H.class_ "ui-icon"
         ,   H.class' "selected" selected
-        ,   H.class' "round" large
+        ,   H.class' "round" round
+        ,   H.class' "large" large
         ,   H.class' "hidden" hidden
         ,   P.disabled d
         ,   E.preventDefaultOn "contextmenu" $ E.always (Nothing ∧ true)

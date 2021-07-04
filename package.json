@@ -1,13 +1,13 @@
 {
   "dependencies": {
     "purescript": "^0.14.1",
-    "rollup": "^2.47.0",
+    "rollup": "^2.52.7",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-terser": "^7.0.2",
-    "sass": "^1.32.12",
-    "spago": "^0.20.1",
+    "sass": "^1.35.1",
+    "spago": "^0.20.3",
     "svgo": "^2.3.0",
-    "terser": "^5.7.0"
+    "terser": "^5.7.1"
   },
   "scripts": {
     "build": "spago bundle-app --to dist/bundle.js",

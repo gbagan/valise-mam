@@ -17,6 +17,10 @@ import Game.Frog.Model (State, Msg(..), _moves, _marked, reachableArray)
 type Cartesian = { x ∷ Number, y ∷ Number}
 type Polar = { radius ∷ Number, theta ∷ Number }
 
+
+rotate ∷ Number → String
+rotate theta = "rotate(" <> show (theta * 180.0 / pi) <> "deg)"
+
 lineIntersection ∷ Number → Number → Number → Number → { x ∷ Number, y ∷ Number }
 lineIntersection  m1 b1 m2 b2 = { x, y: m1 * x + b1 } where x = (b2 - b1) / (m1 - m2)
 
@@ -108,22 +112,16 @@ view state = template {config, board, rules, winTitle} state where
         H.maybe (pointsPolar !! position) \{radius, theta} →
             H.g
             [   H.class_ "frog-frog-container"
-            ,   H.style "transform" $ translate (px radius) "0" <> " rotate(" <> show (theta * 180.0 / pi) <> "deg)"
-            ,   H.style "transform-origin" $ px (-radius) <> " 0"
+            ,   H.style "transform" $ rotate theta <> translate (px radius) "0"  <> rotate (-theta)
             ]
-            [   H.g
-                [   H.class_ "frog-frog-container"
-                ,   H.style "transform" $ "rotate(" <> show (-theta * 180.0 / pi) <> "deg)"
-                ]
-                [   H.use 
-                    [   P.href "#frog2"
-                    ,   P.x (-20.0)
-                    ,   P.y (-20.0)
-                    ,   P.width "40"
-                    ,   P.height "40"
-                    ,   H.class_ "frog-frog"
-                    ,   H.class' "goal" $ position == 0
-                    ]
+            [   H.use 
+                [   P.href "#frog2"
+                ,   P.x (-20.0)
+                ,   P.y (-20.0)
+                ,   P.width "40"
+                ,   P.height "40"
+                ,   H.class_ "frog-frog"
+                ,   H.class' "goal" $ position == 0
                 ]
             ]
 

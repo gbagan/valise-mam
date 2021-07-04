@@ -17,7 +17,7 @@ defaultStyle ∷ ∀a. Array (H.Prop a)
 defaultStyle = [H.style "transform" "translate(0px, 0px)"]
 
 compStyle ∷ ∀a. Number → Number → {rotation ∷ Int, translation ∷ Tuple Int Int, duration ∷ Int} → Array (H.Prop a)
-compStyle width height { rotation, translation: x ∧ y, duration} = [
+compStyle width height { translation: x ∧ y, duration} = [
     H.style "transform" $ 
         translate (pc $ toNumber x / width) (pc $ toNumber y / height),
     H.style "transition" $ "transform linear " <> show duration <> "ms"

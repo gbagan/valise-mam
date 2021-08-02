@@ -12,7 +12,7 @@ import Lib.Update (Update, get, modify_, delay)
 type Position = Array (Maybe Int)
 
 data Location = Panel Int | Wheel Int | Board
-derive instance eqLoc ∷ Eq Location
+derive instance Eq Location
 
 type Ext' = {
     size ∷ Int,
@@ -54,7 +54,7 @@ validRotation' state = (length $ filter identity $ aligned state) == 1
 validRotation ∷ State → Boolean
 validRotation state = validRotation' state && (all isJust $ state^._position )
 
-instance game ∷ Game Position Ext {from ∷ Location, to ∷ Location} where
+instance Game Position Ext {from ∷ Location, to ∷ Location} where
     name _ = "roue"
 
     play state move = act (state^._position) where
@@ -82,8 +82,8 @@ rotate ∷ Int → State → State
 rotate i = _rotation +~ i
 
 data Msg = Core CoreMsg | DnD (DndMsg Location) | Rotate Int | SetSize Int | Check
-instance withcore ∷ MsgWithCore Msg where core = Core
-instance withdnd ∷ MsgWithDnd Msg Location where dndmsg = DnD  
+instance MsgWithCore Msg where core = Core
+instance MsgWithDnd Msg Location where dndmsg = DnD  
     
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg

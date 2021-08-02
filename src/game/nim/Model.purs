@@ -41,7 +41,7 @@ canPlay state (Move pile pos) =
                              && pos ≠ p2
                              && if state^._turn == Turn1 then pos < p2 else pos > p1
 
-instance game ∷ Game (Array Position) ExtState Move where
+instance Game (Array Position) ExtState Move where
     name _ = "nim"
     
     play state move@(Move pile pos) = do
@@ -69,7 +69,7 @@ instance game ∷ Game (Array Position) ExtState Move where
     saveToJson _ = Nothing
     loadFromJson st _ = st
 
-instance game2 ∷ TwoPlayersGame (Array Position) ExtState Move where
+instance TwoPlayersGame (Array Position) ExtState Move where
     possibleMoves state =
         repeat2 (state^._nbPiles) (state^._length) Move
         # filter (canPlay state)
@@ -80,7 +80,7 @@ instance game2 ∷ TwoPlayersGame (Array Position) ExtState Move where
     isLosingPosition st = (st ^. _position # foldr (\(Position x y) → xor (y - x - 1)) 0) == 0
 
 data Msg = Core CoreMsg | SetNbPiles Int | SetLength Int | Play Move
-instance withcore ∷ MsgWithCore Msg where core = Core
+instance MsgWithCore Msg where core = Core
 
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg

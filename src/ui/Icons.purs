@@ -89,9 +89,9 @@ irules state =
 class IconLabel a where
     iconLabel ∷ a → Record I.Options → Record I.Options
 
-instance iconLabelInt ∷ IconLabel Int where
+instance IconLabel Int where
     iconLabel val opts = opts{icon = I.IconText $ show val}
-else instance iconLabela ∷ IconLabel a where
+else instance IconLabel a where
     iconLabel _ opts = opts
 
 -- | groupe d'icones à choix unique

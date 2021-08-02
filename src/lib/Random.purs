@@ -7,7 +7,7 @@ import Data.Array.NonEmpty as NEA
 import Control.Monad.Free (Free, liftF)
 
 data RandomF a = RandomInt Int (Int → a) | RandomNumber (Number → a)
-derive instance functorRng ∷ Functor RandomF
+derive instance Functor RandomF
 type Random = Free RandomF
 
 -- | generate a random integer in the range [0, n - 1]

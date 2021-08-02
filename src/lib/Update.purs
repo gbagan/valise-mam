@@ -14,16 +14,6 @@ import Web.Storage.Storage as Storage
 
 import Pha.Update (Update, Update', get, modify_, put, delay) as Exports
 
-
-{-
-updateOver ∷ ∀st st'. Lens' st st' → Command st' ~> Command st
-updateOver lens = hoistFree case _ of
-    Get a → Get (a ∘ view lens)
-    Modify f a → Modify (over lens f) a
-    x → unsafeCoerce x
--}
-
-
 randomEval ∷ ∀a st. Random a → Update st a
 randomEval = liftEffect <<< eval where
     eval = runFreeM go 

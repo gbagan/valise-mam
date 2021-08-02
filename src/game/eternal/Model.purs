@@ -11,7 +11,7 @@ import Lib.Update (Update, get, modify_)
 -- type d'arête d'un graphe
 data Edge = Edge Int Int
 infix 3 Edge as ↔
-instance eqEdge ∷ Eq Edge where
+instance Eq Edge where
     eq (u1 ↔ v1) (u2 ↔ v2) = u1 == u2  && v1 == v2 || u1 == v2 && u2 == v1
 
 
@@ -219,7 +219,7 @@ startGame st = st
                                         (length (st^._position).guards)
 
 
-instance game ∷ Game {guards ∷ Array Int, attacked ∷ Maybe Int} ExtState Move where
+instance Game Position ExtState Move where
     name _ = "eternal"
 
     play state (Defense nextmove) =
@@ -314,7 +314,7 @@ dragGuard to st =
 data Msg = Core CoreMsg | SetGraphKind GraphKind | SetRules Rules 
             | DragGuard Int | DropGuard Int | LeaveGuard | DropOnBoard
             | StartGame | MoveGuards | ToggleGuard Int | Play Int
-instance withcore ∷ MsgWithCore Msg where core = Core
+instance MsgWithCore Msg where core = Core
     
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg

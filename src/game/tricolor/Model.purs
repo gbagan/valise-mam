@@ -48,7 +48,7 @@ inRange ∷ State → Int → Int → Boolean
 inRange state i i' = min diff (state^._size - diff) <= state^._range
     where diff = abs (i - i')
     
-instance game ∷ Game Position ExtState Move where
+instance Game Position ExtState Move where
     name _ = "tricolor"
 
     play state i = Just $ state^._position # mapWithIndex \i' color →
@@ -75,7 +75,7 @@ instance game ∷ Game Position ExtState Move where
 
 
 data Msg = Core CoreMsg | Play Int | SetSize Int | SetNbColors Int | SetRange Int | SetHoverCell (Maybe Int) | Shuffle
-instance withcore ∷ MsgWithCore Msg where core = Core
+instance MsgWithCore Msg where core = Core
   
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg

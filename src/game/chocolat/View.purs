@@ -6,7 +6,6 @@ import Game.Core (_position, _nbRows, _nbColumns, _pointer, possibleMoves, Point
 import Lib.Util (repeat2)
 import Pha.Html (Html)
 import Pha.Html as H
-import Pha.Html.Keyed as K
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (translate)
@@ -51,7 +50,7 @@ view state = template {config, board, rules, winTitle} state where
         ]
 
     cutter row col move =
-        ("cut" <> show (row * (columns + 1) + col)) /\ H.circle
+        H.circle
         [   P.cx $ 50.0 * toNumber col
         ,   P.cy $ 50.0 * toNumber row
         ,   P.r 7.0
@@ -73,7 +72,7 @@ view state = template {config, board, rules, winTitle} state where
                         ,   H.class' "hidden" $ not (inside state row col)
                         ,   E.onClick' if isNothing soap then Just (SetSoap row col) else Nothing
                         ]
-            ,   K.g [] $
+            ,   H.g [] $
                     possibleMoves state >>= case _ of
                         FromLeft i → [cutter pos.top i (FromLeft i), cutter pos.bottom i (FromLeft i)]
                         FromRight i → [cutter pos.top i (FromRight i), cutter pos.bottom i (FromRight i)]

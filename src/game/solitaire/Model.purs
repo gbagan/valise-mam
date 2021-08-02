@@ -16,8 +16,8 @@ type Position = Array Boolean
 type Move = {from ∷ Int, to ∷ Int}
 
 data Board = FrenchBoard | EnglishBoard | CircleBoard | Grid3Board | RandomBoard
-derive instance boardMode ∷ Eq Board
-instance showMode ∷ Show Board where
+derive instance Eq Board
+instance Show Board where
     show FrenchBoard = "french"
     show EnglishBoard = "english"
     show CircleBoard = "circle"
@@ -85,7 +85,7 @@ generateBoard rows columns startingHole holeFilter = {holes, position, customSiz
     holes = repeat2 rows columns holeFilter
     position = pure $ holes # set (ix startingHole) false
 
-instance solitaireGame ∷ Game Position ExtState Move where
+instance Game Position ExtState Move where
     name _ = "solitaire"
 
     play state move@{from, to} = do
@@ -147,15 +147,15 @@ instance solitaireGame ∷ Game Position ExtState Move where
     computerMove _ = pure Nothing
     onPositionChange = identity
 
-instance scoregame ∷ ScoreGame Position ExtState Move where
+instance ScoreGame Position ExtState Move where
     objective _ = Minimize
     scoreFn = length ∘ filter identity ∘ view _position
     scoreHash state = joinWith "-" [show (state^._board), show (state^._nbRows), show (state^._nbColumns)]
     isCustomGame state = state^._board == RandomBoard
 
 data Msg = Core CoreMsg | DnD (DndMsg Int) | SetBoard Board
-instance withcore ∷ MsgWithCore Msg where core = Core
-instance withdnd ∷ MsgWithDnd Msg Int where dndmsg = DnD  
+instance MsgWithCore Msg where core = Core
+instance MsgWithDnd Msg Int where dndmsg = DnD  
     
 update ∷ Msg → Update State Unit
 update (Core ToggleHelp) = _help %= \x → (x + 1) `mod` 3

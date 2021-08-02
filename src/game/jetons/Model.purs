@@ -25,7 +25,7 @@ _dragged = _ext' ∘ prop (Proxy ∷ _ "dragged")
 istate ∷ State
 istate = genState [] _{nbRows = 4, nbColumns = 4} (Ext { dragged: Nothing })
 
-instance game ∷ Game Position Ext { from ∷ Int, to ∷ Int } where
+instance Game Position Ext { from ∷ Int, to ∷ Int } where
     name _ = "jetons"
 
     play state {from, to} = do
@@ -56,15 +56,15 @@ instance game ∷ Game Position Ext { from ∷ Int, to ∷ Int } where
     onNewGame = defaultOnNewGame
     onPositionChange = identity
 
-instance scoregame ∷ ScoreGame Position Ext { from ∷ Int, to ∷ Int } where
+instance ScoreGame Position Ext { from ∷ Int, to ∷ Int } where
     objective _ = Minimize
     scoreFn = length ∘ filter (_ > 0) ∘ view _position
     scoreHash state = show (state^._nbRows) <> "-" <> show (state^._nbColumns)
     isCustomGame _ = false
 
 data Msg = Core CoreMsg | DnD (DndMsg Int)
-instance withcore ∷ MsgWithCore Msg where core = Core
-instance withdnd ∷ MsgWithDnd Msg Int where dndmsg = DnD  
+instance MsgWithCore Msg where core = Core
+instance MsgWithDnd Msg Int where dndmsg = DnD  
 
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg

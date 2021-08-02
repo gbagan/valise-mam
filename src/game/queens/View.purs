@@ -125,9 +125,9 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
     customDialog _ = 
         dialog "Personnalise ta pièce"
         [   H.div [H.class_ "flex queens-custompiece"]
-            [   K.div [H.class_ "queens-grid queens-custompiece-grid"] (
+            [   H.div [H.class_ "queens-grid queens-custompiece-grid"] (
                     customLocalMoves # mapWithIndex \index selected →
-                        show index /\ square
+                        square
                         {   piece: if index == 12 then Custom else Empty
                         ,   selected: selected
                         ,   capturable: false

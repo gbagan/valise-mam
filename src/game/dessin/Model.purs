@@ -11,7 +11,7 @@ import Lib.Util (pairwise)
 
 data Edge = Edge Int Int
 infix 3 Edge as ↔
-instance eqEdge ∷ Eq Edge where
+instance Eq Edge where
     eq (u1 ↔ v1) (u2 ↔ v2) = u1 == u2  && v1 == v2 || u1 == v2 && u2 == v1
 type Position = { x ∷ Number, y ∷ Number }
 
@@ -19,14 +19,14 @@ type Position = { x ∷ Number, y ∷ Number }
 type Graph = {title ∷ String, vertices ∷ Array Position, edges ∷ Array Edge }
 
 data Move = MoveTo Int | Raise
-derive instance eqmove ∷ Eq Move
+derive instance Eq Move
 
-instance decodeMove :: DecodeJson Move where
+instance DecodeJson Move where
     decodeJson json = decodeJson json <#> case _ of
         Nothing → Raise
         Just y → MoveTo y
 
-instance encodeMove :: EncodeJson Move where
+instance EncodeJson Move where
     encodeJson move = encodeJson case move of
         Raise → Nothing
         MoveTo x → Just x
@@ -212,7 +212,7 @@ edgesOf = mapMaybe toEdge ∘ pairwise where
     toEdge (MoveTo u ∧ MoveTo v) = Just (u ↔ v)
     toEdge _ = Nothing
 
-instance game ∷ Game (Array Move) ExtState Move where
+instance Game (Array Move) ExtState Move where
     name _ = "dessin"
 
     play state x =
@@ -239,7 +239,7 @@ instance game ∷ Game (Array Move) ExtState Move where
     sizeLimit = defaultSizeLimit
     onPositionChange = identity
 
-instance scoregame ∷ ScoreGame (Array Move) ExtState Move where
+instance ScoreGame (Array Move) ExtState Move where
     objective _ = Minimize
     scoreFn = nbRaises
     scoreHash state = show (state^._graphIndex)
@@ -247,10 +247,10 @@ instance scoregame ∷ ScoreGame (Array Move) ExtState Move where
 
 -- | nombre de levés de crayon déjà effectués
 nbRaises ∷ State → Int
-nbRaises =  length ∘ filter (_ == Raise) ∘ view _position
+nbRaises = length ∘ filter (_ == Raise) ∘ view _position
 
 data Msg = Core CoreMsg | SetGraphIndex Int | Play Move
-instance withcore ∷ MsgWithCore Msg where core = Core
+instance MsgWithCore Msg where core = Core
     
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg

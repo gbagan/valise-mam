@@ -42,7 +42,7 @@ istate =
         }
     )
 
-instance game ∷ Game Position Ext Move where
+instance Game Position Ext Move where
     name _ = "baseball"
 
     play state i = do
@@ -54,9 +54,9 @@ instance game ∷ Game Position Ext Move where
         guard $ elem (x / 2 - y / 2) [1, nbBases-1, -1, 1-nbBases]
         Just $ position # updateAtIndices [i ∧ y, j ∧ x]
 
-    initialPosition state = Random.shuffle $ 0 .. (2 * state ^. _nbBases - 1)
+    initialPosition state = Random.shuffle $ 0 .. (2 * state^._nbBases - 1)
     isLevelFinished = view _position >>> allWithIndex \i j → i / 2 == j / 2
-    onNewGame state = Random.int' (2 * state ^. _nbBases) <#> \i → set _missingPeg i state
+    onNewGame state = Random.int' (2 * state^._nbBases) <#> \i → set _missingPeg i state
     
     -- fonctions par défault
     computerMove _ = pure Nothing
@@ -67,7 +67,7 @@ instance game ∷ Game Position Ext Move where
     loadFromJson st _ = st
 
 data Msg = Core CoreMsg | SetNbBases Int | Play Move
-instance withcore ∷ MsgWithCore Msg where core = Core
+instance MsgWithCore Msg where core = Core
 
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg

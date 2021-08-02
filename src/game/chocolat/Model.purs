@@ -37,7 +37,7 @@ istate ∷ State
 istate = genState {left: 0, top: 0, right: 0, bottom: 0} _{nbRows = 6, nbColumns = 7, mode = RandomMode}
         (Ext { soap: Just {row: 0, col: 0}, soapMode: CornerMode, moveWhenHover: Nothing})
 
-instance game ∷ Game {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int} ExtState Move where
+instance Game Position ExtState Move where
     name _ = "chocolat"
 
     -- les coups proposées par la vue sont toujours valides
@@ -69,7 +69,7 @@ instance game ∷ Game {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int
     saveToJson _ = Nothing
     loadFromJson st _ = st
 
-instance game_ ∷ TwoPlayersGame {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int} ExtState Move where
+instance TwoPlayersGame {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ Int} ExtState Move where
     isLosingPosition st =
         case st^._soap of
             Just {row, col} → 
@@ -94,7 +94,7 @@ cutLine state = case _ of
     where {left, right, top, bottom} = state^._position
 
 data Msg = Core CoreMsg | SetHover (Maybe Move) | SetSoapMode SoapMode | Play Move | SetSoap Int Int
-instance withcore ∷ MsgWithCore Msg where core = Core
+instance MsgWithCore Msg where core = Core
     
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg

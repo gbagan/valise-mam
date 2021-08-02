@@ -47,5 +47,5 @@ dCoords cols x y = {
 class PartialRecord (r1 ∷ Row Type) (r2 ∷ Row Type) where
     partialUpdate ∷ Record r1 → Record r2 → Record r2
 
-instance precord ∷ (Union r1 r2 s, Nub s r2) ⇒ PartialRecord r1 r2 where
+instance (Union r1 r2 s, Nub s r2) ⇒ PartialRecord r1 r2 where
     partialUpdate = Record.merge

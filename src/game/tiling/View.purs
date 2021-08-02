@@ -3,7 +3,6 @@ import MyPrelude
 import Lib.Util (coords)
 import Pha.Html (Html)
 import Pha.Html as H
-import Pha.Html.Keyed as K
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (translate)
@@ -116,10 +115,10 @@ view state = template {config, board, rules, winTitle, customDialog} state where
     customDialog _ = dialog "Personnalise ta tuile" [
         H.div [H.class_ "tiling-customtile-grid-container"] [
             H.div [H.class_ "tiling-grid"] [
-                K.svg [P.viewBox 0 0 250 250] (
+                H.svg [P.viewBox 0 0 250 250] (
                     tile ^. _isoCustom # mapWithIndex \index hasBlock →
                         let {row, col} = coords 5 index
-                        in show index /\ square {hasBlock, row, col, hasSink: false, isDark: false}
+                        in square {hasBlock, row, col, hasSink: false, isDark: false}
                             [E.onClick $ FlipTile index]
                 )
             ]

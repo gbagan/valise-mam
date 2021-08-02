@@ -62,7 +62,7 @@ neighbor state index1 index2 =
     row' = if state^._mode == TorusMode && row ≠ 0 && abs row == nbRows - 1 then 1 else row
     col' = if state^._mode ≠ StandardMode && col ≠ 0 && abs col == nbCols - 1 then 1 else col
     
-instance game ∷ Game (Array Card) ExtState Int where
+instance Game Position ExtState Int where
     name _ = "bicolor"
 
     play state index =
@@ -90,19 +90,19 @@ instance game ∷ Game (Array Card) ExtState Int where
     onPositionChange = identity
 
 data Msg = Core CoreMsg | Play Int | ToggleCard Int | SetMode Mode | ToggleCustom | Shuffle
-instance withcore ∷ MsgWithCore Msg where core = Core
+instance MsgWithCore Msg where core = Core
 
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
 update (Play move) = playA move
-update (ToggleCard i) = (_position ∘ ix i) %= reverseCard
-update (SetMode mode) = newGame $ set _mode mode
+update (ToggleCard i) = _position ∘ ix i %= reverseCard
+update (SetMode mode) = newGame $ _mode .~ mode
 update Shuffle = randomly \st → do
     pos ← replicateA (length $ st^._position) randomCard
-    pure $ st # set _position pos 
+    pure $ st # _position .~ pos 
 update ToggleCustom = do
     state ← get
     if state^._phase == PrepPhase then
         _phase .= GamePhase
     else
-        newGame $ set _phase PrepPhase
+        newGame $ _phase .~ PrepPhase

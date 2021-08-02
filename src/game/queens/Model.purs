@@ -13,8 +13,8 @@ piecesList ∷ Array Piece
 piecesList = [Rook, Bishop, King, Knight, Queen]
 
 data Piece = Rook | Bishop | King | Knight | Queen | Custom | Empty
-derive instance eqPiece ∷ Eq Piece
-instance showPiece ∷ Show Piece where 
+derive instance Eq Piece
+instance Show Piece where 
     show Queen = "queen"
     show King = "king" 
     show Rook = "rook" 
@@ -116,7 +116,7 @@ toggleAllowedPiece piece false _ = N.singleton piece
 toggleAllowedPiece piece true pieces = N.fromArray pieces2 # fromMaybe pieces where
     pieces2 = piecesList # filter \p2 → (p2 == piece) ≠ elem p2 pieces
 
-instance queensGame ∷ Game Position Ext Int where 
+instance Game Position Ext Int where 
     name _ = "queens"
 
     play state index = 
@@ -140,7 +140,7 @@ instance queensGame ∷ Game Position Ext Int where
     saveToJson _ = Nothing
     loadFromJson st _ = st
 
-instance queensScoreGame ∷ ScoreGame (Array Piece) Ext Int where 
+instance ScoreGame (Array Piece) Ext Int where 
     objective _ = Maximize
     scoreFn = length ∘ filter (_ ≠ Empty) ∘ view _position
     scoreHash state = joinWith "-" [show (state^._nbRows), show (state^._nbColumns), show (N.head $ state^._allowedPieces)]
@@ -148,7 +148,7 @@ instance queensScoreGame ∷ ScoreGame (Array Piece) Ext Int where
 
 data Msg = Core CoreMsg | Play Int | SelectPiece Piece | SelectSquare (Maybe Int)
         | SelectAllowedPiece Piece | ToggleMultiPieces | FlipDirection Int | FlipLocalMove Int | Customize
-instance withcore ∷ MsgWithCore Msg where core = Core
+instance MsgWithCore Msg where core = Core
         
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg

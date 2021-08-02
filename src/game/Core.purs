@@ -16,10 +16,10 @@ import Lib.Update (Update, get, modify_, put, delay, randomEval, randomly, stora
 data Dialog a = Rules | NoDialog | ConfirmNewGameDialog a | ScoreDialog | CustomDialog
 
 data Mode = SoloMode | RandomMode | ExpertMode | DuelMode
-derive instance eqMode ∷ Eq Mode
+derive instance Eq Mode
 
 data Turn = Turn1 | Turn2
-derive instance eqTurn ∷ Eq Turn
+derive instance Eq Turn
 
 type PointerPosition = {x ∷ Number, y ∷ Number}
 
@@ -356,9 +356,9 @@ computerMove' state
                 Nothing → R.element' moves
 
 data Objective = Minimize | Maximize
-derive instance eqObjective ∷ Eq Objective 
+derive instance Eq Objective 
 data ShowWinPolicy = AlwaysShowWin | NeverShowWin | ShowWinOnNewRecord
-derive instance eqSws ∷ Eq ShowWinPolicy
+derive instance Eq ShowWinPolicy
 
 -- | classe pour les jeux consistant à minimiser ou maximiser un score
 -- | permet d'indiquer le score de la partie en cours et de sauvegarder les meilleurs scores 

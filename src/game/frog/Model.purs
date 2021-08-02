@@ -65,7 +65,7 @@ winningPositions size moves = t <#> force where
 reachableArray ∷ State → Array Boolean
 reachableArray state = repeat (state^._nbRows + 1) (canPlay state)
 
-instance game ∷ Game Int ExtState Int where
+instance Game Int ExtState Int where
     name _ = "frog"
     play state v = if canPlay state v then Just v else Nothing
     initialPosition state = pure $ state^._nbRows
@@ -81,12 +81,12 @@ instance game ∷ Game Int ExtState Int where
     saveToJson _ = Nothing
     loadFromJson st _ = st
 
-instance game2 ∷ TwoPlayersGame Int ExtState Int where
+instance TwoPlayersGame Int ExtState Int where
     possibleMoves state = filter (canPlay state) (0 .. (state^._nbRows))
     isLosingPosition state = fromMaybe true $ state^._winning !! (state^._position)
 
 data Msg = Core CoreMsg | SelectMove Int | Mark Int | Play Int | Konami String
-instance withcore ∷ MsgWithCore Msg where core = Core
+instance MsgWithCore Msg where core = Core
 
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
@@ -98,9 +98,9 @@ update (SelectMove move) = newGame $ over _moves selectMove where
         # N.fromArray
         # fromMaybe moves
 -- place/retire une marque à la position i
-update (Mark i) = (_marked ∘ ix i) %= not
+update (Mark i) = _marked ∘ ix i %= not
 update (Play i) = playA i
-update (Konami s) = s # konamiCode _keySequence (modify_ \st → st # set _marked (st^._winning))
+update (Konami s) = s # konamiCode _keySequence (modify_ \st → st # _marked .~ st^._winning)
 
 onKeyDown ∷ String → Maybe Msg
 onKeyDown = Just ∘ Konami 

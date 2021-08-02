@@ -11,8 +11,8 @@ import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg,
 type Zone = { row1 ∷ Int, row2 ∷ Int, col1 ∷ Int, col2 ∷ Int}
 
 data Mode = StandardMode | CylinderMode | TorusMode
-derive instance eqMode ∷ Eq Mode
-instance showMode ∷ Show Mode where
+derive instance Eq Mode
+instance Show Mode where
     show StandardMode = "standard"
     show CylinderMode = "cylinder"
     show TorusMode    = "torus"
@@ -31,8 +31,8 @@ beastTypes ∷ Array Beast'
 beastTypes = [[type1], [type2], [type3], [type2, type3]]
 
 data BeastType = Type1 | Type2 | Type3 | Type4 | CustomBeast
-derive instance eqBt ∷ Eq BeastType
-instance showBt ∷ Show BeastType where
+derive instance Eq BeastType
+instance Show BeastType where
     show Type1       = "type1"
     show Type2       = "type2"
     show Type3       = "type3"
@@ -156,7 +156,7 @@ colorZone state zone = state^._squareColors # updateAtIndices (
     zoneposition (state^._nbColumns) zone <#> \i → i ∧ (state^._selectedColor)
 )
 
-instance game ∷ Game (Array Boolean) ExtState Int where
+instance Game (Array Boolean) ExtState Int where
     name _ = "labete"
     play state index = state^._position # modifyAt index not
     isLevelFinished = null ∘ nonTrappedBeasts
@@ -175,7 +175,7 @@ instance game ∷ Game (Array Boolean) ExtState Int where
     computerMove _ = pure Nothing
     onPositionChange = identity
 
-instance scoregameLabete ∷ ScoreGame (Array Boolean) ExtState Int where
+instance ScoreGame (Array Boolean) ExtState Int where
     objective _ = Minimize
     scoreFn = length ∘ filter identity ∘ view _position
     scoreHash state = joinWith "-"
@@ -189,7 +189,7 @@ instance scoregameLabete ∷ ScoreGame (Array Boolean) ExtState Int where
 
 data Msg = Core CoreMsg | SetMode Mode | SetHelp Boolean | SetBeast BeastType | Play Int | IncSelectedColor Int
          | StartZone Int | StartZone2 { x ∷ Number, y ∷ Number} | FinishZone Int | FlipCustomBeast Int
-instance withcore ∷ MsgWithCore Msg where core = Core
+instance MsgWithCore Msg where core = Core
 
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg

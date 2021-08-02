@@ -4,11 +4,12 @@ import MyPrelude
 
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
-import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg, _ext, coreUpdate, playA, isLevelFinished, saveToStorage, _position, _nbColumns, _nbRows, _customSize, newGame, genState)
+import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg, _ext, coreUpdate, playA, isLevelFinished, saveToStorage,
+                  _position, _nbColumns, _nbRows, _customSize, newGame, genState)
 import Lib.KonamiCode (konamiCode)
 import Lib.Random (Random)
 import Lib.Random as R
-import Lib.Update (Update, get, modify_)
+import Lib.Update (Update, get)
 import Lib.Util (dCoords)
 
 -- une position est composée de 2 tableaux light et played
@@ -78,12 +79,12 @@ genRandomBoard state = do
     (replicateA nbMoves (R.int' size) ∷ Random (Array Int)) <#>
         foldr (toggleCell state) (replicate size false)
 
-instance game ∷ Game Position ExtState Int where
+instance Game Position ExtState Int where
     name _ = "noirblanc"
 
     play state index = Just $ state^._position 
-                        # over _light (toggleCell state index)
-                        # over (_played ∘ ix index) not
+                        # _light %~ (toggleCell state index)
+                        # _played ∘ ix index %~ not
 
     initialPosition state = do
         let size = state^._nbRows * state^._nbColumns
@@ -96,13 +97,13 @@ instance game ∷ Game Position ExtState Int where
         let rows ∧ columns = fromMaybe (8∧8) (sizes !! (state^._level)) in
         pure $
             if state^._level < 5 then
-                state # set _customSize false
-                      # set _nbRows rows 
-                      # set _nbColumns columns
+                state # _customSize .~ false
+                      # _nbRows .~ rows 
+                      # _nbColumns .~ columns
             else if not (state^._customSize) then 
-                state # set _customSize true
-                      # set _nbRows 8
-                      # set _nbColumns 8
+                state # _customSize .~ true
+                      # _nbRows .~ 8
+                      # _nbColumns .~ 8
             else
                 state
 
@@ -112,7 +113,7 @@ instance game ∷ Game Position ExtState Int where
     loadFromJson st json =
         case decodeJson json of
             Left _ → st
-            Right maxLevels → st # set _maxLevels maxLevels 
+            Right maxLevels → st # _maxLevels .~ maxLevels 
 
     -- méthodes par default
     computerMove _ = pure Nothing
@@ -133,19 +134,19 @@ afterPlay = do
                         6
                     else
                         state^._level + (if mode == 0 || mode == 3 then 1 else 2)
-        modify_ $ set (_maxLevels ∘ ix mode) nextLevel
+        _maxLevels ∘ ix mode .= nextLevel
         saveToStorage
         newGame $ over _level \n → min (n + 1) 6
 
 data Msg = Core CoreMsg | SelectMode Int | SelectLevel Int | Play Int | Konami String
-instance withcore ∷ MsgWithCore Msg where core = Core
+instance MsgWithCore Msg where core = Core
 
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
 update (SelectMode mode) = newGame $ set _mode mode ∘ set _level 0
 update (SelectLevel level) = newGame $ set _level level
 update (Play move) = playA move *> afterPlay
-update (Konami k) = konamiCode _keySequence (modify_ $ set _maxLevels [6, 6, 6, 6]) k
+update (Konami k) = konamiCode _keySequence (_maxLevels .= [6, 6, 6, 6]) k
 
 onKeyDown ∷ String → Maybe Msg
 onKeyDown = Just ∘ Konami

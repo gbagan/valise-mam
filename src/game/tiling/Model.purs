@@ -12,8 +12,8 @@ type Coord = {row ∷ Int, col ∷ Int}
 type Tile = Array Coord
 
 data TileType = Type1 | Type2 | Type3 | CustomTile
-derive instance eqTileType ∷ Eq TileType
-instance showTileType ∷ Show TileType where
+derive instance Eq TileType
+instance Show TileType where
     show Type1 = "beast1"
     show Type2 = "beast2"
     show Type3 = "beast3"
@@ -107,7 +107,7 @@ inConflict state = case state^._hoverSquare of
 needSinks ∷ State → Boolean
 needSinks state = length (sinks state) < state^._nbSinks
 
-instance tilingGame ∷ Game (Array Int) ExtState Int where
+instance Game (Array Int) ExtState Int where
     name _ = "tiling"
 
     play state index =
@@ -145,7 +145,7 @@ instance tilingGame ∷ Game (Array Int) ExtState Int where
   
 data Msg = Core CoreMsg | Play Int | PutSink Int | SetNbSinks Int | SetTile TileType | Rotate
            | SetHoverSquare (Maybe Int) | FlipTile Int
-instance withcore ∷ MsgWithCore Msg where core = Core
+instance MsgWithCore Msg where core = Core
       
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg  

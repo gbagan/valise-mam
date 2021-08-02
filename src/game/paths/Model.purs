@@ -9,7 +9,7 @@ import Game.Core (GState, class Game, class MsgWithCore, CoreMsg, SizeLimit(..),
 import Lib.Update (Update, get)
 
 data Mode = Mode1 | Mode2
-derive instance eqMode ∷ Eq Mode
+derive instance Eq Mode
 
 -- | une position représente le chemin que l'on a effectué avec le héros
 -- | c'est à dire la liste des positions des cases
@@ -59,7 +59,7 @@ isValidPath state path = fromMaybe true $ do
            || length path == (state^._nbRows) * (state^._nbColumns) + (if begin == exit then 1 else 0) && end == exit
             )
 
-instance game ∷ Game Position Ext Int where
+instance Game Position Ext Int where
     name _ = "paths"
 
     play state v =
@@ -94,7 +94,7 @@ instance game ∷ Game Position Ext Int where
     loadFromJson st _ = st
 
 data Msg = Core CoreMsg | SelectVertex Int | SelectMode Mode
-instance withcore ∷ MsgWithCore Msg where core = Core
+instance MsgWithCore Msg where core = Core
     
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg

@@ -17,7 +17,6 @@ import Game.Frog.Model (State, Msg(..), _moves, _marked, reachableArray)
 type Cartesian = { x ∷ Number, y ∷ Number}
 type Polar = { radius ∷ Number, theta ∷ Number }
 
-
 rotate ∷ Number → String
 rotate theta = "rotate(" <> show (theta * 180.0 / pi) <> "deg)"
 

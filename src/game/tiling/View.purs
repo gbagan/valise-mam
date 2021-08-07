@@ -78,7 +78,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
     grid =
         H.div (gridStyle rows columns 5 <> trackPointer <> [
             H.class_ "ui-board",
-            E.onContextMenu Rotate
+            E.onContextMenu \_ -> Rotate  -- todo prevEff
         ]) [
             H.svg [P.viewBox 0 0 (50 * columns) (50 * rows)] $ concat
             [   position # mapWithIndex \index pos →
@@ -90,9 +90,9 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                     ,   row
                     ,   col
                     }
-                    [   E.onClick $ if needSinks state then PutSink index else Play index
-                    ,   E.onPointerEnter $ SetHoverSquare (Just index)
-                    ,   E.onPointerLeave $ SetHoverSquare Nothing
+                    [   E.onClick \_ -> if needSinks state then PutSink index else Play index
+                    ,   E.onPointerEnter \_ -> SetHoverSquare (Just index)
+                    ,   E.onPointerLeave \_ -> SetHoverSquare Nothing
                     ]
             ,   position # mapWithIndex \index pos →
                     let {row, col} = coords columns index in
@@ -119,7 +119,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                     tile ^. _isoCustom # mapWithIndex \index hasBlock →
                         let {row, col} = coords 5 index
                         in square {hasBlock, row, col, hasSink: false, isDark: false}
-                            [E.onClick $ FlipTile index]
+                            [E.onClick \_ -> FlipTile index]
                 )
             ]
         ]

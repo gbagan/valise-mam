@@ -1,12 +1,15 @@
 module Game.Eternal.Model where
 
 import MyPrelude
-import Game.Core (class Game, class MsgWithCore, CoreMsg, GState, SizeLimit(..), Mode(..),
-                    playA, coreUpdate, _ext, genState, newGame, isLevelFinished,
-                    _position, _mode, _nbRows, _nbColumns)
+
+import Effect.Class (liftEffect)
+import Game.Common (releasePointerCapture)
+import Game.Core (class Game, class MsgWithCore, CoreMsg, GState, SizeLimit(..), Mode(..), playA, coreUpdate, _ext, genState, newGame, isLevelFinished, _position, _mode, _nbRows, _nbColumns)
 import Lib.Random as R
-import Lib.Util (repeat2)
 import Lib.Update (Update, get, modify_)
+import Lib.Util (repeat2)
+import Web.Event.Event (stopPropagation)
+import Web.UIEvent.MouseEvent (MouseEvent, toEvent)
 
 -- type d'arête d'un graphe
 data Edge = Edge Int Int
@@ -311,9 +314,18 @@ dragGuard to st =
             st # over _nextmove (addToNextMove (st^._graph).edges from to2 (st^._position).guards)
                # set _draggedGuard Nothing
 
-data Msg = Core CoreMsg | SetGraphKind GraphKind | SetRules Rules 
-            | DragGuard Int | DropGuard Int | LeaveGuard | DropOnBoard
-            | StartGame | MoveGuards | ToggleGuard Int | Play Int
+data Msg = Core CoreMsg 
+        | SetGraphKind GraphKind
+        | SetRules Rules 
+        | DragGuard Int MouseEvent
+        | DropGuard Int MouseEvent
+        | LeaveGuard
+        | DropOnBoard
+        | StartGame
+        | MoveGuards
+        | ToggleGuard Int
+        | Play Int
+        | NoAction
 instance MsgWithCore Msg where core = Core
     
 update ∷ Msg → Update State Unit
@@ -331,11 +343,14 @@ update MoveGuards = do
     st ← get
     playA $ Defense (st ^. _nextmove)
 update (ToggleGuard _) = pure unit
-update (DragGuard x) = _draggedGuard .= Just x
-update (DropGuard to) = modify_ $ dragGuard (Just to)
+update (DragGuard x ev) = do
+    liftEffect $ releasePointerCapture ev
+    _draggedGuard .= Just x
+update (DropGuard to ev) = do
+    liftEffect $ stopPropagation $ toEvent ev
+    modify_ $ dragGuard (Just to)
 update LeaveGuard = _draggedGuard .= Nothing
 update DropOnBoard = modify_ $ dragGuard Nothing
-
 update (Play x) = do
     st ← get
     let guards = (st^._position).guards
@@ -343,3 +358,4 @@ update (Play x) = do
         PrepPhase ∧ _ → modify_ $ over (_position ∘ _guards) (toggleGuard x)
         GamePhase ∧ Just attacked → playA $ Defense (addToNextMove (st^._graph).edges x attacked guards guards)
         GamePhase ∧ Nothing → playA (Attack x)
+update NoAction = pure unit

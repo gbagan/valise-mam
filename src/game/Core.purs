@@ -3,14 +3,19 @@ module Game.Core where
 import MyPrelude
 
 import Data.Argonaut.Core (Json, stringify)
-import Data.Argonaut.Parser (jsonParser)
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
+import Data.Argonaut.Parser (jsonParser)
 import Data.List as List
 import Data.Map as Map
+import Effect.Class (liftEffect)
 import Lib.Random (Random)
 import Lib.Random as R
 import Lib.Update (Update, get, modify_, put, delay, randomEval, randomly, storageGet, storagePut)
+import Web.Event.Event (stopPropagation)
+import Web.UIEvent.MouseEvent (MouseEvent)
+import Web.UIEvent.MouseEvent as ME
+import Game.Common (releasePointerCapture, pointerDecoder)
 
 -- ConfirmNewGame contient le futur état d'une nouvelle partie
 data Dialog a = Rules | NoDialog | ConfirmNewGameDialog a | ScoreDialog | CustomDialog
@@ -170,7 +175,8 @@ data CoreMsg =
     | SetRulesDialog
     | SetScoreDialog
     | ConfirmNewGame
-    | SetPointer (Maybe { x ∷ Number, y ∷ Number })
+    | SetPointer MouseEvent
+    | SetPointerToNothing
     | ComputerStarts
     | Init
 
@@ -222,7 +228,10 @@ coreUpdate ConfirmNewGame = modify_ \state →
                         case state^._dialog of
                             ConfirmNewGameDialog st → st
                             _ → state
-coreUpdate (SetPointer pos) = modify_ $ set _pointer pos
+coreUpdate (SetPointer ev) = do
+    pos <- liftEffect $ pointerDecoder ev
+    when (isJust pos) (_pointer .= pos)
+coreUpdate SetPointerToNothing = _pointer .= Nothing
 coreUpdate ComputerStarts = do
     modify_ $ pushToHistory >>> over _turn oppositeTurn
     computerPlay
@@ -404,15 +413,24 @@ updateScore' strat state =
 bestScore ∷ ∀pos ext mov. ScoreGame pos ext mov ⇒ GState pos ext → Maybe (Tuple Int pos)
 bestScore state = state ^. _scores ∘ at (scoreHash' state)
 
-data DndMsg i = Drag i | Drop i | Leave | DropOnBoard
+data DndMsg i =
+      Drag Boolean i MouseEvent
+    | Drop Boolean i MouseEvent
+    | Leave
+    | DropOnBoard
 
 class MsgWithDnd msg i | msg → i where
     dndmsg ∷ DndMsg i → msg
 
 dndUpdate ∷ ∀pos ext i. Eq i ⇒ Game pos ext {from ∷ i, to ∷ i} ⇒ 
     Lens' (GState pos ext) (Maybe i) → DndMsg i → Update (GState pos ext) Unit
-dndUpdate _dragged (Drag i) = _dragged .= Just i
-dndUpdate _dragged (Drop i) = dropA _dragged i
+dndUpdate _dragged (Drag draggable i ev) = do
+    liftEffect $ releasePointerCapture ev
+    when draggable (_dragged .= Just i)
+dndUpdate _dragged (Drop candrop i ev) =
+    when candrop do
+        liftEffect $ stopPropagation $ ME.toEvent ev
+        dropA _dragged i
 dndUpdate _dragged Leave = _dragged .= Nothing
 dndUpdate _dragged DropOnBoard = _dragged .= Nothing
 

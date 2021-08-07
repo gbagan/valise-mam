@@ -1,7 +1,12 @@
 module Game.Valise.Model where
+
 import MyPrelude
-import Lib.Update (Update, put, modify_, delay)
+
 import Data.Map as Map
+import Effect.Class (liftEffect)
+import Game.Common (pointerDecoder)
+import Lib.Update (Update, get, put, modify_, delay)
+import Web.UIEvent.MouseEvent (MouseEvent)
 
 type State = 
     {   isOpen ∷ Boolean
@@ -41,15 +46,22 @@ enterA = do
     delay (Milliseconds 1500.0)
     modify_ _{isOpen = true}
 
-data Msg = ShowHelp String | ToggleSwitch | SetDrag (Maybe { name ∷ String, x ∷ Number, y ∷ Number })
-          | MoveObject {x ∷ Number, y ∷ Number}
+data Msg = ShowHelp String
+        | ToggleSwitch
+        | SetDrag (Maybe { name ∷ String, x ∷ Number, y ∷ Number })
+        | MoveObject MouseEvent
+        | NoAction
 
 update ∷ Msg → Update State Unit
 update (ShowHelp help) = modify_ $ over _help (if help == "" then identity else const help)
                                 >>> set _helpVisible (help ≠ "")
 update ToggleSwitch = _isSwitchOn %= not
 update (SetDrag d) = _drag .= d
-update (MoveObject {x, y}) = modify_ \state →
-    case state.drag of
-        Just {name, x: x2, y: y2} → state # set (_positions ∘ at name) (Just {x: x-x2, y: y-y2}) 
-        _ → state
+update (MoveObject ev) = do
+    pos <- liftEffect $ pointerDecoder ev
+    st <- get
+    case pos /\ st.drag of
+        Just {x, y} /\ Just {name, x: x2, y: y2} →
+            _positions ∘ at name .= Just {x: x-x2, y: y-y2} 
+        _ → pure unit
+update NoAction = pure unit

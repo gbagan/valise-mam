@@ -157,8 +157,10 @@ update (SelectPiece piece) = _selectedPiece .= piece
 update (SelectSquare a) = _selectedSquare .= a
 update (SelectAllowedPiece piece) = newGame $ \state → state # over _allowedPieces (toggleAllowedPiece piece (state^._multiPieces))
 update ToggleMultiPieces = _multiPieces %= not
-update (FlipDirection direction) = newGame $ over (_customDirections ∘ ix direction) not
-update (FlipLocalMove position) = newGame $ over (_customLocalMoves ∘ ix position) not
+update (FlipDirection direction) | direction == 4 = newGame $ over (_customDirections ∘ ix direction) not
+                                 | otherwise = pure unit
+update (FlipLocalMove position) | position == 12 = newGame $ over (_customLocalMoves ∘ ix position) not
+                                | otherwise = pure unit
 update Customize = newGame $ 
                         set _allowedPieces (N.singleton Custom)
                         ∘ set _dialog CustomDialog

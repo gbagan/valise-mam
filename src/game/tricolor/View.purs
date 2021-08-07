@@ -26,7 +26,7 @@ irandom ∷ State → Html Msg
 irandom state =
     iconbutton
         state {icon: IconSymbol "#shuffle", tooltip: Just "Mélanger", selected: state^._shuffle}
-        [   E.onClick Shuffle
+        [   E.onClick \_ -> Shuffle
         ]
 
 view ∷ State → Html Msg
@@ -54,9 +54,9 @@ view state = template {config, board, rules} state where
         ,   P.stroke $ if (inRange state i <$> hoverCell) == Just true then "lightgreen" else "black"
         ,   P.fill $ if levelFinished then "" else colors !! color # fromMaybe ""
         ,   P.transform (translateCell i size)
-        ,   E.onClick $ Play i
-        ,   E.onPointerEnter $ SetHoverCell (Just i)
-        ,   E.onPointerLeave $ SetHoverCell Nothing
+        ,   E.onClick \_ -> Play i
+        ,   E.onPointerEnter \_ -> SetHoverCell (Just i)
+        ,   E.onPointerLeave \_ -> SetHoverCell Nothing
         ]
 
     drawColorCycle =

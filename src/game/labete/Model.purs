@@ -1,12 +1,14 @@
 module Game.Labete.Model where
+
 import MyPrelude
-import Lib.Util (coords, repeat2)
+
+import Effect.Class (liftEffect)
+import Game.Common (pointerDecoder, _isoCustom)
+import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, SizeLimit(..), GState, Objective(..), ShowWinPolicy(..), PointerPosition, Dialog(..), playA, coreUpdate, _ext, genState, newGame, _position, _nbRows, _nbColumns, _help, _dialog, updateScore', saveToJson', loadFromJson')
 import Lib.Update (Update, modify_)
-import Game.Common (_isoCustom)
-import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, 
-                 SizeLimit(..), GState, Objective(..), ShowWinPolicy(..), PointerPosition, Dialog(..),
-               playA, coreUpdate,  _ext, genState, newGame, _position, _nbRows, _nbColumns, _help, _dialog,
-               updateScore', saveToJson', loadFromJson')
+import Lib.Util (coords, repeat2)
+import Web.UIEvent.MouseEvent (MouseEvent)
+import Web.UIEvent.MouseEvent as ME
 
 type Zone = { row1 ∷ Int, row2 ∷ Int, col1 ∷ Int, col2 ∷ Int}
 
@@ -187,8 +189,18 @@ instance ScoreGame (Array Boolean) ExtState Int where
     isCustomGame state = state^._beastType == CustomBeast
           
 
-data Msg = Core CoreMsg | SetMode Mode | SetHelp Boolean | SetBeast BeastType | Play Int | IncSelectedColor Int
-         | StartZone Int | StartZone2 { x ∷ Number, y ∷ Number} | FinishZone Int | FlipCustomBeast Int
+data Msg = 
+      Core CoreMsg 
+    | SetMode Mode 
+    | SetHelp Boolean
+    | SetBeast BeastType
+    | Play Int
+    | IncSelectedColor Int
+    | StartZone Int 
+    | StartZone2 MouseEvent
+    | FinishZone Int
+    | FlipCustomBeast Int
+    | NoAction
 instance MsgWithCore Msg where core = Core
 
 update ∷ Msg → Update State Unit
@@ -206,7 +218,15 @@ update (IncSelectedColor i) = _selectedColor %= \x → (x + i) `mod` 9
 -- startZoneA est activé lors  du onpointerdown sur l'élément html réprésentant le carré
 update (StartZone s) = _startSquare .= Just s
 -- startZone2A est appliqué lors du onpointerdown sur l'élément html réprésentant le plateu
-update (StartZone2 pos) = _startPointer .= Just pos
+update (StartZone2 ev) =
+    if ME.shiftKey ev then do
+        p <- liftEffect $ pointerDecoder ev
+        case p of
+            Just pos -> _startPointer .= Just pos
+            Nothing -> pure unit
+    else
+        pure unit
+
 update (FinishZone index1) = modify_ \state → case state^._startSquare of
     Nothing → state
     Just index2 →
@@ -216,7 +236,8 @@ update (FinishZone index1) = modify_ \state → case state^._startSquare of
                  # set _startSquare Nothing
                  # set _startPointer Nothing
 update (FlipCustomBeast i) = newGame $ over (_beast ∘ ix 0 ∘ _isoCustom ∘ ix i) not
-update (Play m) = playA m
+update (Play index) = playA index
+update NoAction = pure unit
 
 onKeyDown ∷ String → Maybe Msg
 onKeyDown "o" = Just (IncSelectedColor (-1))

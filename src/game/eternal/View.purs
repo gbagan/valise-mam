@@ -3,7 +3,6 @@ module Game.Eternal.View (view) where
 import MyPrelude
 
 import Math (acos)
-import Game.Common (pointerDecoder)
 import Game.Core (CoreMsg(SetPointer), isLevelFinished, PointerPosition, core, _position, _pointer)
 import Game.Eternal.Model (State, Msg(..), Graph, Phase(..), Rules(..), GraphKind(..), Pos, Edge, (↔), isValidNextMove,
                             _graph, _phase, _graphkind, _draggedGuard, _rules, _nextmove)
@@ -43,12 +42,11 @@ cursor pp _ = H.use $
 -- todo: refactoriser
 dndBoardProps ∷ Array (H.Prop Msg)
 dndBoardProps =
-    [   E.on "pointerdown" move
-    ,   E.on "pointermove" move
-    ,   E.onPointerUp DropOnBoard
-    ,   E.onPointerLeave LeaveGuard
-    ] where
-        move e = map (core ∘ SetPointer ∘ Just) <$> pointerDecoder e
+    [   E.onPointerDown $ core <<< SetPointer
+    ,   E.onPointerMove $ core <<< SetPointer
+    ,   E.onPointerUp \_ -> DropOnBoard
+    ,   E.onPointerLeave \_ -> LeaveGuard
+    ]
 
 dndItemProps ∷ State → 
     {
@@ -61,8 +59,8 @@ dndItemProps _ {draggable, droppable, id, currentDragged} =
     [   H.class' "draggable" draggable
     ,   H.class' "dragged" dragged
     ,   H.class' "candrop" candrop
-    ,   E.releasePointerCaptureOn "pointerdown" $ \_ → pure (if draggable then Just (DragGuard id) else Nothing)
-    ,   E.stopPropagationOn "pointerup" $ E.always (if candrop then Just (DropGuard id) ∧ true else Nothing ∧ false)
+    ,   E.onPointerDown \ev → if draggable then DragGuard id ev else NoAction
+    ,   E.onPointerUp \ev → if candrop then DropGuard id ev else NoAction
     ] where
         candrop = droppable && isJust currentDragged
         dragged = draggable && Just id == currentDragged
@@ -184,7 +182,7 @@ view state = template {config, board, rules, winTitle} state where
                             ,   P.y (-5.0)
                             ,   P.fill "transparent"
                             ,   H.style "transform" $ translateGuard pos
-                            ,   E.onClick' $ if grules == ManyGuards && isJust position.attacked then Nothing else Just (Play i)
+                            ,   E.onClick \_ -> if grules == ManyGuards && isJust position.attacked then NoAction else Play i
                             ,   H.class' "eternal-sel" $ phase == PrepPhase || isJust position.attacked && (grules == ManyGuards) == elem i guards 
                                                                           || not (isJust position.attacked) && not (elem i guards)
                             ]  <> (dndItemProps state
@@ -210,7 +208,7 @@ view state = template {config, board, rules, winTitle} state where
             ,   H.button
                 [   H.class_ "ui-button ui-button-primary dessin-raise"
                 ,   P.disabled $ null position.guards || state^._phase == GamePhase && (state^._rules == OneGuard || isNothing position.attacked || not (isValidNextMove state (state^._nextmove)))
-                ,   E.onClick (if state^._phase == GamePhase then MoveGuards else StartGame)
+                ,   E.onClick \_ -> if state^._phase == GamePhase then MoveGuards else StartGame
                 ]
                 [   H.text "Valider"]
             ]

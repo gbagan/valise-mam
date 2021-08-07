@@ -1,5 +1,5 @@
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.14.0/packages.dhall sha256:710b53c085a18aa1263474659daa0ae15b7a4f453158c4f60ab448a6b3ed494e
+      https://github.com/purescript/package-sets/releases/download/psc-0.14.3-20210722/packages.dhall sha256:1ceb43aa59436bf5601bac45f6f3781c4e1f0e4c2b8458105b018e5ed8c30f8c
 
 let overrides = {=}
 
@@ -8,7 +8,7 @@ let additions =
         { dependencies =
           [ "aff", "effect", "free", "web-uievents", "unsafe-reference" ]
         , repo = "https://github.com/gbagan/purescript-pha.git"
-        , version = "v0.8.1"
+        , version = "master"
         }
       }
 

@@ -8,6 +8,7 @@ import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
+import Web.Event.Event (preventDefault)
 
 data Icon = IconText String | IconSymbol String | IconNone
 
@@ -44,7 +45,7 @@ iconbutton opts props =
         ,   H.class' "large" large
         ,   H.class' "hidden" hidden
         ,   P.disabled d
-        ,   E.preventDefaultOn "contextmenu" $ E.always (Nothing ∧ true)
+        ,   E.on "contextmenu" \ev -> preventDefault ev *> pure Nothing
     ] <> props) $ [
         case icon of
             IconSymbol symbol → H.svg ((uncurry H.style <$> st) <> [P.width "100%", P.height "100%"]) [

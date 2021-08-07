@@ -192,20 +192,20 @@ view ∷ RootState → Html Msg
 view st =
     K.div []
     [   st.location /\ 
-    H.div
-        [   H.class_ "main-main-container"
-        ,   H.class_ (if st.location == "" then "valise" else "game")
-        ]
-        [   H.when (st.location ≠ "") \_ →
-            H.a
-            [   H.class_ "main-minivalise-link"
-            ,   P.href "#"
+        H.div
+            [   H.class_ "main-main-container"
+            ,   H.class_ (if st.location == "" then "valise" else "game")
             ]
-            [   H.svg [P.width "100%", P.height "100%"]
-                [   H.use [P.href "#valise"]]
+            [   H.when (st.location ≠ "") \_ →
+                H.a
+                [   H.class_ "main-minivalise-link"
+                ,   P.href "#"
+                ]
+                [   H.svg [P.width "100%", P.height "100%"]
+                    [   H.use [P.href "#valise"]]
+                ]
+            ,       viewGame st
             ]
-        ,   viewGame st
-        ]
     ]
 
 viewGame ∷ RootState → Html Msg

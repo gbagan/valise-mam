@@ -29,7 +29,7 @@ incDecGrid {locked, nbRows, nbColumns, customSize, showRowButtons, showColButton
                     ,   disabled: locked
                     ,   hidden: not customSize
                     }
-                    [E.onClick $ resize (nbRows + 1) nbColumns]
+                    [E.onClick $ \_ → resize (nbRows + 1) nbColumns]
                 ,   H.div [H.class_ "ui-incdecgrid-text"] [ H.span [] [ H.text $ show nbRows ] ]
                 ,   iconbutton
                     {   round: true
@@ -37,7 +37,7 @@ incDecGrid {locked, nbRows, nbColumns, customSize, showRowButtons, showColButton
                     ,   disabled: locked
                     ,   hidden: not customSize
                     }
-                    [E.onClick $ resize (nbRows - 1) nbColumns]
+                    [E.onClick $ \_ → resize (nbRows - 1) nbColumns]
                 ]
         ]
     ,   H.when showColButtons \_ →
@@ -48,13 +48,13 @@ incDecGrid {locked, nbRows, nbColumns, customSize, showRowButtons, showColButton
                 ,   disabled: locked
                 ,   hidden: not customSize
                 }
-                [E.onClick $ resize nbRows (nbColumns - 1)]
+                [E.onClick $ \_ → resize nbRows (nbColumns - 1)]
             ,   H.div [H.class_ "ui-incdecgrid-text"] [ H.span [] [ H.text $ show nbColumns ] ]
             ,   iconbutton
                 {   round: true
                 ,   icon: IconSymbol "#plus"
                 ,   disabled: locked, hidden: not customSize
                 }
-                [E.onClick $ resize nbRows (nbColumns + 1)]
+                [E.onClick $ \_ → resize nbRows (nbColumns + 1)]
             ]
     ]

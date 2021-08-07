@@ -66,13 +66,13 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
                 ,   selected: N.head allowedPieces == Custom
                 ,   tooltip: Just "Crée ta propre propre pièce"
                 }
-                [E.onClick Customize]
+                [E.onClick \_ -> Customize]
             ,   iconbutton state
                 {   icon: IconSymbol "#piece-mix"
                 ,   selected: multiPieces
                 ,   tooltip: Just "Mode mixte"
                 } [
-                    E.onClick ToggleMultiPieces
+                    E.onClick \_ -> ToggleMultiPieces
                 ]
             ] <> [ihelp state, ireset state, irules state]
         ,   iconBestScore state
@@ -86,7 +86,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
                 {   selected: piece == selectedPiece
                 ,   icon: IconSymbol $ "#piece-" <> name
                 } 
-                [   E.onClick $ SelectPiece piece
+                [   E.onClick \_ -> SelectPiece piece
                 ]
 
     cursor pp =
@@ -107,9 +107,9 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
                 }
                 [   H.style "width" $ pc (1.0 / toNumber columns)
                 ,   H.style "height" $ pc (1.0 / toNumber rows)
-                ,   E.onClick $ Play index
-                ,   E.onPointerEnter $ SelectSquare (Just index)
-                ,   E.onPointerLeave $ SelectSquare Nothing
+                ,   E.onClick \_ -> Play index
+                ,   E.onPointerEnter \_ -> SelectSquare (Just index)
+                ,   E.onPointerLeave \_ -> SelectSquare Nothing
                 ]
         ,   [H.maybe pointer cursor]
         ]
@@ -135,7 +135,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
                         } 
                         [   H.style "width" "20%"
                         ,   H.style "height" "20%"
-                        ,   E.onClick' if index ≠ 12 then Just (FlipLocalMove index) else Nothing
+                        ,   E.onClick \_ -> FlipLocalMove index
                         ]
                 )
             ,   H.div [H.class_ "flex  queens-custompiece-directions"] (
@@ -145,7 +145,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
                         ,       icon: if i == 4 then IconNone else IconSymbol "#arrow"
                         ,   style: ["transform" ∧ ("rotate(" <> show angle <> "deg)")]
                         }
-                        [   E.onClick' $ if i ≠ 4 then Just (FlipDirection i) else Nothing
+                        [   E.onClick \_ -> FlipDirection i
                         ]
             )
         ]

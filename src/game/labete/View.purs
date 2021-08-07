@@ -1,6 +1,7 @@
 module Game.Labete.View (view) where
 
 import MyPrelude
+import Web.UIEvent.MouseEvent as ME
 import Lib.Util (coords, map3)
 import Pha.Html (Html)
 import Pha.Html as H
@@ -8,9 +9,8 @@ import Pha.Html.Keyed as K
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc, translate)
-import Web.UIEvent.MouseEvent as ME
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, scoreFn)
-import Game.Common (pointerDecoder, _isoCustom)
+import Game.Common (_isoCustom)
 import Game.Labete.Model (State, Msg(..), Mode(..), BeastType(..), nonTrappedBeastOnGrid,
                           _mode, _beast, _beastType, _selectedColor, _startPointer, _squareColors)
 import UI.Template (template, card, dialog, bestScoreDialog, incDecGrid, gridStyle, trackPointer, svgCursorStyle)
@@ -45,9 +45,9 @@ ihelp ∷ State → Html Msg
 ihelp state =
     iconbutton
         state {icon: IconSymbol "#help", tooltip: Just "Aide", selected: state^._help}
-        [   E.onPointerDown $ SetHelp true
-        ,   E.onPointerUp $ SetHelp false
-        ,   E.onPointerLeave $ SetHelp false
+        [   E.onPointerDown \_ -> SetHelp true
+        ,   E.onPointerUp \_ -> SetHelp false
+        ,   E.onPointerLeave \_ -> SetHelp false
         ]
 
 view ∷ State → Html Msg
@@ -85,20 +85,17 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
     ])
 
     grid = H.div (gridStyle rows columns 5 <> trackPointer <> [H.class_ "ui-board",
-        E.onPointerDown_ $ \ev → if ME.shiftKey ev then
-                            map StartZone2 <$> pointerDecoder (ME.toEvent ev)
-                        else
-                            pure Nothing
+        E.onPointerDown StartZone2
     ]) [
         K.svg [P.viewBox 0 0 (50 * columns) (50 * rows)] (
             (map3 (state^._position) nonTrappedBeast  (state^._squareColors) \index hasTrap hasBeast color →
                 let {row, col} = coords columns index in
                 show index /\ square { color, row, col, hasTrap, hasBeast: hasBeast && state^._help }
-                [   E.onClick_ $ \ev → pure $ if ME.shiftKey ev then Nothing else Just (Play index)
+                [   E.onClick \ev -> if ME.shiftKey ev then NoAction else Play index
                     -- pointerenter: [actions.setSquareHover, index], todo
                     -- ponterleave: [actions.setSquareHover, null],
-                ,   E.onPointerUp $ FinishZone index
-                ,   E.onPointerDown_  $ \ev → pure $ if ME.shiftKey ev then Just (StartZone index) else Nothing
+                ,   E.onPointerUp \_ -> FinishZone index
+                ,   E.onPointerDown \ev -> if ME.shiftKey ev then StartZone index else NoAction
                 ]
             ) <> [
                 "c" /\ H.fromMaybe case state^._startPointer of
@@ -124,7 +121,7 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
                     mapWithIndex \index hasBeast →
                         let {row, col} = coords 5 index in
                         square {row, col, hasBeast, hasTrap: false, color: 0}
-                        [   E.onClick $ FlipCustomBeast index
+                        [   E.onClick \_ -> FlipCustomBeast index
                         ]
             )
         ]

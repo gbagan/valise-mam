@@ -9,7 +9,6 @@ import Game.Core (class Game, class ScoreGame, GState, Mode(..), Turn(..), SizeL
         isLevelFinished, sizeLimit, bestScore, canPlay,
         class MsgWithCore, core, CoreMsg(..), class MsgWithDnd, dndmsg, DndMsg(..)
         )
-import Game.Common (pointerDecoder)
 import Lib.Util (partialUpdate, class PartialRecord)
 import UI.Dialog (dialog) as D
 import UI.IncDecGrid (incDecGrid) as U
@@ -130,21 +129,19 @@ svgCursorStyle {x, y} = [
 -- | permet de mémoriser la position du pointeur
 trackPointer ∷ ∀msg. MsgWithCore msg ⇒ Array (Prop msg)
 trackPointer = [
-    E.on "pointermove" move,
-    E.onPointerLeave $ core (SetPointer Nothing),
-    E.on "pointerdown" move
-] where
-    move e = map (core ∘ SetPointer ∘ Just) <$> pointerDecoder e
+    E.onPointerMove $ core <<< SetPointer,
+    E.onPointerLeave \_ -> core SetPointerToNothing,
+    E.onPointerDown $ core <<< SetPointer
+]
 
 -- | même chose que trackPointer mais gère le drag and drop par l'intermédiaire d'un lens
 dndBoardProps ∷ ∀msg id. MsgWithCore msg ⇒ MsgWithDnd msg id ⇒ Array (Prop msg)
 dndBoardProps = [
-    E.on "pointerdown" move,
-    E.on "pointermove" move,
-    E.onPointerUp $ dndmsg DropOnBoard,
-    E.onPointerLeave $ dndmsg Leave
-] where
-    move e = map (core ∘ SetPointer ∘ Just) <$> pointerDecoder e
+    E.onPointerDown $ core <<< SetPointer,
+    E.onPointerMove $ core <<< SetPointer,
+    E.onPointerUp \_ -> dndmsg DropOnBoard,
+    E.onPointerLeave \_ -> dndmsg Leave
+]
 
 -- | gère le drag and drop pour une item en renvoyant une liste d'attributs
 dndItemProps ∷ ∀pos ext msg id. Eq id ⇒ MsgWithDnd msg id ⇒ Game pos ext {from ∷ id, to ∷ id} ⇒
@@ -157,8 +154,8 @@ dndItemProps ∷ ∀pos ext msg id. Eq id ⇒ MsgWithDnd msg id ⇒ Game pos ext
 dndItemProps state {draggable, droppable, id, currentDragged} =
     [   H.class' "dragged" dragged
     ,   H.class' "candrop" candrop
-    ,   E.releasePointerCaptureOn "pointerdown" $ \_ -> pure (if draggable then Just (dndmsg (Drag id)) else Nothing)
-    ,   E.stopPropagationOn "pointerup" $ E.always (if candrop then Just (dndmsg (Drop id)) ∧ true else Nothing ∧ false)
+    ,   E.onPointerDown \ev -> dndmsg (Drag draggable id ev)
+    ,   E.onPointerUp \ev -> dndmsg (Drop candrop id ev)
     ] where
         candrop = droppable && (currentDragged # maybe false \d → canPlay state {from: d, to: id})
         dragged = draggable && Just id == currentDragged

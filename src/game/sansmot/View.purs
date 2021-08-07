@@ -94,8 +94,8 @@ view ∷ State → Html Msg
 view state = 
     H.div [H.class_ "sansmot-main"] 
     [   H.div [H.class_ "sansmot-menu"] 
-        [   H.div [H.class_ "sansmot-pagelink", E.onClick $ SetPage PythaPage] [H.text "1"]
-        ,   H.div [H.class_ "sansmot-pagelink", E.onClick $ SetPage CarollPage] [H.text "2"]
+        [   H.div [H.class_ "sansmot-pagelink", E.onClick \_ -> SetPage PythaPage] [H.text "1"]
+        ,   H.div [H.class_ "sansmot-pagelink", E.onClick \_ -> SetPage CarollPage] [H.text "2"]
         ]
     ,   main state.page
     ] where
@@ -116,7 +116,7 @@ view state =
             ]
         ,   H.h2 [H.class_ "sansmot-h2"] [H.text "Preuve sans mot due à un auteur chinois inconnu qui vivait vers 200 avant J.-C."]
         ,   H.p [H.class_ "sansmot-center"] [animPytha state]
-        ,   H.p [H.class_ "sansmot-center sansmot-link", E.onClick $ Animate pythaAnimation] [H.text "Lancer l'animation"]
+        ,   H.p [H.class_ "sansmot-center sansmot-link", E.onClick \_ -> Animate pythaAnimation] [H.text "Lancer l'animation"]
         ]
 
     main CarollPage =
@@ -124,5 +124,5 @@ view state =
         [   H.h1 [H.class_ "sansmot-title"] [H.text "Preuve sans mot"]
         ,   H.h2 [H.class_ "sansmot-h2"] [H.text "Où est passé le carré manquant ?"]
         ,   H.p [H.class_ "sansmot-center"] [animCaroll state]
-        ,   H.p [H.class_ "sansmot-center sansmot-link", E.onClick $ Animate carollAnimation] [H.text "Lancer l'animation"]
+        ,   H.p [H.class_ "sansmot-center sansmot-link", E.onClick \_ -> Animate carollAnimation] [H.text "Lancer l'animation"]
         ]

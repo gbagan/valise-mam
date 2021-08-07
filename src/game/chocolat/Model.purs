@@ -93,7 +93,12 @@ cutLine state = case _ of
     FromBottom i → {x1: left, y1: i, x2: right, y2: i}
     where {left, right, top, bottom} = state^._position
 
-data Msg = Core CoreMsg | SetHover (Maybe Move) | SetSoapMode SoapMode | Play Move | SetSoap Int Int
+data Msg = Core CoreMsg 
+        | SetHover (Maybe Move)
+        | SetSoapMode SoapMode 
+        | Play Move
+        | SetSoap Int Int
+        | NoAction
 instance MsgWithCore Msg where core = Core
     
 update ∷ Msg → Update State Unit
@@ -102,3 +107,4 @@ update (SetHover a) = _moveWhenHover .= a
 update (SetSoapMode m) = newGame $ set _soapMode m
 update (Play move) = (_moveWhenHover .= Nothing) *> playA move
 update (SetSoap row col) = _soap .= Just {row, col}
+update NoAction = pure unit

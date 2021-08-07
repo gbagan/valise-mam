@@ -6,14 +6,13 @@ import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc, translate)
-import Game.Common (pointerDecoder)
 
 valise ∷ State → Html Msg
 valise state =
     H.svg
     [   P.viewBox 0 0 825 690
-    ,   E.on "pointermove" $ pointerDecoder >>> map (map MoveObject)
-    ,   E.onPointerUp $ SetDrag Nothing
+    ,   E.onPointerMove MoveObject
+    ,   E.onPointerUp \_ -> SetDrag Nothing
     ]
     [   H.use 
         [   P.href "#valise"
@@ -25,7 +24,7 @@ valise state =
         [   H.use [P.href "#openvalise"]
         ,   object { symbol: "switch", link: Nothing, help: "", drag: false } 
                     300 460 42 60
-                    [   E.onClick ToggleSwitch
+                    [   E.onClick \_ -> ToggleSwitch
                     ,   H.style "transform" (if state.isSwitchOn then "scale(1,-1) translateY(-8%)" else "scale(1,1)")
                     ]
                     []
@@ -132,14 +131,14 @@ valise state =
                 ,   H.class' "draggable" drag
                 ,   P.width $ show w'
                 ,   P.height $ show h'
-                ,   E.onPointerDown' $ if drag then 
-                                        Just $ SetDrag (Just {name: symbol, x: toNumber w' / 1650.0, y: toNumber h' / 1380.0})
-                                    else
-                                        Nothing
+                ,   E.onPointerDown \_ -> if drag then 
+                                            SetDrag (Just {name: symbol, x: toNumber w' / 1650.0, y: toNumber h' / 1380.0})
+                                        else
+                                            NoAction
                 ]
                 <> if isJust link then [] else
-                [   E.onPointerEnter $ ShowHelp help
-                ,   E.onPointerLeave $ ShowHelp ""
+                [   E.onPointerEnter \_ -> ShowHelp help
+                ,   E.onPointerLeave \_ -> ShowHelp ""
                 ])
                 [   H.use
                     [   P.href $ "#" <> symbol
@@ -152,8 +151,8 @@ valise state =
                             [   P.width "100%"
                             ,   P.height "100%"
                             ,   H.class_ "valise-object-link"
-                            ,   E.onPointerEnter $ ShowHelp help
-                            ,   E.onPointerLeave $ ShowHelp ""
+                            ,   E.onPointerEnter \_ -> ShowHelp help
+                            ,   E.onPointerLeave \_ -> ShowHelp ""
                             ] 
                             <> children
                             )

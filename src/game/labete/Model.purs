@@ -210,7 +210,7 @@ update (SetHelp a) = _help .= a
 update (SetBeast ttype) = newGame $ 
                             set _beastType ttype >>> 
                             if ttype == CustomBeast then
-                                set _dialog CustomDialog ∘ over _beast (take 1)
+                                set _dialog CustomDialog >>> over _beast (take 1)
                             else
                                 identity
 update (IncSelectedColor i) = _selectedColor %= \x → (x + i) `mod` 9

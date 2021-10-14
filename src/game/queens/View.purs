@@ -64,7 +64,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
             [   iconbutton state
                 {   icon: IconSymbol "#customize"
                 ,   selected: N.head allowedPieces == Custom
-                ,   tooltip: Just "Crée ta propre propre pièce"
+                ,   tooltip: Just "Crée ta propre pièce"
                 }
                 [E.onClick \_ -> Customize]
             ,   iconbutton state
@@ -74,7 +74,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
                 } [
                     E.onClick \_ -> ToggleMultiPieces
                 ]
-            ] <> [ihelp state, ireset state, irules state]
+            , ihelp state, ireset state, irules state]
         ,   iconBestScore state
         ]   
 

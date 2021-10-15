@@ -11,7 +11,7 @@ import Game.Dessin.Model (State, Msg(..), Move(..), GraphIndex(..),
                          graphs, nbGraphs, edgesOf, nbRaises, _graph, _graphIndex, _graphEditor)
 import UI.Template (template, card, trackPointer, bestScoreDialog)
 import UI.Icon (Icon(..))
-import UI.Icons (iconbutton, icongroup, iconSelectGroup, iconBestScore, iundo, iredo, ireset, irules)
+import UI.Icons (icongroup, iconSelectGroup, iconBestScore, iundo, iredo, ireset, irules)
 import UI.GraphEditor as GEditor
 
 currentLine ∷ ∀a. Position → Position → Html a
@@ -35,18 +35,11 @@ view state = template {config, board, rules, winTitle, scoreDialog, customDialog
 
     config =
         card "Dessin"
-        [   iconSelectGroup state "Niveau" (GraphIndex <$> 0..(nbGraphs-1)) graphIndex SetGraphIndex
+        [   iconSelectGroup state "Niveau" ((GraphIndex <$> 0..(nbGraphs-1)) <> [CustomGraph]) graphIndex SetGraphIndex
                 case _ of 
                     GraphIndex i → _{icon = IconText (show (i + 1)), tooltip = graphs !! i <#> _.title}
-                    _ -> identity
-        ,   icongroup "Options" $ 
-                [   iconbutton state
-                    {   icon: IconSymbol "#customize"
-                    ,   selected: graphIndex == CustomGraph
-                    ,   tooltip: Just "Crée ta propre pièce"
-                    }
-                    [E.onClick \_ -> EditGraph]
-                ,   iundo state, iredo state, ireset state, irules state]
+                    _ -> _{icon = IconSymbol "#customize", tooltip = Just "Crée ta propre pièce"}
+        ,   icongroup "Options" [iundo state, iredo state, ireset state, irules state]
         ,   iconBestScore state
         ]
 
@@ -129,7 +122,7 @@ view state = template {config, board, rules, winTitle, scoreDialog, customDialog
         ]
     ]
 
-    customDialog _ = GEditor.view (state^._graphEditor)
+    customDialog _ = GEditor.view (state^._graphEditor) CloseEditor
 
     rules = 
         [   H.text "Le but du jeu est de dessiner le motif indiqué en pointillé en levant le moins souvent possible le crayon."

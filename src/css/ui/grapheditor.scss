@@ -1,0 +1,27 @@
+.ui-grapheditor-board {
+    width: 75vmin;
+    height: 75vmin;
+    box-shadow: 0px 0px 5px 5px #bdc3c7;
+}
+
+.ui-grapheditor-vertex {
+    fill: blue;
+    &.deletemode:hover {
+        fill: gray;
+    }
+}
+
+.ui-grapheditor-edge {
+    stroke: red;
+    stroke-width: 1.5;
+    &.deletemode:hover {
+        stroke: gray;
+    }
+}
+
+.ui-grapheditor-buttons {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    grid-gap: 1em;
+    margin: 1em;
+}

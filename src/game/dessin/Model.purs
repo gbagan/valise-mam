@@ -175,7 +175,7 @@ cross =
 
 graphs ∷ Array Graph
 graphs = [house, house2, sablier, interlace, grid, konisberg, ex1, ex3, city, owl, rabbit, cross] 
-            <#> \g -> g{ vertices = g.vertices <#> \{x, y} -> {x: x / 5.0, y : y / 5.0}  }
+            <#> \g → g{ vertices = g.vertices <#> \{x, y} → {x: x / 5.0, y : y / 5.0}  }
 
 nbGraphs ∷ Int
 nbGraphs = length graphs
@@ -250,26 +250,29 @@ instance ScoreGame (Array Move) ExtState Move where
     objective _ = Minimize
     scoreFn = nbRaises
     scoreHash state = case state^._graphIndex of
-        GraphIndex i -> show i
-        CustomGraph -> "custom"
+        GraphIndex i → show i
+        CustomGraph → "custom"
     isCustomGame state = case state^._graphIndex of
-        CustomGraph -> true
-        _ -> false
+        CustomGraph → true
+        _ → false
 
 -- | nombre de levés de crayon déjà effectués
 nbRaises ∷ State → Int
 nbRaises = length ∘ filter (_ == Raise) ∘ view _position
 
-data Msg = Core CoreMsg | GEditor GEditor.Msg | SetGraphIndex GraphIndex | Play Move | EditGraph
+data Msg = Core CoreMsg | GEditor GEditor.Msg | SetGraphIndex GraphIndex | Play Move | CloseEditor Graph
 instance MsgWithCore Msg where core = Core
 instance GEditor.MsgWithGEditor Msg where geditormsg = GEditor
     
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
 update (GEditor msg) = GEditor.update _graphEditor msg
-update (SetGraphIndex i) = newGame $ _graphIndex .~ i
-update (Play m) = playA m
-update EditGraph = modify_ \st ->
+update (SetGraphIndex i) = case i of
+    GraphIndex _ → newGame $ _graphIndex .~ i
+    CustomGraph →  modify_ \st →
                         st # _dialog .~ CustomDialog
                            # _graphIndex .~ CustomGraph
-                        
+update (Play m) = playA m
+update (CloseEditor g) = modify_ \st → 
+                        st # _dialog .~ NoDialog
+                           # _graph .~ g                       

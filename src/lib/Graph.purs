@@ -34,6 +34,9 @@ removeVertex i graph = graph {  vertices = graph.vertices # deleteAt i # fromMay
                                         Just $ (if u > i then u - 1 else u) ↔ (if v > i then v - 1 else v)
                              }
 
+removeEdge ∷ Int -> Int -> Graph -> Graph
+removeEdge u v graph = graph {  edges = graph.edges # filter (_ /= u ↔ v) }
+
 moveVertex ∷ Int -> Position -> Graph -> Graph
 moveVertex i pos graph = graph { vertices = graph.vertices # updateAtIndices [i /\ pos] }
 

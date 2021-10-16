@@ -4,26 +4,19 @@ import MyPrelude
 
 import Effect.Class (liftEffect)
 import Game.Common (releasePointerCapture)
-import Game.Core (class Game, class MsgWithCore, CoreMsg, GState, SizeLimit(..), Mode(..), playA, coreUpdate, _ext, genState, newGame, isLevelFinished, _position, _mode, _nbRows, _nbColumns)
+import Game.Core (class Game, class MsgWithCore, CoreMsg, GState, SizeLimit(..), Mode(..), Dialog(..),
+                   playA, coreUpdate, _ext, genState, newGame, isLevelFinished,
+                   _position, _mode, _nbRows, _nbColumns, _dialog)
+import Lib.Graph (Graph, Edge, (↔))
 import Lib.Random as R
 import Lib.Update (Update, get, modify_)
 import Lib.Util (repeat2)
+import UI.GraphEditor as GEditor
 import Web.Event.Event (stopPropagation)
 import Web.UIEvent.MouseEvent (MouseEvent, toEvent)
 
--- type d'arête d'un graphe
-data Edge = Edge Int Int
-infix 3 Edge as ↔
-instance Eq Edge where
-    eq (u1 ↔ v1) (u2 ↔ v2) = u1 == u2  && v1 == v2 || u1 == v2 && u2 == v1
 
-
-type Pos = { x ∷ Number, y ∷ Number }
-
--- | une structure Graph est composée d'une liste des arêtes et de la position de chaque sommet dans le plan (entre 0 et 1)
-type Graph = {vertices ∷ Array Pos, edges ∷ Array Edge }
-
-data GraphKind = Path | Cycle | Grid | Biclique | Sun
+data GraphKind = Path | Cycle | Grid | Biclique | CustomGraph
 derive instance eqgkind ∷ Eq GraphKind
 
 -- règles du jeu: un seul garde peut se déplacer ou bien plusieurs à chaque tour
@@ -46,7 +39,8 @@ derive instance eqPhase ∷ Eq Phase
 -- | generate a path graph
 path ∷ Int → Graph
 path n =
-    {   vertices: repeat n \i → 
+    {   title: "Chemin"
+    ,   vertices: repeat n \i → 
             {   x: 0.50 + 0.35 * cos (toNumber i * 2.0 * pi / toNumber n)
             ,   y: 0.50 + 0.35 * sin (toNumber i * 2.0 * pi / toNumber n)
             }
@@ -55,14 +49,15 @@ path n =
 
 -- | generate a cycle graph
 cycle ∷ Int → Graph
-cycle n = g { edges = g.edges `snoc` (0 ↔ (n-1)) }
+cycle n = g { title = "Cycle", edges = g.edges `snoc` (0 ↔ (n-1)) }
     where g = path n
 
 -- | generate a grid graph
 grid ∷ Int → Int → Graph
 grid n m =
     let p = max n m in
-    {   vertices: repeat2 n m \i j →
+    {   title: "Grille"
+    ,   vertices: repeat2 n m \i j →
             {   x: 0.15 + 0.7 * toNumber i / toNumber (p-1)
             ,   y: 0.1 + 0.7 * toNumber j / toNumber (p-1)
             }
@@ -73,7 +68,8 @@ grid n m =
 -- | generate a star graph
 star ∷ Int → Graph
 star n =
-    {   vertices: {x: 0.5, y: 0.5} `cons` repeat (n-1) \i → 
+    {   title: "Etoile"
+    ,   vertices: {x: 0.5, y: 0.5} `cons` repeat (n-1) \i → 
             {   x: 0.50 + 0.35 * cos (toNumber i * 2.0 * pi / toNumber (n-1))
             ,   y: 0.50 + 0.35 * sin (toNumber i * 2.0 * pi / toNumber (n-1))
             }
@@ -83,7 +79,8 @@ star n =
 -- | generate a sun graph
 biclique ∷ Int → Int → Graph
 biclique m n =
-    {   vertices: repeat (n+m) \i → 
+    {   title: "Biclique"
+    ,   vertices: repeat (n+m) \i → 
             {   x: if i < n then 0.2 else 0.8
             ,   y: 0.75 - 0.7 * toNumber(if i < n then i else i - n) / toNumber (if i < n then n else m)
             }
@@ -93,7 +90,8 @@ biclique m n =
 -- | generate a sun graph
 sun ∷ Int → Graph
 sun n =
-    {   vertices: repeat (2*n) \i → 
+    {   title: "Soleil"
+    ,   vertices: repeat (2*n) \i → 
             {   x: 0.50 + (if even i then 0.2 else 0.4) * cos (toNumber i * 2.0 * pi / toNumber (2*n))
             ,   y: 0.46 + (if even i then 0.2 else 0.4) * sin (toNumber i * 2.0 * pi / toNumber (2*n))
             }
@@ -154,6 +152,7 @@ type Ext' =
     ,   draggedGuard ∷ Maybe Int
     ,   rules ∷ Rules
     ,   arena ∷ Maybe Arena
+    ,   geditor ∷ GEditor.Model
     }
 
 newtype ExtState = Ext Ext'
@@ -177,6 +176,8 @@ _arena ∷ Lens' State (Maybe Arena)
 _arena = _ext' ∘ prop (Proxy ∷ _ "arena")
 _draggedGuard ∷ Lens' State (Maybe Int)
 _draggedGuard = _ext' ∘ prop (Proxy ∷ _ "draggedGuard")
+_geditor ∷ Lens' State GEditor.Model
+_geditor = _ext' ∘ prop (Proxy ∷ _ "geditor")
 
 _guards ∷ Lens' Position (Array Int)
 _guards = prop (Proxy ∷ _ "guards")
@@ -188,8 +189,15 @@ istate ∷ State
 istate = genState 
             {guards: [], attacked: Nothing}
             _{nbRows = 6, customSize = true, mode = DuelMode}
-            (Ext { graphkind: Path, graph: path 1, nextmove: [], phase: PrepPhase, draggedGuard: Nothing, rules: OneGuard, arena: Nothing})
-
+            (Ext { graphkind: Path
+                 , graph: path 1
+                 , nextmove: []
+                 , phase: PrepPhase
+                 , draggedGuard: Nothing
+                 , rules: OneGuard
+                 , arena: Nothing
+                 , geditor: GEditor.init
+                 })
 
 isValidNextMove ∷ State → Array Int → Boolean
 isValidNextMove st dests =
@@ -254,7 +262,8 @@ instance Game Position ExtState Move where
             Cycle → pure $ state2 # set _graph (cycle $ state^._nbRows)
             Grid → pure $ state2 # set _graph (grid (state^._nbRows) (state^._nbColumns))
             Biclique → pure $ state2 # set _graph (biclique (state^._nbRows) (state^._nbColumns))
-            Sun → pure $ state2 # set _graph (sun $ state^._nbRows)
+            -- Sun → pure $ state2 # set _graph (sun $ state^._nbRows)
+            CustomGraph → pure state2
 
     isLevelFinished state =
         let guards = (state^._position).guards 
@@ -286,8 +295,9 @@ instance Game Position ExtState Move where
 
     sizeLimit st = case st^._graphkind of
         Grid → SizeLimit 2 2 6 6
-        Sun → SizeLimit 3 0 6 0
+        -- Sun → SizeLimit 3 0 6 0
         Biclique → SizeLimit 1 1 6 6
+        CustomGraph → SizeLimit 0 0 0 0
         _ → SizeLimit 3 0 11 0
 
     updateScore st = st ∧ true
@@ -315,6 +325,7 @@ dragGuard to st =
                # set _draggedGuard Nothing
 
 data Msg = Core CoreMsg 
+        | GEditor GEditor.Msg
         | SetGraphKind GraphKind
         | SetRules Rules 
         | DragGuard Int MouseEvent
@@ -325,16 +336,20 @@ data Msg = Core CoreMsg
         | MoveGuards
         | ToggleGuard Int
         | Play Int
+        | CloseEditor Graph
         | NoAction
 instance MsgWithCore Msg where core = Core
-    
+instance GEditor.MsgWithGEditor Msg where geditormsg = GEditor    
+
 update ∷ Msg → Update State Unit
 update (Core msg) = coreUpdate msg
-update (SetGraphKind kind) = newGame $ set _graphkind kind ∘
+update (GEditor msg) = GEditor.update _geditor msg
+update (SetGraphKind kind) = newGame $ set _graphkind kind >>>
                                         case kind of
                                             Grid → set _nbRows 3 ∘ set _nbColumns 3
                                             Biclique → set _nbRows 4 ∘ set _nbColumns 1
-                                            Sun → set _nbRows 3 ∘ set _nbColumns 0
+                                            --Sun → set _nbRows 3 ∘ set _nbColumns 0
+                                            CustomGraph → set _dialog CustomDialog
                                             _ → set _nbRows 6 ∘ set _nbColumns 0
 
 update (SetRules rules) = newGame $ set _rules rules
@@ -358,4 +373,5 @@ update (Play x) = do
         PrepPhase ∧ _ → modify_ $ over (_position ∘ _guards) (toggleGuard x)
         GamePhase ∧ Just attacked → playA $ Defense (addToNextMove (st^._graph).edges x attacked guards guards)
         GamePhase ∧ Nothing → playA (Attack x)
+update (CloseEditor g) = modify_ $ (_dialog .~ NoDialog) >>> (_graph .~ g)
 update NoAction = pure unit

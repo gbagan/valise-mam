@@ -232,7 +232,7 @@ instance Game (Array Move) ExtState Move where
     onNewGame state = 
         let graph = case state^._graphIndex of
                         GraphIndex i → graphs !! i # fromMaybe house
-                        CustomGraph → (state^._graphEditor).graph
+                        CustomGraph → state^._graph
         in
         pure $ state # _graph .~ graph
 
@@ -269,10 +269,8 @@ update (Core msg) = coreUpdate msg
 update (GEditor msg) = GEditor.update _graphEditor msg
 update (SetGraphIndex i) = case i of
     GraphIndex _ → newGame $ _graphIndex .~ i
-    CustomGraph →  modify_ \st →
+    CustomGraph →  newGame \st →
                         st # _dialog .~ CustomDialog
                            # _graphIndex .~ CustomGraph
 update (Play m) = playA m
-update (CloseEditor g) = modify_ \st → 
-                        st # _dialog .~ NoDialog
-                           # _graph .~ g                       
+update (CloseEditor g) = modify_ $ (_dialog .~ NoDialog) >>> (_graph .~ g)

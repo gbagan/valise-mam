@@ -3,9 +3,10 @@ module Game.Eternal.View (view) where
 import MyPrelude
 
 import Math (acos)
+import Lib.Graph (Graph, Edge, (↔), Position)
 import Game.Core (CoreMsg(SetPointer), isLevelFinished, PointerPosition, core, _position, _pointer)
-import Game.Eternal.Model (State, Msg(..), Graph, Phase(..), Rules(..), GraphKind(..), Pos, Edge, (↔), isValidNextMove,
-                            _graph, _phase, _graphkind, _draggedGuard, _rules, _nextmove)
+import Game.Eternal.Model (State, Msg(..), Phase(..), Rules(..), GraphKind(..), isValidNextMove,
+                            _graph, _phase, _graphkind, _draggedGuard, _rules, _nextmove, _geditor)
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
@@ -14,9 +15,9 @@ import Pha.Html.Util (translate, pc)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSelectGroup', icons2Players, iundo, iredo, ireset, iclear, irules)
 import UI.Template (template, card, incDecGrid, svgCursorStyle)
+import UI.GraphEditor as GEditor
 
-
-getCoords ∷ Graph → Int → Maybe Pos
+getCoords ∷ Graph → Int → Maybe Position
 getCoords graph u = graph.vertices !! u
 
 getCoordsOfEdge ∷ Graph → Edge → Maybe {x1 ∷ Number, x2 ∷ Number, y1 ∷ Number, y2 ∷ Number}
@@ -25,7 +26,7 @@ getCoordsOfEdge graph (u ↔ v) = do
     {x: x2, y: y2} ← getCoords graph v
     pure {x1, x2, y1, y2}
 
-translateGuard ∷ Pos → String
+translateGuard ∷ Position → String
 translateGuard {x, y} = translate (pc x) (pc y)
 
 cursor ∷ ∀a b. PointerPosition → b → Html a
@@ -96,7 +97,7 @@ drawArrow x1 x2 y1 y2 =
 
 
 view ∷ State → Html Msg
-view state = template {config, board, rules, winTitle} state where
+view state = template {config, board, rules, winTitle, customDialog} state where
     position = state^._position
     graph = state^._graph
     guards = (state^._position).guards
@@ -110,7 +111,7 @@ view state = template {config, board, rules, winTitle} state where
             ,   Cycle ∧ _{icon = IconSymbol "#graph-cycle", tooltip = Just "Cycle" }
             ,   Biclique ∧ _{icon = IconSymbol "#graph-biclique", tooltip = Just "Biclique" }
             ,   Grid ∧ _{icon =IconSymbol "#graph-grid", tooltip = Just "Grille" }
-            ,   Sun ∧ _{icon = IconSymbol "#graph-sun", tooltip = Just "Soleil" }
+            ,   CustomGraph ∧ _{icon = IconSymbol "#customize", tooltip = Just "Crée ton graphe" }
             ]
         ,   iconSelectGroup' state "Règles" grules SetRules
             [   OneGuard ∧ _{icon = IconText "1", tooltip = Just "Un seul garde" }
@@ -214,6 +215,8 @@ view state = template {config, board, rules, winTitle} state where
             ]
 
     board = incDecGrid state [grid]
+
+    customDialog _ = GEditor.view (state^._geditor) CloseEditor
 
     rules = 
         [   H.text "Domination Eternelle est un jeu à deux joueurs: un attaquant et un défenseur."

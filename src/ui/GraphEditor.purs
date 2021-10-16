@@ -126,7 +126,7 @@ currentLine p1 p2 =
 view :: forall msg. MsgWithGEditor msg => Model -> (Graph -> msg) -> Html msg
 view {graph, mode, currentPosition, selectedVertex} onOk =
     dialog { title: "Crée ton graphe", onOk: Just (onOk graph), onCancel: Nothing }
-    [   H.div [H.class_ "flex queens-custompiece"]
+    [   H.div [H.class_ "flex ui-grapheditor"]
         [   H.div [H.class_ "ui-grapheditor-board"]
             [   H.svg [ H.class_ "dessin-svg"
                       , P.viewBox 0 0 100 100
@@ -153,7 +153,7 @@ view {graph, mode, currentPosition, selectedVertex} onOk =
                             ,   P.r 3.0
                             ,   H.class_ "ui-grapheditor-vertex"
                             ,   H.class' "deletemode" $ mode == DeleteMode
-                            --,   P.stroke $ if selectedVertex == Just i then "red" else "blue"
+                            ,   P.stroke $ if selectedVertex == Just i then "red" else "blue"
                             --,   P.fill "blue"
                             ,   E.onClick \ev -> geditormsg (DeleteVertex i ev)
                             ,   E.onPointerDown \ev -> geditormsg (SelectVertex i ev)

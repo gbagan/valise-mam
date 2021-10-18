@@ -58,8 +58,8 @@ update (ShowHelp help) = modify_ $ over _help (if help == "" then identity else 
 update ToggleSwitch = _isSwitchOn %= not
 update (SetDrag d) = _drag .= d
 update (MoveObject ev) = do
-    pos <- liftEffect $ pointerDecoder ev
-    st <- get
+    pos ← liftEffect $ pointerDecoder ev
+    st ← get
     case pos /\ st.drag of
         Just {x, y} /\ Just {name, x: x2, y: y2} →
             _positions ∘ at name .= Just {x: x-x2, y: y-y2} 

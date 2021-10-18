@@ -12,6 +12,7 @@ import Game.Dessin as Dessin
 import Game.Eternal as Eternal
 import Game.Frog as Frog
 import Game.Generic (GenericGame)
+import Game.Hanoi as Hanoi
 import Game.Jetons as Jetons
 import Game.Labete as Labete
 import Game.Nim as Nim
@@ -43,6 +44,7 @@ type RootState =
     ,   dessin ∷ Dessin.State
     ,   eternal ∷ Eternal.State
     ,   frog ∷ Frog.State
+    ,   hanoi ∷ Hanoi.State
     ,   jetons ∷ Jetons.State
     ,   labete ∷ Labete.State
     ,   nim ∷ Nim.State
@@ -65,6 +67,7 @@ state =
     ,   dessin: Dessin.istate
     ,   eternal: Eternal.istate
     ,   frog: Frog.istate
+    ,   hanoi: Hanoi.istate
     ,   jetons: Jetons.istate
     ,   labete: Labete.istate
     ,   nim: Nim.istate
@@ -88,6 +91,7 @@ data Msg =
     | DessinMsg Dessin.Msg
     | EternalMsg Eternal.Msg
     | FrogMsg Frog.Msg
+    | HanoiMsg Hanoi.Msg
     | JetonsMsg Jetons.Msg
     | LabeteMsg Labete.Msg
     | NimMsg Nim.Msg
@@ -125,6 +129,7 @@ games = Map.fromFoldable
     ,   "dessin"    ∧ gameWrap Dessin.game    _.dessin    DessinMsg
     ,   "eternal"   ∧ gameWrap Eternal.game   _.eternal   EternalMsg
     ,   "frog"      ∧ gameWrap Frog.game      _.frog      FrogMsg
+    ,   "hanoi"     ∧ gameWrap Hanoi.game     _.hanoi     HanoiMsg
     ,   "jetons"    ∧ gameWrap Jetons.game    _.jetons    JetonsMsg
     ,   "labete"    ∧ gameWrap Labete.game    _.labete    LabeteMsg
     ,   "nim"       ∧ gameWrap Nim.game       _.nim       NimMsg
@@ -151,6 +156,7 @@ update (ChocolatMsg msg)  = prop (Proxy ∷ Proxy "chocolat")  .~> Chocolat.upda
 update (DessinMsg msg)    = prop (Proxy ∷ Proxy "dessin")    .~> Dessin.update msg
 update (EternalMsg msg)   = prop (Proxy ∷ Proxy "eternal")   .~> Eternal.update msg
 update (FrogMsg msg)      = prop (Proxy ∷ Proxy "frog")      .~> Frog.update msg
+update (HanoiMsg msg)     = prop (Proxy ∷ Proxy "hanoi")     .~> Hanoi.update msg
 update (JetonsMsg msg)    = prop (Proxy ∷ Proxy "jetons")    .~> Jetons.update msg
 update (LabeteMsg msg)    = prop (Proxy ∷ Proxy "labete")    .~> Labete.update msg
 update (NimMsg msg)       = prop (Proxy ∷ Proxy "nim")       .~> Nim.update msg

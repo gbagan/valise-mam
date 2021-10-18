@@ -2,7 +2,10 @@ module Game.Jetons.Model where
 
 import MyPrelude
 import Data.FoldableWithIndex (allWithIndex)
-import Game.Core (class Game, class ScoreGame, class MsgWithCore, class MsgWithDnd, CoreMsg, DndMsg, GState, SizeLimit(..), Objective(..), ShowWinPolicy(..), coreUpdate, dndUpdate, _ext, genState, updateScore', _position, _nbColumns, _nbRows, defaultOnNewGame, saveToJson', loadFromJson')
+import Game.Core (class Game, class ScoreGame, class MsgWithCore, class MsgWithDnd,
+                  CoreMsg, DndMsg, GState, SizeLimit(..), Objective(..), ShowWinPolicy(..),
+                  coreUpdate, dndUpdate, _ext, genState, updateScore', _position, _nbColumns, _nbRows,
+                  defaultOnNewGame, saveToJson', loadFromJson')
 import Lib.Update (Update)
 import Lib.Util (dCoords)
 

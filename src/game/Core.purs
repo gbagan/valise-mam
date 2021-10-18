@@ -229,7 +229,7 @@ coreUpdate ConfirmNewGame = modify_ \state →
                             ConfirmNewGameDialog st → st
                             _ → state
 coreUpdate (SetPointer ev) = do
-    pos <- liftEffect $ pointerDecoder ev
+    pos ← liftEffect $ pointerDecoder ev
     when (isJust pos) (_pointer .= pos)
 coreUpdate SetPointerToNothing = _pointer .= Nothing
 coreUpdate ComputerStarts = do

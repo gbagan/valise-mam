@@ -1,0 +1,11 @@
+.hanoi-board {
+    width: 100vmin;
+    height: 50vmin;
+}
+
+.hanoi-disk {
+    stroke: black;
+    &.dragged {
+        opacity: 0;
+    }
+}

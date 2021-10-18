@@ -5,6 +5,7 @@
   , "arrays"
   , "control"
   , "datetime"
+  , "debug"
   , "effect"
   , "either"
   , "foldable-traversable"

@@ -1,4 +1,5 @@
 .hanoi-board {
+    position: relative;
     width: 100vmin;
     height: 50vmin;
 }
@@ -8,4 +9,12 @@
     &.dragged {
         opacity: 0;
     }
+}
+
+.hanoi-nbmoves {
+    position: absolute;
+    top: 0;
+    left: 0.5em;
+    color: blue;
+    font-size: 1.5em;
 }

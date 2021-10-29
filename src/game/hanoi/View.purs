@@ -1,9 +1,9 @@
 module Game.Hanoi.View (view) where
 
 import MyPrelude
-
-import Game.Core (_position, _pointer)
+import Game.Core (_position, _pointer, _history)
 import Game.Hanoi.Model (State, Msg(..), _dragged, _nbDisks)
+import Data.List as List
 import Pha.Html (Html, Prop)
 import Pha.Html as H
 import Pha.Html.Attributes as P
@@ -13,8 +13,13 @@ import UI.Template (template, card, dndBoardProps, dndItemProps)
 colors ∷ Array String
 colors = ["blue", "red", "green", "magenta", "orange", "gray", "cyan"]
 
-drawTower ∷ ∀a. Html a
-drawTower = H.path [P.d ""]
+drawTower ∷ ∀a. Int → Html a
+drawTower i = H.path [ P.d $ "M" <> show (i * 60 + 14) <> " 99a3 3 0 0 1 0 -6h20a3 3 0 0 0 3 -3v-80a3 3 0 0 1 6 0v80"
+                            <> "a3 3 0 0 0 3 3h20a3 3 0 0 1 0 6z"
+                     , P.stroke "blue"
+                     , P.strokeWidth 0.5
+                     , P.fill "#d43"
+                     ]
 
 
 view ∷ State → Html Msg
@@ -23,6 +28,7 @@ view state = template {config, board, rules, winTitle} state where
     nbDisks = state ^. _nbDisks
     dragged = state ^. _dragged
     pointer = state ^. _pointer
+    nbMoves = List.length $ state ^. _history
 
     config =
         card "Tours de Hanoi"
@@ -30,34 +36,33 @@ view state = template {config, board, rules, winTitle} state where
         ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
         ]
 
-    drawDisk ∷ Number → Number → Int → Maybe Int → Array (Prop Msg) → Html Msg
-    drawDisk x y i mid props =
-        let color = colors !! i # fromMaybe "black" in
-        H.rect $ [ P.x $ x - 25.0 + 2.5 * toNumber i
-                 , P.y $ y - 5.0
-                 , P.width $ show $ 50 - 5 * i
+    drawDisk ∷ {x ∷ Number, y ∷ Number, disk ∷ Int, column ∷ Int, draggable ∷ Boolean} → Array (Prop Msg) → Html Msg
+    drawDisk {x, y, disk, column, draggable} props =
+        let color = fromMaybe "black" (colors !! disk) in
+        H.rect $ [ P.x $ x - 25.0 + 2.5 * toNumber disk
+                 , P.y $ y - 7.0
+                 , P.width $ show $ 50 - 5 * disk
                  , P.height "10"
-                 , H.attr "rx" "5"
-                 , H.attr "ry" "5"
+                 , P.rx 5.0
+                 , P.ry 5.0
                  , H.class_ "hanoi-disk"
                  , P.fill color
-                 ] <> props <> case mid of
-                    Nothing → []
-                    Just id → dndItemProps state
+                 ] <> props <> dndItemProps state
                         {   currentDragged: dragged
-                        ,   draggable: true
+                        ,   draggable
                         ,   droppable: false
-                        ,   id
+                        ,   id: column
                         }
 
     cursor ∷ {x ∷ Number, y ∷ Number} → Int → Html Msg
-    cursor {x, y} i = drawDisk (x * 200.0) (y * 100.0) i Nothing [H.style "pointer-events" "none"]
+    cursor {x, y} disk = drawDisk {x: x * 200.0, y: y * 100.0, disk, column: -1, draggable: false} [H.style "pointer-events" "none"]
 
     board ∷ Html Msg
     board =
         H.div (dndBoardProps <> [H.class_ "ui-board hanoi-board"])
         [   H.svg [H.class_ "hanoi-svg", P.viewBox 0 0 200 100] $
-            [   H.g [] $ [0, 1, 2] <#> \i →
+            [   H.g [] $ [0, 1, 2] <#> drawTower
+            ,   H.g [] $ [0, 1, 2] <#> \i →
                     H.rect ([P.x $ toNumber $ 13 + 60 * i, P.y 10.0, P.width "54", P.height "90", P.fill "transparent"]
                         <> dndItemProps state
                         {   currentDragged: dragged
@@ -70,14 +75,16 @@ view state = template {config, board, rules, winTitle} state where
                     position # mapWithIndex \i stack →
                         stack # mapWithIndex \j k →
                             drawDisk
-                                (toNumber $ 40 + 60 * i)
-                                (toNumber $ 90 - 10 * j)
-                                k
-                                (if j == length stack - 1 then Just i else Nothing)
-                                []
+                                {   x: toNumber $ 40 + 60 * i
+                                ,   y: toNumber $ 90 - 10 * j
+                                ,   disk: k
+                                ,   column: i
+                                ,   draggable: j == length stack - 1
+                                } []
                 )
             ,   H.fromMaybe $ cursor <$> pointer <*> (dragged >>= (position !! _) >>= last)
             ]
+        ,   H.div [H.class_ "hanoi-nbmoves"] [H.text $ show nbMoves <> " coup" <> (if nbMoves > 1 then "s" else "")]
         ]
 
     rules =
@@ -88,4 +95,4 @@ view state = template {config, board, rules, winTitle} state where
         ,   H.text "- tu ne peux pas déplacer un disque sur un disque plus petit que lui."
         ]
 
-    winTitle = "Tu as gagné"
+    winTitle = "Tu as gagné en " <> show nbMoves <> " coups"

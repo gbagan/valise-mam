@@ -46,13 +46,17 @@ valise state =
                     [   P.fill "#bcd35f"
                     ]
                     [P.x 10.0, P.y 20.0, P.width "80%", P.height "80%"]
-        ,   object { symbol: "hanoibot", link: Just "solitaire", help: "Jeu: solitaire", drag: false}
+        ,   object { symbol: "hanoibot", link: Just "hanoi", help: "Jeu: tours de Hanoi", drag: false}
                     500 430 75 51
                     []
                     [H.attr "x" "30%", H.attr "y" "20%", P.width "40%", P.height "40%"]
         ,   object {symbol: "knight", link: Just "queens", help: "Jeu: les 8 reines", drag: false}
                     461 380 24 48
                     [P.transform "rotate(40)"]
+                    []
+        ,   object {symbol: "soli-peg2", link: Just "solitaire", help: "Jeu: solitaire", drag: false}
+                    492 350 40 40
+                    []
                     []
         ,   object { symbol: "pen", link: Just "dessin", help: "Jeu: dessin", drag: false}
                     610 400 60 60

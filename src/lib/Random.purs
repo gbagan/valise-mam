@@ -20,8 +20,6 @@ instance Random Effect where
 int' ∷ ∀m. Random m ⇒ Int → m Int
 int' n = int 0 (n-1)
 
--- | generate a random integer in the range [n, m]
-
 -- | generate a random boolean 
 bool ∷ ∀m. Random m ⇒ m Boolean
 bool = int' 2 <#> eq 0

@@ -81,8 +81,8 @@ instance TwoPlayersGame {left ∷ Int, top ∷ Int, right ∷ Int, bottom ∷ In
         case st^._soap of
             Just {row, col} → 
                 let {left, right, top, bottom} = st^._position in
-                ((left + 1) .. col <#> FromLeft) <> ((col + 1) .. (right - 1) <#> FromRight)
-                <> ((top + 1) .. row <#> FromTop) <> ((row + 1) .. (bottom - 1) <#> FromBottom) 
+                (FromLeft <$> (left + 1) .. col) <> (FromRight <$> (col + 1) .. (right - 1))
+                <> (FromTop <$> (top + 1) .. row) <> (FromBottom <$> (row + 1) .. (bottom - 1)) 
             Nothing → []
 
 cutLine ∷ State → Move → {x1 ∷ Int, x2 ∷ Int, y1 ∷ Int, y2 ∷ Int}

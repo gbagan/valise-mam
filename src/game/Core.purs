@@ -343,7 +343,7 @@ newGame f = randomly \state →
 -- | classe facilitant l'implétentation d'une IA pour les jeux à deux joueurs
 -- | nécessite de pouvoir calculer efficacement l'ensemble des coups légaux pour un joueur
 -- | et déterminer si une position est perdante ou non
-class Game pos ext mov <= TwoPlayersGame pos ext mov | ext → pos mov  where
+class Game pos ext mov <= TwoPlayersGame pos ext mov | ext → pos mov where
     isLosingPosition ∷ GState pos ext → Boolean
     possibleMoves ∷ GState pos ext → Array mov
 
@@ -353,13 +353,13 @@ computerMove' ∷ ∀pos ext mov. TwoPlayersGame pos ext mov ⇒ GState pos ext 
 computerMove' state
     | isLevelFinished state = pure Nothing
     | otherwise =
-        let moves = possibleMoves state in
-        let bestMove = (
-            if state^._mode == RandomMode then
-                Nothing
-            else
-                moves # find (maybe false isLosingPosition ∘ flip playAux state)
-        ) in
+        let moves = possibleMoves state
+            bestMove =
+                if state^._mode == RandomMode then
+                    Nothing
+                else
+                    moves # find (maybe false isLosingPosition ∘ flip playAux state)
+        in
             case bestMove of
                 Just _ → pure bestMove
                 Nothing → R.element' moves

@@ -15,13 +15,14 @@ import Lib.Update (Update)
 type Position = Array Int
 type Move = Int
 
-type Ext' = {
-    size ∷ Int,   -- le nombre de sommets
-    nbColors ∷ Int,
-    range ∷ Int,  -- le rayon autour du sommet activé pour lequel tous les sommets changent de couleurs
-    hoverCell ∷ Maybe Int,
-    shuffle ∷ Boolean
-}
+type Ext' =
+    {   size ∷ Int      -- le nombre de sommets
+    ,   nbColors ∷ Int
+    ,   range ∷ Int     -- le rayon autour du sommet activé pour lequel tous les sommets changent de couleurs
+    ,   hoverCell ∷ Maybe Int
+    ,   shuffle ∷ Boolean
+    }
+
 newtype ExtState = Ext Ext'
 type State = GState (Array Int) ExtState
 

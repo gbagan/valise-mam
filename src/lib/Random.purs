@@ -33,7 +33,7 @@ arrayOf = replicateA
 shuffle ∷ ∀m a. Random m ⇒ Array a → m (Array a)
 shuffle xs = do
     ns <- arrayOf (length xs) number
-    pure (map snd (sortWith fst (zip ns xs)))
+    pure $ map snd $ sortWith fst $ zip ns xs
 
 -- | randomly select an element from a non empty array
 element ∷ ∀m a. Random m ⇒ NEA.NonEmptyArray a → m a

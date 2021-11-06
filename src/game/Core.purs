@@ -9,9 +9,9 @@ import Data.Argonaut.Parser (jsonParser)
 import Data.List as List
 import Data.Map as Map
 import Effect.Class (liftEffect)
-import Lib.Random (Random)
+import Lib.Random (class Random)
 import Lib.Random as R
-import Lib.Update (Update, get, modify_, put, delay, randomEval, randomly, storageGet, storagePut)
+import Lib.Update (Update, get, modify_, put, delay, storageGet, storagePut)
 import Web.Event.Event (stopPropagation)
 import Web.UIEvent.MouseEvent (MouseEvent)
 import Web.UIEvent.MouseEvent as ME
@@ -123,11 +123,11 @@ data SizeLimit = SizeLimit Int Int Int Int
 class Game pos ext mov | ext → pos mov where
     name ∷ GState pos ext → String
     play ∷ GState pos ext → mov → Maybe pos
-    initialPosition ∷ GState pos ext → Random pos
+    initialPosition ∷ ∀m. Random m ⇒ GState pos ext → m pos
     isLevelFinished ∷ GState pos ext → Boolean
     sizeLimit ∷ GState pos ext → SizeLimit
-    computerMove ∷ GState pos ext → Random (Maybe mov)
-    onNewGame ∷ GState pos ext → Random (GState pos ext)
+    computerMove ∷ ∀m. Random m ⇒ GState pos ext → m (Maybe mov)
+    onNewGame ∷ ∀m. Random m ⇒ GState pos ext → m (GState pos ext)
     onPositionChange ∷ GState pos ext → GState pos ext
     updateScore ∷ GState pos ext → Tuple (GState pos ext) Boolean
     saveToJson ∷ GState pos ext → Maybe Json
@@ -152,7 +152,7 @@ canPlay st mov = isJust (play st mov)
 defaultSizeLimit ∷ ∀a. a → SizeLimit
 defaultSizeLimit _ = SizeLimit 0 0 0 0
 
-defaultOnNewGame ∷ ∀a. a → Random a
+defaultOnNewGame ∷ ∀m a. Random m ⇒ a → m a
 defaultOnNewGame = pure
 
 oppositeTurn ∷ Turn → Turn
@@ -269,7 +269,7 @@ showVictory = do
 computerPlay ∷ ∀pos ext mov. Game pos ext mov ⇒ Update (GState pos ext) Unit
 computerPlay = do
     state ← get
-    move ← randomEval $ computerMove state
+    move ← liftEffect $ computerMove state
     case flip playAux state =<< move of
         Nothing → pure unit
         Just st2 → do
@@ -311,8 +311,8 @@ lockAction action = unlessM (view _locked <$> get) do
     modify_ (set _locked false)
 
 -- | fonction auxiliaire pour newGame
-newGameAux ∷ ∀pos ext mov. Game pos ext mov ⇒
-        (GState pos ext → GState pos ext) → GState pos ext → Random (GState pos ext)
+newGameAux ∷ ∀m pos ext mov. Random m ⇒ Game pos ext mov ⇒
+        (GState pos ext → GState pos ext) → GState pos ext → m (GState pos ext)
 newGameAux f state = do 
     let state2 = f state
     state3 ← onNewGame state2
@@ -333,12 +333,13 @@ newGameAux f state = do
 -- | sans demander confirmation à l'utilisateur
 newGame ∷ ∀pos ext mov. Game pos ext mov ⇒
     (GState pos ext → GState pos ext) → Update (GState pos ext) Unit
-newGame f = randomly \state →
-    let rstate = newGameAux f state in
-    if List.null (state^._history) || isLevelFinished state then
+newGame f = do 
+    state <- get
+    rstate <- liftEffect $ newGameAux f state
+    put $ if List.null (state^._history) || isLevelFinished state then
         rstate
     else
-        rstate <#> \s → state # set _dialog (ConfirmNewGameDialog s)
+        rstate # \s → state # set _dialog (ConfirmNewGameDialog s)
 
 -- | classe facilitant l'implétentation d'une IA pour les jeux à deux joueurs
 -- | nécessite de pouvoir calculer efficacement l'ensemble des coups légaux pour un joueur
@@ -349,7 +350,7 @@ class Game pos ext mov <= TwoPlayersGame pos ext mov | ext → pos mov where
 
 -- | implémentation de la fonction computerMove de la classe Game
 -- | nécessite l'implémentation de la classe TwoPlayersGame
-computerMove' ∷ ∀pos ext mov. TwoPlayersGame pos ext mov ⇒ GState pos ext → Random (Maybe mov)
+computerMove' ∷ ∀m pos ext mov. Random m ⇒ TwoPlayersGame pos ext mov ⇒ GState pos ext → m (Maybe mov)
 computerMove' state
     | isLevelFinished state = pure Nothing
     | otherwise =

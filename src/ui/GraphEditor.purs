@@ -61,7 +61,7 @@ update lens = case _ of
 
     SelectVertex i ev → do
         liftEffect $ stopPropagation $ toEvent ev
-        lens %= \model ->
+        lens %= \model →
             if model.mode `elem` [AddEMode, VertexMode] then
                 model{selectedVertex = Just i}
             else
@@ -91,7 +91,7 @@ update lens = case _ of
                     model{graph = Graph.moveVertex i p model.graph}
                 Just p /\ AddEMode /\ _ →
                     model{currentPosition = Just p}
-                _ -> model
+                _ → model
 
     DeleteVertex i ev → do
         st ← get
@@ -144,7 +144,7 @@ view {graph, mode, currentPosition, selectedVertex} onOk =
                         ,   P.y2 $ 100.0 * py2
                         ,   H.class_ "ui-grapheditor-edge"
                         ,   H.class' "deletemode" $ mode == DeleteMode
-                        ,   E.onClick \_ -> geditormsg (DeleteEdge edge)
+                        ,   E.onClick \_ → geditormsg (DeleteEdge edge)
                         ]
                 ,   graph.vertices # mapWithIndex \i {x, y} →
                             H.circle
@@ -155,9 +155,9 @@ view {graph, mode, currentPosition, selectedVertex} onOk =
                             ,   H.class' "deletemode" $ mode == DeleteMode
                             ,   P.stroke $ if selectedVertex == Just i then "red" else "blue"
                             --,   P.fill "blue"
-                            ,   E.onClick \ev -> geditormsg (DeleteVertex i ev)
-                            ,   E.onPointerDown \ev -> geditormsg (SelectVertex i ev)
-                            ,   E.onPointerUp \ev -> geditormsg (PointerUp i ev)
+                            ,   E.onClick \ev → geditormsg (DeleteVertex i ev)
+                            ,   E.onPointerDown \ev → geditormsg (SelectVertex i ev)
+                            ,   E.onPointerUp \ev → geditormsg (PointerUp i ev)
                             ]
                 ,   [H.when (mode == AddEMode) \_ →
                         H.fromMaybe case selectedVertex of

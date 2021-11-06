@@ -45,9 +45,9 @@ ihelp ∷ State → Html Msg
 ihelp state =
     iconbutton
         state {icon: IconSymbol "#help", tooltip: Just "Aide", selected: state^._help}
-        [   E.onPointerDown \_ -> SetHelp true
-        ,   E.onPointerUp \_ -> SetHelp false
-        ,   E.onPointerLeave \_ -> SetHelp false
+        [   E.onPointerDown \_ → SetHelp true
+        ,   E.onPointerUp \_ → SetHelp false
+        ,   E.onPointerLeave \_ → SetHelp false
         ]
 
 view ∷ State → Html Msg
@@ -91,11 +91,11 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
             (map3 (state^._position) nonTrappedBeast  (state^._squareColors) \index hasTrap hasBeast color →
                 let {row, col} = coords columns index in
                 show index /\ square { color, row, col, hasTrap, hasBeast: hasBeast && state^._help }
-                [   E.onClick \ev -> if ME.shiftKey ev then NoAction else Play index
+                [   E.onClick \ev → if ME.shiftKey ev then NoAction else Play index
                     -- pointerenter: [actions.setSquareHover, index], todo
                     -- ponterleave: [actions.setSquareHover, null],
-                ,   E.onPointerUp \_ -> FinishZone index
-                ,   E.onPointerDown \ev -> if ME.shiftKey ev then StartZone index else NoAction
+                ,   E.onPointerUp \_ → FinishZone index
+                ,   E.onPointerDown \ev → if ME.shiftKey ev then StartZone index else NoAction
                 ]
             ) <> [
                 "c" /\ H.fromMaybe case state^._startPointer of
@@ -121,7 +121,7 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
                     mapWithIndex \index hasBeast →
                         let {row, col} = coords 5 index in
                         square {row, col, hasBeast, hasTrap: false, color: 0}
-                        [   E.onClick \_ -> FlipCustomBeast index
+                        [   E.onClick \_ → FlipCustomBeast index
                         ]
             )
         ]

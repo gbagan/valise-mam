@@ -130,7 +130,7 @@ svgCursorStyle {x, y} = [
 trackPointer ∷ ∀msg. MsgWithCore msg ⇒ Array (Prop msg)
 trackPointer = [
     E.onPointerMove $ core <<< SetPointer,
-    E.onPointerLeave \_ -> core SetPointerToNothing,
+    E.onPointerLeave \_ → core SetPointerToNothing,
     E.onPointerDown $ core <<< SetPointer
 ]
 
@@ -139,8 +139,8 @@ dndBoardProps ∷ ∀msg id. MsgWithCore msg ⇒ MsgWithDnd msg id ⇒ Array (Pr
 dndBoardProps = [
     E.onPointerDown $ core <<< SetPointer,
     E.onPointerMove $ core <<< SetPointer,
-    E.onPointerUp \_ -> dndmsg DropOnBoard,
-    E.onPointerLeave \_ -> dndmsg Leave
+    E.onPointerUp \_ → dndmsg DropOnBoard,
+    E.onPointerLeave \_ → dndmsg Leave
 ]
 
 -- | gère le drag and drop pour une item en renvoyant une liste d'attributs
@@ -154,8 +154,8 @@ dndItemProps ∷ ∀pos ext msg id. Eq id ⇒ MsgWithDnd msg id ⇒ Game pos ext
 dndItemProps state {draggable, droppable, id, currentDragged} =
     [   H.class' "dragged" dragged
     ,   H.class' "candrop" candrop
-    ,   E.onPointerDown \ev -> dndmsg (Drag draggable id ev)
-    ,   E.onPointerUp \ev -> dndmsg (Drop candrop id ev)
+    ,   E.onPointerDown \ev → dndmsg (Drag draggable id ev)
+    ,   E.onPointerUp \ev → dndmsg (Drop candrop id ev)
     ] where
         candrop = droppable && (currentDragged # maybe false \d → canPlay state {from: d, to: id})
         dragged = draggable && Just id == currentDragged

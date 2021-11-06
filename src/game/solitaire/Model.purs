@@ -7,7 +7,7 @@ import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, class ScoreGa
                 CoreMsg(ToggleHelp), DndMsg, GState, Objective(..), ShowWinPolicy(..), SizeLimit(..),
                 _customSize, _ext, _nbColumns, _nbRows, _position, canPlay, coreUpdate, dndUpdate, genState, newGame, 
                 saveToJson', updateScore', loadFromJson')
-import Lib.Random (Random)
+import Lib.Random (class Random)
 import Lib.Random as Random
 import Lib.Update (Update)
 import Lib.Util (repeat2, dCoords)
@@ -79,11 +79,11 @@ betweenMove2 state move@{from, to} =
         betweenMove state move
 
 -- | fonction auxilaire pour onNewGame
-generateBoard ∷ Int → Int → Int → (Int → Int → Boolean) →
-    {holes ∷ Array Boolean, position ∷ Random Position, customSize ∷ Boolean}
-generateBoard rows columns startingHole holeFilter = {holes, position, customSize: false} where
+generateBoard ∷ ∀m. Random m ⇒ Int → Int → Int → (Int → Int → Boolean) →
+    m {holes ∷ Array Boolean, position ∷  Position, customSize ∷ Boolean}
+generateBoard rows columns startingHole holeFilter = pure {holes, position, customSize: false} where
     holes = repeat2 rows columns holeFilter
-    position = pure $ holes # set (ix startingHole) false
+    position = holes # set (ix startingHole) false
 
 instance Game Position ExtState Move where
     name _ = "solitaire"
@@ -106,33 +106,35 @@ instance Game Position ExtState Move where
                 not canPlay state { from: i, to: i + d }
             )
 
-    onNewGame state = position <#> \p → state 
-                                        # set _holes holes 
-                                        # set _position p 
-                                        # set _customSize customSize
-        where
-        columns = state^._nbColumns
-        rows = state^._nbRows
-        {holes, position, customSize} =
+    onNewGame state = do
+        let columns = state^._nbColumns
+        let rows = state^._nbRows
+        {holes, position, customSize} <-
             case state^._board of
                 EnglishBoard → generateBoard 7 7 24 \row col → min row (6 - row) >= 2 || min col (6 - col) >= 2
                 FrenchBoard → generateBoard 7 7 24 \row col → min row (6 - row) + min col (6 - col) >= 2
-                CircleBoard →
-                    {   holes: replicate rows true
-                    ,   position: Random.int' rows <#> \x → repeat rows (_ ≠ x)
+                CircleBoard → do
+                    position <- Random.int' rows <#> \x → repeat rows (_ ≠ x)
+                    pure {  holes: replicate rows true
+                         ,  position
+                         ,  customSize: true
+                         }
+                Grid3Board → pure
+                    {   holes: replicate (3 * state^._nbColumns) true
+                    ,   position: repeat (3 * state^._nbColumns) (_ < 2 * columns)
                     ,   customSize: true
                     }
-                Grid3Board →
-                    {   holes: replicate (3 * state^._nbColumns) true
-                    ,   position: pure (repeat (3 * state^._nbColumns) (_ < 2 * columns))
-                    ,   customSize: true
-                    }
-                RandomBoard →
-                    {   holes: replicate (3 * state^._nbColumns) true
-                    ,   position: Random.arrayOf columns Random.bool <#> \bools →
+                RandomBoard → do
+                    position <- Random.arrayOf columns Random.bool <#> \bools →
                                 bools <> replicate columns true <> (bools <#> not)
-                    ,   customSize: true
-                    }
+                    pure {  holes: replicate (3 * state^._nbColumns) true
+                         ,  position
+                         ,  customSize: true
+                         }
+        pure $ state 
+                # set _holes holes 
+                # set _position position
+                # set _customSize customSize
 
     sizeLimit state = case state^._board of
         CircleBoard → SizeLimit 3 1 12 1

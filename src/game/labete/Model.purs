@@ -222,8 +222,8 @@ update (StartZone2 ev) =
     if ME.shiftKey ev then do
         p ← liftEffect $ pointerDecoder ev
         case p of
-            Just pos -> _startPointer .= Just pos
-            Nothing -> pure unit
+            Just pos → _startPointer .= Just pos
+            Nothing → pure unit
     else
         pure unit
 

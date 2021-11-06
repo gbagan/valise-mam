@@ -30,7 +30,7 @@ iundo state =
         ,   tooltip: Just "Annule le dernier coup effectué"
         ,   disabled: L.null (state^._history)
         }
-        [E.onClick \_ -> core Undo]
+        [E.onClick \_ → core Undo]
 
 iredo ∷ ∀msg pos ext. MsgWithCore msg ⇒ GState pos ext → Html msg
 iredo state =
@@ -41,7 +41,7 @@ iredo state =
         ,   disabled: L.null (state^._redoHistory)
         ,   style: ["transform" ∧ "scaleX(-1)"]
         }
-        [E.onClick \_ -> core Redo]
+        [E.onClick \_ → core Redo]
 
 ireset ∷ ∀msg pos ext. MsgWithCore msg ⇒ GState pos ext → Html msg
 ireset state =
@@ -51,7 +51,7 @@ ireset state =
         ,   tooltip: Just "Recommence la partie"
         ,   disabled: L.null (state^._history)
         }
-        [E.onClick \_ -> core Reset]
+        [E.onClick \_ → core Reset]
 
 iclear ∷ ∀msg pos ext. MsgWithCore msg ⇒ GState pos ext → Html msg
 iclear state =
@@ -60,7 +60,7 @@ iclear state =
         {   icon: I.IconSymbol "#clear"
         ,   tooltip: Just "Réinitialise le jeu"
         }
-        [E.onClick \_ -> core Clear]
+        [E.onClick \_ → core Clear]
 
 ihelp ∷ ∀msg pos ext. MsgWithCore msg ⇒ GState pos ext → Html msg
 ihelp state =
@@ -70,7 +70,7 @@ ihelp state =
         ,   tooltip: Just "Aide"
         ,   selected: state^._help
         }
-        [E.onClick \_ -> core ToggleHelp]
+        [E.onClick \_ → core ToggleHelp]
 
 irules ∷ ∀msg pos ext. MsgWithCore msg ⇒ GState pos ext → Html msg
 irules state =
@@ -80,7 +80,7 @@ irules state =
         ,   tooltip: Just "Règles"
         ,   selected: selected
         }
-        [E.onClick \_ -> core SetRulesDialog]
+        [E.onClick \_ → core SetRulesDialog]
     where
         selected = case state^._dialog of
             Rules → true
@@ -101,7 +101,7 @@ iconSelectGroup state title values selected action optionFn =
     icongroup title $ values <#> \val →
         iconbutton state (optionFn val (iconLabel val I.defaultOptions{
             selected = val == selected
-        })) [E.onClick \_ -> action val]
+        })) [E.onClick \_ → action val]
 
 -- | groupe d'icones à choix unique, fonction alternative 
 iconSelectGroup' ∷ ∀msg pos ext sel. IconLabel sel ⇒ Eq sel ⇒
@@ -110,7 +110,7 @@ iconSelectGroup' state title selected action values =
     icongroup title $ values <#> \(val ∧ optionFn) →
         iconbutton state (optionFn (iconLabel val I.defaultOptions{
             selected = val == selected
-        })) [E.onClick \_ -> action val]
+        })) [E.onClick \_ → action val]
 
 -- | groupe d'icones à choix multiple
 iconSelectGroupM ∷ ∀msg pos ext t sel.
@@ -120,7 +120,7 @@ iconSelectGroupM state title values selected action optionFn =
     icongroup title $ values <#> \val →
         iconbutton state (optionFn val (iconLabel val I.defaultOptions{
             selected = elem val selected
-        })) [E.onClick \_ -> action val]
+        })) [E.onClick \_ → action val]
 
 -- | groupe d'icones pour le choix d'une taille de plateau
 iconSizesGroup ∷ ∀msg pos ext. MsgWithCore msg ⇒
@@ -132,14 +132,14 @@ iconSizesGroup state sizeList customSize =
             {   icon: I.IconText $ show rows <> "x" <> show cols
             ,   selected: rows == crows && cols == ccols && not csize
             }
-            [E.onClick \_ -> core (SetGridSize rows cols false)]
+            [E.onClick \_ → core (SetGridSize rows cols false)]
         ) <> (if customSize then [
             iconbutton state
             {   icon: I.IconText "NxM"
             ,   tooltip: Just "Taille personnalisée"
             ,   selected: csize
             }
-            [E.onClick \_ -> core (SetCustomSize true)]
+            [E.onClick \_ → core (SetCustomSize true)]
         ] else [])
     where
     crows = state^._nbRows
@@ -153,19 +153,19 @@ icons2Players state =
         iconbutton
             state
             {icon: I.IconSymbol "#school", selected: state^._mode == RandomMode, tooltip: Just "IA mode facile"}
-            [E.onClick \_ -> core (SetMode RandomMode)],
+            [E.onClick \_ → core (SetMode RandomMode)],
         iconbutton
             state
             {icon: I.IconSymbol "#enstein", selected: state^._mode == ExpertMode, tooltip: Just "IA mode expert"}
-            [E.onClick \_ -> core (SetMode ExpertMode)],
+            [E.onClick \_ → core (SetMode ExpertMode)],
         iconbutton
             state
             {icon: I.IconSymbol "#duel", selected: state^._mode == DuelMode, tooltip: Just "Affronte un autre joueur"}
-            [E.onClick \_ -> core (SetMode DuelMode)],
+            [E.onClick \_ → core (SetMode DuelMode)],
         iconbutton
             state
             {icon: I.IconText "2P⇨", disabled: not (L.null $ state^._history) || state^._mode == DuelMode, tooltip: Just "L'IA commence"}
-            [E.onClick \_ -> core ComputerStarts]
+            [E.onClick \_ → core ComputerStarts]
     ]
 
 iconBestScore ∷ ∀msg pos ext mov. MsgWithCore msg ⇒ ScoreGame pos ext mov ⇒ GState pos ext → Html msg
@@ -174,5 +174,5 @@ iconBestScore state =
         iconbutton
             state
             {icon: I.IconSymbol "#cup", disabled: isNothing (bestScore state), tooltip: Just "Meilleur score"}
-            [E.onClick \_ -> core SetScoreDialog]
+            [E.onClick \_ → core SetScoreDialog]
     ]

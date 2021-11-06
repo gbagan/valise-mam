@@ -7,7 +7,7 @@ import Data.Argonaut.Encode (encodeJson)
 import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg, _ext, coreUpdate, playA, isLevelFinished, saveToStorage,
                   _position, _nbColumns, _nbRows, _customSize, newGame, genState)
 import Lib.KonamiCode (konamiCode)
-import Lib.Random (Random)
+import Lib.Random (class Random)
 import Lib.Random as Random
 import Lib.Update (Update, get)
 import Lib.Util (dCoords)
@@ -72,7 +72,7 @@ toggleCell state index = mapWithIndex \i → (_ ≠ neighbor state index i)
 
 -- | génération de plateau aléatoire pour le niveau 6
 -- | on part d'une configuration où tout est éteint et on joue des coups aléatoires
-genRandomBoard ∷ State → Random (Array Boolean)
+genRandomBoard ∷ ∀m. Random m ⇒ State → m (Array Boolean)
 genRandomBoard state = do
     let size = state^._nbRows * state^._nbColumns
     nbMoves ← Random.int size (size+1)

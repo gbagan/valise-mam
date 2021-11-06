@@ -12,7 +12,7 @@ valise state =
     H.svg
     [   P.viewBox 0 0 825 690
     ,   E.onPointerMove MoveObject
-    ,   E.onPointerUp \_ -> SetDrag Nothing
+    ,   E.onPointerUp \_ → SetDrag Nothing
     ]
     [   H.use 
         [   P.href "#valise"
@@ -24,7 +24,7 @@ valise state =
         [   H.use [P.href "#openvalise"]
         ,   object { symbol: "switch", link: Nothing, help: "", drag: false } 
                     300 460 42 60
-                    [   E.onClick \_ -> ToggleSwitch
+                    [   E.onClick \_ → ToggleSwitch
                     ,   H.style "transform" (if state.isSwitchOn then "scale(1,-1) translateY(-8%)" else "scale(1,1)")
                     ]
                     []
@@ -135,14 +135,14 @@ valise state =
                 ,   H.class' "draggable" drag
                 ,   P.width $ show w'
                 ,   P.height $ show h'
-                ,   E.onPointerDown \_ -> if drag then 
+                ,   E.onPointerDown \_ → if drag then 
                                             SetDrag (Just {name: symbol, x: toNumber w' / 1650.0, y: toNumber h' / 1380.0})
                                         else
                                             NoAction
                 ]
                 <> if isJust link then [] else
-                [   E.onPointerEnter \_ -> ShowHelp help
-                ,   E.onPointerLeave \_ -> ShowHelp ""
+                [   E.onPointerEnter \_ → ShowHelp help
+                ,   E.onPointerLeave \_ → ShowHelp ""
                 ])
                 [   H.use
                     [   P.href $ "#" <> symbol
@@ -155,8 +155,8 @@ valise state =
                             [   P.width "100%"
                             ,   P.height "100%"
                             ,   H.class_ "valise-object-link"
-                            ,   E.onPointerEnter \_ -> ShowHelp help
-                            ,   E.onPointerLeave \_ -> ShowHelp ""
+                            ,   E.onPointerEnter \_ → ShowHelp help
+                            ,   E.onPointerLeave \_ → ShowHelp ""
                             ] 
                             <> children
                             )

@@ -9,7 +9,6 @@
   , "effect"
   , "either"
   , "foldable-traversable"
-  , "free"
   , "integers"
   , "lazy"
   , "lists"

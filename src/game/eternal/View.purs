@@ -45,8 +45,8 @@ dndBoardProps ∷ Array (H.Prop Msg)
 dndBoardProps =
     [   E.onPointerDown $ core <<< SetPointer
     ,   E.onPointerMove $ core <<< SetPointer
-    ,   E.onPointerUp \_ -> DropOnBoard
-    ,   E.onPointerLeave \_ -> LeaveGuard
+    ,   E.onPointerUp \_ → DropOnBoard
+    ,   E.onPointerLeave \_ → LeaveGuard
     ]
 
 dndItemProps ∷ State → 
@@ -183,7 +183,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                             ,   P.y (-5.0)
                             ,   P.fill "transparent"
                             ,   H.style "transform" $ translateGuard pos
-                            ,   E.onClick \_ -> if grules == ManyGuards && isJust position.attacked then NoAction else Play i
+                            ,   E.onClick \_ → if grules == ManyGuards && isJust position.attacked then NoAction else Play i
                             ,   H.class' "eternal-sel" $ phase == PrepPhase || isJust position.attacked && (grules == ManyGuards) == elem i guards 
                                                                           || not (isJust position.attacked) && not (elem i guards)
                             ]  <> (dndItemProps state
@@ -209,7 +209,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
             ,   H.button
                 [   H.class_ "ui-button ui-button-primary dessin-raise"
                 ,   P.disabled $ null position.guards || state^._phase == GamePhase && (state^._rules == OneGuard || isNothing position.attacked || not (isValidNextMove state (state^._nextmove)))
-                ,   E.onClick \_ -> if state^._phase == GamePhase then MoveGuards else StartGame
+                ,   E.onClick \_ → if state^._phase == GamePhase then MoveGuards else StartGame
                 ]
                 [   H.text "Valider"]
             ]

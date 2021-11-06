@@ -37,7 +37,7 @@ view state = template {config, board, rules, winTitle} state where
     drawSquare i j =
         ("s-" <> show i <> "-" <> show j) /\ H.rect
         [   H.class_ "nim-square"
-        ,   E.onClick \_ -> Play (Move i j)
+        ,   E.onClick \_ → Play (Move i j)
         ,   H.style "transform" $
                     translate (px' $ (if length == 5 then 30 else 5) + 10 * j) (px' $ 15 + 19 * i)
                     <> " rotate(45deg)"

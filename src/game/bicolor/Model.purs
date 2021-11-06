@@ -4,9 +4,10 @@ import MyPrelude
 
 import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg,
                 _ext, coreUpdate, playA, _position, _nbColumns, _nbRows, newGame, genState)
-import Lib.Random (Random)
+import Effect.Class (liftEffect)
+import Lib.Random (class Random)
 import Lib.Random as Random
-import Lib.Update (Update, get, randomly)
+import Lib.Update (Update, get, put)
 import Lib.Util (dCoords)
 
 
@@ -26,7 +27,7 @@ reverseCard BlackCard = WhiteCard
 reverseCard WhiteCard = BlackCard
 reverseCard EmptyCard = EmptyCard
 
-randomCard ∷ Random Card
+randomCard ∷ ∀m. Random m ⇒ m Card
 randomCard = Random.bool <#> if _ then WhiteCard else BlackCard
 
 type Ext' = {
@@ -97,9 +98,10 @@ update (Core msg) = coreUpdate msg
 update (Play move) = playA move
 update (ToggleCard i) = _position ∘ ix i %= reverseCard
 update (SetMode mode) = newGame $ _mode .~ mode
-update Shuffle = randomly \st → do
-    pos ← Random.arrayOf (length $ st^._position) randomCard
-    pure $ st # _position .~ pos 
+update Shuffle = do
+    state ← get
+    pos ← liftEffect $ Random.arrayOf (length $ state^._position) randomCard
+    put $ state # _position .~ pos 
 update ToggleCustom = do
     state ← get
     if state^._phase == PrepPhase then

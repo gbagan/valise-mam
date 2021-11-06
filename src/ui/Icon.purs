@@ -45,7 +45,7 @@ iconbutton opts props =
         ,   H.class' "large" large
         ,   H.class' "hidden" hidden
         ,   P.disabled d
-        ,   E.on "contextmenu" \ev -> preventDefault ev *> pure Nothing
+        ,   E.on "contextmenu" \ev → preventDefault ev *> pure Nothing
     ] <> props) $ [
         case icon of
             IconSymbol symbol → H.svg ((uncurry H.style <$> st) <> [P.width "100%", P.height "100%"]) [

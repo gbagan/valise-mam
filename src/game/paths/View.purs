@@ -97,7 +97,7 @@ view state = template {config, board, rules} state where
                 ,   x: toNumber (100 * col)
                 ,   y: toNumber (100 * row)
                 }
-                [   E.onClick \_ -> SelectVertex index
+                [   E.onClick \_ → SelectVertex index
                 ]
             ) <>
             [   "path" /\ H.path [P.d pathdec, H.class_ "paths-path"]

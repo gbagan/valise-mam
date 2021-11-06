@@ -61,7 +61,7 @@ view state = template {config, board, rules} state where
                             [   P.href "#meeple"
                             ,   P.width "7"
                             ,   P.height "7"
-                            ,   E.onClick \_ -> Play peg
+                            ,   E.onClick \_ → Play peg
                             ,   P.fill color
                             ,   H.style "animation"
                                     if levelFinished then

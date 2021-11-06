@@ -55,9 +55,9 @@ view state = template {config, board, rules, winTitle} state where
         ,   P.cy $ 50.0 * toNumber row
         ,   P.r 7.0
         ,   H.class_ "chocolat-cutter"
-        ,   E.onPointerEnter \_ -> SetHover (Just move)
-        ,   E.onPointerLeave \_ -> SetHover Nothing
-        ,   E.onClick \_ -> Play move
+        ,   E.onPointerEnter \_ → SetHover (Just move)
+        ,   E.onPointerLeave \_ → SetHover Nothing
+        ,   E.onClick \_ → Play move
         ]
 
     grid =
@@ -70,7 +70,7 @@ view state = template {config, board, rules, winTitle} state where
                         ,   H.class_ "chocolat-square"
                         ,   H.class' "soap" $ state^._soap # maybe false \p → {row, col} == p
                         ,   H.class' "hidden" $ not (inside state row col)
-                        ,   E.onClick \_ -> if isNothing soap then SetSoap row col else NoAction
+                        ,   E.onClick \_ → if isNothing soap then SetSoap row col else NoAction
                         ]
             ,   H.g [] $
                     possibleMoves state >>= case _ of

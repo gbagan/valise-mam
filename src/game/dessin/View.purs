@@ -38,7 +38,7 @@ view state = template {config, board, rules, winTitle, scoreDialog, customDialog
         [   iconSelectGroup state "Niveau" ((GraphIndex <$> 0..(nbGraphs-1)) <> [CustomGraph]) graphIndex SetGraphIndex
                 case _ of 
                     GraphIndex i → _{icon = IconText (show (i + 1)), tooltip = graphs !! i <#> _.title}
-                    _ -> _{icon = IconSymbol "#customize", tooltip = Just "Crée ta propre pièce"}
+                    _ → _{icon = IconSymbol "#customize", tooltip = Just "Crée ta propre pièce"}
         ,   icongroup "Options" [iundo state, iredo state, ireset state, irules state]
         ,   iconBestScore state
         ]
@@ -46,7 +46,7 @@ view state = template {config, board, rules, winTitle, scoreDialog, customDialog
     board =
         H.div (trackPointer <>
             [   H.class_ "ui-board dessin-board"
-            ,   E.onContextMenu \_ -> Play Raise
+            ,   E.onContextMenu \_ → Play Raise
             ])
             [   H.svg [H.class_ "dessin-svg", P.viewBox 0 0 100 100] $ concat 
                 [   graph.edges <#> \edge →
@@ -75,7 +75,7 @@ view state = template {config, board, rules, winTitle, scoreDialog, customDialog
                             ,   P.r 3.0
                             ,   P.stroke $ if Just (MoveTo i) == last position then "red" else "blue"
                             ,   P.fill "blue"
-                            ,   E.onClick \_ -> Play (MoveTo i)
+                            ,   E.onClick \_ → Play (MoveTo i)
                             ]
                     else
                         []
@@ -94,7 +94,7 @@ view state = template {config, board, rules, winTitle, scoreDialog, customDialog
             ,   H.button
                 [   H.class_ "ui-button ui-button-primary dessin-raise"
                 ,   P.disabled $ not (canPlay state Raise) || levelFinished
-                ,   E.onClick \_ -> Play Raise
+                ,   E.onClick \_ → Play Raise
                 ]
                 [   H.text "Lever le crayon"]
             ]

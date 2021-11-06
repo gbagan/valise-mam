@@ -18,7 +18,7 @@ _isoCustom = iso from to where
 
 foreign import releasePointerCapture ∷ MouseEvent → Effect Unit
 
-pointerDecoder ∷ MouseEvent -> Effect (Maybe { x ∷ Number, y ∷ Number })
+pointerDecoder ∷ MouseEvent → Effect (Maybe { x ∷ Number, y ∷ Number })
 pointerDecoder ev = do
     case E.currentTarget (ME.toEvent ev) of
         Just el → do

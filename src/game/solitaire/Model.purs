@@ -8,7 +8,7 @@ import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, class ScoreGa
                 _customSize, _ext, _nbColumns, _nbRows, _position, canPlay, coreUpdate, dndUpdate, genState, newGame, 
                 saveToJson', updateScore', loadFromJson')
 import Lib.Random (Random)
-import Lib.Random as R
+import Lib.Random as Random
 import Lib.Update (Update)
 import Lib.Util (repeat2, dCoords)
 
@@ -119,7 +119,7 @@ instance Game Position ExtState Move where
                 FrenchBoard → generateBoard 7 7 24 \row col → min row (6 - row) + min col (6 - col) >= 2
                 CircleBoard →
                     {   holes: replicate rows true
-                    ,   position: R.int' rows <#> \x → repeat rows (_ ≠ x)
+                    ,   position: Random.int' rows <#> \x → repeat rows (_ ≠ x)
                     ,   customSize: true
                     }
                 Grid3Board →
@@ -129,7 +129,7 @@ instance Game Position ExtState Move where
                     }
                 RandomBoard →
                     {   holes: replicate (3 * state^._nbColumns) true
-                    ,   position: replicateA columns R.bool <#> \bools →
+                    ,   position: Random.arrayOf columns Random.bool <#> \bools →
                                 bools <> replicate columns true <> (bools <#> not)
                     ,   customSize: true
                     }

@@ -1,8 +1,9 @@
-module Lib.Random (Random, number, int, int', bool, shuffle, element, element', RandomF(..)) where
+module Lib.Random (Random, number, int, int', bool, arrayOf, shuffle, element, element', RandomF(..)) where
 import Prelude
 import Data.Maybe (Maybe, fromMaybe)
-import Data.Traversable (sequence)
-import Data.Array (length, mapWithIndex, foldl, index, insertAt)
+import Data.Unfoldable (replicateA)
+import Data.Tuple (fst, snd)
+import Data.Array (length, index, sortWith, zip)
 import Data.Array.NonEmpty as NEA
 import Control.Monad.Free (Free, liftF)
 
@@ -28,11 +29,14 @@ number = liftF (RandomNumber identity)
 bool ∷ Random Boolean
 bool = int' 2 <#> eq 0
 
+arrayOf ∷ ∀a. Int → Random a → Random (Array a)
+arrayOf = replicateA 
+
 -- | randomly shuffle an array
 shuffle ∷ ∀a. Array a → Random (Array a)
-shuffle array = do
-    rnds ← sequence $ array # mapWithIndex \i value → {value, index: _} <$> int' (i+1)
-    pure $ rnds # foldl (\t {value, index} → fromMaybe [] (insertAt index value t)) []
+shuffle xs = do
+    ns <- arrayOf (length xs) number
+    pure (map snd (sortWith fst (zip ns xs)))
 
 -- | randomly select an element from the array
 element ∷ ∀a. NEA.NonEmptyArray a → Random a

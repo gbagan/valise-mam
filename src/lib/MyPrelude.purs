@@ -19,7 +19,6 @@ import Math (cos, sin, pi, sqrt) as Exports
 import Data.Maybe (Maybe(..), maybe, fromMaybe, isJust, isNothing) as Exports
 import Data.Either (Either(..)) as Exports
 import Data.Foldable (class Foldable, foldl, foldr, elem, any, all, and, or, for_, minimumBy) as Exports
-import Data.Unfoldable (replicateA) as Exports
 import Data.Traversable (sequence, for) as Exports
 import Data.List (List(..)) as Exports
 import Data.Array.NonEmpty (NonEmptyArray) as Exports

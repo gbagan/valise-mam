@@ -58,7 +58,7 @@ instance Game Position ExtState Move where
             color
     
     initialPosition state = if state^._shuffle then 
-                                replicateA (state^._size) (Random.int' (state^._nbColors))
+                                Random.arrayOf (state^._size) (Random.int' (state^._nbColors))
                             else
                                 pure $ replicate (state^._size) 1
     

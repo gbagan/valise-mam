@@ -5,7 +5,7 @@ import MyPrelude
 import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg,
                 _ext, coreUpdate, playA, _position, _nbColumns, _nbRows, newGame, genState)
 import Lib.Random (Random)
-import Lib.Random as R
+import Lib.Random as Random
 import Lib.Update (Update, get, randomly)
 import Lib.Util (dCoords)
 
@@ -27,7 +27,7 @@ reverseCard WhiteCard = BlackCard
 reverseCard EmptyCard = EmptyCard
 
 randomCard ∷ Random Card
-randomCard = R.bool <#> if _ then WhiteCard else BlackCard
+randomCard = Random.bool <#> if _ then WhiteCard else BlackCard
 
 type Ext' = {
     mode ∷ Mode,
@@ -98,7 +98,7 @@ update (Play move) = playA move
 update (ToggleCard i) = _position ∘ ix i %= reverseCard
 update (SetMode mode) = newGame $ _mode .~ mode
 update Shuffle = randomly \st → do
-    pos ← replicateA (length $ st^._position) randomCard
+    pos ← Random.arrayOf (length $ st^._position) randomCard
     pure $ st # _position .~ pos 
 update ToggleCustom = do
     state ← get

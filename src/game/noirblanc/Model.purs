@@ -8,7 +8,7 @@ import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg,
                   _position, _nbColumns, _nbRows, _customSize, newGame, genState)
 import Lib.KonamiCode (konamiCode)
 import Lib.Random (Random)
-import Lib.Random as R
+import Lib.Random as Random
 import Lib.Update (Update, get)
 import Lib.Util (dCoords)
 
@@ -75,8 +75,8 @@ toggleCell state index = mapWithIndex \i → (_ ≠ neighbor state index i)
 genRandomBoard ∷ State → Random (Array Boolean)
 genRandomBoard state = do
     let size = state^._nbRows * state^._nbColumns
-    nbMoves ← R.int size (size+1)
-    (replicateA nbMoves (R.int' size) ∷ Random (Array Int)) <#>
+    nbMoves ← Random.int size (size+1)
+    Random.arrayOf nbMoves (Random.int' size) <#>
         foldr (toggleCell state) (replicate size false)
 
 instance Game Position ExtState Int where

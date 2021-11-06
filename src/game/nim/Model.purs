@@ -4,7 +4,7 @@ import MyPrelude
 
 import Data.Int.Bits (xor)
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, GState, Mode(..), Turn(..), coreUpdate, playA, _ext, genState, newGame, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
-import Lib.Random as R
+import Lib.Random as Random
 import Lib.Update (Update)
 import Lib.Util (repeat2)
 
@@ -53,11 +53,11 @@ instance Game (Array Position) ExtState Move where
         \(Position p1 p2) → p2 - p1 == 1 && p1 == (if state^._turn == Turn2 then state^._length - 2 else 0)
 
     initialPosition state = 
-        replicateA (state^._nbPiles) $
+        Random.arrayOf (state^._nbPiles) $
             if state^._length == 5 then
                 pure (Position 0 4)
             else
-                Position <$> R.int 0 4 <*> R.int 5 9
+                Position <$> Random.int 0 4 <*> Random.int 5 9
 
     computerMove = computerMove'
 

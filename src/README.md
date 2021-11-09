@@ -70,13 +70,6 @@ En plus de de cela, une application peut contenir
  et un exemple avec effets
  https://github.com/gbagan/purescript-pha/blob/master/examples/Random.purs
 
-## runs
-Contrairement à Elm qui utilse des commandes pour gérer les effets de bord,
-Purescript-pha utilise des [runs](https://github.com/natefaubion/purescript-run) dans la fonction update.
-Derrière ceci, on retrouve le concept de free monads et de variantes mais sans rentrer dans les détails.
-Un run est un programme semblant impératif mais dans les effets de bord sont des objects attendant une interprétation.
-De ce fait, un run est purement fonctionnel et facilement testable puisque l'on peut changer d'interpreter.
-
 --------------------------------------------------------------------------
 
 # Architecture de la valise

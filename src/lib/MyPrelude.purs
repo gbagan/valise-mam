@@ -34,6 +34,7 @@ import Data.Lens.Record (prop) as Exports
 import Data.String (joinWith) as Exports
 import Control.Alt ((<|>)) as Exports
 import Control.MonadZero (guard) as Exports
+import Control.Monad.State.Class (class MonadState) as Exports
 import Data.Time.Duration (Milliseconds(..)) as Exports
 
 range' ∷ Int → Int → Array Int

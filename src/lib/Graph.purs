@@ -8,6 +8,7 @@ data Edge = Edge Int Int
 infix 3 Edge as ↔
 instance Eq Edge where
     eq (u1 ↔ v1) (u2 ↔ v2) = u1 == u2  && v1 == v2 || u1 == v2 && u2 == v1
+
 type Position = { x ∷ Number, y ∷ Number }
 
 -- | une structure Graph est composé d'un titre, d'une liste des arêtes et de la position de chaque sommet dans le plan

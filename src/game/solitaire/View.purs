@@ -56,7 +56,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
             ,   EnglishBoard ∧ _{icon = IconSymbol "#tea", tooltip = Just "Anglais"}
             ,   FrenchBoard ∧  _{icon = IconSymbol "#bread", tooltip = Just "Français"}
             ]
-        ,   icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> \x → x state
+        ,   icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> (_ $ state)
         ,   iconBestScore state
         ]
 

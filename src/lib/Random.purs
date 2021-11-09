@@ -5,16 +5,17 @@ import Data.Unfoldable (replicateA)
 import Data.Tuple (fst, snd)
 import Data.Array (length, index, sortWith, zip)
 import Data.Array.NonEmpty as NEA
-import Effect (Effect)
 import Effect.Random (randomInt, random)
+import Pha.Update (Update)
+import Effect.Class (liftEffect)
 
 class Monad m <= Random m where
     int ∷ Int → Int → m Int -- | generate a random integer in the range [n, m]
     number ∷ m Number       -- | random number in the range [0, 1[ 
 
-instance Random Effect where
-    int = randomInt
-    number = random
+instance Random (Update s) where
+    int n m = liftEffect $ randomInt n m
+    number = liftEffect $ random
 
 -- | generate a random integer in the range [0, n - 1]
 int' ∷ ∀m. Random m ⇒ Int → m Int

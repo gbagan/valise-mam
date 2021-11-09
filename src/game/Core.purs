@@ -10,8 +10,8 @@ import Data.List as List
 import Data.Map as Map
 import Effect.Class (liftEffect)
 import Lib.Random (class Random)
-import Lib.Random as R
-import Lib.Update (Update, get, modify_, put, delay, storageGet, storagePut)
+import Lib.Random as Random
+import Lib.Update (Update, class MonadDelay, get, modify_, put, delay, storageGet, storagePut)
 import Web.Event.Event (stopPropagation)
 import Web.UIEvent.MouseEvent (MouseEvent)
 import Web.UIEvent.MouseEvent as ME
@@ -248,11 +248,11 @@ coreUpdate Init = do
                     put $ loadFromJson st json
 
 playAux ∷ ∀pos ext mov. Game pos ext mov ⇒ mov → GState pos ext → Maybe (GState pos ext)
-playAux move state =
-    play state move <#> \pos →
-        state # set _position pos
-              # over _turn oppositeTurn
-              # onPositionChange
+playAux move state = do
+    pos ← play state move
+    pure $ state # set _position pos
+                 # over _turn oppositeTurn
+                 # onPositionChange
 
 -- met dans l'historique la position actuelle
 pushToHistory ∷ ∀pos ext. GState pos ext → GState pos ext
@@ -260,16 +260,24 @@ pushToHistory state = state
                         # over _history (Cons $ state^._position) 
                         # set _redoHistory Nil
 
-showVictory ∷ ∀pos ext. Update (GState pos ext) Unit
+showVictory ∷ ∀m pos ext. 
+    MonadState (GState pos ext) m 
+    ⇒ MonadDelay m
+    ⇒ m Unit
 showVictory = do
-    modify_ $ set _showWin true
+    _showWin .= true
     delay (Milliseconds 1000.0)
-    modify_ $ set _showWin false
+    _showWin .= false
 
-computerPlay ∷ ∀pos ext mov. Game pos ext mov ⇒ Update (GState pos ext) Unit
+computerPlay ∷ ∀m pos ext mov. 
+    MonadState (GState pos ext) m 
+    ⇒ Random m
+    ⇒ MonadDelay m 
+    ⇒ Game pos ext mov 
+    ⇒ m Unit
 computerPlay = do
     state ← get
-    move ← liftEffect $ computerMove state
+    move ← computerMove state
     case flip playAux state =<< move of
         Nothing → pure unit
         Just st2 → do
@@ -304,11 +312,11 @@ playA move = lockAction $ do
 -- | Empêche d'autres actions d'être effectués durant la durée de l'action
 -- | en mettant locked à true au début de l'action et à false à la fin de l'action.
 -- | L'action n'est pas executé si locked est déjà à true
-lockAction ∷ ∀pos ext. Update (GState pos ext) Unit → Update (GState pos ext) Unit
+lockAction ∷ ∀m pos ext. MonadState (GState pos ext) m ⇒  m Unit → m Unit
 lockAction action = unlessM (view _locked <$> get) do
-    modify_ (set _locked true)
+    _locked .= true
     action
-    modify_ (set _locked false)
+    _locked .= false
 
 -- | fonction auxiliaire pour newGame
 newGameAux ∷ ∀m pos ext mov. Random m ⇒ Game pos ext mov ⇒
@@ -335,7 +343,7 @@ newGame ∷ ∀pos ext mov. Game pos ext mov ⇒
     (GState pos ext → GState pos ext) → Update (GState pos ext) Unit
 newGame f = do 
     state <- get
-    rstate <- liftEffect $ newGameAux f state
+    rstate <- newGameAux f state
     put $ if List.null (state^._history) || isLevelFinished state then
         rstate
     else
@@ -363,7 +371,7 @@ computerMove' state
         in
             case bestMove of
                 Just _ → pure bestMove
-                Nothing → R.element' moves
+                Nothing → Random.element' moves
 
 data Objective = Minimize | Maximize
 derive instance Eq Objective 
@@ -435,7 +443,7 @@ dndUpdate _dragged (Drop candrop i ev) =
 dndUpdate _dragged Leave = _dragged .= Nothing
 dndUpdate _dragged DropOnBoard = _dragged .= Nothing
 
-dropA ∷ ∀pos ext dnd. Eq dnd ⇒  Game pos ext {from ∷ dnd, to ∷ dnd} ⇒
+dropA ∷ ∀pos ext dnd. Eq dnd ⇒ Game pos ext {from ∷ dnd, to ∷ dnd} ⇒
             Lens' (GState pos ext) (Maybe dnd) → dnd → Update (GState pos ext) Unit
 dropA dragLens to = do
     state ← get

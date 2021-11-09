@@ -31,7 +31,7 @@ instance Game Position Ext { from ∷ Int, to ∷ Int } where
         {init, last} <- position !! from >>= Array.unsnoc
         guard $ from /= to && Just last > (position !! to >>= Array.last) 
         pure $ position # ix from .~ init
-                        # ix to %~ (_ `Array.snoc` last)
+                        # ix to %~ (_ `snoc` last)
     
     initialPosition state = pure [0 .. (state^._nbDisks-1), [], []]
 

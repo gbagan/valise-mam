@@ -2,6 +2,7 @@
 , dependencies =
   [ "argonaut-codecs"
   , "argonaut-core"
+  , "aff"
   , "arrays"
   , "control"
   , "datetime"
@@ -22,6 +23,7 @@
   , "record"
   , "strings"
   , "tailrec"
+  , "transformers"
   , "tuples"
   , "unfoldable"
   , "unsafe-coerce"

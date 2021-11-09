@@ -100,7 +100,7 @@ update (ToggleCard i) = _position ∘ ix i %= reverseCard
 update (SetMode mode) = newGame $ _mode .~ mode
 update Shuffle = do
     state ← get
-    pos ← liftEffect $ Random.arrayOf (length $ state^._position) randomCard
+    pos ← Random.arrayOf (length $ state^._position) randomCard
     put $ state # _position .~ pos 
 update ToggleCustom = do
     state ← get

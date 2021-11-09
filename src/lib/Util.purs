@@ -4,7 +4,6 @@ import MyPrelude
 import Prim.Row (class Union, class Nub)
 import Record as Record
 
-
 repeat2 ∷ ∀a. Int → Int → (Int → Int → a) → Array a
 repeat2 n m f = repeat (n * m) $ \i → f (i / m) (i `mod` m)
 

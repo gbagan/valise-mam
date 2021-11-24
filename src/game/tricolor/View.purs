@@ -52,7 +52,7 @@ view state = template {config, board, rules} state where
         ,   H.class_ "tricolor-cell"
         ,   H.class' "finished" levelFinished
         ,   P.stroke $ if (inRange state i <$> hoverCell) == Just true then "lightgreen" else "black"
-        ,   P.fill $ if levelFinished then "" else colors !! color # fromMaybe ""
+        ,   P.fill $ if levelFinished then "" else colors !! color ?: ""
         ,   P.transform (translateCell i size)
         ,   E.onClick \_ → Play i
         ,   E.onPointerEnter \_ → SetHoverCell (Just i)

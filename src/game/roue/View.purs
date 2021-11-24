@@ -72,7 +72,7 @@ view state = template {config, board, rules} state where
     draggedColor = state ^. _dragged >>= \d →
         let colorIndex = case d of
                             Panel i → i
-                            Wheel i → fromMaybe (-1) $ join (position !! i)
+                            Wheel i → join (position !! i) ?: (-1)
                             _ → -1
         in colors !! colorIndex
 
@@ -102,7 +102,7 @@ view state = template {config, board, rules} state where
             [   H.class_ "roue-outer-piece"
             ,   H.style "left" $ pc $ 0.44 + 0.4 * cos(toNumber index * 2.0 * pi / toNumber size)
             ,   H.style "top" $ pc $ 0.44 + 0.4 * sin(toNumber index * 2.0 * pi / toNumber size)
-            ,   H.style "background-color" $ colors !! color # fromMaybe ""
+            ,   H.style "background-color" (colors !! color ?: "")
             ] []
         )
 

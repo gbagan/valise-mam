@@ -83,7 +83,7 @@ instance Game Int ExtState Int where
 
 instance TwoPlayersGame Int ExtState Int where
     possibleMoves state = filter (canPlay state) (0 .. (state^._nbRows))
-    isLosingPosition state = fromMaybe true $ state^._winning !! (state^._position)
+    isLosingPosition state = state^._winning !! (state^._position) ?: true
 
 data Msg = Core CoreMsg | SelectMove Int | Mark Int | Play Int | Konami String
 instance MsgWithCore Msg where core = Core
@@ -96,7 +96,7 @@ update (SelectMove move) = newGame $ over _moves selectMove where
         1 .. 5 
         # filter (\m → (m == move) ≠ elem m moves)
         # N.fromArray
-        # fromMaybe moves
+        ?: moves
 -- place/retire une marque à la position i
 update (Mark i) = _marked ∘ ix i %= not
 update (Play i) = playA i

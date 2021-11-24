@@ -28,13 +28,13 @@ zone color { x: x1, y: y1 }  {x: x2, y: y2 } =
     ,   P.width $ pc $ abs (x2 - x1)
     ,   P.height $ pc $ abs (y2 - y1)
     ,   H.class_ "labete-zone"
-    ,   P.fill $ colors !! color # fromMaybe ""
+    ,   P.fill (colors !! color ?: "")
     ]
 
 square ∷ ∀a. { color ∷ Int, hasTrap ∷ Boolean, hasBeast ∷ Boolean, row ∷ Int, col ∷ Int} → Array (H.Prop a) → Html a
 square { color, hasTrap, hasBeast, row, col } props =
     H.g ([P.transform $ translate (show $ 50 * col) (show $ 50 * row)] <> props)
-    [   H.use [P.href "#grass", P.width "50", P.height "50", P.fill $ colors !! color # fromMaybe ""]
+    [   H.use [P.href "#grass", P.width "50", P.height "50", P.fill (colors !! color ?: "")]
     ,   H.rect [P.width "51", P.height "51",  H.class_ "labete-square-borders"]
     ,   H.use [P.href "#paw", P.x 5.0, P.y 5.0, P.width "40", P.height "40", H.class_ "labete-beast", H.class' "visible" hasBeast]
     ,   H.when hasTrap \_ →
@@ -110,12 +110,12 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
         H.when (state^._selectedColor > 0) \_ →
             H.div [
                 H.class_ "labete-color",
-                H.style "background-color" $ colors !! (state^._selectedColor) # fromMaybe ""
+                H.style "background-color" (colors !! (state^._selectedColor) ?: "")
             ][]
     ]
 
     customDialog _ = dialog "Personnalise ta bête" [
-        H.div [H.class_ "labete-custombeast-grid-container"] [ 
+        H.div [H.class_ "labete-custombeast-grid-container"] [
             H.svg [P.viewBox 0 0 250 250] (
                 state ^. (_beast ∘ ix 0 ∘ _isoCustom) #
                     mapWithIndex \index hasBeast →

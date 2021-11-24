@@ -4,7 +4,6 @@ import MyPrelude
 
 import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg,
                 _ext, coreUpdate, playA, _position, _nbColumns, _nbRows, newGame, genState)
-import Effect.Class (liftEffect)
 import Lib.Random (class Random)
 import Lib.Random as Random
 import Lib.Update (Update, get, put)

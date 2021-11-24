@@ -46,9 +46,9 @@ instance Game Position Ext { from ∷ Int, to ∷ Int } where
             columns = state^._nbColumns
         in
         position # allWithIndex \i x →
-            let y = if (i+1) `mod` columns == 0 then 0 else fromMaybe 0 $ position !! (i+1)
-                z = fromMaybe 0 $ position !! (i+columns) in
-            x * (y + z) == 0
+            let y = if (i+1) `mod` columns == 0 then 0 else position !! (i+1) ?: 0
+                z = position !! (i+columns) ?: 0
+            in x * (y + z) == 0
 
     sizeLimit _ = SizeLimit 1 2 6 12
     updateScore = updateScore' AlwaysShowWin

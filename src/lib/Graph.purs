@@ -27,7 +27,7 @@ addVertex ∷ Position → Graph → Graph
 addVertex pos graph = graph { vertices = graph.vertices `snoc` pos }
 
 removeVertex ∷ Int → Graph → Graph
-removeVertex i graph = graph {  vertices = graph.vertices # deleteAt i # fromMaybe graph.vertices
+removeVertex i graph = graph {  vertices = graph.vertices # deleteAt i ?: graph.vertices
                              ,  edges = graph.edges # mapMaybe \(u ↔ v) → 
                                     if u == i || v == i then
                                         Nothing

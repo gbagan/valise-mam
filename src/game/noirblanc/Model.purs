@@ -94,7 +94,7 @@ instance Game Position ExtState Int where
     isLevelFinished state = all not (state^._position).light
 
     onNewGame state = 
-        let rows ∧ columns = fromMaybe (8∧8) (sizes !! (state^._level)) in
+        let rows ∧ columns = sizes !! (state^._level) ?: 8∧8 in
         pure $
             if state^._level < 5 then
                 state # _customSize .~ false

@@ -44,8 +44,8 @@ carollStyles = Map.fromFoldable [
 animPytha ∷ State → Html Msg
 animPytha {anim} =
     let f key = 
-                let phase = anim ^. at key # fromMaybe 0 in
-                fromMaybe [] $ pythaStyles ^. at key >>= \t → t !! phase        
+                let phase = anim ^. at key ?: 0 in
+                pythaStyles ^? (ix key ∘ ix phase) ?: []
     in
     H.svg [H.class_ "sansmot-svg", P.viewBox 0 0 700 300, H.style "width" "84vmin", H.style "height" "36vmin"]
     [   H.path $ [P.d "M 0 300 h 300 v -300 h -300 Z L 100 100 M 0 100 h 300 l -200 -100 v 300", P.fill "transparent", P.stroke "#000"]
@@ -70,8 +70,8 @@ animPytha {anim} =
 animCaroll ∷ State → Html Msg
 animCaroll {anim} =
     let f key = 
-                let phase = anim ^. at key # fromMaybe 0 in
-                fromMaybe [] $ carollStyles ^. at key >>= \t → t !! phase        
+                let phase = anim ^. at key ?: 0 in
+                carollStyles ^? (ix key ∘ ix phase) ?: []        
     in
     H.svg [H.class_ "sansmot-svg", P.viewBox (-10) (-10) 1370 270, P.width "90vw", P.height "19vw"] $ concat 
     [

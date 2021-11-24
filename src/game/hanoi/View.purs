@@ -38,7 +38,7 @@ view state = template {config, board, rules, winTitle} state where
 
     drawDisk ∷ {x ∷ Number, y ∷ Number, disk ∷ Int, column ∷ Int, draggable ∷ Boolean} → Array (Prop Msg) → Html Msg
     drawDisk {x, y, disk, column, draggable} props =
-        let color = fromMaybe "black" (colors !! disk) in
+        let color = colors !! disk ?: "black" in
         H.rect $ [ P.x $ x - 25.0 + 2.5 * toNumber disk
                  , P.y $ y - 7.0
                  , P.width $ show $ 50 - 5 * disk

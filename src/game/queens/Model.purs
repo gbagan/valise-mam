@@ -113,7 +113,7 @@ attackedBySelected state = case state^._selectedSquare of
 -- | Le paramètre booléen correspond à la présence du mode multipiece
 toggleAllowedPiece ∷ Piece → Boolean → NonEmptyArray Piece → NonEmptyArray Piece
 toggleAllowedPiece piece false _ = N.singleton piece
-toggleAllowedPiece piece true pieces = N.fromArray pieces2 # fromMaybe pieces where
+toggleAllowedPiece piece true pieces = N.fromArray pieces2 ?: pieces where
     pieces2 = piecesList # filter \p2 → (p2 == piece) ≠ elem p2 pieces
 
 instance Game Position Ext Int where 

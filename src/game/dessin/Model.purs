@@ -231,7 +231,7 @@ instance Game (Array Move) ExtState Move where
     initialPosition _ = pure []
     onNewGame state = 
         let graph = case state^._graphIndex of
-                        GraphIndex i → graphs !! i # fromMaybe house
+                        GraphIndex i → graphs !! i ?: house
                         CustomGraph → state^._graph
         in
         pure $ state # _graph .~ graph

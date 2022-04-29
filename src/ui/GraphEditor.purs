@@ -34,7 +34,7 @@ init = { graph: emptyGraph, mode: VertexMode, selectedVertex: Nothing, currentPo
 data Msg =
       AddVertex MouseEvent
     | SelectVertex Int MouseEvent
-    | PointerUp Int MouseEvent
+    | PointerUp Int
     | Move MouseEvent
     | DeleteVertex Int MouseEvent
     | DeleteEdge Edge
@@ -74,7 +74,7 @@ update lens = case _ of
             else  
                 model
 
-    PointerUp i ev → do
+    PointerUp i → do
         lens %= \model →
             case model.mode /\ model.selectedVertex of
                 VertexMode /\ _ →
@@ -157,7 +157,7 @@ view {graph, mode, currentPosition, selectedVertex} onOk =
                             --,   P.fill "blue"
                             ,   E.onClick \ev → geditormsg (DeleteVertex i ev)
                             ,   E.onPointerDown \ev → geditormsg (SelectVertex i ev)
-                            ,   E.onPointerUp \ev → geditormsg (PointerUp i ev)
+                            ,   E.onPointerUp \_ → geditormsg (PointerUp i)
                             ]
                 ,   [H.when (mode == AddEMode) \_ →
                         H.fromMaybe case selectedVertex of

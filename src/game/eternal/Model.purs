@@ -276,20 +276,20 @@ instance Game Position ExtState Move where
 
     computerMove st
         | isLevelFinished st = pure Nothing
-        | otherwise = case (st^._arena ∧ (st^._position).attacked) of
-            Just arena ∧ Just attack →
+        | otherwise = case st^._arena, (st^._position).attacked of
+            Just arena, Just attack →
                 let graph = edgesToGraph (length (st^._graph).vertices) (st^._graph).edges
                     answer = guardsAnwser graph arena (st^._position).guards attack
                 in
                 pure $ Defense <$> answer
-            Just arena ∧ Nothing →
+            Just arena, Nothing →
                 case attackerAnswer arena (st^._position).guards of
                     Just attack → pure $ Just (Attack attack)
                     Nothing → (0 .. (length (st^._graph).vertices - 1)) 
                                 # filter (\i → not (elem i (st^._position).guards))
                                 # R.element'
                                 <#> map Attack
-            _ → pure Nothing
+            _, _ → pure Nothing
 
     onPositionChange = startGame
 
@@ -369,9 +369,9 @@ update DropOnBoard = modify_ $ dragGuard Nothing
 update (Play x) = do
     st ← get
     let guards = (st^._position).guards
-    case st^._phase ∧ (st^._position).attacked  of
-        PrepPhase ∧ _ → modify_ $ over (_position ∘ _guards) (toggleGuard x)
-        GamePhase ∧ Just attacked → playA $ Defense (addToNextMove (st^._graph).edges x attacked guards guards)
-        GamePhase ∧ Nothing → playA (Attack x)
+    case st^._phase, (st^._position).attacked  of
+        PrepPhase, _ → modify_ $ over (_position ∘ _guards) (toggleGuard x)
+        GamePhase, Just attacked → playA $ Defense (addToNextMove (st^._graph).edges x attacked guards guards)
+        GamePhase, Nothing → playA (Attack x)
 update (CloseEditor g) = modify_ $ (_dialog .~ NoDialog) >>> (_graph .~ g)
 update NoAction = pure unit

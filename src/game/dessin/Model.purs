@@ -218,15 +218,15 @@ instance Game (Array Move) ExtState Move where
 
     play state x =
         let position = state^._position in 
-        case x ∧ last position of
-            Raise ∧ Just (MoveTo _) → Just (position `snoc` x)
-            Raise ∧ _ → Nothing
-            MoveTo u ∧ Just (MoveTo v) →
+        case x, last position of
+            Raise, Just (MoveTo _) → Just (position `snoc` x)
+            Raise, _ → Nothing
+            MoveTo u, Just (MoveTo v) →
                     if not (elem (u↔v) (edgesOf position)) && elem (u↔v) (state^._graph).edges then
                         Just (position `snoc` x)
                     else
                         Nothing
-            _ → Just (position `snoc` x)
+            _, _ → Just (position `snoc` x)
 
     initialPosition _ = pure []
     onNewGame state = 

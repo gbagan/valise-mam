@@ -100,7 +100,7 @@ attackedBy state piece index =
 -- | renvoie l'ensemble des cases pouvant être attaquées par une pièce sur le plateau
 capturableSquares ∷ State → Array Boolean
 capturableSquares state = state^._position # foldrWithIndex
-        (\index piece → if piece == Empty then identity else zipWith disj (attackedBy state piece index))
+        (\index piece → if piece == Empty then identity else zipWith (||) (attackedBy state piece index))
         (replicate (state^._nbRows * state^._nbColumns) false)
 
 -- | renvoie l'ensemble des cases attaquées par l'endroit du pointeur de la souris

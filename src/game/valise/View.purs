@@ -125,9 +125,9 @@ valise state =
         let defaultTranslate = translate (pc $ toNumber x' / 850.0)  (pc $ toNumber y' / 690.0) in
         H.g
         [   H.style "transform" $ 
-                case drag ∧ (state ^. _positions ^. at symbol) of
-                    true ∧ Just {x: x2, y: y2} → translate (pc x2) (pc y2)    
-                    _ → defaultTranslate
+                case drag, state ^. _positions ^. at symbol of
+                    true, Just {x: x2, y: y2} → translate (pc x2) (pc y2)    
+                    _, _ → defaultTranslate
         ]
         [   H.g props
             [   H.svg (

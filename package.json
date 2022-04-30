@@ -1,20 +1,12 @@
 {
   "dependencies": {
-    "purescript": "^0.14.9",
-    "rollup": "^2.70.2",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-terser": "^7.0.2",
-    "sass": "^1.50.0",
-    "spago": "^0.20.7",
-    "svgo": "^2.8.0",
-    "terser": "^5.12.1"
+    "esbuild": "^0.14.38",
+    "purescript": "^0.15.0",
+    "sass": "^1.51.0",
+    "spago": "^0.20.8"
   },
   "scripts": {
-    "build": "spago bundle-app --to dist/bundle.js",
-    "build2": "spago build --purs-args '--codegen corefn,js'",
-    "dce": "zephyr -e -f Main.main",
-    "rollup": "rollup -c",
-    "buildcss": "sass src/index.scss dist/bundle.css",
+    "build": "spago bundle-app --minify --to dist/bundle.js",
     "deploy": "scp -r dist/* mam@connect.liris.cnrs.fr:~/public_html/valise/",
     "deploy:test": "scp -r dist/* gbagan@connect.liris.cnrs.fr:~/valisetest/"
   }

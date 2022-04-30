@@ -15,7 +15,7 @@ import Data.Ord (abs) as Exports
 import Data.Int (toNumber, floor, even) as Exports
 import Data.Tuple (Tuple(..), fst, snd) as Exports
 import Data.Tuple.Nested ((/\)) as Exports
-import Math (cos, sin, pi, sqrt) as Exports
+import Data.Number (cos, sin, pi, sqrt) as Exports
 import Data.Maybe (Maybe(..), maybe, fromMaybe, isJust, isNothing) as Exports
 import Data.Either (Either(..)) as Exports
 import Data.Foldable (class Foldable, foldl, foldr, elem, any, all, and, or, for_, minimumBy) as Exports
@@ -33,7 +33,7 @@ import Data.Lens.Lens.Product (_1, _2) as Exports
 import Data.Lens.Record (prop) as Exports
 import Data.String (joinWith) as Exports
 import Control.Alt ((<|>)) as Exports
-import Control.MonadZero (guard) as Exports
+import Control.Alternative (guard) as Exports
 import Control.Monad.State.Class (class MonadState) as Exports
 import Data.Time.Duration (Milliseconds(..)) as Exports
 

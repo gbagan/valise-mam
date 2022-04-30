@@ -4,7 +4,7 @@ import MyPrelude
 import Effect (Effect)
 import Unsafe.Coerce (unsafeCoerce)
 import Web.Event.Event as E
-import Web.HTML.HTMLElement as HE
+import Web.DOM.Element as Element
 import Web.UIEvent.MouseEvent (MouseEvent)
 import Web.UIEvent.MouseEvent as ME
 
@@ -24,8 +24,8 @@ pointerDecoder ev = do
         Just el → do
             -- dans l'implémentation actuelle en purescript, getBoundingClientRect ne s'applique
             -- qu'à des HTMLElement et pas à des SVG Elements
-            let el' = unsafeCoerce el ∷ HE.HTMLElement
-            {left, top, width, height} ← HE.getBoundingClientRect el'
+            let el' = unsafeCoerce el -- ∷ HE.HTMLElement
+            {left, top, width, height} ← Element.getBoundingClientRect el'
             pure $ Just {
                 x: (toNumber(ME.clientX ev) - left) / width,
                 y: (toNumber(ME.clientY ev) - top) / height

@@ -157,12 +157,12 @@ const allRules = {
     
 const makeRules = name => name === 'one' ? oneRules : allRules;
 
-const guardsAnswerAux = nothing => just => edsgraph => guards => attack => {
+export const guardsAnswerAux = nothing => just => edsgraph => guards => attack => {
     const ans = answer(edsgraph, guards.concat(attack));
     return !ans ? nothing : just(ans);
 };
 
-const attackerAnswerAux = nothing => just => arenaGraph => conf => {
+export const attackerAnswerAux = nothing => just => arenaGraph => conf => {
     const econf = arenaGraph.encode(conf); 
     if(!arenaGraph.attractor[econf])
         return nothing;
@@ -171,7 +171,7 @@ const attackerAnswerAux = nothing => just => arenaGraph => conf => {
     return just(minattack[minattack.length-1]);
 }
 
-const makeEDSAux = graph => rulesName => k => {
+export const makeEDSAux = graph => rulesName => k => {
     const n = graph.length
     const rules = makeRules(rulesName)
     function* bconfs () {
@@ -206,7 +206,3 @@ const makeEDSAux = graph => rulesName => k => {
     };
     return makeArenaGraph(arena)
 }
-
-exports.guardsAnswerAux = guardsAnswerAux
-exports.attackerAnswerAux = attackerAnswerAux
-exports.makeEDSAux = makeEDSAux

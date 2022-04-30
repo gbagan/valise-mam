@@ -2,7 +2,7 @@ module Game.Eternal.View (view) where
 
 import MyPrelude
 
-import Math (acos)
+import Data.Number (acos)
 import Lib.Graph (Graph, Edge, (↔), Position)
 import Game.Core (CoreMsg(SetPointer), isLevelFinished, PointerPosition, core, _position, _pointer)
 import Game.Eternal.Model (State, Msg(..), Phase(..), Rules(..), GraphKind(..), isValidNextMove,

@@ -29,6 +29,7 @@
   , "web-dom"
   , "web-events"
   , "web-html"
+  , "web-pointerevents"
   , "web-storage"
   , "web-uievents"
   ]

@@ -15,6 +15,8 @@ import Lib.Update (Update, class MonadDelay, get, modify_, put, delay, storageGe
 import Web.Event.Event (stopPropagation)
 import Web.UIEvent.MouseEvent (MouseEvent)
 import Web.UIEvent.MouseEvent as ME
+import Web.PointerEvent (PointerEvent)
+import Web.PointerEvent.PointerEvent as PE
 import Game.Common (releasePointerCapture, pointerDecoder)
 
 -- ConfirmNewGame contient le futur état d'une nouvelle partie
@@ -175,7 +177,7 @@ data CoreMsg =
     | SetRulesDialog
     | SetScoreDialog
     | ConfirmNewGame
-    | SetPointer MouseEvent
+    | SetPointer PointerEvent
     | SetPointerToNothing
     | ComputerStarts
     | Init
@@ -423,8 +425,8 @@ bestScore ∷ ∀pos ext mov. ScoreGame pos ext mov ⇒ GState pos ext → Maybe
 bestScore state = state ^. _scores ∘ at (scoreHash' state)
 
 data DndMsg i =
-      Drag Boolean i MouseEvent
-    | Drop Boolean i MouseEvent
+      Drag Boolean i PointerEvent
+    | Drop Boolean i PointerEvent
     | Leave
     | DropOnBoard
 
@@ -438,7 +440,7 @@ dndUpdate _dragged (Drag draggable i ev) = do
     when draggable (_dragged .= Just i)
 dndUpdate _dragged (Drop candrop i ev) =
     when candrop do
-        liftEffect $ stopPropagation $ ME.toEvent ev
+        liftEffect $ stopPropagation $ PE.toEvent ev
         dropA _dragged i
 dndUpdate _dragged Leave = _dragged .= Nothing
 dndUpdate _dragged DropOnBoard = _dragged .= Nothing

@@ -1,11 +1,13 @@
 module Game.Common where
 
 import MyPrelude
+
 import Effect (Effect)
 import Unsafe.Coerce (unsafeCoerce)
-import Web.Event.Event as E
 import Web.DOM.Element as Element
-import Web.UIEvent.MouseEvent (MouseEvent)
+import Web.Event.Event as E
+import Web.PointerEvent.PointerEvent (PointerEvent)
+import Web.PointerEvent.PointerEvent as PE
 import Web.UIEvent.MouseEvent as ME
 
 -- fonction utile pour labete et tiling
@@ -16,18 +18,23 @@ _isoCustom = iso from to where
         from = flip updateAtIndices (replicate 25 false) ∘  map \{row, col} → (row * 5 + col + 12) ∧ true
         to = catMaybes ∘ mapWithIndex \i → if _ then Just {row: i / 5 - 2, col: i `mod` 5 - 2} else Nothing
 
-foreign import releasePointerCapture ∷ MouseEvent → Effect Unit
+releasePointerCapture ∷ PointerEvent → Effect Unit
+releasePointerCapture ev =
+    for_ (E.currentTarget $ PE.toEvent ev) \target ->
+        for_ (Element.fromEventTarget target) \elem ->
+            PE.releasePointerCapture (PE.pointerId ev) elem
 
-pointerDecoder ∷ MouseEvent → Effect (Maybe { x ∷ Number, y ∷ Number })
+pointerDecoder ∷ PointerEvent → Effect (Maybe { x ∷ Number, y ∷ Number })
 pointerDecoder ev = do
-    case E.currentTarget (ME.toEvent ev) of
+    case E.currentTarget (PE.toEvent ev) of
         Just el → do
             -- dans l'implémentation actuelle en purescript, getBoundingClientRect ne s'applique
             -- qu'à des HTMLElement et pas à des SVG Elements
             let el' = unsafeCoerce el -- ∷ HE.HTMLElement
+            let mev = PE.toMouseEvent ev
             {left, top, width, height} ← Element.getBoundingClientRect el'
             pure $ Just {
-                x: (toNumber(ME.clientX ev) - left) / width,
-                y: (toNumber(ME.clientY ev) - top) / height
+                x: (toNumber(ME.clientX mev) - left) / width,
+                y: (toNumber(ME.clientY mev) - top) / height
             }
         _ → pure Nothing

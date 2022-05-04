@@ -2,6 +2,7 @@ module Game.Labete.View (view) where
 
 import MyPrelude
 import Web.UIEvent.MouseEvent as ME
+import Web.PointerEvent.PointerEvent as PE
 import Lib.Util (coords, map3)
 import Pha.Html (Html)
 import Pha.Html as H
@@ -91,11 +92,11 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
             (map3 (state^._position) nonTrappedBeast  (state^._squareColors) \index hasTrap hasBeast color →
                 let {row, col} = coords columns index in
                 show index /\ square { color, row, col, hasTrap, hasBeast: hasBeast && state^._help }
-                [   E.onClick \ev → if ME.shiftKey ev then NoAction else Play index
+                [   E.onClick \ev → if ME.shiftKey (PE.toMouseEvent ev) then NoAction else Play index
                     -- pointerenter: [actions.setSquareHover, index], todo
                     -- ponterleave: [actions.setSquareHover, null],
                 ,   E.onPointerUp \_ → FinishZone index
-                ,   E.onPointerDown \ev → if ME.shiftKey ev then StartZone index else NoAction
+                ,   E.onPointerDown \ev → if ME.shiftKey (PE.toMouseEvent ev) then StartZone index else NoAction
                 ]
             ) <> [
                 "c" /\ H.fromMaybe case state^._startPointer of

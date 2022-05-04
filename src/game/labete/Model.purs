@@ -7,7 +7,8 @@ import Game.Common (pointerDecoder, _isoCustom)
 import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, SizeLimit(..), GState, Objective(..), ShowWinPolicy(..), PointerPosition, Dialog(..), playA, coreUpdate, _ext, genState, newGame, _position, _nbRows, _nbColumns, _help, _dialog, updateScore', saveToJson', loadFromJson')
 import Lib.Update (Update, modify_)
 import Lib.Util (coords, repeat2)
-import Web.UIEvent.MouseEvent (MouseEvent)
+import Web.PointerEvent (PointerEvent)
+import Web.PointerEvent.PointerEvent as PE
 import Web.UIEvent.MouseEvent as ME
 
 type Zone = { row1 ∷ Int, row2 ∷ Int, col1 ∷ Int, col2 ∷ Int}
@@ -197,7 +198,7 @@ data Msg =
     | Play Int
     | IncSelectedColor Int
     | StartZone Int 
-    | StartZone2 MouseEvent
+    | StartZone2 PointerEvent
     | FinishZone Int
     | FlipCustomBeast Int
     | NoAction
@@ -219,7 +220,7 @@ update (IncSelectedColor i) = _selectedColor %= \x → (x + i) `mod` 9
 update (StartZone s) = _startSquare .= Just s
 -- startZone2A est appliqué lors du onpointerdown sur l'élément html réprésentant le plateu
 update (StartZone2 ev) =
-    if ME.shiftKey ev then do
+    if ME.shiftKey (PE.toMouseEvent ev) then do
         p ← liftEffect $ pointerDecoder ev
         case p of
             Just pos → _startPointer .= Just pos

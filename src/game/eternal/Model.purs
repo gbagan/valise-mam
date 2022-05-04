@@ -13,7 +13,7 @@ import Lib.Update (Update, get, modify_)
 import Lib.Util (repeat2)
 import UI.GraphEditor as GEditor
 import Web.Event.Event (stopPropagation)
-import Web.UIEvent.MouseEvent (MouseEvent, toEvent)
+import Web.PointerEvent.PointerEvent (PointerEvent, toEvent)
 
 
 data GraphKind = Path | Cycle | Grid | Biclique | CustomGraph
@@ -328,8 +328,8 @@ data Msg = Core CoreMsg
         | GEditor GEditor.Msg
         | SetGraphKind GraphKind
         | SetRules Rules 
-        | DragGuard Int MouseEvent
-        | DropGuard Int MouseEvent
+        | DragGuard Int PointerEvent
+        | DropGuard Int PointerEvent
         | LeaveGuard
         | DropOnBoard
         | StartGame

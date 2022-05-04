@@ -6,7 +6,7 @@ import Data.Map as Map
 import Effect.Class (liftEffect)
 import Game.Common (pointerDecoder)
 import Lib.Update (Update, get, put, modify_, delay)
-import Web.UIEvent.MouseEvent (MouseEvent)
+import Web.PointerEvent (PointerEvent)
 
 type State = 
     {   isOpen ∷ Boolean
@@ -49,7 +49,7 @@ enterA = do
 data Msg = ShowHelp String
         | ToggleSwitch
         | SetDrag (Maybe { name ∷ String, x ∷ Number, y ∷ Number })
-        | MoveObject MouseEvent
+        | MoveObject PointerEvent
         | NoAction
 
 update ∷ Msg → Update State Unit

@@ -13,7 +13,9 @@ import Pha.Html.Events as E
 import UI.Dialog (dialog)
 import UI.Icon (iconbutton, Icon(..))
 import Web.Event.Event (stopPropagation)
-import Web.UIEvent.MouseEvent (MouseEvent, toEvent)
+import Web.PointerEvent (PointerEvent)
+import Web.PointerEvent.PointerEvent as PE
+import Web.UIEvent.MouseEvent as ME
 
 data Mode = VertexMode | AddEMode | DeleteMode | MoveMode
 derive instance Eq Mode
@@ -32,11 +34,11 @@ init ∷ Model
 init = { graph: emptyGraph, mode: VertexMode, selectedVertex: Nothing, currentPosition: Nothing }
 
 data Msg =
-      AddVertex MouseEvent
-    | SelectVertex Int MouseEvent
+      AddVertex PointerEvent
+    | SelectVertex Int PointerEvent
     | PointerUp Int
-    | Move MouseEvent
-    | DeleteVertex Int MouseEvent
+    | Move PointerEvent
+    | DeleteVertex Int PointerEvent
     | DeleteEdge Edge
     | DropOrLeave
     | SetMode Mode
@@ -60,7 +62,7 @@ update lens = case _ of
                         model
 
     SelectVertex i ev → do
-        liftEffect $ stopPropagation $ toEvent ev
+        liftEffect $ stopPropagation $ PE.toEvent ev
         lens %= \model →
             if model.mode `elem` [AddEMode, VertexMode] then
                 model{selectedVertex = Just i}
@@ -96,7 +98,7 @@ update lens = case _ of
     DeleteVertex i ev → do
         st ← get
         when ((st^.lens).mode == VertexMode)
-            (liftEffect $ stopPropagation $ toEvent ev)
+            (liftEffect $ stopPropagation $ PE.toEvent ev)
         lens %= \model →
             if model.mode == DeleteMode then
                 model{graph = Graph.removeVertex i model.graph}

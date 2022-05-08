@@ -8,6 +8,7 @@ import Web.DOM.Element as Element
 import Web.Event.Event as E
 import Web.PointerEvent.PointerEvent (PointerEvent)
 import Web.PointerEvent.PointerEvent as PE
+import Web.PointerEvent.Element as PElem
 import Web.UIEvent.MouseEvent as ME
 
 -- fonction utile pour labete et tiling
@@ -22,7 +23,7 @@ releasePointerCapture ∷ PointerEvent → Effect Unit
 releasePointerCapture ev =
     for_ (E.currentTarget $ PE.toEvent ev) \target ->
         for_ (Element.fromEventTarget target) \elem ->
-            PE.releasePointerCapture (PE.pointerId ev) elem
+            PElem.releasePointerCapture (PE.pointerId ev) elem
 
 pointerDecoder ∷ PointerEvent → Effect (Maybe { x ∷ Number, y ∷ Number })
 pointerDecoder ev = do

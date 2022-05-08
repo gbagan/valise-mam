@@ -13,8 +13,6 @@ import Lib.Random (class Random)
 import Lib.Random as Random
 import Lib.Update (Update, class MonadDelay, get, modify_, put, delay, storageGet, storagePut)
 import Web.Event.Event (stopPropagation)
-import Web.UIEvent.MouseEvent (MouseEvent)
-import Web.UIEvent.MouseEvent as ME
 import Web.PointerEvent (PointerEvent)
 import Web.PointerEvent.PointerEvent as PE
 import Game.Common (releasePointerCapture, pointerDecoder)

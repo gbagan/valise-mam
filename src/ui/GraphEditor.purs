@@ -15,7 +15,6 @@ import UI.Icon (iconbutton, Icon(..))
 import Web.Event.Event (stopPropagation)
 import Web.PointerEvent (PointerEvent)
 import Web.PointerEvent.PointerEvent as PE
-import Web.UIEvent.MouseEvent as ME
 
 data Mode = VertexMode | AddEMode | DeleteMode | MoveMode
 derive instance Eq Mode

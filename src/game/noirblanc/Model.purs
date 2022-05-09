@@ -1,16 +1,14 @@
 module Game.Noirblanc.Model where
 
 import MyPrelude
-
+import Control.Monad.Gen (chooseInt)
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
 import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg, _ext, coreUpdate, playA, isLevelFinished, saveToStorage,
                   _position, _nbColumns, _nbRows, _customSize, newGame, genState)
 import Lib.KonamiCode (konamiCode)
-import Lib.Random (class Random)
-import Lib.Random as Random
-import Lib.Update (Update, get)
-import Lib.Util (dCoords)
+import Lib.Update (UpdateMam)
+import Lib.Util (chooseInt', dCoords)
 
 -- une position est composée de 2 tableaux light et played
 -- light indique si la case de numéro i est allumée
@@ -72,12 +70,12 @@ toggleCell state index = mapWithIndex \i → (_ ≠ neighbor state index i)
 
 -- | génération de plateau aléatoire pour le niveau 6
 -- | on part d'une configuration où tout est éteint et on joue des coups aléatoires
-genRandomBoard ∷ ∀m. Random m ⇒ State → m (Array Boolean)
+genRandomBoard ∷ ∀m. MonadGen m ⇒ State → m (Array Boolean)
 genRandomBoard state = do
     let size = state^._nbRows * state^._nbColumns
-    nbMoves ← Random.int size (size+1)
-    Random.arrayOf nbMoves (Random.int' size) <#>
-        foldr (toggleCell state) (replicate size false)
+    nbMoves ← chooseInt size (size+1)
+    moves ∷ Array Int ← replicateA nbMoves (chooseInt' size)
+    pure $ foldr (toggleCell state) (replicate size false) moves
 
 instance Game Position ExtState Int where
     name _ = "noirblanc"
@@ -125,7 +123,7 @@ sizes = [3∧3, 4∧4, 2∧10, 3∧10, 5∧5, 8∧8, 8∧8]
 
 -- | si le niveau est fini, on met à jour les nivaux débloqués
 -- | et l'on passe au niveau suivant
-afterPlay ∷ Update State Unit
+afterPlay ∷ UpdateMam State
 afterPlay = do
     state ← get
     let mode = state^._mode
@@ -141,7 +139,7 @@ afterPlay = do
 data Msg = Core CoreMsg | SelectMode Int | SelectLevel Int | Play Int | Konami String
 instance MsgWithCore Msg where core = Core
 
-update ∷ Msg → Update State Unit
+update ∷ Msg → UpdateMam State
 update (Core msg) = coreUpdate msg
 update (SelectMode mode) = newGame $ set _mode mode ∘ set _level 0
 update (SelectLevel level) = newGame $ set _level level

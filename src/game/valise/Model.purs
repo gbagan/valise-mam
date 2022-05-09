@@ -3,9 +3,8 @@ module Game.Valise.Model where
 import MyPrelude
 
 import Data.Map as Map
-import Effect.Class (liftEffect)
 import Game.Common (pointerDecoder)
-import Lib.Update (Update, get, put, modify_, delay)
+import Lib.Update (UpdateMam, delay)
 import Web.PointerEvent (PointerEvent)
 
 type State = 
@@ -40,7 +39,7 @@ _drag = prop (Proxy ∷ _ "drag")
 _isSwitchOn ∷ Lens' State Boolean
 _isSwitchOn = prop (Proxy ∷ _ "isSwitchOn")
 
-enterA ∷ Update State Unit
+enterA ∷ UpdateMam State
 enterA = do
     put istate
     delay (Milliseconds 1500.0)
@@ -52,7 +51,7 @@ data Msg = ShowHelp String
         | MoveObject PointerEvent
         | NoAction
 
-update ∷ Msg → Update State Unit
+update ∷ Msg → UpdateMam State
 update (ShowHelp help) = modify_ $ over _help (if help == "" then identity else const help)
                                 >>> set _helpVisible (help ≠ "")
 update ToggleSwitch = _isSwitchOn %= not

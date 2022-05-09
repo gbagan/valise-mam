@@ -6,7 +6,7 @@ import Game.Core (class Game, class ScoreGame, class MsgWithCore, class MsgWithD
                   CoreMsg, DndMsg, GState, SizeLimit(..), Objective(..), ShowWinPolicy(..),
                   coreUpdate, dndUpdate, _ext, genState, updateScore', _position, _nbColumns, _nbRows,
                   defaultOnNewGame, saveToJson', loadFromJson')
-import Lib.Update (Update)
+import Lib.Update (UpdateMam)
 import Lib.Util (dCoords)
 
 -- une position représente pour chaque numéro de case le nombre de jetons sur cette case
@@ -69,6 +69,6 @@ data Msg = Core CoreMsg | DnD (DndMsg Int)
 instance MsgWithCore Msg where core = Core
 instance MsgWithDnd Msg Int where dndmsg = DnD  
 
-update ∷ Msg → Update State Unit
+update ∷ Msg → UpdateMam State
 update (Core msg) = coreUpdate msg
 update (DnD msg) = dndUpdate _dragged msg

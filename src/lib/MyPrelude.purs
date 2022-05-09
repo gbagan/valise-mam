@@ -11,6 +11,7 @@ import Prelude (class Applicative, class Apply, class Bind, class BooleanAlgebra
                 (#), ($), ($>), (&&), (*), (*>), (+), (-), (/), (/=), (<), (<#>), (<$), (<$>), (<*), (<*>), (<<<), (<=), (<=<),
                 (<>), (<@>), (=<<), (==), (>), (>=), (>=>), (>>=), (>>>), (||)) as Exports
 import Type.Proxy (Proxy(..)) as Exports
+import Control.Monad.State (get, modify_, put) as Exports
 import Data.Ord (abs) as Exports
 import Data.Int (toNumber, floor, even) as Exports
 import Data.Tuple (Tuple(..), fst, snd) as Exports
@@ -22,6 +23,7 @@ import Data.Foldable (class Foldable, foldl, foldr, elem, any, all, and, or, for
 import Data.Traversable (sequence, for) as Exports
 import Data.List (List(..)) as Exports
 import Data.Array.NonEmpty (NonEmptyArray) as Exports
+import Data.Unfoldable (replicateA) as Exports
 import Data.Map (Map) as Exports
 import Data.Array (range)
 import Data.Array ((!!), head, last, cons, snoc, filter, find, take, null, length, mapMaybe, catMaybes, nub, elemIndex, sort, uncons,
@@ -34,8 +36,11 @@ import Data.Lens.Record (prop) as Exports
 import Data.String (joinWith) as Exports
 import Control.Alt ((<|>)) as Exports
 import Control.Alternative (guard) as Exports
+import Control.Monad.Gen (class MonadGen) as Exports
 import Control.Monad.State.Class (class MonadState) as Exports
 import Data.Time.Duration (Milliseconds(..)) as Exports
+import Effect.Class (class MonadEffect, liftEffect) as Exports
+import Control.Monad.Trans.Class (lift) as Exports
 
 range' ∷ Int → Int → Array Int
 range' n m = if n > m then [] else range n m

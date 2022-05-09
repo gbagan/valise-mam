@@ -2,8 +2,8 @@ module Game.Baseball.Model where
 
 import MyPrelude
 import Data.FoldableWithIndex (allWithIndex)
-import Lib.Random as Random
-import Lib.Update (Update)
+import Lib.Util (chooseInt', shuffle)
+import Lib.Update (UpdateMam)
 import Game.Core (class Game, GState, class MsgWithCore, CoreMsg,
                  playA, coreUpdate, _ext, genState, newGame, _position, defaultSizeLimit)
 
@@ -54,9 +54,9 @@ instance Game Position Ext Move where
         guard $ elem (x / 2 - y / 2) [1, nbBases-1, -1, 1-nbBases]
         Just $ position # updateAtIndices [i ∧ y, j ∧ x]
 
-    initialPosition state = Random.shuffle $ 0 .. (2 * state^._nbBases - 1)
+    initialPosition state = shuffle $ 0 .. (2 * state^._nbBases - 1)
     isLevelFinished = view _position >>> allWithIndex \i j → i / 2 == j / 2
-    onNewGame state = Random.int' (2 * state^._nbBases) <#> \i → set _missingPeg i state
+    onNewGame state = chooseInt' (2 * state^._nbBases) <#> \i → set _missingPeg i state
     
     -- fonctions par défault
     computerMove _ = pure Nothing
@@ -69,7 +69,7 @@ instance Game Position Ext Move where
 data Msg = Core CoreMsg | SetNbBases Int | Play Move
 instance MsgWithCore Msg where core = Core
 
-update ∷ Msg → Update State Unit
+update ∷ Msg → UpdateMam State
 update (Core msg) = coreUpdate msg
 update (SetNbBases n) = newGame $ set _nbBases n
 update (Play m) = playA m

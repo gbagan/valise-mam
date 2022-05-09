@@ -7,7 +7,7 @@ import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, GState,
     CoreMsg,  DndMsg(DropOnBoard),
     coreUpdate, dndUpdate,
     genState, newGame, lockAction, _ext, _position, _showWin, defaultSizeLimit)
-import Lib.Update (Update, get, modify_, delay)
+import Lib.Update (UpdateMam, delay)
 
 type Position = Array (Maybe Int)
 
@@ -85,7 +85,7 @@ data Msg = Core CoreMsg | DnD (DndMsg Location) | Rotate Int | SetSize Int | Che
 instance MsgWithCore Msg where core = Core
 instance MsgWithDnd Msg Location where dndmsg = DnD  
     
-update ∷ Msg → Update State Unit
+update ∷ Msg → UpdateMam State
 update (Core msg) = coreUpdate msg
 update (DnD DropOnBoard) = modify_ \state →
         let state2 = state # set _dragged Nothing in

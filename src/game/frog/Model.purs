@@ -4,7 +4,7 @@ import MyPrelude
 import Data.Lazy (defer, force)
 import Data.Array.NonEmpty as N
 import Lib.KonamiCode (konamiCode)
-import Lib.Update (Update, modify_)
+import Lib.Update (UpdateMam)
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, Mode(..), GState, SizeLimit(..),
               playA,  _ext, coreUpdate, newGame, computerMove', genState, _position, _nbRows)
 
@@ -88,7 +88,7 @@ instance TwoPlayersGame Int ExtState Int where
 data Msg = Core CoreMsg | SelectMove Int | Mark Int | Play Int | Konami String
 instance MsgWithCore Msg where core = Core
 
-update ∷ Msg → Update State Unit
+update ∷ Msg → UpdateMam State
 update (Core msg) = coreUpdate msg
 -- ajoute ou enlève un mouvement dans la liste des mouvements permis
 update (SelectMove move) = newGame $ over _moves selectMove where

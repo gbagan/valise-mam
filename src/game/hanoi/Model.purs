@@ -4,7 +4,7 @@ import MyPrelude
 import Data.Array as Array
 import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, CoreMsg, DndMsg, GState,
                 coreUpdate, dndUpdate, _ext, genState, newGame, _position, defaultOnNewGame, defaultSizeLimit)
-import Lib.Update (Update)
+import Lib.Update (UpdateMam)
 
 type Position = Array (Array Int)
 type Ext' = { dragged ∷ Maybe Int, nbDisks ∷ Int }
@@ -52,7 +52,7 @@ data Msg = Core CoreMsg | DnD (DndMsg Int) | SetNbDisks Int
 instance MsgWithCore Msg where core = Core
 instance MsgWithDnd Msg Int where dndmsg = DnD  
 
-update ∷ Msg → Update State Unit
+update ∷ Msg → UpdateMam State
 update (Core msg) = coreUpdate msg
 update (DnD msg) = dndUpdate _dragged msg
 update (SetNbDisks n) = newGame $ set _nbDisks n

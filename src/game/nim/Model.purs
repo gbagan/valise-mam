@@ -1,11 +1,11 @@
 module Game.Nim.Model where
 
 import MyPrelude
-
+import Control.Monad.Gen (chooseInt)
 import Data.Int.Bits (xor)
-import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, GState, Mode(..), Turn(..), coreUpdate, playA, _ext, genState, newGame, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
-import Lib.Random as Random
-import Lib.Update (Update)
+import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, GState, Mode(..), Turn(..),
+        coreUpdate, playA, _ext, genState, newGame, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
+import Lib.Update (UpdateMam)
 import Lib.Util (repeat2)
 
 -- une position donne pour chaque numéro de rangée une paire indiquant la position de chaque jetons
@@ -53,11 +53,11 @@ instance Game (Array Position) ExtState Move where
         \(Position p1 p2) → p2 - p1 == 1 && p1 == (if state^._turn == Turn2 then state^._length - 2 else 0)
 
     initialPosition state = 
-        Random.arrayOf (state^._nbPiles) $
+        replicateA (state^._nbPiles) $
             if state^._length == 5 then
                 pure (Position 0 4)
             else
-                Position <$> Random.int 0 4 <*> Random.int 5 9
+                Position <$> chooseInt 0 4 <*> chooseInt 5 9
 
     computerMove = computerMove'
 
@@ -82,7 +82,7 @@ instance TwoPlayersGame (Array Position) ExtState Move where
 data Msg = Core CoreMsg | SetNbPiles Int | SetLength Int | Play Move
 instance MsgWithCore Msg where core = Core
 
-update ∷ Msg → Update State Unit
+update ∷ Msg → UpdateMam State
 update (Core msg) = coreUpdate msg
 update (SetNbPiles n) = newGame $ set _nbPiles n
 update (SetLength n) = newGame $ set _length n

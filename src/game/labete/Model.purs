@@ -1,11 +1,10 @@
 module Game.Labete.Model where
 
 import MyPrelude
-
-import Effect.Class (liftEffect)
 import Game.Common (pointerDecoder, _isoCustom)
-import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, SizeLimit(..), GState, Objective(..), ShowWinPolicy(..), PointerPosition, Dialog(..), playA, coreUpdate, _ext, genState, newGame, _position, _nbRows, _nbColumns, _help, _dialog, updateScore', saveToJson', loadFromJson')
-import Lib.Update (Update, modify_)
+import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, SizeLimit(..), GState, Objective(..), ShowWinPolicy(..), PointerPosition, Dialog(..),
+                    playA, coreUpdate, _ext, genState, newGame, _position, _nbRows, _nbColumns, _help, _dialog, updateScore', saveToJson', loadFromJson')
+import Lib.Update (UpdateMam)
 import Lib.Util (coords, repeat2)
 import Web.PointerEvent (PointerEvent)
 import Web.PointerEvent.PointerEvent as PE
@@ -204,7 +203,7 @@ data Msg =
     | NoAction
 instance MsgWithCore Msg where core = Core
 
-update ∷ Msg → Update State Unit
+update ∷ Msg → UpdateMam State
 update (Core msg) = coreUpdate msg
 update (SetMode m) = newGame $ set _mode m
 update (SetHelp a) = _help .= a

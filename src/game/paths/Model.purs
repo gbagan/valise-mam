@@ -1,12 +1,11 @@
 module Game.Paths.Model where
 import MyPrelude
 import Data.Array (init)
-import Lib.Random as R
-import Lib.Util (dCoords, rangeWithStep)
+import Lib.Util (chooseInt', dCoords, rangeWithStep)
 import Game.Core (GState, class Game, class MsgWithCore, CoreMsg, SizeLimit(..), 
         coreUpdate,
         _ext, newGame, genState, _nbRows, _nbColumns, _position, playA)
-import Lib.Update (Update, get)
+import Lib.Update (UpdateMam)
 
 data Mode = Mode1 | Mode2
 derive instance Eq Mode
@@ -80,7 +79,7 @@ instance Game Position Ext Int where
 
     onNewGame state = flip (set _exit) state <$> do
         if state^._mode == Mode1 then
-            Just <$> R.int' (state^._nbRows * state^._nbColumns) 
+            Just <$> chooseInt' (state^._nbRows * state^._nbColumns) 
         else
             pure Nothing
 
@@ -96,7 +95,7 @@ instance Game Position Ext Int where
 data Msg = Core CoreMsg | SelectVertex Int | SelectMode Mode
 instance MsgWithCore Msg where core = Core
     
-update ∷ Msg → Update State Unit
+update ∷ Msg → UpdateMam State
 update (Core msg) = coreUpdate msg
 
 update (SelectVertex v) = do

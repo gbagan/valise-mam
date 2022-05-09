@@ -4,8 +4,8 @@ import MyPrelude
 import Data.Int.Bits ((.^.))
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, SizeLimit(..), GState, Mode(..), 
                   coreUpdate, playA, _ext, genState, newGame, computerMove', _position, _nbRows, _nbColumns)
-import Lib.Random as R
-import Lib.Update (Update)
+import Lib.Util (chooseInt')
+import Lib.Update (UpdateMam)
 
 data Move = FromLeft Int | FromRight Int | FromTop Int | FromBottom Int
 data SoapMode = CornerMode | BorderMode | StandardMode | CustomMode
@@ -56,8 +56,8 @@ instance Game Position ExtState Move where
         if state^._soapMode == CustomMode then
             pure $ state # set _soap Nothing
         else do
-            row ← if state^._soapMode == StandardMode then R.int' (state^._nbRows) else pure 0
-            col ← if state^._soapMode ≠ CornerMode then R.int' (state^._nbColumns) else pure 0
+            row ← if state^._soapMode == StandardMode then chooseInt' (state^._nbRows) else pure 0
+            col ← if state^._soapMode ≠ CornerMode then chooseInt' (state^._nbColumns) else pure 0
             pure $ state # set _soap (Just {row, col})
 
     sizeLimit _ = SizeLimit 4 4 10 10
@@ -101,7 +101,7 @@ data Msg = Core CoreMsg
         | NoAction
 instance MsgWithCore Msg where core = Core
     
-update ∷ Msg → Update State Unit
+update ∷ Msg → UpdateMam State
 update (Core msg) = coreUpdate msg
 update (SetHover a) = _moveWhenHover .= a 
 update (SetSoapMode m) = newGame $ set _soapMode m

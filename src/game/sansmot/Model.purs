@@ -1,7 +1,8 @@
 module Game.Sansmot.Model where
 import MyPrelude
 import Data.Map as Map
-import Lib.Update (Update, get, modify_, delay)
+import Effect.Aff.Class (class MonadAff)
+import Lib.Update (Update, delay)
 
 data Page = PythaPage | CarollPage
 
@@ -53,13 +54,13 @@ _page = prop (Proxy ∷ _ "page")
 
 data Msg = SetPage Page | Animate (Array AnimationStep)
 
-lockAction ∷ Update State Unit → Update State Unit
+lockAction ∷ forall m. Update State m Unit → Update State m Unit
 lockAction action = unlessM (get <#> _.locked) do
         modify_ _{locked = true}
         action
         modify_ _{locked = false}
 
-update ∷ Msg → Update State Unit
+update ∷ forall m. MonadAff m => Msg → Update State m Unit
 update (SetPage page) = modify_ \st →
     if st^._locked then
         st

@@ -1,7 +1,6 @@
 module Lib.KonamiCode (konamiCode) where
 import MyPrelude
 import Data.Array (takeEnd)
-import Lib.Update (get)
 
 codeSequence ∷ Array String
 codeSequence = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"]

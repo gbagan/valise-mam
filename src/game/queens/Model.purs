@@ -7,7 +7,7 @@ import Game.Core (GState, class MsgWithCore, class Game, class ScoreGame,
                  CoreMsg, Objective(..), Dialog(..), SizeLimit(..), ShowWinPolicy(..),
                 coreUpdate, playA, genState, newGame,  updateScore',
                 _ext, _dialog, _position, _nbRows, _nbColumns)
-import Lib.Update (Update)
+import Lib.Update (UpdateMam)
 
 piecesList ∷ Array Piece
 piecesList = [Rook, Bishop, King, Knight, Queen]
@@ -150,7 +150,7 @@ data Msg = Core CoreMsg | Play Int | SelectPiece Piece | SelectSquare (Maybe Int
         | SelectAllowedPiece Piece | ToggleMultiPieces | FlipDirection Int | FlipLocalMove Int | Customize
 instance MsgWithCore Msg where core = Core
         
-update ∷ Msg → Update State Unit
+update ∷ Msg → UpdateMam State
 update (Core msg) = coreUpdate msg
 update (Play i) = playA i
 update (SelectPiece piece) = _selectedPiece .= piece

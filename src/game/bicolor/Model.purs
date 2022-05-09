@@ -1,12 +1,10 @@
 module Game.Bicolor.Model where
 
 import MyPrelude
-
+import Control.Monad.Gen (chooseBool)
 import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg,
                 _ext, coreUpdate, playA, _position, _nbColumns, _nbRows, newGame, genState)
-import Lib.Random (class Random)
-import Lib.Random as Random
-import Lib.Update (Update, get, put)
+import Lib.Update (UpdateMam)
 import Lib.Util (dCoords)
 
 
@@ -26,8 +24,8 @@ reverseCard BlackCard = WhiteCard
 reverseCard WhiteCard = BlackCard
 reverseCard EmptyCard = EmptyCard
 
-randomCard ∷ ∀m. Random m ⇒ m Card
-randomCard = Random.bool <#> if _ then WhiteCard else BlackCard
+randomCard ∷ ∀m. MonadGen m ⇒ m Card
+randomCard = chooseBool <#> if _ then WhiteCard else BlackCard
 
 type Ext' = {
     mode ∷ Mode,
@@ -92,14 +90,14 @@ instance Game Position ExtState Int where
 data Msg = Core CoreMsg | Play Int | ToggleCard Int | SetMode Mode | ToggleCustom | Shuffle
 instance MsgWithCore Msg where core = Core
 
-update ∷ Msg → Update State Unit
+update ∷ Msg → UpdateMam State
 update (Core msg) = coreUpdate msg
 update (Play move) = playA move
 update (ToggleCard i) = _position ∘ ix i %= reverseCard
 update (SetMode mode) = newGame $ _mode .~ mode
 update Shuffle = do
     state ← get
-    pos ← Random.arrayOf (length $ state^._position) randomCard
+    pos ← lift $ replicateA (length $ state^._position) randomCard
     put $ state # _position .~ pos 
 update ToggleCustom = do
     state ← get

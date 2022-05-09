@@ -7,10 +7,9 @@ import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, class ScoreGa
                 CoreMsg(ToggleHelp), DndMsg, GState, Objective(..), ShowWinPolicy(..), SizeLimit(..),
                 _customSize, _ext, _nbColumns, _nbRows, _position, canPlay, coreUpdate, dndUpdate, genState, newGame, 
                 saveToJson', updateScore', loadFromJson')
-import Lib.Random (class Random)
-import Lib.Random as Random
-import Lib.Update (Update)
-import Lib.Util (repeat2, dCoords)
+import Lib.Update (UpdateMam)
+import Control.Monad.Gen (chooseBool)
+import Lib.Util (repeat2, dCoords, chooseInt')
 
 type Position = Array Boolean
 type Move = {from ∷ Int, to ∷ Int}
@@ -79,7 +78,7 @@ betweenMove2 state move@{from, to} =
         betweenMove state move
 
 -- | fonction auxilaire pour onNewGame
-generateBoard ∷ ∀m. Random m ⇒ Int → Int → Int → (Int → Int → Boolean) →
+generateBoard ∷ ∀m. MonadGen m ⇒ Int → Int → Int → (Int → Int → Boolean) →
     m {holes ∷ Array Boolean, position ∷  Position, customSize ∷ Boolean}
 generateBoard rows columns startingHole holeFilter = pure {holes, position, customSize: false} where
     holes = repeat2 rows columns holeFilter
@@ -114,7 +113,7 @@ instance Game Position ExtState Move where
                 EnglishBoard → generateBoard 7 7 24 \row col → min row (6 - row) >= 2 || min col (6 - col) >= 2
                 FrenchBoard → generateBoard 7 7 24 \row col → min row (6 - row) + min col (6 - col) >= 2
                 CircleBoard → do
-                    position <- Random.int' rows <#> \x → repeat rows (_ ≠ x)
+                    position <- chooseInt' rows <#> \x → repeat rows (_ ≠ x)
                     pure {  holes: replicate rows true
                          ,  position
                          ,  customSize: true
@@ -125,7 +124,7 @@ instance Game Position ExtState Move where
                     ,   customSize: true
                     }
                 RandomBoard → do
-                    position <- Random.arrayOf columns Random.bool <#> \bools →
+                    position <- replicateA columns chooseBool <#> \bools →
                                 bools <> replicate columns true <> (bools <#> not)
                     pure {  holes: replicate (3 * state^._nbColumns) true
                          ,  position
@@ -159,7 +158,7 @@ data Msg = Core CoreMsg | DnD (DndMsg Int) | SetBoard Board
 instance MsgWithCore Msg where core = Core
 instance MsgWithDnd Msg Int where dndmsg = DnD  
     
-update ∷ Msg → Update State Unit
+update ∷ Msg → UpdateMam State
 update (Core ToggleHelp) = _help %= \x → (x + 1) `mod` 3
 update (Core msg) = coreUpdate msg
 update (DnD msg) = dndUpdate _dragged msg

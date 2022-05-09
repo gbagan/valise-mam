@@ -31,7 +31,8 @@ import Pha.Html as H
 import Pha.Html.Keyed as K
 import Pha.Html.Attributes as P
 import Pha.Update.Lens (updateOver)
-import Lib.Update (Update, get, modify_, getHash)
+import Lib.MonadMam (eval)
+import Lib.Update (UpdateMam, getHash)
 import Pha.Subscriptions as Subs
 import Unsafe.Coerce (unsafeCoerce)
 
@@ -149,7 +150,7 @@ callByName name default f = case games # Map.lookup name of
                                 Nothing → default
                                 Just game → game # gameRun f 
  
-update ∷ Msg → Update RootState Unit
+update ∷ Msg → UpdateMam RootState
 update (BaseballMsg msg)  = prop (Proxy ∷ Proxy "baseball")  .~> Baseball.update msg
 update (BicolorMsg msg)   = prop (Proxy ∷ Proxy "bicolor")   .~> Bicolor.update msg
 update (ChocolatMsg msg)  = prop (Proxy ∷ Proxy "chocolat")  .~> Chocolat.update msg
@@ -185,7 +186,7 @@ update HashChanged = do
     else
         pure unit
 
-init ∷ Update RootState Unit
+init ∷ UpdateMam RootState
 init = do
     for_ (Map.values games) $
         gameRun \game → case game.core.init of
@@ -223,6 +224,7 @@ main = app
     {   init: {state, action: Just Init}
     ,   view
     ,   update
+    ,   eval
     ,   subscriptions: [Subs.onKeyDown (Just ∘ KeyDown), Subs.onHashChange $ const (Just HashChanged)]
     ,   selector: "#root"
     }

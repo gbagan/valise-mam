@@ -3,8 +3,8 @@ module Game.Tricolor.Model where
 import MyPrelude
 import Game.Core (class Game, class MsgWithCore, GState, CoreMsg,
                    coreUpdate, playA, genState, newGame, _ext, _position, defaultSizeLimit)
-import Lib.Random as Random
-import Lib.Update (Update)
+import Lib.Util (chooseInt')
+import Lib.Update (UpdateMam)
 
 -- une position est un tableau qui indique pour chaque sommmet la couleur du sommet
 -- les couleurs sont comprises entre 0 et nbColors - 1
@@ -59,7 +59,7 @@ instance Game Position ExtState Move where
             color
     
     initialPosition state = if state^._shuffle then 
-                                Random.arrayOf (state^._size) (Random.int' (state^._nbColors))
+                                replicateA (state^._size) $ chooseInt' (state^._nbColors)
                             else
                                 pure $ replicate (state^._size) 1
     
@@ -78,7 +78,7 @@ instance Game Position ExtState Move where
 data Msg = Core CoreMsg | Play Int | SetSize Int | SetNbColors Int | SetRange Int | SetHoverCell (Maybe Int) | Shuffle
 instance MsgWithCore Msg where core = Core
   
-update ∷ Msg → Update State Unit
+update ∷ Msg → UpdateMam State
 update (Core msg) = coreUpdate msg
 update (Play i) = playA i
 update (SetSize size) = newGame $ set _size size

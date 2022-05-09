@@ -1,16 +1,13 @@
 module Game.Eternal.Model where
 
 import MyPrelude
-
-import Effect.Class (liftEffect)
 import Game.Common (releasePointerCapture)
 import Game.Core (class Game, class MsgWithCore, CoreMsg, GState, SizeLimit(..), Mode(..), Dialog(..),
                    playA, coreUpdate, _ext, genState, newGame, isLevelFinished,
                    _position, _mode, _nbRows, _nbColumns, _dialog)
 import Lib.Graph (Graph, Edge, (↔))
-import Lib.Random as R
-import Lib.Update (Update, get, modify_)
-import Lib.Util (repeat2)
+import Lib.Update (UpdateMam)
+import Lib.Util (elements', repeat2)
 import UI.GraphEditor as GEditor
 import Web.Event.Event (stopPropagation)
 import Web.PointerEvent.PointerEvent (PointerEvent, toEvent)
@@ -287,7 +284,7 @@ instance Game Position ExtState Move where
                     Just attack → pure $ Just (Attack attack)
                     Nothing → (0 .. (length (st^._graph).vertices - 1)) 
                                 # filter (\i → not (elem i (st^._position).guards))
-                                # R.element'
+                                # elements'
                                 <#> map Attack
             _, _ → pure Nothing
 
@@ -341,7 +338,7 @@ data Msg = Core CoreMsg
 instance MsgWithCore Msg where core = Core
 instance GEditor.MsgWithGEditor Msg where geditormsg = GEditor    
 
-update ∷ Msg → Update State Unit
+update ∷ Msg → UpdateMam State
 update (Core msg) = coreUpdate msg
 update (GEditor msg) = GEditor.update _geditor msg
 update (SetGraphKind kind) = newGame $ set _graphkind kind >>>

@@ -1,8 +1,26 @@
-module Lib.Util where
+module Lib.Util
+  ( Coord
+  , chooseInt'
+  , class PartialRecord
+  , coords
+  , dCoords
+  , elements'
+  , map2
+  , map3
+  , pairwise
+  , partialUpdate
+  , rangeWithStep
+  , rangeWithStep'
+  , repeat2
+  , shuffle
+  , swap
+  )
+  where
 
 import MyPrelude
 import Prim.Row (class Union, class Nub)
 import Record as Record
+import Control.Monad.Gen (chooseInt, chooseFloat)
 
 repeat2 ∷ ∀a. Int → Int → (Int → Int → a) → Array a
 repeat2 n m f = repeat (n * m) $ \i → f (i / m) (i `mod` m)
@@ -42,6 +60,21 @@ dCoords cols x y = {
 } where
     p = coords cols x
     q = coords cols y
+
+
+-- | generate a random integer in the range [0, n - 1]
+chooseInt' ∷ ∀m. MonadGen m ⇒ Int → m Int
+chooseInt' n = chooseInt 0 (n-1)
+
+-- | randomly select an element from an array
+elements' ∷ ∀m a. MonadGen m ⇒ Array a → m (Maybe a)
+elements' t = (t !! _) <$> chooseInt' (length t)
+
+-- | randomly shuffle an array
+shuffle ∷ ∀m a. MonadGen m ⇒ Array a → m (Array a)
+shuffle xs = do
+    ns <- replicateA (length xs) (chooseFloat 0.0 1.0)
+    pure $ map snd $ sortWith fst $ zip ns xs
 
 class PartialRecord (r1 ∷ Row Type) (r2 ∷ Row Type) where
     partialUpdate ∷ Record r1 → Record r2 → Record r2

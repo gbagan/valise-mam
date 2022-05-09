@@ -8,7 +8,7 @@ import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, GStat
                  updateScore', playA, coreUpdate, _ext, genState, newGame, _position, _dialog,
                  defaultSizeLimit, loadFromJson', saveToJson')
 import Lib.Graph (Graph, Edge, (↔))
-import Lib.Update (Update, modify_)
+import Lib.Update (UpdateMam)
 import Lib.Util (pairwise)
 import UI.GraphEditor as GEditor
 
@@ -264,7 +264,7 @@ data Msg = Core CoreMsg | GEditor GEditor.Msg | SetGraphIndex GraphIndex | Play 
 instance MsgWithCore Msg where core = Core
 instance GEditor.MsgWithGEditor Msg where geditormsg = GEditor
     
-update ∷ Msg → Update State Unit
+update ∷ Msg → UpdateMam State
 update (Core msg) = coreUpdate msg
 update (GEditor msg) = GEditor.update _graphEditor msg
 update (SetGraphIndex i) = case i of

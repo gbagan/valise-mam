@@ -60,8 +60,8 @@ update (SetDrag d) = _drag .= d
 update (MoveObject ev) = do
     pos ← liftEffect $ pointerDecoder ev
     st ← get
-    case pos /\ st.drag of
-        Just {x, y} /\ Just {name, x: x2, y: y2} →
+    case pos, st.drag of
+        Just {x, y}, Just {name, x: x2, y: y2} →
             _positions ∘ at name .= Just {x: x-x2, y: y-y2} 
-        _ → pure unit
+        _, _ → pure unit
 update NoAction = pure unit

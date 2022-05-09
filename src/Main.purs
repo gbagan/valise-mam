@@ -197,7 +197,7 @@ init = do
 view ∷ RootState → Html Msg
 view st =
     K.div []
-    [   st.location /\ 
+    [   st.location /\
         H.div
             [   H.class_ "main-main-container"
             ,   H.class_ (if st.location == "" then "valise" else "game")

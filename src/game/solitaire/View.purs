@@ -5,7 +5,6 @@ import Lib.Util (coords)
 import Data.FoldableWithIndex (foldMapWithIndex)
 import Pha.Html (Html)
 import Pha.Html as H
-import Pha.Html.Keyed as K
 import Pha.Html.Attributes as P
 import Pha.Html.Util (translate)
 import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointer, scoreFn)
@@ -126,27 +125,28 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
                                 else 
                                     gridStyle rows columns 5
             ))
-            [   K.svg [if isCircleBoard then P.viewBox 0 0 250 250 else P.viewBox 0 0 (50 * columns) (50 * rows)] $ concat
-                [   ["c" /\ H.when isCircleBoard \_ →
+            [   H.svg [if isCircleBoard then P.viewBox 0 0 250 250 else P.viewBox 0 0 (50 * columns) (50 * rows)]
+                [   H.when isCircleBoard \_ →
                         H.circle 
                         [   P.cx 125.0
                         ,   P.cy 125.0
                         ,   P.r 90.0
                         ,   H.class_ "solitaire-circle"
                         ]
-                    ]
-                ,   holes # mapWithIndex \i b → ("h" <> show i) /\ H.when b \_ →
-                        H.circle
-                        [   P.r 17.0
-                        ,   H.class_ "solitaire-hole"
-                        ,   P.transform $ itemStyle i
-                        ]
-                ,   bestPosition # mapWithIndex \i b → ("p" <> show i) /\ H.when b \_ →
-                        H.circle
-                        [   P.r 20.0
-                        ,   H.class_ "solitaire-peg"
-                        ,   P.transform $ itemStyle i
-                        ]
+                ,   H.g [] $
+                        holes # mapWithIndex \i b → H.when b \_ →
+                            H.circle
+                            [   P.r 17.0
+                            ,   H.class_ "solitaire-hole"
+                            ,   P.transform $ itemStyle i
+                            ]
+                ,   H.g [] $
+                        bestPosition # mapWithIndex \i b → H.when b \_ →
+                            H.circle
+                            [   P.r 20.0
+                            ,   H.class_ "solitaire-peg"
+                            ,   P.transform $ itemStyle i
+                            ]
                 ]
             ]
         ]

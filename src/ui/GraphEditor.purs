@@ -77,22 +77,22 @@ update lens = case _ of
 
     PointerUp i → do
         lens %= \model →
-            case model.mode /\ model.selectedVertex of
-                VertexMode /\ _ →
+            case model.mode, model.selectedVertex of
+                VertexMode, _ →
                     model{selectedVertex = Nothing, currentPosition = Nothing}
-                AddEMode /\ Just j →
+                AddEMode, Just j →
                     model{graph = Graph.addEdge i j model.graph, selectedVertex = Nothing}
-                _ → model
+                _, _ → model
 
     Move ev → do 
         pos ← liftEffect $ pointerDecoder ev
         lens %= \model →
-            case pos /\ model.mode /\ model.selectedVertex of
-                Just p /\ VertexMode /\ Just i →
+            case pos, model.mode, model.selectedVertex of
+                Just p, VertexMode, Just i →
                     model{graph = Graph.moveVertex i p model.graph}
-                Just p /\ AddEMode /\ _ →
+                Just p, AddEMode, _ →
                     model{currentPosition = Just p}
-                _ → model
+                _, _, _ → model
 
     DeleteVertex i ev → do
         st ← get
@@ -174,7 +174,7 @@ view {graph, mode, currentPosition, selectedVertex} onOk =
                             [E.onClick \_ → geditormsg $ SetMode AddEMode]
             ,   iconbutton {icon: IconSymbol "#trash", selected: mode == DeleteMode, tooltip: Just "Enlève un sommet ou arête"}
                             [E.onClick \_ → geditormsg $ SetMode DeleteMode]
-            ,   iconbutton {icon: IconSymbol "#clear", tooltip: Just "Efface tout le graphe"}  [E.onClick \_ → geditormsg $ Clear]
+            ,   iconbutton {icon: IconSymbol "#clear", tooltip: Just "Efface tout le graphe"}  [E.onClick \_ → geditormsg Clear]
             ]
         ]
     ]

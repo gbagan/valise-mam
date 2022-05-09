@@ -6,7 +6,6 @@ import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _point
 import Game.Paths.Model (State, Msg(..), Mode(..), _exit, _mode)
 import Pha.Html (Html, Prop)
 import Pha.Html as H
-import Pha.Html.Keyed as K
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc, translate)
@@ -87,22 +86,22 @@ view state = template {config, board, rules} state where
         [if i == 0 then "M" else "L", show $ 100 * col + 50, show $ 100 * row + 50]
     
     grid = H.div (gridStyle rows columns 5 <> trackPointer) [
-        K.svg [P.viewBox 0 0 (100 * columns) (100 * rows)] $
-            (repeat (rows * columns) \index →
-                let {row, col} = coords columns index in
-                show index /\ square
-                {   darken: help && even (row + col)
-                ,   trap: elem index position && Just index ≠ last position
-                ,   door: exit == Just index
-                ,   x: toNumber (100 * col)
-                ,   y: toNumber (100 * row)
-                }
+        H.svg [P.viewBox 0 0 (100 * columns) (100 * rows)]
+        [   H.g [] $
+                repeat (rows * columns) \index →
+                    let {row, col} = coords columns index in
+                    square
+                    {   darken: help && even (row + col)
+                    ,   trap: elem index position && Just index ≠ last position
+                    ,   door: exit == Just index
+                    ,   x: toNumber (100 * col)
+                    ,   y: toNumber (100 * row)
+                    }
                 [   E.onClick \_ → SelectVertex index
                 ]
-            ) <>
-            [   "path" /\ H.path [P.d pathdec, H.class_ "paths-path"]
-            ,   "hero" /\ H.maybe (last position) hero
-            ,   "cur" /\ H.maybe pointer \pp →
+        ,   H.path [P.d pathdec, H.class_ "paths-path"]
+        ,   H.maybe (last position) hero
+        ,   H.maybe pointer \pp →
                     if null position then
                         heroCursor pp
                     else if isNothing exit then

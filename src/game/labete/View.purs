@@ -6,7 +6,6 @@ import Web.PointerEvent.PointerEvent as PE
 import Lib.Util (coords, map3)
 import Pha.Html (Html)
 import Pha.Html as H
-import Pha.Html.Keyed as K
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc, translate)
@@ -88,22 +87,21 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
     grid = H.div (gridStyle rows columns 5 <> trackPointer <> [H.class_ "ui-board",
         E.onPointerDown StartZone2
     ]) [
-        K.svg [P.viewBox 0 0 (50 * columns) (50 * rows)] (
-            (map3 (state^._position) nonTrappedBeast  (state^._squareColors) \index hasTrap hasBeast color →
-                let {row, col} = coords columns index in
-                show index /\ square { color, row, col, hasTrap, hasBeast: hasBeast && state^._help }
-                [   E.onClick \ev → if ME.shiftKey (PE.toMouseEvent ev) then NoAction else Play index
-                    -- pointerenter: [actions.setSquareHover, index], todo
-                    -- ponterleave: [actions.setSquareHover, null],
-                ,   E.onPointerUp \_ → FinishZone index
-                ,   E.onPointerDown \ev → if ME.shiftKey (PE.toMouseEvent ev) then StartZone index else NoAction
-                ]
-            ) <> [
-                "c" /\ H.fromMaybe case state^._startPointer of
+        H.svg [P.viewBox 0 0 (50 * columns) (50 * rows)]
+            [H.g [] $
+                map3 (state^._position) nonTrappedBeast  (state^._squareColors) \index hasTrap hasBeast color →
+                    let {row, col} = coords columns index in
+                    square { color, row, col, hasTrap, hasBeast: hasBeast && state^._help }
+                    [   E.onClick \ev → if ME.shiftKey (PE.toMouseEvent ev) then NoAction else Play index
+                        -- pointerenter: [actions.setSquareHover, index], todo
+                        -- ponterleave: [actions.setSquareHover, null],
+                    ,   E.onPointerUp \_ → FinishZone index
+                    ,   E.onPointerDown \ev → if ME.shiftKey (PE.toMouseEvent ev) then StartZone index else NoAction
+                    ]
+            ,   H.fromMaybe case state^._startPointer of
                     Nothing → cursor <$> state^._pointer
                     Just p → zone (state^._selectedColor) p <$> state^._pointer
             ]
-        )
     ]
 
     board = incDecGrid state [

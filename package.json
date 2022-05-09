@@ -3,7 +3,7 @@
     "esbuild": "^0.14.38",
     "purescript": "^0.15.0",
     "sass": "^1.51.0",
-    "spago": "^0.20.8"
+    "spago": "^0.20.9"
   },
   "scripts": {
     "build": "spago bundle-app --minify --to dist/bundle.js",

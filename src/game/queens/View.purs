@@ -5,7 +5,6 @@ import Lib.Util (map2, map3)
 import Data.Array.NonEmpty as N
 import Pha.Html (Html)
 import Pha.Html as H
-import Pha.Html.Keyed as K
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc)
@@ -79,10 +78,10 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
         ]   
 
     pieceSelector =
-        K.div [H.class_ "ui-flex-center gutter2 queens-pieceselector"] $
+        H.div [H.class_ "ui-flex-center gutter2 queens-pieceselector"] $
             N.toArray allowedPieces <#> \piece →
                 let name = show piece in
-                name /\ iconbutton state
+                iconbutton state
                 {   selected: piece == selectedPiece
                 ,   icon: IconSymbol $ "#piece-" <> name
                 } 

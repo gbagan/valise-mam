@@ -3,7 +3,6 @@ module Game.Common where
 import MyPrelude
 
 import Effect (Effect)
-import Unsafe.Coerce (unsafeCoerce)
 import Web.DOM.Element as Element
 import Web.Event.Event as E
 import Web.PointerEvent.PointerEvent (PointerEvent)
@@ -27,13 +26,10 @@ releasePointerCapture ev =
 
 pointerDecoder ∷ PointerEvent → Effect (Maybe { x ∷ Number, y ∷ Number })
 pointerDecoder ev = do
-    case E.currentTarget (PE.toEvent ev) of
+    case E.currentTarget (PE.toEvent ev) >>= Element.fromEventTarget of
         Just el → do
-            -- dans l'implémentation actuelle en purescript, getBoundingClientRect ne s'applique
-            -- qu'à des HTMLElement et pas à des SVG Elements
-            let el' = unsafeCoerce el -- ∷ HE.HTMLElement
             let mev = PE.toMouseEvent ev
-            {left, top, width, height} ← Element.getBoundingClientRect el'
+            {left, top, width, height} ← Element.getBoundingClientRect el
             pure $ Just {
                 x: (toNumber(ME.clientX mev) - left) / width,
                 y: (toNumber(ME.clientY mev) - top) / height

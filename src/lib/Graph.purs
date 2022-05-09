@@ -2,8 +2,6 @@ module Lib.Graph where
 
 import MyPrelude
 
-import Data.Array (deleteAt)
-
 data Edge = Edge Int Int
 infix 3 Edge as ↔
 instance Eq Edge where

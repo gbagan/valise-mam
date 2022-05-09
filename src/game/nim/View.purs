@@ -1,9 +1,7 @@
 module Game.Nim.View where
 import MyPrelude
-import Data.FoldableWithIndex (foldMapWithIndex)
 import Pha.Html (Html)
 import Pha.Html as H
-import Pha.Html.Keyed as K
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (translate, px')
@@ -28,14 +26,14 @@ view state = template {config, board, rules, winTitle} state where
         ]
 
     drawRow i =
-        ("pile" <> show i) /\ H.rect
+        H.rect
         [   H.class_ "nim-row"
         ,   H.class_ $ if length == 5 then "nim-row-5" else "nim-row-10"
         ,   P.y $ toNumber (10 + 19 * i)
         ]
 
     drawSquare i j =
-        ("s-" <> show i <> "-" <> show j) /\ H.rect
+        H.rect
         [   H.class_ "nim-square"
         ,   E.onClick \_ → Play (Move i j)
         ,   H.style "transform" $
@@ -45,7 +43,7 @@ view state = template {config, board, rules, winTitle} state where
         ]
 
     drawPeg i player j =
-        ("p-" <> show i <> "-" <> show player) /\ H.use 
+        H.use 
         [   P.href "#meeple"
         ,   P.width "8"
         ,   P.height "8"
@@ -56,11 +54,14 @@ view state = template {config, board, rules, winTitle} state where
 
     board =
         H.div [H.class_ "ui-board nim-board"]
-        [   K.svg [P.viewBox 0 0 100 100] (
-                position # foldMapWithIndex \i (Position p1 p2) → concat
-                    [   [drawRow i]
-                    ,   repeat length (drawSquare i)
-                    ,   [p1, p2] # mapWithIndex (drawPeg i)
+        [   H.svg [P.viewBox 0 0 100 100] (
+                position # mapWithIndex \i (Position p1 p2) →
+                    H.g []
+                    [   drawRow i
+                    ,   H.g [] $
+                            repeat length (drawSquare i)
+                    ,   H.g [] $
+                            [p1, p2] # mapWithIndex (drawPeg i)
                     ]
             )
         ,   H.span [H.class_ "nim-turn-message"] [

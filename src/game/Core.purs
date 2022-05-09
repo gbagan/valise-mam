@@ -1,18 +1,21 @@
 module Game.Core where
 
 import MyPrelude
+
+import Control.Monad.Gen (suchThat)
+import Control.Monad.State (state)
 import Data.Argonaut.Core (Json, stringify)
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.Argonaut.Parser (jsonParser)
 import Data.List as List
 import Data.Map as Map
-import Lib.Util (elements')
+import Game.Common (releasePointerCapture, pointerDecoder)
 import Lib.Update (UpdateMam, delay, storageGet, storagePut)
+import Lib.Util (elements')
 import Web.Event.Event (stopPropagation)
 import Web.PointerEvent (PointerEvent)
 import Web.PointerEvent.PointerEvent as PE
-import Game.Common (releasePointerCapture, pointerDecoder)
 
 -- ConfirmNewGame contient le futur état d'une nouvelle partie
 data Dialog a = Rules | NoDialog | ConfirmNewGameDialog a | ScoreDialog | CustomDialog
@@ -286,16 +289,14 @@ playA move = lockAction $ do
     case playAux move $ pushToHistory $ state of
         Nothing → pure unit
         Just st2 → do
-            put st2
-            if isLevelFinished st2 then do
-                let st3 ∧ isNewRecord = updateScore st2
-                put st3
-                when isNewRecord do
-                    saveToStorage   -- todo: ne va pas fonctionner pour 8 reines
-                    showVictory
-            else if st2^._mode == ExpertMode || st2^._mode == RandomMode then
+            let st3 ∧ isNewRecord = updateScore st2
+            put st3
+            when isNewRecord do
+                saveToStorage
+                showVictory
+            if (st2^._mode) `elem` [ExpertMode, RandomMode] then
                 delay (Milliseconds 1000.0) *> computerPlay
-            else 
+            else
                 pure unit
 
 -- | Empêche d'autres actions d'être effectués durant la durée de l'action
@@ -308,12 +309,12 @@ lockAction action = unlessM (view _locked <$> get) do
     _locked .= false
 
 -- | fonction auxiliaire pour newGame
-newGameAux ∷ ∀m pos ext mov. MonadGen m ⇒ Game pos ext mov ⇒
+newGameAux ∷ ∀m pos ext mov. MonadRec m ⇒ MonadGen m ⇒ Game pos ext mov ⇒
         (GState pos ext → GState pos ext) → GState pos ext → m (GState pos ext)
 newGameAux f state = do 
     let state2 = f state
     state3 ← onNewGame state2
-    position ← initialPosition state3
+    position ← initialPosition state3 `suchThat` (not <<< isLevelFinished <<< \p → state3 # set _position p)
     pure $ state3
         # set _position position
         # set _history Nil
@@ -393,19 +394,22 @@ scoreHash' state
 -- | AlwaysShowWin: la popup s'affiche à chaque fois que l'on est dans une position gagnante (exemple: solitaire)
 -- | NeverShowWin: n'affiche jamais de popup (exemple: jeu des reines)
 -- | ShowWinOnNewRecord: affiche la popup seulement si le meilleur score a été battu (exemple: la bête)
-updateScore' ∷ ∀pos ext mov. ScoreGame pos ext mov ⇒ ShowWinPolicy → GState pos ext → Tuple (GState pos ext) Boolean
-updateScore' strat state =
-    let score = scoreFn state
-        hash = scoreHash' state 
-        cmp = if objective state == Minimize then (<) else (>)
-        oldScore = bestScore state
-        isNewRecord = maybe true (cmp score ∘ fst) oldScore
-        isNewRecord' = isNewRecord && strat == ShowWinOnNewRecord || strat == AlwaysShowWin
-        st2 = state # over (_scores ∘ at hash) \scr → if isNewRecord then
+updateScore' ∷ ∀pos ext mov. ScoreGame pos ext mov ⇒ {onlyWhenFinished :: Boolean, showWin :: ShowWinPolicy} → GState pos ext → Tuple (GState pos ext) Boolean
+updateScore' {onlyWhenFinished, showWin} state =
+    if onlyWhenFinished && not (isLevelFinished state) then
+        state ∧ false
+    else
+        let score = scoreFn state
+            hash = scoreHash' state 
+            cmp = if objective state == Minimize then (<) else (>)
+            oldScore = bestScore state
+            isNewRecord = maybe true (cmp score ∘ fst) oldScore
+            isNewRecord' = isNewRecord && showWin == ShowWinOnNewRecord || showWin == AlwaysShowWin
+            st2 = state # over (_scores ∘ at hash) \scr → if isNewRecord then
                                                             Just (score ∧ (state^._position))
-                                                        else
+                                                          else
                                                             scr
-    in st2 ∧ isNewRecord'
+        in st2 ∧ isNewRecord'
 
 -- | renvoie le meilleur score pour la partie actuelle
 -- | un meilleur score est une paire composée du score représenté par un entier et de la position témoignant du score

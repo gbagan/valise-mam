@@ -37,6 +37,7 @@ import Data.String (joinWith) as Exports
 import Control.Alt ((<|>)) as Exports
 import Control.Alternative (guard) as Exports
 import Control.Monad.Gen (class MonadGen) as Exports
+import Control.Monad.Rec.Class (class MonadRec) as Exports
 import Control.Monad.State.Class (class MonadState) as Exports
 import Data.Time.Duration (Milliseconds(..)) as Exports
 import Effect.Class (class MonadEffect, liftEffect) as Exports

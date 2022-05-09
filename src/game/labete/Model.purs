@@ -161,7 +161,7 @@ colorZone state zone = state^._squareColors # updateAtIndices (
 instance Game (Array Boolean) ExtState Int where
     name _ = "labete"
     play state index = state^._position # modifyAt index not
-    isLevelFinished = null ∘ nonTrappedBeasts
+    isLevelFinished = null <<< nonTrappedBeasts
     initialPosition st = pure $ replicate (st^._nbRows * st^._nbColumns) false
     onNewGame st = pure $ st
                         # set _beast (getNewBeast st)
@@ -169,7 +169,7 @@ instance Game (Array Boolean) ExtState Int where
 
     sizeLimit _ = SizeLimit 2 2 9 9
 
-    updateScore = updateScore' ShowWinOnNewRecord
+    updateScore = updateScore' {onlyWhenFinished: true, showWin: ShowWinOnNewRecord}
     saveToJson = saveToJson'
     loadFromJson = loadFromJson'
 

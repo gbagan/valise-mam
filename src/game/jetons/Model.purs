@@ -1,11 +1,9 @@
 module Game.Jetons.Model where
 
 import MyPrelude
+
 import Data.FoldableWithIndex (allWithIndex)
-import Game.Core (class Game, class ScoreGame, class MsgWithCore, class MsgWithDnd,
-                  CoreMsg, DndMsg, GState, SizeLimit(..), Objective(..), ShowWinPolicy(..),
-                  coreUpdate, dndUpdate, _ext, genState, updateScore', _position, _nbColumns, _nbRows,
-                  defaultOnNewGame, saveToJson', loadFromJson')
+import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, class ScoreGame, CoreMsg, DndMsg, GState, Objective(..), ShowWinPolicy(..), SizeLimit(..), _ext, _nbColumns, _nbRows, _position, coreUpdate, defaultOnNewGame, dndUpdate, genState, loadFromJson', saveToJson', updateScore')
 import Lib.Update (UpdateMam)
 import Lib.Util (dCoords)
 
@@ -51,7 +49,7 @@ instance Game Position Ext { from ∷ Int, to ∷ Int } where
             in x * (y + z) == 0
 
     sizeLimit _ = SizeLimit 1 2 6 12
-    updateScore = updateScore' AlwaysShowWin
+    updateScore = updateScore' {onlyWhenFinished: true, showWin: AlwaysShowWin}
     saveToJson = saveToJson'
     loadFromJson = loadFromJson'
 

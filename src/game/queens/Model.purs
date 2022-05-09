@@ -1,13 +1,13 @@
 module Game.Queens.Model where
+
 import MyPrelude
-import Data.FoldableWithIndex (foldrWithIndex)
-import Lib.Util (dCoords, map2)
+
+import Data.Array.NonEmpty (elemLastIndex)
 import Data.Array.NonEmpty as N
-import Game.Core (GState, class MsgWithCore, class Game, class ScoreGame, 
-                 CoreMsg, Objective(..), Dialog(..), SizeLimit(..), ShowWinPolicy(..),
-                coreUpdate, playA, genState, newGame,  updateScore',
-                _ext, _dialog, _position, _nbRows, _nbColumns)
+import Data.FoldableWithIndex (foldrWithIndex)
+import Game.Core (GState, class MsgWithCore, class Game, class ScoreGame, CoreMsg, Objective(..), Dialog(..), SizeLimit(..), ShowWinPolicy(..), coreUpdate, playA, genState, newGame, updateScore', _ext, _dialog, _position, _nbRows, _nbColumns)
 import Lib.Update (UpdateMam)
+import Lib.Util (dCoords, map2)
 
 piecesList ∷ Array Piece
 piecesList = [Rook, Bishop, King, Knight, Queen]
@@ -116,6 +116,10 @@ toggleAllowedPiece piece false _ = N.singleton piece
 toggleAllowedPiece piece true pieces = N.fromArray pieces2 ?: pieces where
     pieces2 = piecesList # filter \p2 → (p2 == piece) ≠ elem p2 pieces
 
+isValidPosition ∷ State → Boolean
+isValidPosition state = and $ map2 (capturableSquares state) (state^._position)
+                            \_ captured piece → not captured || piece == Empty
+
 instance Game Position Ext Int where 
     name _ = "queens"
 
@@ -125,14 +129,11 @@ instance Game Position Ext Int where
 
     initialPosition state = pure $ replicate (state^._nbRows * state^._nbColumns) Empty
 
-    -- le nom de la fonction est trompeur ici, la partie n'est jamais finie
-    -- indique si il n'y a pas de pièce posée qui en capture une autre
-    isLevelFinished state = and $ map2 (capturableSquares state) (state^._position)
-                            \_ captured piece → not captured || piece == Empty
+    isLevelFinished _ = false
     
     onNewGame state = pure $ state # set _selectedPiece (N.head $ state^._allowedPieces)
     sizeLimit _ = SizeLimit 3 3 9 9
-    updateScore = updateScore' NeverShowWin
+    updateScore = updateScore' {onlyWhenFinished: false, showWin: NeverShowWin}
     
     -- methodes par défaut
     computerMove _ = pure Nothing
@@ -142,7 +143,8 @@ instance Game Position Ext Int where
 
 instance ScoreGame (Array Piece) Ext Int where 
     objective _ = Maximize
-    scoreFn = length ∘ filter (_ ≠ Empty) ∘ view _position
+    scoreFn st | isValidPosition st = length $ filter (_ ≠ Empty) $ st ^. _position
+               | otherwise = 0
     scoreHash state = joinWith "-" [show (state^._nbRows), show (state^._nbColumns), show (N.head $ state^._allowedPieces)]
     isCustomGame state = state^._multiPieces || N.head (state^._allowedPieces) == Custom
 

@@ -1,7 +1,6 @@
 module Lib.MonadMam where
 
 import MyPrelude
-import Control.Monad.Rec.Class (class MonadRec)
 import Effect.Aff (Aff)
 import Effect.Aff.Class (class MonadAff)
 import Effect.Random (randomInt, random)

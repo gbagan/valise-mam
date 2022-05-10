@@ -1,6 +1,6 @@
 module Game.Valise.Model where
 
-import MyPrelude
+import MamPrelude
 
 import Data.Map as Map
 import Game.Common (pointerDecoder)

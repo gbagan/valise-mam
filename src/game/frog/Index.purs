@@ -1,7 +1,7 @@
 module Game.Frog (module M, game) where
 import Game.Frog.Model (State, Msg, update, istate, onKeyDown) as M
 import Game.Frog.View (view) as M
-import MyPrelude
+import MamPrelude
 import Game.Core (core, CoreMsg(Init))
 import Game.Generic (GenericGame)
 

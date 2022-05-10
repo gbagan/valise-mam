@@ -1,6 +1,6 @@
 module Game.Baseball.View (view) where
 
-import MyPrelude
+import MamPrelude
 import Lib.Util (map2)
 import Pha.Html (Html)
 import Pha.Html as H

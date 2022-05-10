@@ -1,9 +1,8 @@
 module Game.Core where
 
-import MyPrelude
+import MamPrelude
 
 import Control.Monad.Gen (suchThat)
-import Control.Monad.State (state)
 import Data.Argonaut.Core (Json, stringify)
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
@@ -129,7 +128,7 @@ class Game pos ext mov | ext → pos mov where
     computerMove ∷ ∀m. MonadGen m ⇒ GState pos ext → m (Maybe mov)
     onNewGame ∷ ∀m. MonadGen m ⇒ GState pos ext → m (GState pos ext)
     onPositionChange ∷ GState pos ext → GState pos ext
-    updateScore ∷ GState pos ext → Tuple (GState pos ext) Boolean
+    updateScore ∷ GState pos ext → {newState :: GState pos ext, isNewRecord :: Boolean, showWin :: Boolean}
     saveToJson ∷ GState pos ext → Maybe Json
     loadFromJson ∷ GState pos ext → Json → GState pos ext
 
@@ -154,6 +153,9 @@ defaultSizeLimit _ = SizeLimit 0 0 0 0
 
 defaultOnNewGame ∷ ∀m a. MonadGen m ⇒ a → m a
 defaultOnNewGame = pure
+
+defaultUpdateScore ∷ ∀pos ext move. Game pos ext move ⇒ GState pos ext → {newState :: GState pos ext, isNewRecord :: Boolean, showWin :: Boolean}
+defaultUpdateScore s = {newState: s, isNewRecord: false, showWin: isLevelFinished s}
 
 oppositeTurn ∷ Turn → Turn
 oppositeTurn Turn1 = Turn2
@@ -289,12 +291,13 @@ playA move = lockAction $ do
     case playAux move $ pushToHistory $ state of
         Nothing → pure unit
         Just st2 → do
-            let st3 ∧ isNewRecord = updateScore st2
+            let {newState: st3, isNewRecord, showWin} = updateScore st2
             put st3
-            when isNewRecord do
+            when isNewRecord
                 saveToStorage
+            when showWin
                 showVictory
-            if (st2^._mode) `elem` [ExpertMode, RandomMode] then
+            if (st3^._mode) `elem` [ExpertMode, RandomMode] then
                 delay (Milliseconds 1000.0) *> computerPlay
             else
                 pure unit
@@ -394,22 +397,28 @@ scoreHash' state
 -- | AlwaysShowWin: la popup s'affiche à chaque fois que l'on est dans une position gagnante (exemple: solitaire)
 -- | NeverShowWin: n'affiche jamais de popup (exemple: jeu des reines)
 -- | ShowWinOnNewRecord: affiche la popup seulement si le meilleur score a été battu (exemple: la bête)
-updateScore' ∷ ∀pos ext mov. ScoreGame pos ext mov ⇒ {onlyWhenFinished :: Boolean, showWin :: ShowWinPolicy} → GState pos ext → Tuple (GState pos ext) Boolean
+updateScore' ∷ ∀pos ext mov. ScoreGame pos ext mov ⇒
+    {onlyWhenFinished :: Boolean, showWin :: ShowWinPolicy}
+    → GState pos ext
+    → {newState :: (GState pos ext), isNewRecord :: Boolean, showWin :: Boolean}
 updateScore' {onlyWhenFinished, showWin} state =
     if onlyWhenFinished && not (isLevelFinished state) then
-        state ∧ false
+        {newState: state, isNewRecord: false, showWin: false}
     else
         let score = scoreFn state
             hash = scoreHash' state 
             cmp = if objective state == Minimize then (<) else (>)
             oldScore = bestScore state
             isNewRecord = maybe true (cmp score ∘ fst) oldScore
-            isNewRecord' = isNewRecord && showWin == ShowWinOnNewRecord || showWin == AlwaysShowWin
-            st2 = state # over (_scores ∘ at hash) \scr → if isNewRecord then
-                                                            Just (score ∧ (state^._position))
-                                                          else
-                                                            scr
-        in st2 ∧ isNewRecord'
+        in
+        {   newState: 
+                if isNewRecord then
+                    state # (_scores ∘ at hash) .~ Just (score ∧ (state^._position))
+                else
+                    state
+        ,   isNewRecord
+        ,   showWin: isNewRecord && showWin == ShowWinOnNewRecord || showWin == AlwaysShowWin
+        }
 
 -- | renvoie le meilleur score pour la partie actuelle
 -- | un meilleur score est une paire composée du score représenté par un entier et de la position témoignant du score

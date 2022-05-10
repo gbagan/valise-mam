@@ -1,6 +1,6 @@
 module Game.Noirblanc.View where
 
-import MyPrelude
+import MamPrelude
 
 import Game.Core (_position, _nbRows, _nbColumns, _help)
 import Game.Noirblanc.Model (State, Msg(..), _level, _mode, _maxLevels)

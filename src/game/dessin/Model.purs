@@ -1,6 +1,6 @@
 module Game.Dessin.Model where
 
-import MyPrelude
+import MamPrelude
 
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)

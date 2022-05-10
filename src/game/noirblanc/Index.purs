@@ -1,7 +1,7 @@
 module Game.Noirblanc (module M, game) where
 import Game.Noirblanc.Model (State, Msg, update, istate, onKeyDown) as M
 import Game.Noirblanc.View (view) as M
-import MyPrelude
+import MamPrelude
 import Game.Core (core, CoreMsg(Init))
 import Game.Generic (GenericGame)
 

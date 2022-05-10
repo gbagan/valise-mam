@@ -1,11 +1,15 @@
 module Game.Queens.Model where
 
-import MyPrelude
-
-import Data.Array.NonEmpty (elemLastIndex)
+import MamPrelude
+import Data.Argonaut.Encode (class EncodeJson, encodeJson)
+import Data.Argonaut.Decode (class DecodeJson, decodeJson)
+import Data.Argonaut.Decode.Error (JsonDecodeError(..))
 import Data.Array.NonEmpty as N
+import Data.Either (note)
 import Data.FoldableWithIndex (foldrWithIndex)
-import Game.Core (GState, class MsgWithCore, class Game, class ScoreGame, CoreMsg, Objective(..), Dialog(..), SizeLimit(..), ShowWinPolicy(..), coreUpdate, playA, genState, newGame, updateScore', _ext, _dialog, _position, _nbRows, _nbColumns)
+import Game.Core (GState, class MsgWithCore, class Game, class ScoreGame, CoreMsg, Objective(..), Dialog(..), SizeLimit(..), ShowWinPolicy(..),
+                    coreUpdate, playA, genState, newGame, updateScore', saveToJson', loadFromJson',
+                    _ext, _dialog, _position, _nbRows, _nbColumns)
 import Lib.Update (UpdateMam)
 import Lib.Util (dCoords, map2)
 
@@ -20,7 +24,27 @@ instance Show Piece where
     show Rook = "rook" 
     show Bishop = "bishop"
     show Knight = "knight"
-    show _ = "custom"
+    show Custom = "custom"
+    show Empty = "empty"
+
+pieceFromString ∷ String → Maybe Piece
+pieceFromString = case _ of
+    "queen" → Just Queen
+    "king" → Just King
+    "rook" → Just Rook 
+    "bishop" → Just Bishop
+    "knight" → Just Knight 
+    "custom" → Just Custom
+    "empty" → Just Empty
+    _ → Nothing
+
+instance EncodeJson Piece where
+    encodeJson = encodeJson <<< show
+
+instance DecodeJson Piece where
+    decodeJson json = do
+        string <- decodeJson json
+        note (TypeMismatch "Piece") (pieceFromString string)
 
 type Position = Array Piece
 type Ext' =
@@ -138,8 +162,8 @@ instance Game Position Ext Int where
     -- methodes par défaut
     computerMove _ = pure Nothing
     onPositionChange = identity
-    saveToJson _ = Nothing
-    loadFromJson st _ = st
+    saveToJson = saveToJson'
+    loadFromJson = loadFromJson'
 
 instance ScoreGame (Array Piece) Ext Int where 
     objective _ = Maximize

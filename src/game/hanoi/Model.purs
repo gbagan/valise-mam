@@ -1,9 +1,10 @@
 module Game.Hanoi.Model where
 
-import MyPrelude
+import MamPrelude
 import Data.Array as Array
 import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, CoreMsg, DndMsg, GState,
-                coreUpdate, dndUpdate, _ext, genState, newGame, _position, defaultOnNewGame, defaultSizeLimit)
+                coreUpdate, dndUpdate, _ext, genState, newGame, _position,
+                defaultOnNewGame, defaultSizeLimit, defaultUpdateScore)
 import Lib.Update (UpdateMam)
 
 type Position = Array (Array Int)
@@ -44,7 +45,7 @@ instance Game Position Ext { from ∷ Int, to ∷ Int } where
     sizeLimit = defaultSizeLimit
     computerMove _ = pure Nothing
     onPositionChange = identity
-    updateScore st = st ∧ true
+    updateScore s = defaultUpdateScore s
     saveToJson _ = Nothing
     loadFromJson st _ = st
 

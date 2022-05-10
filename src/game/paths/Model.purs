@@ -1,10 +1,10 @@
 module Game.Paths.Model where
-import MyPrelude
+import MamPrelude
 import Data.Array (init)
 import Lib.Util (chooseInt', dCoords, rangeWithStep)
 import Game.Core (GState, class Game, class MsgWithCore, CoreMsg, SizeLimit(..), 
         coreUpdate,
-        _ext, newGame, genState, _nbRows, _nbColumns, _position, playA)
+        _ext, newGame, genState, _nbRows, _nbColumns, _position, playA, defaultUpdateScore)
 import Lib.Update (UpdateMam)
 
 data Mode = Mode1 | Mode2
@@ -42,7 +42,8 @@ pathBetween columns u v =
     else
         Nothing
 
--- teste si un chemin est valide (sans répétition de sommets sauf les extrémités si cela créé un cycle hamiltonien)
+-- teste si un chemin est valide (sans répétition de sommets)
+-- les extrémités peuvent être identiques si le chemin forme un cycle hamiltonien)
 -- on ne peut pas passer par le sommet de sortie sauf si c'est le sommet final
 isValidPath ∷ State → Array Int → Boolean
 isValidPath state path = fromMaybe true $ do
@@ -87,7 +88,7 @@ instance Game Position Ext Int where
 
     -- méthodes par défault
     computerMove _ = pure Nothing
-    updateScore st = st ∧ true
+    updateScore s = defaultUpdateScore s
     onPositionChange = identity
     saveToJson _ = Nothing
     loadFromJson st _ = st

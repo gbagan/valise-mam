@@ -1,12 +1,12 @@
 module Game.Roue.Model where
 
-import MyPrelude
+import MamPrelude
 import Lib.Util (swap)
 import Control.Monad.Rec.Class (tailRecM, Step(..))
 import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, GState,
     CoreMsg,  DndMsg(DropOnBoard),
     coreUpdate, dndUpdate,
-    genState, newGame, lockAction, _ext, _position, _showWin, defaultSizeLimit)
+    genState, newGame, lockAction, _ext, _position, _showWin, defaultSizeLimit, defaultUpdateScore)
 import Lib.Update (UpdateMam, delay)
 
 type Position = Array (Maybe Int)
@@ -72,7 +72,7 @@ instance Game Position Ext {from ∷ Location, to ∷ Location} where
 
     computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
-    updateScore st = st ∧ true
+    updateScore s = defaultUpdateScore s
     onPositionChange = identity
     saveToJson _ = Nothing
     loadFromJson st _ = st

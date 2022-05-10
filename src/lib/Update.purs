@@ -1,6 +1,5 @@
 module Lib.Update
-  ( class MonadDelay
-  , UpdateMam
+  ( UpdateMam
   , delay
   , getHash
   , module Exports
@@ -9,7 +8,7 @@ module Lib.Update
   )
   where
 
-import MyPrelude
+import MamPrelude
 
 import Effect.Aff.Class (class MonadAff, liftAff)
 import Effect.Aff as Aff
@@ -27,14 +26,11 @@ type UpdateMam st = Update st MonadMam Unit
 getHash ∷ ∀st m. MonadAff m => Update st m String
 getHash = liftEffect $ window >>= location >>= L.hash
 
-storageGet ∷ ∀st m. MonadAff m => String → Update st m (Maybe String)
+storageGet ∷ ∀m. MonadAff m => String → m (Maybe String)
 storageGet name = liftEffect $ window >>= localStorage >>= Storage.getItem name
 
-storagePut ∷ ∀st m. MonadAff m => String → String → Update st m Unit
+storagePut ∷ ∀m. MonadAff m => String → String → m Unit
 storagePut name value = liftEffect $ window >>= localStorage >>= Storage.setItem name value
 
-class Monad m <= MonadDelay m where
-    delay ∷ Milliseconds → m Unit
-
-instance MonadAff m => MonadDelay (Update s m) where
-    delay = liftAff <<< Aff.delay
+delay :: ∀m. MonadAff m => Milliseconds → m Unit
+delay = liftAff <<< Aff.delay

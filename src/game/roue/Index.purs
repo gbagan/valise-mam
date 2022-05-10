@@ -1,7 +1,7 @@
 module Game.Roue (module M, game) where
 import Game.Roue.Model (State, Msg, update, istate) as M
 import Game.Roue.View (view) as M
-import MyPrelude
+import MamPrelude
 import Game.Core (core, CoreMsg(Init))
 import Game.Generic (GenericGame)
 

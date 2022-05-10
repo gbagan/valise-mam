@@ -1,9 +1,9 @@
 module Game.Chocolat.Model where
 
-import MyPrelude
+import MamPrelude
 import Data.Int.Bits ((.^.))
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, SizeLimit(..), GState, Mode(..), 
-                  coreUpdate, playA, _ext, genState, newGame, computerMove', _position, _nbRows, _nbColumns)
+                  coreUpdate, playA, _ext, genState, newGame, computerMove', _position, _nbRows, _nbColumns, defaultUpdateScore)
 import Lib.Util (chooseInt')
 import Lib.Update (UpdateMam)
 
@@ -65,7 +65,7 @@ instance Game Position ExtState Move where
 
     -- fonctions par défaut
     onPositionChange = identity
-    updateScore st = st ∧ true
+    updateScore s = defaultUpdateScore s
     saveToJson _ = Nothing
     loadFromJson st _ = st
 

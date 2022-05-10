@@ -17,7 +17,7 @@ module Lib.Util
   )
   where
 
-import MyPrelude
+import MamPrelude
 import Prim.Row (class Union, class Nub)
 import Record as Record
 import Control.Monad.Gen (chooseInt, chooseFloat)

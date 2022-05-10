@@ -1,10 +1,10 @@
 module Game.Eternal.Model where
 
-import MyPrelude
+import MamPrelude
 import Game.Common (releasePointerCapture)
 import Game.Core (class Game, class MsgWithCore, CoreMsg, GState, SizeLimit(..), Mode(..), Dialog(..),
                    playA, coreUpdate, _ext, genState, newGame, isLevelFinished,
-                   _position, _mode, _nbRows, _nbColumns, _dialog)
+                   _position, _mode, _nbRows, _nbColumns, _dialog, defaultUpdateScore)
 import Lib.Graph (Graph, Edge, (↔))
 import Lib.Update (UpdateMam)
 import Lib.Util (elements', repeat2)
@@ -297,7 +297,7 @@ instance Game Position ExtState Move where
         CustomGraph → SizeLimit 0 0 0 0
         _ → SizeLimit 3 0 11 0
 
-    updateScore st = st ∧ true
+    updateScore s = defaultUpdateScore s
     saveToJson _ = Nothing
     loadFromJson st _ = st
 

@@ -1,5 +1,5 @@
 module Lib.KonamiCode (konamiCode) where
-import MyPrelude
+import MamPrelude
 import Data.Array (takeEnd)
 
 codeSequence ∷ Array String

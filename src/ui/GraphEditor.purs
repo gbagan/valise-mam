@@ -1,10 +1,10 @@
 module UI.GraphEditor where
 
-import MyPrelude
+import MamPrelude
 import Game.Common (pointerDecoder)
 import Lib.Graph (Graph, Edge(..), Position)
 import Lib.Graph as Graph
-import Lib.Update (Update)
+import Lib.Update (UpdateMam)
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
@@ -46,7 +46,7 @@ class MsgWithGEditor msg where
     geditormsg ∷ Msg → msg
 
 
-update ∷ ∀st m. MonadEffect m => Lens' st Model → Msg → Update st m Unit
+update ∷ ∀st. Lens' st Model → Msg → UpdateMam st
 update lens = case _ of
     AddVertex ev → do 
         pos ← liftEffect $ pointerDecoder ev

@@ -1,6 +1,6 @@
 module Game.Hanoi.View (view) where
 
-import MyPrelude
+import MamPrelude
 import Game.Core (_position, _pointer, _history)
 import Game.Hanoi.Model (State, Msg(..), _dragged, _nbDisks)
 import Data.List as List

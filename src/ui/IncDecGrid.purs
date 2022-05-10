@@ -1,6 +1,6 @@
 module UI.IncDecGrid where 
 
-import MyPrelude
+import MamPrelude
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Events as E

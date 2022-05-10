@@ -1,6 +1,6 @@
 module Game.Labete.Model where
 
-import MyPrelude
+import MamPrelude
 import Game.Common (pointerDecoder, _isoCustom)
 import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, SizeLimit(..), GState, Objective(..), ShowWinPolicy(..), PointerPosition, Dialog(..),
                     playA, coreUpdate, _ext, genState, newGame, _position, _nbRows, _nbColumns, _help, _dialog, updateScore', saveToJson', loadFromJson')

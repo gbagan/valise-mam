@@ -1,8 +1,8 @@
 module Game.Tricolor.Model where
 
-import MyPrelude
+import MamPrelude
 import Game.Core (class Game, class MsgWithCore, GState, CoreMsg,
-                   coreUpdate, playA, genState, newGame, _ext, _position, defaultSizeLimit)
+                   coreUpdate, playA, genState, newGame, _ext, _position, defaultSizeLimit, defaultUpdateScore)
 import Lib.Util (chooseInt')
 import Lib.Update (UpdateMam)
 
@@ -69,7 +69,7 @@ instance Game Position ExtState Move where
     onNewGame = pure
     computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
-    updateScore st = st ∧ true
+    updateScore s = defaultUpdateScore s
     onPositionChange = identity
     saveToJson _ = Nothing
     loadFromJson st _ = st

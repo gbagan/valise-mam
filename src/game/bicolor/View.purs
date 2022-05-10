@@ -1,6 +1,6 @@
 module Game.Bicolor.View where
 
-import MyPrelude
+import MamPrelude
 
 import Game.Core (_position, _nbRows, _nbColumns)
 import Game.Bicolor.Model (State, Msg(..), Card(..), Phase(..), Mode(..), _mode, _phase)

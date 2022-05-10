@@ -1,5 +1,5 @@
 module UI.Icons where
-import MyPrelude
+import MamPrelude
 import Data.List (null) as L
 import Pha.Html (Html, Prop)
 import Pha.Html as H

@@ -1,5 +1,5 @@
 module Game.Baseball (module M, game) where
-import MyPrelude
+import MamPrelude
 import Game.Baseball.Model (State, Msg, update, istate) as M
 import Game.Baseball.View (view) as V
 import Game.Core (core, CoreMsg(Init))

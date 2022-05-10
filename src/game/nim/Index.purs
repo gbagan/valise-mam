@@ -1,7 +1,7 @@
 module Game.Nim (module M, game) where
 import Game.Nim.Model (State, Msg, update, istate) as M
 import Game.Nim.View (view) as M
-import MyPrelude
+import MamPrelude
 import Game.Core (core, CoreMsg(Init))
 import Game.Generic (GenericGame)
 

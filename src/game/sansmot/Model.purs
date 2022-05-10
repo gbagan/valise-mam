@@ -1,5 +1,5 @@
 module Game.Sansmot.Model where
-import MyPrelude
+import MamPrelude
 import Data.Map as Map
 import Effect.Aff.Class (class MonadAff)
 import Lib.Update (Update, delay)

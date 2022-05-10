@@ -1,6 +1,6 @@
 module Game.Frog.View (view) where
 
-import MyPrelude
+import MamPrelude
 import Data.FoldableWithIndex (foldMapWithIndex)
 import Lib.Util (map2, pairwise, rangeWithStep')
 import Pha.Html (Html)

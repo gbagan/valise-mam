@@ -1,6 +1,6 @@
 module Main (main) where
 
-import MyPrelude hiding (view)
+import MamPrelude hiding (view)
 
 import Data.Map as Map
 import Data.String as String

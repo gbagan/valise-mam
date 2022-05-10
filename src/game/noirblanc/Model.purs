@@ -1,11 +1,12 @@
 module Game.Noirblanc.Model where
 
-import MyPrelude
+import MamPrelude
 import Control.Monad.Gen (chooseInt)
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
-import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg, _ext, coreUpdate, playA, isLevelFinished, saveToStorage,
-                  _position, _nbColumns, _nbRows, _customSize, newGame, genState)
+import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg,
+                  _ext, coreUpdate, playA, isLevelFinished, saveToStorage,
+                  _position, _nbColumns, _nbRows, _customSize, newGame, genState, defaultUpdateScore)
 import Lib.KonamiCode (konamiCode)
 import Lib.Update (UpdateMam)
 import Lib.Util (chooseInt', dCoords)
@@ -115,7 +116,7 @@ instance Game Position ExtState Int where
 
     -- méthodes par default
     computerMove _ = pure Nothing
-    updateScore st = st ∧ true
+    updateScore s = defaultUpdateScore s
     onPositionChange = identity
 
 sizes ∷ Array (Tuple Int Int)

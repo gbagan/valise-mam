@@ -1,6 +1,6 @@
 module Game.Solitaire.Model where
 
-import MyPrelude
+import MamPrelude
 
 import Data.FoldableWithIndex (allWithIndex)
 import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, class ScoreGame, 

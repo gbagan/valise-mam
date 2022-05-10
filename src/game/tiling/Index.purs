@@ -1,7 +1,7 @@
 module Game.Tiling (module M, game) where
 import Game.Tiling.Model (State, Msg, update, istate, onKeyDown) as M
 import Game.Tiling.View (view) as M
-import MyPrelude
+import MamPrelude
 import Game.Core (core, CoreMsg(Init))
 import Game.Generic (GenericGame)
 

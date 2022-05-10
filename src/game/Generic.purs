@@ -1,5 +1,5 @@
 module Game.Generic (GenericGame) where
-import MyPrelude
+import MamPrelude
 import Pha.Html (Html)
 
 type GenericGame st msg =

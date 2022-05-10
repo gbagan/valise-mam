@@ -1,11 +1,11 @@
 module Game.Tiling.Model where
 
-import MyPrelude
+import MamPrelude
 import Lib.Util (coords)
 import Game.Common (_isoCustom)
 import Game.Core (GState, Dialog(..), class Game, class MsgWithCore, CoreMsg, SizeLimit(..),
             coreUpdate, playA,     
-            _ext, canPlay, genState, newGame, _position, _nbColumns, _nbRows, _dialog)
+            _ext, canPlay, genState, newGame, _position, _nbColumns, _nbRows, _dialog, defaultUpdateScore)
 import Lib.Update (UpdateMam)
 
 type Coord = {row ∷ Int, col ∷ Int}
@@ -138,7 +138,7 @@ instance Game (Array Int) ExtState Int where
 
     -- méthodes par défaut
     computerMove _ = pure Nothing
-    updateScore st = st ∧ true
+    updateScore s = defaultUpdateScore s
     onPositionChange = identity
     saveToJson _ = Nothing
     loadFromJson st _ = st

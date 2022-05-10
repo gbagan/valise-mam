@@ -1,6 +1,6 @@
 module Game.Eternal.View (view) where
 
-import MyPrelude
+import MamPrelude
 
 import Data.Number (acos)
 import Lib.Graph (Graph, Edge, (↔), Position)

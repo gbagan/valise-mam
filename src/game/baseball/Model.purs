@@ -1,11 +1,13 @@
 module Game.Baseball.Model where
 
-import MyPrelude
+import MamPrelude
 import Data.FoldableWithIndex (allWithIndex)
 import Lib.Util (chooseInt', shuffle)
 import Lib.Update (UpdateMam)
 import Game.Core (class Game, GState, class MsgWithCore, CoreMsg,
-                 playA, coreUpdate, _ext, genState, newGame, _position, defaultSizeLimit)
+                 playA, coreUpdate, _ext, genState, newGame, _position,
+                 defaultSizeLimit, defaultUpdateScore
+                 )
 
 -- les jetons sont numérotés de 0 à nbBases - 1
 -- un jeton de numéro i a la couleur i / 2 (division entière)
@@ -61,7 +63,7 @@ instance Game Position Ext Move where
     -- fonctions par défault
     computerMove _ = pure Nothing
     sizeLimit = defaultSizeLimit
-    updateScore st = st ∧ true 
+    updateScore s = defaultUpdateScore s
     onPositionChange = identity
     saveToJson _ = Nothing
     loadFromJson st _ = st

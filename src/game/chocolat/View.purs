@@ -1,6 +1,6 @@
 module Game.Chocolat.View  (view) where
   
-import MyPrelude
+import MamPrelude
 import Game.Chocolat.Model (State, Msg(..), Move(..), SoapMode(..), _soap, _soapMode, _moveWhenHover, cutLine)
 import Game.Core (_position, _nbRows, _nbColumns, _pointer, possibleMoves, PointerPosition)
 import Lib.Util (repeat2)

@@ -1,5 +1,5 @@
 module Game.Nim.View where
-import MyPrelude
+import MamPrelude
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P

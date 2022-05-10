@@ -1,6 +1,6 @@
 module UI.Icon where
 
-import MyPrelude
+import MamPrelude
 
 import Data.Tuple (uncurry)
 import Lib.Util (partialUpdate, class PartialRecord)

@@ -1,6 +1,6 @@
 module Game.Roue.View where
 
-import MyPrelude
+import MamPrelude
 
 import Game.Core (PointerPosition, _position, _pointer, _locked)
 import Game.Roue.Model (State, Msg(..), Location(..), _size, _rotation, _dragged, aligned, validRotation, validRotation')

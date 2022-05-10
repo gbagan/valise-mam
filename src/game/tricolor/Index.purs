@@ -1,7 +1,7 @@
 module Game.Tricolor (module M, game) where
 import Game.Tricolor.Model (State, Msg, update, istate) as M
 import Game.Tricolor.View (view) as M
-import MyPrelude
+import MamPrelude
 import Game.Core (core, CoreMsg(Init))
 import Game.Generic (GenericGame)
 

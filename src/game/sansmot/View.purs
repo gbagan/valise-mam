@@ -1,6 +1,6 @@
 module Game.Sansmot.View where
 
-import MyPrelude
+import MamPrelude
 import Data.Map as Map
 import Pha.Html (Html)
 import Pha.Html as H

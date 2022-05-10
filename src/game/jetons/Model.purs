@@ -1,6 +1,6 @@
 module Game.Jetons.Model where
 
-import MyPrelude
+import MamPrelude
 
 import Data.FoldableWithIndex (allWithIndex)
 import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, class ScoreGame, CoreMsg, DndMsg, GState, Objective(..), ShowWinPolicy(..), SizeLimit(..), _ext, _nbColumns, _nbRows, _position, coreUpdate, defaultOnNewGame, dndUpdate, genState, loadFromJson', saveToJson', updateScore')

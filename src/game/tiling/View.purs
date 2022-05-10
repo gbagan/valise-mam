@@ -1,5 +1,5 @@
 module Game.Tiling.View (view) where
-import MyPrelude
+import MamPrelude
 import Lib.Util (coords)
 import Pha.Html (Html)
 import Pha.Html as H

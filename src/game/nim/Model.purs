@@ -1,10 +1,11 @@
 module Game.Nim.Model where
 
-import MyPrelude
+import MamPrelude
 import Control.Monad.Gen (chooseInt)
 import Data.Int.Bits (xor)
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, GState, Mode(..), Turn(..),
-        coreUpdate, playA, _ext, genState, newGame, _position, _turn, computerMove', defaultSizeLimit, defaultOnNewGame)
+        coreUpdate, playA, _ext, genState, newGame, _position, _turn, computerMove',
+        defaultSizeLimit, defaultOnNewGame, defaultUpdateScore)
 import Lib.Update (UpdateMam)
 import Lib.Util (repeat2)
 
@@ -64,7 +65,7 @@ instance Game (Array Position) ExtState Move where
     -- fonctions par défault
     sizeLimit = defaultSizeLimit
     onNewGame = defaultOnNewGame
-    updateScore st = st ∧ true
+    updateScore s = defaultUpdateScore s
     onPositionChange = identity
     saveToJson _ = Nothing
     loadFromJson st _ = st

@@ -1,5 +1,5 @@
 module Game.Valise.View where
-import MyPrelude
+import MamPrelude
 import Game.Valise.Model (State, Msg(..), _positions)
 import Pha.Html (Html)
 import Pha.Html as H

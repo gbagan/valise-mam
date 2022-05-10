@@ -1,12 +1,12 @@
 module Game.Frog.Model where
 
-import MyPrelude
+import MamPrelude
 import Data.Lazy (defer, force)
 import Data.Array.NonEmpty as N
 import Lib.KonamiCode (konamiCode)
 import Lib.Update (UpdateMam)
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, Mode(..), GState, SizeLimit(..),
-              playA,  _ext, coreUpdate, newGame, computerMove', genState, _position, _nbRows)
+              playA,  _ext, coreUpdate, newGame, computerMove', genState, _position, _nbRows, defaultUpdateScore)
 
 -- une position est la case sur laquelle se trouve de la grenouille
 -- les positions vont de 0 à nbRows
@@ -77,7 +77,7 @@ instance Game Int ExtState Int where
     sizeLimit _ = SizeLimit 5 0 30 0
 
     onPositionChange = identity
-    updateScore st = st ∧ true
+    updateScore s = defaultUpdateScore s
     saveToJson _ = Nothing
     loadFromJson st _ = st
 

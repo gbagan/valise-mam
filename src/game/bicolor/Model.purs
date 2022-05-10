@@ -1,9 +1,9 @@
 module Game.Bicolor.Model where
 
-import MyPrelude
+import MamPrelude
 import Control.Monad.Gen (chooseBool)
 import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg,
-                _ext, coreUpdate, playA, _position, _nbColumns, _nbRows, newGame, genState)
+                _ext, coreUpdate, playA, _position, _nbColumns, _nbRows, newGame, genState, defaultUpdateScore)
 import Lib.Update (UpdateMam)
 import Lib.Util (dCoords)
 
@@ -84,7 +84,7 @@ instance Game Position ExtState Int where
     saveToJson _ = Nothing
     loadFromJson st _ = st 
     computerMove _ = pure Nothing
-    updateScore st = st ∧ true
+    updateScore s = defaultUpdateScore s
     onPositionChange = identity
 
 data Msg = Core CoreMsg | Play Int | ToggleCard Int | SetMode Mode | ToggleCustom | Shuffle

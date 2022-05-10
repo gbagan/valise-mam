@@ -1,7 +1,7 @@
 module Game.Solitaire (module M, game) where
 import Game.Solitaire.Model (State, Msg, update, istate) as M
 import Game.Solitaire.View (view) as M
-import MyPrelude
+import MamPrelude
 import Game.Core (core, CoreMsg(Init))
 import Game.Generic (GenericGame)
 

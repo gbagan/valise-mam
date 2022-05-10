@@ -1,6 +1,6 @@
 module Game.Common where
 
-import MyPrelude
+import MamPrelude
 
 import Effect (Effect)
 import Web.DOM.Element as Element

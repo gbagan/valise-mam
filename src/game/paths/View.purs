@@ -1,5 +1,5 @@
 module Game.Paths.View (view) where
-import MyPrelude
+import MamPrelude
 import Data.FoldableWithIndex (foldMapWithIndex)
 import Lib.Util (coords)
 import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _pointer)

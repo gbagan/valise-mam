@@ -1,6 +1,6 @@
 module Game.Labete.View (view) where
 
-import MyPrelude
+import MamPrelude
 import Web.UIEvent.MouseEvent as ME
 import Web.PointerEvent.PointerEvent as PE
 import Lib.Util (coords, map3)

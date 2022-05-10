@@ -1,6 +1,6 @@
 module Lib.Graph where
 
-import MyPrelude
+import MamPrelude
 
 data Edge = Edge Int Int
 infix 3 Edge as ↔

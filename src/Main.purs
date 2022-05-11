@@ -174,9 +174,8 @@ update Init = init
 update (KeyDown k) = do
         st ← get
         callByName st.location (pure unit) \game →
-            case game.core.onKeydown k of
-                Nothing → pure unit
-                Just msg → update (game.msgmap msg)
+            for_ (game.core.onKeydown k) \msg →
+                update (game.msgmap msg)
 update HashChanged = do
     hash ← getHash
     let location = String.drop 1 hash

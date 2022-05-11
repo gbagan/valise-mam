@@ -16,7 +16,7 @@ import Data.Array (range)
 import Data.Array ((!!), head, last, cons, snoc, filter, find, take, null, length, mapMaybe, catMaybes, nub, elemIndex, sort, uncons,
         replicate, reverse, modifyAt, insertAt, updateAt, updateAtIndices, deleteAt, mapWithIndex, concat, tail, concatMap, sortWith, zip, zipWith) as Exports
 import Data.Either (Either(..)) as Exports
-import Data.Foldable (class Foldable, foldl, foldr, elem, any, all, and, or, for_, minimumBy) as Exports
+import Data.Foldable (class Foldable, foldl, foldr, elem, any, all, and, or, for_, traverse_, minimumBy) as Exports
 import Data.Int (toNumber, floor, even) as Exports
 import Data.Lens (Lens', lens, set, Iso', iso, view, over, (^.), (^?), (.~), (%~), (?~), (+~), (.=), (%=), (+=)) as Exports
 import Data.Lens.Index (ix) as Exports

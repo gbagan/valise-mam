@@ -220,10 +220,8 @@ update (StartZone s) = _startSquare .= Just s
 -- startZone2A est appliqué lors du onpointerdown sur l'élément html réprésentant le plateu
 update (StartZone2 ev) =
     if ME.shiftKey (PE.toMouseEvent ev) then do
-        p ← liftEffect $ pointerDecoder ev
-        case p of
-            Just pos → _startPointer .= Just pos
-            Nothing → pure unit
+        liftEffect (pointerDecoder ev) >>= traverse_ \pos →
+            _startPointer .= Just pos
     else
         pure unit
 

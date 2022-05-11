@@ -272,35 +272,28 @@ computerPlay ∷ ∀pos ext mov. Game pos ext mov ⇒ UpdateMam (GState pos ext)
 computerPlay = do
     state ← get
     move ← lift $ computerMove state
-    case flip playAux state =<< move of
-        Nothing → pure unit
-        Just st2 → do
-            put st2
-            when (isLevelFinished st2) showVictory
+    for_ (flip playAux state =<< move) \st2 → do
+        put st2
+        when (isLevelFinished st2) showVictory
 
 saveToStorage ∷ ∀pos ext mov. Game pos ext mov ⇒ UpdateMam (GState pos ext)
 saveToStorage = do
     state ← get
-    case saveToJson state of
-        Nothing → pure unit
-        Just json → storagePut ("valise-" <> name state) (stringify json)
+    for_ (saveToJson state) \json →
+        storagePut ("valise-" <> name state) (stringify json)
 
 playA ∷ ∀pos ext mov. Game pos ext mov ⇒ mov → UpdateMam (GState pos ext)
 playA move = lockAction $ do
     state ← get
-    case playAux move $ pushToHistory $ state of
-        Nothing → pure unit
-        Just st2 → do
-            let {newState: st3, isNewRecord, showWin} = updateScore st2
-            put st3
-            when isNewRecord
-                saveToStorage
-            when showWin
-                showVictory
-            if (st3^._mode) `elem` [ExpertMode, RandomMode] then
-                delay (Milliseconds 1000.0) *> computerPlay
-            else
-                pure unit
+    for_ (playAux move $ pushToHistory $ state) \st2 → do
+        let {newState: st3, isNewRecord, showWin} = updateScore st2
+        put st3
+        when isNewRecord saveToStorage
+        if showWin
+            showVictory
+        else when ((st3^._mode) `elem` [ExpertMode, RandomMode]) do
+            delay (Milliseconds 1000.0)
+            computerPlay
 
 -- | Empêche d'autres actions d'être effectués durant la durée de l'action
 -- | en mettant locked à true au début de l'action et à false à la fin de l'action.
@@ -450,8 +443,6 @@ dropA ∷ ∀pos ext dnd. Eq dnd ⇒ Game pos ext {from ∷ dnd, to ∷ dnd} ⇒
             Lens' (GState pos ext) (Maybe dnd) → dnd → UpdateMam (GState pos ext)
 dropA dragLens to = do
     state ← get
-    case state ^. dragLens of
-        Nothing → pure unit
-        Just drag → do
-            modify_ (set dragLens Nothing)
-            if drag ≠ to then playA { from: drag, to } else pure unit
+    for_ (state ^. dragLens) \drag → do
+        modify_ (set dragLens Nothing)
+        when (drag ≠ to) $ playA { from: drag, to }

@@ -60,7 +60,7 @@ neighbor ∷ State → Int → Int → Boolean
 neighbor state index1 index2 =
     row * row + col * col == 1
     || mode `mod` 3 == 0 && index1 == index2 
-    || mode >= 2 && index1 ≠ index2 && row * col == 0
+    || mode >= 2 && index1 /= index2 && row * col == 0
     where
         mode = state^._mode
         {row, col} = dCoords (state^._nbColumns) index1 index2

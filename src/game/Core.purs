@@ -289,7 +289,7 @@ playA move = lockAction $ do
         let {newState: st3, isNewRecord, showWin} = updateScore st2
         put st3
         when isNewRecord saveToStorage
-        if showWin
+        if showWin then
             showVictory
         else when ((st3^._mode) `elem` [ExpertMode, RandomMode]) do
             delay (Milliseconds 1000.0)

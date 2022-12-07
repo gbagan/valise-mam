@@ -134,19 +134,21 @@ view {graph, mode, currentPosition, selectedVertex} onOk =
                       , E.onPointerUp \_ → geditormsg DropOrLeave
                       , E.onPointerLeave \_ → geditormsg DropOrLeave
                       , E.onPointerMove $ geditormsg <<< Move
-                      ] $ concat 
-                [   graph.edges <#> \edge →
-                    H.maybe (Graph.getCoordsOfEdge graph edge) \{px1, px2, py1, py2} →
-                        H.line 
-                        [   P.x1 $ 100.0 * px1
-                        ,   P.y1 $ 100.0 * py1
-                        ,   P.x2 $ 100.0 * px2
-                        ,   P.y2 $ 100.0 * py2
+                      ] 
+                [H.g [] $
+                    graph.edges <#> \edge →
+                        H.maybe (Graph.getCoordsOfEdge graph edge) \{px1, px2, py1, py2} →
+                            H.line 
+                            [   P.x1 $ 100.0 * px1
+                            ,   P.y1 $ 100.0 * py1
+                            ,   P.x2 $ 100.0 * px2
+                            ,   P.y2 $ 100.0 * py2
                         ,   H.class_ "ui-grapheditor-edge"
                         ,   H.class' "deletemode" $ mode == DeleteMode
                         ,   E.onClick \_ → geditormsg (DeleteEdge edge)
                         ]
-                ,   graph.vertices # mapWithIndex \i {x, y} →
+                ,   H.g [] $
+                        graph.vertices # mapWithIndex \i {x, y} →
                             H.circle
                             [   P.cx $ 100.0 * x
                             ,   P.cy $ 100.0 * y
@@ -159,11 +161,10 @@ view {graph, mode, currentPosition, selectedVertex} onOk =
                             ,   E.onPointerDown \ev → geditormsg (SelectVertex i ev)
                             ,   E.onPointerUp \_ → geditormsg (PointerUp i)
                             ]
-                ,   [H.when (mode == AddEMode) \_ →
+                ,   H.when (mode == AddEMode) \_ →
                         H.fromMaybe case selectedVertex of
                             Just v → currentLine <$> currentPosition <*> (Graph.getCoords graph v)
                             _ → Nothing
-                    ]
                 ]
             ]
         ,   H.div [H.class_ "flex ui-grapheditor-buttons"] 
@@ -171,7 +172,7 @@ view {graph, mode, currentPosition, selectedVertex} onOk =
                             [E.onClick \_ → geditormsg $ SetMode VertexMode]
             ,   iconbutton {icon: IconSymbol "#edge", selected: mode == AddEMode, tooltip: Just "Connecte deux sommets"}
                             [E.onClick \_ → geditormsg $ SetMode AddEMode]
-            ,   iconbutton {icon: IconSymbol "#trash", selected: mode == DeleteMode, tooltip: Just "Enlève un sommet ou arête"}
+            ,   iconbutton {icon: IconSymbol "#trash", selected: mode == DeleteMode, tooltip: Just "Enlève un sommet ou une arête"}
                             [E.onClick \_ → geditormsg $ SetMode DeleteMode]
             ,   iconbutton {icon: IconSymbol "#clear", tooltip: Just "Efface tout le graphe"}  [E.onClick \_ → geditormsg Clear]
             ]

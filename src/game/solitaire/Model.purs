@@ -141,7 +141,7 @@ instance Game Position ExtState Move where
         RandomBoard → SizeLimit 3 1 3 12
         _ → SizeLimit 7 7 7 7
 
-    updateScore = updateScore' {onlyWhenFinished: true, showWin: AlwaysShowWin}
+    updateScore st = updateScore' {onlyWhenFinished: true, showWin: AlwaysShowWin} st
     saveToJson = saveToJson'
     loadFromJson = loadFromJson'
 

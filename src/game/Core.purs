@@ -317,7 +317,7 @@ newGameAux ∷ ∀m pos ext mov. MonadRec m ⇒ MonadGen m ⇒ Game pos ext mov 
 newGameAux f state = do 
     let state2 = f state
     state3 ← onNewGame state2
-    position ← initialPosition state3 `suchThat` (not <<< isLevelFinished <<< \p → state3 # set _position p)
+    position ← initialPosition state3 `suchThat` \p -> not $ isLevelFinished $ state3 # set _position p
     pure $ state3
         # set _position position
         # set _history Nil

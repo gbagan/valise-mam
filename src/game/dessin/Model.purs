@@ -237,7 +237,7 @@ instance Game (Array Move) ExtState Move where
         pure $ state # _graph .~ graph
 
     isLevelFinished state = length (edgesOf (state^._position)) == length (state^._graph).edges
-    updateScore = updateScore' {onlyWhenFinished: true, showWin: ShowWinOnNewRecord}
+    updateScore st = updateScore' {onlyWhenFinished: true, showWin: ShowWinOnNewRecord} st
 
     saveToJson = saveToJson'
     loadFromJson = loadFromJson'

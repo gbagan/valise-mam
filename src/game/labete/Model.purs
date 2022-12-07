@@ -169,7 +169,7 @@ instance Game (Array Boolean) ExtState Int where
 
     sizeLimit _ = SizeLimit 2 2 9 9
 
-    updateScore = updateScore' {onlyWhenFinished: true, showWin: ShowWinOnNewRecord}
+    updateScore st = updateScore' {onlyWhenFinished: true, showWin: ShowWinOnNewRecord} st
     saveToJson = saveToJson'
     loadFromJson = loadFromJson'
 

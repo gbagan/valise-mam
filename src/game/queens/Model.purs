@@ -157,7 +157,7 @@ instance Game Position Ext Int where
     
     onNewGame state = pure $ state # set _selectedPiece (N.head $ state^._allowedPieces)
     sizeLimit _ = SizeLimit 3 3 9 9
-    updateScore = updateScore' {onlyWhenFinished: false, showWin: NeverShowWin}
+    updateScore st = updateScore' {onlyWhenFinished: false, showWin: NeverShowWin} st
     
     -- methodes par défaut
     computerMove _ = pure Nothing

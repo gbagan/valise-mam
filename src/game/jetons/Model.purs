@@ -49,7 +49,7 @@ instance Game Position Ext { from ∷ Int, to ∷ Int } where
             in x * (y + z) == 0
 
     sizeLimit _ = SizeLimit 1 2 6 12
-    updateScore = updateScore' {onlyWhenFinished: true, showWin: AlwaysShowWin}
+    updateScore st = updateScore' {onlyWhenFinished: true, showWin: AlwaysShowWin} st
     saveToJson = saveToJson'
     loadFromJson = loadFromJson'
 

@@ -1,14 +1,14 @@
 {
   "dependencies": {
-    "esbuild": "^0.14.38",
-    "purescript": "^0.15.0",
+    "esbuild": "^0.15.18",
+    "purescript": "^0.15.6",
     "rimraf": "^3.0.2",
-    "sass": "^1.51.0",
+    "sass": "^1.56.1",
     "spago": "^0.20.9"
   },
   "scripts": {
     "clean": "rimraf output && rimraf .spago",
-    "build": "spago bundle-app --minify --to dist/bundle.js",
+    "build": "spago bundle-app --to dist/bundle.js",
     "buildcss": "sass --no-source-map src/index.scss dist/bundle.css",
     "deploy": "scp -r dist/* mam@connect.liris.cnrs.fr:~/public_html/valise/",
     "deploy:test": "scp -r dist/* gbagan@connect.liris.cnrs.fr:~/valisetest/"

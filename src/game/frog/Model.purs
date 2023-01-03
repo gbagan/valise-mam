@@ -14,7 +14,7 @@ import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, 
 -- un coup (move) est la case sur laquelle on veut déplacer la grenouille
 
 type Ext' =
-    {   moves ∷ NonEmptyArray Int  -- la liste des mouvements autorisées (en nombre de cases)
+    {   moves ∷ Array Int  -- la liste des mouvements autorisées (en nombre de cases)
     ,   winning ∷ Array Boolean      -- la liste des positions gagnantes
     ,   marked ∷ Array Boolean       -- la liste des posiions marquées par l'utilisateur
     ,   keySequence ∷ Array String   -- pour le konami code
@@ -26,7 +26,7 @@ type State = GState Int ExtState
 -- lenses
 _ext' ∷ Lens' State Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
-_moves ∷ Lens' State (NonEmptyArray Int)
+_moves ∷ Lens' State (Array Int)
 _moves = _ext' ∘ prop (Proxy ∷ _ "moves")
 _winning ∷ Lens' State (Array Boolean)
 _winning = _ext' ∘ prop (Proxy ∷ _ "winning")
@@ -43,7 +43,7 @@ istate = genState
             ,   mode = RandomMode
             ,   customSize = true
             } (Ext
-            {   moves: 1 `N.cons` (2 `N.cons` N.singleton 3)
+            {   moves: [1, 2, 3]
             ,   winning: []
             ,   marked: []
             ,   keySequence: []
@@ -56,7 +56,7 @@ canPlay state v = elem (position - v) moves || position > 0 && v == 0 && positio
     maximum = foldr max 0 moves
 
 -- | renvoie l'ensemble des positions gagnantes pour une taille et un ensemble de mouvements donnés
-winningPositions ∷ ∀t. Foldable t ⇒ Int → t Int → Array Boolean
+winningPositions ∷ Int → Array Int → Array Boolean
 winningPositions size moves = t <#> force where
     t = repeat size \i → defer
             \_ → i == 0 || (moves # all \m → maybe false (not ∘ force) (t !! (i - m)))
@@ -93,11 +93,9 @@ update (Core msg) = coreUpdate msg
 -- ajoute ou enlève un mouvement dans la liste des mouvements permis
 update (SelectMove move) = newGame $ over _moves selectMove where
     selectMove moves =
-        1 .. 5 
-        # filter (\m → (m == move) ≠ elem m moves)
-        # N.fromArray
-        ?: moves
--- place/retire une marque à la position i
+        let moves' = 1 .. 5 # filter (\m → (m == move) ≠ elem m moves) in
+        if null moves' then moves else moves' 
+        -- place/retire une marque à la position i
 update (Mark i) = _marked ∘ ix i %= not
 update (Play i) = playA i
 update (Konami s) = s # konamiCode _keySequence (modify_ \st → st # _marked .~ st^._winning)

@@ -28,7 +28,6 @@ import Game.Valise as Valise
 import Pha.App (app)
 import Pha.Html (Html)
 import Pha.Html as H
-import Pha.Html.Keyed as K
 import Pha.Html.Attributes as P
 import Pha.Update.Lens (updateOver)
 import Lib.MonadMam (eval)
@@ -196,9 +195,8 @@ init = do
 
 view ∷ RootState → Html Msg
 view st =
-    K.div []
-    [   st.location /\
-        H.div
+    H.div []
+    [   H.div
             [   H.class_ "main-main-container"
             ,   H.class_ (if st.location == "" then "valise" else "game")
             ]

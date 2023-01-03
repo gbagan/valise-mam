@@ -1,6 +1,7 @@
 /node_modules/
 /.pulp-cache/
 /output/
+/output-es/
 /dce-output/
 /generated-docs/
 /package-lock.json

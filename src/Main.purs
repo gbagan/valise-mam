@@ -5,6 +5,9 @@ import MamPrelude hiding (view)
 import Data.Map as Map
 import Data.String as String
 import Effect (Effect)
+import Effect.Ref as Ref
+import Random.LCG (randomSeed)
+import Control.Monad.Reader.Trans (runReaderT)
 import Game.Baseball as Baseball
 import Game.Bicolor as Bicolor
 import Game.Chocolat as Chocolat
@@ -30,7 +33,6 @@ import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Update.Lens (updateOver)
-import Lib.MonadMam (eval)
 import Lib.Update (UpdateMam, getHash)
 import Pha.Subscriptions as Subs
 import Unsafe.Coerce (unsafeCoerce)
@@ -149,7 +151,7 @@ callByName name default f = case games # Map.lookup name of
                                 Nothing → default
                                 Just game → game # gameRun f 
  
-update ∷ Msg → UpdateMam RootState
+update ∷ Msg → UpdateMam RootState Unit
 update (BaseballMsg msg)  = prop (Proxy ∷ Proxy "baseball")  .~> Baseball.update msg
 update (BicolorMsg msg)   = prop (Proxy ∷ Proxy "bicolor")   .~> Bicolor.update msg
 update (ChocolatMsg msg)  = prop (Proxy ∷ Proxy "chocolat")  .~> Chocolat.update msg
@@ -184,7 +186,7 @@ update HashChanged = do
     else
         pure unit
 
-init ∷ UpdateMam RootState
+init ∷ UpdateMam RootState Unit
 init = do
     for_ (Map.values games) $
         gameRun \game → case game.core.init of
@@ -217,11 +219,13 @@ viewGame st = callByName st.location H.empty
                     \game → game.core.view (game.map st) <#> game.msgmap
 
 main ∷ Effect Unit
-main = app
-    {   init: {state, action: Just Init}
-    ,   view
-    ,   update
-    ,   eval
-    ,   subscriptions: [Subs.onKeyDown (Just ∘ KeyDown), Subs.onHashChange $ const (Just HashChanged)]
-    ,   selector: "#root"
-    }
+main = do
+    newSeed <- randomSeed
+    genState <- Ref.new {newSeed, size: 0}
+    app {   init: {state, action: Just Init}
+        ,   view
+        ,   update
+        ,   eval: flip runReaderT {genState}
+        ,   subscriptions: [Subs.onKeyDown (Just ∘ KeyDown), Subs.onHashChange $ const (Just HashChanged)]
+        ,   selector: "#root"
+        }

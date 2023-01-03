@@ -88,7 +88,7 @@ instance TwoPlayersGame Int ExtState Int where
 data Msg = Core CoreMsg | SelectMove Int | Mark Int | Play Int | Konami String
 instance MsgWithCore Msg where core = Core
 
-update ∷ Msg → UpdateMam State
+update ∷ Msg → UpdateMam State Unit
 update (Core msg) = coreUpdate msg
 -- ajoute ou enlève un mouvement dans la liste des mouvements permis
 update (SelectMove move) = newGame $ over _moves selectMove where

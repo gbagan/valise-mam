@@ -39,7 +39,7 @@ _drag = prop (Proxy ∷ _ "drag")
 _isSwitchOn ∷ Lens' State Boolean
 _isSwitchOn = prop (Proxy ∷ _ "isSwitchOn")
 
-enterA ∷ UpdateMam State
+enterA ∷ UpdateMam State Unit
 enterA = do
     put istate
     delay (Milliseconds 1500.0)
@@ -51,7 +51,7 @@ data Msg = ShowHelp String
         | MoveObject PointerEvent
         | NoAction
 
-update ∷ Msg → UpdateMam State
+update ∷ Msg → UpdateMam State Unit
 update (ShowHelp help) = modify_ $ over _help (if help == "" then identity else const help)
                                 >>> set _helpVisible (help ≠ "")
 update ToggleSwitch = _isSwitchOn %= not

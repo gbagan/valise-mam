@@ -4,7 +4,7 @@ import MamPrelude
 import Control.Monad.Gen (chooseBool)
 import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg,
                 _ext, coreUpdate, playA, _position, _nbColumns, _nbRows, newGame, genState, defaultUpdateScore)
-import Lib.Update (UpdateMam)
+import Lib.Update (UpdateMam, evalGen)
 import Lib.Util (dCoords)
 
 
@@ -90,14 +90,14 @@ instance Game Position ExtState Int where
 data Msg = Core CoreMsg | Play Int | ToggleCard Int | SetMode Mode | ToggleCustom | Shuffle
 instance MsgWithCore Msg where core = Core
 
-update ∷ Msg → UpdateMam State
+update ∷ Msg → UpdateMam State Unit
 update (Core msg) = coreUpdate msg
 update (Play move) = playA move
 update (ToggleCard i) = _position ∘ ix i %= reverseCard
 update (SetMode mode) = newGame $ _mode .~ mode
 update Shuffle = do
     state ← get
-    pos ← lift $ replicateA (length $ state^._position) randomCard
+    pos ← evalGen $ replicateA (length $ state^._position) randomCard
     put $ state # _position .~ pos 
 update ToggleCustom = do
     state ← get

@@ -78,7 +78,7 @@ instance Game Position ExtState Move where
 data Msg = Core CoreMsg | Play Int | SetSize Int | SetNbColors Int | SetRange Int | SetHoverCell (Maybe Int) | Shuffle
 instance MsgWithCore Msg where core = Core
   
-update ∷ Msg → UpdateMam State
+update ∷ Msg → UpdateMam State Unit
 update (Core msg) = coreUpdate msg
 update (Play i) = playA i
 update (SetSize size) = newGame $ set _size size

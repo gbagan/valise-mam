@@ -1,6 +1,8 @@
 module Lib.Update
-  ( UpdateMam
+  ( Env
+  , UpdateMam
   , delay
+  , evalGen
   , getHash
   , module Exports
   , storageGet
@@ -11,17 +13,30 @@ module Lib.Update
 import MamPrelude
 
 import Effect.Aff.Class (class MonadAff, liftAff)
+import Effect.Aff (Aff)
 import Effect.Aff as Aff
+import Effect.Ref (Ref)
+import Effect.Ref as Ref
 import Pha.Update (Update)
 import Web.HTML (window)
 import Web.HTML.Location as L
 import Web.HTML.Window (localStorage, location)
 import Web.Storage.Storage as Storage
-
+import Control.Monad.Reader.Trans (ReaderT, ask)
+import Control.Monad.Gen.Trans (Gen, GenState, runGen)
 import Pha.Update (Update) as Exports
-import Lib.MonadMam (MonadMam)
 
-type UpdateMam st = Update st MonadMam Unit 
+type Env = { genState :: Ref GenState }
+
+type UpdateMam st a = Update st (ReaderT Env Aff) a
+
+evalGen :: ∀st a. Gen a -> UpdateMam st a
+evalGen g = do
+    {genState} <- lift ask
+    state <- liftEffect $ Ref.read genState
+    let v /\ state' = runGen g state
+    liftEffect $ Ref.write state' genState
+    pure v
 
 getHash ∷ ∀st m. MonadAff m => Update st m String
 getHash = liftEffect $ window >>= location >>= L.hash

@@ -2,7 +2,7 @@ module Game.Core where
 
 import MamPrelude
 
-import Control.Monad.Gen (suchThat)
+import Control.Monad.Gen.Trans (Gen, suchThat)
 import Data.Argonaut.Core (Json, stringify)
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
@@ -10,7 +10,7 @@ import Data.Argonaut.Parser (jsonParser)
 import Data.List as List
 import Data.Map as Map
 import Game.Common (releasePointerCapture, pointerDecoder)
-import Lib.Update (UpdateMam, delay, storageGet, storagePut)
+import Lib.Update (UpdateMam, evalGen, delay, storageGet, storagePut)
 import Lib.Util (elements')
 import Web.Event.Event (stopPropagation)
 import Web.PointerEvent (PointerEvent)
@@ -185,7 +185,7 @@ data CoreMsg =
 class MsgWithCore a where
     core ∷ CoreMsg → a
 
-coreUpdate ∷ ∀pos ext mov. Game pos ext mov ⇒ CoreMsg → UpdateMam (GState pos ext)
+coreUpdate ∷ ∀pos ext mov. Game pos ext mov ⇒ CoreMsg → UpdateMam (GState pos ext) Unit
 coreUpdate Undo = modify_ \state → case state^._history of
     Nil → state
     Cons h rest →
@@ -262,27 +262,27 @@ pushToHistory state = state
                         # over _history (Cons $ state^._position) 
                         # set _redoHistory Nil
 
-showVictory ∷ ∀pos ext. UpdateMam (GState pos ext)
+showVictory ∷ ∀pos ext. UpdateMam (GState pos ext) Unit
 showVictory = do
     _showWin .= true
     delay (Milliseconds 1000.0)
     _showWin .= false
 
-computerPlay ∷ ∀pos ext mov. Game pos ext mov ⇒ UpdateMam (GState pos ext)
+computerPlay ∷ ∀pos ext mov. Game pos ext mov ⇒ UpdateMam (GState pos ext) Unit
 computerPlay = do
     state ← get
-    move ← lift $ computerMove state
+    move ← evalGen $ computerMove state
     for_ (flip playAux state =<< move) \st2 → do
         put st2
         when (isLevelFinished st2) showVictory
 
-saveToStorage ∷ ∀pos ext mov. Game pos ext mov ⇒ UpdateMam (GState pos ext)
+saveToStorage ∷ ∀pos ext mov. Game pos ext mov ⇒ UpdateMam (GState pos ext) Unit
 saveToStorage = do
     state ← get
     for_ (saveToJson state) \json →
         storagePut ("valise-" <> name state) (stringify json)
 
-playA ∷ ∀pos ext mov. Game pos ext mov ⇒ mov → UpdateMam (GState pos ext)
+playA ∷ ∀pos ext mov. Game pos ext mov ⇒ mov → UpdateMam (GState pos ext) Unit
 playA move = lockAction $ do
     state ← get
     for_ (playAux move $ pushToHistory $ state) \st2 → do
@@ -305,8 +305,8 @@ lockAction action = unlessM (view _locked <$> get) do
     _locked .= false
 
 -- | fonction auxiliaire pour newGame
-newGameAux ∷ ∀m pos ext mov. MonadRec m ⇒ MonadGen m ⇒ Game pos ext mov ⇒
-        (GState pos ext → GState pos ext) → GState pos ext → m (GState pos ext)
+newGameAux ∷ ∀m pos ext mov. Game pos ext mov ⇒
+        (GState pos ext → GState pos ext) → GState pos ext → Gen (GState pos ext)
 newGameAux f state = do 
     let state2 = f state
     state3 ← onNewGame state2
@@ -327,10 +327,10 @@ newGameAux f state = do
 -- | sans demander confirmation à l'utilisateur
 newGame ∷ ∀pos ext mov.
         Game pos ext mov ⇒
-    (GState pos ext → GState pos ext) → UpdateMam (GState pos ext)
+    (GState pos ext → GState pos ext) → UpdateMam (GState pos ext) Unit
 newGame f = do 
     state <- get
-    rstate <- lift $ newGameAux f state
+    rstate <- evalGen $ newGameAux f state
     put $ if List.null (state^._history) || isLevelFinished state then
         rstate
     else
@@ -428,7 +428,7 @@ class MsgWithDnd msg i | msg → i where
     dndmsg ∷ DndMsg i → msg
 
 dndUpdate ∷ ∀pos ext i. Eq i ⇒ Game pos ext {from ∷ i, to ∷ i} ⇒ 
-    Lens' (GState pos ext) (Maybe i) → DndMsg i → UpdateMam (GState pos ext)
+    Lens' (GState pos ext) (Maybe i) → DndMsg i → UpdateMam (GState pos ext) Unit
 dndUpdate _dragged (Drag draggable i ev) = do
     liftEffect $ releasePointerCapture ev
     when draggable (_dragged .= Just i)
@@ -440,7 +440,7 @@ dndUpdate _dragged Leave = _dragged .= Nothing
 dndUpdate _dragged DropOnBoard = _dragged .= Nothing
 
 dropA ∷ ∀pos ext dnd. Eq dnd ⇒ Game pos ext {from ∷ dnd, to ∷ dnd} ⇒
-            Lens' (GState pos ext) (Maybe dnd) → dnd → UpdateMam (GState pos ext)
+            Lens' (GState pos ext) (Maybe dnd) → dnd → UpdateMam (GState pos ext) Unit
 dropA dragLens to = do
     state ← get
     for_ (state ^. dragLens) \drag → do

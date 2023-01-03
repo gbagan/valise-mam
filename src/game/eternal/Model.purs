@@ -338,7 +338,7 @@ data Msg = Core CoreMsg
 instance MsgWithCore Msg where core = Core
 instance GEditor.MsgWithGEditor Msg where geditormsg = GEditor    
 
-update ∷ Msg → UpdateMam State
+update ∷ Msg → UpdateMam State Unit
 update (Core msg) = coreUpdate msg
 update (GEditor msg) = GEditor.update _geditor msg
 update (SetGraphKind kind) = newGame $ set _graphkind kind >>>

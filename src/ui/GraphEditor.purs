@@ -46,7 +46,7 @@ class MsgWithGEditor msg where
     geditormsg ∷ Msg → msg
 
 
-update ∷ ∀st. Lens' st Model → Msg → UpdateMam st
+update ∷ ∀st. Lens' st Model → Msg → UpdateMam st Unit
 update lens = case _ of
     AddVertex ev → do 
         pos ← liftEffect $ pointerDecoder ev

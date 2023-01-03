@@ -12,6 +12,7 @@ import Prelude (class Applicative, class Apply, class Bind, class BooleanAlgebra
                 (<>), (<@>), (=<<), (==), (>), (>=), (>=>), (>>=), (>>>), (||)) as Exports
 import Control.Monad.State (get, modify_, put) as Exports
 import Control.Monad.Trans.Class (lift) as Exports
+import Control.Monad.Gen.Trans (Gen) as Exports
 import Data.Array (range)
 import Data.Array ((!!), head, last, cons, snoc, filter, any, all, find, take, null, length, mapMaybe, catMaybes,
         nub, elemIndex, sort, uncons, replicate, reverse, modifyAt, insertAt, updateAt, updateAtIndices,
@@ -37,7 +38,6 @@ import Data.Unfoldable (replicateA) as Exports
 import Data.String (joinWith) as Exports
 import Control.Alt ((<|>)) as Exports
 import Control.Alternative (guard) as Exports
-import Control.Monad.Gen (class MonadGen) as Exports
 import Control.Monad.Rec.Class (class MonadRec) as Exports
 import Control.Monad.State.Class (class MonadState) as Exports
 import Data.Time.Duration (Milliseconds(..)) as Exports

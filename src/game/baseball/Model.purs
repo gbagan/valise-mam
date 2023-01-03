@@ -2,7 +2,8 @@ module Game.Baseball.Model where
 
 import MamPrelude
 import Data.FoldableWithIndex (allWithIndex)
-import Lib.Util (chooseInt', shuffle)
+import Control.Monad.Gen.Trans (shuffle)
+import Lib.Util (chooseInt')
 import Lib.Update (UpdateMam)
 import Game.Core (class Game, GState, class MsgWithCore, CoreMsg,
                  playA, coreUpdate, _ext, genState, newGame, _position,

@@ -2,7 +2,7 @@ module Game.Core where
 
 import MamPrelude
 
-import Control.Monad.Gen.Trans (Gen, suchThat)
+import Control.Monad.Gen.Trans (suchThat)
 import Data.Argonaut.Core (Json, stringify)
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
@@ -122,11 +122,11 @@ data SizeLimit = SizeLimit Int Int Int Int
 class Game pos ext mov | ext → pos mov where
     name ∷ GState pos ext → String
     play ∷ GState pos ext → mov → Maybe pos
-    initialPosition ∷ ∀m. MonadGen m ⇒ GState pos ext → m pos
+    initialPosition ∷ GState pos ext → Gen pos
     isLevelFinished ∷ GState pos ext → Boolean
     sizeLimit ∷ GState pos ext → SizeLimit
-    computerMove ∷ ∀m. MonadGen m ⇒ GState pos ext → m (Maybe mov)
-    onNewGame ∷ ∀m. MonadGen m ⇒ GState pos ext → m (GState pos ext)
+    computerMove ∷ GState pos ext → Gen (Maybe mov)
+    onNewGame ∷ GState pos ext → Gen (GState pos ext)
     onPositionChange ∷ GState pos ext → GState pos ext
     updateScore ∷ GState pos ext → {newState :: GState pos ext, isNewRecord :: Boolean, showWin :: Boolean}
     saveToJson ∷ GState pos ext → Maybe Json
@@ -151,7 +151,7 @@ canPlay st mov = isJust (play st mov)
 defaultSizeLimit ∷ ∀a. a → SizeLimit
 defaultSizeLimit _ = SizeLimit 0 0 0 0
 
-defaultOnNewGame ∷ ∀m a. MonadGen m ⇒ a → m a
+defaultOnNewGame ∷ ∀a. a → Gen a
 defaultOnNewGame = pure
 
 defaultUpdateScore ∷ ∀pos ext move. Game pos ext move ⇒ GState pos ext → {newState :: GState pos ext, isNewRecord :: Boolean, showWin :: Boolean}
@@ -305,7 +305,7 @@ lockAction action = unlessM (view _locked <$> get) do
     _locked .= false
 
 -- | fonction auxiliaire pour newGame
-newGameAux ∷ ∀m pos ext mov. Game pos ext mov ⇒
+newGameAux ∷ ∀pos ext mov. Game pos ext mov ⇒
         (GState pos ext → GState pos ext) → GState pos ext → Gen (GState pos ext)
 newGameAux f state = do 
     let state2 = f state
@@ -345,7 +345,7 @@ class Game pos ext mov <= TwoPlayersGame pos ext mov | ext → pos mov where
 
 -- | implémentation de la fonction computerMove de la classe Game
 -- | nécessite l'implémentation de la classe TwoPlayersGame
-computerMove' ∷ ∀m pos ext mov. MonadGen m ⇒ TwoPlayersGame pos ext mov ⇒ GState pos ext → m (Maybe mov)
+computerMove' ∷ ∀pos ext mov. TwoPlayersGame pos ext mov ⇒ GState pos ext → Gen (Maybe mov)
 computerMove' state
     | isLevelFinished state = pure Nothing
     | otherwise =

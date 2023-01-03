@@ -2,7 +2,6 @@ module Game.Frog.Model where
 
 import MamPrelude
 import Data.Lazy (defer, force)
-import Data.Array.NonEmpty as N
 import Lib.KonamiCode (konamiCode)
 import Lib.Update (UpdateMam)
 import Game.Core (class Game, class TwoPlayersGame, class MsgWithCore, CoreMsg, Mode(..), GState, SizeLimit(..),
@@ -73,7 +72,7 @@ instance Game Int ExtState Int where
                             # set _winning (winningPositions (state^._nbRows + 1) (state^._moves))
                             # set _marked (replicate (state^._nbRows + 1) false)
     isLevelFinished state = state^._position == 0
-    computerMove = computerMove'
+    computerMove st = computerMove' st
     sizeLimit _ = SizeLimit 5 0 30 0
 
     onPositionChange = identity

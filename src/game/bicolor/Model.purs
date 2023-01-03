@@ -24,7 +24,7 @@ reverseCard BlackCard = WhiteCard
 reverseCard WhiteCard = BlackCard
 reverseCard EmptyCard = EmptyCard
 
-randomCard ∷ ∀m. MonadGen m ⇒ m Card
+randomCard ∷ Gen Card
 randomCard = chooseBool <#> if _ then WhiteCard else BlackCard
 
 type Ext' = {

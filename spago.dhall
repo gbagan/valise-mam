@@ -1,5 +1,5 @@
 { name = "purescript"
-, backend = "purs-backend-es build"
+-- , backend = "purs-backend-es build"
 , dependencies =
   [ "aff"
   , "argonaut-codecs"

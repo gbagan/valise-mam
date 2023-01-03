@@ -71,7 +71,7 @@ toggleCell state index = mapWithIndex \i → (_ ≠ neighbor state index i)
 
 -- | génération de plateau aléatoire pour le niveau 6
 -- | on part d'une configuration où tout est éteint et on joue des coups aléatoires
-genRandomBoard ∷ ∀m. MonadGen m ⇒ State → m (Array Boolean)
+genRandomBoard ∷ State → Gen (Array Boolean)
 genRandomBoard state = do
     let size = state^._nbRows * state^._nbColumns
     nbMoves ← chooseInt size (size+1)

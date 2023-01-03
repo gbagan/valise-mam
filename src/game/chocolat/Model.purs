@@ -61,7 +61,7 @@ instance Game Position ExtState Move where
             pure $ state # set _soap (Just {row, col})
 
     sizeLimit _ = SizeLimit 4 4 10 10
-    computerMove = computerMove'
+    computerMove st = computerMove' st
 
     -- fonctions par défaut
     onPositionChange = identity

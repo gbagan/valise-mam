@@ -60,7 +60,7 @@ instance Game (Array Position) ExtState Move where
             else
                 Position <$> chooseInt 0 4 <*> chooseInt 5 9
 
-    computerMove = computerMove'
+    computerMove st = computerMove' st
 
     -- fonctions par défault
     sizeLimit = defaultSizeLimit

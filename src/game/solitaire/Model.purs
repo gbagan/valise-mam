@@ -78,8 +78,8 @@ betweenMove2 state move@{from, to} =
         betweenMove state move
 
 -- | fonction auxilaire pour onNewGame
-generateBoard ∷ ∀m. MonadGen m ⇒ Int → Int → Int → (Int → Int → Boolean) →
-    m {holes ∷ Array Boolean, position ∷  Position, customSize ∷ Boolean}
+generateBoard ∷ Int → Int → Int → (Int → Int → Boolean) →
+    Gen {holes ∷ Array Boolean, position ∷  Position, customSize ∷ Boolean}
 generateBoard rows columns startingHole holeFilter = pure {holes, position, customSize: false} where
     holes = repeat2 rows columns holeFilter
     position = holes # set (ix startingHole) false

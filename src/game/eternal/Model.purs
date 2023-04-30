@@ -14,11 +14,11 @@ import Web.PointerEvent.PointerEvent (PointerEvent, toEvent)
 
 
 data GraphKind = Path | Cycle | Grid | Biclique | CustomGraph
-derive instance eqgkind ∷ Eq GraphKind
+derive instance Eq GraphKind
 
--- règles du jeu: un seul garde peut se déplacer ou bien plusieurs à chaque tour
+-- | règles du jeu: un seul garde peut se déplacer ou bien plusieurs à chaque tour
 data Rules = OneGuard | ManyGuards
-derive instance eqrules ∷ Eq Rules
+derive instance Eq Rules
 
 -- | une position est composée de la position des gardes et éventuellement d'un sommet attaqué
 type Position = {guards ∷ Array Int, attacked ∷ Maybe Int}
@@ -31,7 +31,7 @@ data Move = Attack Int | Defense (Array Int)
 -- | GamePhase: phase où le défenseur et l'attaquant jouent
 
 data Phase = PrepPhase | GamePhase
-derive instance eqPhase ∷ Eq Phase
+derive instance Eq Phase
 
 -- | generate a path graph
 path ∷ Int → Graph
@@ -112,20 +112,26 @@ foreign import makeEDSAux ∷ AdjGraph → String → Int → Arena
 foreign import guardsAnswerAux ∷ Maybe Int → (Int → Maybe Int) → Arena → Array Int → Int → Maybe (Array Int)
 foreign import attackerAnswerAux ∷ Maybe Int → (Int → Maybe Int) → Arena → Array Int → Maybe Int
 
+-- | renvoie une défense qui minimise le nombre de gardes déplacés si elle existe
+-- | renvoie Nothing sinon
 guardsAnwser ∷ AdjGraph → Arena → Array Int → Int → Maybe (Array Int)
 guardsAnwser graph arena guards attack =
     guardsAnswerAux Nothing Just arena guards attack >>= goodPermutation graph guards
 
+-- | renvoie une attaque qui gagne en le moins de coups possibles si elle existe
+-- | renvoie Nothing sinon
 attackerAnswer ∷ Arena → Array Int → Maybe Int
 attackerAnswer = attackerAnswerAux Nothing Just
 
+-- | une arène est un objet permettant de déterminer les coups optimaux pour l'attaquant et le défenseur
+-- | paramètres: nombre de sommets du graphes, arêtes du graphe, règles de jeu, nombre de gardes
 makeEDS ∷ Int → Array Edge → Rules → Int → Arena
 makeEDS n edges rules = makeEDSAux (edgesToGraph n edges) (if rules == OneGuard then "one" else "many")
 
 hasEdge ∷ Int → Int → AdjGraph → Boolean
 hasEdge u v graph = maybe false (elem v) (graph !! u)
 
--- | returns all permutations of an array
+-- | renvoie l'ensemble des permutations d'un tableau
 permutations ∷ Array Int → Array (Array Int)
 permutations t = case uncons t of
     Nothing → [[]]
@@ -215,7 +221,7 @@ isValidNextMove st dests =
             && (moveEdges # all \edge@(from↔to) → from == to || elem edge edges)
             && length (nub dests) == length dests
 
--- fonction déclenchée entre le passage de la phase de préparation à celle de jeu
+-- | fonction déclenchée entre le passage de la phase de préparation à celle de jeu
 startGame ∷ State → State
 startGame st = st
                 # set _phase GamePhase 

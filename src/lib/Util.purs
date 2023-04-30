@@ -2,6 +2,7 @@ module Lib.Util
   ( Coord
   , chooseInt'
   , class PartialRecord
+  , count
   , coords
   , dCoords
   , elements'
@@ -20,6 +21,9 @@ import MamPrelude
 import Prim.Row (class Union, class Nub)
 import Record as Record
 import Control.Monad.Gen.Trans (chooseInt)
+
+count ∷ ∀a. (a → Boolean) → Array a → Int
+count f = length <<< filter f
 
 repeat2 ∷ ∀a. Int → Int → (Int → Int → a) → Array a
 repeat2 n m f = repeat (n * m) $ \i → f (i / m) (i `mod` m)

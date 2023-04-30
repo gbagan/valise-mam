@@ -7,7 +7,7 @@ import Game.Core (class Game, class MsgWithCore, CoreMsg, GState, SizeLimit(..),
                    _position, _mode, _nbRows, _nbColumns, _dialog, defaultUpdateScore)
 import Lib.Graph (Graph, Edge, (↔))
 import Lib.Update (UpdateMam)
-import Lib.Util (elements', repeat2)
+import Lib.Util (count, elements', repeat2)
 import UI.GraphEditor as GEditor
 import Web.Event.Event (stopPropagation)
 import Web.PointerEvent.PointerEvent (PointerEvent, toEvent)
@@ -113,7 +113,8 @@ foreign import guardsAnswerAux ∷ Maybe Int → (Int → Maybe Int) → Arena �
 foreign import attackerAnswerAux ∷ Maybe Int → (Int → Maybe Int) → Arena → Array Int → Maybe Int
 
 guardsAnwser ∷ AdjGraph → Arena → Array Int → Int → Maybe (Array Int)
-guardsAnwser graph arena guards attack = guardsAnswerAux Nothing Just arena guards attack >>= goodPermutation graph guards 
+guardsAnwser graph arena guards attack =
+    guardsAnswerAux Nothing Just arena guards attack >>= goodPermutation graph guards
 
 attackerAnswer ∷ Arena → Array Int → Maybe Int
 attackerAnswer = attackerAnswerAux Nothing Just
@@ -124,6 +125,7 @@ makeEDS n edges rules = makeEDSAux (edgesToGraph n edges) (if rules == OneGuard 
 hasEdge ∷ Int → Int → AdjGraph → Boolean
 hasEdge u v graph = maybe false (elem v) (graph !! u)
 
+-- | returns all permutations of an array
 permutations ∷ Array Int → Array (Array Int)
 permutations t = case uncons t of
     Nothing → [[]]
@@ -132,11 +134,15 @@ permutations t = case uncons t of
         i ← 0 .. (length tail)
         maybe [] pure (insertAt i head p)
 
+-- | une bonne permutation d'un tableau [v1, ..., vn] pour un ensemble de gardes [g1, ..., gn]
+-- | est une permutation [u1, ..., vn]
+-- | telle que pour tout i, ui = gi or {ui, gi} est une arete du graphe
+-- | et qui minimize le nombre de déplacements de gardes (i.e. le nombre de ui ≠ gi
 goodPermutation ∷ AdjGraph → Array Int → Array Int → Maybe (Array Int)
 goodPermutation graph guards answer =
     permutations answer
         # filter (\guards2 → and (zipWith (\x y → x == y || hasEdge x y graph) guards guards2))
-        # minimumBy (comparing \guards2 → zipWith (≠) guards guards2 # filter identity # length)
+        # minimumBy (comparing \guards2 → count identity $ zipWith (≠) guards guards2)
 
 
 ---- définition du State

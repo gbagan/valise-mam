@@ -23,7 +23,7 @@ import Web.HTML.Location as L
 import Web.HTML.Window (localStorage, location)
 import Web.Storage.Storage as Storage
 import Control.Monad.Reader.Trans (ReaderT, ask)
-import Control.Monad.Gen.Trans (Gen, GenState, runGen)
+import Control.Monad.Gen.Trans (GenState, runGen)
 import Pha.Update (Update) as Exports
 
 type Env = { genState :: Ref GenState }

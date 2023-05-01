@@ -6,23 +6,23 @@ import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (translate, px')
 import Game.Core (Turn(..), canPlay, isLevelFinished, _position, _turn)
-import Game.Nim.Model (State, Msg(..), Move(..), Position(..), _nbPiles, _length)
+import Game.Nim.Model (Model, Msg(..), Move(..), Position(..), _nbPiles, _length)
 import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, icons2Players, iundo, iredo, ireset, irules)
 
-view ∷ State → Html Msg
-view state = template {config, board, rules, winTitle} state where
-    position = state ^. _position
-    nbPiles = state ^. _nbPiles
-    length = state ^. _length
-    turn = state ^. _turn
+view ∷ Model → Html Msg
+view model = template {config, board, rules, winTitle} model where
+    position = model ^. _position
+    nbPiles = model ^. _nbPiles
+    length = model ^. _length
+    turn = model ^. _turn
 
     config =
         card "Bloque moi si tu peux"
-        [   iconSelectGroup state "Nombre de rangées" [1, 2, 3, 4, 5] nbPiles SetNbPiles (const identity)
-        ,   iconSelectGroup state "Taille des rangées" [10, 5] length SetLength (const identity)
-        ,   icons2Players state
-        ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
+        [   iconSelectGroup model "Nombre de rangées" [1, 2, 3, 4, 5] nbPiles SetNbPiles (const identity)
+        ,   iconSelectGroup model "Taille des rangées" [10, 5] length SetLength (const identity)
+        ,   icons2Players model
+        ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ model)
         ]
 
     drawRow i =
@@ -39,7 +39,7 @@ view state = template {config, board, rules, winTitle} state where
         ,   H.style "transform" $
                     translate (px' $ (if length == 5 then 30 else 5) + 10 * j) (px' $ 15 + 19 * i)
                     <> " rotate(45deg)"
-        ,   H.style "cursor" $ if canPlay state (Move i j) then "pointer" else "not-allowed"
+        ,   H.style "cursor" $ if canPlay model (Move i j) then "pointer" else "not-allowed"
         ]
 
     drawPeg i player j =
@@ -66,7 +66,7 @@ view state = template {config, board, rules, winTitle} state where
             )
         ,   H.span [H.class_ "nim-turn-message"] [
             H.text (
-                if isLevelFinished state then
+                if isLevelFinished model then
                     "Partie finie"
                     else if turn == Turn1 then
                     "Tour du joueur bleu"

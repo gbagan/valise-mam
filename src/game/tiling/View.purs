@@ -8,7 +8,7 @@ import Pha.Html.Events as E
 import Pha.Html.Util (translate)
 import Game.Common (_isoCustom)
 import Game.Core (_position, _nbRows, _nbColumns, _pointer, _help)
-import Game.Tiling.Model (State, Msg(..), TileType(..), _nbSinks, _rotation, _tile, _tileType,
+import Game.Tiling.Model (Model, Msg(..), TileType(..), _nbSinks, _rotation, _tile, _tileType,
                           sinks, needSinks, inConflict)
 import UI.Template (template, card, dialog, incDecGrid, gridStyle, svgCursorStyle, trackPointer)
 import UI.Icon (Icon(..))
@@ -29,27 +29,27 @@ square {isDark, hasBlock, hasSink, row, col} props =
             H.use [P.href "#sink", P.width "50", P.height "50"]
     ]
     
-view ∷ State → Html Msg
-view state = template {config, board, rules, winTitle, customDialog} state where
-    position = state ^. _position
-    rows = state ^. _nbRows
-    columns = state ^. _nbColumns
-    tileType = state ^. _tileType
-    nbSinks = state ^. _nbSinks
-    tile = state ^. _tile
-    rotation = state ^. _rotation
-    help = state ^. _help
-    pointer = state ^. _pointer
+view ∷ Model → Html Msg
+view model = template {config, board, rules, winTitle, customDialog} model where
+    position = model ^. _position
+    rows = model ^. _nbRows
+    columns = model ^. _nbColumns
+    tileType = model ^. _tileType
+    nbSinks = model ^. _nbSinks
+    tile = model ^. _tile
+    rotation = model ^. _rotation
+    help = model ^. _help
+    pointer = model ^. _pointer
     
     border i di = position !! i ≠ position !! (i + di)
 
     config =
         card "Carrelage"
-        [   iconSizesGroup state [4∧5, 5∧5, 5∧6, 8∧8] true
-        ,   iconSelectGroup state "Motif de la tuile" [Type1, Type2, Type3, CustomTile] tileType SetTile \t →
+        [   iconSizesGroup model [4∧5, 5∧5, 5∧6, 8∧8] true
+        ,   iconSelectGroup model "Motif de la tuile" [Type1, Type2, Type3, CustomTile] tileType SetTile \t →
                 _{icon = IconSymbol ("#" <> show t)}
-        ,   iconSelectGroup state "Nombre d'éviers" [0, 1, 2] nbSinks SetNbSinks (const identity)
-        ,   icongroup "Options" $ [ihelp, ireset, irules] <#> (_ $ state)
+        ,   iconSelectGroup model "Nombre d'éviers" [0, 1, 2] nbSinks SetNbSinks (const identity)
+        ,   icongroup "Options" $ [ihelp, ireset, irules] <#> (_ $ model)
         ]
 
     tileCursor pp =
@@ -65,7 +65,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                 ,   P.width "50"
                 ,   P.height "50"
                 ,   H.attr "pointer-events" "none"
-                ,   P.opacity (if inConflict state then 0.3 else 0.8)
+                ,   P.opacity (if inConflict model then 0.3 else 0.8)
                 ]
         ]
         
@@ -90,7 +90,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                     ,   row
                     ,   col
                     }
-                    [   E.onClick \_ → if needSinks state then PutSink index else Play index
+                    [   E.onClick \_ → if needSinks model then PutSink index else Play index
                     ,   E.onPointerEnter \_ → SetHoverSquare (Just index)
                     ,   E.onPointerLeave \_ → SetHoverSquare Nothing
                     ]
@@ -106,11 +106,11 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                     ,   H.when (pos > 0 && border index columns) \_ →
                             H.line [P.x1 0.0, P.y1 50.0, P.x2 50.0, P.y2 50.0, P.stroke "#000", P.strokeWidth 2.0]    
                     ]
-            ,   [H.maybe pointer $ if length (sinks state) < nbSinks then sinkCursor else tileCursor]
+            ,   [H.maybe pointer $ if length (sinks model) < nbSinks then sinkCursor else tileCursor]
             ]
         ]
 
-    board = incDecGrid state [grid]
+    board = incDecGrid model [grid]
 
     customDialog _ = dialog "Personnalise ta tuile" [
         H.div [H.class_ "tiling-customtile-grid-container"] [
@@ -160,14 +160,14 @@ view state = template {config, board, rules, winTitle, customDialog} state where
             div({ class: 'ui-flex-center tiling-success-container' },
                 div({
                     class: 'tiling-grid',
-                    style: gridStyle(state.rows, state.columns)
+                    style: gridStyle(model.rows, model.columns)
                 },
-                    state.successForThisConf.map(success ⇒
+                    model.successForThisConf.map(success ⇒
                         Square({
                             hasSink: success,
                             style: {
-                                width: 100 / state.columns + '%',
-                                height: 100 / state.rows + '%'
+                                width: 100 / model.columns + '%',
+                                height: 100 / model.rows + '%'
                             }
                         })
                     )

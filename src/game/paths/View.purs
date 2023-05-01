@@ -3,7 +3,7 @@ import MamPrelude
 import Data.FoldableWithIndex (foldMapWithIndex)
 import Lib.Util (coords)
 import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _pointer)
-import Game.Paths.Model (State, Msg(..), Mode(..), _exit, _mode)
+import Game.Paths.Model (Model, Msg(..), Mode(..), _exit, _mode)
 import Pha.Html (Html, Prop)
 import Pha.Html as H
 import Pha.Html.Attributes as P
@@ -49,24 +49,24 @@ heroCursor pp =
     ,   P.height "80"
     ] <> svgCursorStyle pp
 
-view ∷ State → Html Msg
-view state = template {config, board, rules} state where
-    position = state ^. _position
-    rows = state ^. _nbRows
-    columns = state ^. _nbColumns
-    exit = state ^. _exit
-    mode = state ^. _mode
-    help = state ^. _help
-    pointer = state ^. _pointer
+view ∷ Model → Html Msg
+view model = template {config, board, rules} model where
+    position = model ^. _position
+    rows = model ^. _nbRows
+    columns = model ^. _nbColumns
+    exit = model ^. _exit
+    mode = model ^. _mode
+    help = model ^. _help
+    pointer = model ^. _pointer
 
     config =
         card "Chemins"
-        [   iconSelectGroup' state "Mode de jeu" mode SelectMode
+        [   iconSelectGroup' model "Mode de jeu" mode SelectMode
             [   Mode1 ∧ _{icon = IconSymbol "#paths-mode0", tooltip = Just "Mode 1"}
             ,   Mode2 ∧ _{icon = IconSymbol "#paths-mode1", tooltip = Just "Mode 2"}
             ]
-        ,   iconSizesGroup state [4∧6, 5∧5, 3∧8] true
-        ,   icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> (_ $ state)
+        ,   iconSizesGroup model [4∧6, 5∧5, 3∧8] true
+        ,   icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> (_ $ model)
         ]
 
     hero h = 
@@ -111,7 +111,7 @@ view state = template {config, board, rules} state where
             ]
     ]
 
-    board = incDecGrid state [grid]
+    board = incDecGrid model [grid]
 
     rules = [
         H.p [] 

@@ -39,50 +39,50 @@ import Unsafe.Coerce (unsafeCoerce)
 
 infix 2 updateOver as .~>
 
-type RootState = 
-    {   baseball ∷ Baseball.State
-    ,   bicolor ∷ Bicolor.State
-    ,   chocolat ∷ Chocolat.State
-    ,   dessin ∷ Dessin.State
-    ,   eternal ∷ Eternal.State
-    ,   frog ∷ Frog.State
-    ,   hanoi ∷ Hanoi.State
-    ,   jetons ∷ Jetons.State
-    ,   labete ∷ Labete.State
-    ,   nim ∷ Nim.State
-    ,   noirblanc ∷ Noirblanc.State
-    ,   paths ∷ Paths.State
-    ,   queens ∷ Queens.State
-    ,   roue ∷ Roue.State
-    ,   sansmot ∷ Sansmot.State
-    ,   solitaire ∷ Solitaire.State
-    ,   tiling ∷ Tiling.State
-    ,   tricolor ∷ Tricolor.State
-    ,   valise ∷ Valise.State
+type RootModel = 
+    {   baseball ∷ Baseball.Model
+    ,   bicolor ∷ Bicolor.Model
+    ,   chocolat ∷ Chocolat.Model
+    ,   dessin ∷ Dessin.Model
+    ,   eternal ∷ Eternal.Model
+    ,   frog ∷ Frog.Model
+    ,   hanoi ∷ Hanoi.Model
+    ,   jetons ∷ Jetons.Model
+    ,   labete ∷ Labete.Model
+    ,   nim ∷ Nim.Model
+    ,   noirblanc ∷ Noirblanc.Model
+    ,   paths ∷ Paths.Model
+    ,   queens ∷ Queens.Model
+    ,   roue ∷ Roue.Model
+    ,   sansmot ∷ Sansmot.Model
+    ,   solitaire ∷ Solitaire.Model
+    ,   tiling ∷ Tiling.Model
+    ,   tricolor ∷ Tricolor.Model
+    ,   valise ∷ Valise.Model
     ,   location ∷ String
     }
 
-state ∷ RootState
-state = 
-    {   baseball: Baseball.istate
-    ,   chocolat: Chocolat.istate
-    ,   dessin: Dessin.istate
-    ,   eternal: Eternal.istate
-    ,   frog: Frog.istate
-    ,   hanoi: Hanoi.istate
-    ,   jetons: Jetons.istate
-    ,   labete: Labete.istate
-    ,   nim: Nim.istate
-    ,   noirblanc: Noirblanc.istate
-    ,   bicolor: Bicolor.istate
-    ,   paths: Paths.istate
-    ,   queens: Queens.istate
-    ,   roue: Roue.istate
-    ,   sansmot: Sansmot.istate
-    ,   solitaire: Solitaire.istate
-    ,   tiling: Tiling.istate
-    ,   tricolor: Tricolor.istate
-    ,   valise: Valise.istate
+appModel ∷ RootModel
+appModel = 
+    {   baseball: Baseball.imodel
+    ,   chocolat: Chocolat.imodel
+    ,   dessin: Dessin.imodel
+    ,   eternal: Eternal.imodel
+    ,   frog: Frog.imodel
+    ,   hanoi: Hanoi.imodel
+    ,   jetons: Jetons.imodel
+    ,   labete: Labete.imodel
+    ,   nim: Nim.imodel
+    ,   noirblanc: Noirblanc.imodel
+    ,   bicolor: Bicolor.imodel
+    ,   paths: Paths.imodel
+    ,   queens: Queens.imodel
+    ,   roue: Roue.imodel
+    ,   sansmot: Sansmot.imodel
+    ,   solitaire: Solitaire.imodel
+    ,   tiling: Tiling.imodel
+    ,   tricolor: Tricolor.imodel
+    ,   valise: Valise.imodel
     ,   location: ""
     }
 
@@ -110,17 +110,17 @@ data Msg =
     | HashChanged
     | Init
 
-type GameWrapperF st msg =
-    {   core ∷ GenericGame st msg
-    ,   map ∷ RootState → st
+type GameWrapperF model msg =
+    {   core ∷ GenericGame model msg
+    ,   map ∷ RootModel → model
     ,   msgmap ∷ msg → Msg
     }
 
 data GameWrapper
 
-gameWrap ∷ ∀st msg. GenericGame st msg → (RootState → st) → (msg → Msg) → GameWrapper
+gameWrap ∷ ∀model msg. GenericGame model msg → (RootModel → model) → (msg → Msg) → GameWrapper
 gameWrap core map msgmap = unsafeCoerce {core, map, msgmap}
-gameRun ∷ ∀r. (∀st msg. GameWrapperF st msg → r) → GameWrapper → r
+gameRun ∷ ∀r. (∀model msg. GameWrapperF model msg → r) → GameWrapper → r
 gameRun = unsafeCoerce
    
 games ∷ Map String GameWrapper
@@ -146,12 +146,12 @@ games = Map.fromFoldable
     ,   ""          ∧ gameWrap Valise.game    _.valise    ValiseMsg
     ]
 
-callByName ∷ ∀r. String → r → (∀st msg. GameWrapperF st msg → r) → r
+callByName ∷ ∀r. String → r → (∀model msg. GameWrapperF model msg → r) → r
 callByName name default f = case games # Map.lookup name of
                                 Nothing → default
                                 Just game → game # gameRun f 
  
-update ∷ Msg → UpdateMam RootState Unit
+update ∷ Msg → UpdateMam RootModel Unit
 update (BaseballMsg msg)  = prop (Proxy ∷ Proxy "baseball")  .~> Baseball.update msg
 update (BicolorMsg msg)   = prop (Proxy ∷ Proxy "bicolor")   .~> Bicolor.update msg
 update (ChocolatMsg msg)  = prop (Proxy ∷ Proxy "chocolat")  .~> Chocolat.update msg
@@ -173,8 +173,8 @@ update (TricolorMsg msg)  = prop (Proxy ∷ Proxy "tricolor")  .~> Tricolor.upda
 update (ValiseMsg msg)    = prop (Proxy ∷ Proxy "valise")    .~> Valise.update msg
 update Init = init
 update (KeyDown k) = do
-        st ← get
-        callByName st.location (pure unit) \game →
+        model' ← get
+        callByName model'.location (pure unit) \game →
             for_ (game.core.onKeydown k) \msg →
                 update (game.msgmap msg)
 update HashChanged = do
@@ -186,7 +186,7 @@ update HashChanged = do
     else
         pure unit
 
-init ∷ UpdateMam RootState Unit
+init ∷ UpdateMam RootModel Unit
 init = do
     for_ (Map.values games) $
         gameRun \game → case game.core.init of
@@ -195,37 +195,37 @@ init = do
     update HashChanged
     
 
-view ∷ RootState → Html Msg
-view st =
-    H.div []
-    [   H.div
-            [   H.class_ "main-main-container"
-            ,   H.class_ (if st.location == "" then "valise" else "game")
+view ∷ RootModel → Html Msg
+view model =
+  H.div []
+    [ H.div
+      [ H.class_ "main-main-container"
+      , H.class_ (if model.location == "" then "valise" else "game")
+      ]
+      [ H.when (model.location ≠ "") \_ →
+          H.a
+            [ H.class_ "main-minivalise-link"
+            , P.href "#"
             ]
-            [   H.when (st.location ≠ "") \_ →
-                H.a
-                [   H.class_ "main-minivalise-link"
-                ,   P.href "#"
-                ]
-                [   H.svg [P.width "100%", P.height "100%"]
-                    [   H.use [P.href "#valise"]]
-                ]
-            ,       viewGame st
+            [ H.svg [P.width "100%", P.height "100%"]
+                [ H.use [P.href "#valise"]]
             ]
+      , viewGame model
+      ]
     ]
 
-viewGame ∷ RootState → Html Msg
-viewGame st = callByName st.location H.empty
-                    \game → game.core.view (game.map st) <#> game.msgmap
+viewGame ∷ RootModel → Html Msg
+viewGame model = callByName model.location H.empty
+                    \game → game.msgmap <$> game.core.view (game.map model) 
 
 main ∷ Effect Unit
 main = do
     newSeed <- randomSeed
-    genState <- Ref.new {newSeed, size: 0}
-    app {   init: {state, action: Just Init}
+    genModel <- Ref.new {newSeed, size: 0}
+    app {   init: {state: appModel, action: Just Init}
         ,   view
         ,   update
-        ,   eval: flip runReaderT {genState}
+        ,   eval: flip runReaderT {genModel}
         ,   subscriptions: [Subs.onKeyDown (Just ∘ KeyDown), Subs.onHashChange $ const (Just HashChanged)]
         ,   selector: "#root"
         }

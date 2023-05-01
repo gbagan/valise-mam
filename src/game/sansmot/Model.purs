@@ -31,45 +31,45 @@ carollAnimation =
     ]
 
 
-type State = {
+type Model = {
     anim ∷ Map String Int,
     locked ∷ Boolean,
     --dialog: null,
     page ∷ Page
 }
 
-istate ∷ State
-istate = 
+imodel ∷ Model
+imodel = 
     {   anim: Map.empty
     ,   locked: false
     ,   page: CarollPage
     }
 
-_anim ∷ Lens' State (Map String Int)
+_anim ∷ Lens' Model (Map String Int)
 _anim = prop (Proxy ∷ _ "anim")
-_locked ∷ Lens' State Boolean
+_locked ∷ Lens' Model Boolean
 _locked = prop (Proxy ∷ _ "locked")
-_page ∷ Lens' State Page
+_page ∷ Lens' Model Page
 _page = prop (Proxy ∷ _ "page")
 
 data Msg = SetPage Page | Animate (Array AnimationStep)
 
-lockAction ∷ forall m. Update State m Unit → Update State m Unit
+lockAction ∷ forall m. Update Model m Unit → Update Model m Unit
 lockAction action = unlessM (get <#> _.locked) do
         modify_ _{locked = true}
         action
         modify_ _{locked = false}
 
-update ∷ forall m. MonadAff m => Msg → Update State m Unit
-update (SetPage page) = modify_ \st →
-    if st^._locked then
-        st
-    else
-        st # set _page page 
-           # set _anim Map.empty
+update ∷ forall m. MonadAff m => Msg → Update Model m Unit
+update (SetPage page) = modify_ \model →
+  if model^._locked then
+    model
+  else
+    model # set _page page 
+          # set _anim Map.empty
 
 update (Animate animation) = lockAction do
-        modify_ $ set _anim Map.empty 
-        for_ animation \(Step d key step) → do
-            delay (Milliseconds $ toNumber d)
-            modify_ $ set (_anim ∘ at key) (Just step)
+  modify_ $ set _anim Map.empty 
+  for_ animation \(Step d key step) → do
+    delay (Milliseconds $ toNumber d)
+    modify_ $ set (_anim ∘ at key) (Just step)

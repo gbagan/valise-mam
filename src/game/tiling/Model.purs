@@ -3,9 +3,9 @@ module Game.Tiling.Model where
 import MamPrelude
 import Lib.Util (coords)
 import Game.Common (_isoCustom)
-import Game.Core (GState, Dialog(..), class Game, class MsgWithCore, CoreMsg, SizeLimit(..),
+import Game.Core (GModel, Dialog(..), class Game, class MsgWithCore, CoreMsg, SizeLimit(..),
             coreUpdate, playA,     
-            _ext, canPlay, genState, newGame, _position, _nbColumns, _nbRows, _dialog, defaultUpdateScore)
+            _ext, canPlay, genModel, newGame, _position, _nbColumns, _nbRows, _dialog, defaultUpdateScore)
 import Lib.Update (UpdateMam)
 
 type Coord = {row ∷ Int, col ∷ Int}
@@ -45,12 +45,12 @@ type Ext' =
     ,   hoverSquare ∷ Maybe Int -- la case sur laquelle passe la souris
     }
 
-newtype ExtState = Ext Ext'
-type State = GState (Array Int) ExtState
+newtype ExtModel = Ext Ext'
+type Model = GModel (Array Int) ExtModel
 
 -- état initial
-istate ∷ State
-istate = genState [] _{nbRows = 5, nbColumns = 5}
+imodel ∷ Model
+imodel = genModel [] _{nbRows = 5, nbColumns = 5}
     (Ext 
         {   rotation: 0
         ,   tileType: Type1
@@ -61,79 +61,79 @@ istate = genState [] _{nbRows = 5, nbColumns = 5}
     )
 
 -- lenses
-_ext' ∷ Lens' State Ext'
+_ext' ∷ Lens' Model Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
-_rotation ∷ Lens' State Int
+_rotation ∷ Lens' Model Int
 _rotation = _ext' ∘ prop (Proxy ∷ _ "rotation")
-_tile ∷ Lens' State Tile
+_tile ∷ Lens' Model Tile
 _tile = _ext' ∘ prop (Proxy ∷ _ "tile")
-_tileType ∷ Lens' State TileType
+_tileType ∷ Lens' Model TileType
 _tileType = _ext' ∘ prop (Proxy ∷ _ "tileType")
-_nbSinks ∷ Lens' State Int
+_nbSinks ∷ Lens' Model Int
 _nbSinks = _ext' ∘ prop (Proxy ∷ _ "nbSinks")
-_hoverSquare ∷ Lens' State (Maybe Int)
+_hoverSquare ∷ Lens' Model (Maybe Int)
 _hoverSquare = _ext' ∘ prop (Proxy ∷ _ "hoverSquare")
 
-getTile ∷ State → Tile
-getTile state = case state^._tileType of
+getTile ∷ Model → Tile
+getTile model = case model^._tileType of
     Type1 → [{row: 0, col: 0}, {row: 0, col: 1}]
     Type2 → [{row: 0, col: 0}, {row: 0, col: 1}, {row: 0, col: -1}]
     Type3 → [{row: 0, col: 0}, {row: 0, col: 1}, {row: 1, col: 0}]
-    CustomTile → state^._tile
+    CustomTile → model^._tile
 
 -- renvoie la liste des positions où devra être posée une tuile,  -1 est une position invalide
-tilePositions ∷ State → Int → Array Int
-tilePositions state index = 
-    state^._tile
-    # rotate ((state^._rotation) `mod` 4)
+tilePositions ∷ Model → Int → Array Int
+tilePositions model index = 
+    model^._tile
+    # rotate ((model^._rotation) `mod` 4)
     # translate (coords columns index)
     <#> \{row, col} → if 0 <= col && col < columns then row * columns + col else -1
-    where columns = state^._nbColumns
+    where columns = model^._nbColumns
 
 -- teste si une tuile peut être posée à partir de la liste des positions otenues par tilePositions
-canPutTile ∷ State → Array Int → Boolean
-canPutTile state = all \index → state^._position !! index == Just 0
+canPutTile ∷ Model → Array Int → Boolean
+canPutTile model = all \index → model^._position !! index == Just 0
 
 -- renvoie la liste des positions des éviers
-sinks ∷ State → Array Int
-sinks state = state^._position # mapWithIndex (\i v → if v == -1 then Just i else Nothing) # catMaybes
+sinks ∷ Model → Array Int
+sinks model = model^._position # mapWithIndex (\i v → if v == -1 then Just i else Nothing) # catMaybes
 
 -- teste si la tuile que l'on souhaite poser à la position du pointeur est en conflit avec les pièces déjà posées
-inConflict ∷ State → Boolean
-inConflict state = case state^._hoverSquare of
+inConflict ∷ Model → Boolean
+inConflict model = case model^._hoverSquare of
     Nothing → false
-    Just sqr → state^._position !! sqr ≠ Just 0 || not (canPlay state sqr)
+    Just sqr → model^._position !! sqr ≠ Just 0 || not (canPlay model sqr)
 
-needSinks ∷ State → Boolean
-needSinks state = length (sinks state) < state^._nbSinks
+needSinks ∷ Model → Boolean
+needSinks model = length (sinks model) < model^._nbSinks
 
-instance Game (Array Int) ExtState Int where
+instance Game (Array Int) ExtModel Int where
     name _ = "tiling"
 
-    play state index =
+    play model index =
         -- si on peut poser la tuile à l'emplacement de la souris, on le fait
         -- on choisit un numéro non attribué m comme numéro de tuile
-        if canPutTile state tilePos then
+        if canPutTile model tilePos then
             let m = (foldr max 0 pos) + 1 in
             Just $ pos # updateAtIndices (tilePos <#> (_ ∧ m))
         -- si la souris se trouve sur l'emplacement d'une tuile, on retire la tuile
-        else if state^._position !! index > Just 0 then
+        else if model^._position !! index > Just 0 then
             Just $ pos <#> \x → if Just x == pos !! index then 0 else x
         -- sinon, c'est un coup invalide
         else
             Nothing
         where
-            pos = state^._position 
-            tilePos = tilePositions state index
+            pos = model^._position 
+            tilePos = tilePositions model index
 
     isLevelFinished = all (_ ≠ 0) ∘ view _position
 
-    initialPosition state = pure $ replicate (state^._nbRows * state^._nbColumns) 0
+    initialPosition model = pure $ replicate (model^._nbRows * model^._nbColumns) 0
 
     sizeLimit _ = SizeLimit 3 3 10 10
 
-    onNewGame state = pure $ state 
-                            # set _tile (getTile state) 
+    onNewGame model = pure $ model 
+                            # set _tile (getTile model) 
                             # set _rotation 0
 
     -- méthodes par défaut
@@ -141,13 +141,13 @@ instance Game (Array Int) ExtState Int where
     updateScore s = defaultUpdateScore s
     onPositionChange = identity
     saveToJson _ = Nothing
-    loadFromJson st _ = st
+    loadFromJson model _ = model
   
 data Msg = Core CoreMsg | Play Int | PutSink Int | SetNbSinks Int | SetTile TileType | Rotate
            | SetHoverSquare (Maybe Int) | FlipTile Int
 instance MsgWithCore Msg where core = Core
       
-update ∷ Msg → UpdateMam State Unit
+update ∷ Msg → UpdateMam Model Unit
 update (Core msg) = coreUpdate msg  
 update (Play m) = playA m
 update (PutSink i) = (_position ∘ ix i) .= (-1)

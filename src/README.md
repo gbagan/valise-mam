@@ -92,10 +92,10 @@ Cela permet de
 - et faciliter de nombreuses autres taches
 
 ### Modèle
-Du coté du modèle, cela consiste principalement en un object générique GState pour représenter l'état du jeu ainsi qu'une classe de types Game.
+Du coté du modèle, cela consiste principalement en un object générique GModel pour représenter l'état du jeu ainsi qu'une classe de types Game.
 
-### L'état GState
-GState est composée de records. Le premier "Core" est générique à tous les jeux et le second "Ext" est propre à un jeu.
+### L'état GModel
+GModel est composée de records. Le premier "Core" est générique à tous les jeux et le second "Ext" est propre à un jeu.
 Remarquez que tous les jeux ne se servent pas nécessairement de tous les attributs.
 
 L'attribut le plus important est position. Celui indique comme son nom l'indique la position actuelle d'une partie.
@@ -105,11 +105,11 @@ En principe, la position évolue uniquement à chaque coup (move) de l'utilisate
 
 Les autres attributes communs sont:
 ```purescript
-type CoreState pos ext = {
+type CoreModel pos ext = {
     position ∷ pos,
     history ∷ List pos,   -- liste des positions précédentes, on n'a pas à s'en soucier
     redoHistory ∷ List pos,  -- liste des positions pour redo, on n'a pas à s'en soucier
-    dialog ∷ Dialog (GState pos ext),  -- la boite de dialogue que l'on souhaite ouvrir  
+    dialog ∷ Dialog (GModel pos ext),  -- la boite de dialogue que l'on souhaite ouvrir  
     turn ∷ Turn,             -- quel joueur doit jouer, on peut lire cet attribut 
                              -- mais n'a normalement pas à le modifier directement 
     nbRows ∷ Int,            -- nombre de lignes pour un jeu sur un plateau 2D 
@@ -130,7 +130,7 @@ type CoreState pos ext = {
 
 La valise fait un usage intensif de lenses. Un lens et une paire de fonctions qui focusent sur une partie d'un objet
 la première fonction permet  de renvoyer l'élément ciblé et l'autre permet de renvoyer un nouvel objet avec l'object en focus modifié.
-C'est un peu l'analogue fonctionnel des getters et setters de Java mais leur force réside dans le fait que les lens peuvent être composés. Dans la valise, on associera par exemple un lens à chaque attribut de GState.
+C'est un peu l'analogue fonctionnel des getters et setters de Java mais leur force réside dans le fait que les lens peuvent être composés. Dans la valise, on associera par exemple un lens à chaque attribut de GModel.
 
 [Un livre à ce sujet](https://leanpub.com/lenses)
 
@@ -145,7 +145,7 @@ Un exemple:
 data Msg = Core CoreMsg | Message1 Int | Message2
 instance withcore ∷ MsgWithCore Msg where core = Core
 
-update ∷ Msg → Update State EFFS
+update ∷ Msg → Update Model EFFS
 update (Core msg) = coreUpdate msg
 update (Message1 n) = ...
 update Message2 = ...
@@ -156,7 +156,7 @@ Il est possible de rédefinir l'action à effectuer pour un message de CoreMsg d
 data Msg = Core CoreMsg | Message1 Int | Message2
 instance withcore ∷ MsgWithCore Msg where core = Core
 
-update ∷ Msg → Update State EFFS
+update ∷ Msg → Update Model EFFS
 update (Core Undo) = ...
 update (Core msg) = coreUpdate msg
 update (Message1 n) = ...
@@ -173,18 +173,18 @@ update Message2 = ...
 Sa signature est 
 ```purescript
 class Game pos ext mov | ext → pos mov where
-    play ∷ GState pos ext → mov → Maybe pos
-    initialPosition ∷ GState pos ext → Random pos
-    isLevelFinished ∷ GState pos ext → Boolean
-    sizeLimit ∷ GState pos ext → SizeLimit
-    computerMove ∷ GState pos ext → Random (Maybe mov)
-    onNewGame ∷ GState pos ext → Random (GState pos ext)
-    updateScore ∷ GState pos ext → Tuple (GState pos ext) Boolean
+    play ∷ GModel pos ext → mov → Maybe pos
+    initialPosition ∷ GModel pos ext → Random pos
+    isLevelFinished ∷ GModel pos ext → Boolean
+    sizeLimit ∷ GModel pos ext → SizeLimit
+    computerMove ∷ GModel pos ext → Random (Maybe mov)
+    onNewGame ∷ GModel pos ext → Random (GModel pos ext)
+    updateScore ∷ GModel pos ext → Tuple (GModel pos ext) Boolean
 ```
 
 Il prend trois paramètres
 - pos est le type de la position
-- ext est le type des attributs additionnels de GState
+- ext est le type des attributs additionnels de GModel
 - mov est le type du coup (mov)
 
 Les fonctions
@@ -198,7 +198,7 @@ Les fonctions
     ou le jeu n'est pas concerné par une IA.
 - onNewGame est similaire à initialPosition mais réinitialise certains autres paramètres pour garder l'état cohérent
 - updateScore renvoie un nouvel état en cas d'un record battu et un booléen indiquant s'il faut afficher un message de victoire
-   lorsqu'une partie est finie. Pour les parties sans score, on renverra souvent ```purescript state → Tuple state true``` 
+   lorsqu'une partie est finie. Pour les parties sans score, on renverra souvent ```purescript model → Tuple model true``` 
    Dans le cas d'une partie avec score, cette fonction est générée par la classe ScoreGame (voir plus bas)
    
 ### La classe ScoreGame
@@ -208,10 +208,10 @@ Sa signature est
 
 ```purescript
 class Game pos ext mov <= ScoreGame pos ext mov | ext → pos mov  where
-    objective ∷ GState pos ext → Objective
-    scoreFn ∷ GState pos ext → Int
-    scoreHash ∷  GState pos ext → String
-    isCustomGame ∷ GState pos ext → Boolean
+    objective ∷ GModel pos ext → Objective
+    scoreFn ∷ GModel pos ext → Int
+    scoreHash ∷  GModel pos ext → String
+    isCustomGame ∷ GModel pos ext → Boolean
  ```
 Les paramètres sont les mêmes que pour Game.
 
@@ -223,7 +223,7 @@ Les fonctions
 
 La fonction
 ```purescript
-updateScore' ∷ ∀pos ext mov. ScoreGame pos ext mov ⇒ ShowWinPolicy → GState pos ext → Tuple (GState pos ext) Boolean
+updateScore' ∷ ∀pos ext mov. ScoreGame pos ext mov ⇒ ShowWinPolicy → GModel pos ext → Tuple (GModel pos ext) Boolean
 ```
 donne une implémentation pour la fonction updateScore de Game
 
@@ -232,8 +232,8 @@ donne une implémentation pour la fonction updateScore de Game
 Sa signature est 
 ```purescript
 class Game pos ext mov <= TwoPlayersGame pos ext mov | ext → pos mov  where
-    isLosingPosition ∷ GState pos ext → Boolean
-    possibleMoves ∷ GState pos ext → Array mov
+    isLosingPosition ∷ GModel pos ext → Boolean
+    possibleMoves ∷ GModel pos ext → Array mov
 ```
 Les fonctions:
 - isLosingPosition teste si la position est perdante pour le joueur en cours
@@ -241,7 +241,7 @@ Les fonctions:
 
 La fonction
 ```purescript
-computerMove' ∷ ∀pos ext mov. TwoPlayersGame pos ext mov ⇒ GState pos ext → Random (Maybe mov)
+computerMove' ∷ ∀pos ext mov. TwoPlayersGame pos ext mov ⇒ GModel pos ext → Random (Maybe mov)
 ```
 donne une implémentation pour la fonction computerMove de Game
 

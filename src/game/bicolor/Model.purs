@@ -2,8 +2,8 @@ module Game.Bicolor.Model where
 
 import MamPrelude
 import Control.Monad.Gen (chooseBool)
-import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg,
-                _ext, coreUpdate, playA, _position, _nbColumns, _nbRows, newGame, genState, defaultUpdateScore)
+import Game.Core (class MsgWithCore, class Game, GModel, SizeLimit(..), CoreMsg,
+                _ext, coreUpdate, playA, _position, _nbColumns, _nbRows, newGame, genModel, defaultUpdateScore)
 import Lib.Update (UpdateMam, evalGen)
 import Lib.Util (dCoords)
 
@@ -32,57 +32,57 @@ type Ext' = {
     phase ∷ Phase
 }
 
-newtype ExtState = Ext Ext'
-type State = GState Position ExtState
+newtype ExtModel = Ext Ext'
+type Model = GModel Position ExtModel
 
 -- état initial
-istate ∷ State
-istate = genState [] _{nbRows=1, nbColumns=8, customSize=true}
+imodel ∷ Model
+imodel = genModel [] _{nbRows=1, nbColumns=8, customSize=true}
         (Ext 
             {mode: StandardMode, phase: GamePhase}
         )
 
 -- lenses
-_ext' ∷ Lens' State Ext'
+_ext' ∷ Lens' Model Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
-_mode ∷ Lens' State Mode
+_mode ∷ Lens' Model Mode
 _mode = _ext' ∘ prop (Proxy ∷ _ "mode")
-_phase ∷ Lens' State Phase
+_phase ∷ Lens' Model Phase
 _phase = _ext' ∘ prop (Proxy ∷ _ "phase")
 
-neighbor ∷ State → Int → Int → Boolean
-neighbor state index1 index2 =
+neighbor ∷ Model → Int → Int → Boolean
+neighbor model index1 index2 =
     row' * row' + col' * col' == 1
     where
-    nbRows = state^._nbRows
-    nbCols = state^._nbColumns
+    nbRows = model^._nbRows
+    nbCols = model^._nbColumns
     {row, col} = dCoords nbCols index1 index2
-    row' = if state^._mode == TorusMode && row ≠ 0 && abs row == nbRows - 1 then 1 else row
-    col' = if state^._mode ≠ StandardMode && col ≠ 0 && abs col == nbCols - 1 then 1 else col
+    row' = if model^._mode == TorusMode && row ≠ 0 && abs row == nbRows - 1 then 1 else row
+    col' = if model^._mode ≠ StandardMode && col ≠ 0 && abs col == nbCols - 1 then 1 else col
     
-instance Game Position ExtState Int where
+instance Game Position ExtModel Int where
     name _ = "bicolor"
 
-    play state index =
-        if state^._position !! index == Just WhiteCard then
-            Just $ state^._position # mapWithIndex \i card →
+    play model index =
+        if model^._position !! index == Just WhiteCard then
+            Just $ model^._position # mapWithIndex \i card →
                 if i == index then
                     EmptyCard
-                else if neighbor state index i then
+                else if neighbor model index i then
                     reverseCard card
                 else
                     card
         else 
             Nothing
 
-    initialPosition state = pure $ replicate (state^._nbRows * state^._nbColumns) WhiteCard
-    isLevelFinished state = all (_ ≠ WhiteCard) (state^._position)
+    initialPosition model = pure $ replicate (model^._nbRows * model^._nbColumns) WhiteCard
+    isLevelFinished model = all (_ ≠ WhiteCard) (model^._position)
     sizeLimit _ = SizeLimit 1 1 12 12
 
     -- méthodes par default
     onNewGame = pure 
     saveToJson _ = Nothing
-    loadFromJson st _ = st 
+    loadFromJson model _ = model
     computerMove _ = pure Nothing
     updateScore s = defaultUpdateScore s
     onPositionChange = identity
@@ -90,18 +90,18 @@ instance Game Position ExtState Int where
 data Msg = Core CoreMsg | Play Int | ToggleCard Int | SetMode Mode | ToggleCustom | Shuffle
 instance MsgWithCore Msg where core = Core
 
-update ∷ Msg → UpdateMam State Unit
+update ∷ Msg → UpdateMam Model Unit
 update (Core msg) = coreUpdate msg
 update (Play move) = playA move
 update (ToggleCard i) = _position ∘ ix i %= reverseCard
 update (SetMode mode) = newGame $ _mode .~ mode
 update Shuffle = do
-    state ← get
-    pos ← evalGen $ replicateA (length $ state^._position) randomCard
-    put $ state # _position .~ pos 
+    model ← get
+    pos ← evalGen $ replicateA (length $ model^._position) randomCard
+    put $ model # _position .~ pos 
 update ToggleCustom = do
-    state ← get
-    if state^._phase == PrepPhase then
+    model ← get
+    if model^._phase == PrepPhase then
         _phase .= GamePhase
     else
         newGame $ _phase .~ PrepPhase

@@ -8,7 +8,7 @@ import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc, translate)
 import Game.Core (canPlay, isLevelFinished, _position)
-import Game.Baseball.Model (State, Msg(..), _nbBases, _missingPeg)
+import Game.Baseball.Model (Model, Msg(..), _nbBases, _missingPeg)
 import UI.Template (template, card)
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 
@@ -28,17 +28,17 @@ transformBase i nbBases = translate (pc x) (pc y)  <> " rotate(45deg)" where
     x = 0.50 + 0.35 * cos (toNumber i * 2.0 * pi / toNumber nbBases)
     y = 0.50 + 0.35 * sin (toNumber i * 2.0 * pi / toNumber nbBases)
 
-view ∷ State → Html Msg
-view state = template {config, board, rules} state where
-    position = state ^. _position
-    nbBases = state ^. _nbBases
-    levelFinished = isLevelFinished state
-    missingPeg = state ^. _missingPeg
+view ∷ Model → Html Msg
+view model = template {config, board, rules} model where
+    position = model ^. _position
+    nbBases = model ^. _nbBases
+    levelFinished = isLevelFinished model
+    missingPeg = model ^. _missingPeg
 
     config =
         card "Baseball multicolore"
-        [   iconSelectGroup state "Nombres de bases" [4, 5, 6, 7, 8] nbBases SetNbBases (const identity)
-        ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
+        [   iconSelectGroup model "Nombres de bases" [4, 5, 6, 7, 8] nbBases SetNbBases (const identity)
+        ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ model)
         ]
 
     board = H.div [H.class_ "ui-board baseball-board"] [
@@ -68,7 +68,7 @@ view state = template {config, board, rules} state where
                                         "baseballHola 4s linear " <> show (1000 + 2000 * peg / nbBases) <> "ms infinite"
                                     else
                                         "none"
-                            ,   H.style "cursor" (if canPlay state peg then "pointer" else "not-allowed")
+                            ,   H.style "cursor" (if canPlay model peg then "pointer" else "not-allowed")
                             ]
                     ]
         ]

@@ -46,7 +46,7 @@ class MsgWithGEditor msg where
     geditormsg ∷ Msg → msg
 
 
-update ∷ ∀st. Lens' st Model → Msg → UpdateMam st Unit
+update ∷ ∀model. Lens' model Model → Msg → UpdateMam model Unit
 update lens = case _ of
     AddVertex ev → do 
         pos ← liftEffect $ pointerDecoder ev
@@ -94,14 +94,14 @@ update lens = case _ of
                 _, _, _ → model
 
     DeleteVertex i ev → do
-        st ← get
-        when ((st^.lens).mode == VertexMode)
+        model ← get
+        when ((model^.lens).mode == VertexMode)
             (liftEffect $ stopPropagation $ PE.toEvent ev)
-        lens %= \model →
-            if model.mode == DeleteMode then
-                model{graph = Graph.removeVertex i model.graph}
+        lens %= \model2 →
+            if model2.mode == DeleteMode then
+                model2{graph = Graph.removeVertex i model2.graph}
             else
-                model
+                model2
     
     DeleteEdge (Edge u v) →
         lens %= \model →

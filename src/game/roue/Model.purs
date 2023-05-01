@@ -1,12 +1,12 @@
 module Game.Roue.Model where
 
 import MamPrelude
-import Lib.Util (swap)
 import Control.Monad.Rec.Class (tailRecM, Step(..))
-import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, GState,
+import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, GModel,
     CoreMsg,  DndMsg(DropOnBoard),
     coreUpdate, dndUpdate,
-    genState, newGame, lockAction, _ext, _position, _showWin, defaultSizeLimit, defaultUpdateScore)
+    genModel, newGame, lockAction, _ext, _position, _showWin, defaultSizeLimit, defaultUpdateScore)
+import Lib.Util (count, swap)
 import Lib.Update (UpdateMam, delay)
 
 type Position = Array (Maybe Int)
@@ -20,51 +20,51 @@ type Ext' = {
     dragged ∷ Maybe Location
 }
 newtype Ext = Ext Ext'
-type State = GState Position Ext
+type Model = GModel Position Ext
 
 -- | état initial
-istate ∷ State
-istate = genState [] identity (Ext {rotation: 0, size: 5, dragged: Nothing})
+imodel ∷ Model
+imodel = genModel [] identity (Ext {rotation: 0, size: 5, dragged: Nothing})
 
 -- lenses
-_ext' ∷ Lens' State Ext'
+_ext' ∷ Lens' Model Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
-_rotation ∷ Lens' State Int
+_rotation ∷ Lens' Model Int
 _rotation = _ext' ∘ prop (Proxy ∷ _ "rotation")
-_size ∷ Lens' State Int
+_size ∷ Lens' Model Int
 _size = _ext' ∘ prop (Proxy ∷ _ "size")
-_dragged ∷ Lens' State (Maybe Location)
+_dragged ∷ Lens' Model (Maybe Location)
 _dragged = _ext' ∘ prop (Proxy ∷ _ "dragged")
 
 -- | renvoie un tableau indiquant quelles sont les balles alignées avec leur couleur
-aligned ∷ State → Array Boolean
-aligned state =
-    state^._position # mapWithIndex \index → case _ of
+aligned ∷ Model → Array Boolean
+aligned model =
+    model^._position # mapWithIndex \index → case _ of
         Nothing → false
         Just c → mod (index + rot) n == c
     where
-        n = length $ state^._position
-        rot = state^._rotation
+        n = length $ model^._position
+        rot = model^._rotation
 
 -- | comme validRotation mais avec seconde conditition en moins 
-validRotation' ∷ State → Boolean
-validRotation' state = (length $ filter identity $ aligned state) == 1
+validRotation' ∷ Model → Boolean
+validRotation' model = count identity (aligned model) == 1
 
 -- | une rotation est valide si exactement une couleur est alignée et il y a une balle pour chaque couleur         
-validRotation ∷ State → Boolean
-validRotation state = validRotation' state && (all isJust $ state^._position )
+validRotation ∷ Model → Boolean
+validRotation model = validRotation' model && all isJust (model^._position)
 
 instance Game Position Ext {from ∷ Location, to ∷ Location} where
     name _ = "roue"
 
-    play state move = act (state^._position) where
+    play model move = act (model^._position) where
         act = case move of 
             {from: Panel from, to: Wheel to} → updateAt to (Just from)
             {from: Wheel from, to: Wheel to } → swap from to
             {from: Wheel from, to: Board} → updateAt from Nothing
             _ → const Nothing
     
-    initialPosition state = pure $ replicate (state^._size) Nothing
+    initialPosition model = pure $ replicate (model^._size) Nothing
 
     isLevelFinished _ = false
     
@@ -75,37 +75,38 @@ instance Game Position Ext {from ∷ Location, to ∷ Location} where
     updateScore s = defaultUpdateScore s
     onPositionChange = identity
     saveToJson _ = Nothing
-    loadFromJson st _ = st
+    loadFromJson model _ = model
 
 -- | tourne la roue de i crans
-rotate ∷ Int → State → State
+rotate ∷ Int → Model → Model
 rotate i = _rotation +~ i
 
 data Msg = Core CoreMsg | DnD (DndMsg Location) | Rotate Int | SetSize Int | Check
 instance MsgWithCore Msg where core = Core
 instance MsgWithDnd Msg Location where dndmsg = DnD  
     
-update ∷ Msg → UpdateMam State Unit
+update ∷ Msg → UpdateMam Model Unit
 update (Core msg) = coreUpdate msg
-update (DnD DropOnBoard) = modify_ \state →
-        let state2 = state # set _dragged Nothing in
-        case state^._dragged of
-            Just (Wheel i) → state2 # set (_position ∘ ix i) Nothing
-            _ → state2
+update (DnD DropOnBoard) = modify_ \model →
+        let model2 = model # set _dragged Nothing in
+        case model^._dragged of
+            Just (Wheel i) → model2 # set (_position ∘ ix i) Nothing
+            _ → model2
 update (DnD msg) = dndUpdate _dragged msg
 update (Rotate i) = modify_ $ rotate i
 update (SetSize i) = newGame $ set _size i
-update Check = lockAction $ get >>= \st → tailRecM go (st^._size) where
-        go 0 = do
-            modify_ $ set _showWin true
-            delay $ Milliseconds 1000.0
-            modify_ $ set _showWin false
-            pure (Done unit)
-        go i = do
-            st2 ← get
-            if not (validRotation st2) then
-                pure $ Done unit
-            else do
-                modify_ $ rotate 1
-                delay $ Milliseconds 600.0
-                pure $ Loop (i-1)
+update Check = lockAction $ get >>= \st → tailRecM go (st^._size)
+  where
+  go 0 = do
+        modify_ $ _showWin .~ true
+        delay $ Milliseconds 1000.0
+        modify_ $ _showWin .~ false
+        pure (Done unit)
+  go i = do
+        st2 ← get
+        if not (validRotation st2) then
+          pure $ Done unit
+        else do
+          modify_ $ rotate 1
+          delay $ Milliseconds 600.0
+          pure $ Loop (i-1)

@@ -8,7 +8,7 @@ import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Util (translate)
 import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointer, scoreFn)
-import Game.Solitaire.Model (State, Msg(..), Board(..), _board, _holes, _dragged, _help)
+import Game.Solitaire.Model (Model, Msg(..), Board(..), _board, _holes, _dragged, _help)
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSelectGroup', iconBestScore, ihelp, iundo, iredo, ireset, irules)
 import UI.Template (template, card, bestScoreDialog, gridStyle, incDecGrid, svgCursorStyle, dndBoardProps, dndItemProps)
@@ -23,17 +23,17 @@ tricolor i columns help =
 cursor ∷ ∀a b. PointerPosition → b → Html a
 cursor pp _ = H.circle ([P.r 20.0, H.class_ "solitaire-cursor"] <> svgCursorStyle pp)
 
-view ∷ State → Html Msg
-view state = template {config, board, rules, winTitle, scoreDialog} state where
-    position = state ^. _position
-    columns = state ^. _nbColumns
-    rows = state ^. _nbRows
-    isCircleBoard = state ^. _board == CircleBoard
-    board_ = state ^. _board
-    help = state ^. _help
-    pointer = state ^. _pointer
-    dragged = state ^. _dragged
-    holes = state ^. _holes
+view ∷ Model → Html Msg
+view model = template {config, board, rules, winTitle, scoreDialog} model where
+    position = model ^. _position
+    columns = model ^. _nbColumns
+    rows = model ^. _nbRows
+    isCircleBoard = model ^. _board == CircleBoard
+    board_ = model ^. _board
+    help = model ^. _help
+    pointer = model ^. _pointer
+    dragged = model ^. _dragged
+    holes = model ^. _holes
 
     itemStyle i = 
         let {row, col} = coords columns i in
@@ -48,15 +48,15 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
 
     config =
         card "Jeu du solitaire"
-        [   iconSelectGroup' state "Plateau" board_ SetBoard
+        [   iconSelectGroup' model "Plateau" board_ SetBoard
             [   CircleBoard ∧ _{icon = IconSymbol "#circle", tooltip = Just "Cercle"}
             ,   Grid3Board ∧ _{icon = IconText "3xN", tooltip = Just "3xN"}
             ,   RandomBoard ∧ _{icon = IconSymbol "#shuffle", tooltip = Just "Aléatoire"}
             ,   EnglishBoard ∧ _{icon = IconSymbol "#tea", tooltip = Just "Anglais"}
             ,   FrenchBoard ∧  _{icon = IconSymbol "#bread", tooltip = Just "Français"}
             ]
-        ,   icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> (_ $ state)
-        ,   iconBestScore state
+        ,   icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> (_ $ model)
+        ,   iconBestScore model
         ]
 
     drawHole i = 
@@ -73,7 +73,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
             [   P.r 17.0
             ,   H.class_ "solitaire-hole"
             ,   P.transform $ itemStyle i
-            ] <> dndItemProps state 
+            ] <> dndItemProps model 
                 {   currentDragged: dragged
                 ,   draggable: false
                 ,   droppable: true
@@ -87,7 +87,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
         [   P.r 20.0
         ,   H.class_ "solitaire-peg"
         ,   P.transform $ itemStyle i
-        ] <> dndItemProps state
+        ] <> dndItemProps model
             {   draggable: true
             ,   droppable: false
             ,   currentDragged: dragged
@@ -116,9 +116,9 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
             ]
         ]
 
-    board = incDecGrid state [grid]
+    board = incDecGrid model [grid]
 
-    scoreDialog _ = bestScoreDialog state \bestPosition → [
+    scoreDialog _ = bestScoreDialog model \bestPosition → [
         H.div [H.class_ "ui-flex-center solitaire-scoredialog"] [
             H.div([H.class_ "ui-board"] <> (if isCircleBoard then 
                                     [H.style "width" "100%", H.style "height" "100%"] 
@@ -155,6 +155,6 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
 
     rules = [H.text "Jeu du solitaire", H.br, H.text "blah blah"]
 
-    nbPegs = scoreFn state
+    nbPegs = scoreFn model
     s = if nbPegs > 1 then "s" else ""
     winTitle = show nbPegs <> " jeton" <> s <> " restant" <> s

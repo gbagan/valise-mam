@@ -2,10 +2,10 @@ module Game.Labete.Model where
 
 import MamPrelude
 import Game.Common (pointerDecoder, _isoCustom)
-import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, SizeLimit(..), GState, Objective(..), ShowWinPolicy(..), PointerPosition, Dialog(..),
-                    playA, coreUpdate, _ext, genState, newGame, _position, _nbRows, _nbColumns, _help, _dialog, updateScore', saveToJson', loadFromJson')
+import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, SizeLimit(..), GModel, Objective(..), ShowWinPolicy(..), PointerPosition, Dialog(..),
+                    playA, coreUpdate, _ext, genModel, newGame, _position, _nbRows, _nbColumns, _help, _dialog, updateScore', saveToJson', loadFromJson')
 import Lib.Update (UpdateMam)
-import Lib.Util (coords, repeat2)
+import Lib.Util (coords, count, repeat2)
 import Web.PointerEvent (PointerEvent)
 import Web.PointerEvent.PointerEvent as PE
 import Web.UIEvent.MouseEvent as ME
@@ -50,30 +50,30 @@ type Ext' =
     ,   startSquare ∷ Maybe Int              -- case de départ lorsque l'on sélectionne une zone à colorier
     ,   startPointer ∷ Maybe PointerPosition -- position de départ lorsque l'on sélectionne une zone à colorier
 }
-newtype ExtState = Ext Ext'
-type State = GState (Array Boolean) ExtState
+newtype ExtModel = Ext Ext'
+type Model = GModel (Array Boolean) ExtModel
 
 -- lenses
-_ext' ∷ Lens' State Ext'
+_ext' ∷ Lens' Model Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
-_beast ∷ Lens' State Beast'
+_beast ∷ Lens' Model Beast'
 _beast = _ext' ∘ prop (Proxy ∷ _ "beast")
-_beastType ∷ Lens' State BeastType
+_beastType ∷ Lens' Model BeastType
 _beastType = _ext' ∘ prop (Proxy ∷ _ "beastType")
-_mode ∷ Lens' State Mode
+_mode ∷ Lens' Model Mode
 _mode = _ext' ∘ prop (Proxy ∷ _ "mode")
-_selectedColor ∷ Lens' State Int
+_selectedColor ∷ Lens' Model Int
 _selectedColor = _ext' ∘ prop (Proxy ∷ _ "selectedColor")
-_squareColors ∷ Lens' State (Array Int)
+_squareColors ∷ Lens' Model (Array Int)
 _squareColors = _ext' ∘ prop (Proxy ∷ _ "squareColors")
-_startPointer ∷ Lens' State (Maybe PointerPosition)
+_startPointer ∷ Lens' Model (Maybe PointerPosition)
 _startPointer = _ext' ∘ prop (Proxy ∷ _ "startPointer")
-_startSquare ∷ Lens' State (Maybe Int)
+_startSquare ∷ Lens' Model (Maybe Int)
 _startSquare = _ext' ∘ prop (Proxy ∷ _ "startSquare")
 
 -- | état initial
-istate ∷ State
-istate = genState [] _{nbRows = 5, nbColumns = 5} 
+imodel ∷ Model
+imodel = genModel [] _{nbRows = 5, nbColumns = 5} 
                 (Ext {
                     beast: [type1],
                     beastType: Type1,
@@ -118,92 +118,93 @@ pseudoRandomPick ∷ ∀t. Array t → Maybe t
 pseudoRandomPick t = t !! (28921 `mod` length t)
 
 -- | Renvoie tous les emplacement possibles évitants les pièges pour la bête
-nonTrappedBeasts ∷ State → Array Beast
-nonTrappedBeasts state =
-    allBeastPositions rows columns (state^._beast)
-        <#> adaptatedBeast rows columns (state^._mode)
+nonTrappedBeasts ∷ Model → Array Beast
+nonTrappedBeasts model =
+    allBeastPositions rows columns (model^._beast)
+        <#> adaptatedBeast rows columns (model^._mode)
         # filter isValidBeast
-    where rows = state^._nbRows
-          columns = state^._nbColumns
+    where rows = model^._nbRows
+          columns = model^._nbColumns
           isValidBeast = all \{row, col} → row >= 0 && row < rows && col >= 0 && col < columns && 
-                    (state^._position) !! (row * columns + col) == Just false
+                    (model^._position) !! (row * columns + col) == Just false
 
 -- | Renvoie un emplacement possible pour la bête sur le plateau sous forme d'un tableau de booléens
 -- | indicé par les positions du plateau.
 -- | Renvoie un tableau ne contenant que la valeur false si aucun emplacement pour la bête n'est possible
-nonTrappedBeastOnGrid ∷ State → Array Boolean
-nonTrappedBeastOnGrid st = 
-    st # nonTrappedBeasts
-    # pseudoRandomPick
-    # fromMaybe []
-    # foldr (\p → set (ix $ p.row * columns + p.col) true) (replicate (rows * columns) false)
-    where rows = st^._nbRows
-          columns = st^._nbColumns
+nonTrappedBeastOnGrid ∷ Model → Array Boolean
+nonTrappedBeastOnGrid model = 
+  model # nonTrappedBeasts
+        # pseudoRandomPick
+        # fromMaybe []
+        # foldr (\p → set (ix $ p.row * columns + p.col) true) (replicate (rows * columns) false)
+  where
+  rows = model^._nbRows
+  columns = model^._nbColumns
 
-getNewBeast ∷ State → Array Beast
-getNewBeast state = case state ^. _beastType of
+getNewBeast ∷ Model → Array Beast
+getNewBeast model = case model ^. _beastType of
     Type1 → [type1]
     Type2 → [type2]
     Type3 → [type3]
     Type4 → [type2, type3]
-    CustomBeast → take 1 (state^._beast)
+    CustomBeast → take 1 (model^._beast)
 
 zoneposition ∷ Int → Zone → Array Int
 zoneposition columns {row1, col1, row2, col2} =
     repeat2 (abs (row1 - row2) + 1) (abs(col1 - col2) + 1) \i j →
         (i + min row1 row2) * columns + j + (min col1 col2)
 
-colorZone ∷ State → Zone → Array Int
-colorZone state zone = state^._squareColors # updateAtIndices ( 
-    zoneposition (state^._nbColumns) zone <#> \i → i ∧ (state^._selectedColor)
+colorZone ∷ Model → Zone → Array Int
+colorZone model zone = model^._squareColors # updateAtIndices ( 
+    zoneposition (model^._nbColumns) zone <#> \i → i ∧ (model^._selectedColor)
 )
 
-instance Game (Array Boolean) ExtState Int where
-    name _ = "labete"
-    play state index = state^._position # modifyAt index not
-    isLevelFinished = null <<< nonTrappedBeasts
-    initialPosition st = pure $ replicate (st^._nbRows * st^._nbColumns) false
-    onNewGame st = pure $ st
-                        # set _beast (getNewBeast st)
-                        # set _squareColors (replicate (st^._nbRows * st^._nbColumns) 0)
+instance Game (Array Boolean) ExtModel Int where
+  name _ = "labete"
+  play model index = model^._position # modifyAt index not
+  isLevelFinished = null <<< nonTrappedBeasts
+  initialPosition model = pure $ replicate (model^._nbRows * model^._nbColumns) false
+  onNewGame model = pure $ model
+                           # set _beast (getNewBeast model)
+                           # set _squareColors (replicate (model^._nbRows * model^._nbColumns) 0)
 
-    sizeLimit _ = SizeLimit 2 2 9 9
+  sizeLimit _ = SizeLimit 2 2 9 9
 
-    updateScore st = updateScore' {onlyWhenFinished: true, showWin: ShowWinOnNewRecord} st
-    saveToJson = saveToJson'
-    loadFromJson = loadFromJson'
+  updateScore model = updateScore' {onlyWhenFinished: true, showWin: ShowWinOnNewRecord} model
+  saveToJson = saveToJson'
+  loadFromJson = loadFromJson'
 
-    -- méthodes par défault
-    computerMove _ = pure Nothing
-    onPositionChange = identity
+  -- méthodes par défault
+  computerMove _ = pure Nothing
+  onPositionChange = identity
 
-instance ScoreGame (Array Boolean) ExtState Int where
-    objective _ = Minimize
-    scoreFn = length ∘ filter identity ∘ view _position
-    scoreHash state = joinWith "-"
-                        [ show (state^._nbColumns)
-                        , show (state^._nbRows)
-                        , show (state^._mode)
-                        , show (state^._beastType)
+instance ScoreGame (Array Boolean) ExtModel Int where
+  objective _ = Minimize
+  scoreFn = count identity ∘ view _position
+  scoreHash model = joinWith "-"
+                        [ show (model^._nbColumns)
+                        , show (model^._nbRows)
+                        , show (model^._mode)
+                        , show (model^._beastType)
                         ]
-    isCustomGame state = state^._beastType == CustomBeast
+  isCustomGame model = model^._beastType == CustomBeast
           
 
 data Msg = 
-      Core CoreMsg 
-    | SetMode Mode 
-    | SetHelp Boolean
-    | SetBeast BeastType
-    | Play Int
-    | IncSelectedColor Int
-    | StartZone Int 
-    | StartZone2 PointerEvent
-    | FinishZone Int
-    | FlipCustomBeast Int
-    | NoAction
+    Core CoreMsg 
+  | SetMode Mode 
+  | SetHelp Boolean
+  | SetBeast BeastType
+  | Play Int
+  | IncSelectedColor Int
+  | StartZone Int 
+  | StartZone2 PointerEvent
+  | FinishZone Int
+  | FlipCustomBeast Int
+  | NoAction
 instance MsgWithCore Msg where core = Core
 
-update ∷ Msg → UpdateMam State Unit
+update ∷ Msg → UpdateMam Model Unit
 update (Core msg) = coreUpdate msg
 update (SetMode m) = newGame $ set _mode m
 update (SetHelp a) = _help .= a
@@ -225,12 +226,12 @@ update (StartZone2 ev) =
     else
         pure unit
 
-update (FinishZone index1) = modify_ \state → case state^._startSquare of
-    Nothing → state
+update (FinishZone index1) = modify_ \model → case model^._startSquare of
+    Nothing → model
     Just index2 →
-        let {row: row1, col: col1} = coords (state^._nbColumns) index1
-            {row: row2, col: col2} = coords (state^._nbColumns) index2
-        in state # set _squareColors (colorZone state {row1, col1, row2, col2})
+        let {row: row1, col: col1} = coords (model^._nbColumns) index1
+            {row: row2, col: col2} = coords (model^._nbColumns) index2
+        in model # set _squareColors (colorZone model {row1, col1, row2, col2})
                  # set _startSquare Nothing
                  # set _startPointer Nothing
 update (FlipCustomBeast i) = newGame $ over (_beast ∘ ix 0 ∘ _isoCustom ∘ ix i) not

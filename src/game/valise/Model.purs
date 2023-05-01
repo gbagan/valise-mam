@@ -7,7 +7,7 @@ import Game.Common (pointerDecoder)
 import Lib.Update (UpdateMam, delay)
 import Web.PointerEvent (PointerEvent)
 
-type State = 
+type Model = 
     {   isOpen ∷ Boolean
     -- linksAreActive ∷ Boolean, -- utile?
     ,   help ∷ String --- Maybe?
@@ -17,8 +17,8 @@ type State =
     ,   isSwitchOn ∷ Boolean
     }
 
-istate ∷ State
-istate = 
+imodel ∷ Model
+imodel = 
     {   isOpen: false
     -- ,   linksAreActive: false
     ,   help: ""
@@ -28,20 +28,20 @@ istate =
     ,   isSwitchOn: false
     }
 
-_help ∷ Lens' State String
+_help ∷ Lens' Model String
 _help = prop (Proxy ∷ _ "help")
-_helpVisible ∷ Lens' State Boolean
+_helpVisible ∷ Lens' Model Boolean
 _helpVisible = prop (Proxy ∷ _ "helpVisible")
-_positions ∷ Lens' State (Map String {x ∷ Number, y ∷ Number})
+_positions ∷ Lens' Model (Map String {x ∷ Number, y ∷ Number})
 _positions = prop (Proxy ∷ _ "positions")
-_drag ∷ Lens' State (Maybe { name ∷ String, x ∷ Number, y ∷ Number })
+_drag ∷ Lens' Model (Maybe { name ∷ String, x ∷ Number, y ∷ Number })
 _drag = prop (Proxy ∷ _ "drag")
-_isSwitchOn ∷ Lens' State Boolean
+_isSwitchOn ∷ Lens' Model Boolean
 _isSwitchOn = prop (Proxy ∷ _ "isSwitchOn")
 
-enterA ∷ UpdateMam State Unit
+enterA ∷ UpdateMam Model Unit
 enterA = do
-    put istate
+    put imodel
     delay (Milliseconds 1500.0)
     modify_ _{isOpen = true}
 
@@ -51,15 +51,15 @@ data Msg = ShowHelp String
         | MoveObject PointerEvent
         | NoAction
 
-update ∷ Msg → UpdateMam State Unit
+update ∷ Msg → UpdateMam Model Unit
 update (ShowHelp help) = modify_ $ over _help (if help == "" then identity else const help)
                                 >>> set _helpVisible (help ≠ "")
 update ToggleSwitch = _isSwitchOn %= not
 update (SetDrag d) = _drag .= d
 update (MoveObject ev) = do
     pos ← liftEffect $ pointerDecoder ev
-    st ← get
-    case pos, st.drag of
+    model ← get
+    case pos, model.drag of
         Just {x, y}, Just {name, x: x2, y: y2} →
             _positions ∘ at name .= Just {x: x-x2, y: y-y2} 
         _, _ → pure unit

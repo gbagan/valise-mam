@@ -3,7 +3,7 @@ module Game.Roue.View where
 import MamPrelude
 
 import Game.Core (PointerPosition, _position, _pointer, _locked)
-import Game.Roue.Model (State, Msg(..), Location(..), _size, _rotation, _dragged, aligned, validRotation, validRotation')
+import Game.Roue.Model (Model, Msg(..), Location(..), _size, _rotation, _dragged, aligned, validRotation, validRotation')
 import Lib.Util (map2)
 import Pha.Html (Html)
 import Pha.Html as H
@@ -53,23 +53,23 @@ cursor {x, y} color = H.div
     ] []
 
 
-view ∷ State → Html Msg
-view state = template {config, board, rules} state where
-    size = state ^. _size
-    position = state ^. _position
-    valid = validRotation state
-    dragged = state ^. _dragged
-    pointer = state ^. _pointer
-    locked = state ^. _locked
+view ∷ Model → Html Msg
+view model = template {config, board, rules} model where
+    size = model ^. _size
+    position = model ^. _position
+    valid = validRotation model
+    dragged = model ^. _dragged
+    pointer = model ^. _pointer
+    locked = model ^. _locked
 
     config =
         card "Roue des couleurs"
-        [   iconSelectGroup state "Nombre de couleurs" [4, 5, 6, 7, 8] size SetSize (const identity)
-        ,   icongroup "Options" $ [ireset state, irules state]
+        [   iconSelectGroup model "Nombre de couleurs" [4, 5, 6, 7, 8] size SetSize (const identity)
+        ,   icongroup "Options" $ [ireset model, irules model]
         ]
 
     draggedColor ∷ Maybe String 
-    draggedColor = state ^. _dragged >>= \d →
+    draggedColor = model ^. _dragged >>= \d →
         let colorIndex = case d of
                             Panel i → i
                             Wheel i → join (position !! i) ?: (-1)
@@ -78,9 +78,9 @@ view state = template {config, board, rules} state where
 
     outerWheel = H.div 
         [   H.class_ "roue-outer"
-        ,   H.style "transform" $ "rotate(" <> show (360.0 * toNumber (state ^. _rotation) / toNumber size) <> "deg)"
+        ,   H.style "transform" $ "rotate(" <> show (360.0 * toNumber (model ^. _rotation) / toNumber size) <> "deg)"
         ] $
-        [   H.svg [P.viewBox 0 0 100 100] (map2 position (aligned state) \i pos align →
+        [   H.svg [P.viewBox 0 0 100 100] (map2 position (aligned model) \i pos align →
                 H.path (
                     [   P.d $ pizza
                                 50.0
@@ -89,8 +89,8 @@ view state = template {config, board, rules} state where
                                 (2.0 * pi * (toNumber i - 0.5) / toNumber size)
                                 (2.0 * pi * (toNumber i + 0.5) / toNumber size)
                     ,   H.class_ "roue-wheel-part"
-                    ,   P.fill $ if not align then  "#F0B27A" else if validRotation' state then "lightgreen" else "#F5B7B1"
-                    ] <> dndItemProps state
+                    ,   P.fill $ if not align then  "#F0B27A" else if validRotation' model then "lightgreen" else "#F5B7B1"
+                    ] <> dndItemProps model
                         {   currentDragged: dragged
                         ,   draggable: isJust pos
                         ,   droppable: true
@@ -117,7 +117,7 @@ view state = template {config, board, rules} state where
                 H.div ([
                     H.class_ "roue-select-color ui-flex-center",
                     H.style "background-color" color
-                ] <> dndItemProps state {
+                ] <> dndItemProps model {
                     currentDragged: dragged,
                     draggable: true,
                     droppable: false,

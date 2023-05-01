@@ -7,7 +7,7 @@ import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc, translate)
-import Game.Sansmot.Model (State, Msg(..), Page(..), pythaAnimation, carollAnimation)
+import Game.Sansmot.Model (Model, Msg(..), Page(..), pythaAnimation, carollAnimation)
 
 line' ∷ ∀a. Int → Int → Int → Int → Array (H.Prop a) → Html a
 line' x1 y1 x2 y2 props = H.line ([P.x1 $ toNumber x1, P.x2 $ toNumber x2, P.y1 $ toNumber y1, P.y2 $ toNumber y2] <> props)
@@ -41,7 +41,7 @@ carollStyles = Map.fromFoldable [
     "e" ∧ [[P.opacity 0.0], []]
 ]
 
-animPytha ∷ State → Html Msg
+animPytha ∷ Model → Html Msg
 animPytha {anim} =
     let f key = 
                 let phase = anim ^. at key ?: 0 in
@@ -67,7 +67,7 @@ animPytha {anim} =
     ,   H.text_ "c" $ [P.x 595.0, P.y 80.0, H.style "font-size" "20"] <> f "e"
     ]
 
-animCaroll ∷ State → Html Msg
+animCaroll ∷ Model → Html Msg
 animCaroll {anim} =
     let f key = 
                 let phase = anim ^. at key ?: 0 in
@@ -90,14 +90,14 @@ animCaroll {anim} =
             line' (-10) (50 * i) 1360 (50 * i) [H.class_ "sansmot-grid"]
     ]
 
-view ∷ State → Html Msg
-view state = 
+view ∷ Model → Html Msg
+view model = 
     H.div [H.class_ "sansmot-main"] 
     [   H.div [H.class_ "sansmot-menu"] 
         [   H.div [H.class_ "sansmot-pagelink", E.onClick \_ → SetPage PythaPage] [H.text "1"]
         ,   H.div [H.class_ "sansmot-pagelink", E.onClick \_ → SetPage CarollPage] [H.text "2"]
         ]
-    ,   main state.page
+    ,   main model.page
     ] where
     
     main PythaPage =
@@ -115,7 +115,7 @@ view state =
                 ]
             ]
         ,   H.h2 [H.class_ "sansmot-h2"] [H.text "Preuve sans mot due à un auteur chinois inconnu qui vivait vers 200 avant J.-C."]
-        ,   H.p [H.class_ "sansmot-center"] [animPytha state]
+        ,   H.p [H.class_ "sansmot-center"] [animPytha model]
         ,   H.p [H.class_ "sansmot-center sansmot-link", E.onClick \_ → Animate pythaAnimation] [H.text "Lancer l'animation"]
         ]
 
@@ -123,6 +123,6 @@ view state =
         H.div []
         [   H.h1 [H.class_ "sansmot-title"] [H.text "Preuve sans mot"]
         ,   H.h2 [H.class_ "sansmot-h2"] [H.text "Où est passé le carré manquant ?"]
-        ,   H.p [H.class_ "sansmot-center"] [animCaroll state]
+        ,   H.p [H.class_ "sansmot-center"] [animCaroll model]
         ,   H.p [H.class_ "sansmot-center sansmot-link", E.onClick \_ → Animate carollAnimation] [H.text "Lancer l'animation"]
         ]

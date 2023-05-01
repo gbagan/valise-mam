@@ -3,7 +3,7 @@ module Game.Noirblanc.View where
 import MamPrelude
 
 import Game.Core (_position, _nbRows, _nbColumns, _help)
-import Game.Noirblanc.Model (State, Msg(..), _level, _mode, _maxLevels)
+import Game.Noirblanc.Model (Model, Msg(..), _level, _mode, _maxLevels)
 import Lib.Util (coords, map2)
 import Pha.Html (Html)
 import Pha.Html as H
@@ -40,22 +40,22 @@ square light cross props =
         ]
     ]
 
-view ∷ State → Html Msg
-view state = template {config, board, rules} state where
-    rows = state ^. _nbRows
-    columns = state ^. _nbColumns
-    position = state ^. _position
-    level = state ^. _level
-    mode = state ^. _mode
-    maxLevels = state ^. _maxLevels
-    help = state^._help
+view ∷ Model → Html Msg
+view model = template {config, board, rules} model where
+    rows = model ^. _nbRows
+    columns = model ^. _nbColumns
+    position = model ^. _position
+    level = model ^. _level
+    mode = model ^. _mode
+    maxLevels = model ^. _maxLevels
+    help = model^._help
 
     config = card "Tout noir tout blanc" [
-        iconSelectGroup state "Mode jeu" [0, 1, 2, 3] mode SelectMode \i →
+        iconSelectGroup model "Mode jeu" [0, 1, 2, 3] mode SelectMode \i →
             _{icon = IconSymbol $ "#lo-mode" <> show (i + 1)},
-        iconSelectGroup state "Difficulté" [0, 1, 2, 3, 4, 5, 6] level SelectLevel \i →
+        iconSelectGroup model "Difficulté" [0, 1, 2, 3, 4, 5, 6] level SelectLevel \i →
             levelOptions i (Just i > maxLevels !! mode),
-        icongroup "Options" $ [ihelp, ireset, irules] <#> (_ $ state)
+        icongroup "Options" $ [ihelp, ireset, irules] <#> (_ $ model)
     ]
 
     grid = H.div ([H.class_ "ui-board"] <> gridStyle rows columns 4) $
@@ -69,7 +69,7 @@ view state = template {config, board, rules} state where
             ,   E.onClick \_ → Play index
             ]
 
-    board = incDecGrid state [grid]
+    board = incDecGrid model [grid]
 
     rules =
         [   H.text "Le but du jeu est de retourner des tuiles pour que toutes soient face noire."

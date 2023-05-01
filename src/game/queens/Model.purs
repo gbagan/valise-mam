@@ -7,11 +7,11 @@ import Data.Argonaut.Decode.Error (JsonDecodeError(..))
 import Data.Array.NonEmpty as N
 import Data.Either (note)
 import Data.FoldableWithIndex (foldrWithIndex)
-import Game.Core (GState, class MsgWithCore, class Game, class ScoreGame, CoreMsg, Objective(..), Dialog(..), SizeLimit(..), ShowWinPolicy(..),
-                    coreUpdate, playA, genState, newGame, updateScore', saveToJson', loadFromJson',
+import Game.Core (GModel, class MsgWithCore, class Game, class ScoreGame, CoreMsg, Objective(..), Dialog(..), SizeLimit(..), ShowWinPolicy(..),
+                    coreUpdate, playA, genModel, newGame, updateScore', saveToJson', loadFromJson',
                     _ext, _dialog, _position, _nbRows, _nbColumns)
 import Lib.Update (UpdateMam)
-import Lib.Util (dCoords, map2)
+import Lib.Util (count, dCoords, map2)
 
 piecesList ∷ Array Piece
 piecesList = [Rook, Bishop, King, Knight, Queen]
@@ -56,11 +56,11 @@ type Ext' =
     ,   customDirections ∷ Array Boolean      -- la liste des directions autorisées pour la pièce personnalisée
     }
 newtype Ext = Ext Ext'
-type State = GState Position Ext
+type Model = GModel Position Ext
 
 -- état initial
-istate ∷ State
-istate = genState []
+imodel ∷ Model
+imodel = genModel []
     _{  nbRows = 8
     ,   nbColumns = 8
     }
@@ -75,19 +75,19 @@ istate = genState []
     )
 
 -- lenses
-_ext' ∷ Lens' State Ext'
+_ext' ∷ Lens' Model Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
-_selectedPiece ∷ Lens' State Piece
+_selectedPiece ∷ Lens' Model Piece
 _selectedPiece = _ext' ∘ prop (Proxy ∷ _ "selectedPiece")
-_selectedSquare ∷ Lens' State (Maybe Int)
+_selectedSquare ∷ Lens' Model (Maybe Int)
 _selectedSquare = _ext' ∘ prop (Proxy ∷ _ "selectedSquare")
-_allowedPieces ∷ Lens' State (NonEmptyArray Piece)
+_allowedPieces ∷ Lens' Model (NonEmptyArray Piece)
 _allowedPieces = _ext' ∘ prop (Proxy ∷ _ "allowedPieces")
-_multiPieces ∷ Lens' State Boolean
+_multiPieces ∷ Lens' Model Boolean
 _multiPieces = _ext' ∘ prop (Proxy ∷ _ "multiPieces")
-_customLocalMoves ∷ Lens' State (Array Boolean)
+_customLocalMoves ∷ Lens' Model (Array Boolean)
 _customLocalMoves = _ext' ∘ prop (Proxy ∷ _ "customLocalMoves")
-_customDirections ∷ Lens' State (Array Boolean)
+_customDirections ∷ Lens' Model (Array Boolean)
 _customDirections = _ext' ∘ prop (Proxy ∷ _ "customDirections")
 
 -- | teste si une pièce peut se déplacer d'un vecteur (x, y)
@@ -107,31 +107,31 @@ sign x | x > 0 = 1
 
 -- | teste si la pièce de type "piece" à la position index1 peut attaquer la pièce à la position index2
 -- | suppose que la pièce est différent de Empty
-canCapture ∷ State → Piece → Int → Int → Boolean
-canCapture state piece index1 index2 =
-    let {row, col} = dCoords (state^._nbColumns) index2 index1 in
+canCapture ∷ Model → Piece → Int → Int → Boolean
+canCapture model piece index1 index2 =
+    let {row, col} = dCoords (model^._nbColumns) index2 index1 in
     if piece ≠ Custom then 
         index1 ≠ index2 && legalMoves piece row col
     else
-        (row * row - col * col) * row * col == 0 && (state^._customDirections) !! (3 * sign row + sign col + 4) == Just true
-        || row * row + col * col <= 8 && (state^._customLocalMoves) !! (5 * row + col + 12) == Just true
+        (row * row - col * col) * row * col == 0 && (model^._customDirections) !! (3 * sign row + sign col + 4) == Just true
+        || row * row + col * col <= 8 && (model^._customLocalMoves) !! (5 * row + col + 12) == Just true
 
 -- | renvoie l'ensemble des positions pouvant être attaquées par une pièce à la position index sous forme de tableau de booléens
-attackedBy ∷ State → Piece → Int → Array Boolean
-attackedBy state piece index =
-    repeat (state^._nbRows * state^._nbColumns) (canCapture state piece index)
+attackedBy ∷ Model → Piece → Int → Array Boolean
+attackedBy model piece index =
+    repeat (model^._nbRows * model^._nbColumns) (canCapture model piece index)
 
 -- | renvoie l'ensemble des cases pouvant être attaquées par une pièce sur le plateau
-capturableSquares ∷ State → Array Boolean
-capturableSquares state = state^._position # foldrWithIndex
-        (\index piece → if piece == Empty then identity else zipWith (||) (attackedBy state piece index))
-        (replicate (state^._nbRows * state^._nbColumns) false)
+capturableSquares ∷ Model → Array Boolean
+capturableSquares model = model^._position # foldrWithIndex
+        (\index piece → if piece == Empty then identity else zipWith (||) (attackedBy model piece index))
+        (replicate (model^._nbRows * model^._nbColumns) false)
 
 -- | renvoie l'ensemble des cases attaquées par l'endroit du pointeur de la souris
-attackedBySelected ∷ State → Array Boolean
-attackedBySelected state = case state^._selectedSquare of
-    Nothing → replicate (state^._nbRows * state^._nbColumns) false
-    Just index → attackedBy state (state^._selectedPiece) index 
+attackedBySelected ∷ Model → Array Boolean
+attackedBySelected model = case model^._selectedSquare of
+    Nothing → replicate (model^._nbRows * model^._nbColumns) false
+    Just index → attackedBy model (model^._selectedPiece) index 
 
 -- | ajoute ou enlève une pièce à la liste des pièces autorisées.
 -- | Le paramètre booléen correspond à la présence du mode multipiece
@@ -140,24 +140,24 @@ toggleAllowedPiece piece false _ = N.singleton piece
 toggleAllowedPiece piece true pieces = N.fromArray pieces2 ?: pieces where
     pieces2 = piecesList # filter \p2 → (p2 == piece) ≠ elem p2 pieces
 
-isValidPosition ∷ State → Boolean
-isValidPosition state = and $ map2 (capturableSquares state) (state^._position)
+isValidPosition ∷ Model → Boolean
+isValidPosition model = and $ map2 (capturableSquares model) (model^._position)
                             \_ captured piece → not captured || piece == Empty
 
 instance Game Position Ext Int where 
     name _ = "queens"
 
-    play state index = 
-        let selectedPiece = state^._selectedPiece
-        in state^._position # modifyAt index \t → if t == selectedPiece then Empty else selectedPiece
+    play model index = 
+        let selectedPiece = model^._selectedPiece
+        in model^._position # modifyAt index \t → if t == selectedPiece then Empty else selectedPiece
 
-    initialPosition state = pure $ replicate (state^._nbRows * state^._nbColumns) Empty
+    initialPosition model = pure $ replicate (model^._nbRows * model^._nbColumns) Empty
 
     isLevelFinished _ = false
     
-    onNewGame state = pure $ state # set _selectedPiece (N.head $ state^._allowedPieces)
+    onNewGame model = pure $ model # set _selectedPiece (N.head $ model^._allowedPieces)
     sizeLimit _ = SizeLimit 3 3 9 9
-    updateScore st = updateScore' {onlyWhenFinished: false, showWin: NeverShowWin} st
+    updateScore model = updateScore' {onlyWhenFinished: false, showWin: NeverShowWin} model
     
     -- methodes par défaut
     computerMove _ = pure Nothing
@@ -166,22 +166,22 @@ instance Game Position Ext Int where
     loadFromJson = loadFromJson'
 
 instance ScoreGame (Array Piece) Ext Int where 
-    objective _ = Maximize
-    scoreFn st | isValidPosition st = length $ filter (_ ≠ Empty) $ st ^. _position
-               | otherwise = 0
-    scoreHash state = joinWith "-" [show (state^._nbRows), show (state^._nbColumns), show (N.head $ state^._allowedPieces)]
-    isCustomGame state = state^._multiPieces || N.head (state^._allowedPieces) == Custom
+  objective _ = Maximize
+  scoreFn model | isValidPosition model = count (_ ≠ Empty) $ model^._position
+                | otherwise = 0
+  scoreHash model = joinWith "-" [show (model^._nbRows), show (model^._nbColumns), show (N.head $ model^._allowedPieces)]
+  isCustomGame model = model^._multiPieces || N.head (model^._allowedPieces) == Custom
 
 data Msg = Core CoreMsg | Play Int | SelectPiece Piece | SelectSquare (Maybe Int)
         | SelectAllowedPiece Piece | ToggleMultiPieces | FlipDirection Int | FlipLocalMove Int | Customize
 instance MsgWithCore Msg where core = Core
         
-update ∷ Msg → UpdateMam State Unit
+update ∷ Msg → UpdateMam Model Unit
 update (Core msg) = coreUpdate msg
 update (Play i) = playA i
 update (SelectPiece piece) = _selectedPiece .= piece
 update (SelectSquare a) = _selectedSquare .= a
-update (SelectAllowedPiece piece) = newGame $ \state → state # over _allowedPieces (toggleAllowedPiece piece (state^._multiPieces))
+update (SelectAllowedPiece piece) = newGame $ \model → model # over _allowedPieces (toggleAllowedPiece piece (model^._multiPieces))
 update ToggleMultiPieces = _multiPieces %= not
 update (FlipDirection direction) | direction /= 4 = newGame $ over (_customDirections ∘ ix direction) not
                                  | otherwise = pure unit

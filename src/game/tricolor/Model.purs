@@ -1,8 +1,8 @@
 module Game.Tricolor.Model where
 
 import MamPrelude
-import Game.Core (class Game, class MsgWithCore, GState, CoreMsg,
-                   coreUpdate, playA, genState, newGame, _ext, _position, defaultSizeLimit, defaultUpdateScore)
+import Game.Core (class Game, class MsgWithCore, GModel, CoreMsg,
+                   coreUpdate, playA, genModel, newGame, _ext, _position, defaultSizeLimit, defaultUpdateScore)
 import Lib.Util (chooseInt')
 import Lib.Update (UpdateMam)
 
@@ -23,45 +23,45 @@ type Ext' =
     ,   shuffle ∷ Boolean
     }
 
-newtype ExtState = Ext Ext'
-type State = GState (Array Int) ExtState
+newtype ExtModel = Ext Ext'
+type Model = GModel (Array Int) ExtModel
 
 -- lenses
-_ext' ∷ Lens' State Ext'
+_ext' ∷ Lens' Model Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
-_size ∷ Lens' State Int
+_size ∷ Lens' Model Int
 _size = _ext' ∘ prop (Proxy ∷ _ "size")
-_nbColors ∷ Lens' State Int
+_nbColors ∷ Lens' Model Int
 _nbColors = _ext' ∘ prop (Proxy ∷ _ "nbColors")
-_range ∷ Lens' State Int
+_range ∷ Lens' Model Int
 _range = _ext' ∘ prop (Proxy ∷ _ "range")
-_shuffle ∷ Lens' State Boolean
+_shuffle ∷ Lens' Model Boolean
 _shuffle = _ext' ∘ prop (Proxy ∷ _ "shuffle")
-_hoverCell ∷ Lens' State (Maybe Int)
+_hoverCell ∷ Lens' Model (Maybe Int)
 _hoverCell = _ext' ∘ prop (Proxy ∷ _ "hoverCell")
 
 -- | état initial
-istate ∷ State
-istate = genState [] identity (Ext { size: 5, nbColors: 2, range: 1, shuffle: false, hoverCell: Nothing })
+imodel ∷ Model
+imodel = genModel [] identity (Ext { size: 5, nbColors: 2, range: 1, shuffle: false, hoverCell: Nothing })
 
 -- | teste si le sommet i' va changer de couleur si on active le sommet i
-inRange ∷ State → Int → Int → Boolean
-inRange state i i' = min diff (state^._size - diff) <= state^._range
+inRange ∷ Model → Int → Int → Boolean
+inRange model i i' = min diff (model^._size - diff) <= model^._range
     where diff = abs (i - i')
     
-instance Game Position ExtState Move where
+instance Game Position ExtModel Move where
     name _ = "tricolor"
 
-    play state i = Just $ state^._position # mapWithIndex \i' color →
-        if inRange state i i' then
-            (color + 1) `mod` (state^._nbColors)
+    play model i = Just $ model^._position # mapWithIndex \i' color →
+        if inRange model i i' then
+            (color + 1) `mod` (model^._nbColors)
         else
             color
     
-    initialPosition state = if state^._shuffle then 
-                                replicateA (state^._size) $ chooseInt' (state^._nbColors)
+    initialPosition model = if model^._shuffle then 
+                                replicateA (model^._size) $ chooseInt' (model^._nbColors)
                             else
-                                pure $ replicate (state^._size) 1
+                                pure $ replicate (model^._size) 1
     
     isLevelFinished = all (_ == 0) ∘ view _position
 
@@ -72,13 +72,13 @@ instance Game Position ExtState Move where
     updateScore s = defaultUpdateScore s
     onPositionChange = identity
     saveToJson _ = Nothing
-    loadFromJson st _ = st
+    loadFromJson model _ = model
 
 
 data Msg = Core CoreMsg | Play Int | SetSize Int | SetNbColors Int | SetRange Int | SetHoverCell (Maybe Int) | Shuffle
 instance MsgWithCore Msg where core = Core
   
-update ∷ Msg → UpdateMam State Unit
+update ∷ Msg → UpdateMam Model Unit
 update (Core msg) = coreUpdate msg
 update (Play i) = playA i
 update (SetSize size) = newGame $ set _size size

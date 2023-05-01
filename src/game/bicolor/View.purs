@@ -3,7 +3,7 @@ module Game.Bicolor.View where
 import MamPrelude
 
 import Game.Core (_position, _nbRows, _nbColumns)
-import Game.Bicolor.Model (State, Msg(..), Card(..), Phase(..), Mode(..), _mode, _phase)
+import Game.Bicolor.Model (Model, Msg(..), Card(..), Phase(..), Mode(..), _mode, _phase)
 import Lib.Util (coords)
 import Pha.Html (Html)
 import Pha.Html as H
@@ -26,31 +26,31 @@ square card props =
         ]
     ]
 
-view ∷ State → Html Msg
-view state = template {config, board, rules, winTitle} state where
-    rows = state ^. _nbRows
-    columns = state ^. _nbColumns
-    position = state ^. _position
+view ∷ Model → Html Msg
+view model = template {config, board, rules, winTitle} model where
+    rows = model ^. _nbRows
+    columns = model ^. _nbColumns
+    position = model ^. _position
 
     icustom = iconbutton
-                state
-                {icon: IconSymbol "#customize", selected: state^._phase == PrepPhase}
+                model
+                {icon: IconSymbol "#customize", selected: model^._phase == PrepPhase}
                 [E.onClick \_ → ToggleCustom]
 
     ishuffle = iconbutton
-                state
-                {icon: IconSymbol "#shuffle", disabled: state^._phase == GamePhase}
+                model
+                {icon: IconSymbol "#shuffle", disabled: model^._phase == GamePhase}
                 [E.onClick \_ → Shuffle]
 
 
     config = card "??????"
-        [   iconSelectGroup' state "Type de la grille" (state^._mode) SetMode
+        [   iconSelectGroup' model "Type de la grille" (model^._mode) SetMode
             [   StandardMode ∧ _{icon = IconSymbol "#grid-normal", tooltip = Just "Normale"}
             ,   CylinderMode ∧ _{icon = IconSymbol "#grid-cylinder", tooltip = Just "Cylindrique"}
             ,   TorusMode ∧ _{icon = IconSymbol "#grid-torus", tooltip = Just "Torique"}
             ]
         ,   icongroup "Configuration" [icustom, ishuffle]
-        ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
+        ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ model)
         ]
 
     grid = H.div ([H.class_ "ui-board"] <> gridStyle rows columns 4) $
@@ -61,10 +61,10 @@ view state = template {config, board, rules, winTitle} state where
             ,   H.style "width" $ pc (0.68 / toNumber columns)
             ,   H.style "left" $ pc ((toNumber col + 0.16) / toNumber columns)
             ,   H.style "top" $ pc ((toNumber row + 0.07) / toNumber rows)
-            ,   E.onClick \_ → if state^._phase == PrepPhase then ToggleCard index else Play index
+            ,   E.onClick \_ → if model^._phase == PrepPhase then ToggleCard index else Play index
             ]
 
-    board = incDecGrid state [grid]
+    board = incDecGrid model [grid]
 
     winTitle = if all (_ == EmptyCard) position then "GAGNÉ" else "PERDU"
 

@@ -4,12 +4,12 @@ import MamPrelude
 
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
-import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, GState, Objective(..), ShowWinPolicy(..), Dialog(..),
-                 updateScore', playA, coreUpdate, _ext, genState, newGame, _position, _dialog,
+import Game.Core (class Game, class ScoreGame, class MsgWithCore, CoreMsg, GModel, Objective(..), ShowWinPolicy(..), Dialog(..),
+                 updateScore', playA, coreUpdate, _ext, genModel, newGame, _position, _dialog,
                  defaultSizeLimit, loadFromJson', saveToJson')
 import Lib.Graph (Graph, Edge, (↔))
 import Lib.Update (UpdateMam)
-import Lib.Util (pairwise)
+import Lib.Util (count, pairwise)
 import UI.GraphEditor as GEditor
 
 data Move = MoveTo Int | Raise
@@ -92,7 +92,7 @@ ex1 =
                     {x: 0.0, y: 3.0 }, {x: 2.0, y: 3.0}, {x: 1.0, y: 4.0}, {x: 0.0, y: 5.0}, {x: 2.0, y: 5.0}
                   ] <#> \{x, y} → {x: x*0.9+1.0, y: y*0.9+0.2}
     ,   edges: [0↔1, 0↔2, 1↔2, 1↔3, 2↔3, 3↔4, 3↔5, 4↔5, 1↔4, 2↔5, 4↔6, 5↔6, 6↔7, 6↔8, 4↔7, 5↔8]  
-}
+    }
 
 ex3 ∷ Graph
 ex3 =
@@ -101,7 +101,7 @@ ex3 =
                     {x: 0.5, y: 0.5 }, {x: 0.5, y: 3.5}, {x: 3.5, y: 3.5}, {x: 3.5, y: 0.5}, {x: 2.0, y: 2.0}]
                     <#> \{x, y} → {x: x * 1.15, y: y * 1.15}
     ,   edges: [0↔1, 1↔2, 2↔3, 3↔0, 0↔8, 1↔8, 2↔8, 3↔8, 0↔4, 1↔4, 0↔5, 3↔5, 2↔6, 3↔6, 1↔7, 2↔7]
-}
+    }
 
 city ∷ Graph
 city =
@@ -185,27 +185,27 @@ type Ext' =
     ,   graph ∷ Graph
     ,   graphEditor ∷ GEditor.Model
     }
-newtype ExtState = Ext Ext'
+newtype ExtModel = Ext Ext'
 
 -- | une position est un chemin dans le graphe avec potentiellement des levés de crayon
 -- | Just Int → un sommet
 -- | Un levé de crayon
 
-type State = GState (Array Move) ExtState
+type Model = GModel (Array Move) ExtModel
 
 -- lenses
-_ext' ∷ Lens' State Ext'
+_ext' ∷ Lens' Model Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
-_graphIndex ∷ Lens' State GraphIndex
+_graphIndex ∷ Lens' Model GraphIndex
 _graphIndex = _ext' ∘ prop (Proxy ∷ _ "graphIndex")
-_graph ∷ Lens' State Graph
+_graph ∷ Lens' Model Graph
 _graph = _ext' ∘ prop (Proxy ∷ _ "graph")
-_graphEditor ∷ Lens' State GEditor.Model
+_graphEditor ∷ Lens' Model GEditor.Model
 _graphEditor = _ext' ∘ prop (Proxy ∷ _ "graphEditor")
 
 -- | état initial
-istate ∷ State
-istate = genState [] identity (Ext { graphIndex: GraphIndex 0, graph: house, graphEditor: GEditor.init})
+imodel ∷ Model
+imodel = genModel [] identity (Ext { graphIndex: GraphIndex 0, graph: house, graphEditor: GEditor.init})
 
 -- | l'ensemble des arêtes compososant un chemin contenant potentiellement des levés de crayon
 edgesOf ∷ Array Move → Array Edge
@@ -213,31 +213,31 @@ edgesOf = mapMaybe toEdge ∘ pairwise where
     toEdge (MoveTo u ∧ MoveTo v) = Just (u ↔ v)
     toEdge _ = Nothing
 
-instance Game (Array Move) ExtState Move where
+instance Game (Array Move) ExtModel Move where
     name _ = "dessin"
 
-    play state x =
-        let position = state^._position in 
+    play model x =
+        let position = model^._position in 
         case x, last position of
             Raise, Just (MoveTo _) → Just (position `snoc` x)
             Raise, _ → Nothing
             MoveTo u, Just (MoveTo v) →
-                    if not (elem (u↔v) (edgesOf position)) && elem (u↔v) (state^._graph).edges then
+                    if not (elem (u↔v) (edgesOf position)) && elem (u↔v) (model^._graph).edges then
                         Just (position `snoc` x)
                     else
                         Nothing
             _, _ → Just (position `snoc` x)
 
     initialPosition _ = pure []
-    onNewGame state = 
-        let graph = case state^._graphIndex of
+    onNewGame model = 
+        let graph = case model^._graphIndex of
                         GraphIndex i → graphs !! i ?: house
-                        CustomGraph → state^._graph
+                        CustomGraph → model^._graph
         in
-        pure $ state # _graph .~ graph
+        pure $ model # _graph .~ graph
 
-    isLevelFinished state = length (edgesOf (state^._position)) == length (state^._graph).edges
-    updateScore st = updateScore' {onlyWhenFinished: true, showWin: ShowWinOnNewRecord} st
+    isLevelFinished model = length (edgesOf (model^._position)) == length (model^._graph).edges
+    updateScore model = updateScore' {onlyWhenFinished: true, showWin: ShowWinOnNewRecord} model
 
     saveToJson = saveToJson'
     loadFromJson = loadFromJson'
@@ -246,31 +246,31 @@ instance Game (Array Move) ExtState Move where
     sizeLimit = defaultSizeLimit
     onPositionChange = identity
 
-instance ScoreGame (Array Move) ExtState Move where
+instance ScoreGame (Array Move) ExtModel Move where
     objective _ = Minimize
     scoreFn = nbRaises
-    scoreHash state = case state^._graphIndex of
+    scoreHash model = case model^._graphIndex of
         GraphIndex i → show i
         CustomGraph → "custom"
-    isCustomGame state = case state^._graphIndex of
+    isCustomGame model = case model^._graphIndex of
         CustomGraph → true
         _ → false
 
 -- | nombre de levés de crayon déjà effectués
-nbRaises ∷ State → Int
-nbRaises = length ∘ filter (_ == Raise) ∘ view _position
+nbRaises ∷ Model → Int
+nbRaises = count (_ == Raise) ∘ view _position
 
 data Msg = Core CoreMsg | GEditor GEditor.Msg | SetGraphIndex GraphIndex | Play Move | CloseEditor Graph
 instance MsgWithCore Msg where core = Core
 instance GEditor.MsgWithGEditor Msg where geditormsg = GEditor
     
-update ∷ Msg → UpdateMam State Unit
+update ∷ Msg → UpdateMam Model Unit
 update (Core msg) = coreUpdate msg
 update (GEditor msg) = GEditor.update _graphEditor msg
 update (SetGraphIndex i) = case i of
     GraphIndex _ → newGame $ _graphIndex .~ i
-    CustomGraph →  newGame \st →
-                        st # _dialog .~ CustomDialog
-                           # _graphIndex .~ CustomGraph
+    CustomGraph →  newGame $
+                        (_dialog .~ CustomDialog) >>>
+                        (_graphIndex .~ CustomGraph)
 update (Play m) = playA m
 update (CloseEditor g) = modify_ $ (_dialog .~ NoDialog) >>> (_graph .~ g)

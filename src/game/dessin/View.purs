@@ -7,7 +7,7 @@ import Pha.Html.Events as E
 import Game.Core (canPlay, isLevelFinished, _position, _pointer)
 import Lib.Graph (Position)
 import Lib.Graph as Graph
-import Game.Dessin.Model (State, Msg(..), Move(..), GraphIndex(..),
+import Game.Dessin.Model (Model, Msg(..), Move(..), GraphIndex(..),
                          graphs, nbGraphs, edgesOf, nbRaises, _graph, _graphIndex, _graphEditor)
 import UI.Template (template, card, trackPointer, bestScoreDialog)
 import UI.Icon (Icon(..))
@@ -24,23 +24,23 @@ currentLine p1 p2 =
     ,   H.class_ "dessin-line-to-pointer"
     ]
 
-view ∷ State → Html Msg
-view state = template {config, board, rules, winTitle, scoreDialog, customDialog} state where
-    position = state^._position
-    graph = state^._graph
-    graphIndex = state^._graphIndex
-    raises = nbRaises state
+view ∷ Model → Html Msg
+view model = template {config, board, rules, winTitle, scoreDialog, customDialog} model where
+    position = model^._position
+    graph = model^._graph
+    graphIndex = model^._graphIndex
+    raises = nbRaises model
     s = if raises > 1 then "s" else ""
-    levelFinished = isLevelFinished state
+    levelFinished = isLevelFinished model
 
     config =
         card "Dessin"
-        [   iconSelectGroup state "Niveau" ((GraphIndex <$> 0..(nbGraphs-1)) <> [CustomGraph]) graphIndex SetGraphIndex
+        [   iconSelectGroup model "Niveau" ((GraphIndex <$> 0..(nbGraphs-1)) <> [CustomGraph]) graphIndex SetGraphIndex
                 case _ of 
                     GraphIndex i → _{icon = IconText (show (i + 1)), tooltip = graphs !! i <#> _.title}
                     _ → _{icon = IconSymbol "#customize", tooltip = Just "Crée ta propre pièce"}
-        ,   icongroup "Options" [iundo state, iredo state, ireset state, irules state]
-        ,   iconBestScore state
+        ,   icongroup "Options" [iundo model, iredo model, ireset model, irules model]
+        ,   iconBestScore model
         ]
 
     board =
@@ -58,7 +58,7 @@ view state = template {config, board, rules, winTitle, scoreDialog, customDialog
                         ,   P.y2 $ 100.0 * py2
                         ,   H.class_ "dessin-line1"
                         ]
-                ,   edgesOf (state^._position) <#> \edge →
+                ,   edgesOf (model^._position) <#> \edge →
                     H.maybe (Graph.getCoordsOfEdge graph edge) \{px1, px2, py1, py2} → 
                         H.line
                         [   P.x1 $ 100.0 * px1
@@ -81,7 +81,7 @@ view state = template {config, board, rules, winTitle, scoreDialog, customDialog
                         []
                 ,   [H.when (not levelFinished) \_ →
                         H.fromMaybe case last position of
-                            Just (MoveTo x) → currentLine <$> (state^._pointer) <*> (Graph.getCoords graph x)
+                            Just (MoveTo x) → currentLine <$> (model^._pointer) <*> (Graph.getCoords graph x)
                             _ → Nothing
                     ]
                 ]
@@ -93,13 +93,13 @@ view state = template {config, board, rules, winTitle, scoreDialog, customDialog
                 ]
             ,   H.button
                 [   H.class_ "ui-button ui-button-primary dessin-raise"
-                ,   P.disabled $ not (canPlay state Raise) || levelFinished
+                ,   P.disabled $ not (canPlay model Raise) || levelFinished
                 ,   E.onClick \_ → Play Raise
                 ]
                 [   H.text "Lever le crayon"]
             ]
 
-    scoreDialog _ = bestScoreDialog state \bestPos → [
+    scoreDialog _ = bestScoreDialog model \bestPos → [
         H.div [H.class_ "ui-board dessin-bestscore"]
         [   H.svg [H.class_ "dessin-svg", P.viewBox 0 0 100 100] $ concat 
             [   graph.edges <#> \edge →
@@ -122,7 +122,7 @@ view state = template {config, board, rules, winTitle, scoreDialog, customDialog
         ]
     ]
 
-    customDialog _ = GEditor.view (state^._graphEditor) CloseEditor
+    customDialog _ = GEditor.view (model^._graphEditor) CloseEditor
 
     rules = 
         [   H.text "Le but du jeu est de dessiner le motif indiqué en pointillé en levant le moins souvent possible le crayon."

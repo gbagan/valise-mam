@@ -10,7 +10,7 @@
   "scripts": {
     "clean": "rimraf output && rimraf .spago && rimraf output-es",
     "build": "spago bundle-app --to dist/bundle.js",
-    "buildopt": "spago build && purs-backend-es bundle-app --no-build --minify --to dist/bundle.js",
+    "buildopt": "spago -x opt.dhall build && purs-backend-es bundle-app --no-build --minify --to dist/bundle.js",
     "buildcss": "sass --no-source-map src/index.scss dist/bundle.css",
     "deploy": "scp -r dist/* mam@connect.liris.cnrs.fr:~/public_html/valise/",
     "deploy:test": "scp -r dist/* gbagan@connect.liris.cnrs.fr:~/valisetest/"

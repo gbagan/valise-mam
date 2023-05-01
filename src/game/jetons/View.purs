@@ -5,23 +5,23 @@ import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Util (pc, rgbColor)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, scoreFn)
-import Game.Jetons.Model (State, Msg, _dragged)
+import Game.Jetons.Model (Model, Msg, _dragged)
 import Lib.Util (coords)
 import UI.Template (template, card, bestScoreDialog, incDecGrid, gridStyle, dndBoardProps, dndItemProps, cursorStyle)
 import UI.Icons (icongroup, iconBestScore, iconSizesGroup, iundo, iredo, ireset, irules)
 
-view ∷ State → Html Msg
-view state = template {config, board, rules, winTitle, scoreDialog} state where
-    position = state ^. _position
-    columns = state ^. _nbColumns
-    rows = state ^. _nbRows
-    dragged = state ^. _dragged
-    pointer = state ^. _pointer
+view ∷ Model → Html Msg
+view model = template {config, board, rules, winTitle, scoreDialog} model where
+    position = model ^. _position
+    columns = model ^. _nbColumns
+    rows = model ^. _nbRows
+    dragged = model ^. _dragged
+    pointer = model ^. _pointer
 
     config = card "Jeu d'acquisition"
-        [    iconSizesGroup state [2∧2, 4∧4, 5∧5, 6∧6] true
-        ,    icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
-        ,    iconBestScore state
+        [    iconSizesGroup model [2∧2, 4∧4, 5∧5, 6∧6] true
+        ,    icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ model)
+        ,    iconBestScore model
         ]
 
     cursor pp _ = H.div ([H.class_ "ui-cursor jetons-cursor"] <> cursorStyle pp rows columns 0.6) []
@@ -39,12 +39,12 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
         ,   H.style "box-shadow" $ show (val * 2) <> "px " <> show(val * 2) <> "px 5px 0px #656565"
         ] <> props) [ H.span [] [H.text $ show val] ]
 
-    board = incDecGrid state [
+    board = incDecGrid model [
         H.div ([H.class_ "ui-board"] <> dndBoardProps <> gridStyle rows columns 3) $ concat
         [   position # mapWithIndex \i val →
                 H.when (val ≠ 0) \_ →
                     piece i val ([] <> 
-                        dndItemProps state
+                        dndItemProps model
                         {   currentDragged: dragged
                         ,   draggable: true
                         ,   droppable: true
@@ -54,7 +54,7 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
         ]
     ]
 
-    scoreDialog _ = bestScoreDialog state \pos → [
+    scoreDialog _ = bestScoreDialog model \pos → [
         H.div [H.class_ "ui-flex-center jetons-bestscore-grid-container"] [ 
             H.div (gridStyle rows columns 3 <> [H.class_ "ui-board"]) (
                 pos # mapWithIndex \i val →
@@ -70,6 +70,6 @@ view state = template {config, board, rules, winTitle, scoreDialog} state where
         ,   H.text "Le but est de finir la partie avec le moins de cases contenant des piles de jetons."
     ]
 
-    score = scoreFn state
+    score = scoreFn model
     s = if score > 1 then "s" else ""
     winTitle = show score <> " case" <> s <> " restante" <> s

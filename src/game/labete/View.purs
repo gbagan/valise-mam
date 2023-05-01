@@ -11,7 +11,7 @@ import Pha.Html.Events as E
 import Pha.Html.Util (pc, translate)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, scoreFn)
 import Game.Common (_isoCustom)
-import Game.Labete.Model (State, Msg(..), Mode(..), BeastType(..), nonTrappedBeastOnGrid,
+import Game.Labete.Model (Model, Msg(..), Mode(..), BeastType(..), nonTrappedBeastOnGrid,
                           _mode, _beast, _beastType, _selectedColor, _startPointer, _squareColors)
 import UI.Template (template, card, dialog, bestScoreDialog, incDecGrid, gridStyle, trackPointer, svgCursorStyle)
 import UI.Icon (Icon(..))
@@ -41,37 +41,37 @@ square { color, hasTrap, hasBeast, row, col } props =
             H.use [P.href "#trap", P.x 5.0, P.y 5.0, P.width "40", P.height "40"]
     ]
 
-ihelp ∷ State → Html Msg
-ihelp state =
+ihelp ∷ Model → Html Msg
+ihelp model =
     iconbutton
-        state {icon: IconSymbol "#help", tooltip: Just "Aide", selected: state^._help}
+        model {icon: IconSymbol "#help", tooltip: Just "Aide", selected: model^._help}
         [   E.onPointerDown \_ → SetHelp true
         ,   E.onPointerUp \_ → SetHelp false
         ,   E.onPointerLeave \_ → SetHelp false
         ]
 
-view ∷ State → Html Msg
-view state = template {config, board, rules, winTitle, customDialog, scoreDialog} state where
-    rows = state^._nbRows
-    columns = state^._nbColumns
-    nonTrappedBeast = nonTrappedBeastOnGrid state
+view ∷ Model → Html Msg
+view model = template {config, board, rules, winTitle, customDialog, scoreDialog} model where
+    rows = model^._nbRows
+    columns = model^._nbColumns
+    nonTrappedBeast = nonTrappedBeastOnGrid model
 
     config = card "La bête" 
-        [   iconSelectGroup' state "Forme de la bête" (state^._beastType) SetBeast
+        [   iconSelectGroup' model "Forme de la bête" (model^._beastType) SetBeast
             [   Type1 ∧ _{icon = IconSymbol "#beast1"}
             ,   Type2 ∧ _{icon = IconSymbol "#beast2"}
             ,   Type3 ∧ _{icon = IconSymbol "#beast3"}
             ,   Type4 ∧ _{icon = IconSymbol "#beast23"}
             ,   CustomBeast ∧ _{icon = IconSymbol "#customize"}
             ]
-        ,   iconSelectGroup' state "Type de la grille" (state^._mode) SetMode
+        ,   iconSelectGroup' model "Type de la grille" (model^._mode) SetMode
             [   StandardMode ∧ _{icon = IconSymbol "#grid-normal", tooltip = Just "Normale"}
             ,   CylinderMode ∧ _{icon = IconSymbol "#grid-cylinder", tooltip = Just "Cylindrique"}
             ,   TorusMode ∧ _{icon = IconSymbol "#grid-torus", tooltip = Just "Torique"}
             ]
-        ,   iconSizesGroup state [3∧3, 5∧5, 6∧6] true
-        ,   icongroup "Options" $ [ihelp, ireset, irules] <#> (_ $ state)
-        ,   iconBestScore state
+        ,   iconSizesGroup model [3∧3, 5∧5, 6∧6] true
+        ,   icongroup "Options" $ [ihelp, ireset, irules] <#> (_ $ model)
+        ,   iconBestScore model
         ]
 
     cursor pp = H.use (svgCursorStyle pp <>
@@ -80,7 +80,7 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
         ,   P.y (-20.0)
         ,   P.width "40"
         ,   P.height "40"
-        ,   P.opacity 0.7 -- todo state.position[state.squareHover] ? 0.3 : 0.7,
+        ,   P.opacity 0.7 -- todo model.position[model.squareHover] ? 0.3 : 0.7,
         ,   H.attr "pointer-events" "none"
     ])
 
@@ -89,34 +89,34 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
     ]) [
         H.svg [P.viewBox 0 0 (50 * columns) (50 * rows)]
             [H.g [] $
-                map3 (state^._position) nonTrappedBeast  (state^._squareColors) \index hasTrap hasBeast color →
+                map3 (model^._position) nonTrappedBeast  (model^._squareColors) \index hasTrap hasBeast color →
                     let {row, col} = coords columns index in
-                    square { color, row, col, hasTrap, hasBeast: hasBeast && state^._help }
+                    square { color, row, col, hasTrap, hasBeast: hasBeast && model^._help }
                     [   E.onClick \ev → if ME.shiftKey (PE.toMouseEvent ev) then NoAction else Play index
                         -- pointerenter: [actions.setSquareHover, index], todo
                         -- ponterleave: [actions.setSquareHover, null],
                     ,   E.onPointerUp \_ → FinishZone index
                     ,   E.onPointerDown \ev → if ME.shiftKey (PE.toMouseEvent ev) then StartZone index else NoAction
                     ]
-            ,   H.fromMaybe case state^._startPointer of
-                    Nothing → cursor <$> state^._pointer
-                    Just p → zone (state^._selectedColor) p <$> state^._pointer
+            ,   H.fromMaybe case model^._startPointer of
+                    Nothing → cursor <$> model^._pointer
+                    Just p → zone (model^._selectedColor) p <$> model^._pointer
             ]
     ]
 
-    board = incDecGrid state [
+    board = incDecGrid model [
         grid,
-        H.when (state^._selectedColor > 0) \_ →
+        H.when (model^._selectedColor > 0) \_ →
             H.div [
                 H.class_ "labete-color",
-                H.style "background-color" (colors !! (state^._selectedColor) ?: "")
+                H.style "background-color" (colors !! (model^._selectedColor) ?: "")
             ][]
     ]
 
     customDialog _ = dialog "Personnalise ta bête" [
         H.div [H.class_ "labete-custombeast-grid-container"] [
             H.svg [P.viewBox 0 0 250 250] (
-                state ^. (_beast ∘ ix 0 ∘ _isoCustom) #
+                model ^. (_beast ∘ ix 0 ∘ _isoCustom) #
                     mapWithIndex \index hasBeast →
                         let {row, col} = coords 5 index in
                         square {row, col, hasBeast, hasTrap: false, color: 0}
@@ -126,7 +126,7 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
         ]
     ]
 
-    scoreDialog _ = bestScoreDialog state \position → [
+    scoreDialog _ = bestScoreDialog model \position → [
         H.div [H.class_ "ui-flex-center labete-bestscore-grid-container"] [
             H.div (gridStyle rows columns 5 <> [H.class_ "ui-board"])  [
                 H.svg [P.viewBox 0 0 (50 * columns) (50 * rows)] (
@@ -148,4 +148,4 @@ view state = template {config, board, rules, winTitle, customDialog, scoreDialog
         ,   H.text "Le plateau de jeu peut prendre une grille, un cylindre ou un tore."
         ]
         
-    winTitle = "Record: " <> show (scoreFn state)  <> " pièges"
+    winTitle = "Record: " <> show (scoreFn model)  <> " pièges"

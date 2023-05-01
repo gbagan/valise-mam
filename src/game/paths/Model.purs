@@ -2,9 +2,9 @@ module Game.Paths.Model where
 import MamPrelude
 import Data.Array (init)
 import Lib.Util (chooseInt', dCoords, rangeWithStep)
-import Game.Core (GState, class Game, class MsgWithCore, CoreMsg, SizeLimit(..), 
+import Game.Core (GModel, class Game, class MsgWithCore, CoreMsg, SizeLimit(..), 
         coreUpdate,
-        _ext, newGame, genState, _nbRows, _nbColumns, _position, playA, defaultUpdateScore)
+        _ext, newGame, genModel, _nbRows, _nbColumns, _position, playA, defaultUpdateScore)
 import Lib.Update (UpdateMam)
 
 data Mode = Mode1 | Mode2
@@ -19,16 +19,16 @@ derive instance Eq Mode
 type Position = Array Int
 type Ext' = { exit ∷ Maybe Int, mode ∷ Mode }
 newtype Ext = Ext Ext'
-type State = GState Position Ext
+type Model = GModel Position Ext
 
-istate ∷ State
-istate = genState [] _{nbRows = 4, nbColumns = 6} (Ext { exit: Nothing, mode: Mode1 })
+imodel ∷ Model
+imodel = genModel [] _{nbRows = 4, nbColumns = 6} (Ext { exit: Nothing, mode: Mode1 })
 
-_ext' ∷ Lens' State Ext'
+_ext' ∷ Lens' Model Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
-_exit ∷ Lens' State (Maybe Int)
+_exit ∷ Lens' Model (Maybe Int)
 _exit = _ext' ∘ prop (Proxy ∷ _ "exit")
-_mode ∷ Lens' State Mode
+_mode ∷ Lens' Model Mode
 _mode = _ext' ∘ prop (Proxy ∷ _ "mode")
 
 -- renvoie un chemin horizontal ou vertical entre u et v si celui ci existe (u exclus du chemin)
@@ -45,9 +45,9 @@ pathBetween columns u v =
 -- teste si un chemin est valide (sans répétition de sommets)
 -- les extrémités peuvent être identiques si le chemin forme un cycle hamiltonien)
 -- on ne peut pas passer par le sommet de sortie sauf si c'est le sommet final
-isValidPath ∷ State → Array Int → Boolean
-isValidPath state path = fromMaybe true $ do
-    exit ← state ^. _exit
+isValidPath ∷ Model → Array Int → Boolean
+isValidPath model path = fromMaybe true $ do
+    exit ← model ^. _exit
     path2 ← init path
     path3 ← tail path2
     begin ← head path
@@ -56,31 +56,31 @@ isValidPath state path = fromMaybe true $ do
         && not (elem exit path3)
         && not (elem end path3) 
         && (begin ≠ end 
-           || length path == (state^._nbRows) * (state^._nbColumns) + (if begin == exit then 1 else 0) && end == exit
+           || length path == (model^._nbRows) * (model^._nbColumns) + (if begin == exit then 1 else 0) && end == exit
             )
 
 instance Game Position Ext Int where
     name _ = "paths"
 
-    play state v =
-        case last (state^._position) of
-            Nothing → if state^._mode == Mode2 then Just [v] else Nothing
+    play model v =
+        case last (model^._position) of
+            Nothing → if model^._mode == Mode2 then Just [v] else Nothing
             Just last → do
-                p ← pathBetween (state^._nbColumns) last v 
-                guard $ not (null p) && isValidPath state (state^._position <> p)
-                Just (state^._position <> p)
+                p ← pathBetween (model^._nbColumns) last v 
+                guard $ not (null p) && isValidPath model (model^._position <> p)
+                Just (model^._position <> p)
 
-    isLevelFinished state =
-        length (state^._position) == state^._nbColumns * state^._nbRows 
-                                    + (if state^._exit == head (state^._position) then 1 else 0)
+    isLevelFinished model =
+        length (model^._position) == model^._nbColumns * model^._nbRows 
+                                    + (if model^._exit == head (model^._position) then 1 else 0)
 
-    initialPosition state = pure $ case state^._exit of
+    initialPosition model = pure $ case model^._exit of
         Nothing → []
         Just exit → [exit]
 
-    onNewGame state = flip (set _exit) state <$> do
-        if state^._mode == Mode1 then
-            Just <$> chooseInt' (state^._nbRows * state^._nbColumns) 
+    onNewGame model = flip (set _exit) model <$> do
+        if model^._mode == Mode1 then
+            Just <$> chooseInt' (model^._nbRows * model^._nbColumns) 
         else
             pure Nothing
 
@@ -91,19 +91,19 @@ instance Game Position Ext Int where
     updateScore s = defaultUpdateScore s
     onPositionChange = identity
     saveToJson _ = Nothing
-    loadFromJson st _ = st
+    loadFromJson model _ = model
 
 data Msg = Core CoreMsg | SelectVertex Int | SelectMode Mode
 instance MsgWithCore Msg where core = Core
     
-update ∷ Msg → UpdateMam State Unit
+update ∷ Msg → UpdateMam Model Unit
 update (Core msg) = coreUpdate msg
 
 update (SelectVertex v) = do
-    state ← get
-    if null (state^._position) then
+    model ← get
+    if null (model^._position) then
         _position .= [v]
-    else if isNothing (state^._exit) then
+    else if isNothing (model^._exit) then
         _exit .= Just v
     else
         playA v

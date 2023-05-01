@@ -9,7 +9,7 @@ import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc)
 import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer)
-import Game.Queens.Model (State, Msg(..), Piece(..),
+import Game.Queens.Model (Model, Msg(..), Piece(..),
                            _selectedPiece, _selectedSquare, _allowedPieces, _multiPieces, _customLocalMoves, _customDirections,
                            piecesList, capturableSquares, attackedBySelected)
 import UI.Template (template, card, dialog, bestScoreDialog, incDecGrid, gridStyle, trackPointer, cursorStyle)
@@ -38,50 +38,50 @@ square { piece, capturable, selected, nonavailable} props =
             ]
         ]
 
-view ∷ State → Html Msg
-view state = template {config, board, rules, customDialog, scoreDialog} state where
-    position = state ^. _position
-    rows = state ^. _nbRows
-    columns = state ^. _nbColumns
-    allowedPieces = state ^. _allowedPieces
-    multiPieces = state ^. _multiPieces
-    selectedPiece = state ^. _selectedPiece
-    selectedSquare = state ^. _selectedSquare
-    help = state ^. _help
-    pointer = state ^. _pointer
-    customLocalMoves = state ^. _customLocalMoves
-    customDirections = state ^. _customDirections
+view ∷ Model → Html Msg
+view model = template {config, board, rules, customDialog, scoreDialog} model where
+    position = model ^. _position
+    rows = model ^. _nbRows
+    columns = model ^. _nbColumns
+    allowedPieces = model ^. _allowedPieces
+    multiPieces = model ^. _multiPieces
+    selectedPiece = model ^. _selectedPiece
+    selectedSquare = model ^. _selectedSquare
+    help = model ^. _help
+    pointer = model ^. _pointer
+    customLocalMoves = model ^. _customLocalMoves
+    customDirections = model ^. _customDirections
 
     config =
         card "Les reines"
-        [   iconSizesGroup state [4∧4, 5∧5, 7∧7, 8∧8] true
-        ,   iconSelectGroupM state "Pièces disponibles" piecesList allowedPieces SelectAllowedPiece \piece →
+        [   iconSizesGroup model [4∧4, 5∧5, 7∧7, 8∧8] true
+        ,   iconSelectGroupM model "Pièces disponibles" piecesList allowedPieces SelectAllowedPiece \piece →
                 _{  icon = IconSymbol $ "#piece-" <> show piece
                 ,   tooltip = Just $ tooltip piece
                 }
         ,   icongroup "Options" $ 
-            [   iconbutton state
+            [   iconbutton model
                 {   icon: IconSymbol "#customize"
                 ,   selected: N.head allowedPieces == Custom
                 ,   tooltip: Just "Crée ta propre pièce"
                 }
                 [E.onClick \_ → Customize]
-            ,   iconbutton state
+            ,   iconbutton model
                 {   icon: IconSymbol "#piece-mix"
                 ,   selected: multiPieces
                 ,   tooltip: Just "Mode mixte"
                 } [
                     E.onClick \_ → ToggleMultiPieces
                 ]
-            , ihelp state, ireset state, irules state]
-        ,   iconBestScore state
+            , ihelp model, ireset model, irules model]
+        ,   iconBestScore model
         ]   
 
     pieceSelector =
         H.div [H.class_ "ui-flex-center gutter2 queens-pieceselector"] $
             N.toArray allowedPieces <#> \piece →
                 let name = show piece in
-                iconbutton state
+                iconbutton model
                 {   selected: piece == selectedPiece
                 ,   icon: IconSymbol $ "#piece-" <> name
                 } 
@@ -97,7 +97,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
 
     grid = 
         H.div ([H.class_ "ui-board"] <> gridStyle rows columns 5 <> trackPointer) $ concat
-        [   map3 position (attackedBySelected state) (capturableSquares state) \index piece attacked capturable →
+        [   map3 position (attackedBySelected model) (capturableSquares model) \index piece attacked capturable →
                 square
                 {   piece
                 ,   selected: attacked || selectedSquare == Just index
@@ -116,7 +116,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
     board = 
         H.div []
         [   pieceSelector
-        ,   incDecGrid state [grid]
+        ,   incDecGrid model [grid]
         ]
 
     angles = [45, 90, 135, 0, 0, 180, -45, -90, -135]
@@ -139,7 +139,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
                 )
             ,   H.div [H.class_ "flex  queens-custompiece-directions"] (
                     map2 customDirections angles \i selected angle →
-                        iconbutton state 
+                        iconbutton model 
                         {   selected: selected
                         ,       icon: if i == 4 then IconNone else IconSymbol "#arrow"
                         ,   style: ["transform" ∧ ("rotate(" <> show angle <> "deg)")]
@@ -150,7 +150,7 @@ view state = template {config, board, rules, customDialog, scoreDialog} state wh
         ]
     ]    
         
-    scoreDialog _ = bestScoreDialog state \pos → [
+    scoreDialog _ = bestScoreDialog model \pos → [
         H.div [H.class_ "ui-flex-center queens-bestscore-container"] [
             H.div (gridStyle rows columns 5 <> [H.class_ "ui-board queens-grid"]) (
                 pos <#> \piece →

@@ -5,7 +5,7 @@ import MamPrelude
 import Data.Number (acos)
 import Lib.Graph (Graph, Edge, (↔), Position)
 import Game.Core (CoreMsg(SetPointer), isLevelFinished, PointerPosition, core, _position, _pointer)
-import Game.Eternal.Model (State, Msg(..), Phase(..), Rules(..), GraphKind(..), isValidNextMove,
+import Game.Eternal.Model (Model, Msg(..), Phase(..), Rules(..), GraphKind(..), isValidNextMove,
                             _graph, _phase, _graphkind, _draggedGuard, _rules, _nextmove, _geditor)
 import Pha.Html (Html)
 import Pha.Html as H
@@ -49,7 +49,7 @@ dndBoardProps =
     ,   E.onPointerLeave \_ → LeaveGuard
     ]
 
-dndItemProps ∷ State → 
+dndItemProps ∷ Model → 
     {
         draggable ∷ Boolean,
         droppable ∷ Boolean,
@@ -96,29 +96,29 @@ drawArrow x1 x2 y1 y2 =
         ]
 
 
-view ∷ State → Html Msg
-view state = template {config, board, rules, winTitle, customDialog} state where
-    position = state^._position
-    graph = state^._graph
-    guards = (state^._position).guards
-    grules = state^._rules
-    phase = state^._phase
+view ∷ Model → Html Msg
+view model = template {config, board, rules, winTitle, customDialog} model where
+    position = model^._position
+    graph = model^._graph
+    guards = (model^._position).guards
+    grules = model^._rules
+    phase = model^._phase
 
     config =    
         card "Domination éternelle" 
-        [   iconSelectGroup' state "Type de graphe" (state^._graphkind) SetGraphKind
+        [   iconSelectGroup' model "Type de graphe" (model^._graphkind) SetGraphKind
             [   Path ∧ _{icon = IconSymbol "#graph-path", tooltip = Just "Chemin" }
             ,   Cycle ∧ _{icon = IconSymbol "#graph-cycle", tooltip = Just "Cycle" }
             ,   Biclique ∧ _{icon = IconSymbol "#graph-biclique", tooltip = Just "Biclique" }
             ,   Grid ∧ _{icon =IconSymbol "#graph-grid", tooltip = Just "Grille" }
             ,   CustomGraph ∧ _{icon = IconSymbol "#customize", tooltip = Just "Crée ton graphe" }
             ]
-        ,   iconSelectGroup' state "Règles" grules SetRules
+        ,   iconSelectGroup' model "Règles" grules SetRules
             [   OneGuard ∧ _{icon = IconText "1", tooltip = Just "Un seul garde" }
             ,   ManyGuards ∧ _{icon = IconText "∞", tooltip = Just "Plusieurs gardes" }
             ]
-        ,   icons2Players state
-        ,   icongroup "Options" $ [iundo, iredo, ireset, iclear, irules] <#> (_ $ state)
+        ,   icons2Players model
+        ,   icongroup "Options" $ [iundo, iredo, ireset, iclear, irules] <#> (_ $ model)
         ]
 
     grid =
@@ -139,7 +139,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                                 ]
                 ,   H.when (grules == ManyGuards) \_ →
                         H.g [] $
-                            (zip guards (state^._nextmove)) <#> \(from ∧ to) →
+                            (zip guards (model^._nextmove)) <#> \(from ∧ to) →
                                 H.when (from ≠ to) \_ →
                                     H.maybe (getCoordsOfEdge graph (from ↔ to)) \{x1, x2, y1, y2} →
                                         drawArrow (x1 * 100.0) (x2 * 100.0) (y1 * 100.0) (y2 * 100.0)
@@ -173,7 +173,7 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                         ,   H.style "transform" $ fromMaybe "none" (translateGuard <$> getCoords graph attack)
                         ,   H.style "pointer-events" "none"
                         ]
-                ,   H.fromMaybe $ cursor <$> state^._pointer <*> state^._draggedGuard
+                ,   H.fromMaybe $ cursor <$> model^._pointer <*> model^._draggedGuard
                 ,   H.g [] $ 
                         graph.vertices # mapWithIndex \i pos →
                             H.rect $
@@ -186,17 +186,17 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                             ,   E.onClick \_ → if grules == ManyGuards && isJust position.attacked then NoAction else Play i
                             ,   H.class' "eternal-sel" $ phase == PrepPhase || isJust position.attacked && (grules == ManyGuards) == elem i guards 
                                                                           || not (isJust position.attacked) && not (elem i guards)
-                            ]  <> (dndItemProps state
+                            ]  <> (dndItemProps model
                                 {   draggable: grules == ManyGuards && isJust position.attacked && elem i guards
                                 ,   droppable: true
                                 ,   id: i
-                                ,   currentDragged: state^._draggedGuard
+                                ,   currentDragged: model^._draggedGuard
                                 }
                             )
                 ]
             ,   H.span [H.class_ "eternal-info"] [
                     H.text (
-                        if isLevelFinished state then
+                        if isLevelFinished model then
                             "Le sommet attaqué ne peut être défendu"
                         else if phase == PrepPhase then
                             "Choisis la position initiale des gardes"
@@ -208,15 +208,15 @@ view state = template {config, board, rules, winTitle, customDialog} state where
                 ]
             ,   H.button
                 [   H.class_ "ui-button ui-button-primary dessin-raise"
-                ,   P.disabled $ null position.guards || state^._phase == GamePhase && (state^._rules == OneGuard || isNothing position.attacked || not (isValidNextMove state (state^._nextmove)))
-                ,   E.onClick \_ → if state^._phase == GamePhase then MoveGuards else StartGame
+                ,   P.disabled $ null position.guards || model^._phase == GamePhase && (model^._rules == OneGuard || isNothing position.attacked || not (isValidNextMove model (model^._nextmove)))
+                ,   E.onClick \_ → if model^._phase == GamePhase then MoveGuards else StartGame
                 ]
                 [   H.text "Valider"]
             ]
 
-    board = incDecGrid state [grid]
+    board = incDecGrid model [grid]
 
-    customDialog _ = GEditor.view (state^._geditor) CloseEditor
+    customDialog _ = GEditor.view (model^._geditor) CloseEditor
 
     rules = 
         [   H.text "Domination Eternelle est un jeu à deux joueurs: un attaquant et un défenseur."

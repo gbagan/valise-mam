@@ -2,7 +2,7 @@ module Game.Hanoi.View (view) where
 
 import MamPrelude
 import Game.Core (_position, _pointer, _history)
-import Game.Hanoi.Model (State, Msg(..), _dragged, _nbDisks)
+import Game.Hanoi.Model (Model, Msg(..), _dragged, _nbDisks)
 import Data.List as List
 import Pha.Html (Html, Prop)
 import Pha.Html as H
@@ -22,18 +22,18 @@ drawTower i = H.path [ P.d $ "M" <> show (i * 60 + 14) <> " 99a3 3 0 0 1 0 -6h20
                      ]
 
 
-view ∷ State → Html Msg
-view state = template {config, board, rules, winTitle} state where
-    position = state ^. _position
-    nbDisks = state ^. _nbDisks
-    dragged = state ^. _dragged
-    pointer = state ^. _pointer
-    nbMoves = List.length $ state ^. _history
+view ∷ Model → Html Msg
+view model = template {config, board, rules, winTitle} model where
+    position = model ^. _position
+    nbDisks = model ^. _nbDisks
+    dragged = model ^. _dragged
+    pointer = model ^. _pointer
+    nbMoves = List.length $ model ^. _history
 
     config =
         card "Tours de Hanoi"
-        [   iconSelectGroup state "Nombres de disques" [3, 4, 5, 6, 7] nbDisks SetNbDisks (const identity)
-        ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ state)
+        [   iconSelectGroup model "Nombres de disques" [3, 4, 5, 6, 7] nbDisks SetNbDisks (const identity)
+        ,   icongroup "Options" $ [iundo, iredo, ireset, irules] <#> (_ $ model)
         ]
 
     drawDisk ∷ {x ∷ Number, y ∷ Number, disk ∷ Int, column ∷ Int, draggable ∷ Boolean} → Array (Prop Msg) → Html Msg
@@ -47,7 +47,7 @@ view state = template {config, board, rules, winTitle} state where
                  , P.ry 5.0
                  , H.class_ "hanoi-disk"
                  , P.fill color
-                 ] <> props <> dndItemProps state
+                 ] <> props <> dndItemProps model
                         {   currentDragged: dragged
                         ,   draggable
                         ,   droppable: false
@@ -64,7 +64,7 @@ view state = template {config, board, rules, winTitle} state where
             [   H.g [] $ [0, 1, 2] <#> drawTower
             ,   H.g [] $ [0, 1, 2] <#> \i →
                     H.rect ([P.x $ toNumber $ 13 + 60 * i, P.y 10.0, P.width "54", P.height "90", P.fill "transparent"]
-                        <> dndItemProps state
+                        <> dndItemProps model
                         {   currentDragged: dragged
                         ,   draggable: false
                         ,   droppable: true

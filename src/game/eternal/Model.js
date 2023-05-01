@@ -28,23 +28,35 @@ const allDifferent = list => {
 }
 
 
-// renvoie les sous listes de taille k parmi [1, ... n]
-function* sublists(n, k) {
+// renvoie les sous listes de taille k de [0, ... n-1]
+const sublists = (n, k) => {
     if (k === 0) {
-        yield []
-    } else if (k <= n) {
-        yield * sublists(n - 1, k)
+        return [[]]
+    } else if (k > n) {
+        return []
+    } else {
+        const sls = sublists(n - 1, k).slice()
         for (const l of sublists(n - 1, k - 1)) {
-            yield l.concat(n - 1)
+            sls.push(l.concat(n - 1))
         }
+        return sls
     }
 }
+
+// une arène est un objet générique pour résoudre un jeu de reachability
+// attributs
+// - size: nombre de sommets de l'arène,
+// - AConfs: tableau des configutations de type A (avant que l'attaquant ne joue)
+// - BConfs: tableau des configutations de type B (après que l'attaquant ait joué)
+// - isAConf: conf -> boolean   teste si ne configuration est de type A
+// - neighbors: conf -> [conf]  renvoie la liste des configurations accessibles
+// encode: conf -> Int   encode une configuration vers un entier entre 0 et size-1
 
 const makeArenaGraph = arena => {
     const adj = new Array(arena.size)
     const reverseAdj = new Array(arena.size)
     
-    const confs = [...arena.AConfs(), ...arena.BConfs()]
+    const confs = [...arena.AConfs, ...arena.BConfs]
 
     for (const conf of confs) {
         const econf = arena.encode(conf)
@@ -59,15 +71,15 @@ const makeArenaGraph = arena => {
         }
     }
     const attractor = computeAttractor(arena, adj, reverseAdj)
-    return Object.assign({adj, reverseAdj, attractor}, arena)
+    return {adj, reverseAdj, attractor, ...arena}
 }
 
 const computeAttractor = (arena, adj, reverseAdj) => {
     const attractor = new Array(arena.size);
     const deg = new Array(arena.size);
-    const stack = [];
+    const stack = []
 
-    for (const conf of arena.BConfs()) {
+    for (const conf of arena.BConfs) {
         const econf = arena.encode(conf)
         const nbor = adj[econf]
         deg[econf] = nbor.length
@@ -89,15 +101,21 @@ const computeAttractor = (arena, adj, reverseAdj) => {
             }
         }
     }
-    return attractor;
+    return attractor
 }
 
+// fonction générique travaillant sur une arène
 const answer = (arenaGraph, conf) => {
     const defs = arenaGraph.adj[arenaGraph.encode(conf)]
     // on prilivégie les sommets qui ne sont pas dans l'attracteur
     return maxBy(defs, conf2 => arenaGraph.attractor[arenaGraph.encode(conf2)] || 1000)
 }
 
+// à partir d'ici les fonctions sont spécifiques au jeu Eternal Domination
+
+// étant donné un graphe, une configuration renvoit l'ensemble des configurations
+// accessibles depuis le déplacement de plusieurs gardes
+// doit être appelé avec i = 0
 function * multiMoves(graph, conf, i) {
     if (i === conf.length) {
         yield conf
@@ -112,7 +130,7 @@ function * multiMoves(graph, conf, i) {
         }
     }
 }
-    
+
 function * attackerPossibilities(graph, guards) {
     for (let attack = 0; attack < graph.length; attack++) {
         if (!guards.includes(attack)) {
@@ -167,7 +185,7 @@ export const guardsAnswerAux = nothing => just => edsgraph => guards => attack =
 export const attackerAnswerAux = nothing => just => arenaGraph => conf => {
     const econf = arenaGraph.encode(conf)
     if(!arenaGraph.attractor[econf])
-        return nothing;
+        return nothing
     const attacks = arenaGraph.adj[econf]
     const minattack = minBy(attacks, attack => arenaGraph.attractor[arenaGraph.encode(attack)] || 1000)
     return just(minattack[minattack.length-1])
@@ -176,19 +194,18 @@ export const attackerAnswerAux = nothing => just => arenaGraph => conf => {
 export const makeEDSAux = graph => rulesName => k => {
     const n = graph.length
     const rules = makeRules(rulesName)
-    function* bconfs () {
-        for (const conf of sublists(graph.length, k)) {
-            for (let i = 0; i < n; i++) {
-                if (!conf.includes(i)) {
-                    yield conf.concat(i)
-                }
+    const bconfs = []
+    for (const conf of sublists(graph.length, k)) {
+        for (let i = 0; i < n; i++) {
+            if (!conf.includes(i)) {
+                bconfs.push(conf.concat(i))
             }
         }
     }
 
     const arena = {
-        size: n << k,
-        AConfs: (() => sublists(graph.length, k)),
+        size: (n+1) << k,
+        AConfs: sublists(graph.length, k),
         BConfs: bconfs,
         isAConf: (conf => conf.length === k),
         neighbors: (conf => conf.length === k

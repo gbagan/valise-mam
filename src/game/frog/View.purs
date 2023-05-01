@@ -13,7 +13,7 @@ import Web.PointerEvent.PointerEvent as PE
 import UI.Template (template, card, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icons (icongroup, iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
 import Game.Core (_nbRows, _position, _help, _locked)
-import Game.Frog.Model (State, Msg(..), _moves, _marked, reachableArray)
+import Game.Frog.Model (Model, Msg(..), _moves, _marked, reachableArray)
 
 type Cartesian = { x ∷ Number, y ∷ Number}
 type Polar = { radius ∷ Number, theta ∷ Number }
@@ -89,23 +89,23 @@ lily i x y reachable hidden =
             ,   P.height "48"
             ]
         
-view ∷ State → Html Msg
-view state = template {config, board, rules, winTitle} state where
-    position = state ^. _position
-    moves = state ^. _moves
-    reachable = reachableArray state
-    spoints = spiralPoints (state ^. _nbRows)
-    pointsPolar = spiralPointsPolar $ state ^. _nbRows
-    marked = state ^. _marked
-    locked = state ^. _locked
-    help = state ^. _help
-    nbRows = state ^. _nbRows
+view ∷ Model → Html Msg
+view model = template {config, board, rules, winTitle} model where
+    position = model ^. _position
+    moves = model ^. _moves
+    reachable = reachableArray model
+    spoints = spiralPoints (model ^. _nbRows)
+    pointsPolar = spiralPointsPolar $ model ^. _nbRows
+    marked = model ^. _marked
+    locked = model ^. _locked
+    help = model ^. _help
+    nbRows = model ^. _nbRows
 
     config =
         card "La grenouille"
-        [   iconSelectGroupM state "Déplacements autorisés" [1, 2, 3, 4, 5] moves SelectMove (const identity)
-        ,   icons2Players state
-        ,   icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> (_ $ state)
+        [   iconSelectGroupM model "Déplacements autorisés" [1, 2, 3, 4, 5] moves SelectMove (const identity)
+        ,   icons2Players model
+        ,   icongroup "Options" $ [ihelp, iundo, iredo, ireset, irules] <#> (_ $ model)
         ]
 
     drawFrog =
@@ -159,10 +159,10 @@ view state = template {config, board, rules, winTitle} state where
             ,   drawMarked
             ,   drawFrog
             ]
-        ,   H.span [] [H.text (turnMessage state)]
+        ,   H.span [] [H.text (turnMessage model)]
         ]
 
-    board = incDecGrid state [grid]
+    board = incDecGrid model [grid]
 
     rules =
         [   H.text "Le jeu de la grenouille est un jeu à deux joueurs."
@@ -176,4 +176,4 @@ view state = template {config, board, rules, winTitle} state where
         ,   H.text "Par exemple, si les mouvements autorisés sont {3, 4, 5}, le joueur a quand même le droit de se déplacer de 1 ou 2 cases si cela lui permet d'atteindre le nénuphar final."
     ]
     
-    winTitle = winTitleFor2Players state
+    winTitle = winTitleFor2Players model

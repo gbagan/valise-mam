@@ -1,14 +1,14 @@
 module Game.Valise.View where
 import MamPrelude
-import Game.Valise.Model (State, Msg(..), _positions)
+import Game.Valise.Model (Model, Msg(..), _positions)
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc, translate)
 
-valise ∷ State → Html Msg
-valise state =
+valise ∷ Model → Html Msg
+valise model =
     H.svg
     [   P.viewBox 0 0 825 690
     ,   E.onPointerMove MoveObject
@@ -25,7 +25,7 @@ valise state =
         ,   object { symbol: "switch", link: Nothing, help: "", drag: false } 
                     300 460 42 60
                     [   E.onClick \_ → ToggleSwitch
-                    ,   H.style "transform" (if state.isSwitchOn then "scale(1,-1) translateY(-8%)" else "scale(1,1)")
+                    ,   H.style "transform" (if model.isSwitchOn then "scale(1,-1) translateY(-8%)" else "scale(1,1)")
                     ]
                     []
 
@@ -37,8 +37,8 @@ valise state =
         ,   object { symbol: "bulbon", link: Just "noirblanc", help: "Jeu: tour noir, tout blanc", drag: false } 
                     477 280 48 48
                     [   H.attr "transition" "opacity 0.5s"
-                    ,   P.opacity $ if state.isSwitchOn then 1.0 else 0.0
-                    ,   H.style "pointer-events" $ if state.isSwitchOn then "all" else "none"
+                    ,   P.opacity $ if model.isSwitchOn then 1.0 else 0.0
+                    ,   H.style "pointer-events" $ if model.isSwitchOn then "all" else "none"
                     ]
                     []
         ,   object { symbol: "frog2", link: Just "frog", help: "Jeu: la grenouille", drag: false}
@@ -125,7 +125,7 @@ valise state =
         let defaultTranslate = translate (pc $ toNumber x' / 850.0)  (pc $ toNumber y' / 690.0) in
         H.g
         [   H.style "transform" $ 
-                case drag, state ^. _positions ^. at symbol of
+                case drag, model ^. _positions ^. at symbol of
                     true, Just {x: x2, y: y2} → translate (pc x2) (pc y2)    
                     _, _ → defaultTranslate
         ]
@@ -165,11 +165,11 @@ valise state =
             ]
         ]
 
-view ∷ State → Html Msg 
-view state =
+view ∷ Model → Html Msg 
+view model =
     H.div
     [   H.class_ "ui-flex-center valise-main-container"
-    ,   H.class' "open" state.isOpen
+    ,   H.class' "open" model.isOpen
     ]
     [   H.div []
         [   H.div [H.class_ "valise-logo"]
@@ -177,12 +177,12 @@ view state =
                 [   H.use [P.href "#logo"]]
             ]
         ,   H.div [H.class_ "valise-container"]
-            [   valise state
+            [   valise model
             ,   H.div 
                 [   H.class_ "valise-help"
-                ,   H.class' "visible" (state.helpVisible && state.help ≠ "")
+                ,   H.class' "visible" (model.helpVisible && model.help ≠ "")
                 ]
-                [H.text state.help] 
+                [H.text model.help] 
             ]
         ]
     ]

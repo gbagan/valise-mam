@@ -4,9 +4,9 @@ import MamPrelude
 import Control.Monad.Gen (chooseInt)
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
-import Game.Core (class MsgWithCore, class Game, GState, SizeLimit(..), CoreMsg,
+import Game.Core (class MsgWithCore, class Game, GModel, SizeLimit(..), CoreMsg,
                   _ext, coreUpdate, playA, isLevelFinished, saveToStorage,
-                  _position, _nbColumns, _nbRows, _customSize, newGame, genState, defaultUpdateScore)
+                  _position, _nbColumns, _nbRows, _customSize, newGame, genModel, defaultUpdateScore)
 import Lib.KonamiCode (konamiCode)
 import Lib.Update (UpdateMam)
 import Lib.Util (chooseInt', dCoords)
@@ -24,12 +24,12 @@ type Ext' =
     ,   keySequence ∷ Array String -- pour le konami code
     }
 
-newtype ExtState = Ext Ext'
-type State = GState Position ExtState
+newtype ExtModel = Ext Ext'
+type Model = GModel Position ExtModel
 
 -- état initial
-istate ∷ State
-istate = genState {light: [], played: []} identity 
+imodel ∷ Model
+imodel = genModel {light: [], played: []} identity 
         (Ext 
             {   level: 0
             ,   mode: 0
@@ -39,15 +39,15 @@ istate = genState {light: [], played: []} identity
         )
 
 -- lenses
-_ext' ∷ Lens' State Ext'
+_ext' ∷ Lens' Model Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
-_mode ∷ Lens' State Int
+_mode ∷ Lens' Model Int
 _mode = _ext' ∘ prop (Proxy ∷ _ "mode")
-_level ∷ Lens' State Int
+_level ∷ Lens' Model Int
 _level = _ext' ∘ prop (Proxy ∷ _ "level")
-_maxLevels ∷ Lens' State (Array Int)
+_maxLevels ∷ Lens' Model (Array Int)
 _maxLevels = _ext' ∘ prop (Proxy ∷ _ "maxLevels")
-_keySequence ∷ Lens' State (Array String)
+_keySequence ∷ Lens' Model (Array String)
 _keySequence = _ext' ∘ prop (Proxy ∷ _ "keySequence")
 _light ∷ Lens' Position (Array Boolean)
 _light = prop (Proxy ∷ _ "light")
@@ -56,63 +56,63 @@ _played = prop (Proxy ∷ _ "played")
 
 -- | indique si index1 est voisine de index2 selon un mode de jeu donné
 -- | c'est à dire que si l'on active index1, index2 va changer de couleur
-neighbor ∷ State → Int → Int → Boolean
-neighbor state index1 index2 =
+neighbor ∷ Model → Int → Int → Boolean
+neighbor model index1 index2 =
     row * row + col * col == 1
     || mode `mod` 3 == 0 && index1 == index2 
     || mode >= 2 && index1 /= index2 && row * col == 0
     where
-        mode = state^._mode
-        {row, col} = dCoords (state^._nbColumns) index1 index2
+        mode = model^._mode
+        {row, col} = dCoords (model^._nbColumns) index1 index2
     
 -- | met à jour le tableau light en fonction du coup joué à la position index
-toggleCell ∷ State → Int → Array Boolean → Array Boolean
-toggleCell state index = mapWithIndex \i → (_ ≠ neighbor state index i)
+toggleCell ∷ Model → Int → Array Boolean → Array Boolean
+toggleCell model index = mapWithIndex \i → (_ ≠ neighbor model index i)
 
 -- | génération de plateau aléatoire pour le niveau 6
 -- | on part d'une configuration où tout est éteint et on joue des coups aléatoires
-genRandomBoard ∷ State → Gen (Array Boolean)
-genRandomBoard state = do
-    let size = state^._nbRows * state^._nbColumns
+genRandomBoard ∷ Model → Gen (Array Boolean)
+genRandomBoard model = do
+    let size = model^._nbRows * model^._nbColumns
     nbMoves ← chooseInt size (size+1)
     moves ∷ Array Int ← replicateA nbMoves (chooseInt' size)
-    pure $ foldr (toggleCell state) (replicate size false) moves
+    pure $ foldr (toggleCell model) (replicate size false) moves
 
-instance Game Position ExtState Int where
+instance Game Position ExtModel Int where
     name _ = "noirblanc"
 
-    play state index = Just $ state^._position 
-                        # _light %~ (toggleCell state index)
+    play model index = Just $ model^._position 
+                        # _light %~ (toggleCell model index)
                         # _played ∘ ix index %~ not
 
-    initialPosition state = do
-        let size = state^._nbRows * state^._nbColumns
-        board ← if state^._level >= 6 then genRandomBoard state else pure (replicate size true)
+    initialPosition model = do
+        let size = model^._nbRows * model^._nbColumns
+        board ← if model^._level >= 6 then genRandomBoard model else pure (replicate size true)
         pure { light: board, played: replicate size false }
     
-    isLevelFinished state = all not (state^._position).light
+    isLevelFinished model = all not (model^._position).light
 
-    onNewGame state = 
-        let rows ∧ columns = sizes !! (state^._level) ?: 8∧8 in
+    onNewGame model = 
+        let rows ∧ columns = sizes !! (model^._level) ?: 8∧8 in
         pure $
-            if state^._level < 5 then
-                state # _customSize .~ false
+            if model^._level < 5 then
+                model # _customSize .~ false
                       # _nbRows .~ rows 
                       # _nbColumns .~ columns
-            else if not (state^._customSize) then 
-                state # _customSize .~ true
+            else if not (model^._customSize) then 
+                model # _customSize .~ true
                       # _nbRows .~ 8
                       # _nbColumns .~ 8
             else
-                state
+                model
 
     sizeLimit _ = SizeLimit 2 2 12 12
 
-    saveToJson st = Just $ encodeJson $ st ^. _maxLevels
-    loadFromJson st json =
+    saveToJson model = Just $ encodeJson $ model^._maxLevels
+    loadFromJson model json =
         case decodeJson json of
-            Left _ → st
-            Right maxLevels → st # _maxLevels .~ maxLevels 
+            Left _ → model
+            Right maxLevels → model # _maxLevels .~ maxLevels 
 
     -- méthodes par default
     computerMove _ = pure Nothing
@@ -124,15 +124,15 @@ sizes = [3∧3, 4∧4, 2∧10, 3∧10, 5∧5, 8∧8, 8∧8]
 
 -- | si le niveau est fini, on met à jour les nivaux débloqués
 -- | et l'on passe au niveau suivant
-afterPlay ∷ UpdateMam State Unit
+afterPlay ∷ UpdateMam Model Unit
 afterPlay = do
-    state ← get
-    let mode = state^._mode
-    when (isLevelFinished state) do
-        let nextLevel = if state^._level >= 4 then
+    model ← get
+    let mode = model^._mode
+    when (isLevelFinished model) do
+        let nextLevel = if model^._level >= 4 then
                         6
                     else
-                        state^._level + (if mode == 0 || mode == 3 then 1 else 2)
+                        model^._level + (if mode == 0 || mode == 3 then 1 else 2)
         _maxLevels ∘ ix mode .= nextLevel
         saveToStorage
         newGame $ over _level \n → min (n + 1) 6
@@ -140,7 +140,7 @@ afterPlay = do
 data Msg = Core CoreMsg | SelectMode Int | SelectLevel Int | Play Int | Konami String
 instance MsgWithCore Msg where core = Core
 
-update ∷ Msg → UpdateMam State Unit
+update ∷ Msg → UpdateMam Model Unit
 update (Core msg) = coreUpdate msg
 update (SelectMode mode) = newGame $ set _mode mode ∘ set _level 0
 update (SelectLevel level) = newGame $ set _level level

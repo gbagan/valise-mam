@@ -10,7 +10,7 @@ instance Eq Edge where
 type Position = { x ∷ Number, y ∷ Number }
 
 -- | une structure Graph est composé d'un titre, d'une liste des arêtes et de la position de chaque sommet dans le plan
-type Graph = {title ∷ String, vertices ∷ Array Position, edges ∷ Array Edge }
+type Graph = { title ∷ String, vertices ∷ Array Position, edges ∷ Array Edge }
 
 getCoords ∷ Graph → Int → Maybe Position
 getCoords graph u = graph.vertices !! u

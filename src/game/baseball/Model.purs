@@ -73,7 +73,7 @@ instance Game Position Ext Move where
 data Msg = Core CoreMsg | SetNbBases Int | Play Move
 instance MsgWithCore Msg where core = Core
 
-update ∷ Msg → UpdateMam Model Unit
+update ∷ Msg → UpdateMam Model Msg Unit
 update (Core msg) = coreUpdate msg
 update (SetNbBases n) = newGame $ set _nbBases n
 update (Play m) = playA m

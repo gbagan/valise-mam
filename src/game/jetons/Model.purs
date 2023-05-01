@@ -67,6 +67,6 @@ data Msg = Core CoreMsg | DnD (DndMsg Int)
 instance MsgWithCore Msg where core = Core
 instance MsgWithDnd Msg Int where dndmsg = DnD  
 
-update ∷ Msg → UpdateMam Model Unit
+update ∷ Msg → UpdateMam Model Msg Unit
 update (Core msg) = coreUpdate msg
 update (DnD msg) = dndUpdate _dragged msg

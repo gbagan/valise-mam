@@ -185,7 +185,7 @@ data CoreMsg =
 class MsgWithCore a where
     core ∷ CoreMsg → a
 
-coreUpdate ∷ ∀pos ext mov. Game pos ext mov ⇒ CoreMsg → UpdateMam (GModel pos ext) Unit
+coreUpdate ∷ ∀pos ext mov msg. Game pos ext mov ⇒ CoreMsg → UpdateMam (GModel pos ext) msg Unit
 coreUpdate Undo = modify_ \model → case model^._history of
     Nil → model
     Cons h rest →
@@ -262,13 +262,13 @@ pushToHistory model = model
                         # over _history (Cons $ model^._position) 
                         # set _redoHistory Nil
 
-showVictory ∷ ∀pos ext. UpdateMam (GModel pos ext) Unit
+showVictory ∷ ∀pos ext msg. UpdateMam (GModel pos ext) msg Unit
 showVictory = do
     _showWin .= true
     delay (Milliseconds 1000.0)
     _showWin .= false
 
-computerPlay ∷ ∀pos ext mov. Game pos ext mov ⇒ UpdateMam (GModel pos ext) Unit
+computerPlay ∷ ∀pos ext mov msg. Game pos ext mov ⇒ UpdateMam (GModel pos ext) msg Unit
 computerPlay = do
     model ← get
     move ← evalGen $ computerMove model
@@ -276,13 +276,13 @@ computerPlay = do
         put model2
         when (isLevelFinished model2) showVictory
 
-saveToStorage ∷ ∀pos ext mov. Game pos ext mov ⇒ UpdateMam (GModel pos ext) Unit
+saveToStorage ∷ ∀pos ext mov msg. Game pos ext mov ⇒ UpdateMam (GModel pos ext) msg Unit
 saveToStorage = do
     model ← get
     for_ (saveToJson model) \json →
         storagePut ("valise-" <> name model) (stringify json)
 
-playA ∷ ∀pos ext mov. Game pos ext mov ⇒ mov → UpdateMam (GModel pos ext) Unit
+playA ∷ ∀pos ext mov msg. Game pos ext mov ⇒ mov → UpdateMam (GModel pos ext) msg Unit
 playA move = lockAction $ do
     model ← get
     for_ (playAux move $ pushToHistory $ model) \st2 → do
@@ -298,7 +298,7 @@ playA move = lockAction $ do
 -- | Empêche d'autres actions d'être effectués durant la durée de l'action
 -- | en mettant locked à true au début de l'action et à false à la fin de l'action.
 -- | L'action n'est pas executé si locked est déjà à true
-lockAction ∷ ∀pos ext. UpdateMam (GModel pos ext) Unit → UpdateMam (GModel pos ext) Unit
+lockAction ∷ ∀pos ext msg. UpdateMam (GModel pos ext) msg Unit → UpdateMam (GModel pos ext) msg Unit
 lockAction action = unlessM (view _locked <$> get) do
     _locked .= true
     action
@@ -325,9 +325,9 @@ newGameAux f model = do
 -- | Si l'utilisateur confirme, on remplace l'état courant par s
 -- | Si l'historique est vide ou si la partie est finie, on lance une nouvelle partie
 -- | sans demander confirmation à l'utilisateur
-newGame ∷ ∀pos ext mov.
+newGame ∷ ∀pos ext mov msg.
         Game pos ext mov ⇒
-    (GModel pos ext → GModel pos ext) → UpdateMam (GModel pos ext) Unit
+    (GModel pos ext → GModel pos ext) → UpdateMam (GModel pos ext) msg Unit
 newGame f = do 
     model <- get
     rmodel <- evalGen $ newGameAux f model
@@ -427,8 +427,8 @@ data DndMsg i =
 class MsgWithDnd msg i | msg → i where
     dndmsg ∷ DndMsg i → msg
 
-dndUpdate ∷ ∀pos ext i. Eq i ⇒ Game pos ext {from ∷ i, to ∷ i} ⇒ 
-    Lens' (GModel pos ext) (Maybe i) → DndMsg i → UpdateMam (GModel pos ext) Unit
+dndUpdate ∷ ∀pos ext i msg. Eq i ⇒ Game pos ext {from ∷ i, to ∷ i} ⇒ 
+    Lens' (GModel pos ext) (Maybe i) → DndMsg i → UpdateMam (GModel pos ext) msg Unit
 dndUpdate _dragged (Drag draggable i ev) = do
     liftEffect $ releasePointerCapture ev
     when draggable (_dragged .= Just i)
@@ -439,8 +439,8 @@ dndUpdate _dragged (Drop candrop i ev) =
 dndUpdate _dragged Leave = _dragged .= Nothing
 dndUpdate _dragged DropOnBoard = _dragged .= Nothing
 
-dropA ∷ ∀pos ext dnd. Eq dnd ⇒ Game pos ext {from ∷ dnd, to ∷ dnd} ⇒
-            Lens' (GModel pos ext) (Maybe dnd) → dnd → UpdateMam (GModel pos ext) Unit
+dropA ∷ ∀pos ext dnd msg. Eq dnd ⇒ Game pos ext {from ∷ dnd, to ∷ dnd} ⇒
+            Lens' (GModel pos ext) (Maybe dnd) → dnd → UpdateMam (GModel pos ext) msg Unit
 dropA dragLens to = do
     model ← get
     for_ (model ^. dragLens) \drag → do

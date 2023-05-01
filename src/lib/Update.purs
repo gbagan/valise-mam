@@ -28,9 +28,9 @@ import Pha.Update (Update) as Exports
 
 type Env = { genModel :: Ref GenState }
 
-type UpdateMam model a = Update model (ReaderT Env Aff) a
+type UpdateMam model msg a = Update model msg (ReaderT Env Aff) a
 
-evalGen ∷ ∀model a. Gen a -> UpdateMam model a
+evalGen ∷ ∀model msg a. Gen a -> UpdateMam model msg a
 evalGen g = do
   {genModel} <- lift ask
   model <- liftEffect $ Ref.read genModel
@@ -38,7 +38,7 @@ evalGen g = do
   liftEffect $ Ref.write model' genModel
   pure v
 
-getHash ∷ ∀model m. MonadAff m => Update model m String
+getHash ∷ ∀model msg m. MonadAff m => Update model msg m String
 getHash = liftEffect $ window >>= location >>= L.hash
 
 storageGet ∷ ∀m. MonadAff m => String → m (Maybe String)

@@ -204,7 +204,7 @@ data Msg =
   | NoAction
 instance MsgWithCore Msg where core = Core
 
-update ∷ Msg → UpdateMam Model Unit
+update ∷ Msg → UpdateMam Model Msg Unit
 update (Core msg) = coreUpdate msg
 update (SetMode m) = newGame $ set _mode m
 update (SetHelp a) = _help .= a

@@ -147,7 +147,7 @@ data Msg = Core CoreMsg | Play Int | PutSink Int | SetNbSinks Int | SetTile Tile
            | SetHoverSquare (Maybe Int) | FlipTile Int
 instance MsgWithCore Msg where core = Core
       
-update ∷ Msg → UpdateMam Model Unit
+update ∷ Msg → UpdateMam Model Msg Unit
 update (Core msg) = coreUpdate msg  
 update (Play m) = playA m
 update (PutSink i) = (_position ∘ ix i) .= (-1)

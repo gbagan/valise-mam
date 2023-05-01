@@ -83,7 +83,7 @@ instance TwoPlayersGame (Array Position) ExtModel Move where
 data Msg = Core CoreMsg | SetNbPiles Int | SetLength Int | Play Move
 instance MsgWithCore Msg where core = Core
 
-update ∷ Msg → UpdateMam Model Unit
+update ∷ Msg → UpdateMam Model Msg Unit
 update (Core msg) = coreUpdate msg
 update (SetNbPiles n) = newGame $ set _nbPiles n
 update (SetLength n) = newGame $ set _length n

@@ -102,7 +102,7 @@ data Msg = Core CoreMsg
         | NoAction
 instance MsgWithCore Msg where core = Core
     
-update ∷ Msg → UpdateMam Model Unit
+update ∷ Msg → UpdateMam Model Msg Unit
 update (Core msg) = coreUpdate msg
 update (SetHover a) = _moveWhenHover .= a 
 update (SetSoapMode m) = newGame $ set _soapMode m

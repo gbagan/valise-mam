@@ -85,7 +85,7 @@ data Msg = Core CoreMsg | DnD (DndMsg Location) | Rotate Int | SetSize Int | Che
 instance MsgWithCore Msg where core = Core
 instance MsgWithDnd Msg Location where dndmsg = DnD  
     
-update ∷ Msg → UpdateMam Model Unit
+update ∷ Msg → UpdateMam Model Msg Unit
 update (Core msg) = coreUpdate msg
 update (DnD DropOnBoard) = modify_ \model →
         let model2 = model # set _dragged Nothing in

@@ -54,13 +54,13 @@ _page = prop (Proxy ∷ _ "page")
 
 data Msg = SetPage Page | Animate (Array AnimationStep)
 
-lockAction ∷ forall m. Update Model m Unit → Update Model m Unit
+lockAction ∷ forall m. Update Model Msg m Unit → Update Model Msg m Unit
 lockAction action = unlessM (get <#> _.locked) do
         modify_ _{locked = true}
         action
         modify_ _{locked = false}
 
-update ∷ forall m. MonadAff m => Msg → Update Model m Unit
+update ∷ forall m. MonadAff m => Msg → Update Model Msg m Unit
 update (SetPage page) = modify_ \model →
   if model^._locked then
     model

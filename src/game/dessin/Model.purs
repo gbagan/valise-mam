@@ -264,7 +264,7 @@ data Msg = Core CoreMsg | GEditor GEditor.Msg | SetGraphIndex GraphIndex | Play 
 instance MsgWithCore Msg where core = Core
 instance GEditor.MsgWithGEditor Msg where geditormsg = GEditor
     
-update ∷ Msg → UpdateMam Model Unit
+update ∷ Msg → UpdateMam Model Msg Unit
 update (Core msg) = coreUpdate msg
 update (GEditor msg) = GEditor.update _graphEditor msg
 update (SetGraphIndex i) = case i of

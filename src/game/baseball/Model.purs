@@ -22,9 +22,10 @@ type Move = Int
 
 -- attributs supplémentaires
 type Ext' =
-    { nbBases ∷ Int     -- le nombre de bases
-    , missingPeg ∷ Int  -- le numéro du jeton manquant
-    }
+  { nbBases ∷ Int     -- le nombre de bases
+  , missingPeg ∷ Int  -- le numéro du jeton manquant
+  }
+
 newtype Ext = Ext Ext'
 type Model = GModel (Array Int) Ext
 
@@ -39,35 +40,35 @@ _missingPeg = _ext' ∘ prop (Proxy ∷ _ "missingPeg")
 -- | état initial
 imodel ∷ Model
 imodel =
-    genModel [] identity (Ext
-        {   nbBases: 5
-        ,   missingPeg: 0
-        }
-    )
+  genModel [] identity (Ext
+    {   nbBases: 5
+    ,   missingPeg: 0
+    }
+  )
 
 instance Game Position Ext Move where
-    name _ = "baseball"
+  name _ = "baseball"
 
-    play model i = do
-        let position = model ^. _position
-        let nbBases = model ^. _nbBases
-        let j = model ^. _missingPeg
-        x ← position !! i
-        y ← position !! j
-        guard $ elem (x / 2 - y / 2) [1, nbBases-1, -1, 1-nbBases]
-        Just $ position # updateAtIndices [i ∧ y, j ∧ x]
+  play model i = do
+    let position = model ^. _position
+    let nbBases = model ^. _nbBases
+    let j = model ^. _missingPeg
+    x ← position !! i
+    y ← position !! j
+    guard $ elem (x / 2 - y / 2) [1, nbBases-1, -1, 1-nbBases]
+    Just $ position # updateAtIndices [i ∧ y, j ∧ x]
 
-    initialPosition model = shuffle $ 0 .. (2 * model^._nbBases - 1)
-    isLevelFinished = view _position >>> allWithIndex \i j → i / 2 == j / 2
-    onNewGame model = chooseInt' (2 * model^._nbBases) <#> \i → set _missingPeg i model
+  initialPosition model = shuffle $ 0 .. (2 * model^._nbBases - 1)
+  isLevelFinished = view _position >>> allWithIndex \i j → i / 2 == j / 2
+  onNewGame model = chooseInt' (2 * model^._nbBases) <#> \i → set _missingPeg i model
     
-    -- fonctions par défault
-    computerMove _ = pure Nothing
-    sizeLimit = defaultSizeLimit
-    updateScore s = defaultUpdateScore s
-    onPositionChange = identity
-    saveToJson _ = Nothing
-    loadFromJson model _ = model
+  -- fonctions par défault
+  computerMove _ = pure Nothing
+  sizeLimit = defaultSizeLimit
+  updateScore s = defaultUpdateScore s
+  onPositionChange = identity
+  saveToJson _ = Nothing
+  loadFromJson model _ = model
 
 data Msg = Core CoreMsg | SetNbBases Int | Play Move
 instance MsgWithCore Msg where core = Core

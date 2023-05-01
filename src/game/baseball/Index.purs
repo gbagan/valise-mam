@@ -7,7 +7,7 @@ import Game.Generic (GenericGame)
 
 game ∷ GenericGame M.Model M.Msg
 game =
-    {   init: Just (core Init)
-    ,   view: V.view
-    ,   onKeydown: const Nothing
-    }
+  { init: Just (core Init)
+  , view: V.view
+  , onKeydown: const Nothing
+  }

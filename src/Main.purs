@@ -33,12 +33,11 @@ import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Subscriptions as Subs
-import Pha.Update (hoist, mapMessage)
-import Pha.Update.Lens (updateOver)
+import Pha.Update (hoist, mapMessage, mapModel)
 import Random.LCG (randomSeed)
 import Unsafe.Coerce (unsafeCoerce)
 
-infix 2 updateOver as .~>
+infix 2 mapModel as .~>
 
 type Model = 
   { baseball ∷ Baseball.Model
@@ -189,8 +188,8 @@ update HashChanged = do
 
 init ∷ UpdateMam Model Msg Unit
 init = do
-  Subs.onKeyDown (Just ∘ KeyDown)
-  Subs.onHashChange $ const (Just HashChanged)
+  _ <- Subs.onKeyDown (Just ∘ KeyDown)
+  _ <- Subs.onHashChange $ const (Just HashChanged)
   for_ (Map.values games) $
     gameRun \game → case game.core.init of
                         Nothing → pure unit

@@ -1,4 +1,5 @@
 module Game.Frog (module M, game) where
+
 import Game.Frog.Model (Model, Msg, update, imodel, onKeyDown) as M
 import Game.Frog.View (view) as M
 import MamPrelude

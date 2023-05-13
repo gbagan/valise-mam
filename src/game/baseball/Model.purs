@@ -5,10 +5,20 @@ import Data.FoldableWithIndex (allWithIndex)
 import Control.Monad.Gen.Trans (shuffle)
 import Lib.Util (chooseInt')
 import Lib.Update (UpdateMam)
-import Game.Core (class Game, GModel, class MsgWithCore, CoreMsg,
-                 playA, coreUpdate, _ext, genModel, newGame, _position,
-                 defaultSizeLimit, defaultUpdateScore
-                 )
+import Game.Core
+  ( class Game
+  , GModel
+  , class MsgWithCore
+  , CoreMsg
+  , playA
+  , coreUpdate
+  , _ext
+  , genModel
+  , newGame
+  , _position
+  , defaultSizeLimit
+  , defaultUpdateScore
+  )
 
 -- les jetons sont numérotés de 0 à nbBases - 1
 -- un jeton de numéro i a la couleur i / 2 (division entière)
@@ -22,8 +32,8 @@ type Move = Int
 
 -- attributs supplémentaires
 type Ext' =
-  { nbBases ∷ Int     -- le nombre de bases
-  , missingPeg ∷ Int  -- le numéro du jeton manquant
+  { nbBases ∷ Int -- le nombre de bases
+  , missingPeg ∷ Int -- le numéro du jeton manquant
   }
 
 newtype Ext = Ext Ext'
@@ -32,19 +42,22 @@ type Model = GModel (Array Int) Ext
 -- lenses
 _ext' ∷ Lens' Model Ext'
 _ext' = _ext ∘ iso (\(Ext a) → a) Ext
+
 _nbBases ∷ Lens' Model Int
 _nbBases = _ext' ∘ prop (Proxy ∷ _ "nbBases")
+
 _missingPeg ∷ Lens' Model Int
 _missingPeg = _ext' ∘ prop (Proxy ∷ _ "missingPeg")
 
 -- | état initial
 imodel ∷ Model
 imodel =
-  genModel [] identity (Ext
-    {   nbBases: 5
-    ,   missingPeg: 0
-    }
-  )
+  genModel [] identity
+    ( Ext
+        { nbBases: 5
+        , missingPeg: 0
+        }
+    )
 
 instance Game Position Ext Move where
   name _ = "baseball"
@@ -55,13 +68,13 @@ instance Game Position Ext Move where
     let j = model ^. _missingPeg
     x ← position !! i
     y ← position !! j
-    guard $ elem (x / 2 - y / 2) [1, nbBases-1, -1, 1-nbBases]
-    Just $ position # updateAtIndices [i ∧ y, j ∧ x]
+    guard $ elem (x / 2 - y / 2) [ 1, nbBases - 1, -1, 1 - nbBases ]
+    Just $ position # updateAtIndices [ i ∧ y, j ∧ x ]
 
-  initialPosition model = shuffle $ 0 .. (2 * model^._nbBases - 1)
+  initialPosition model = shuffle $ 0 .. (2 * model ^. _nbBases - 1)
   isLevelFinished = view _position >>> allWithIndex \i j → i / 2 == j / 2
-  onNewGame model = chooseInt' (2 * model^._nbBases) <#> \i → set _missingPeg i model
-    
+  onNewGame model = chooseInt' (2 * model ^. _nbBases) <#> \i → set _missingPeg i model
+
   -- fonctions par défault
   computerMove _ = pure Nothing
   sizeLimit = defaultSizeLimit
@@ -71,7 +84,9 @@ instance Game Position Ext Move where
   loadFromJson model _ = model
 
 data Msg = Core CoreMsg | SetNbBases Int | Play Move
-instance MsgWithCore Msg where core = Core
+
+instance MsgWithCore Msg where
+  core = Core
 
 update ∷ Msg → UpdateMam Model Msg Unit
 update (Core msg) = coreUpdate msg

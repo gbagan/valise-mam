@@ -1,4 +1,5 @@
 module Game.Baseball (module M, game) where
+
 import MamPrelude
 import Game.Baseball.Model (Model, Msg, update, imodel) as M
 import Game.Baseball.View (view) as V

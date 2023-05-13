@@ -24,7 +24,6 @@
   , "record"
   , "refs"
   , "strings"
-  , "tailrec"
   , "transformers"
   , "tuples"
   , "unfoldable"

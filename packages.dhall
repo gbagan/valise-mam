@@ -1,6 +1,6 @@
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.15.8-20230430/packages.dhall
-        sha256:007f16aff737b37041e2f387f906ea711c85afc19b898e9f4986ec85cb96efc4
+      https://github.com/purescript/package-sets/releases/download/psc-0.15.8-20230511/packages.dhall
+        sha256:47cfb0e7e14ee01dee00cb64bd0ca4a47ac44a64f3edf1e774251fb44cd73beb
 
 let additions =
       { pha =

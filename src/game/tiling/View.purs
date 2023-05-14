@@ -31,14 +31,14 @@ square ∷ ∀ a. { isDark ∷ Boolean, hasBlock ∷ Boolean, hasSink ∷ Boolea
 square { isDark, hasBlock, hasSink, row, col } props =
   H.g
     ( [ H.class' "tiling-darken" isDark
-      , P.transform $ translate (show $ 50 * col) (show $ 50 * row)
+      , P.transform $ translate (50 * col) (50 * row)
       ] <> props
     )
-    [ H.rect [ P.width "50", P.height "50", P.fill "url(#concrete)" ]
+    [ H.rect [ P.width 50, P.height 50, P.fill "url(#concrete)" ]
     , H.when hasBlock \_ →
-        H.use [ P.href "#tile2", P.width "50", P.height "50" ]
+        H.use [ P.href "#tile2", P.width 50, P.height 50 ]
     , H.when hasSink \_ →
-        H.use [ P.href "#sink", P.width "50", P.height "50" ]
+        H.use [ P.href "#sink", P.width 50, P.height 50 ]
     ]
 
 view ∷ Model → Html Msg

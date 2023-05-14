@@ -82,7 +82,7 @@ animCaroll { anim } =
       in
         carollStyles ^? (ix key ∘ ix phase) ?: []
   in
-    H.svg [ H.class_ "sansmot-svg", P.viewBox (-10) (-10) 1370 270, P.width "90vw", P.height "19vw" ] $ concat
+    H.svg [ H.class_ "sansmot-svg", P.viewBox (-10) (-10) 1370 270, P.width "90vw", P.height "19vw"] $ concat
       [ [ H.path $ [ P.d "M 400 100 h 250 v -100 Z", P.fill "orange" ] <> f "a"
         , H.path $ [ P.d "M 400 200 h 150 v -50 h 100 v -50 h -250 Z", P.fill "red" ] <> f "b"
         , H.path $ [ P.d "M 400 250 h 250 v -100 h -100 v 50 h -150 Z", P.fill "blue" ] <> f "c"
@@ -118,9 +118,9 @@ view model =
               [ H.path [ P.d "M 50 50 h 100 v 100 h -100 Z", P.fill "yellow", P.stroke "black" ]
               , H.path [ P.d "M 0 0 h 50 v 50 h -50 Z", P.fill "yellow", P.stroke "black" ]
               , H.path [ P.d "M 50 0 l 100 50 l 50 -100 l -100 -50 Z", P.fill "#00ff00", P.stroke "black" ]
-              , H.text_ "a²" [ P.x 90.0, P.y 105.0, H.attr "font-size" "35" ]
-              , H.text_ "b²" [ P.x 18.0, P.y 35.0, H.attr "font-size" "35" ]
-              , H.text_ "c²" [ P.x 110.0, P.y (-10.0), H.attr "font-size" "35" ]
+              , H.text_ "a²" [ P.x 90.0, P.y 105.0, P.fontSize 35 ]
+              , H.text_ "b²" [ P.x 18.0, P.y 35.0, P.fontSize 35 ]
+              , H.text_ "c²" [ P.x 110.0, P.y (-10.0), P.fontSize 35 ]
               ]
           ]
       , H.h2 [ H.class_ "sansmot-h2" ] [ H.text "Preuve sans mot due à un auteur chinois inconnu qui vivait vers 200 avant J.-C." ]

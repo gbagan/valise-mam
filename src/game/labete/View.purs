@@ -34,8 +34,8 @@ colors = [ "#5aa02c", "blue", "red", "yellow", "magenta", "cyan", "orange", "dar
 zone ∷ ∀ a. Int → { x ∷ Number, y ∷ Number } → { x ∷ Number, y ∷ Number } → Html a
 zone color { x: x1, y: y1 } { x: x2, y: y2 } =
   H.rect
-    [ H.attr "x" $ pc (min x1 x2)
-    , H.attr "y" $ pc (min y1 y2)
+    [ P.x $ pc (min x1 x2)
+    , P.y $ pc (min y1 y2)
     , P.width $ pc $ abs (x2 - x1)
     , P.height $ pc $ abs (y2 - y1)
     , H.class_ "labete-zone"

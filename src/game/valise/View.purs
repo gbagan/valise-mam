@@ -46,7 +46,7 @@ valise model =
             280
             48
             48
-            [ H.attr "transition" "opacity 0.5s"
+            [ H.style "transition" "opacity 0.5s"
             , P.opacity $ if model.isSwitchOn then 1.0 else 0.0
             , H.style "pointer-events" $ if model.isSwitchOn then "all" else "none"
             ]
@@ -58,14 +58,14 @@ valise model =
             40
             [ P.fill "#bcd35f"
             ]
-            [ P.x 10.0, P.y 20.0, P.width "80%", P.height "80%" ]
+            [ P.x 10.0, P.y 20.0, P.width (pc 0.8), P.height (pc 0.8) ]
         , object { symbol: "hanoibot", link: Just "hanoi", help: "Jeu: tours de Hanoi", drag: false }
             500
             430
             75
             51
             []
-            [ H.attr "x" "30%", H.attr "y" "20%", P.width "40%", P.height "40%" ]
+            [ P.x (pc 0.3), P.y (pc 0.2), P.width (pc 0.4), P.height (pc 0.4) ]
         , object { symbol: "knight", link: Just "queens", help: "Jeu: les 8 reines", drag: false }
             461
             380
@@ -203,8 +203,8 @@ valise model =
             [ H.svg
                 ( [ H.class_ "valise-object"
                   , H.class' "draggable" drag
-                  , P.width $ show w'
-                  , P.height $ show h'
+                  , P.width w'
+                  , P.height h'
                   , E.onPointerDown \_ →
                       if drag then
                         SetDrag (Just { name: symbol, x: toNumber w' / 1650.0, y: toNumber h' / 1380.0 })

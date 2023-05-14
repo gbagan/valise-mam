@@ -17,7 +17,7 @@ colors ∷ Array String
 colors = [ "green", "yellow", "red", "magenta", "blue" ]
 
 translateCell ∷ Int → Int → String
-translateCell i size = translate (show x) (show y)
+translateCell i size = translate x y
   where
   x = 50.0 + 35.0 * cos (toNumber i * 2.0 * pi / toNumber size)
   y = 45.0 + 35.0 * sin (toNumber i * 2.0 * pi / toNumber size)
@@ -72,7 +72,7 @@ view model = template { config, board, rules } model
         , H.path
             [ P.d "M0 2H4V0l3 3l-3 3v-2h-4Z"
             , P.fill "black"
-            , P.transform $ translate (show $ 99 + 15 * (i - nbColors)) "92"
+            , P.transform $ translate (99 + 15 * (i - nbColors)) 92
             ]
         ]
     ) <> [ H.circle [ P.cx 95.0, P.cy 95.0, P.r 3.0, P.fill "green" ] ]

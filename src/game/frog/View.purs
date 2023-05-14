@@ -72,9 +72,9 @@ drawSpiral ∷ ∀ a. Html a
 drawSpiral =
   H.g []
     [ H.path [ P.d spiralPath, P.fill "none", P.stroke "black", P.strokeWidth 3.0 ]
-    , H.line [ P.x1 153.0, P.y1 9.0, P.x2 207.0, P.y2 20.0, P.stroke "black", P.strokeDasharray "5", P.strokeWidth 6.0 ]
-    , H.line [ P.x1 153.0, P.y1 7.0, P.x2 153.0, P.y2 39.0, P.stroke "black", P.strokeWidth 3.0 ]
-    , H.line [ P.x1 207.0, P.y1 18.0, P.x2 207.0, P.y2 50.0, P.stroke "black", P.strokeWidth 3.0 ]
+    , H.line [ P.x1 153, P.y1 9, P.x2 207, P.y2 20, P.stroke "black", P.strokeDasharray "5", P.strokeWidth 6.0 ]
+    , H.line [ P.x1 153, P.y1 7, P.x2 153, P.y2 39, P.stroke "black", P.strokeWidth 3.0 ]
+    , H.line [ P.x1 207, P.y1 18, P.x2 207, P.y2 50.0, P.stroke "black", P.strokeWidth 3.0 ]
     ]
 
 lily ∷ ∀ a. Int → Number → Number → Boolean → Boolean → Html a
@@ -92,14 +92,14 @@ lily i x y reachable hidden =
     if i == 0 then
       [ P.x $ x - 30.0
       , P.y $ y - 45.0
-      , P.width "80"
-      , P.height "80"
+      , P.width 80
+      , P.height 80
       ]
     else
       [ P.x $ x - 24.0
       , P.y $ y - 24.0
-      , P.width "48"
-      , P.height "48"
+      , P.width 48
+      , P.height 48
       ]
 
 view ∷ Model → Html Msg
@@ -130,10 +130,10 @@ view model = template { config, board, rules, winTitle } model
         ]
         [ H.use
             [ P.href "#frog2"
-            , P.x (-20.0)
-            , P.y (-20.0)
-            , P.width "40"
-            , P.height "40"
+            , P.x (-20)
+            , P.y (-20)
+            , P.width 40
+            , P.height 40
             , H.class_ "frog-frog"
             , H.class' "goal" $ position == 0
             ]

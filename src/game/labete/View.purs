@@ -45,9 +45,9 @@ zone color { x: x1, y: y1 } { x: x2, y: y2 } =
 square ∷ ∀ a. { color ∷ Int, hasTrap ∷ Boolean, hasBeast ∷ Boolean, row ∷ Int, col ∷ Int } → Array (H.Prop a) → Html a
 square { color, hasTrap, hasBeast, row, col } props =
   H.g ([ P.transform $ translate (show $ 50 * col) (show $ 50 * row) ] <> props)
-    [ H.use [ P.href "#grass", P.width "50", P.height "50", P.fill (colors !! color ?: "") ]
-    , H.rect [ P.width "51", P.height "51", H.class_ "labete-square-borders" ]
-    , H.use [ P.href "#paw", P.x 5.0, P.y 5.0, P.width "40", P.height "40", H.class_ "labete-beast", H.class' "visible" hasBeast ]
+    [ H.use [ P.href "#grass", P.width 50, P.height 50, P.fill (colors !! color ?: "") ]
+    , H.rect [ P.width 51, P.height 51, H.class_ "labete-square-borders" ]
+    , H.use [ P.href "#paw", P.x 5.0, P.y 5.0, P.width 40, P.height 40, H.class_ "labete-beast", H.class' "visible" hasBeast ]
     , H.when hasTrap \_ →
         H.use [ P.href "#trap", P.x 5.0, P.y 5.0, P.width "40", P.height "40" ]
     ]
@@ -90,10 +90,10 @@ view model = template { config, board, rules, winTitle, customDialog, scoreDialo
   cursor pp = H.use
     ( svgCursorStyle pp <>
         [ P.href "#trap"
-        , P.x (-20.0)
-        , P.y (-20.0)
-        , P.width "40"
-        , P.height "40"
+        , P.x (-20)
+        , P.y (-20)
+        , P.width 40
+        , P.height 40
         , P.opacity 0.7 -- todo model.position[model.squareHover] ? 0.3 : 0.7,
         , H.attr "pointer-events" "none"
         ]

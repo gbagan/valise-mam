@@ -73,10 +73,10 @@ view model = template { config, board, rules, winTitle, customDialog } model
           ] $ tile <#> \{ row, col } →
           H.use
             [ P.href "#tile2"
-            , P.x $ 50.0 * toNumber col - 25.0
-            , P.y $ 50.0 * toNumber row - 25.0
-            , P.width "50"
-            , P.height "50"
+            , P.x $ 50 * col - 25
+            , P.y $ 50 * row - 25
+            , P.width 50
+            , P.height 50
             , H.attr "pointer-events" "none"
             , P.opacity (if inConflict model then 0.3 else 0.8)
             ]
@@ -85,10 +85,10 @@ view model = template { config, board, rules, winTitle, customDialog } model
   sinkCursor pp =
     H.use
       ( [ P.href "#sink"
-        , P.x (-25.0)
-        , P.y (-25.0)
-        , P.width "50"
-        , P.height "50"
+        , P.x (-25)
+        , P.y (-25)
+        , P.width 50
+        , P.height 50
         , H.attr "pointer-events" "none"
         ] <> svgCursorStyle pp
       )

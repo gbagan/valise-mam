@@ -46,10 +46,10 @@ view model = template { config, board, rules, winTitle } model
         $
           [ P.x $ x - 25.0 + 2.5 * toNumber disk
           , P.y $ y - 7.0
-          , P.width $ show $ 50 - 5 * disk
-          , P.height "10"
-          , P.rx 5.0
-          , P.ry 5.0
+          , P.width $ 50 - 5 * disk
+          , P.height 10
+          , P.rx 5
+          , P.ry 5
           , H.class_ "hanoi-disk"
           , P.fill color
           ]
@@ -79,7 +79,7 @@ view model = template { config, board, rules, winTitle } model
           [ H.g [] $ [ 0, 1, 2 ] <#> drawTower
           , H.g [] $ [ 0, 1, 2 ] <#> \i →
               H.rect
-                ( [ P.x $ toNumber $ 13 + 60 * i, P.y 10.0, P.width "54", P.height "90", P.fill "transparent" ]
+                ( [ P.x $ 13 + 60 * i, P.y 10.0, P.width 54, P.height 90, P.fill "transparent" ]
                     <> dndItemProps model
                       { currentDragged: dragged
                       , draggable: false

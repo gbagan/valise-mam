@@ -26,8 +26,8 @@ soapCursor pp =
       , H.class_ "paths-cursor"
       , P.x (-20.0)
       , P.y (-20.0)
-      , P.width "26"
-      , P.height "26"
+      , P.width 26
+      , P.height 26
       ]
     <> svgCursorStyle pp
 
@@ -86,10 +86,10 @@ view model = template { config, board, rules, winTitle } model
           , H.maybe soap \{ row, col } →
               H.use
                 [ P.href "#skull"
-                , P.x $ toNumber (50 * col + 12)
-                , P.y $ toNumber (50 * row + 12)
-                , P.width "26"
-                , P.height "26"
+                , P.x $ 50 * col + 12
+                , P.y $ 50 * row + 12
+                , P.width 26
+                , P.height 26
                 , H.class_ "chocolat-skull"
                 ]
           , H.maybe (model ^. _moveWhenHover) \m →
@@ -97,10 +97,10 @@ view model = template { config, board, rules, winTitle } model
                 { x1, x2, y1, y2 } = cutLine model m
               in
                 H.line
-                  [ P.x1 $ toNumber (50 * x1)
-                  , P.y1 $ toNumber (50 * y1)
-                  , P.x2 $ toNumber (50 * x2)
-                  , P.y2 $ toNumber (50 * y2)
+                  [ P.x1 $ 50 * x1
+                  , P.y1 $ 50 * y1
+                  , P.x2 $ 50 * x2
+                  , P.y2 $ 50 * y2
                   , H.class_ "chocolat-cut-line"
                   ]
           , H.maybe pointer \pp →

@@ -37,10 +37,10 @@ doorCursor pp =
     $
       [ P.href "#paths-door"
       , H.class_ "paths-cursor"
-      , P.x (-50.0)
+      , P.x (-50)
       , P.y (-50.0)
-      , P.width "100"
-      , P.height "100"
+      , P.width 100
+      , P.height 100
       ]
     <> svgCursorStyle pp
 
@@ -50,10 +50,10 @@ heroCursor pp =
     $
       [ P.href "#meeplehat"
       , H.class_ "paths-cursor"
-      , P.x (-40.0)
-      , P.y (-40.0)
-      , P.width "80"
-      , P.height "80"
+      , P.x (-40)
+      , P.y (-40)
+      , P.width 80
+      , P.height 80
       ]
     <> svgCursorStyle pp
 
@@ -84,8 +84,8 @@ view model = template { config, board, rules } model
     in
       H.use
         [ P.href "#meeplehat"
-        , P.width "80"
-        , P.height "80"
+        , P.width 80
+        , P.height 80
         , H.class_ "paths-hero"
         , H.style "transform" $ translate (pc $ (toNumber col + 0.1) / toNumber columns)
             (pc $ (toNumber row + 0.1) / toNumber rows)

@@ -223,10 +223,10 @@ viewGame model = callByName model.location H.empty
 main ∷ Effect Unit
 main = do
   newSeed <- randomSeed
-  genModel <- Ref.new { newSeed, size: 0 }
+  genState <- Ref.new { newSeed, size: 0 }
   app
     { init: { model: appModel, msg: Just Init }
     , view
-    , update: hoist (flip runReaderT { genModel }) <<< update
+    , update: hoist (flip runReaderT { genState }) <<< update
     , selector: "#root"
     }

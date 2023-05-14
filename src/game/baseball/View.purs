@@ -65,8 +65,8 @@ view model = template { config, board, rules } model
                     ]
                     [ H.use
                         [ P.href "#meeple"
-                        , P.width "7"
-                        , P.height "7"
+                        , P.width 7
+                        , P.height 7
                         , E.onClick \_ → Play peg
                         , P.fill color
                         , H.style "animation"

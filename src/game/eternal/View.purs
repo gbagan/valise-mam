@@ -46,8 +46,8 @@ cursor ∷ ∀ a b. PointerPosition → b → Html a
 cursor pp _ = H.use
   $
     [ P.href "#roman"
-    , P.width "6"
-    , P.height "12"
+    , P.width 6
+    , P.height 12
     , P.x (-3.0)
     , P.y (-6.0)
     , H.style "pointer-events" "none"
@@ -188,10 +188,10 @@ view model = template { config, board, rules, winTitle, customDialog } model
               <#> \index →
                 H.use
                   [ P.href "#roman"
-                  , P.width "6"
-                  , P.height "12"
-                  , P.x (-3.0)
-                  , P.y (-6.0)
+                  , P.width 6
+                  , P.height 12
+                  , P.x (-3)
+                  , P.y (-6)
                   , H.class_ "eternal-guard"
                   , H.class' "no-move" (phase == PrepPhase)
                   , H.style "transform" $ fromMaybe "none" (translateGuard <$> getCoords graph index)
@@ -199,10 +199,10 @@ view model = template { config, board, rules, winTitle, customDialog } model
           , H.maybe (position.attacked) \attack →
               H.use
                 [ P.href "#eternal-attack"
-                , P.width "8"
-                , P.height "8"
-                , P.x (-4.0)
-                , P.y (-4.0)
+                , P.width 8
+                , P.height 8
+                , P.x (-4)
+                , P.y (-4)
                 , H.style "transform" $ fromMaybe "none" (translateGuard <$> getCoords graph attack)
                 , H.style "pointer-events" "none"
                 ]
@@ -212,10 +212,10 @@ view model = template { config, board, rules, winTitle, customDialog } model
               # mapWithIndex \i pos →
                   H.rect
                     $
-                      [ P.width "10"
-                      , P.height "10"
-                      , P.x (-5.0)
-                      , P.y (-5.0)
+                      [ P.width 10
+                      , P.height 10
+                      , P.x (-5)
+                      , P.y (-5)
                       , P.fill "transparent"
                       , H.style "transform" $ translateGuard pos
                       , E.onClick \_ → if grules == ManyGuards && isJust position.attacked then NoAction else Play i

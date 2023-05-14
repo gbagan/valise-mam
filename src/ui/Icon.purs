@@ -8,7 +8,6 @@ import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
-import Pha.Html.Util (pc)
 import Web.Event.Event (preventDefault)
 
 data Icon = IconText String | IconSymbol String | IconNone

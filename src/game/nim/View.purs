@@ -47,8 +47,8 @@ view model = template { config, board, rules, winTitle } model
   drawPeg i player j =
     H.use
       [ P.href "#meeple"
-      , P.width "8"
-      , P.height "8"
+      , P.width 8
+      , P.height 8
       , H.class_ "nim-player"
       , P.fill $ if player == 0 then "blue" else "red"
       , H.style "transform" $ translate (px' $ (if length == 5 then 26 else 1) + 10 * j) (px' $ 11 + 19 * i)

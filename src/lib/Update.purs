@@ -23,16 +23,16 @@ import Control.Monad.Reader.Trans (ReaderT, ask)
 import Control.Monad.Gen.Trans (GenState, runGen)
 import Pha.Update (Update, delay) as Exports
 
-type Env = { genModel :: Ref GenState }
+type Env = { genState :: Ref GenState }
 
 type UpdateMam model msg a = Update model msg (ReaderT Env Aff) a
 
 evalGen ∷ ∀ model msg a. Gen a -> UpdateMam model msg a
 evalGen g = do
-  { genModel } <- lift ask
-  model <- liftEffect $ Ref.read genModel
-  let v /\ model' = runGen g model
-  liftEffect $ Ref.write model' genModel
+  { genState } <- lift ask
+  st <- liftEffect $ Ref.read genState
+  let v /\ st' = runGen g st
+  liftEffect $ Ref.write st' genState
   pure v
 
 getHash ∷ ∀ model msg m. MonadAff m => Update model msg m String

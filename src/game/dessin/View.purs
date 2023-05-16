@@ -128,11 +128,12 @@ view model = template { config, board, rules, winTitle, scoreDialog, customDialo
                     ]
             , edgesOf bestPos # mapWithIndex \i edge →
                 H.maybe (Graph.getCoordsOfEdge graph edge) \{ px1, px2, py1, py2 } →
-                  H.text_ (show (i + 1))
+                  H.text_
                     [ P.x $ 50.0 * (px1 + px2)
                     , P.y $ 50.0 * (py1 + py2) + 2.0
                     , H.class_ "dessin-edge-no"
                     ]
+                    [ H.text $ show (i + 1) ]
             ]
         ]
     ]

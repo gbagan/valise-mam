@@ -47,9 +47,9 @@ instance Game Position Ext { from ∷ Int, to ∷ Int } where
     let position = model ^. _position
     { init, last } <- position !! from >>= Array.unsnoc
     guard $ from /= to && Just last > (position !! to >>= Array.last)
-    pure $ position # ix from .~ init
-      # ix to
-      %~ (_ `snoc` last)
+    pure $ position 
+      # ix from .~ init
+      # ix to %~ (_ `snoc` last)
 
   initialPosition model = pure [ 0 .. (model ^. _nbDisks - 1), [], [] ]
 

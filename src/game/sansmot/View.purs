@@ -65,12 +65,12 @@ animPytha { anim } =
       , H.path $ [ P.d "M 0 300 h 100 v -200 Z", P.fill "yellow", P.stroke "#000" ] <> f "e"
       , H.path $ [ P.d "M 100 0 h 200 v 100 Z", P.fill "#00FF00", P.stroke "#000" ] <> f "e"
       , H.path $ [ P.d "M 100 0 v 100 h 200 0 Z", P.fill "red", P.stroke "#000" ] <> f "e"
-      , H.text_ "a" $ [ P.x 5.0, P.y 55.0, H.style "font-size" "20" ] <> f "e"
-      , H.text_ "a" $ [ P.x 46.0, P.y 12.0, H.style "font-size" "20" ] <> f "e"
-      , H.text_ "b" $ [ P.x 105.0, P.y 210.0, H.style "font-size" "20" ] <> f "e"
-      , H.text_ "b" $ [ P.x 198.0, P.y 120.0, H.style "font-size" "20" ] <> f "e"
-      , H.text_ "c" $ [ P.x 450.0, P.y 98.0, H.style "font-size" "20" ] <> f "e"
-      , H.text_ "c" $ [ P.x 595.0, P.y 80.0, H.style "font-size" "20" ] <> f "e"
+      , H.text_ ([ P.x 5.0, P.y 55.0, H.style "font-size" "20" ] <> f "e") [ H.text "a" ] 
+      , H.text_ ([ P.x 46.0, P.y 12.0, H.style "font-size" "20" ] <> f "e")  [ H.text "a" ]
+      , H.text_ ([ P.x 105.0, P.y 210.0, H.style "font-size" "20" ] <> f "e") [ H.text "b" ]
+      , H.text_ ([ P.x 198.0, P.y 120.0, H.style "font-size" "20" ] <> f "e") [ H.text "b" ]
+      , H.text_ ([ P.x 450.0, P.y 98.0, H.style "font-size" "20" ] <> f "e") [ H.text "c" ]
+      , H.text_ ([ P.x 595.0, P.y 80.0, H.style "font-size" "20" ] <> f "e") [ H.text "c" ]
       ]
 
 animCaroll ∷ Model → Html Msg
@@ -118,9 +118,9 @@ view model =
               [ H.path [ P.d "M 50 50 h 100 v 100 h -100 Z", P.fill "yellow", P.stroke "black" ]
               , H.path [ P.d "M 0 0 h 50 v 50 h -50 Z", P.fill "yellow", P.stroke "black" ]
               , H.path [ P.d "M 50 0 l 100 50 l 50 -100 l -100 -50 Z", P.fill "#00ff00", P.stroke "black" ]
-              , H.text_ "a²" [ P.x 90.0, P.y 105.0, P.fontSize 35 ]
-              , H.text_ "b²" [ P.x 18.0, P.y 35.0, P.fontSize 35 ]
-              , H.text_ "c²" [ P.x 110.0, P.y (-10.0), P.fontSize 35 ]
+              , H.text_ [ P.x 90.0, P.y 105.0, P.fontSize 35 ] [H.text "a²"] 
+              , H.text_ [ P.x 18.0, P.y 35.0, P.fontSize 35 ]  [H.text "b²"]
+              , H.text_ [ P.x 110.0, P.y (-10.0), P.fontSize 35 ] [H.text "c²"]
               ]
           ]
       , H.h2 [ H.class_ "sansmot-h2" ] [ H.text "Preuve sans mot due à un auteur chinois inconnu qui vivait vers 200 avant J.-C." ]

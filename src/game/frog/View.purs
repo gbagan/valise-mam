@@ -160,8 +160,9 @@ view model = template { config, board, rules, winTitle } model
           ]
           [ lily i x y false false
           , lily i x y true (not reach || locked)
-          , H.text_ (if help then show $ nbRows - i else "")
+          , H.text_
               [ P.x x, P.y y, H.class_ "frog-index" ]
+              [ H.text if help then show $ nbRows - i else "" ]
           ]
 
   grid =

@@ -186,4 +186,4 @@ infix 4 Exports.notEq as ≠
 flipFromMaybe ∷ ∀ a. Exports.Maybe a → a → a
 flipFromMaybe = flip Exports.fromMaybe
 
-infix 0 flipFromMaybe as ?:
+infixr 0 flipFromMaybe as ?:

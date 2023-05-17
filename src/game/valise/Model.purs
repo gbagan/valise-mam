@@ -6,6 +6,7 @@ import Data.Map as Map
 import Game.Common (pointerDecoder)
 import Lib.Update (UpdateMam, delay)
 import Web.PointerEvent (PointerEvent)
+import Web.PointerEvent.PointerEvent as PE
 
 type Model =
   { isOpen ∷ Boolean
@@ -62,7 +63,7 @@ update (ShowHelp help) = modify_ $ over _help (if help == "" then identity else 
 update ToggleSwitch = _isSwitchOn %= not
 update (SetDrag d) = _drag .= d
 update (MoveObject ev) = do
-  pos ← liftEffect $ pointerDecoder ev
+  pos ← liftEffect $ pointerDecoder (PE.toMouseEvent ev)
   model ← get
   case pos, model.drag of
     Just { x, y }, Just { name, x: x2, y: y2 } →

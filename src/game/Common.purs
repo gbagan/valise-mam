@@ -8,6 +8,7 @@ import Web.Event.Event as E
 import Web.PointerEvent.PointerEvent (PointerEvent)
 import Web.PointerEvent.PointerEvent as PE
 import Web.PointerEvent.Element as PElem
+import Web.UIEvent.MouseEvent (MouseEvent)
 import Web.UIEvent.MouseEvent as ME
 
 -- fonction utile pour labete et tiling
@@ -25,14 +26,13 @@ releasePointerCapture ev =
     for_ (Element.fromEventTarget target) \elem ->
       PElem.releasePointerCapture (PE.pointerId ev) elem
 
-pointerDecoder ∷ PointerEvent → Effect (Maybe { x ∷ Number, y ∷ Number })
+pointerDecoder ∷ MouseEvent → Effect (Maybe { x ∷ Number, y ∷ Number })
 pointerDecoder ev = do
-  case E.currentTarget (PE.toEvent ev) >>= Element.fromEventTarget of
+  case E.currentTarget (ME.toEvent ev) >>= Element.fromEventTarget of
     Just el → do
-      let mev = PE.toMouseEvent ev
       { left, top, width, height } ← Element.getBoundingClientRect el
       pure $ Just
-        { x: (toNumber (ME.clientX mev) - left) / width
-        , y: (toNumber (ME.clientY mev) - top) / height
+        { x: (toNumber (ME.clientX ev) - left) / width
+        , y: (toNumber (ME.clientY ev) - top) / height
         }
     _ → pure Nothing

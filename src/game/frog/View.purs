@@ -9,7 +9,6 @@ import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (px, translate)
 import Web.UIEvent.MouseEvent as ME
-import Web.PointerEvent.PointerEvent as PE
 import UI.Template (template, card, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icons (icongroup, iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
 import Game.Core (_nbRows, _position, _help, _locked)
@@ -156,7 +155,7 @@ view model = template { config, board, rules, winTitle } model
     H.g [] $
       map2 spoints reachable \i { x, y } reach →
         H.g
-          [ E.onClick \ev → if ME.shiftKey (PE.toMouseEvent ev) then Mark i else Play i
+          [ E.onClick \ev → if ME.shiftKey ev then Mark i else Play i
           ]
           [ lily i x y false false
           , lily i x y true (not reach || locked)

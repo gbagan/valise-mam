@@ -263,9 +263,10 @@ update (IncSelectedColor i) = _selectedColor %= \x → (x + i) `mod` 9
 -- startZoneA est activé lors  du onpointerdown sur l'élément html réprésentant le carré
 update (StartZone s) = _startSquare .= Just s
 -- startZone2A est appliqué lors du onpointerdown sur l'élément html réprésentant le plateu
-update (StartZone2 ev) =
+update (StartZone2 ev) = do
+  let mev = PE.toMouseEvent ev
   if ME.shiftKey (PE.toMouseEvent ev) then do
-    liftEffect (pointerDecoder ev) >>= traverse_ \pos →
+    liftEffect (pointerDecoder mev) >>= traverse_ \pos →
       _startPointer .= Just pos
   else
     pure unit

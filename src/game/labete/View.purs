@@ -112,7 +112,7 @@ view model = template { config, board, rules, winTitle, customDialog, scoreDialo
                 { row, col } = coords columns index
               in
                 square { color, row, col, hasTrap, hasBeast: hasBeast && model ^. _help }
-                  [ E.onClick \ev → if ME.shiftKey (PE.toMouseEvent ev) then NoAction else Play index
+                  [ E.onClick \ev → if ME.shiftKey ev then NoAction else Play index
                   -- pointerenter: [actions.setSquareHover, index], todo
                   -- ponterleave: [actions.setSquareHover, null],
                   , E.onPointerUp \_ → FinishZone index

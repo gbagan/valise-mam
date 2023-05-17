@@ -242,7 +242,7 @@ coreUpdate ConfirmNewGame = modify_ \model →
     ConfirmNewGameDialog model' → model'
     _ → model
 coreUpdate (SetPointer ev) = do
-  pos ← liftEffect $ pointerDecoder ev
+  pos ← liftEffect $ pointerDecoder (PE.toMouseEvent ev)
   when (isJust pos) (_pointer .= pos)
 coreUpdate SetPointerToNothing = _pointer .= Nothing
 coreUpdate ComputerStarts = do

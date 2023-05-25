@@ -1,7 +1,7 @@
 module Game.Labete.Model where
 
 import MamPrelude
-import Game.Common (pointerDecoder, _isoCustom)
+import Game.Helpers (pointerDecoder, _isoCustom)
 import Game.Core
   ( class Game
   , class ScoreGame
@@ -28,10 +28,7 @@ import Game.Core
   , loadFromJson'
   )
 import Lib.Update (UpdateMam)
-import Lib.Util (coords, count, repeat2)
-import Web.PointerEvent (PointerEvent)
-import Web.PointerEvent.PointerEvent as PE
-import Web.UIEvent.MouseEvent as ME
+import Lib.Helpers (coords, count, repeat2)
 
 type Zone = { row1 ∷ Int, row2 ∷ Int, col1 ∷ Int, col2 ∷ Int }
 
@@ -239,7 +236,7 @@ data Msg
   | Play Int
   | IncSelectedColor Int
   | StartZone Int
-  | StartZone2 PointerEvent
+  | StartZone2 { x :: Number, y :: Number }
   | FinishZone Int
   | FlipCustomBeast Int
   | NoAction
@@ -263,13 +260,7 @@ update (IncSelectedColor i) = _selectedColor %= \x → (x + i) `mod` 9
 -- startZoneA est activé lors  du onpointerdown sur l'élément html réprésentant le carré
 update (StartZone s) = _startSquare .= Just s
 -- startZone2A est appliqué lors du onpointerdown sur l'élément html réprésentant le plateu
-update (StartZone2 ev) = do
-  let mev = PE.toMouseEvent ev
-  if ME.shiftKey (PE.toMouseEvent ev) then do
-    liftEffect (pointerDecoder mev) >>= traverse_ \pos →
-      _startPointer .= Just pos
-  else
-    pure unit
+update (StartZone2 pos) = _startPointer .= Just pos
 
 update (FinishZone index1) = modify_ \model → case model ^. _startSquare of
   Nothing → model

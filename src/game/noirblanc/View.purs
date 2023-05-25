@@ -4,7 +4,7 @@ import MamPrelude
 
 import Game.Core (_position, _nbRows, _nbColumns, _help)
 import Game.Noirblanc.Model (Model, Msg(..), _level, _mode, _maxLevels)
-import Lib.Util (coords, map2)
+import Lib.Helpers (coords, map2)
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P

@@ -24,7 +24,7 @@ import Game.Core
   , defaultUpdateScore
   )
 import Lib.Update (UpdateMam)
-import Lib.Util (repeat2)
+import Lib.Helpers (repeat2)
 
 -- une position donne pour chaque numéro de rangée une paire indiquant la position de chaque jetons
 -- un coup (move) est du type Move i j où i est le numéro de pile et j la position dans la pile

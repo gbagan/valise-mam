@@ -1,18 +1,20 @@
 module Game.Valise.View where
 
 import MamPrelude
+import Game.Helpers (pointerDecoder)
 import Game.Valise.Model (Model, Msg(..), _positions)
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc, translate)
+import Web.PointerEvent.PointerEvent as PE
 
 valise ∷ Model → Html Msg
 valise model =
   H.svg
     [ P.viewBox 0 0 825 690
-    , E.onPointerMove MoveObject
+    , E.onPointerMove' $ pointerDecoder MoveObject <<< PE.toMouseEvent
     , E.onPointerUp \_ → SetDrag Nothing
     ]
     [ H.use

@@ -5,7 +5,7 @@ import Data.List (null) as L
 import Pha.Html (Html, Prop)
 import Pha.Html as H
 import Pha.Html.Events as E
-import Lib.Util (partialUpdate, class PartialRecord)
+import Lib.Helpers (partialUpdate, class PartialRecord)
 import Game.Core
   ( GModel
   , class Game

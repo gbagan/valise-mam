@@ -1,8 +1,8 @@
 module Game.Tiling.Model where
 
 import MamPrelude
-import Lib.Util (coords)
-import Game.Common (_isoCustom)
+import Lib.Helpers (coords)
+import Game.Helpers (_isoCustom)
 import Game.Core
   ( GModel
   , Dialog(..)

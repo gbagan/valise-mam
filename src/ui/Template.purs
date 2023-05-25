@@ -32,9 +32,11 @@ import Game.Core
   , dndmsg
   , DndMsg(..)
   )
-import Lib.Util (partialUpdate, class PartialRecord)
+import Game.Helpers (pointerDecoder)
+import Lib.Helpers (partialUpdate, class PartialRecord)
 import UI.Dialog (dialog) as D
 import UI.IncDecGrid (incDecGrid) as U
+import Web.PointerEvent.PointerEvent as PE
 
 type Position = { x ∷ Number, y ∷ Number }
 
@@ -169,16 +171,16 @@ svgCursorStyle { x, y } =
 -- | permet de mémoriser la position du pointeur
 trackPointer ∷ ∀ msg. MsgWithCore msg ⇒ Array (Prop msg)
 trackPointer =
-  [ E.onPointerMove $ core <<< SetPointer
+  [ E.onPointerMove' $ pointerDecoder (core <<< SetPointer) <<< PE.toMouseEvent
   , E.onPointerLeave \_ → core SetPointerToNothing
-  , E.onPointerDown $ core <<< SetPointer
+  , E.onPointerDown' $ pointerDecoder (core <<< SetPointer) <<< PE.toMouseEvent
   ]
 
 -- | même chose que trackPointer mais gère le drag and drop par l'intermédiaire d'un lens
 dndBoardProps ∷ ∀ msg id. MsgWithCore msg ⇒ MsgWithDnd msg id ⇒ Array (Prop msg)
 dndBoardProps =
-  [ E.onPointerDown $ core <<< SetPointer
-  , E.onPointerMove $ core <<< SetPointer
+  [ E.onPointerDown' $ pointerDecoder (core <<< SetPointer) <<< PE.toMouseEvent
+  , E.onPointerMove' $ pointerDecoder (core <<< SetPointer) <<< PE.toMouseEvent
   , E.onPointerUp \_ → dndmsg DropOnBoard
   , E.onPointerLeave \_ → dndmsg Leave
   ]

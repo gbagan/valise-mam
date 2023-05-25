@@ -1,4 +1,4 @@
-module Lib.Util
+module Lib.Helpers
   ( Coord
   , chooseInt'
   , class PartialRecord

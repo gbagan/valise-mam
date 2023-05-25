@@ -1,7 +1,7 @@
 module UI.GraphEditor where
 
 import MamPrelude
-import Game.Common (pointerDecoder)
+import Game.Helpers (pointerDecoder)
 import Lib.Graph (Graph, Edge(..), Position)
 import Lib.Graph as Graph
 import Lib.Update (UpdateMam)
@@ -35,10 +35,10 @@ init ∷ Model
 init = { graph: emptyGraph, mode: VertexMode, selectedVertex: Nothing, currentPosition: Nothing }
 
 data Msg
-  = AddVertex MouseEvent
+  = AddVertex { x ∷ Number, y ∷ Number }
   | SelectVertex Int PointerEvent
   | PointerUp Int
-  | Move PointerEvent
+  | Move { x ∷ Number, y ∷ Number }
   | DeleteVertex Int MouseEvent
   | DeleteEdge Edge
   | DropOrLeave
@@ -50,16 +50,12 @@ class MsgWithGEditor msg where
 
 update ∷ ∀ model msg. Lens' model Model → Msg → UpdateMam model msg Unit
 update lens = case _ of
-  AddVertex ev → do
-    pos ← liftEffect $ pointerDecoder ev
-    case pos of
-      Nothing → pure unit
-      Just p →
-        lens %= \model →
-          if model.mode == VertexMode then
-            model { graph = Graph.addVertex p model.graph }
-          else
-            model
+  AddVertex pos → do
+    lens %= \model →
+      if model.mode == VertexMode then
+        model { graph = Graph.addVertex pos model.graph }
+      else
+        model
 
   SelectVertex i ev → do
     liftEffect $ stopPropagation $ PE.toEvent ev
@@ -85,15 +81,14 @@ update lens = case _ of
           model { graph = Graph.addEdge i j model.graph, selectedVertex = Nothing }
         _, _ → model
 
-  Move ev → do
-    pos ← liftEffect $ pointerDecoder (PE.toMouseEvent ev)
+  Move pos →
     lens %= \model →
-      case pos, model.mode, model.selectedVertex of
-        Just p, VertexMode, Just i →
-          model { graph = Graph.moveVertex i p model.graph }
-        Just p, AddEMode, _ →
-          model { currentPosition = Just p }
-        _, _, _ → model
+      case model.mode, model.selectedVertex of
+        VertexMode, Just i →
+          model { graph = Graph.moveVertex i pos model.graph }
+        AddEMode, _ →
+          model { currentPosition = Just pos }
+        _, _ → model
 
   DeleteVertex i ev → do
     model ← get
@@ -133,10 +128,10 @@ view { graph, mode, currentPosition, selectedVertex } onOk =
             [ H.svg
                 [ H.class_ "dessin-svg"
                 , P.viewBox 0 0 100 100
-                , E.onClick $ geditormsg <<< AddVertex
+                , E.onClick' $ pointerDecoder (geditormsg <<< AddVertex)
                 , E.onPointerUp \_ → geditormsg DropOrLeave
                 , E.onPointerLeave \_ → geditormsg DropOrLeave
-                , E.onPointerMove $ geditormsg <<< Move
+                , E.onPointerMove' $ pointerDecoder (geditormsg <<< AddVertex) <<< PE.toMouseEvent
                 ]
                 [ H.g []
                     $ graph.edges

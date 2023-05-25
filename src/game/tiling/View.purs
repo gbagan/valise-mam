@@ -1,13 +1,13 @@
 module Game.Tiling.View (view) where
 
 import MamPrelude
-import Lib.Util (coords)
+import Lib.Helpers (coords)
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (translate)
-import Game.Common (_isoCustom)
+import Game.Helpers (_isoCustom)
 import Game.Core (_position, _nbRows, _nbColumns, _pointer, _help)
 import Game.Tiling.Model
   ( Model
@@ -97,7 +97,7 @@ view model = template { config, board, rules, winTitle, customDialog } model
     H.div
       ( gridStyle rows columns 5 <> trackPointer <>
           [ H.class_ "ui-board"
-          , E.onContextMenu \_ → Rotate -- todo prevEff
+          , E.onContextMenuPrevent \_ → Rotate -- todo prevEff
           ]
       )
       [ H.svg [ P.viewBox 0 0 (50 * columns) (50 * rows) ] $ concat

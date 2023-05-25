@@ -27,7 +27,7 @@ import Game.Core
   )
 import Lib.Graph (Graph, Edge, (↔))
 import Lib.Update (UpdateMam)
-import Lib.Util (count, pairwise)
+import Lib.Helpers (count, pairwise)
 import UI.GraphEditor as GEditor
 
 data Move = MoveTo Int | Raise

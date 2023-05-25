@@ -19,7 +19,7 @@ import Game.Core
   , defaultSizeLimit
   , defaultUpdateScore
   )
-import Lib.Util (count, swap)
+import Lib.Helpers (count, swap)
 import Lib.Update (UpdateMam, delay)
 
 type Position = Array (Maybe Int)

@@ -1,7 +1,7 @@
 module Game.Queens.View (view) where
 
 import MamPrelude
-import Lib.Util (map2, map3)
+import Lib.Helpers (map2, map3)
 import Data.Array.NonEmpty as N
 import Pha.Html (Html)
 import Pha.Html as H

@@ -3,7 +3,7 @@ module Game.Baseball.Model where
 import MamPrelude
 import Data.FoldableWithIndex (allWithIndex)
 import Control.Monad.Gen.Trans (shuffle)
-import Lib.Util (chooseInt')
+import Lib.Helpers (chooseInt')
 import Lib.Update (UpdateMam)
 import Game.Core
   ( class Game

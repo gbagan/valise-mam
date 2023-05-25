@@ -31,7 +31,7 @@ import Game.Core
   , _nbColumns
   )
 import Lib.Update (UpdateMam)
-import Lib.Util (count, dCoords, map2)
+import Lib.Helpers (count, dCoords, map2)
 
 piecesList ∷ Array Piece
 piecesList = [ Rook, Bishop, King, Knight, Queen ]

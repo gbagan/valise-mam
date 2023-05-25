@@ -3,7 +3,7 @@ module UI.Icon where
 import MamPrelude
 
 import Data.Tuple (uncurry)
-import Lib.Util (partialUpdate, class PartialRecord)
+import Lib.Helpers (partialUpdate, class PartialRecord)
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P

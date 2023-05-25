@@ -2,7 +2,7 @@ module Game.Paths.Model where
 
 import MamPrelude
 import Data.Array (init)
-import Lib.Util (chooseInt', dCoords, rangeWithStep)
+import Lib.Helpers (chooseInt', dCoords, rangeWithStep)
 import Game.Core
   ( GModel
   , class Game

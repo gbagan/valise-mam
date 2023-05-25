@@ -1,4 +1,4 @@
-module Game.Common where
+module Game.Helpers where
 
 import MamPrelude
 
@@ -26,12 +26,12 @@ releasePointerCapture ev =
     for_ (Element.fromEventTarget target) \elem ->
       PElem.releasePointerCapture (PE.pointerId ev) elem
 
-pointerDecoder ∷ MouseEvent → Effect (Maybe { x ∷ Number, y ∷ Number })
-pointerDecoder ev = do
+pointerDecoder ∷ forall a. ({ x ∷ Number, y ∷ Number } → a) → MouseEvent → Effect (Maybe a)
+pointerDecoder f ev = do
   case E.currentTarget (ME.toEvent ev) >>= Element.fromEventTarget of
     Just el → do
       { left, top, width, height } ← Element.getBoundingClientRect el
-      pure $ Just
+      pure $ Just $ f
         { x: (toNumber (ME.clientX ev) - left) / width
         , y: (toNumber (ME.clientY ev) - top) / height
         }

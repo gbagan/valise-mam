@@ -5,7 +5,7 @@ import MamPrelude
 import Data.FoldableWithIndex (allWithIndex)
 import Game.Core (class Game, class MsgWithCore, class MsgWithDnd, class ScoreGame, CoreMsg, DndMsg, GModel, Objective(..), ShowWinPolicy(..), SizeLimit(..), _ext, _nbColumns, _nbRows, _position, coreUpdate, defaultOnNewGame, dndUpdate, genModel, loadFromJson', saveToJson', updateScore')
 import Lib.Update (UpdateMam)
-import Lib.Util (count, dCoords)
+import Lib.Helpers (count, dCoords)
 
 -- une position représente pour chaque numéro de case le nombre de jetons sur cette case
 -- un coup (move) est du type {from, to} lorsque l'on souhaite déplacer une pile de jetons 

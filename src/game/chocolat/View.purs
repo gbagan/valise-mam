@@ -3,7 +3,7 @@ module Game.Chocolat.View (view) where
 import MamPrelude
 import Game.Chocolat.Model (Model, Msg(..), Move(..), SoapMode(..), _soap, _soapMode, _moveWhenHover, cutLine)
 import Game.Core (_position, _nbRows, _nbColumns, _pointer, possibleMoves, PointerPosition)
-import Lib.Util (repeat2)
+import Lib.Helpers (repeat2)
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P

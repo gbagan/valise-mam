@@ -4,7 +4,7 @@ import MamPrelude
 
 import Game.Core (_position, _nbRows, _nbColumns)
 import Game.Bicolor.Model (Model, Msg(..), Card(..), Phase(..), Mode(..), _mode, _phase)
-import Lib.Util (coords)
+import Lib.Helpers (coords)
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P

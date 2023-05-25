@@ -5,6 +5,7 @@ import MamPrelude
 import Data.Number (acos)
 import Lib.Graph (Graph, Edge, (↔), Position)
 import Game.Core (CoreMsg(SetPointer), isLevelFinished, PointerPosition, core, _position, _pointer)
+import Game.Helpers (pointerDecoder)
 import Game.Eternal.Model
   ( Model
   , Msg(..)
@@ -29,6 +30,7 @@ import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSelectGroup', icons2Players, iundo, iredo, ireset, iclear, irules)
 import UI.Template (template, card, incDecGrid, svgCursorStyle)
 import UI.GraphEditor as GEditor
+import Web.PointerEvent.PointerEvent as PE
 
 getCoords ∷ Graph → Int → Maybe Position
 getCoords graph u = graph.vertices !! u
@@ -58,8 +60,8 @@ cursor pp _ = H.use
 -- todo: refactoriser
 dndBoardProps ∷ Array (H.Prop Msg)
 dndBoardProps =
-  [ E.onPointerDown $ core <<< SetPointer
-  , E.onPointerMove $ core <<< SetPointer
+  [ E.onPointerDown' $ pointerDecoder (core <<< SetPointer) <<< PE.toMouseEvent
+  , E.onPointerMove' $ pointerDecoder (core <<< SetPointer) <<< PE.toMouseEvent
   , E.onPointerUp \_ → DropOnBoard
   , E.onPointerLeave \_ → LeaveGuard
   ]

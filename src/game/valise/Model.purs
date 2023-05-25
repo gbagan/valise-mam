@@ -3,10 +3,7 @@ module Game.Valise.Model where
 import MamPrelude
 
 import Data.Map as Map
-import Game.Common (pointerDecoder)
 import Lib.Update (UpdateMam, delay)
-import Web.PointerEvent (PointerEvent)
-import Web.PointerEvent.PointerEvent as PE
 
 type Model =
   { isOpen ∷ Boolean
@@ -54,7 +51,7 @@ data Msg
   = ShowHelp String
   | ToggleSwitch
   | SetDrag (Maybe { name ∷ String, x ∷ Number, y ∷ Number })
-  | MoveObject PointerEvent
+  | MoveObject { x :: Number, y :: Number}
   | NoAction
 
 update ∷ Msg → UpdateMam Model Msg Unit
@@ -62,11 +59,10 @@ update (ShowHelp help) = modify_ $ over _help (if help == "" then identity else 
   >>> set _helpVisible (help ≠ "")
 update ToggleSwitch = _isSwitchOn %= not
 update (SetDrag d) = _drag .= d
-update (MoveObject ev) = do
-  pos ← liftEffect $ pointerDecoder (PE.toMouseEvent ev)
+update (MoveObject {x, y}) = do
   model ← get
-  case pos, model.drag of
-    Just { x, y }, Just { name, x: x2, y: y2 } →
+  case model.drag of
+    Just { name, x: x2, y: y2 } →
       _positions ∘ at name .= Just { x: x - x2, y: y - y2 }
-    _, _ → pure unit
+    _ → pure unit
 update NoAction = pure unit

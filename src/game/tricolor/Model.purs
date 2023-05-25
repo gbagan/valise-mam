@@ -15,7 +15,7 @@ import Game.Core
   , defaultSizeLimit
   , defaultUpdateScore
   )
-import Lib.Util (chooseInt')
+import Lib.Helpers (chooseInt')
 import Lib.Update (UpdateMam)
 
 -- une position est un tableau qui indique pour chaque sommmet la couleur du sommet

@@ -21,7 +21,7 @@ import Game.Core
   , _nbColumns
   , defaultUpdateScore
   )
-import Lib.Util (chooseInt')
+import Lib.Helpers (chooseInt')
 import Lib.Update (UpdateMam)
 
 data Move = FromLeft Int | FromRight Int | FromTop Int | FromBottom Int

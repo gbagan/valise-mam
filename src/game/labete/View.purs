@@ -3,14 +3,14 @@ module Game.Labete.View (view) where
 import MamPrelude
 import Web.UIEvent.MouseEvent as ME
 import Web.PointerEvent.PointerEvent as PE
-import Lib.Util (coords, map3)
+import Lib.Helpers (coords, map3)
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc, translate)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, scoreFn)
-import Game.Common (_isoCustom)
+import Game.Helpers (_isoCustom, pointerDecoder)
 import Game.Labete.Model
   ( Model
   , Msg(..)
@@ -99,10 +99,17 @@ view model = template { config, board, rules, winTitle, customDialog, scoreDialo
         ]
     )
 
+  handlePointerDown ev = do
+    let mev = PE.toMouseEvent ev
+    if ME.shiftKey mev then do
+      pointerDecoder StartZone2 mev
+    else
+      pure Nothing
+
   grid = H.div
     ( gridStyle rows columns 5 <> trackPointer <>
         [ H.class_ "ui-board"
-        , E.onPointerDown StartZone2
+        , E.onPointerDown' handlePointerDown
         ]
     )
     [ H.svg [ P.viewBox 0 0 (50 * columns) (50 * rows) ]

@@ -1,7 +1,7 @@
 module Game.Eternal.Model where
 
 import MamPrelude
-import Game.Common (releasePointerCapture)
+import Game.Helpers (releasePointerCapture)
 import Game.Core
   ( class Game
   , class MsgWithCore
@@ -25,7 +25,7 @@ import Game.Core
   )
 import Lib.Graph (Graph, Edge, (↔))
 import Lib.Update (UpdateMam)
-import Lib.Util (count, elements', repeat2)
+import Lib.Helpers (count, elements', repeat2)
 import UI.GraphEditor as GEditor
 import Web.Event.Event (stopPropagation)
 import Web.PointerEvent.PointerEvent (PointerEvent, toEvent)

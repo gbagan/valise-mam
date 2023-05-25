@@ -30,7 +30,7 @@ import Game.Core
   )
 import Lib.Update (UpdateMam)
 import Control.Monad.Gen (chooseBool)
-import Lib.Util (count, repeat2, dCoords, chooseInt')
+import Lib.Helpers (count, repeat2, dCoords, chooseInt')
 
 type Position = Array Boolean
 type Move = { from ∷ Int, to ∷ Int }

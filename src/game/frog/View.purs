@@ -2,7 +2,7 @@ module Game.Frog.View (view) where
 
 import MamPrelude
 import Data.FoldableWithIndex (foldMapWithIndex)
-import Lib.Util (map2, pairwise, rangeWithStep')
+import Lib.Helpers (map2, pairwise, rangeWithStep')
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P

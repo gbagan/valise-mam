@@ -2,7 +2,7 @@ module Game.Paths.View (view) where
 
 import MamPrelude
 import Data.FoldableWithIndex (foldMapWithIndex)
-import Lib.Util (coords)
+import Lib.Helpers (coords)
 import Game.Core (PointerPosition, _nbRows, _nbColumns, _position, _help, _pointer)
 import Game.Paths.Model (Model, Msg(..), Mode(..), _exit, _mode)
 import Pha.Html (Html, Prop)

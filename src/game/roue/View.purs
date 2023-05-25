@@ -4,7 +4,7 @@ import MamPrelude
 
 import Game.Core (PointerPosition, _position, _pointer, _locked)
 import Game.Roue.Model (Model, Msg(..), Location(..), _size, _rotation, _dragged, aligned, validRotation, validRotation')
-import Lib.Util (map2)
+import Lib.Helpers (map2)
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P

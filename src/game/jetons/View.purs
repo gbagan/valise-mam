@@ -6,7 +6,7 @@ import Pha.Html as H
 import Pha.Html.Util (pc, rgbColor)
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, scoreFn)
 import Game.Jetons.Model (Model, Msg, _dragged)
-import Lib.Util (coords)
+import Lib.Helpers (coords)
 import UI.Template (template, card, bestScoreDialog, incDecGrid, gridStyle, dndBoardProps, dndItemProps, cursorStyle)
 import UI.Icons (icongroup, iconBestScore, iconSizesGroup, iundo, iredo, ireset, irules)
 

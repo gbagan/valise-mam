@@ -1,7 +1,7 @@
 module Game.Solitaire.View where
 
 import MamPrelude
-import Lib.Util (coords)
+import Lib.Helpers (coords)
 import Data.FoldableWithIndex (foldMapWithIndex)
 import Pha.Html (Html)
 import Pha.Html as H

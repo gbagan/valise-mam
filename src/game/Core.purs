@@ -9,9 +9,9 @@ import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.Argonaut.Parser (jsonParser)
 import Data.List as List
 import Data.Map as Map
-import Game.Common (releasePointerCapture, pointerDecoder)
+import Game.Helpers (releasePointerCapture)
 import Lib.Update (UpdateMam, evalGen, delay, storageGet, storagePut)
-import Lib.Util (elements')
+import Lib.Helpers (elements')
 import Web.Event.Event (stopPropagation)
 import Web.PointerEvent (PointerEvent)
 import Web.PointerEvent.PointerEvent as PE
@@ -186,7 +186,7 @@ data CoreMsg
   | SetRulesDialog
   | SetScoreDialog
   | ConfirmNewGame
-  | SetPointer PointerEvent
+  | SetPointer { x ∷ Number, y ∷ Number }
   | SetPointerToNothing
   | ComputerStarts
   | Init
@@ -241,9 +241,7 @@ coreUpdate ConfirmNewGame = modify_ \model →
   case model ^. _dialog of
     ConfirmNewGameDialog model' → model'
     _ → model
-coreUpdate (SetPointer ev) = do
-  pos ← liftEffect $ pointerDecoder (PE.toMouseEvent ev)
-  when (isJust pos) (_pointer .= pos)
+coreUpdate (SetPointer pos) = _pointer .= Just pos
 coreUpdate SetPointerToNothing = _pointer .= Nothing
 coreUpdate ComputerStarts = do
   modify_ $ pushToHistory >>> over _turn oppositeTurn

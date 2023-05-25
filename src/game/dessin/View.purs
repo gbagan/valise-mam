@@ -60,7 +60,7 @@ view model = template { config, board, rules, winTitle, scoreDialog, customDialo
     H.div
       ( trackPointer <>
           [ H.class_ "ui-board dessin-board"
-          , E.onContextMenu \_ → Play Raise
+          , E.onContextMenuPrevent \_ → Play Raise
           ]
       )
       [ H.svg [ H.class_ "dessin-svg", P.viewBox 0 0 100 100 ] $ concat

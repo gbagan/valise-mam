@@ -19,7 +19,7 @@ import Game.Core
   , defaultUpdateScore
   )
 import Lib.Update (UpdateMam, evalGen)
-import Lib.Util (dCoords)
+import Lib.Helpers (dCoords)
 
 data Card = BlackCard | WhiteCard | EmptyCard
 

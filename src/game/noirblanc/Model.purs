@@ -25,7 +25,7 @@ import Game.Core
   )
 import Lib.KonamiCode (konamiCode)
 import Lib.Update (UpdateMam)
-import Lib.Util (chooseInt', dCoords)
+import Lib.Helpers (chooseInt', dCoords)
 
 -- une position est composée de 2 tableaux light et played
 -- light indique si la case de numéro i est allumée

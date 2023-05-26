@@ -1,41 +1,17 @@
 module UI.Template where
 
 import MamPrelude
+
+import Game.Core (class Game, class ScoreGame, GModel, Mode(..), Turn(..), SizeLimit(..), Dialog(..), _dialog, _nbColumns, _nbRows, _customSize, _mode, _turn, _showWin, _locked, isLevelFinished, sizeLimit, bestScore, canPlay, class MsgWithCore, core, CoreMsg(..), class MsgWithDnd, dndmsg, DndMsg(..))
+import Game.Helpers (pointerDecoder, releasePointerCapture)
+import Lib.Helpers (partialUpdate, class PartialRecord)
 import Pha.Html (Html, Prop)
 import Pha.Html as H
 import Pha.Html.Events as E
 import Pha.Html.Util (pc, translate)
-import Game.Core
-  ( class Game
-  , class ScoreGame
-  , GModel
-  , Mode(..)
-  , Turn(..)
-  , SizeLimit(..)
-  , Dialog(..)
-  , _dialog
-  , _nbColumns
-  , _nbRows
-  , _customSize
-  , _mode
-  , _turn
-  , _showWin
-  , _locked
-  , isLevelFinished
-  , sizeLimit
-  , bestScore
-  , canPlay
-  , class MsgWithCore
-  , core
-  , CoreMsg(..)
-  , class MsgWithDnd
-  , dndmsg
-  , DndMsg(..)
-  )
-import Game.Helpers (pointerDecoder)
-import Lib.Helpers (partialUpdate, class PartialRecord)
 import UI.Dialog (dialog) as D
 import UI.IncDecGrid (incDecGrid) as U
+import Web.Event.Event (stopPropagation)
 import Web.PointerEvent.PointerEvent as PE
 
 type Position = { x ∷ Number, y ∷ Number }
@@ -201,8 +177,15 @@ dndItemProps
 dndItemProps model { draggable, droppable, id, currentDragged } =
   [ H.class' "dragged" dragged
   , H.class' "candrop" candrop
-  , E.onPointerDown \ev → dndmsg (Drag draggable id ev)
-  , E.onPointerUp \ev → dndmsg (Drop candrop id ev)
+  , E.onPointerDown' \ev → do
+      releasePointerCapture ev
+      pure $ Just $ dndmsg (Drag draggable id)
+  , E.onPointerUp' \ev → do
+      if candrop then do
+        stopPropagation $ PE.toEvent ev
+        pure $ Just $ dndmsg (Drop id)
+      else
+        pure Nothing
   ]
   where
   candrop = droppable && (currentDragged # maybe false \d → canPlay model { from: d, to: id })

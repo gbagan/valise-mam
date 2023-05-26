@@ -3,34 +3,21 @@ module Game.Eternal.View (view) where
 import MamPrelude
 
 import Data.Number (acos)
-import Lib.Graph (Graph, Edge, (↔), Position)
 import Game.Core (CoreMsg(SetPointer), isLevelFinished, PointerPosition, core, _position, _pointer)
-import Game.Helpers (pointerDecoder)
-import Game.Eternal.Model
-  ( Model
-  , Msg(..)
-  , Phase(..)
-  , Rules(..)
-  , GraphKind(..)
-  , isValidNextMove
-  , _graph
-  , _phase
-  , _graphkind
-  , _draggedGuard
-  , _rules
-  , _nextmove
-  , _geditor
-  )
+import Game.Eternal.Model (Model, Msg(..), Phase(..), Rules(..), GraphKind(..), isValidNextMove, _graph, _phase, _graphkind, _draggedGuard, _rules, _nextmove, _geditor)
+import Game.Helpers (pointerDecoder, releasePointerCapture)
+import Lib.Graph (Graph, Edge, (↔), Position)
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (translate, pc)
+import UI.GraphEditor as GEditor
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSelectGroup', icons2Players, iundo, iredo, ireset, iclear, irules)
 import UI.Template (template, card, incDecGrid, svgCursorStyle)
-import UI.GraphEditor as GEditor
 import Web.PointerEvent.PointerEvent as PE
+import Web.Event.Event (stopPropagation)
 
 getCoords ∷ Graph → Int → Maybe Position
 getCoords graph u = graph.vertices !! u
@@ -78,8 +65,18 @@ dndItemProps _ { draggable, droppable, id, currentDragged } =
   [ H.class' "draggable" draggable
   , H.class' "dragged" dragged
   , H.class' "candrop" candrop
-  , E.onPointerDown \ev → if draggable then DragGuard id ev else NoAction
-  , E.onPointerUp \ev → if candrop then DropGuard id ev else NoAction
+  , E.onPointerDown' \ev →
+      if draggable then do
+        releasePointerCapture ev
+        pure $ Just $ DragGuard id
+      else
+        pure Nothing
+  , E.onPointerUp' \ev →
+      if candrop then do
+        stopPropagation $ PE.toEvent ev
+        pure $ Just $ DropGuard id
+      else
+        pure Nothing
   ]
   where
   candrop = droppable && isJust currentDragged

@@ -12,9 +12,7 @@ import Pha.Html.Events as E
 import UI.Dialog (dialog)
 import UI.Icon (iconbutton, Icon(..))
 import Web.Event.Event (stopPropagation)
-import Web.UIEvent.MouseEvent (MouseEvent)
 import Web.UIEvent.MouseEvent as ME
-import Web.PointerEvent (PointerEvent)
 import Web.PointerEvent.PointerEvent as PE
 
 data Mode = VertexMode | AddEMode | DeleteMode | MoveMode
@@ -36,10 +34,10 @@ init = { graph: emptyGraph, mode: VertexMode, selectedVertex: Nothing, currentPo
 
 data Msg
   = AddVertex { x ∷ Number, y ∷ Number }
-  | SelectVertex Int PointerEvent
+  | SelectVertex Int
   | PointerUp Int
   | Move { x ∷ Number, y ∷ Number }
-  | DeleteVertex Int MouseEvent
+  | DeleteVertex Int
   | DeleteEdge Edge
   | DropOrLeave
   | SetMode Mode
@@ -57,8 +55,7 @@ update lens = case _ of
       else
         model
 
-  SelectVertex i ev → do
-    liftEffect $ stopPropagation $ PE.toEvent ev
+  SelectVertex i → do
     lens %= \model →
       if model.mode `elem` [ AddEMode, VertexMode ] then
         model { selectedVertex = Just i }
@@ -90,15 +87,9 @@ update lens = case _ of
           model { currentPosition = Just pos }
         _, _ → model
 
-  DeleteVertex i ev → do
-    model ← get
-    when ((model ^. lens).mode == VertexMode)
-      (liftEffect $ stopPropagation $ ME.toEvent ev)
-    lens %= \model2 →
-      if model2.mode == DeleteMode then
-        model2 { graph = Graph.removeVertex i model2.graph }
-      else
-        model2
+  DeleteVertex i → do
+    lens %= \model →
+      model { graph = Graph.removeVertex i model.graph }
 
   DeleteEdge (Edge u v) →
     lens %= \model →
@@ -157,8 +148,17 @@ view { graph, mode, currentPosition, selectedVertex } onOk =
                           , H.class' "deletemode" $ mode == DeleteMode
                           , P.stroke $ if selectedVertex == Just i then "red" else "blue"
                           --,   P.fill "blue"
-                          , E.onClick \ev → geditormsg (DeleteVertex i ev)
-                          , E.onPointerDown \ev → geditormsg (SelectVertex i ev)
+                          , E.onClick' \ev →
+                              if mode == VertexMode then do
+                                stopPropagation $ ME.toEvent ev
+                                pure Nothing
+                              else if mode == DeleteMode then
+                                pure $ Just $ geditormsg (DeleteVertex i)
+                              else
+                                pure Nothing
+                          , E.onPointerDown' \ev → do
+                              stopPropagation $ PE.toEvent ev
+                              pure $ Just $ geditormsg (SelectVertex i)
                           , E.onPointerUp \_ → geditormsg (PointerUp i)
                           ]
                 , H.when (mode == AddEMode) \_ →

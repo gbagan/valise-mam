@@ -9,12 +9,8 @@ import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.Argonaut.Parser (jsonParser)
 import Data.List as List
 import Data.Map as Map
-import Game.Helpers (releasePointerCapture)
 import Lib.Update (UpdateMam, evalGen, delay, storageGet, storagePut)
 import Lib.Helpers (elements')
-import Web.Event.Event (stopPropagation)
-import Web.PointerEvent (PointerEvent)
-import Web.PointerEvent.PointerEvent as PE
 
 -- ConfirmNewGame contient le futur état d'une nouvelle partie
 data Dialog a = Rules | NoDialog | ConfirmNewGameDialog a | ScoreDialog | CustomDialog
@@ -441,8 +437,8 @@ bestScore ∷ ∀ pos ext mov. ScoreGame pos ext mov ⇒ GModel pos ext → Mayb
 bestScore model = model ^. _scores ∘ at (scoreHash' model)
 
 data DndMsg i
-  = Drag Boolean i PointerEvent
-  | Drop Boolean i PointerEvent
+  = Drag Boolean i
+  | Drop i
   | Leave
   | DropOnBoard
 
@@ -456,13 +452,9 @@ dndUpdate
   ⇒ Lens' (GModel pos ext) (Maybe i)
   → DndMsg i
   → UpdateMam (GModel pos ext) msg Unit
-dndUpdate _dragged (Drag draggable i ev) = do
-  liftEffect $ releasePointerCapture ev
+dndUpdate _dragged (Drag draggable i) = do
   when draggable (_dragged .= Just i)
-dndUpdate _dragged (Drop candrop i ev) =
-  when candrop do
-    liftEffect $ stopPropagation $ PE.toEvent ev
-    dropA _dragged i
+dndUpdate _dragged (Drop i) = dropA _dragged i
 dndUpdate _dragged Leave = _dragged .= Nothing
 dndUpdate _dragged DropOnBoard = _dragged .= Nothing
 

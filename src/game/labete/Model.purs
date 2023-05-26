@@ -1,7 +1,7 @@
 module Game.Labete.Model where
 
 import MamPrelude
-import Game.Helpers (pointerDecoder, _isoCustom)
+import Game.Helpers (_isoCustom)
 import Game.Core
   ( class Game
   , class ScoreGame

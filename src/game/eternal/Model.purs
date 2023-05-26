@@ -1,7 +1,6 @@
 module Game.Eternal.Model where
 
 import MamPrelude
-import Game.Helpers (releasePointerCapture)
 import Game.Core
   ( class Game
   , class MsgWithCore
@@ -27,8 +26,6 @@ import Lib.Graph (Graph, Edge, (↔))
 import Lib.Update (UpdateMam)
 import Lib.Helpers (count, elements', repeat2)
 import UI.GraphEditor as GEditor
-import Web.Event.Event (stopPropagation)
-import Web.PointerEvent.PointerEvent (PointerEvent, toEvent)
 
 data GraphKind = Path | Cycle | Grid | Biclique | CustomGraph
 
@@ -379,8 +376,8 @@ data Msg
   | GEditor GEditor.Msg
   | SetGraphKind GraphKind
   | SetRules Rules
-  | DragGuard Int PointerEvent
-  | DropGuard Int PointerEvent
+  | DragGuard Int
+  | DropGuard Int
   | LeaveGuard
   | DropOnBoard
   | StartGame
@@ -413,12 +410,8 @@ update MoveGuards = do
   model ← get
   playA $ Defense (model ^. _nextmove)
 update (ToggleGuard _) = pure unit
-update (DragGuard x ev) = do
-  liftEffect $ releasePointerCapture ev
-  _draggedGuard .= Just x
-update (DropGuard to ev) = do
-  liftEffect $ stopPropagation $ toEvent ev
-  modify_ $ dragGuard (Just to)
+update (DragGuard x) = _draggedGuard .= Just x
+update (DropGuard to) = modify_ $ dragGuard (Just to)
 update LeaveGuard = _draggedGuard .= Nothing
 update DropOnBoard = modify_ $ dragGuard Nothing
 update (Play x) = do

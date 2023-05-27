@@ -12,6 +12,8 @@ import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (translate, pc)
+import Pha.Svg as S
+import Pha.Svg.Attributes as SA
 import UI.GraphEditor as GEditor
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSelectGroup', icons2Players, iundo, iredo, ireset, iclear, irules)
@@ -32,13 +34,13 @@ translateGuard ∷ Position → String
 translateGuard { x, y } = translate (pc x) (pc y)
 
 cursor ∷ ∀ a b. PointerPosition → b → Html a
-cursor pp _ = H.use
+cursor pp _ = S.use
   $
     [ P.href "#roman"
-    , P.width 6
-    , P.height 12
-    , P.x (-3.0)
-    , P.y (-6.0)
+    , SA.width 6
+    , SA.height 12
+    , SA.x (-3.0)
+    , SA.y (-6.0)
     , H.style "pointer-events" "none"
     ]
   <> svgCursorStyle pp
@@ -106,17 +108,16 @@ drawArrow x1 x2 y1 y2 =
       <> show y4
       <> "z"
   in
-    H.g
+    S.g
       []
-      [ H.line
-          [ -- key?
-            P.x1 x1
-          , P.y1 y1
-          , P.x2 x2
-          , P.y2 y2
+      [ S.line
+          [ SA.x1 x1
+          , SA.y1 y1
+          , SA.x2 x2
+          , SA.y2 y2
           , H.class_ "dessin-line2"
           ]
-      , H.path [ P.d arrowPath, P.fill "red" ]
+      , S.path [ SA.d arrowPath, SA.fill "red" ]
       ]
 
 view ∷ Model → Html Msg
@@ -153,69 +154,69 @@ view model = template { config, board, rules, winTitle, customDialog } model
           , H.style "height" "100%"
           ]
       )
-      [ H.svg [ H.class_ "eternal-svg", P.viewBox 0 0 100 100 ]
-          [ H.g []
+      [ S.svg [ H.class_ "eternal-svg", SA.viewBox 0.0 0.0 100.0 100.0 ]
+          [ S.g []
               $ graph.edges
               <#> \edge →
                 H.maybe (getCoordsOfEdge graph edge) \{ x1, x2, y1, y2 } →
-                  H.line
+                  S.line
                     [ -- key?
-                      P.x1 $ 100.0 * x1
-                    , P.y1 $ 100.0 * y1
-                    , P.x2 $ 100.0 * x2
-                    , P.y2 $ 100.0 * y2
+                      SA.x1 $ 100.0 * x1
+                    , SA.y1 $ 100.0 * y1
+                    , SA.x2 $ 100.0 * x2
+                    , SA.y2 $ 100.0 * y2
                     , H.class_ "dessin-line1"
                     ]
           , H.when (grules == ManyGuards) \_ →
-              H.g []
+              S.g []
                 $ (zip guards (model ^. _nextmove))
                 <#> \(from ∧ to) →
                   H.when (from ≠ to) \_ →
                     H.maybe (getCoordsOfEdge graph (from ↔ to)) \{ x1, x2, y1, y2 } →
                       drawArrow (x1 * 100.0) (x2 * 100.0) (y1 * 100.0) (y2 * 100.0)
-          , H.g []
+          , S.g []
               $ graph.vertices
               <#> \{ x, y } →
-                H.circle $
-                  [ P.cx $ 100.0 * x
-                  , P.cy $ 100.0 * y
-                  , P.r 3.0
-                  , P.fill "blue"
+                S.circle $
+                  [ SA.cx $ 100.0 * x
+                  , SA.cy $ 100.0 * y
+                  , SA.r 3.0
+                  , SA.fill "blue"
                   ]
-          , H.g []
+          , S.g []
               $ guards
               <#> \index →
-                H.use
+                S.use
                   [ P.href "#roman"
-                  , P.width 6
-                  , P.height 12
-                  , P.x (-3)
-                  , P.y (-6)
+                  , SA.width 6
+                  , SA.height 12
+                  , SA.x (-3)
+                  , SA.y (-6)
                   , H.class_ "eternal-guard"
                   , H.class' "no-move" (phase == PrepPhase)
                   , H.style "transform" $ fromMaybe "none" (translateGuard <$> getCoords graph index)
                   ]
           , H.maybe (position.attacked) \attack →
-              H.use
+              S.use
                 [ P.href "#eternal-attack"
-                , P.width 8
-                , P.height 8
-                , P.x (-4)
-                , P.y (-4)
+                , SA.width 8
+                , SA.height 8
+                , SA.x (-4)
+                , SA.y (-4)
                 , H.style "transform" $ fromMaybe "none" (translateGuard <$> getCoords graph attack)
                 , H.style "pointer-events" "none"
                 ]
           , H.fromMaybe $ cursor <$> model ^. _pointer <*> model ^. _draggedGuard
-          , H.g []
+          , S.g []
               $ graph.vertices
               # mapWithIndex \i pos →
-                  H.rect
+                  S.rect
                     $
-                      [ P.width 10
-                      , P.height 10
-                      , P.x (-5)
-                      , P.y (-5)
-                      , P.fill "transparent"
+                      [ SA.width 10
+                      , SA.height 10
+                      , SA.x (-5)
+                      , SA.y (-5)
+                      , SA.fill "transparent"
                       , H.style "transform" $ translateGuard pos
                       , E.onClick \_ → if grules == ManyGuards && isJust position.attacked then NoAction else Play i
                       , H.class' "eternal-sel" $ phase == PrepPhase || isJust position.attacked && (grules == ManyGuards) == elem i guards

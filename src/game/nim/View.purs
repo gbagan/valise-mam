@@ -6,6 +6,8 @@ import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (translate, px')
+import Pha.Svg as S
+import Pha.Svg.Attributes as SA
 import Game.Core (Turn(..), canPlay, isLevelFinished, _position, _turn)
 import Game.Nim.Model (Model, Msg(..), Move(..), Position(..), _nbPiles, _length)
 import UI.Template (template, card)
@@ -28,14 +30,14 @@ view model = template { config, board, rules, winTitle } model
       ]
 
   drawRow i =
-    H.rect
+    S.rect
       [ H.class_ "nim-row"
       , H.class_ $ if length == 5 then "nim-row-5" else "nim-row-10"
-      , P.y $ toNumber (10 + 19 * i)
+      , SA.y $ toNumber (10 + 19 * i)
       ]
 
   drawSquare i j =
-    H.rect
+    S.rect
       [ H.class_ "nim-square"
       , E.onClick \_ → Play (Move i j)
       , H.style "transform"
@@ -45,24 +47,24 @@ view model = template { config, board, rules, winTitle } model
       ]
 
   drawPeg i player j =
-    H.use
+    S.use
       [ P.href "#meeple"
-      , P.width 8
-      , P.height 8
+      , SA.width 8
+      , SA.height 8
       , H.class_ "nim-player"
-      , P.fill $ if player == 0 then "blue" else "red"
+      , SA.fill $ if player == 0 then "blue" else "red"
       , H.style "transform" $ translate (px' $ (if length == 5 then 26 else 1) + 10 * j) (px' $ 11 + 19 * i)
       ]
 
   board =
     H.div [ H.class_ "ui-board nim-board" ]
-      [ H.svg [ P.viewBox 0 0 100 100 ]
+      [ S.svg [ SA.viewBox 0.0 0.0 100.0 100.0 ]
           ( position # mapWithIndex \i (Position p1 p2) →
-              H.g []
+              S.g []
                 [ drawRow i
-                , H.g [] $
+                , S.g [] $
                     repeat length (drawSquare i)
-                , H.g []
+                , S.g []
                     $ [ p1, p2 ]
                     # mapWithIndex (drawPeg i)
                 ]

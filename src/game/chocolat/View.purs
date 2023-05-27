@@ -9,6 +9,8 @@ import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (translate)
+import Pha.Svg as S
+import Pha.Svg.Attributes as SA
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, icons2Players, iconSelectGroup', iundo, iredo, ireset, irules)
 import UI.Template (template, card, gridStyle, incDecGrid, turnMessage, winTitleFor2Players, svgCursorStyle, trackPointer)
@@ -20,14 +22,14 @@ inside model row col = col >= left && col <= right - 1 && row >= top && row <= b
 
 soapCursor ∷ ∀ a. PointerPosition → Html a
 soapCursor pp =
-  H.use
+  S.use
     $
       [ P.href "#skull"
       , H.class_ "paths-cursor"
-      , P.x (-20.0)
-      , P.y (-20.0)
-      , P.width 26
-      , P.height 26
+      , SA.x (-20.0)
+      , SA.y (-20.0)
+      , SA.width 26
+      , SA.height 26
       ]
     <> svgCursorStyle pp
 
@@ -54,10 +56,10 @@ view model = template { config, board, rules, winTitle } model
       ]
 
   cutter row col move =
-    H.circle
-      [ P.cx $ 50.0 * toNumber col
-      , P.cy $ 50.0 * toNumber row
-      , P.r 7.0
+    S.circle
+      [ SA.cx $ 50.0 * toNumber col
+      , SA.cy $ 50.0 * toNumber row
+      , SA.r 7.0
       , H.class_ "chocolat-cutter"
       , E.onPointerEnter \_ → SetHover (Just move)
       , E.onPointerLeave \_ → SetHover Nothing
@@ -66,17 +68,17 @@ view model = template { config, board, rules, winTitle } model
 
   grid =
     H.div (gridStyle rows columns 3 <> trackPointer <> [ H.class_ "ui-board" ])
-      [ H.svg [ P.viewBox (-7) (-7) (50 * columns + 14) (50 * rows + 14) ]
-          [ H.g [] $
+      [ S.svg [ SA.viewBox (-7.0) (-7.0) (50.0 * toNumber columns + 14.0) (50.0 * toNumber rows + 14.0) ]
+          [ S.g [] $
               repeat2 rows columns \row col →
-                H.rect
-                  [ P.transform $ translate (show $ 50 * col) (show $ 50 * row)
+                S.rect
+                  [ SA.transform $ translate (show $ 50 * col) (show $ 50 * row)
                   , H.class_ "chocolat-square"
                   , H.class' "soap" $ model ^. _soap # maybe false \p → { row, col } == p
                   , H.class' "hidden" $ not (inside model row col)
                   , E.onClick \_ → if isNothing soap then SetSoap row col else NoAction
                   ]
-          , H.g []
+          , S.g []
               $ possibleMoves model
               >>= case _ of
                 FromLeft i → [ cutter pos.top i (FromLeft i), cutter pos.bottom i (FromLeft i) ]
@@ -84,23 +86,23 @@ view model = template { config, board, rules, winTitle } model
                 FromTop i → [ cutter i pos.left (FromTop i), cutter i pos.right (FromTop i) ]
                 FromBottom i → [ cutter i pos.left (FromBottom i), cutter i pos.right (FromBottom i) ]
           , H.maybe soap \{ row, col } →
-              H.use
+              S.use
                 [ P.href "#skull"
-                , P.x $ 50 * col + 12
-                , P.y $ 50 * row + 12
-                , P.width 26
-                , P.height 26
+                , SA.x $ 50 * col + 12
+                , SA.y $ 50 * row + 12
+                , SA.width 26
+                , SA.height 26
                 , H.class_ "chocolat-skull"
                 ]
           , H.maybe (model ^. _moveWhenHover) \m →
               let
                 { x1, x2, y1, y2 } = cutLine model m
               in
-                H.line
-                  [ P.x1 $ 50 * x1
-                  , P.y1 $ 50 * y1
-                  , P.x2 $ 50 * x2
-                  , P.y2 $ 50 * y2
+                S.line
+                  [ SA.x1 $ 50 * x1
+                  , SA.y1 $ 50 * y1
+                  , SA.x2 $ 50 * x2
+                  , SA.y2 $ 50 * y2
                   , H.class_ "chocolat-cut-line"
                   ]
           , H.maybe pointer \pp →

@@ -8,6 +8,8 @@ import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
+import Pha.Svg as S
+import Pha.Svg.Attributes as SA
 import Web.Event.Event (preventDefault)
 
 data Icon = IconText String | IconSymbol String | IconNone
@@ -51,8 +53,8 @@ iconbutton opts props =
         ] <> props
       ) $
       [ case icon of
-          IconSymbol symbol → H.svg ((uncurry H.style <$> st) <> [ P.width "100%", P.height "100%" ])
-            [ H.use [ P.href symbol, H.class_ "ui-icon-symbol" ]
+          IconSymbol symbol → S.svg ((uncurry H.style <$> st) <> [ SA.width "100%", SA.height "100%" ])
+            [ S.use [ P.href symbol, H.class_ "ui-icon-symbol" ]
             ]
           IconText t → H.span [ H.class_ "ui-icon-text" ] [ H.text t ]
           IconNone → H.empty

@@ -10,6 +10,7 @@ import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc)
+import Pha.Svg as S
 import UI.Icon (Icon(..))
 import UI.Icons (iconbutton, icongroup, iconSelectGroup', iundo, iredo, ireset, irules)
 import UI.Template (template, card, incDecGrid, gridStyle)
@@ -19,7 +20,7 @@ square card props =
   H.div ([ H.class_ "bicolor-square" ] <> props)
     [ H.div [ H.class_ "bicolor-square-inner", H.class' "blanc" (card == WhiteCard), H.class' "empty" (card == EmptyCard) ]
         [ H.div [ H.class_ "bicolor-square-blanc" ]
-            [ H.svg [ H.class_ "ui-absolute bicolor-card" ] [ H.use [ P.href "#card" ] ]
+            [ S.svg [ H.class_ "ui-absolute bicolor-card" ] [ S.use [ P.href "#card" ] ]
             ]
         , H.div [ H.class_ "bicolor-square-noir" ] []
         ]

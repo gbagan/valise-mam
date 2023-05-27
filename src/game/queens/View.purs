@@ -8,6 +8,8 @@ import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc)
+import Pha.Svg as S
+import Pha.Svg.Attributes as SA
 import Game.Core (_position, _nbRows, _nbColumns, _help, _pointer)
 import Game.Queens.Model
   ( Model
@@ -47,8 +49,8 @@ square { piece, capturable, selected, nonavailable } props =
     ) $
     if piece == Empty then []
     else
-      [ H.svg [ P.width "100%", P.height "100%", P.viewBox 0 0 100 100, H.class_ "queens-piece" ]
-          [ H.use [ P.href $ "#piece-" <> show piece, P.x 10, P.y 10, P.width 80, P.height 80 ]
+      [ S.svg [ H.style "width" "100%", H.style "height" "100%", SA.viewBox 0.0 0.0 100.0 100.0, H.class_ "queens-piece" ]
+          [ S.use [ P.href $ "#piece-" <> show piece, SA.x 10, SA.y 10, SA.width 80, SA.height 80 ]
           ]
       ]
 
@@ -112,8 +114,8 @@ view model = template { config, board, rules, customDialog, scoreDialog } model
 
   cursor pp =
     H.div ([ H.class_ "ui-cursor" ] <> cursorStyle pp rows columns 0.8)
-      [ H.svg [ P.width "100%", P.height "100%" ]
-          [ H.use [ P.href $ "#piece-" <> show selectedPiece ]
+      [ S.svg [ H.style "width" "100%", H.style "height" "100%" ]
+          [ S.use [ P.href $ "#piece-" <> show selectedPiece ]
           ]
       ]
 

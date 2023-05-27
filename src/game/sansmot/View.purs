@@ -4,13 +4,14 @@ import MamPrelude
 import Data.Map as Map
 import Pha.Html (Html)
 import Pha.Html as H
-import Pha.Html.Attributes as P
+import Pha.Svg as S
+import Pha.Svg.Attributes as SA
 import Pha.Html.Events as E
 import Pha.Html.Util (pc, translate)
 import Game.Sansmot.Model (Model, Msg(..), Page(..), pythaAnimation, carollAnimation)
 
 line' ∷ ∀ a. Int → Int → Int → Int → Array (H.Prop a) → Html a
-line' x1 y1 x2 y2 props = H.line ([ P.x1 $ toNumber x1, P.x2 $ toNumber x2, P.y1 $ toNumber y1, P.y2 $ toNumber y2 ] <> props)
+line' x1 y1 x2 y2 props = S.line ([ SA.x1 x1, SA.x2 x2, SA.y1 y1, SA.y2 y2 ] <> props)
 
 -- besoin d'un transform par défault pour empécher un bug sous safari
 defaultStyle ∷ ∀ a. Array (H.Prop a)
@@ -25,11 +26,11 @@ compStyle width height { translation: x ∧ y, duration } =
 
 pythaStyles ∷ ∀ a. Map String (Array (Array (H.Prop a)))
 pythaStyles = Map.fromFoldable
-  [ "a" ∧ [ [ P.opacity 0.0 ], defaultStyle, compStyle 700.0 300.0 { translation: 400 ∧ (-100), rotation: 0, duration: 600 } ]
-  , "b" ∧ [ [ P.opacity 0.0 ], defaultStyle, compStyle 700.0 300.0 { translation: 600 ∧ 0, rotation: 0, duration: 600 } ]
-  , "c" ∧ [ [ P.opacity 0.0 ], defaultStyle, compStyle 700.0 300.0 { translation: 400 ∧ 0, rotation: 0, duration: 600 } ]
-  , "d" ∧ [ [ P.opacity 0.0 ], defaultStyle, compStyle 700.0 300.0 { translation: 300 ∧ 200, rotation: 0, duration: 600 } ]
-  , "e" ∧ [ [ P.opacity 0.0 ], [] ]
+  [ "a" ∧ [ [ SA.opacity 0.0 ], defaultStyle, compStyle 700.0 300.0 { translation: 400 ∧ (-100), rotation: 0, duration: 600 } ]
+  , "b" ∧ [ [ SA.opacity 0.0 ], defaultStyle, compStyle 700.0 300.0 { translation: 600 ∧ 0, rotation: 0, duration: 600 } ]
+  , "c" ∧ [ [ SA.opacity 0.0 ], defaultStyle, compStyle 700.0 300.0 { translation: 400 ∧ 0, rotation: 0, duration: 600 } ]
+  , "d" ∧ [ [ SA.opacity 0.0 ], defaultStyle, compStyle 700.0 300.0 { translation: 300 ∧ 200, rotation: 0, duration: 600 } ]
+  , "e" ∧ [ [ SA.opacity 0.0 ], [] ]
   ]
 
 carollStyles ∷ ∀ a. Map String (Array (Array (H.Prop a)))
@@ -38,7 +39,7 @@ carollStyles = Map.fromFoldable
   , "b" ∧ [ defaultStyle, compStyle 1370.0 270.0 { translation: 550 ∧ 50, rotation: 0, duration: 600 } ]
   , "c" ∧ [ defaultStyle, compStyle 1370.0 270.0 { translation: 700 ∧ 0, rotation: 0, duration: 600 } ]
   , "d" ∧ [ defaultStyle, compStyle 1370.0 270.0 { translation: 950 ∧ (-100), rotation: 0, duration: 600 } ]
-  , "e" ∧ [ [ P.opacity 0.0 ], [] ]
+  , "e" ∧ [ [ SA.opacity 0.0 ], [] ]
   ]
 
 animPytha ∷ Model → Html Msg
@@ -50,27 +51,27 @@ animPytha { anim } =
       in
         pythaStyles ^? (ix key ∘ ix phase) ?: []
   in
-    H.svg [ H.class_ "sansmot-svg", P.viewBox 0 0 700 300, H.style "width" "84vmin", H.style "height" "36vmin" ]
-      [ H.path $ [ P.d "M 0 300 h 300 v -300 h -300 Z L 100 100 M 0 100 h 300 l -200 -100 v 300", P.fill "transparent", P.stroke "#000" ]
-      , H.path $
-          [ P.d "M 400 300 h 300 v -300 h -300 Z M 400 200 l 200 100 l 100 -200 l -200 -100 l -100 200"
-          , P.fill "transparent"
-          , P.stroke "#000"
+    S.svg [ H.class_ "sansmot-svg", SA.viewBox 0.0 0.0 700.0 300.0 ]
+      [ S.path $ [ SA.d "M 0 300 h 300 v -300 h -300 Z L 100 100 M 0 100 h 300 l -200 -100 v 300", SA.fill "transparent", SA.stroke "#000" ]
+      , S.path $
+          [ SA.d "M 400 300 h 300 v -300 h -300 Z M 400 200 l 200 100 l 100 -200 l -200 -100 l -100 200"
+          , SA.fill "transparent"
+          , SA.stroke "#000"
           ]
-      , H.path $ [ P.d "M 0 300 v -200 h 100 Z", P.fill "blue", P.stroke "#000" ] <> f "a"
-      , H.path $ [ P.d "M 0 300 h 100 v -200 Z", P.fill "yellow", P.stroke "#000" ] <> f "b"
-      , H.path $ [ P.d "M 100 0 h 200 v 100 Z", P.fill "#00FF00", P.stroke "#000" ] <> f "c"
-      , H.path $ [ P.d "M 100 0 v 100 h 200 Z", P.fill "red", P.stroke "#000" ] <> f "d"
-      , H.path $ [ P.d "M 0 300 v -200 h 100 Z", P.fill "blue", P.stroke "#000" ] <> f "e"
-      , H.path $ [ P.d "M 0 300 h 100 v -200 Z", P.fill "yellow", P.stroke "#000" ] <> f "e"
-      , H.path $ [ P.d "M 100 0 h 200 v 100 Z", P.fill "#00FF00", P.stroke "#000" ] <> f "e"
-      , H.path $ [ P.d "M 100 0 v 100 h 200 0 Z", P.fill "red", P.stroke "#000" ] <> f "e"
-      , H.text_ ([ P.x 5.0, P.y 55.0, H.style "font-size" "20" ] <> f "e") [ H.text "a" ] 
-      , H.text_ ([ P.x 46.0, P.y 12.0, H.style "font-size" "20" ] <> f "e")  [ H.text "a" ]
-      , H.text_ ([ P.x 105.0, P.y 210.0, H.style "font-size" "20" ] <> f "e") [ H.text "b" ]
-      , H.text_ ([ P.x 198.0, P.y 120.0, H.style "font-size" "20" ] <> f "e") [ H.text "b" ]
-      , H.text_ ([ P.x 450.0, P.y 98.0, H.style "font-size" "20" ] <> f "e") [ H.text "c" ]
-      , H.text_ ([ P.x 595.0, P.y 80.0, H.style "font-size" "20" ] <> f "e") [ H.text "c" ]
+      , S.path $ [ SA.d "M 0 300 v -200 h 100 Z", SA.fill "blue", SA.stroke "#000" ] <> f "a"
+      , S.path $ [ SA.d "M 0 300 h 100 v -200 Z", SA.fill "yellow", SA.stroke "#000" ] <> f "b"
+      , S.path $ [ SA.d "M 100 0 h 200 v 100 Z", SA.fill "#00FF00", SA.stroke "#000" ] <> f "c"
+      , S.path $ [ SA.d "M 100 0 v 100 h 200 Z", SA.fill "red", SA.stroke "#000" ] <> f "d"
+      , S.path $ [ SA.d "M 0 300 v -200 h 100 Z", SA.fill "blue", SA.stroke "#000" ] <> f "e"
+      , S.path $ [ SA.d "M 0 300 h 100 v -200 Z", SA.fill "yellow", SA.stroke "#000" ] <> f "e"
+      , S.path $ [ SA.d "M 100 0 h 200 v 100 Z", SA.fill "#00FF00", SA.stroke "#000" ] <> f "e"
+      , S.path $ [ SA.d "M 100 0 v 100 h 200 0 Z", SA.fill "red", SA.stroke "#000" ] <> f "e"
+      , S.text ([ SA.x 5.0, SA.y 55.0, H.style "font-size" "20" ] <> f "e") [ H.text "a" ] 
+      , S.text ([ SA.x 46.0, SA.y 12.0, H.style "font-size" "20" ] <> f "e")  [ H.text "a" ]
+      , S.text ([ SA.x 105.0, SA.y 210.0, H.style "font-size" "20" ] <> f "e") [ H.text "b" ]
+      , S.text ([ SA.x 198.0, SA.y 120.0, H.style "font-size" "20" ] <> f "e") [ H.text "b" ]
+      , S.text ([ SA.x 450.0, SA.y 98.0, H.style "font-size" "20" ] <> f "e") [ H.text "c" ]
+      , S.text ([ SA.x 595.0, SA.y 80.0, H.style "font-size" "20" ] <> f "e") [ H.text "c" ]
       ]
 
 animCaroll ∷ Model → Html Msg
@@ -82,15 +83,15 @@ animCaroll { anim } =
       in
         carollStyles ^? (ix key ∘ ix phase) ?: []
   in
-    H.svg [ H.class_ "sansmot-svg", P.viewBox (-10) (-10) 1370 270, P.width "90vw", P.height "19vw"] $ concat
-      [ [ H.path $ [ P.d "M 400 100 h 250 v -100 Z", P.fill "orange" ] <> f "a"
-        , H.path $ [ P.d "M 400 200 h 150 v -50 h 100 v -50 h -250 Z", P.fill "red" ] <> f "b"
-        , H.path $ [ P.d "M 400 250 h 250 v -100 h -100 v 50 h -150 Z", P.fill "blue" ] <> f "c"
-        , H.path $ [ P.d "M 0 250 h 400 v -150 Z", P.fill "green" ] <> f "d"
-        , H.path $ [ P.d "M 400 100 h 250 v -100 Z", P.fill "orange" ] <> f "e"
-        , H.path $ [ P.d "M 400 200 h 150 v -50 h 100 v -50 h -250 Z", P.fill "red" ] <> f "e"
-        , H.path $ [ P.d "M 400 250 h 250 v -100 h -100 v 50 h -150 Z", P.fill "blue" ] <> f "e"
-        , H.path $ [ P.d "M 0 250 h 400 v -150 Z", P.fill "green" ] <> f "e"
+    S.svg [ H.class_ "sansmot-svg", SA.viewBox (-10.0) (-10.0) 1370.0 270.0, H.style "width" "90vw", H.style "height" "19vw"] $ concat
+      [ [ S.path $ [ SA.d "M 400 100 h 250 v -100 Z", SA.fill "orange" ] <> f "a"
+        , S.path $ [ SA.d "M 400 200 h 150 v -50 h 100 v -50 h -250 Z", SA.fill "red" ] <> f "b"
+        , S.path $ [ SA.d "M 400 250 h 250 v -100 h -100 v 50 h -150 Z", SA.fill "blue" ] <> f "c"
+        , S.path $ [ SA.d "M 0 250 h 400 v -150 Z", SA.fill "green" ] <> f "d"
+        , S.path $ [ SA.d "M 400 100 h 250 v -100 Z", SA.fill "orange" ] <> f "e"
+        , S.path $ [ SA.d "M 400 200 h 150 v -50 h 100 v -50 h -250 Z", SA.fill "red" ] <> f "e"
+        , S.path $ [ SA.d "M 400 250 h 250 v -100 h -100 v 50 h -150 Z", SA.fill "blue" ] <> f "e"
+        , S.path $ [ SA.d "M 0 250 h 400 v -150 Z", SA.fill "green" ] <> f "e"
         ]
       , repeat 28 \i →
           line' (50 * i) (-10) (50 * i) 260 [ H.class_ "sansmot-grid" ]
@@ -114,13 +115,13 @@ view model =
       [ H.h1 [ H.class_ "sansmot-title" ] [ H.text "Preuve sans mot" ]
       , H.h2 [ H.class_ "sansmot-h2" ] [ H.text "Que raconte le théorème de Pythagore ?" ]
       , H.p [ H.class_ "sansmot-center" ]
-          [ H.svg [ H.class_ "sansmot-svg", P.viewBox 0 (-100) 200 250, P.width "20vmin", P.height "25vmin" ]
-              [ H.path [ P.d "M 50 50 h 100 v 100 h -100 Z", P.fill "yellow", P.stroke "black" ]
-              , H.path [ P.d "M 0 0 h 50 v 50 h -50 Z", P.fill "yellow", P.stroke "black" ]
-              , H.path [ P.d "M 50 0 l 100 50 l 50 -100 l -100 -50 Z", P.fill "#00ff00", P.stroke "black" ]
-              , H.text_ [ P.x 90.0, P.y 105.0, P.fontSize 35 ] [H.text "a²"] 
-              , H.text_ [ P.x 18.0, P.y 35.0, P.fontSize 35 ]  [H.text "b²"]
-              , H.text_ [ P.x 110.0, P.y (-10.0), P.fontSize 35 ] [H.text "c²"]
+          [ S.svg [ H.class_ "sansmot-svg", SA.viewBox 0.0 (-100.0) 200.0 250.0 ]
+              [ S.path [ SA.d "M 50 50 h 100 v 100 h -100 Z", SA.fill "yellow", SA.stroke "black" ]
+              , S.path [ SA.d "M 0 0 h 50 v 50 h -50 Z", SA.fill "yellow", SA.stroke "black" ]
+              , S.path [ SA.d "M 50 0 l 100 50 l 50 -100 l -100 -50 Z", SA.fill "#00ff00", SA.stroke "black" ]
+              , S.text [ SA.x 90.0, SA.y 105.0, SA.fontSize 35 ] [H.text "a²"] 
+              , S.text [ SA.x 18.0, SA.y 35.0, SA.fontSize 35 ]  [H.text "b²"]
+              , S.text [ SA.x 110.0, SA.y (-10.0), SA.fontSize 35 ] [H.text "c²"]
               ]
           ]
       , H.h2 [ H.class_ "sansmot-h2" ] [ H.text "Preuve sans mot due à un auteur chinois inconnu qui vivait vers 200 avant J.-C." ]

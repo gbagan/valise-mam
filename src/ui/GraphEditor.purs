@@ -9,6 +9,8 @@ import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
+import Pha.Svg as S
+import Pha.Svg.Attributes as SA
 import UI.Dialog (dialog)
 import UI.Icon (iconbutton, Icon(..))
 import Web.Event.Event (stopPropagation)
@@ -103,11 +105,11 @@ update lens = case _ of
 
 currentLine ∷ ∀ a. Position → Position → Html a
 currentLine p1 p2 =
-  H.line
-    [ P.x1 $ 100.0 * p1.x
-    , P.y1 $ 100.0 * p1.y
-    , P.x2 $ 100.0 * p2.x
-    , P.y2 $ 100.0 * p2.y
+  S.line
+    [ SA.x1 $ 100.0 * p1.x
+    , SA.y1 $ 100.0 * p1.y
+    , SA.x2 $ 100.0 * p2.x
+    , SA.y2 $ 100.0 * p2.y
     , H.class_ "dessin-line-to-pointer"
     ]
 
@@ -116,37 +118,37 @@ view { graph, mode, currentPosition, selectedVertex } onOk =
   dialog { title: "Crée ton graphe", onOk: Just (onOk graph), onCancel: Nothing }
     [ H.div [ H.class_ "flex ui-grapheditor" ]
         [ H.div [ H.class_ "ui-grapheditor-board" ]
-            [ H.svg
+            [ S.svg
                 [ H.class_ "dessin-svg"
-                , P.viewBox 0 0 100 100
+                , SA.viewBox 0.0 0.0 100.0 100.0
                 , E.onClick' $ pointerDecoder (geditormsg <<< AddVertex)
                 , E.onPointerUp \_ → geditormsg DropOrLeave
                 , E.onPointerLeave \_ → geditormsg DropOrLeave
                 , E.onPointerMove' $ pointerDecoder (geditormsg <<< AddVertex) <<< PE.toMouseEvent
                 ]
-                [ H.g []
+                [ S.g []
                     $ graph.edges
                     <#> \edge →
                       H.maybe (Graph.getCoordsOfEdge graph edge) \{ px1, px2, py1, py2 } →
-                        H.line
-                          [ P.x1 $ 100.0 * px1
-                          , P.y1 $ 100.0 * py1
-                          , P.x2 $ 100.0 * px2
-                          , P.y2 $ 100.0 * py2
+                        S.line
+                          [ SA.x1 $ 100.0 * px1
+                          , SA.y1 $ 100.0 * py1
+                          , SA.x2 $ 100.0 * px2
+                          , SA.y2 $ 100.0 * py2
                           , H.class_ "ui-grapheditor-edge"
                           , H.class' "deletemode" $ mode == DeleteMode
                           , E.onClick \_ → geditormsg (DeleteEdge edge)
                           ]
-                , H.g []
+                , S.g []
                     $ graph.vertices
                     # mapWithIndex \i { x, y } →
-                        H.circle
-                          [ P.cx $ 100.0 * x
-                          , P.cy $ 100.0 * y
-                          , P.r 3.0
+                        S.circle
+                          [ SA.cx $ 100.0 * x
+                          , SA.cy $ 100.0 * y
+                          , SA.r 3.0
                           , H.class_ "ui-grapheditor-vertex"
                           , H.class' "deletemode" $ mode == DeleteMode
-                          , P.stroke $ if selectedVertex == Just i then "red" else "blue"
+                          , SA.stroke $ if selectedVertex == Just i then "red" else "blue"
                           --,   P.fill "blue"
                           , E.onClick' \ev →
                               if mode == VertexMode then do

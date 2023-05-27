@@ -10,6 +10,7 @@ import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc)
+import Pha.Svg as S
 import UI.Icon (Icon(..), Options)
 import UI.Icons (icongroup, ihelp, ireset, irules, iconSelectGroup)
 import UI.Template (template, card, incDecGrid, gridStyle)
@@ -31,12 +32,12 @@ square light cross props =
     [ H.div [ H.class_ "noirblanc-square-inner", H.class' "blanc" light ]
         [ H.div [ H.class_ "noirblanc-square-blanc" ] $
             if cross then
-              [ H.svg [ H.class_ "ui-absolute noirblanc-cross" ] [ H.use [ P.href "#cross" ] ]
+              [ S.svg [ H.class_ "ui-absolute noirblanc-cross" ] [ S.use [ P.href "#cross" ] ]
               ]
             else []
         , H.div [ H.class_ "noirblanc-square-noir" ] $
             if cross then
-              [ H.svg [ H.class_ "ui-absolute noirblanc-cross" ] [ H.use [ P.href "#cross" ] ]
+              [ S.svg [ H.class_ "ui-absolute noirblanc-cross" ] [ S.use [ P.href "#cross" ] ]
               ]
             else []
         ]

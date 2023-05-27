@@ -8,23 +8,25 @@ import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc, translate)
+import Pha.Svg as S
+import Pha.Svg.Attributes as SA
 import Web.PointerEvent.PointerEvent as PE
 
 valise ∷ Model → Html Msg
 valise model =
-  H.svg
-    [ P.viewBox 0 0 825 690
+  S.svg
+    [ SA.viewBox 0.0 0.0 825.0 690.0
     , E.onPointerMove' $ pointerDecoder MoveObject <<< PE.toMouseEvent
     , E.onPointerUp \_ → SetDrag Nothing
     ]
-    [ H.use
+    [ S.use
         [ P.href "#valise"
         , H.class_ "valise-close"
-        , P.width "100%"
-        , P.height "100%"
+        , SA.width "100%"
+        , SA.height "100%"
         ]
-    , H.g [ H.class_ "valise-open" ]
-        [ H.use [ P.href "#openvalise" ]
+    , S.g [ H.class_ "valise-open" ]
+        [ S.use [ P.href "#openvalise" ]
         , object { symbol: "switch", link: Nothing, help: "", drag: false }
             300
             460
@@ -49,7 +51,7 @@ valise model =
             48
             48
             [ H.style "transition" "opacity 0.5s"
-            , P.opacity $ if model.isSwitchOn then 1.0 else 0.0
+            , SA.opacity $ if model.isSwitchOn then 1.0 else 0.0
             , H.style "pointer-events" $ if model.isSwitchOn then "all" else "none"
             ]
             []
@@ -58,22 +60,22 @@ valise model =
             320
             40
             40
-            [ P.fill "#bcd35f"
+            [ SA.fill "#bcd35f"
             ]
-            [ P.x 10.0, P.y 20.0, P.width (pc 0.8), P.height (pc 0.8) ]
+            [ SA.x 10.0, SA.y 20.0, SA.width (pc 0.8), SA.height (pc 0.8) ]
         , object { symbol: "hanoibot", link: Just "hanoi", help: "Jeu: tours de Hanoi", drag: false }
             500
             430
             75
             51
             []
-            [ P.x (pc 0.3), P.y (pc 0.2), P.width (pc 0.4), P.height (pc 0.4) ]
+            [ SA.x (pc 0.3), SA.y (pc 0.2), SA.width (pc 0.4), SA.height (pc 0.4) ]
         , object { symbol: "knight", link: Just "queens", help: "Jeu: les 8 reines", drag: false }
             461
             380
             24
             48
-            [ P.transform "rotate(40)" ]
+            [ SA.transform "rotate(40)" ]
             []
         , object { symbol: "soli-peg2", link: Just "solitaire", help: "Jeu: solitaire", drag: false }
             492
@@ -101,14 +103,14 @@ valise model =
             205
             50
             50
-            [ P.transform "scale(1,0.8)" ]
+            [ SA.transform "scale(1,0.8)" ]
             []
         , object { symbol: "card", link: Just "bicolor", help: "Jeu: ???", drag: false }
             450
             130
             40
             50
-            [ P.transform "rotate(30)" ]
+            [ SA.transform "rotate(30)" ]
             []
         , object { symbol: "block2", link: Just "nim", help: "Jeu: bloque moi si tu peux", drag: false }
             380
@@ -143,14 +145,14 @@ valise model =
             445
             64
             64
-            [ P.transform "rotate(40)" ]
+            [ SA.transform "rotate(40)" ]
             []
         , object { symbol: "paw", link: Just "labete", help: "Jeu: la bête", drag: false }
             300
             180
             40
             40
-            [ P.transform "rotate(30)", P.opacity 0.5 ]
+            [ SA.transform "rotate(30)", SA.opacity 0.5 ]
             []
         , object { symbol: "quiet", link: Just "sansmot", help: "Jeu: preuve sans mot", drag: false }
             180
@@ -171,7 +173,7 @@ valise model =
             200
             60
             60
-            [ P.transform "rotate(40)" ]
+            [ SA.transform "rotate(40)" ]
             []
 
         , object { symbol: "flowerpot", link: Nothing, help: "Quelque chose se cache derrière ce pot", drag: true }
@@ -195,18 +197,18 @@ valise model =
     let
       defaultTranslate = translate (pc $ toNumber x' / 850.0) (pc $ toNumber y' / 690.0)
     in
-      H.g
+      S.g
         [ H.style "transform" $
             case drag, model ^. _positions ^. at symbol of
               true, Just { x: x2, y: y2 } → translate (pc x2) (pc y2)
               _, _ → defaultTranslate
         ]
-        [ H.g props
-            [ H.svg
+        [ S.g props
+            [ S.svg
                 ( [ H.class_ "valise-object"
                   , H.class' "draggable" drag
-                  , P.width w'
-                  , P.height h'
+                  , SA.width w'
+                  , SA.height h'
                   , E.onPointerDown \_ →
                       if drag then
                         SetDrag (Just { name: symbol, x: toNumber w' / 1650.0, y: toNumber h' / 1380.0 })
@@ -220,16 +222,16 @@ valise model =
                         , E.onPointerLeave \_ → ShowHelp ""
                         ]
                 )
-                [ H.use
+                [ S.use
                     [ P.href $ "#" <> symbol
                     , H.class_ "valise-symbol"
                     ]
                 , H.maybe link \l →
                     H.a
                       [ P.href $ if l == "" then "" else "#" <> l ]
-                      [ H.rect
-                          ( [ P.width "100%"
-                            , P.height "100%"
+                      [ S.rect
+                          ( [ SA.width "100%"
+                            , SA.height "100%"
                             , H.class_ "valise-object-link"
                             , E.onPointerEnter \_ → ShowHelp help
                             , E.onPointerLeave \_ → ShowHelp ""
@@ -249,8 +251,8 @@ view model =
     ]
     [ H.div []
         [ H.div [ H.class_ "valise-logo" ]
-            [ H.svg [ P.width "100%", P.height "100%" ]
-                [ H.use [ P.href "#logo" ] ]
+            [ S.svg [ SA.width "100%", SA.height "100%" ]
+                [ S.use [ P.href "#logo" ] ]
             ]
         , H.div [ H.class_ "valise-container" ]
             [ valise model

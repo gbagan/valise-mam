@@ -7,6 +7,8 @@ import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (translate)
+import Pha.Svg as S
+import Pha.Svg.Attributes as SA
 import Game.Helpers (_isoCustom)
 import Game.Core (_position, _nbRows, _nbColumns, _pointer, _help)
 import Game.Tiling.Model
@@ -29,16 +31,16 @@ type Borders = { top ∷ Boolean, left ∷ Boolean, bottom ∷ Boolean, right �
 
 square ∷ ∀ a. { isDark ∷ Boolean, hasBlock ∷ Boolean, hasSink ∷ Boolean, row ∷ Int, col ∷ Int } → Array (H.Prop a) → Html a
 square { isDark, hasBlock, hasSink, row, col } props =
-  H.g
+  S.g
     ( [ H.class' "tiling-darken" isDark
-      , P.transform $ translate (50 * col) (50 * row)
+      , SA.transform $ translate (50 * col) (50 * row)
       ] <> props
     )
-    [ H.rect [ P.width 50, P.height 50, P.fill "url(#concrete)" ]
+    [ S.rect [ SA.width 50, SA.height 50, SA.fill "url(#concrete)" ]
     , H.when hasBlock \_ →
-        H.use [ P.href "#tile2", P.width 50, P.height 50 ]
+        S.use [ P.href "#tile2", SA.width 50, SA.height 50 ]
     , H.when hasSink \_ →
-        H.use [ P.href "#sink", P.width 50, P.height 50 ]
+        S.use [ P.href "#sink", SA.width 50, SA.height 50 ]
     ]
 
 view ∷ Model → Html Msg
@@ -66,29 +68,29 @@ view model = template { config, board, rules, winTitle, customDialog } model
       ]
 
   tileCursor pp =
-    H.g (svgCursorStyle pp)
-      [ H.g
+    S.g (svgCursorStyle pp)
+      [ S.g
           [ H.class_ "tiling-cursor"
           , H.style "transform" $ "rotate(" <> show (90 * rotation) <> "deg)"
           ] $ tile <#> \{ row, col } →
-          H.use
+          S.use
             [ P.href "#tile2"
-            , P.x $ 50 * col - 25
-            , P.y $ 50 * row - 25
-            , P.width 50
-            , P.height 50
+            , SA.x $ 50 * col - 25
+            , SA.y $ 50 * row - 25
+            , SA.width 50
+            , SA.height 50
             , H.attr "pointer-events" "none"
-            , P.opacity (if inConflict model then 0.3 else 0.8)
+            , SA.opacity (if inConflict model then 0.3 else 0.8)
             ]
       ]
 
   sinkCursor pp =
-    H.use
+    S.use
       ( [ P.href "#sink"
-        , P.x (-25)
-        , P.y (-25)
-        , P.width 50
-        , P.height 50
+        , SA.x (-25)
+        , SA.y (-25)
+        , SA.width 50
+        , SA.height 50
         , H.attr "pointer-events" "none"
         ] <> svgCursorStyle pp
       )
@@ -100,7 +102,7 @@ view model = template { config, board, rules, winTitle, customDialog } model
           , E.onContextMenuPrevent \_ → Rotate -- todo prevEff
           ]
       )
-      [ H.svg [ P.viewBox 0 0 (50 * columns) (50 * rows) ] $ concat
+      [ S.svg [ SA.viewBox 0.0 0.0 (50.0 * toNumber columns) (50.0 * toNumber rows) ] $ concat
           [ position # mapWithIndex \index pos →
               let
                 { row, col } = coords columns index
@@ -120,15 +122,15 @@ view model = template { config, board, rules, winTitle, customDialog } model
               let
                 { row, col } = coords columns index
               in
-                H.g [ P.transform $ translate (show $ 50 * col) (show $ 50 * row) ]
+                S.g [ SA.transform $ translate (show $ 50 * col) (show $ 50 * row) ]
                   [ H.when (pos > 0 && border index (-1)) \_ →
-                      H.line [ P.x1 0.0, P.y1 0.0, P.x2 0.0, P.y2 50.0, P.stroke "#000", P.strokeWidth 2.0 ]
+                      S.line [ SA.x1 0.0, SA.y1 0.0, SA.x2 0.0, SA.y2 50.0, SA.stroke "#000", SA.strokeWidth 2.0 ]
                   , H.when (pos > 0 && border index 1) \_ →
-                      H.line [ P.x1 50.0, P.y1 0.0, P.x2 50.0, P.y2 50.0, P.stroke "#000", P.strokeWidth 2.0 ]
+                      S.line [ SA.x1 50.0, SA.y1 0.0, SA.x2 50.0, SA.y2 50.0, SA.stroke "#000", SA.strokeWidth 2.0 ]
                   , H.when (pos > 0 && border index (-columns)) \_ →
-                      H.line [ P.x1 0.0, P.y1 0.0, P.x2 50.0, P.y2 0.0, P.stroke "#000", P.strokeWidth 2.0 ]
+                      S.line [ SA.x1 0.0, SA.y1 0.0, SA.x2 50.0, SA.y2 0.0, SA.stroke "#000", SA.strokeWidth 2.0 ]
                   , H.when (pos > 0 && border index columns) \_ →
-                      H.line [ P.x1 0.0, P.y1 50.0, P.x2 50.0, P.y2 50.0, P.stroke "#000", P.strokeWidth 2.0 ]
+                      S.line [ SA.x1 0.0, SA.y1 50.0, SA.x2 50.0, SA.y2 50.0, SA.stroke "#000", SA.strokeWidth 2.0 ]
                   ]
           , [ H.maybe pointer $ if length (sinks model) < nbSinks then sinkCursor else tileCursor ]
           ]
@@ -139,7 +141,7 @@ view model = template { config, board, rules, winTitle, customDialog } model
   customDialog _ = dialog "Personnalise ta tuile"
     [ H.div [ H.class_ "tiling-customtile-grid-container" ]
         [ H.div [ H.class_ "tiling-grid" ]
-            [ H.svg [ P.viewBox 0 0 250 250 ]
+            [ S.svg [ SA.viewBox 0.0 0.0 250.0 250.0 ]
                 ( tile ^. _isoCustom # mapWithIndex \index hasBlock →
                     let
                       { row, col } = coords 5 index

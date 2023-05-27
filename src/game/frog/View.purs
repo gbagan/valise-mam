@@ -8,6 +8,8 @@ import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (px, translate)
+import Pha.Svg as S
+import Pha.Svg.Attributes as SA
 import Web.UIEvent.MouseEvent as ME
 import UI.Template (template, card, incDecGrid, turnMessage, winTitleFor2Players)
 import UI.Icons (icongroup, iconSelectGroupM, icons2Players, ihelp, iundo, iredo, ireset, irules)
@@ -69,16 +71,16 @@ spiralPath = spiral { x: 0.0, y: 0.0 } 0.0 61.0 0.0 (37.0 / 6.0 * pi) (pi / 6.0)
 
 drawSpiral ∷ ∀ a. Html a
 drawSpiral =
-  H.g []
-    [ H.path [ P.d spiralPath, P.fill "none", P.stroke "black", P.strokeWidth 3.0 ]
-    , H.line [ P.x1 153, P.y1 9, P.x2 207, P.y2 20, P.stroke "black", P.strokeDasharray "5", P.strokeWidth 6.0 ]
-    , H.line [ P.x1 153, P.y1 7, P.x2 153, P.y2 39, P.stroke "black", P.strokeWidth 3.0 ]
-    , H.line [ P.x1 207, P.y1 18, P.x2 207, P.y2 50.0, P.stroke "black", P.strokeWidth 3.0 ]
+  S.g []
+    [ S.path [ SA.d spiralPath, SA.fill "none", SA.stroke "black", SA.strokeWidth 3.0 ]
+    , S.line [ SA.x1 153, SA.y1 9, SA.x2 207, SA.y2 20, SA.stroke "black", SA.strokeDasharray "5", SA.strokeWidth 6.0 ]
+    , S.line [ SA.x1 153, SA.y1 7, SA.x2 153, SA.y2 39, SA.stroke "black", SA.strokeWidth 3.0 ]
+    , S.line [ SA.x1 207, SA.y1 18, SA.x2 207, SA.y2 50.0, SA.stroke "black", SA.strokeWidth 3.0 ]
     ]
 
 lily ∷ ∀ a. Int → Number → Number → Boolean → Boolean → Html a
 lily i x y reachable hidden =
-  H.use
+  S.use
     ( pos <>
         [ P.href "#lily"
         , H.class_ "frog-lily"
@@ -89,16 +91,16 @@ lily i x y reachable hidden =
   where
   pos =
     if i == 0 then
-      [ P.x $ x - 30.0
-      , P.y $ y - 45.0
-      , P.width 80
-      , P.height 80
+      [ SA.x $ x - 30.0
+      , SA.y $ y - 45.0
+      , SA.width 80
+      , SA.height 80
       ]
     else
-      [ P.x $ x - 24.0
-      , P.y $ y - 24.0
-      , P.width 48
-      , P.height 48
+      [ SA.x $ x - 24.0
+      , SA.y $ y - 24.0
+      , SA.width 48
+      , SA.height 48
       ]
 
 view ∷ Model → Html Msg
@@ -123,50 +125,50 @@ view model = template { config, board, rules, winTitle } model
 
   drawFrog =
     H.maybe (pointsPolar !! position) \{ radius, theta } →
-      H.g
+      S.g
         [ H.class_ "frog-frog-container"
         , H.style "transform" $ rotate theta <> translate (px radius) "0" <> rotate (-theta)
         ]
-        [ H.use
+        [ S.use
             [ P.href "#frog2"
-            , P.x (-20)
-            , P.y (-20)
-            , P.width 40
-            , P.height 40
+            , SA.x (-20)
+            , SA.y (-20)
+            , SA.width 40
+            , SA.height 40
             , H.class_ "frog-frog"
             , H.class' "goal" $ position == 0
             ]
         ]
 
   drawMarked =
-    H.g [] $
+    S.g [] $
       map2 marked spoints \i mark { x, y } →
         H.when (mark && i ≠ position) \_ →
-          H.use
+          S.use
             [ P.href "#frog2"
-            , P.x $ x - 20.0
-            , P.y $ y - 20.0
-            , P.width "32"
-            , P.height "32"
+            , SA.x $ x - 20.0
+            , SA.y $ y - 20.0
+            , SA.width 32
+            , SA.height 32
             , H.class_ "frog-frog marked"
             ]
 
   drawLilypads =
-    H.g [] $
+    S.g [] $
       map2 spoints reachable \i { x, y } reach →
-        H.g
+        S.g
           [ E.onClick \ev → if ME.shiftKey ev then Mark i else Play i
           ]
           [ lily i x y false false
           , lily i x y true (not reach || locked)
-          , H.text_
-              [ P.x x, P.y y, H.class_ "frog-index" ]
+          , S.text
+              [ SA.x x, SA.y y, H.class_ "frog-index" ]
               [ H.text if help then show $ nbRows - i else "" ]
           ]
 
   grid =
     H.div [ H.class_ "ui-board frog-board" ]
-      [ H.svg [ P.viewBox (-190) (-200) 400 400 ]
+      [ S.svg [ SA.viewBox (-190.0) (-200.0) 400.0 400.0 ]
           [ drawSpiral
           , drawLilypads
           , drawMarked

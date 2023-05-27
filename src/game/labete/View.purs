@@ -9,6 +9,8 @@ import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc, translate)
+import Pha.Svg as S
+import Pha.Svg.Attributes as SA
 import Game.Core (_position, _nbColumns, _nbRows, _pointer, _help, scoreFn)
 import Game.Helpers (_isoCustom, pointerDecoder)
 import Game.Labete.Model
@@ -33,23 +35,23 @@ colors = [ "#5aa02c", "blue", "red", "yellow", "magenta", "cyan", "orange", "dar
 
 zone ∷ ∀ a. Int → { x ∷ Number, y ∷ Number } → { x ∷ Number, y ∷ Number } → Html a
 zone color { x: x1, y: y1 } { x: x2, y: y2 } =
-  H.rect
-    [ P.x $ pc (min x1 x2)
-    , P.y $ pc (min y1 y2)
-    , P.width $ pc $ abs (x2 - x1)
-    , P.height $ pc $ abs (y2 - y1)
+  S.rect
+    [ SA.x $ pc (min x1 x2)
+    , SA.y $ pc (min y1 y2)
+    , SA.width $ pc $ abs (x2 - x1)
+    , SA.height $ pc $ abs (y2 - y1)
     , H.class_ "labete-zone"
-    , P.fill (colors !! color ?: "")
+    , SA.fill (colors !! color ?: "")
     ]
 
 square ∷ ∀ a. { color ∷ Int, hasTrap ∷ Boolean, hasBeast ∷ Boolean, row ∷ Int, col ∷ Int } → Array (H.Prop a) → Html a
 square { color, hasTrap, hasBeast, row, col } props =
-  H.g ([ P.transform $ translate (show $ 50 * col) (show $ 50 * row) ] <> props)
-    [ H.use [ P.href "#grass", P.width 50, P.height 50, P.fill (colors !! color ?: "") ]
-    , H.rect [ P.width 51, P.height 51, H.class_ "labete-square-borders" ]
-    , H.use [ P.href "#paw", P.x 5.0, P.y 5.0, P.width 40, P.height 40, H.class_ "labete-beast", H.class' "visible" hasBeast ]
+  S.g ([ SA.transform $ translate (show $ 50 * col) (show $ 50 * row) ] <> props)
+    [ S.use [ P.href "#grass", SA.width 50, SA.height 50, SA.fill (colors !! color ?: "") ]
+    , S.rect [ SA.width 51, SA.height 51, H.class_ "labete-square-borders" ]
+    , S.use [ P.href "#paw", SA.x 5.0, SA.y 5.0, SA.width 40, SA.height 40, H.class_ "labete-beast", H.class' "visible" hasBeast ]
     , H.when hasTrap \_ →
-        H.use [ P.href "#trap", P.x 5.0, P.y 5.0, P.width "40", P.height "40" ]
+        S.use [ P.href "#trap", SA.x 5.0, SA.y 5.0, SA.width "40", SA.height "40" ]
     ]
 
 ihelp ∷ Model → Html Msg
@@ -87,14 +89,14 @@ view model = template { config, board, rules, winTitle, customDialog, scoreDialo
     , iconBestScore model
     ]
 
-  cursor pp = H.use
+  cursor pp = S.use
     ( svgCursorStyle pp <>
         [ P.href "#trap"
-        , P.x (-20)
-        , P.y (-20)
-        , P.width 40
-        , P.height 40
-        , P.opacity 0.7 -- todo model.position[model.squareHover] ? 0.3 : 0.7,
+        , SA.x (-20)
+        , SA.y (-20)
+        , SA.width 40
+        , SA.height 40
+        , SA.opacity 0.7 -- todo model.position[model.squareHover] ? 0.3 : 0.7,
         , H.attr "pointer-events" "none"
         ]
     )
@@ -112,8 +114,8 @@ view model = template { config, board, rules, winTitle, customDialog, scoreDialo
         , E.onPointerDown' handlePointerDown
         ]
     )
-    [ H.svg [ P.viewBox 0 0 (50 * columns) (50 * rows) ]
-        [ H.g [] $
+    [ S.svg [ SA.viewBox 0.0 0.0 (50.0 * toNumber columns) (50.0 * toNumber rows) ]
+        [ S.g [] $
             map3 (model ^. _position) nonTrappedBeast (model ^. _squareColors) \index hasTrap hasBeast color →
               let
                 { row, col } = coords columns index
@@ -143,7 +145,7 @@ view model = template { config, board, rules, winTitle, customDialog, scoreDialo
 
   customDialog _ = dialog "Personnalise ta bête"
     [ H.div [ H.class_ "labete-custombeast-grid-container" ]
-        [ H.svg [ P.viewBox 0 0 250 250 ]
+        [ S.svg [ SA.viewBox 0.0 0.0 250.0 250.0 ]
             ( model ^. (_beast ∘ ix 0 ∘ _isoCustom) #
                 mapWithIndex \index hasBeast →
                   let
@@ -159,7 +161,7 @@ view model = template { config, board, rules, winTitle, customDialog, scoreDialo
   scoreDialog _ = bestScoreDialog model \position →
     [ H.div [ H.class_ "ui-flex-center labete-bestscore-grid-container" ]
         [ H.div (gridStyle rows columns 5 <> [ H.class_ "ui-board" ])
-            [ H.svg [ P.viewBox 0 0 (50 * columns) (50 * rows) ]
+            [ S.svg [ SA.viewBox 0.0 0.0 (50.0 * toNumber columns) (50.0 * toNumber rows) ]
                 ( position # mapWithIndex \index hasTrap →
                     let
                       { row, col } = coords columns index

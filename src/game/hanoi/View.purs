@@ -6,7 +6,8 @@ import Game.Hanoi.Model (Model, Msg(..), _dragged, _nbDisks)
 import Data.List as List
 import Pha.Html (Html, Prop)
 import Pha.Html as H
-import Pha.Html.Attributes as P
+import Pha.Svg as S
+import Pha.Svg.Attributes as SA
 import UI.Icons (icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 import UI.Template (template, card, dndBoardProps, dndItemProps)
 
@@ -14,12 +15,12 @@ colors ∷ Array String
 colors = [ "blue", "red", "green", "magenta", "orange", "gray", "cyan" ]
 
 drawTower ∷ ∀ a. Int → Html a
-drawTower i = H.path
-  [ P.d $ "M" <> show (i * 60 + 14) <> " 99a3 3 0 0 1 0 -6h20a3 3 0 0 0 3 -3v-80a3 3 0 0 1 6 0v80"
+drawTower i = S.path
+  [ SA.d $ "M" <> show (i * 60 + 14) <> " 99a3 3 0 0 1 0 -6h20a3 3 0 0 0 3 -3v-80a3 3 0 0 1 6 0v80"
       <> "a3 3 0 0 0 3 3h20a3 3 0 0 1 0 6z"
-  , P.stroke "blue"
-  , P.strokeWidth 0.5
-  , P.fill "#d43"
+  , SA.stroke "blue"
+  , SA.strokeWidth 0.5
+  , SA.fill "#d43"
   ]
 
 view ∷ Model → Html Msg
@@ -42,16 +43,16 @@ view model = template { config, board, rules, winTitle } model
     let
       color = colors !! disk ?: "black"
     in
-      H.rect
+      S.rect
         $
-          [ P.x $ x - 25.0 + 2.5 * toNumber disk
-          , P.y $ y - 7.0
-          , P.width $ 50 - 5 * disk
-          , P.height 10
-          , P.rx 5
-          , P.ry 5
+          [ SA.x $ x - 25.0 + 2.5 * toNumber disk
+          , SA.y $ y - 7.0
+          , SA.width $ 50 - 5 * disk
+          , SA.height 10
+          , SA.rx 5
+          , SA.ry 5
           , H.class_ "hanoi-disk"
-          , P.fill color
+          , SA.fill color
           ]
         <> props
         <> dndItemProps model
@@ -75,11 +76,11 @@ view model = template { config, board, rules, winTitle } model
   board ∷ Html Msg
   board =
     H.div (dndBoardProps <> [ H.class_ "ui-board hanoi-board" ])
-      [ H.svg [ H.class_ "hanoi-svg", P.viewBox 0 0 200 100 ] $
-          [ H.g [] $ [ 0, 1, 2 ] <#> drawTower
-          , H.g [] $ [ 0, 1, 2 ] <#> \i →
-              H.rect
-                ( [ P.x $ 13 + 60 * i, P.y 10.0, P.width 54, P.height 90, P.fill "transparent" ]
+      [ S.svg [ H.class_ "hanoi-svg", SA.viewBox 0.0 0.0 200.0 100.0 ] $
+          [ S.g [] $ [ 0, 1, 2 ] <#> drawTower
+          , S.g [] $ [ 0, 1, 2 ] <#> \i →
+              S.rect
+                ( [ SA.x $ 13 + 60 * i, SA.y 10.0, SA.width 54, SA.height 90, SA.fill "transparent" ]
                     <> dndItemProps model
                       { currentDragged: dragged
                       , draggable: false
@@ -87,7 +88,7 @@ view model = template { config, board, rules, winTitle } model
                       , id: i
                       }
                 )
-          , H.g [] $ concat
+          , S.g [] $ concat
               ( position # mapWithIndex \i stack →
                   stack # mapWithIndex \j k →
                     drawDisk

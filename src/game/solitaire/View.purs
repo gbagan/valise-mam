@@ -5,8 +5,9 @@ import Lib.Helpers (coords)
 import Data.FoldableWithIndex (foldMapWithIndex)
 import Pha.Html (Html)
 import Pha.Html as H
-import Pha.Html.Attributes as P
 import Pha.Html.Util (translate)
+import Pha.Svg as S
+import Pha.Svg.Attributes as SA
 import Game.Core (PointerPosition, _position, _nbColumns, _nbRows, _pointer, scoreFn)
 import Game.Solitaire.Model (Model, Msg(..), Board(..), _board, _holes, _dragged, _help)
 import UI.Icon (Icon(..))
@@ -21,7 +22,7 @@ tricolor i columns help =
     _ → "green"
 
 cursor ∷ ∀ a b. PointerPosition → b → Html a
-cursor pp _ = H.circle ([ P.r 20.0, H.class_ "solitaire-cursor" ] <> svgCursorStyle pp)
+cursor pp _ = S.circle ([ SA.r 20.0, H.class_ "solitaire-cursor" ] <> svgCursorStyle pp)
 
 view ∷ Model → Html Msg
 view model = template { config, board, rules, winTitle, scoreDialog } model
@@ -64,18 +65,18 @@ view model = template { config, board, rules, winTitle, scoreDialog } model
 
   drawHole i =
     [ H.when (help > 0 && not isCircleBoard) \_ →
-        H.rect
-          [ P.x (-25.0)
-          , P.y (-25.0)
-          , P.width "50"
-          , P.height "50"
-          , P.fill $ tricolor i columns help
-          , P.transform $ itemStyle i
+        S.rect
+          [ SA.x (-25.0)
+          , SA.y (-25.0)
+          , SA.width 50
+          , SA.height 50
+          , SA.fill $ tricolor i columns help
+          , SA.transform $ itemStyle i
           ]
-    , H.circle
-        ( [ P.r 17.0
+    , S.circle
+        ( [ SA.r 17.0
           , H.class_ "solitaire-hole"
-          , P.transform $ itemStyle i
+          , SA.transform $ itemStyle i
           ] <> dndItemProps model
             { currentDragged: dragged
             , draggable: false
@@ -86,10 +87,10 @@ view model = template { config, board, rules, winTitle, scoreDialog } model
     ]
 
   drawPeg i =
-    H.circle
-      ( [ P.r 20.0
+    S.circle
+      ( [ SA.r 20.0
         , H.class_ "solitaire-peg"
-        , P.transform $ itemStyle i
+        , SA.transform $ itemStyle i
         ] <> dndItemProps model
           { draggable: true
           , droppable: false
@@ -109,9 +110,13 @@ view model = template { config, board, rules, winTitle, scoreDialog } model
                 gridStyle rows columns 5
             )
       )
-      [ H.svg [ if isCircleBoard then P.viewBox 0 0 250 250 else P.viewBox 0 0 (50 * columns) (50 * rows) ] $ concat
+      [ S.svg 
+          [ if isCircleBoard then
+              SA.viewBox 0.0 0.0 250.0 250.0
+            else SA.viewBox 0.0 0.0 (50.0 * toNumber columns) (50.0 * toNumber rows) 
+          ] $ concat
           [ [ H.when isCircleBoard \_ →
-                H.circle [ P.cx 125.0, P.cy 125.0, P.r 90.0, H.class_ "solitaire-circle" ]
+                S.circle [ SA.cx 125.0, SA.cy 125.0, SA.r 90.0, H.class_ "solitaire-circle" ]
             ]
           , holes # foldMapWithIndex \i hasHole →
               if hasHole then drawHole i else []
@@ -133,29 +138,34 @@ view model = template { config, board, rules, winTitle, scoreDialog } model
                     gridStyle rows columns 5
                 )
             )
-            [ H.svg [ if isCircleBoard then P.viewBox 0 0 250 250 else P.viewBox 0 0 (50 * columns) (50 * rows) ]
+            [ S.svg 
+                [ if isCircleBoard then
+                    SA.viewBox 0.0 0.0 250.0 250.0
+                  else
+                    SA.viewBox 0.0 0.0 (50.0 * toNumber columns) (50.0 * toNumber rows)
+                ]
                 [ H.when isCircleBoard \_ →
-                    H.circle
-                      [ P.cx 125.0
-                      , P.cy 125.0
-                      , P.r 90.0
+                    S.circle
+                      [ SA.cx 125.0
+                      , SA.cy 125.0
+                      , SA.r 90.0
                       , H.class_ "solitaire-circle"
                       ]
-                , H.g []
+                , S.g []
                     $ holes
                     # mapWithIndex \i b → H.when b \_ →
-                        H.circle
-                          [ P.r 17.0
+                        S.circle
+                          [ SA.r 17.0
                           , H.class_ "solitaire-hole"
-                          , P.transform $ itemStyle i
+                          , SA.transform $ itemStyle i
                           ]
-                , H.g []
+                , S.g []
                     $ bestPosition
                     # mapWithIndex \i b → H.when b \_ →
-                        H.circle
-                          [ P.r 20.0
+                        S.circle
+                          [ SA.r 20.0
                           , H.class_ "solitaire-peg"
-                          , P.transform $ itemStyle i
+                          , SA.transform $ itemStyle i
                           ]
                 ]
             ]

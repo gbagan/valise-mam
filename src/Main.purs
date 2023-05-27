@@ -32,6 +32,7 @@ import Pha.App (app)
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
+import Pha.Svg as S
 import Pha.Subscriptions as Subs
 import Pha.Update (hoist, mapMessage, mapModel)
 import Random.LCG (randomSeed)
@@ -209,8 +210,8 @@ view model =
               [ H.class_ "main-minivalise-link"
               , P.href "#"
               ]
-              [ H.svg [ P.width "100%", P.height "100%" ]
-                  [ H.use [ P.href "#valise" ] ]
+              [ S.svg [ H.style "width" "100%", H.style "height" "100%" ]
+                  [ S.use [ P.href "#valise" ] ]
               ]
         , viewGame model
         ]

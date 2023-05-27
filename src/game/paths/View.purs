@@ -10,17 +10,19 @@ import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc, translate)
+import Pha.Svg as S
+import Pha.Svg.Attributes as SA
 import UI.Icon (Icon(..))
 import UI.Icons (icongroup, iconSizesGroup, iconSelectGroup', ihelp, iundo, iredo, ireset, irules)
 import UI.Template (template, card, incDecGrid, gridStyle, svgCursorStyle, trackPointer)
 
 square ∷ ∀ a. { darken ∷ Boolean, trap ∷ Boolean, door ∷ Boolean, x ∷ Number, y ∷ Number } → Array (Prop a) → Html a
 square { darken, trap, door, x, y } props =
-  H.g ([ H.class' "paths-darken" darken ] <> props)
-    [ H.use ([ P.href "#paths-background" ] <> pos)
+  S.g ([ H.class' "paths-darken" darken ] <> props)
+    [ S.use ([ P.href "#paths-background" ] <> pos)
     , H.when door \_ →
-        H.use ([ P.href "#paths-door" ] <> pos)
-    , H.use
+        S.use ([ P.href "#paths-door" ] <> pos)
+    , S.use
         ( pos <>
             [ P.href "#paths-trap"
             , H.class_ "paths-trap"
@@ -29,31 +31,31 @@ square { darken, trap, door, x, y } props =
         )
     ]
   where
-  pos = [ P.x x, P.y y, P.width "100", P.height "100" ]
+  pos = [ SA.x x, SA.y y, SA.width 100, SA.height 100 ]
 
 doorCursor ∷ ∀ a. PointerPosition → Html a
 doorCursor pp =
-  H.use
+  S.use
     $
       [ P.href "#paths-door"
       , H.class_ "paths-cursor"
-      , P.x (-50)
-      , P.y (-50.0)
-      , P.width 100
-      , P.height 100
+      , SA.x (-50)
+      , SA.y (-50.0)
+      , SA.width 100
+      , SA.height 100
       ]
     <> svgCursorStyle pp
 
 heroCursor ∷ ∀ a. PointerPosition → Html a
 heroCursor pp =
-  H.use
+  S.use
     $
       [ P.href "#meeplehat"
       , H.class_ "paths-cursor"
-      , P.x (-40)
-      , P.y (-40)
-      , P.width 80
-      , P.height 80
+      , SA.x (-40)
+      , SA.y (-40)
+      , SA.width 80
+      , SA.height 80
       ]
     <> svgCursorStyle pp
 
@@ -82,10 +84,10 @@ view model = template { config, board, rules } model
     let
       { row, col } = coords columns h
     in
-      H.use
+      S.use
         [ P.href "#meeplehat"
-        , P.width 80
-        , P.height 80
+        , SA.width 80
+        , SA.height 80
         , H.class_ "paths-hero"
         , H.style "transform" $ translate (pc $ (toNumber col + 0.1) / toNumber columns)
             (pc $ (toNumber row + 0.1) / toNumber rows)
@@ -99,8 +101,8 @@ view model = template { config, board, rules } model
       [ if i == 0 then "M" else "L", show $ 100 * col + 50, show $ 100 * row + 50 ]
 
   grid = H.div (gridStyle rows columns 5 <> trackPointer)
-    [ H.svg [ P.viewBox 0 0 (100 * columns) (100 * rows) ]
-        [ H.g [] $
+    [ S.svg [ SA.viewBox 0.0 0.0 (100.0 * toNumber columns) (100.0 * toNumber rows) ]
+        [ S.g [] $
             repeat (rows * columns) \index →
               let
                 { row, col } = coords columns index
@@ -114,7 +116,7 @@ view model = template { config, board, rules } model
                   }
                   [ E.onClick \_ → SelectVertex index
                   ]
-        , H.path [ P.d pathdec, H.class_ "paths-path" ]
+        , S.path [ SA.d pathdec, H.class_ "paths-path" ]
         , H.maybe (last position) hero
         , H.maybe pointer \pp →
             if null position then

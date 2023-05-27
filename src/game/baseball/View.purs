@@ -7,6 +7,8 @@ import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc, translate)
+import Pha.Svg as S
+import Pha.Svg.Attributes as SA
 import Game.Core (canPlay, isLevelFinished, _position)
 import Game.Baseball.Model (Model, Msg(..), _nbBases, _missingPeg)
 import UI.Template (template, card)
@@ -47,28 +49,28 @@ view model = template { config, board, rules } model
 
   board =
     H.div [ H.class_ "ui-board baseball-board" ]
-      [ H.svg [ P.viewBox 0 0 100 100 ]
-          [ H.g []
+      [ S.svg [ SA.viewBox 0.0 0.0 100.0 100.0 ]
+          [ S.g []
               $ take nbBases colors
               # mapWithIndex \i color →
-                  H.rect
+                  S.rect
                     [ H.class_ "baseball-base"
-                    , P.stroke color
+                    , SA.stroke color
                     , H.style "transform" $ transformBase i nbBases
                     ]
-          , H.g [] $
+          , S.g [] $
               map2 position dupColors \peg pos color →
                 H.when (peg ≠ missingPeg) \_ →
-                  H.g
+                  S.g
                     [ H.class_ "baseball-player"
                     , H.style "transform" $ translatePeg pos nbBases
                     ]
-                    [ H.use
+                    [ S.use
                         [ P.href "#meeple"
-                        , P.width 7
-                        , P.height 7
+                        , SA.width 7
+                        , SA.height 7
                         , E.onClick \_ → Play peg
-                        , P.fill color
+                        , SA.fill color
                         , H.style "animation"
                             if levelFinished then "baseballHola 4s linear " <> show (1000 + 2000 * peg / nbBases) <> "ms infinite"
                             else "none"

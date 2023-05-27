@@ -10,6 +10,8 @@ import Pha.Html as H
 import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (pc)
+import Pha.Svg as S
+import Pha.Svg.Attributes as SA
 import UI.Icons (icongroup, iconSelectGroup, ireset, irules)
 import UI.Template (template, card, dndBoardProps, dndItemProps)
 
@@ -47,11 +49,11 @@ pizza cx cy radius startAngle endAngle =
 
 innerWheel ∷ ∀ a. Int → Html a
 innerWheel size = H.div [ H.class_ "roue-inner" ]
-  [ H.svg [ P.viewBox 0 0 100 100 ] $ take size colors # mapWithIndex \i color →
-      H.path
-        [ P.d $ pizza 50.0 50.0 50.0 (2.0 * pi * (toNumber i - 0.5) / toNumber size) (2.0 * pi * (toNumber i + 0.5) / toNumber size)
-        , P.fill color
-        , P.stroke "black"
+  [ S.svg [ SA.viewBox 0.0 0.0 100.0 100.0 ] $ take size colors # mapWithIndex \i color →
+      S.path
+        [ SA.d $ pizza 50.0 50.0 50.0 (2.0 * pi * (toNumber i - 0.5) / toNumber size) (2.0 * pi * (toNumber i + 0.5) / toNumber size)
+        , SA.fill color
+        , SA.stroke "black"
         ]
   ]
 
@@ -96,17 +98,17 @@ view model = template { config, board, rules } model
       , H.style "transform" $ "rotate(" <> show (360.0 * toNumber (model ^. _rotation) / toNumber size) <> "deg)"
       ]
       $
-        [ H.svg [ P.viewBox 0 0 100 100 ]
+        [ S.svg [ SA.viewBox 0.0 0.0 100.0 100.0 ]
             ( map2 position (aligned model) \i pos align →
-                H.path
-                  ( [ P.d $ pizza
+                S.path
+                  ( [ SA.d $ pizza
                         50.0
                         50.0
                         50.0
                         (2.0 * pi * (toNumber i - 0.5) / toNumber size)
                         (2.0 * pi * (toNumber i + 0.5) / toNumber size)
                     , H.class_ "roue-wheel-part"
-                    , P.fill $ if not align then "#F0B27A" else if validRotation' model then "lightgreen" else "#F5B7B1"
+                    , SA.fill $ if not align then "#F0B27A" else if validRotation' model then "lightgreen" else "#F5B7B1"
                     ] <> dndItemProps model
                       { currentDragged: dragged
                       , draggable: isJust pos

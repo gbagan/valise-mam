@@ -6,9 +6,10 @@ import Game.Core (isLevelFinished, _position)
 import Game.Tricolor.Model (Model, Msg(..), _size, _nbColors, _range, _hoverCell, _shuffle, inRange)
 import Pha.Html (Html)
 import Pha.Html as H
-import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Html.Util (translate)
+import Pha.Svg as S
+import Pha.Svg.Attributes as SA
 import UI.Icon (Icon(..))
 import UI.Icons (iconbutton, icongroup, iconSelectGroup, iundo, iredo, ireset, irules)
 import UI.Template (template, card)
@@ -49,13 +50,13 @@ view model = template { config, board, rules } model
       ]
 
   drawCell i color =
-    H.circle
-      [ P.r 7.5
+    S.circle
+      [ SA.r 7.5
       , H.class_ "tricolor-cell"
       , H.class' "finished" levelFinished
-      , P.stroke $ if (inRange model i <$> hoverCell) == Just true then "lightgreen" else "black"
-      , P.fill $ if levelFinished then "" else colors !! color ?: ""
-      , P.transform (translateCell i size)
+      , SA.stroke $ if (inRange model i <$> hoverCell) == Just true then "lightgreen" else "black"
+      , SA.fill $ if levelFinished then "" else colors !! color ?: ""
+      , SA.transform (translateCell i size)
       , E.onClick \_ → Play i
       , E.onPointerEnter \_ → SetHoverCell (Just i)
       , E.onPointerLeave \_ → SetHoverCell Nothing
@@ -63,27 +64,27 @@ view model = template { config, board, rules } model
 
   drawColorCycle =
     ( take nbColors colors # foldMapWithIndex \i color →
-        [ H.circle
-            [ P.cx $ toNumber (95 + 15 * (i - nbColors))
-            , P.cy 95.0
-            , P.r 3.0
-            , P.fill color
+        [ S.circle
+            [ SA.cx $ toNumber (95 + 15 * (i - nbColors))
+            , SA.cy 95.0
+            , SA.r 3.0
+            , SA.fill color
             ]
-        , H.path
-            [ P.d "M0 2H4V0l3 3l-3 3v-2h-4Z"
-            , P.fill "black"
-            , P.transform $ translate (99 + 15 * (i - nbColors)) 92
+        , S.path
+            [ SA.d "M0 2H4V0l3 3l-3 3v-2h-4Z"
+            , SA.fill "black"
+            , SA.transform $ translate (99 + 15 * (i - nbColors)) 92
             ]
         ]
-    ) <> [ H.circle [ P.cx 95.0, P.cy 95.0, P.r 3.0, P.fill "green" ] ]
+    ) <> [ S.circle [ SA.cx 95.0, SA.cy 95.0, SA.r 3.0, SA.fill "green" ] ]
 
   board =
     H.div [ H.class_ "ui-board tricolor-board" ]
-      [ H.svg [ P.viewBox 0 0 100 100 ]
-          [ H.g []
+      [ S.svg [ SA.viewBox 0.0 0.0 100.0 100.0 ]
+          [ S.g []
               $ position
               # mapWithIndex drawCell
-          , H.g []
+          , S.g []
               drawColorCycle
           ]
       ]

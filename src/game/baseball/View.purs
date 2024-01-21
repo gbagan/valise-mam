@@ -44,7 +44,7 @@ view model = template { config, board, rules } model
   config =
     card "Baseball multicolore"
       [ iconSelectGroup model "Nombres de bases" [ 4, 5, 6, 7, 8 ] nbBases SetNbBases (const identity)
-      , icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> (_ $ model)
+      , icongroup "Options" $ [ iundo, iredo, ireset, irules ] # map (_ $ model)
       ]
 
   board =

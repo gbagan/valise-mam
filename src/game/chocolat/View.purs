@@ -52,7 +52,7 @@ view model = template { config, board, rules, winTitle } model
           , CustomMode ∧ _ { icon = IconSymbol "#customize", tooltip = Just "Personnalisé" }
           ]
       , icons2Players model
-      , icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> (_ $ model)
+      , icongroup "Options" $ [ iundo, iredo, ireset, irules ] # map (_ $ model)
       ]
 
   cutter row col move =

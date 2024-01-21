@@ -119,7 +119,7 @@ view model = template { config, board, rules } model
             )
         ]
       <>
-        ( catMaybes $ position # mapWithIndex \index c → c <#> \color →
+        ( catMaybes $ position # mapWithIndex \index c → c # map \color →
             H.div
               [ H.class_ "roue-outer-piece"
               , H.style "left" $ pc $ 0.44 + 0.4 * cos (toNumber index * 2.0 * pi / toNumber size)

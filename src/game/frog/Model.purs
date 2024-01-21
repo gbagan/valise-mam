@@ -81,7 +81,7 @@ canPlay model v = elem (position - v) moves || position > 0 && v == 0 && positio
 
 -- | renvoie l'ensemble des positions gagnantes pour une taille et un ensemble de mouvements donnés
 winningPositions ∷ Int → Array Int → Array Boolean
-winningPositions size moves = t <#> force
+winningPositions size moves = map force t
   where
   t = repeat size \i → defer
     \_ → i == 0 || (moves # all \m → maybe false (not ∘ force) (t !! (i - m)))

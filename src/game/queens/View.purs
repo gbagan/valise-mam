@@ -101,7 +101,7 @@ view model = template { config, board, rules, customDialog, scoreDialog } model
   pieceSelector =
     H.div [ H.class_ "ui-flex-center gutter2 queens-pieceselector" ]
       $ N.toArray allowedPieces
-      <#> \piece →
+      # map \piece →
         let
           name = show piece
         in
@@ -177,7 +177,7 @@ view model = template { config, board, rules, customDialog, scoreDialog } model
   scoreDialog _ = bestScoreDialog model \pos →
     [ H.div [ H.class_ "ui-flex-center queens-bestscore-container" ]
         [ H.div (gridStyle rows columns 5 <> [ H.class_ "ui-board queens-grid" ])
-            ( pos <#> \piece →
+            ( pos # map \piece →
                 square { piece, capturable: false, selected: false, nonavailable: false }
                   [ H.style "width" $ pc (1.0 / toNumber columns)
                   , H.style "height" $ pc (1.0 / toNumber rows)

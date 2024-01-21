@@ -77,7 +77,7 @@ view model = template { config, board, rules } model
           , Mode2 ∧ _ { icon = IconSymbol "#paths-mode1", tooltip = Just "Mode 2" }
           ]
       , iconSizesGroup model [ 4 ∧ 6, 5 ∧ 5, 3 ∧ 8 ] true
-      , icongroup "Options" $ [ ihelp, iundo, iredo, ireset, irules ] <#> (_ $ model)
+      , icongroup "Options" $ [ ihelp, iundo, iredo, ireset, irules ] # map (_ $ model)
       ]
 
   hero h =

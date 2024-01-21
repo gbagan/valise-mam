@@ -85,7 +85,7 @@ view model = template { config, board, rules, winTitle, customDialog, scoreDialo
         , TorusMode ∧ _ { icon = IconSymbol "#grid-torus", tooltip = Just "Torique" }
         ]
     , iconSizesGroup model [ 3 ∧ 3, 5 ∧ 5, 6 ∧ 6 ] true
-    , icongroup "Options" $ [ ihelp, ireset, irules ] <#> (_ $ model)
+    , icongroup "Options" $ [ ihelp, ireset, irules ] # map (_ $ model)
     , iconBestScore model
     ]
 

@@ -52,7 +52,7 @@ view model = template { config, board, rules, winTitle, scoreDialog, customDialo
     card "Dessin"
       [ iconSelectGroup model "Niveau" ((GraphIndex <$> 0 .. (nbGraphs - 1)) <> [ CustomGraph ]) graphIndex SetGraphIndex
           case _ of
-            GraphIndex i → _ { icon = IconText (show (i + 1)), tooltip = graphs !! i <#> _.title }
+            GraphIndex i → _ { icon = IconText (show (i + 1)), tooltip = graphs !! i # map _.title }
             _ → _ { icon = IconSymbol "#customize", tooltip = Just "Crée ta propre pièce" }
       , icongroup "Options" [ iundo model, iredo model, ireset model, irules model ]
       , iconBestScore model
@@ -66,7 +66,7 @@ view model = template { config, board, rules, winTitle, scoreDialog, customDialo
           ]
       )
       [ S.svg [ H.class_ "dessin-svg", SA.viewBox 0.0 0.0 100.0 100.0 ] $ concat
-          [ graph.edges <#> \edge →
+          [ graph.edges # map \edge →
               H.maybe (Graph.getCoordsOfEdge graph edge) \{ px1, px2, py1, py2 } →
                 S.line
                   [ SA.x1 $ 100.0 * px1
@@ -75,7 +75,7 @@ view model = template { config, board, rules, winTitle, scoreDialog, customDialo
                   , SA.y2 $ 100.0 * py2
                   , H.class_ "dessin-line1"
                   ]
-          , edgesOf (model ^. _position) <#> \edge →
+          , edgesOf (model ^. _position) # map \edge →
               H.maybe (Graph.getCoordsOfEdge graph edge) \{ px1, px2, py1, py2 } →
                 S.line
                   [ SA.x1 $ 100.0 * px1
@@ -119,7 +119,7 @@ view model = template { config, board, rules, winTitle, scoreDialog, customDialo
   scoreDialog _ = bestScoreDialog model \bestPos →
     [ H.div [ H.class_ "ui-board dessin-bestscore" ]
         [ S.svg [ H.class_ "dessin-svg", SA.viewBox 0.0 0.0 100.0 100.0 ] $ concat
-            [ graph.edges <#> \edge →
+            [ graph.edges # map \edge →
                 H.maybe (Graph.getCoordsOfEdge graph edge) \{ px1, px2, py1, py2 } →
                   S.line
                     [ SA.x1 $ 100.0 * px1

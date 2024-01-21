@@ -331,7 +331,7 @@ instance Game Position ExtModel Move where
             Nothing → (0 .. (length (model ^. _graph).vertices - 1))
               # filter (\i → not (elem i (model ^. _position).guards))
               # elements'
-              <#> map Attack
+              # map (map Attack)
         _, _ → pure Nothing
 
   onPositionChange = startGame

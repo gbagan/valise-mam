@@ -58,7 +58,7 @@ _page = prop (Proxy ∷ _ "page")
 data Msg = SetPage Page | Animate (Array AnimationStep)
 
 lockAction ∷ forall m. Update Model Msg m Unit → Update Model Msg m Unit
-lockAction action = unlessM (get <#> _.locked) do
+lockAction action = unlessM (get # map _.locked) do
   modify_ _ { locked = true }
   action
   modify_ _ { locked = false }

@@ -157,7 +157,7 @@ pseudoRandomPick t = t !! (28921 `mod` length t)
 nonTrappedBeasts ∷ Model → Array Beast
 nonTrappedBeasts model =
   allBeastPositions rows columns (model ^. _beast)
-    <#> adaptatedBeast rows columns (model ^. _mode)
+    # map (adaptatedBeast rows columns (model ^. _mode))
     # filter isValidBeast
   where
   rows = model ^. _nbRows
@@ -195,7 +195,7 @@ zoneposition columns { row1, col1, row2, col2 } =
 
 colorZone ∷ Model → Zone → Array Int
 colorZone model zone = model ^. _squareColors # updateAtIndices
-  ( zoneposition (model ^. _nbColumns) zone <#> \i → i ∧ (model ^. _selectedColor)
+  ( zoneposition (model ^. _nbColumns) zone # map \i → i ∧ (model ^. _selectedColor)
   )
 
 instance Game (Array Boolean) ExtModel Int where

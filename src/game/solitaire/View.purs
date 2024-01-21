@@ -59,7 +59,7 @@ view model = template { config, board, rules, winTitle, scoreDialog } model
           , EnglishBoard ∧ _ { icon = IconSymbol "#tea", tooltip = Just "Anglais" }
           , FrenchBoard ∧ _ { icon = IconSymbol "#bread", tooltip = Just "Français" }
           ]
-      , icongroup "Options" $ [ ihelp, iundo, iredo, ireset, irules ] <#> (_ $ model)
+      , icongroup "Options" $ [ ihelp, iundo, iredo, ireset, irules ] # map (_ $ model)
       , iconBestScore model
       ]
 

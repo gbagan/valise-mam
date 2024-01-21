@@ -33,7 +33,7 @@ polarToCartesian { radius, theta } = { x: radius * cos theta, y: radius * sin th
 spiral ∷ Cartesian → Number → Number → Number → Number → Number → String
 spiral center startRadius radiusStep startTheta endTheta thetaStep =
   rangeWithStep' startTheta endTheta thetaStep
-    <#>
+    # map
       ( \theta →
           let
             b = radiusStep / (2.0 * pi)
@@ -120,7 +120,7 @@ view model = template { config, board, rules, winTitle } model
     card "La grenouille"
       [ iconSelectGroupM model "Déplacements autorisés" [ 1, 2, 3, 4, 5 ] moves SelectMove (const identity)
       , icons2Players model
-      , icongroup "Options" $ [ ihelp, iundo, iredo, ireset, irules ] <#> (_ $ model)
+      , icongroup "Options" $ [ ihelp, iundo, iredo, ireset, irules ] # map (_ $ model)
       ]
 
   drawFrog =

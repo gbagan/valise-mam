@@ -73,7 +73,7 @@ instance Game Position Ext Move where
 
   initialPosition model = shuffle $ 0 .. (2 * model ^. _nbBases - 1)
   isLevelFinished = view _position >>> allWithIndex \i j → i / 2 == j / 2
-  onNewGame model = chooseInt' (2 * model ^. _nbBases) <#> \i → set _missingPeg i model
+  onNewGame model = chooseInt' (2 * model ^. _nbBases) # map \i → set _missingPeg i model
 
   -- fonctions par défault
   computerMove _ = pure Nothing

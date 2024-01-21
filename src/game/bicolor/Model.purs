@@ -41,7 +41,7 @@ reverseCard WhiteCard = BlackCard
 reverseCard EmptyCard = EmptyCard
 
 randomCard ∷ Gen Card
-randomCard = chooseBool <#> if _ then WhiteCard else BlackCard
+randomCard = chooseBool # map if _ then WhiteCard else BlackCard
 
 type Ext' =
   { mode ∷ Mode

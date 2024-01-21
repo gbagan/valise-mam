@@ -26,7 +26,7 @@ view model = template { config, board, rules, winTitle } model
       [ iconSelectGroup model "Nombre de rangées" [ 1, 2, 3, 4, 5 ] nbPiles SetNbPiles (const identity)
       , iconSelectGroup model "Taille des rangées" [ 10, 5 ] length SetLength (const identity)
       , icons2Players model
-      , icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> (_ $ model)
+      , icongroup "Options" $ [ iundo, iredo, ireset, irules ] # map (_ $ model)
       ]
 
   drawRow i =

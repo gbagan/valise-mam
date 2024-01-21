@@ -21,7 +21,7 @@ view model = template { config, board, rules, winTitle, scoreDialog } model
 
   config = card "Jeu d'acquisition"
     [ iconSizesGroup model [ 2 ∧ 2, 4 ∧ 4, 5 ∧ 5, 6 ∧ 6 ] true
-    , icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> (_ $ model)
+    , icongroup "Options" $ [ iundo, iredo, ireset, irules ] # map (_ $ model)
     , iconBestScore model
     ]
 

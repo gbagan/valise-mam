@@ -50,7 +50,7 @@ view model = template { config, board, rules, winTitle } model
         , TorusMode ∧ _ { icon = IconSymbol "#grid-torus", tooltip = Just "Torique" }
         ]
     , icongroup "Configuration" [ icustom, ishuffle ]
-    , icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> (_ $ model)
+    , icongroup "Options" $ [ iundo, iredo, ireset, irules ] # map (_ $ model)
     ]
 
   grid = H.div ([ H.class_ "ui-board" ] <> gridStyle rows columns 4)

@@ -59,7 +59,7 @@ view model = template { config, board, rules } model
         _ { icon = IconSymbol $ "#lo-mode" <> show (i + 1) }
     , iconSelectGroup model "Difficulté" [ 0, 1, 2, 3, 4, 5, 6 ] level SelectLevel \i →
         levelOptions i (Just i > maxLevels !! mode)
-    , icongroup "Options" $ [ ihelp, ireset, irules ] <#> (_ $ model)
+    , icongroup "Options" $ [ ihelp, ireset, irules ] # map (_ $ model)
     ]
 
   grid = H.div ([ H.class_ "ui-board" ] <> gridStyle rows columns 4) $

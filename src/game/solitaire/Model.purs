@@ -148,7 +148,7 @@ instance Game Position ExtModel Move where
         EnglishBoard → generateBoard 7 7 24 \row col → min row (6 - row) >= 2 || min col (6 - col) >= 2
         FrenchBoard → generateBoard 7 7 24 \row col → min row (6 - row) + min col (6 - col) >= 2
         CircleBoard → do
-          position <- chooseInt' rows <#> \x → repeat rows (_ ≠ x)
+          position <- chooseInt' rows # map \x → repeat rows (_ ≠ x)
           pure
             { holes: replicate rows true
             , position
@@ -160,8 +160,8 @@ instance Game Position ExtModel Move where
           , customSize: true
           }
         RandomBoard → do
-          position <- replicateA columns chooseBool <#> \bools →
-            bools <> replicate columns true <> (bools <#> not)
+          position <- replicateA columns chooseBool # map \bools →
+            bools <> replicate columns true <> map not bools
           pure
             { holes: replicate (3 * model ^. _nbColumns) true
             , position

@@ -127,7 +127,7 @@ view { graph, mode, currentPosition, selectedVertex } onOk =
                 ]
                 [ S.g []
                     $ graph.edges
-                    <#> \edge →
+                    # map \edge →
                       H.maybe (Graph.getCoordsOfEdge graph edge) \{ px1, px2, py1, py2 } →
                         S.line
                           [ SA.x1 $ 100.0 * px1

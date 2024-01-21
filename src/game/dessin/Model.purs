@@ -39,7 +39,7 @@ data GraphIndex = GraphIndex Int | CustomGraph
 derive instance Eq GraphIndex
 
 instance DecodeJson Move where
-  decodeJson json = decodeJson json <#> case _ of
+  decodeJson json = decodeJson json # map case _ of
     Nothing → Raise
     Just y → MoveTo y
 
@@ -125,7 +125,7 @@ grid =
       , { x: 0.0, y: 4.5 }
       , { x: 2.0, y: 4.5 }
       , { x: 4.0, y: 4.5 }
-      ] <#> \{ x, y } → { x: x * 0.85 + 1.0, y: y * 0.85 + 0.21 }
+      ] # map \{ x, y } → { x: x * 0.85 + 1.0, y: y * 0.85 + 0.21 }
   , edges:
       [ 0 ↔ 1
       , 1 ↔ 2
@@ -168,7 +168,7 @@ konisberg =
       , { x: 0.0, y: 3.0 }
       , { x: 2.0, y: 4.0 }
       , { x: 4.0, y: 3.0 }
-      ] <#> \{ x, y } → { x: x * 0.85 + 1.0, y: y * 0.85 + 1.0 }
+      ] # map \{ x, y } → { x: x * 0.85 + 1.0, y: y * 0.85 + 1.0 }
   , edges: [ 2 ↔ 0, 0 ↔ 3, 3 ↔ 1, 1 ↔ 4, 4 ↔ 6, 6 ↔ 3, 3 ↔ 5, 5 ↔ 2, 2 ↔ 7, 3 ↔ 8, 4 ↔ 9, 7 ↔ 8, 8 ↔ 9 ]
   }
 
@@ -185,15 +185,24 @@ ex1 =
       , { x: 1.0, y: 4.0 }
       , { x: 0.0, y: 5.0 }
       , { x: 2.0, y: 5.0 }
-      ] <#> \{ x, y } → { x: x * 0.9 + 1.0, y: y * 0.9 + 0.2 }
+      ] # map \{ x, y } → { x: x * 0.9 + 1.0, y: y * 0.9 + 0.2 }
   , edges: [ 0 ↔ 1, 0 ↔ 2, 1 ↔ 2, 1 ↔ 3, 2 ↔ 3, 3 ↔ 4, 3 ↔ 5, 4 ↔ 5, 1 ↔ 4, 2 ↔ 5, 4 ↔ 6, 5 ↔ 6, 6 ↔ 7, 6 ↔ 8, 4 ↔ 7, 5 ↔ 8 ]
   }
 
 ex3 ∷ Graph
 ex3 =
   { title: "Soleil"
-  , vertices: [ { x: 1.0, y: 2.0 }, { x: 2.0, y: 1.0 }, { x: 3.0, y: 2.0 }, { x: 2.0, y: 3.0 }, { x: 0.5, y: 0.5 }, { x: 0.5, y: 3.5 }, { x: 3.5, y: 3.5 }, { x: 3.5, y: 0.5 }, { x: 2.0, y: 2.0 } ]
-      <#> \{ x, y } → { x: x * 1.15, y: y * 1.15 }
+  , vertices: 
+      [ { x: 1.0, y: 2.0 }
+      , { x: 2.0, y: 1.0 }
+      , { x: 3.0, y: 2.0 }
+      , { x: 2.0, y: 3.0 }
+      , { x: 0.5, y: 0.5 }
+      , { x: 0.5, y: 3.5 }
+      , { x: 3.5, y: 3.5 }
+      , { x: 3.5, y: 0.5 }
+      , { x: 2.0, y: 2.0 }
+      ] # map \{ x, y } → { x: x * 1.15, y: y * 1.15 }
   , edges: [ 0 ↔ 1, 1 ↔ 2, 2 ↔ 3, 3 ↔ 0, 0 ↔ 8, 1 ↔ 8, 2 ↔ 8, 3 ↔ 8, 0 ↔ 4, 1 ↔ 4, 0 ↔ 5, 3 ↔ 5, 2 ↔ 6, 3 ↔ 6, 1 ↔ 7, 2 ↔ 7 ]
   }
 
@@ -223,7 +232,7 @@ city =
       , { x: 2.0, y: 5.0 }
       , { x: 3.0, y: 5.0 }
       , { x: 4.0, y: 5.0 }
-      ] <#> \{ x, y } → { x: x * 0.75 + 1.0, y: y * 0.72 + 0.6 }
+      ] # map \{ x, y } → { x: x * 0.75 + 1.0, y: y * 0.72 + 0.6 }
   , edges:
       [ 1 ↔ 2
       , 0 ↔ 3
@@ -280,7 +289,7 @@ owl =
       , { x: 4.0, y: 4.0 }
       , { x: 1.0, y: 5.0 }
       , { x: 3.0, y: 5.0 }
-      ] <#> \{ x, y } → { x: x * 0.8 + 0.5, y: y * 0.8 + 0.6 }
+      ] # map \{ x, y } → { x: x * 0.8 + 0.5, y: y * 0.8 + 0.6 }
   , edges:
       [ 0 ↔ 2
       , 0 ↔ 3
@@ -340,7 +349,7 @@ rabbit =
       , { x: 2.0, y: 4.0 }
       , { x: 3.0, y: 4.0 }
       , { x: 1.0, y: 5.0 }
-      ] <#> \{ x, y } → { x: x * 0.8 + 1.0, y: y * 0.8 + 0.8 }
+      ] # map \{ x, y } → { x: x * 0.8 + 1.0, y: y * 0.8 + 0.8 }
   , edges:
       [ 0 ↔ 1
       , 0 ↔ 3
@@ -400,7 +409,7 @@ cross =
         { x: 2.5, y: 1.5 }
       , { x: 3.0, y: 1.0 }
       , { x: 3.0, y: 2.0 } -- 14 -- 16
-      ] <#> \{ x, y } → { x: x * 1.3 + 0.5, y: y * 1.3 + 0.5 }
+      ] # map \{ x, y } → { x: x * 1.3 + 0.5, y: y * 1.3 + 0.5 }
   , edges:
       [ 0 ↔ 1
       , 0 ↔ 2
@@ -443,7 +452,7 @@ cross =
 
 graphs ∷ Array Graph
 graphs = [ house, house2, sablier, interlace, grid, konisberg, ex1, ex3, city, owl, rabbit, cross ]
-  <#> \g → g { vertices = g.vertices <#> \{ x, y } → { x: x / 5.0, y: y / 5.0 } }
+  # map \g → g { vertices = g.vertices # map \{ x, y } → { x: x / 5.0, y: y / 5.0 } }
 
 nbGraphs ∷ Int
 nbGraphs = length graphs

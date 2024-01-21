@@ -35,7 +35,7 @@ view model = template { config, board, rules, winTitle } model
   config =
     card "Tours de Hanoi"
       [ iconSelectGroup model "Nombres de disques" [ 3, 4, 5, 6, 7 ] nbDisks SetNbDisks (const identity)
-      , icongroup "Options" $ [ iundo, iredo, ireset, irules ] <#> (_ $ model)
+      , icongroup "Options" $ [ iundo, iredo, ireset, irules ] # map (_ $ model)
       ]
 
   drawDisk ∷ { x ∷ Number, y ∷ Number, disk ∷ Int, column ∷ Int, draggable ∷ Boolean } → Array (Prop Msg) → Html Msg
@@ -77,8 +77,8 @@ view model = template { config, board, rules, winTitle } model
   board =
     H.div (dndBoardProps <> [ H.class_ "ui-board hanoi-board" ])
       [ S.svg [ H.class_ "hanoi-svg", SA.viewBox 0.0 0.0 200.0 100.0 ] $
-          [ S.g [] $ [ 0, 1, 2 ] <#> drawTower
-          , S.g [] $ [ 0, 1, 2 ] <#> \i →
+          [ S.g [] $ [ 0, 1, 2 ] # map drawTower
+          , S.g [] $ [ 0, 1, 2 ] # map \i →
               S.rect
                 ( [ SA.x $ 13 + 60 * i, SA.y 10.0, SA.width 54, SA.height 90, SA.fill "transparent" ]
                     <> dndItemProps model

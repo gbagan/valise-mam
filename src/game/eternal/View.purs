@@ -143,7 +143,7 @@ view model = template { config, board, rules, winTitle, customDialog } model
           , ManyGuards ∧ _ { icon = IconText "∞", tooltip = Just "Plusieurs gardes" }
           ]
       , icons2Players model
-      , icongroup "Options" $ [ iundo, iredo, ireset, iclear, irules ] <#> (_ $ model)
+      , icongroup "Options" $ [ iundo, iredo, ireset, iclear, irules ] # map (_ $ model)
       ]
 
   grid =
@@ -157,7 +157,7 @@ view model = template { config, board, rules, winTitle, customDialog } model
       [ S.svg [ H.class_ "eternal-svg", SA.viewBox 0.0 0.0 100.0 100.0 ]
           [ S.g []
               $ graph.edges
-              <#> \edge →
+              # map \edge →
                 H.maybe (getCoordsOfEdge graph edge) \{ x1, x2, y1, y2 } →
                   S.line
                     [ -- key?
@@ -170,13 +170,13 @@ view model = template { config, board, rules, winTitle, customDialog } model
           , H.when (grules == ManyGuards) \_ →
               S.g []
                 $ (zip guards (model ^. _nextmove))
-                <#> \(from ∧ to) →
+                # map \(from ∧ to) →
                   H.when (from ≠ to) \_ →
                     H.maybe (getCoordsOfEdge graph (from ↔ to)) \{ x1, x2, y1, y2 } →
                       drawArrow (x1 * 100.0) (x2 * 100.0) (y1 * 100.0) (y2 * 100.0)
           , S.g []
               $ graph.vertices
-              <#> \{ x, y } →
+              # map \{ x, y } →
                 S.circle $
                   [ SA.cx $ 100.0 * x
                   , SA.cy $ 100.0 * y
@@ -185,7 +185,7 @@ view model = template { config, board, rules, winTitle, customDialog } model
                   ]
           , S.g []
               $ guards
-              <#> \index →
+              # map \index →
                 S.use
                   [ P.href "#roman"
                   , SA.width 6

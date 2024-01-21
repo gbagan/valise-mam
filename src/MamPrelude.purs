@@ -89,7 +89,6 @@ import Prelude
   , (/)
   , (/=)
   , (<)
-  , (<#>)
   , (<$)
   , (<$>)
   , (<*)
@@ -177,7 +176,7 @@ range' n m = if n > m then [] else range n m
 infix 8 range' as ..
 
 repeat ∷ ∀ a. Int → (Int → a) → Array a
-repeat n f = 0 .. (n - 1) <#> f
+repeat n f = 0 .. (n - 1) # map f
 
 infixr 9 Exports.compose as ∘
 infix 6 Exports.Tuple as ∧

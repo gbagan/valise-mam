@@ -64,7 +64,7 @@ view model = template { config, board, rules, winTitle, customDialog } model
       , iconSelectGroup model "Motif de la tuile" [ Type1, Type2, Type3, CustomTile ] tileType SetTile \t →
           _ { icon = IconSymbol ("#" <> show t) }
       , iconSelectGroup model "Nombre d'éviers" [ 0, 1, 2 ] nbSinks SetNbSinks (const identity)
-      , icongroup "Options" $ [ ihelp, ireset, irules ] <#> (_ $ model)
+      , icongroup "Options" $ [ ihelp, ireset, irules ] # map (_ $ model)
       ]
 
   tileCursor pp =
@@ -72,7 +72,7 @@ view model = template { config, board, rules, winTitle, customDialog } model
       [ S.g
           [ H.class_ "tiling-cursor"
           , H.style "transform" $ "rotate(" <> show (90 * rotation) <> "deg)"
-          ] $ tile <#> \{ row, col } →
+          ] $ tile # map \{ row, col } →
           S.use
             [ P.href "#tile2"
             , SA.x $ 50 * col - 25

@@ -109,7 +109,7 @@ tilePositions model index =
   model ^. _tile
     # rotate ((model ^. _rotation) `mod` 4)
     # translate (coords columns index)
-    <#> \{ row, col } → if 0 <= col && col < columns then row * columns + col else -1
+    # map \{ row, col } → if 0 <= col && col < columns then row * columns + col else -1
   where
   columns = model ^. _nbColumns
 
@@ -140,10 +140,10 @@ instance Game (Array Int) ExtModel Int where
       let
         m = (foldr max 0 pos) + 1
       in
-        Just $ pos # updateAtIndices (tilePos <#> (_ ∧ m))
+        Just $ pos # updateAtIndices (map (_ ∧ m) tilePos)
     -- si la souris se trouve sur l'emplacement d'une tuile, on retire la tuile
     else if model ^. _position !! index > Just 0 then
-      Just $ pos <#> \x → if Just x == pos !! index then 0 else x
+      Just $ pos # map \x → if Just x == pos !! index then 0 else x
     -- sinon, c'est un coup invalide
     else
       Nothing

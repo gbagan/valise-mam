@@ -127,7 +127,7 @@ iconSelectGroup
   → (sel → Record I.Options → Record I.Options)
   → Html msg
 iconSelectGroup model title values selected action optionFn =
-  icongroup title $ values <#> \val →
+  icongroup title $ values # map \val →
     iconbutton model
       ( optionFn val
           ( iconLabel val I.defaultOptions
@@ -149,7 +149,7 @@ iconSelectGroup'
   → Array (Tuple sel (Record I.Options → Record I.Options))
   → Html msg
 iconSelectGroup' model title selected action values =
-  icongroup title $ values <#> \(val ∧ optionFn) →
+  icongroup title $ values # map \(val ∧ optionFn) →
     iconbutton model
       ( optionFn
           ( iconLabel val I.defaultOptions
@@ -173,7 +173,7 @@ iconSelectGroupM
   → (sel → Record I.Options → Record I.Options)
   → Html msg
 iconSelectGroupM model title values selected action optionFn =
-  icongroup title $ values <#> \val →
+  icongroup title $ values # map \val →
     iconbutton model
       ( optionFn val
           ( iconLabel val I.defaultOptions
@@ -194,7 +194,7 @@ iconSizesGroup
 iconSizesGroup model sizeList customSize =
   icongroup "Dimensions de la grille"
     $
-      ( sizeList <#> \(rows ∧ cols) →
+      ( sizeList # map \(rows ∧ cols) →
           iconbutton model
             { icon: I.IconText $ show rows <> "x" <> show cols
             , selected: rows == crows && cols == ccols && not csize

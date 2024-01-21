@@ -46,7 +46,7 @@ view model = template { config, board, rules } model
       [ iconSelectGroup model "Nombre de feux" [ 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ] size SetSize (const identity)
       , iconSelectGroup model "Nombre de couleurs" [ 2, 3, 4, 5 ] nbColors SetNbColors (const identity)
       , iconSelectGroup model "Portée" [ 1, 2, 3 ] range SetRange (const identity)
-      , icongroup "Options" $ [ iundo, iredo, ireset, irandom, irules ] <#> (_ $ model)
+      , icongroup "Options" $ [ iundo, iredo, ireset, irandom, irules ] # map (_ $ model)
       ]
 
   drawCell i color =

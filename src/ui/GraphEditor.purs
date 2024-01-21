@@ -7,7 +7,6 @@ import Lib.Graph as Graph
 import Lib.Update (UpdateMam)
 import Pha.Html (Html)
 import Pha.Html as H
-import Pha.Html.Attributes as P
 import Pha.Html.Events as E
 import Pha.Svg as S
 import Pha.Svg.Attributes as SA

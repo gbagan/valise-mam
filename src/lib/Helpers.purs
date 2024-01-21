@@ -8,12 +8,12 @@ module Lib.Helpers
   , elements'
   , map2
   , map3
-  , pairwise
   , partialUpdate
   , rangeWithStep
   , rangeWithStep'
   , repeat2
   , swap
+  , windows2
   ) where
 
 import MamPrelude
@@ -40,8 +40,8 @@ rangeWithStep' ∷ Number → Number → Number → Array Number
 rangeWithStep' begin end step = repeat (max 0 (floor $ 1.0 + (end - begin) / step)) \i → begin + toNumber i * step
 
 -- | [x1, x2, x3, x4] → [(x1, x2), (x2, x3), (x3, x4)]
-pairwise ∷ ∀ a. Array a → Array (Tuple a a)
-pairwise list = maybe [] (zip list) (tail list)
+windows2 ∷ ∀ a. Array a → Array (Tuple a a)
+windows2 list = maybe [] (zip list) (tail list)
 
 -- | échange les éléments à la position i et j
 swap ∷ ∀ a. Int → Int → Array a → Maybe (Array a)

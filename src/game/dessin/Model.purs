@@ -27,7 +27,7 @@ import Game.Core
   )
 import Lib.Graph (Graph, Edge, (↔))
 import Lib.Update (UpdateMam)
-import Lib.Helpers (count, pairwise)
+import Lib.Helpers (count, windows2)
 import UI.GraphEditor as GEditor
 
 data Move = MoveTo Int | Raise
@@ -481,7 +481,7 @@ imodel = genModel [] identity (Ext { graphIndex: GraphIndex 0, graph: house, gra
 
 -- | l'ensemble des arêtes compososant un chemin contenant potentiellement des levés de crayon
 edgesOf ∷ Array Move → Array Edge
-edgesOf = mapMaybe toEdge ∘ pairwise
+edgesOf = mapMaybe toEdge ∘ windows2
   where
   toEdge (MoveTo u ∧ MoveTo v) = Just (u ↔ v)
   toEdge _ = Nothing

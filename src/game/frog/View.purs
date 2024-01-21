@@ -2,7 +2,7 @@ module Game.Frog.View (view) where
 
 import MamPrelude
 import Data.FoldableWithIndex (foldMapWithIndex)
-import Lib.Helpers (map2, pairwise, rangeWithStep')
+import Lib.Helpers (map2, rangeWithStep', windows2)
 import Pha.Html (Html)
 import Pha.Html as H
 import Pha.Html.Attributes as P
@@ -44,7 +44,7 @@ spiral center startRadius radiusStep startTheta endTheta thetaStep =
           in
             { point, slope, intercept }
       )
-    # pairwise
+    # windows2
     # foldMapWithIndex
         ( \i (a ∧ b) →
             let

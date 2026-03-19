@@ -1,9 +1,9 @@
 <script lang="ts" generics="Pos, D, P">
-  import { Model } from '$lib/model/core.svelte';
+  import { type ICoreModel } from '$lib/model/types';
   import type { Snippet } from 'svelte';
 
   interface Props {
-    model: Model<Pos, {from: D, to: D }>;
+    model: ICoreModel<Pos, {from: D, to: D }>;
     dragged: D | null;
     id: D;
     draggable?: boolean;

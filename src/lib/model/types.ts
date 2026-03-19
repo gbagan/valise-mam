@@ -16,6 +16,7 @@ export interface ICoreModel<Position, Move> {
   readonly locked: boolean;
   lock: (action: () => Promise<void>) => Promise<void>;
   readonly help: boolean;
+  setHelp: (help: boolean) => void;
   toggleHelp: () => void;
   playA: (move: Move) => Promise<void>;
   newGame: (action?: () => void) => void;

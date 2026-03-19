@@ -30,6 +30,7 @@
     onpointerdown?: (e: PointerEvent) => void,
     onpointerup?: (e: PointerEvent) => void,
 )}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <rect
     x={x - 25 + 2.5 * disk}
     y={y - 7}
@@ -46,6 +47,7 @@
     onpointerdown?: (e: PointerEvent) => void,
     onpointerup?: (e: PointerEvent) => void,
 )}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <rect
     x={13+60*column} y="10" width="54" height="90" fill="transparent"
     {onpointerdown} {onpointerup}

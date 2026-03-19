@@ -57,6 +57,7 @@
       style:transform={itemTransform(i)}
     />
   {/if}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <circle
     r="17"
     class={["hole", {droppable}]}
@@ -69,6 +70,7 @@
 {#snippet peg(i: number, dragged: boolean, _droppable: boolean,
   onpointerdown?: (e: PointerEvent) => void, onpointerup?: (e: PointerEvent) => void)
 }
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <circle
     r="20"
     class={["peg", {dragged}]}

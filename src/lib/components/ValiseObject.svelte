@@ -55,6 +55,7 @@
 
 <g style:transform="translate({x2 ?? x / 8.5}%, {y2 ?? y / 6.9}%)">
   <g {style}>
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <svg
       class={["object", {draggable: drag}]}
       onpointerenter={() => setHelp(help)}

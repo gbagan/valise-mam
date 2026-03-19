@@ -29,6 +29,7 @@
   {@const row = i / model.columns | 0}
   {@const col = i % model.columns}
   <g style:transform="translate({25+50*col}px,{25+50*row}px)">
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <rect
       class={["peg", {dragged, droppable}]}
       fill="rgb(255 {255 * (1 - Math.sqrt(val / (model.rows * model.columns)))} 0)"

@@ -15,6 +15,7 @@
   let position: {x: number, y: number} | null = $state(null);
 </script>
 
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <svg
   {viewBox} class={className} {style}
   onpointermove={e => position = getPointerPosition(e)}

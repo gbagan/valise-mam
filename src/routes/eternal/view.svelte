@@ -70,6 +70,7 @@
 
 {#snippet board()}
   <div class="ui-board board">
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <svg
       viewBox="0 0 100 100"
       onpointerdown={setPointer}

@@ -60,6 +60,7 @@
 {#snippet board2(_: null, _dragged: boolean, _droppable: boolean,
    onpointerdown?: (e: PointerEvent) => void, onpointerup?: (e: PointerEvent) => void)
 }
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <rect x="-100" y="-120" width="100%" height="100%" fill="transparent"
     {onpointerdown} {onpointerup}
   />
@@ -68,6 +69,7 @@
 {#snippet wheelPart([i, aligned]: [number, boolean], _dragged: boolean, droppable: boolean,
    onpointerdown?: (e: PointerEvent) => void, onpointerup?: (e: PointerEvent) => void)
 }
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <path
     d={pizza2(0, 0, 50, 80, 2 * Math.PI * (i - 0.5) / model.size, 2 * Math.PI * (i + 0.5) / model.size)}
     class={["wheel-part", {droppable}]}
@@ -79,6 +81,7 @@
 {#snippet disk([color, x, y]: [number, number, number], dragged2: boolean, _droppable: boolean,
    onpointerdown?: (e: PointerEvent) => void, onpointerup?: (e: PointerEvent) => void)
 }
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <circle cx={x} cy={y} r="8"
     {onpointerdown}
     {onpointerup}

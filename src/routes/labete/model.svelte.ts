@@ -1,20 +1,14 @@
 import { coords, countBy, generate2, mod, repeat } from '$lib/util';
-import { Model } from '$lib/model/core.svelte';
-import { Objective, WithScore } from '$lib/score.svelte';
-import { WithSize, type SizeLimit } from '$lib/size.svelte';
-
-export enum Mode { Standard, Cylinder, Torus };
-type Beast = [number, number][];
-type Beast2 = Beast[];
-export enum BeastType { Type1, Type2, Type3, Type4, Custom };
+import { CoreModel } from '$lib/model/core.svelte';
+import { Objective, WithScore } from '$lib/model/score.svelte';
+import { WithSize } from '$lib/model/size.svelte';
+import { type SizeLimit } from '$lib/model/types';
+import { type IModel, type Position, type Move, type Beast, type Beast2, BeastType, Mode } from "./types";
 
 const type1: Beast = [ [0, 0], [0, 1] ];
 const type2: Beast = [ [0, 0], [0, 1], [0, -1] ];
 const type3: Beast = [ [0, 0], [0, 1], [1, 1] ];
 const beastTypes: Beast2[] = [ [ type1 ], [ type2 ], [ type3 ], [ type2, type3 ] ];
-
-export type Position = boolean[];
-type Move = number;
 
 const rotate90 = (beast: Beast) => beast.map(([row, col]) => [-col, row]) as Beast;
 const translate = (beast: Beast, row: number, col: number) => beast.map(([r, c]) => [r+row, c+col]) as Beast;
@@ -32,7 +26,10 @@ const pseudoRandomPick = <A>(arr: A[]) => arr[28921 % arr.length]
 
 const sizeLimit: SizeLimit = { minRows: 2, minCols: 2, maxRows: 9, maxCols: 9 };
 
-export default class extends WithScore(WithSize(Model<Position, Move>)) {
+const C1 = WithSize<Position, Move>()(CoreModel<Position, Move>);
+const C2 = WithScore<Position, Move>()(C1);
+
+export default class extends C2 implements IModel {
   #mode = $state(Mode.Standard);
   #beastType = $state(BeastType.Type1);
   #selectedColor = $state(0);

@@ -83,6 +83,10 @@ export abstract class CoreModel<Position, Move> implements ICoreModel<Position, 
     this.#help = !this.#help;
   }
 
+  setHelp = (h: boolean) => {
+    this.#help = h;
+  }
+
   canPlay(move: Move): boolean {
     return this.play(move) !== null;
   }

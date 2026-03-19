@@ -1,12 +1,11 @@
 import { generate, random } from '$lib/util';
-import { Model } from '$lib/model/core.svelte';
-import { Turn } from '$lib/twoplayers.svelte';
-import { WithCombinatorial } from '$lib/combinatorial.svelte';
+import { CoreModel } from '$lib/model/core.svelte';
+import { Turn } from '$lib/model/types';
+import { WithCombinatorial } from '$lib/model/combinatorial.svelte';
+import { type Position, type Move, type IModel } from './types';
 
-type Position = readonly (readonly [number, number])[];
-type Move = {readonly pile: number, readonly pos: number};
-
-export default class extends WithCombinatorial(Model<Position, Move>) {
+const C = WithCombinatorial<Position, Move>()(CoreModel<Position, Move>);
+export default class extends C implements IModel {
   #length = $state(10);
   #pileCount = $state(4);
   

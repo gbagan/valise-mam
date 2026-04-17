@@ -1,7 +1,7 @@
 import { CoreModel } from '$lib/model/core.svelte';
 import { Objective, WithScore } from '$lib/model/score.svelte';
 import { WithSize } from '$lib/model/size.svelte';
-import { countBy, diffCoords, generate, generate2, random, repeat } from '$lib/util';
+import { countBy, diffCoords, tabulate, tabulate2, random, arrayOf } from '$lib/util';
 import { Board, type IModel, type Move, type Position } from './types';
 
 const C1 = WithSize<Position, Move>()(CoreModel<Position, Move>);
@@ -95,34 +95,34 @@ export default class extends C2 implements IModel {
     const rows = this.rows;
     switch (this.#boardType) {
       case Board.English:
-        this.#holes = generate2(7, 7, (row, col) =>
+        this.#holes = tabulate2(7, 7, (row, col) =>
           Math.min(row, 6 - row) >= 2 || Math.min(col, 6 - col) >= 2 
         );
         this.position = this.#holes.with(24, false);
         this.customSize = false;
         break;
       case Board.French:
-        this.#holes = generate2(7, 7, (row, col) =>
+        this.#holes = tabulate2(7, 7, (row, col) =>
           Math.min(row, 6 - row) + Math.min(col, 6 - col) >= 2 
         );
         this.position = this.#holes.with(24, false);
         this.customSize = false;
         break;
       case Board.Circle:
-        this.#holes = repeat(rows, true);
+        this.#holes = arrayOf(rows, true);
         const empty = random(0, rows);
-        this.position = generate(rows, x => x !== empty);
+        this.position = tabulate(rows, x => x !== empty);
         this.customSize = true;
         break
       case Board.Grid3:
-        this.#holes = repeat(3 * columns, true);
-        this.position = generate(3 * columns, i => i < 2 * columns);
+        this.#holes = arrayOf(3 * columns, true);
+        this.position = tabulate(3 * columns, i => i < 2 * columns);
         this.customSize = true;
         break;
       default: // Board.Random
-        this.#holes = repeat(3 * columns, true);
-        const bools = generate(columns, () => Math.random() < 0.5);
-        this.position = bools.concat(repeat(columns, true), bools.map(x => !x));
+        this.#holes = arrayOf(3 * columns, true);
+        const bools = tabulate(columns, () => Math.random() < 0.5);
+        this.position = bools.concat(arrayOf(columns, true), bools.map(x => !x));
         this.customSize = true;
     }
   }

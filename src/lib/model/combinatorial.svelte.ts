@@ -1,6 +1,6 @@
 import { type Constructor, type CoreModel } from "./core.svelte";
 import { WithTwoPlayers } from "./twoplayers.svelte";
-import { randomPick } from "$lib/util";
+import { sample } from "$lib/util";
 import { Mode, type ITwoPlayersModel } from "./types";
 
 export function WithCombinatorial<Pos, Move>() {
@@ -34,7 +34,7 @@ export function WithCombinatorial<Pos, Move>() {
         if (bestMove !== null) {
           return bestMove;
         } else {
-          return randomPick(moves);
+          return sample(moves);
         }
       }
     }

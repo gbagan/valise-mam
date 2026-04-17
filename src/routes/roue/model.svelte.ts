@@ -1,4 +1,4 @@
-import { delay, mod, repeat, swap } from '$lib/util';
+import { delay, mod, arrayOf, swap } from '$lib/util';
 import { CoreModel } from '$lib/model/core.svelte';
 import type { IModel, Move, Position } from './types';
 
@@ -41,7 +41,7 @@ export default class extends CoreModel<Position, Move> implements IModel {
     }
   }
 
-  protected initialPosition = () => repeat(this.#size, null);
+  protected initialPosition = () => arrayOf(this.#size, null);
   protected isLevelFinished = () => false;
   protected onNewGame = () => this.#rotation = 0;
 

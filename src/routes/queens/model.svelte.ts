@@ -2,7 +2,7 @@ import { CoreModel } from "$lib/model/core.svelte";
 import { Objective, WithScore } from "$lib/model/score.svelte";
 import { WithSize } from "$lib/model/size.svelte";
 import type { SizeLimit } from "$lib/model/types";
-import { diffCoords, generate, repeat } from "$lib/util";
+import { diffCoords, tabulate, arrayOf } from "$lib/util";
 import { piecesList, type IModel, type Move, type Piece, type Position } from "./types";
 
 function legalMoves(piece: Piece, x: number, y: number) {
@@ -25,8 +25,8 @@ export default class extends C2 implements IModel {
   #selectedPiece: Piece = $state("Q");
   #allowedPieces: Piece[] = $state(["R"]);
   #multiPieces = $state(false);
-  #customLocalMoves = $state(repeat(25, false));
-  #customDirections = $state(repeat(9, false));
+  #customLocalMoves = $state(arrayOf(25, false));
+  #customDirections = $state(arrayOf(9, false));
 
   constructor() {
     super([]);
@@ -70,12 +70,12 @@ export default class extends C2 implements IModel {
   // renvoie l'ensemble des positions pouvant être attaquées par une pièce
   // à la position index sous forme de tableau de booléens
   attackedBy = (piece: Piece, index: number) =>
-    generate(this.rows * this.columns, i => this.canCapture(piece, i, index));
+    tabulate(this.rows * this.columns, i => this.canCapture(piece, i, index));
 
   // ensemble des cases pouvant être attaquées par une pièce sur le plateau
   capturable = $derived.by(() => {
     const n = this.rows * this.columns;
-    const res = repeat(n, false);
+    const res = arrayOf(n, false);
     this.position.forEach((piece, i) => {
       if (piece !== null) {
         const attacked = this.attackedBy(piece, i);
@@ -97,7 +97,7 @@ export default class extends C2 implements IModel {
     return this.position.with(i, p);
   }
 
-  protected initialPosition = () => repeat(this.rows * this.columns, null);
+  protected initialPosition = () => arrayOf(this.rows * this.columns, null);
   protected isLevelFinished = () => false;
   protected onNewGame = () => {
     this.#selectedPiece = this.#allowedPieces[0];

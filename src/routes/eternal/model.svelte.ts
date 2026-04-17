@@ -3,27 +3,27 @@ import { Mode } from "$lib/model/types";
 import { CoreModel } from "$lib/model/core.svelte";
 import { WithTwoPlayers } from "$lib/model/twoplayers.svelte";
 import { WithSize } from "$lib/model/size.svelte";
-import { allDistinct, generate, generate2, randomPick, range } from "$lib/util";
+import { allDistinct, tabulate, tabulate2, sample, range } from "$lib/util";
 import { edgesToGraph, GraphKind, hasEdge, Phase, Rules, type IModel, type Move, type Position } from "./types";
 import { ManyGuardsArena, OneGuardArena } from "./arena";
 
 const path = (n: number): IGraph => new Graph(
   "Chemin",
-  generate(n, i => ({
+  tabulate(n, i => ({
       x: 0.5 + 0.35 * Math.cos(2 * i * Math.PI / n),
       y: 0.5 + 0.35 * Math.sin(2 * i * Math.PI / n)
     })),
-  generate(n - 1, i => [i, i+1])
+  tabulate(n - 1, i => [i, i+1])
 );
 
 
 const cycle = (n: number): IGraph => new Graph(
  "Cycle",
-  generate(n, i => ({
+  tabulate(n, i => ({
       x: 0.5 + 0.35 * Math.cos(2 * i * Math.PI / n),
       y: 0.5 + 0.35 * Math.sin(2 * i * Math.PI / n)
     })),
-  generate(n, i => [i, (i+1) % n])
+  tabulate(n, i => [i, (i+1) % n])
 );
 
 // generate a grid graph
@@ -31,13 +31,13 @@ function grid(n: number, m: number): IGraph {
   const p = Math.max(n, m);
   return new Graph(
     "Grille",
-    generate2(n, m, (i, j) => ({
+    tabulate2(n, m, (i, j) => ({
       x: 0.15 + 0.7 * i / (p - 1),
       y: 0.1 + 0.7 * j / (p - 1)
     })),
     [
-      ...generate2(n, m - 1, (i, j) => [i * m + j, i * m + j + 1] as Edge),
-      ...generate2(n - 1, m, (i, j) => [i * m + j, i * m + j + m] as Edge)
+      ...tabulate2(n, m - 1, (i, j) => [i * m + j, i * m + j + 1] as Edge),
+      ...tabulate2(n - 1, m, (i, j) => [i * m + j, i * m + j + m] as Edge)
     ]
   )
 }
@@ -45,11 +45,11 @@ function grid(n: number, m: number): IGraph {
 // generate a biclique graph
 const biclique = (m: number, n: number): IGraph => new Graph(
   "Biclique",
-  generate(n + m, i => ({
+  tabulate(n + m, i => ({
     x: i < n ? 0.2 : 0.8,
     y: 0.75 - 0.7 * (i < n ? i : i - n) / (i < n ? n : m)
   })),
-  generate2(n, m, (i, j) => [i, j + n]),
+  tabulate2(n, m, (i, j) => [i, j + n]),
 );
 
 const C1 = WithSize<Position, Move>()(CoreModel<Position, Move>);
@@ -194,10 +194,10 @@ export default class extends C2 implements IModel {
     if (attacked !== null) {
       // cannot be empty
       const candidates = guards.filter(g => hasEdge(this.adjGraph, g, attacked));
-      return this.addToNextMove(randomPick(candidates)!, attacked, guards, guards)
+      return this.addToNextMove(sample(candidates)!, attacked, guards, guards)
     } else {
       const candidates = range(0, this.graph.vertices.length).filter(x => !guards.includes(x));
-      return randomPick(candidates);
+      return sample(candidates);
     }
   }
   

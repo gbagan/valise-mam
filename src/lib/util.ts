@@ -1,16 +1,6 @@
-export function repeat<A>(n: number, val: A): A[] {
-  const res = new Array(n);
-  res.fill(val);
-  return res;
-}
-
-export function generate<A>(n: number, f: (i: number) => A): A[] {
-  const res = new Array(n);
-  for (let i = 0; i < n; i++) {
-    res[i] = f(i);
-  }
-  return res;
-}
+export const arrayOf = <A>(n: number, val: A): A[] => new Array(n).fill(val);
+export const tabulate = <A>(n: number, f: (i: number) => A): A[] => Array.from({ length: n }, (_, i) => f(i));
+export const take = <A>(arr: A[], n: number): A[] => arr.slice(0, n);
 
 export function range(start: number, end: number, step?: number): number[] {
   const res = [];
@@ -36,10 +26,6 @@ export function countBy<A>(arr: readonly A[], pred: (x: A, i: number) => boolean
     }
   }
   return count;
-}
-
-export function take<A>(arr: A[], n: number): A[] {
-  return arr.slice(0, n);
 }
 
 export function swap<A>(arr: readonly A[], i: number, j: number): A[] {
@@ -88,10 +74,12 @@ export function sublists(n: number, k: number): number[][] {
   return res;
 }
 
+// renvoie un entier aléatoire entre start et end (end exclus)
 export const random = (start: number, end: number) =>
   start + (end - start) * Math.random() | 0;
 
-export function randomPick<A>(arr: readonly A[]): A | null {
+// renvoie un élément aléatoire d'un tableau (null si le tableau est vide)
+export function sample<A>(arr: readonly A[]): A | null {
   if (arr.length === 0) {
     return null;
   } else {
@@ -99,6 +87,7 @@ export function randomPick<A>(arr: readonly A[]): A | null {
   }
 }
 
+// renvoie un nouveau tableau uniformément mélangé
 export function shuffle<A>(arr: readonly A[]): A[] {
   const res = arr.slice();
   for (let i = res.length-1; i >= 0; i--) {
@@ -118,12 +107,12 @@ export function allDistinct<A>(arr: readonly A[]): boolean {
 
 export function mod(x: number, y: number) {
   const z = x % y;
-  return z < 0 ? z + y : z;  
+  return z < 0 ? z + y : z;
 }
 
 
-export const generate2 = <A>(n: number,  m: number, f: (i: number, j: number) => A) => 
-  generate(n * m, i => f(i / m | 0, i % m));
+export const tabulate2 = <A>(n: number,  m: number, f: (i: number, j: number) => A) => 
+  tabulate(n * m, i => f(i / m | 0, i % m));
 
 
 export function coords(cols: number, x: number): [number, number] {

@@ -1,4 +1,4 @@
-import { generate } from "$lib/util";
+import { tabulate } from "$lib/util";
 import type { ICoreModel, IScoreModel, ISizeModel, ITwoPlayersModel } from "$lib/model/types";
 import type { Edge, IGraph } from "$lib/graph.svelte";
 export enum GraphKind { Path, Cycle, Grid, Biclique, Custom }
@@ -37,7 +37,7 @@ export function addEdge(graph: AdjGraph, u: number, v: number) {
 }
 
 export function edgesToGraph(n: number, edges: readonly Edge[]): AdjGraph {
-  const g = generate(n, () => []);
+  const g = tabulate(n, () => []);
   for (const [u, v] of edges) {
     addEdge(g, u, v);
   }

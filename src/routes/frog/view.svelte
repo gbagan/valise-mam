@@ -1,13 +1,13 @@
 <script lang="ts">
   import type { IModel } from './types';
-  import { generate, range } from '$lib/util';
+  import { tabulate, range } from '$lib/util';
   import Template from '$lib/components/Template.svelte';
   import * as I from '$lib/components/Icons';
   import Config from '$lib/components/Config.svelte';
 
-  const { model }: {model: IModel} = $props();
+  const { model }: { model: IModel } = $props();
 
-  const reachable = $derived(generate(model.rows+1, i => model.canPlay(i)));
+  const reachable = $derived(tabulate(model.rows+1, i => model.canPlay(i)));
 
   type Cartesian = { x: number, y: number };
   type Polar = { radius: number, theta: number };

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { piecesList, type IModel, type Piece, type Position } from "./types";
-  import { coords, gridStyle, range, repeat } from "$lib/util";
+  import { coords, gridStyle, range, arrayOf } from "$lib/util";
   import PointerTracker from "$lib/components/PointerTracker.svelte";
   import Template from "$lib/components/Template.svelte";
   import * as I from "$lib/components/Icons";
@@ -28,7 +28,7 @@
   // ensemble des cases attaquées par la case survolée par le pointeur de la souris
   const attackedByHovered: readonly boolean[] = $derived(
     hoveredSquare === null
-    ? repeat(model.rows * model.columns, false)
+    ? arrayOf(model.rows * model.columns, false)
     : model.attackedBy(model.selectedPiece, hoveredSquare)
   );
 

@@ -1,4 +1,4 @@
-import { generate, random } from '$lib/util';
+import { tabulate, random } from '$lib/util';
 import { CoreModel } from '$lib/model/core.svelte';
 import { Turn } from '$lib/model/types';
 import { WithCombinatorial } from '$lib/model/combinatorial.svelte';
@@ -37,7 +37,7 @@ export default class extends C implements IModel {
   }
 
   protected initialPosition = () =>
-    generate(this.#pileCount, () => this.#length === 5 ? [0, 4] : [random(0, 5), random(5, 10)]) as Position;
+    tabulate(this.#pileCount, () => this.#length === 5 ? [0, 4] : [random(0, 5), random(5, 10)]) as Position;
 
   isLevelFinished = () =>
     this.position.every(([p1, p2]) =>

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { type IModel, type Move, SoapMode } from './types';
-  import { generate2, gridStyle } from '$lib/util';
+  import { tabulate2, gridStyle } from '$lib/util';
   import PointerTracker from '$lib/components/PointerTracker.svelte';
   import Template from '$lib/components/Template.svelte';
   import * as I from '$lib/components/Icons';
@@ -16,7 +16,7 @@
     return col >= left && col < right && row >= top && row < bottom;
   }
 
-  const grid = $derived(generate2(model.rows, model.columns, (row, col) => [row, col]));
+  const grid = $derived(tabulate2(model.rows, model.columns, (row, col) => [row, col]));
   const pmoves = $derived(model.possibleMoves());
 
   let cutLine = $derived.by(() => {

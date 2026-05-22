@@ -52,7 +52,8 @@ export function kuhnMunkres(costMatrix: Mat): number[] {
 
   const assignment = new Array(n);
   for (let j = 1; j <= n; j++) {
-    if (p[j] > 0) assignment[p[j] - 1] = j - 1;
+    if (p[j] > 0)
+      assignment[p[j] - 1] = j - 1;
   }
 
   return assignment;

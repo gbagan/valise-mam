@@ -29,6 +29,7 @@ export function sublists(n: number, k: number): number[][] {
   return res;
 }
 
+// renvoie un entier aléatoire entre start et end (end exclus)
 export const random = (start: number, end: number) =>
   start + (end - start) * Math.random() | 0;
 
@@ -40,6 +41,7 @@ export function randomPick<A>(arr: readonly A[]): A | undefined {
   }
 }
 
+// renvoie un nouveau tableau uniformément mélangé
 export function shuffle<A>(arr: readonly A[]): A[] {
   const res = arr.slice();
   for (let i = res.length-1; i >= 0; i--) {

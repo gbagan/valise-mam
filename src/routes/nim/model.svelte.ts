@@ -39,7 +39,6 @@ export default class extends C implements IModel {
 
   protected initialPosition = () =>
     times(this.#pileCount, () => this.#length === 5 ? [0, 4] : [random(0, 5), random(5, 10)]) as Position;
-
   isLevelFinished = () =>
     this.position.every(([p1, p2]) =>
       p2 - p1 === 1 && p1 === (this.turn === Turn.Player2 ? this.#length - 2 : 0)

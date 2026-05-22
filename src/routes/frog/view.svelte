@@ -5,7 +5,7 @@
   import * as I from '$lib/components/Icons';
   import Config from '$lib/components/Config.svelte';
 
-  const { model }: {model: IModel} = $props();
+  const { model }: { model: IModel } = $props();
 
   const reachable = $derived(times(model.rows+1, i => model.canPlay(i)));
 

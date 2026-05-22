@@ -29,30 +29,6 @@ export function sublists(n: number, k: number): number[][] {
   return res;
 }
 
-// renvoie un entier aléatoire entre start et end (end exclus)
-export const random = (start: number, end: number) =>
-  start + (end - start) * Math.random() | 0;
-
-export function randomPick<A>(arr: readonly A[]): A | undefined {
-  if (arr.length === 0) {
-    return undefined;
-  } else {
-    return arr[Math.random() * arr.length | 0];
-  }
-}
-
-// renvoie un nouveau tableau uniformément mélangé
-export function shuffle<A>(arr: readonly A[]): A[] {
-  const res = arr.slice();
-  for (let i = res.length-1; i >= 0; i--) {
-    const j = Math.random() * (i+1) | 0;
-    const tmp = res[i];
-    res[i] = res[j];
-    res[j] = tmp;
-  }
-  return res;
-}
-
 export function allDistinct<A>(arr: readonly A[]): boolean {
   return new Set(arr).size === arr.length;
 }

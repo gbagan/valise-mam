@@ -1,6 +1,7 @@
 import { sleep } from "@gbagan/utils";
 import { type Constructor, CoreModel } from "./core.svelte";
 import { Mode, Turn, type ITwoPlayersModel } from "./types";
+import type { RandomGenerator } from "@gbagan/rng";
 
 export function WithTwoPlayers<Position, Move>() {
   return function <TBase extends Constructor<CoreModel<Position, Move>>>(Base: TBase) {
@@ -9,7 +10,7 @@ export function WithTwoPlayers<Position, Move>() {
       #didMachineStart = $state(false);
       #mode = $state(Mode.Duel);
 
-      protected abstract machineMove(): Move | undefined;
+      protected abstract machineMove(rng: RandomGenerator): Move | undefined;
 
       get turn() {
         return this.#turn;
@@ -88,14 +89,16 @@ export function WithTwoPlayers<Position, Move>() {
       }
 
       async #machinePlays() {
-        const move = this.machineMove();
-        if (move === undefined) {
-          return;
-        } 
-        this.playHelper(move);
-        if (this.isLevelFinished()) {
-          await this.showVictory();
-        }
+        this.withRng(async rng => {
+          const move = this.machineMove(rng);
+          if (move === undefined) {
+            return;
+          } 
+          this.playHelper(move);
+          if (this.isLevelFinished()) {
+            await this.showVictory();
+          }
+        })
       }
 
       protected resetAttributes() {

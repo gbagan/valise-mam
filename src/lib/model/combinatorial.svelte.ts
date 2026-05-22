@@ -1,6 +1,6 @@
+import type { RandomGenerator } from "@gbagan/rng";
 import { type Constructor, type CoreModel } from "./core.svelte";
 import { WithTwoPlayers } from "./twoplayers.svelte";
-import { randomPick } from "$lib/util";
 import { Mode, type ITwoPlayersModel } from "./types";
 
 export function WithCombinatorial<Pos, Move>() {
@@ -9,7 +9,7 @@ export function WithCombinatorial<Pos, Move>() {
       protected abstract isLosingPosition(): boolean;
       protected abstract possibleMoves(): Move[];
 
-      protected machineMove(): Move | undefined {
+      protected machineMove(rng: RandomGenerator): Move | undefined {
         if (this.isLevelFinished()) {
           return undefined;
         }
@@ -34,7 +34,7 @@ export function WithCombinatorial<Pos, Move>() {
         if (bestMove !== undefined) {
           return bestMove;
         } else {
-          return randomPick(moves);
+          return rng.pick(moves);
         }
       }
     }

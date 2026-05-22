@@ -1,7 +1,7 @@
 import { arrayOf, times } from "@gbagan/utils";
-import { random } from '$lib/util';
 import { CoreModel } from '$lib/model/core.svelte';
 import type { IModel, Move, Position } from './types';
+import type { RandomGenerator } from "@gbagan/rng";
 
 export default class extends CoreModel<Position, Move> implements IModel {
   #size = $state(5);
@@ -34,9 +34,9 @@ export default class extends CoreModel<Position, Move> implements IModel {
     this.inRange(move, i) ? (color + 1) % this.#colorCount : color
   );
 
-  protected initialPosition = () =>
+  protected initialPosition = (rng: RandomGenerator) =>
     this.shuffle
-    ? times(this.#size, () => random(0, this.#colorCount))
+    ? times(this.#size, () => rng.int(0, this.#colorCount-1))
     : arrayOf(this.#size, 1);
 
   isLevelFinished = () => this.position.every(i => i === 0);

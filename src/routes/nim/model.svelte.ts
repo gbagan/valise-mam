@@ -1,9 +1,9 @@
 import { times } from '@gbagan/utils';
-import { random } from '$lib/util';
 import { CoreModel } from '$lib/model/core.svelte';
 import { Turn } from '$lib/model/types';
 import { WithCombinatorial } from '$lib/model/combinatorial.svelte';
 import { type Position, type Move, type IModel } from './types';
+import type { RandomGenerator } from '@gbagan/rng';
 
 const C = WithCombinatorial<Position, Move>()(CoreModel<Position, Move>);
 export default class extends C implements IModel {
@@ -37,8 +37,8 @@ export default class extends C implements IModel {
     return this.position.with(move.pile, this.turn === Turn.Player1 ? [move.pos, p2] : [p1, move.pos]);
   }
 
-  protected initialPosition = () =>
-    times(this.#pileCount, () => this.#length === 5 ? [0, 4] : [random(0, 5), random(5, 10)]) as Position;
+  protected initialPosition = (rng: RandomGenerator) =>
+    times(this.#pileCount, () => this.#length === 5 ? [0, 4] : [rng.int(0, 4), rng.int(5, 9)]) as Position;
   isLevelFinished = () =>
     this.position.every(([p1, p2]) =>
       p2 - p1 === 1 && p1 === (this.turn === Turn.Player2 ? this.#length - 2 : 0)

@@ -1,7 +1,7 @@
 import { range } from '@gbagan/utils';
-import { random, shuffle } from '$lib/util';
 import { CoreModel } from '$lib/model/core.svelte';
 import type { IModel, Move, Position } from './types';
+import type { RandomGenerator } from '@gbagan/rng';
 
 export default class extends CoreModel<Position, Move> implements IModel {
   #baseCount = $state(5);
@@ -33,9 +33,9 @@ export default class extends CoreModel<Position, Move> implements IModel {
   }
 
   isLevelFinished = () => this.position.every((i, j) => i >> 1 === j >> 1);
-  protected initialPosition = () => shuffle(range(0, 2 * this.#baseCount));
-  protected onNewGame() {
-    this.#missingPeg = random(0, 2 * this.#baseCount);
+  protected initialPosition = (rng: RandomGenerator) => rng.shuffle(range(0, 2 * this.#baseCount));
+  protected onNewGame(rng: RandomGenerator) {
+    this.#missingPeg = rng.int(0, 2 * this.#baseCount-1);
   }
 
   setBaseCount = (i: number) => this.newGame(() => this.#baseCount = i);

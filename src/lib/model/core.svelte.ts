@@ -1,5 +1,6 @@
 import { tick } from "svelte";
 import { Dialog, type ICoreModel } from "./types";
+import { xoroshiro128Plus, type RandomGenerator } from "@gbagan/rng";
 
 export const VERSION = 1;
 
@@ -12,11 +13,12 @@ export abstract class CoreModel<Position, Move> implements ICoreModel<Position, 
   #dialog = $state(Dialog.None);
   #newGameAction: (() => void) | null = $state(null);
   #locked: boolean = $state(false);
-
+  #rng: RandomGenerator = xoroshiro128Plus(42);
+  
   protected abstract play(m: Move): Position | null;
-  protected abstract initialPosition(): Position;
+  protected abstract initialPosition(rng: RandomGenerator): Position;
   protected abstract isLevelFinished(): boolean;
-  protected onNewGame() {};
+  protected onNewGame(rng: RandomGenerator) {};
 
   constructor(position: Position) {
     this.#position = $state.raw(position);
@@ -91,6 +93,10 @@ export abstract class CoreModel<Position, Move> implements ICoreModel<Position, 
     return this.play(move) !== null;
   }
 
+  protected withRng(fn: (rng: RandomGenerator) => void) {
+    fn(this.#rng);
+  }
+
   protected playHelper(move: Move, push?: boolean): boolean {
     const position = this.play(move);
     if (position === null)
@@ -146,9 +152,9 @@ export abstract class CoreModel<Position, Move> implements ICoreModel<Position, 
     this.resetAttributes();
 
     (action || this.#newGameAction || (() => {}))();
-    this.onNewGame();
+    this.onNewGame(this.#rng);
     do {
-      this.#position = this.initialPosition();
+      this.#position = this.initialPosition(this.#rng);
     } while (this.isLevelFinished());
     this.#newGameAction = null;
   }

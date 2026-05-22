@@ -2,8 +2,9 @@ import { CoreModel } from '$lib/model/core.svelte';
 import { Objective, WithScore } from '$lib/model/score.svelte';
 import { WithSize } from '$lib/model/size.svelte';
 import { arrayOf, count, times } from '@gbagan/utils';
-import { diffCoords, generate2, random } from '$lib/util';
+import { diffCoords, generate2 } from '$lib/util';
 import { Board, type IModel, type Move, type Position } from './types';
+import type { RandomGenerator } from '@gbagan/rng';
 
 const C1 = WithSize<Position, Move>()(CoreModel<Position, Move>);
 const C2 = WithScore<Position, Move>()(C1);
@@ -91,7 +92,7 @@ export default class extends C2 implements IModel {
     )
   );
 
-  protected onNewGame() {
+  protected onNewGame(rng: RandomGenerator) {
     const columns = this.columns;
     const rows = this.rows;
     switch (this.#boardType) {
@@ -111,7 +112,7 @@ export default class extends C2 implements IModel {
         break;
       case Board.Circle:
         this.#holes = arrayOf(rows, true);
-        const empty = random(0, rows);
+        const empty = rng.int(0, rows-1);
         this.position = times(rows, x => x !== empty);
         this.customSize = true;
         break

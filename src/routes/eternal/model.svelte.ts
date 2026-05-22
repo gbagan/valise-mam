@@ -4,9 +4,10 @@ import { CoreModel } from "$lib/model/core.svelte";
 import { WithTwoPlayers } from "$lib/model/twoplayers.svelte";
 import { WithSize } from "$lib/model/size.svelte";
 import { times, range } from "@gbagan/utils";
-import { allDistinct, generate2, randomPick } from "$lib/util";
+import { allDistinct, generate2 } from "$lib/util";
 import { edgesToGraph, GraphKind, hasEdge, Phase, Rules, type IModel, type Move, type Position } from "./types";
 import { ManyGuardsArena, OneGuardArena } from "./arena";
+import type { RandomGenerator } from "@gbagan/rng";
 
 const path = (n: number): IGraph => new Graph(
   "Chemin",
@@ -187,7 +188,7 @@ export default class extends C2 implements IModel {
 
   levelFinished = $derived(this.isLevelFinished());
 
-  #randomMove() : Move | undefined {
+  #randomMove(rng: RandomGenerator) : Move | undefined {
     if (this.levelFinished) {
       return undefined;
     }
@@ -195,18 +196,18 @@ export default class extends C2 implements IModel {
     if (attacked !== null) {
       // cannot be empty
       const candidates = guards.filter(g => hasEdge(this.adjGraph, g, attacked));
-      return this.addToNextMove(randomPick(candidates)!, attacked, guards, guards)
+      return this.addToNextMove(rng.pick(candidates)!, attacked, guards, guards)
     } else {
       const candidates = range(0, this.graph.vertices.length).filter(x => !guards.includes(x));
-      return randomPick(candidates);
+      return rng.pick(candidates);
     }
   }
   
-  machineMove(): Move | undefined {
+  machineMove(rng: RandomGenerator): Move | undefined {
     if (this.levelFinished) {
       return undefined;
     } else if (!this.#arena || this.mode === Mode.Random) {
-      return this.#randomMove();
+      return this.#randomMove(rng);
     }
     const {guards, attacked} = this.position;
     if (attacked !== null) {
@@ -216,7 +217,7 @@ export default class extends C2 implements IModel {
       if (ans !== undefined) {
         return ans;
       } else {
-        return this.#randomMove();
+        return this.#randomMove(rng);
       }
     }
   }

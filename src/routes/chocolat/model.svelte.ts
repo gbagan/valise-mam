@@ -1,10 +1,10 @@
 import { range } from '@gbagan/utils';
-import { random } from '$lib/util';
 import { CoreModel } from '$lib/model/core.svelte';
 import { WithCombinatorial } from '$lib/model/combinatorial.svelte';
 import { WithSize } from '$lib/model/size.svelte';
 import { SoapMode, type IModel, type Move, type Position } from './types';
 import type { SizeLimit } from '$lib/model/types';
+import type { RandomGenerator } from '@gbagan/rng';
 
 const sizeLimit: SizeLimit = { minRows: 4, minCols: 4, maxRows: 10, maxCols: 10 };
 
@@ -44,12 +44,12 @@ export default class extends C2 implements IModel {
 
   protected initialPosition = () => ({left: 0, right: this.columns, top: 0, bottom: this.rows});
 
-  protected onNewGame() {
+  protected onNewGame(rng: RandomGenerator) {
     if (this.#soapMode === SoapMode.Custom) {
       this.#soap = null;
     } else {
-      const row = this.#soapMode === SoapMode.Standard ? random(0, this.rows) : 0;
-      const col = this.#soapMode !== SoapMode.Corner ? random(0, this.columns) : 0;
+      const row = this.#soapMode === SoapMode.Standard ? rng.int(0, this.rows - 1) : 0;
+      const col = this.#soapMode !== SoapMode.Corner ? rng.int(0, this.columns - 1) : 0;
       this.#soap = [row, col];
     }
   }

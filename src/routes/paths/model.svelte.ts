@@ -1,9 +1,10 @@
 import { range } from "@gbagan/utils";
-import { allDistinct, diffCoords, random } from '$lib/util';
+import { allDistinct, diffCoords } from '$lib/util';
 import { CoreModel } from '$lib/model/core.svelte';
 import { WithSize } from '$lib/model/size.svelte';
 import type { SizeLimit } from '$lib/model/types';
 import { Mode, type IModel, type Move, type Position } from './types';
+import type { RandomGenerator } from "@gbagan/rng";
 
 const sizeLimit: SizeLimit = { minRows: 2, minCols: 2, maxRows: 9, maxCols: 9 };
 
@@ -79,8 +80,8 @@ export default class extends WithSize<Position, Move>()(CoreModel<Position, Move
 
   protected initialPosition = () => this.exit === null ? [] : [this.exit];
   
-  protected onNewGame() {
-    this.#exit = this.#mode === Mode.Mode1 ? random(0, this.rows * this.columns) : null;
+  protected onNewGame(rng: RandomGenerator) {
+    this.#exit = this.#mode === Mode.Mode1 ? rng.int(0, this.rows * this.columns - 1) : null;
   }
 
   get sizeLimit() {

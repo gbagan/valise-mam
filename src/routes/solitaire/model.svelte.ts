@@ -1,7 +1,8 @@
 import { CoreModel } from '$lib/model/core.svelte';
 import { Objective, WithScore } from '$lib/model/score.svelte';
 import { WithSize } from '$lib/model/size.svelte';
-import { countBy, diffCoords, generate, generate2, random, repeat } from '$lib/util';
+import { arrayOf, count, times } from '@gbagan/utils';
+import { diffCoords, generate2, random } from '$lib/util';
 import { Board, type IModel, type Move, type Position } from './types';
 
 const C1 = WithSize<Position, Move>()(CoreModel<Position, Move>);
@@ -109,26 +110,26 @@ export default class extends C2 implements IModel {
         this.customSize = false;
         break;
       case Board.Circle:
-        this.#holes = repeat(rows, true);
+        this.#holes = arrayOf(rows, true);
         const empty = random(0, rows);
-        this.position = generate(rows, x => x !== empty);
+        this.position = times(rows, x => x !== empty);
         this.customSize = true;
         break
       case Board.Grid3:
-        this.#holes = repeat(3 * columns, true);
-        this.position = generate(3 * columns, i => i < 2 * columns);
+        this.#holes = arrayOf(3 * columns, true);
+        this.position = times(3 * columns, i => i < 2 * columns);
         this.customSize = true;
         break;
       default: // Board.Random
-        this.#holes = repeat(3 * columns, true);
-        const bools = generate(columns, () => Math.random() < 0.5);
-        this.position = bools.concat(repeat(columns, true), bools.map(x => !x));
+        this.#holes = arrayOf(3 * columns, true);
+        const bools = times(columns, () => Math.random() < 0.5);
+        this.position = bools.concat(arrayOf(columns, true), bools.map(x => !x));
         this.customSize = true;
     }
   }
 
   protected objective = () => Objective.Minimize;
-  score = () => countBy(this.position, x => x);
+  score = () => count(this.position, x => x);
   // todo à vérifier
   protected scoreHash = () =>
     this.#boardType === Board.Random 

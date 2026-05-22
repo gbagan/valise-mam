@@ -1,4 +1,4 @@
-import { range } from '$lib/util';
+import { range } from '@gbagan/utils';
 import { CoreModel } from "$lib/model/core.svelte";
 import type { IModel } from './types';
 

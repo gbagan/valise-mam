@@ -1,4 +1,4 @@
-import { delay } from "$lib/util";
+import { sleep } from "@gbagan/utils";
 import { type Constructor, CoreModel } from "./core.svelte";
 import { Mode, Turn, type ITwoPlayersModel } from "./types";
 
@@ -9,7 +9,7 @@ export function WithTwoPlayers<Position, Move>() {
       #didMachineStart = $state(false);
       #mode = $state(Mode.Duel);
 
-      protected abstract machineMove(): Move | null;
+      protected abstract machineMove(): Move | undefined;
 
       get turn() {
         return this.#turn;
@@ -81,7 +81,7 @@ export function WithTwoPlayers<Position, Move>() {
       protected afterPlay() {
         if (this.#mode === Mode.Expert || this.#mode === Mode.Random) {
           this.lock(async () => {
-            await delay(1000);
+            await sleep(1000);
             this.#machinePlays();
           })
         }
@@ -89,7 +89,7 @@ export function WithTwoPlayers<Position, Move>() {
 
       async #machinePlays() {
         const move = this.machineMove();
-        if (move === null) {
+        if (move === undefined) {
           return;
         } 
         this.playHelper(move);

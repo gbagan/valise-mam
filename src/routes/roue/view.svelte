@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { IModel, Location } from './types';
-  import { range, repeat } from '$lib/util';
+  import { arrayOf, range } from '@gbagan/utils';
   import Template from '$lib/components/Template.svelte';
   import * as I from '$lib/components/Icons';
   import Config from '$lib/components/Config.svelte';
@@ -21,7 +21,7 @@
   });
 
   let usedColors: boolean[] = $derived.by(() => {
-    const used = repeat(model.size, false);
+    const used = arrayOf(model.size, false);
     for (const c of model.position) {
         if (c !== null) {
             used[c] = true;

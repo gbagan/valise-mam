@@ -1,4 +1,5 @@
-import { delay, mod, repeat, swap } from '$lib/util';
+import { sleep, arrayOf } from "@gbagan/utils";
+import { mod, swap } from '$lib/util';
 import { CoreModel } from '$lib/model/core.svelte';
 import type { IModel, Move, Position } from './types';
 
@@ -41,7 +42,7 @@ export default class extends CoreModel<Position, Move> implements IModel {
     }
   }
 
-  protected initialPosition = () => repeat(this.#size, null);
+  protected initialPosition = () => arrayOf(this.#size, null);
   protected isLevelFinished = () => false;
   protected onNewGame = () => this.#rotation = 0;
 
@@ -52,7 +53,7 @@ export default class extends CoreModel<Position, Move> implements IModel {
           return;
         }
         this.#rotation += 1;
-        await delay(600);
+        await sleep(600);
       }
       await this.showVictory();
     });

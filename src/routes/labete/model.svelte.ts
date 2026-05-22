@@ -1,4 +1,5 @@
-import { coords, countBy, generate2, mod, repeat } from '$lib/util';
+import { arrayOf, count } from "@gbagan/utils";
+import { coords, generate2, mod } from '$lib/util';
 import { CoreModel } from '$lib/model/core.svelte';
 import { Objective, WithScore } from '$lib/model/score.svelte';
 import { WithSize } from '$lib/model/size.svelte';
@@ -108,7 +109,7 @@ export default class extends C2 implements IModel {
   // indicé par les positions du plateau.
   // Renvoie un tableau ne contenant que la valeur false si aucun emplacement pour la bête n'est possible
   nonTrappedBeast = $derived.by(() => {
-    const res = repeat(this.rows * this.columns, false);
+    const res = arrayOf(this.rows * this.columns, false);
     if (this.#nonTrappedBeasts.length > 0) {
       const beast = pseudoRandomPick(this.#nonTrappedBeasts);
       for (const [row, col] of beast) {
@@ -119,7 +120,7 @@ export default class extends C2 implements IModel {
   });
 
   customBeastGrid = $derived.by(() => {
-    const res = repeat(25, false);
+    const res = arrayOf(25, false);
     for (const [row, col] of this.#customBeast[0]) {
       res[row * 5 + col + 12] = true;
     }
@@ -128,13 +129,13 @@ export default class extends C2 implements IModel {
 
   protected play = (i: Move) => this.position.with(i, !this.position[i]);
   isLevelFinished = () => this.#nonTrappedBeasts.length === 0;
-  protected initialPosition = () => repeat(this.rows * this.columns, false);
+  protected initialPosition = () => arrayOf(this.rows * this.columns, false);
   protected onNewGame() {
-    this.#squareColors = repeat(this.rows * this.columns, 0);
+    this.#squareColors = arrayOf(this.rows * this.columns, 0);
   }
 
   protected objective = () => Objective.Minimize;
-  score = () => countBy(this.position, x => x);
+  score = () => count(this.position, x => x);
   protected scoreHash = () => this.#beastType === BeastType.Custom
     ? null
     : `${this.columns},${this.rows},${this.#mode},${this.#beastType}`;

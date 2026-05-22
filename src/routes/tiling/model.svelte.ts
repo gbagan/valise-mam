@@ -1,7 +1,8 @@
 import { CoreModel } from "$lib/model/core.svelte";
 import { WithSize } from "$lib/model/size.svelte";
 import type { SizeLimit } from "$lib/model/types";
-import { coords, mod, repeat } from "$lib/util";
+import { arrayOf } from "@gbagan/utils";
+import { coords, mod } from "$lib/util";
 import type { Coord, IModel, Move, Position, Tile, TileType } from "./types";
 
 const rotate90 = (tile: Tile) => tile.map(([row, col]) => [col, -row]) as Tile;
@@ -58,7 +59,7 @@ export default class extends WithSize<Position, Move>()(CoreModel<Position, Move
   });
 
   readonly customTileGrid = $derived.by(() => {
-    const res = repeat(25, false);
+    const res = arrayOf(25, false);
     for (const [row, col] of this.#customTile) {
       res[row * 5 + col + 12] = true;
     }
@@ -97,7 +98,7 @@ export default class extends WithSize<Position, Move>()(CoreModel<Position, Move
   }
 
   protected isLevelFinished = () => this.position.every(x => x !== 0);
-  protected initialPosition = () => repeat(this.columns * this.rows, 0);
+  protected initialPosition = () => arrayOf(this.columns * this.rows, 0);
   protected onNewGame() {
     this.#rotation = 0;
   }

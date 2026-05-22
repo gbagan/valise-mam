@@ -1,4 +1,5 @@
-import { random, range } from '$lib/util';
+import { range } from '@gbagan/utils';
+import { random } from '$lib/util';
 import { CoreModel } from '$lib/model/core.svelte';
 import { WithCombinatorial } from '$lib/model/combinatorial.svelte';
 import { WithSize } from '$lib/model/size.svelte';

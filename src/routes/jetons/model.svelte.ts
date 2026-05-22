@@ -1,4 +1,5 @@
-import { diffCoords, repeat } from '$lib/util';
+import { arrayOf } from '@gbagan/utils';
+import { diffCoords } from '$lib/util';
 import { CoreModel } from '$lib/model/core.svelte';
 import { Objective, WithScore } from '$lib/model/score.svelte';
 import { WithSize } from '$lib/model/size.svelte';
@@ -27,7 +28,7 @@ export default class extends C2 implements IModel {
     }
   }
 
-  protected initialPosition = () => repeat(this.rows * this.columns, 1);
+  protected initialPosition = () => arrayOf(this.rows * this.columns, 1);
 
   protected isLevelFinished () {
     const position = this.position;

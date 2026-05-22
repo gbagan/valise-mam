@@ -1,4 +1,5 @@
-import { random, range, shuffle } from '$lib/util';
+import { range } from '@gbagan/utils';
+import { random, shuffle } from '$lib/util';
 import { CoreModel } from '$lib/model/core.svelte';
 import type { IModel, Move, Position } from './types';
 

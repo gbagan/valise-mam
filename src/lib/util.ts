@@ -1,46 +1,4 @@
-export function repeat<A>(n: number, val: A): A[] {
-  const res = new Array(n);
-  res.fill(val);
-  return res;
-}
-
-export function generate<A>(n: number, f: (i: number) => A): A[] {
-  const res = new Array(n);
-  for (let i = 0; i < n; i++) {
-    res[i] = f(i);
-  }
-  return res;
-}
-
-export function range(start: number, end: number, step?: number): number[] {
-  const res = [];
-  step = step ?? 1;
-  if (step > 0) {
-    for (let i = start; i < end; i += step) {
-      res.push(i);
-    }
-  } else {
-    for (let i = start; i > end; i += step) {
-      res.push(i);
-    }
-  }
-  return res
-}
-
-export function countBy<A>(arr: readonly A[], pred: (x: A, i: number) => boolean): number {
-  let count = 0;
-  const n = arr.length;
-  for (let i = 0; i < n; i++) {
-    if (pred(arr[i], i)) {
-      count += 1;
-    }
-  }
-  return count;
-}
-
-export function take<A>(arr: A[], n: number): A[] {
-  return arr.slice(0, n);
-}
+import { times } from "@gbagan/utils";
 
 export function swap<A>(arr: readonly A[], i: number, j: number): A[] {
   const res = arr.slice();
@@ -49,23 +7,6 @@ export function swap<A>(arr: readonly A[], i: number, j: number): A[] {
   res[j] = tmp;
   return res; 
 }
-
-export function minBy<A>(arr: readonly A[], fn: (x: A) => number) {
-  let min = null;
-  let bestScore = Infinity;
-  const n = arr.length;
-  for (let i = 0; i < n; i++) {
-    const x = arr[i];
-    const score = fn(x);
-    if (score < bestScore) {
-      bestScore = score;
-      min = x;
-    } 
-  }
-  return min;
-}
-
-export const maxBy = <A>(arr: readonly A[], fn: (x: A) => number) => minBy(arr, x => -fn(x))
 
 // renvoie les sous listes de taille k de [0, ... n-1]
 export function sublists(n: number, k: number): number[][] {
@@ -91,9 +32,9 @@ export function sublists(n: number, k: number): number[][] {
 export const random = (start: number, end: number) =>
   start + (end - start) * Math.random() | 0;
 
-export function randomPick<A>(arr: readonly A[]): A | null {
+export function randomPick<A>(arr: readonly A[]): A | undefined {
   if (arr.length === 0) {
-    return null;
+    return undefined;
   } else {
     return arr[Math.random() * arr.length | 0];
   }
@@ -110,21 +51,17 @@ export function shuffle<A>(arr: readonly A[]): A[] {
   return res;
 }
 
-export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
 export function allDistinct<A>(arr: readonly A[]): boolean {
   return new Set(arr).size === arr.length;
 }
 
 export function mod(x: number, y: number) {
   const z = x % y;
-  return z < 0 ? z + y : z;  
+  return z < 0 ? z + y : z;
 }
 
-
 export const generate2 = <A>(n: number,  m: number, f: (i: number, j: number) => A) => 
-  generate(n * m, i => f(i / m | 0, i % m));
-
+  times(n * m, i => f(i / m | 0, i % m));
 
 export function coords(cols: number, x: number): [number, number] {
   const row = x / cols | 0;

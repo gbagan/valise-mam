@@ -1,7 +1,8 @@
 import { type SizeLimit } from '$lib/model/types';
 import { CoreModel } from '$lib/model/core.svelte';
 import { WithSize } from '$lib/model/size.svelte';
-import { diffCoords, repeat } from '$lib/util';
+import { arrayOf } from '@gbagan/utils';
+import { diffCoords } from '$lib/util';
 import type { Mode, Move, Position } from './types';
 
 const sizes: [number, number][] = [ [3, 3], [4, 4], [2, 10], [3, 10], [5, 5]]; 
@@ -53,8 +54,8 @@ export default class extends WithSize<Position, Move>()(CoreModel<Position, Move
   initialPosition(): Position {
     const size = this.rows * this.columns;
     // todo niveau aléatoire
-    const light = repeat(size, true);
-    return { light, played: repeat(size, false) }
+    const light = arrayOf(size, true);
+    return { light, played: arrayOf(size, false) }
   }
 
   isLevelFinished = () => this.position.light.every(b => !b);

@@ -1,4 +1,5 @@
-import { allDistinct, diffCoords, random, range } from '$lib/util';
+import { range } from "@gbagan/utils";
+import { allDistinct, diffCoords, random } from '$lib/util';
 import { CoreModel } from '$lib/model/core.svelte';
 import { WithSize } from '$lib/model/size.svelte';
 import type { SizeLimit } from '$lib/model/types';

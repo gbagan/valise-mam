@@ -1,6 +1,7 @@
 import { hasEdge, type AdjGraph } from "./types";
 import { Arena } from "$lib/arena";
-import { allDistinct, countBy, minBy, range, sublists } from "$lib/util";
+import { count, minBy, range } from "@gbagan/utils";
+import { allDistinct, sublists } from "$lib/util";
 
 type Conf = readonly number[];
 
@@ -38,11 +39,11 @@ function permutations<A>(arr: readonly A[]): A[][] {
 // est une permutation [u1, ..., vn]
 // telle que pour tout i, ui = gi ou {ui, gi} est une arete du graphe
 // et qui minimize le nombre de déplacements de gardes (i.e. le nombre de ui ≠ gi
-function goodPermutation(graph: AdjGraph, guards: Conf, answer: Conf): number[] | null {
+function goodPermutation(graph: AdjGraph, guards: Conf, answer: Conf): number[] | undefined {
   const perms = permutations(answer).filter(guards2 => guards2.every((u, i) =>
     u === guards[i] || hasEdge(graph, u, guards[i])
   ));
-  return minBy(perms, guards2 => countBy(guards2, (v, i) => v !== guards[i]));
+  return minBy(perms, guards2 => count(guards2, (v, i) => v !== guards[i]));
 }
 
 
@@ -113,8 +114,8 @@ class CommonArena {
     return acc
   }
 
-  attackerAnswer(conf: Conf): number | null {
-    return this.#arena.answerForB(conf)?.at(-1) ?? null;
+  attackerAnswer(conf: Conf): number | undefined {
+    return this.#arena.answerForB(conf)?.at(-1);
   }
 
   guardsAnswer(guards: Conf, attack: number) {
@@ -158,8 +159,8 @@ export class ManyGuardsArena extends CommonArena {
 
   guardsAnswer(guards: Conf, attack: number) {
     const ans = super.guardsAnswer(guards, attack);
-    if (ans === null) {
-      return null;
+    if (ans === undefined) {
+      return undefined;
     } else {
       return goodPermutation(this.graph, guards, ans);
     }

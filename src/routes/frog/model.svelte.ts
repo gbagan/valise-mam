@@ -1,4 +1,4 @@
-import { range, repeat } from '$lib/util';
+import { arrayOf, range } from '@gbagan/utils';
 import { CoreModel } from '$lib/model/core.svelte';
 import { WithCombinatorial } from '$lib/model/combinatorial.svelte';
 import { WithSize } from '$lib/model/size.svelte';
@@ -54,7 +54,7 @@ export default class extends C2 implements IModel {
   protected possibleMoves = () => range(0, this.rows+1).filter(this.canPlay);
   protected isLosingPosition = () => this.losingPositions[this.position];
   protected onNewGame() {
-    this.#marked = repeat(this.rows, false);
+    this.#marked = arrayOf(this.rows, false);
   }
 
   get sizeLimit() {

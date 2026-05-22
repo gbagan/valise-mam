@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { range } from '$lib/util';
+  import { range } from '@gbagan/utils';
   import { Turn } from '$lib/model/types';
   import Template from '$lib/components/Template.svelte';
   import * as I from '$lib/components/Icons';

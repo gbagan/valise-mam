@@ -3,27 +3,28 @@ import { Mode } from "$lib/model/types";
 import { CoreModel } from "$lib/model/core.svelte";
 import { WithTwoPlayers } from "$lib/model/twoplayers.svelte";
 import { WithSize } from "$lib/model/size.svelte";
-import { allDistinct, generate, generate2, randomPick, range } from "$lib/util";
+import { times, range } from "@gbagan/utils";
+import { allDistinct, generate2, randomPick } from "$lib/util";
 import { edgesToGraph, GraphKind, hasEdge, Phase, Rules, type IModel, type Move, type Position } from "./types";
 import { ManyGuardsArena, OneGuardArena } from "./arena";
 
 const path = (n: number): IGraph => new Graph(
   "Chemin",
-  generate(n, i => ({
+  times(n, i => ({
       x: 0.5 + 0.35 * Math.cos(2 * i * Math.PI / n),
       y: 0.5 + 0.35 * Math.sin(2 * i * Math.PI / n)
     })),
-  generate(n - 1, i => [i, i+1])
+  times(n - 1, i => [i, i+1])
 );
 
 
 const cycle = (n: number): IGraph => new Graph(
  "Cycle",
-  generate(n, i => ({
+  times(n, i => ({
       x: 0.5 + 0.35 * Math.cos(2 * i * Math.PI / n),
       y: 0.5 + 0.35 * Math.sin(2 * i * Math.PI / n)
     })),
-  generate(n, i => [i, (i+1) % n])
+  times(n, i => [i, (i+1) % n])
 );
 
 // generate a grid graph
@@ -45,7 +46,7 @@ function grid(n: number, m: number): IGraph {
 // generate a biclique graph
 const biclique = (m: number, n: number): IGraph => new Graph(
   "Biclique",
-  generate(n + m, i => ({
+  times(n + m, i => ({
     x: i < n ? 0.2 : 0.8,
     y: 0.75 - 0.7 * (i < n ? i : i - n) / (i < n ? n : m)
   })),
@@ -186,9 +187,9 @@ export default class extends C2 implements IModel {
 
   levelFinished = $derived(this.isLevelFinished());
 
-  #randomMove() : Move | null {
+  #randomMove() : Move | undefined {
     if (this.levelFinished) {
-      return null;
+      return undefined;
     }
     const {guards, attacked} = this.position;
     if (attacked !== null) {
@@ -201,9 +202,9 @@ export default class extends C2 implements IModel {
     }
   }
   
-  machineMove(): Move | null {
+  machineMove(): Move | undefined {
     if (this.levelFinished) {
-      return null;
+      return undefined;
     } else if (!this.#arena || this.mode === Mode.Random) {
       return this.#randomMove();
     }
@@ -212,7 +213,7 @@ export default class extends C2 implements IModel {
       return this.#arena.guardsAnswer(guards, attacked);
     } else {
       const ans = this.#arena.attackerAnswer(guards);
-      if (ans !== null) {
+      if (ans !== undefined) {
         return ans;
       } else {
         return this.#randomMove();

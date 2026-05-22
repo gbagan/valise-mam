@@ -1,4 +1,4 @@
- import { maxBy, minBy } from "../lib/util";
+ import { maxBy, minBy } from "@gbagan/utils";
 
 // une arène est un objet générique pour résoudre un jeu de reachability
 // attributs

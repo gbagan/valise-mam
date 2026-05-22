@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { delay, range } from "$lib/util";
+  import { range, sleep } from "@gbagan/utils";
   import { Page } from "./types";
 
   type AnimationStep = [number, string, number];
@@ -15,7 +15,7 @@
     locked = true;
     anim = {};
     for (const [d, key, step] of animation) {
-        await delay(d);
+        await sleep(d);
         anim[key] = step;
     }
     locked = false;

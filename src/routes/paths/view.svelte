@@ -1,6 +1,7 @@
 <script lang="ts">
   import { type IModel, Mode } from './types';
-  import { gridStyle, repeat } from '$lib/util';
+  import { arrayOf } from "@gbagan/utils";
+  import { gridStyle } from '$lib/util';
   import Template from '$lib/components/Template.svelte';
   import PointerTracker from '$lib/components/PointerTracker.svelte';
   import * as I from '$lib/components/Icons';
@@ -10,7 +11,7 @@
   let levelFinished = $derived(model.isLevelFinished());
 
   let grid = $derived.by(() => {
-    const g = repeat(model.rows * model.columns, false);
+    const g = arrayOf(model.rows * model.columns, false);
     for (const i of model.position) {
       g[i] = true;
     }

@@ -9,12 +9,12 @@ export function WithCombinatorial<Pos, Move>() {
       protected abstract isLosingPosition(): boolean;
       protected abstract possibleMoves(): Move[];
 
-      protected machineMove(): Move | null {
+      protected machineMove(): Move | undefined {
         if (this.isLevelFinished()) {
-          return null;
+          return undefined;
         }
         const moves = this.possibleMoves();
-        let bestMove = null;
+        let bestMove = undefined;
         if (this.mode === Mode.Expert) {
           const position = this.position;
           for (const move of moves) {
@@ -31,7 +31,7 @@ export function WithCombinatorial<Pos, Move>() {
             }
           }
         }
-        if (bestMove !== null) {
+        if (bestMove !== undefined) {
           return bestMove;
         } else {
           return randomPick(moves);

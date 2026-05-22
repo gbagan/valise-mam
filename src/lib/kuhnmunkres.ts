@@ -1,19 +1,19 @@
-import { repeat } from "./util";
+import { arrayOf } from "@gbagan/utils";
 
 type Mat = readonly (readonly number[])[];
 
 export function kuhnMunkres(costMatrix: Mat): number[] {
   const n = costMatrix.length;
-  const u = repeat(n + 1, 0); // Potentiels des lignes
-  const v = repeat(n + 1, 0); // Potentiels des colonnes
-  const p = repeat(n + 1, 0); // p[j] = ligne associée à la colonne j
-  const way = repeat(n + 1, 0);
+  const u = arrayOf(n + 1, 0); // Potentiels des lignes
+  const v = arrayOf(n + 1, 0); // Potentiels des colonnes
+  const p = arrayOf(n + 1, 0); // p[j] = ligne associée à la colonne j
+  const way = arrayOf(n + 1, 0);
 
   for (let i = 1; i <= n; i++) {
     p[0] = i;
     let j0 = 0;
-    const minv = repeat(n + 1, Infinity);
-    const used = repeat(n + 1, false);
+    const minv = arrayOf(n + 1, Infinity);
+    const used = arrayOf(n + 1, false);
     do {
       used[j0] = true;
       const i0 = p[j0];

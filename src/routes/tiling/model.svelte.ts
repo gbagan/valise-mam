@@ -2,7 +2,7 @@ import { CoreModel } from "$lib/model/core.svelte";
 import { WithSize } from "$lib/model/size.svelte";
 import type { SizeLimit } from "$lib/model/types";
 import { arrayOf } from "@gbagan/utils";
-import { coords, mod } from "$lib/util";
+import { coords, fillAtIndices, mod } from "$lib/util";
 import type { Coord, IModel, Move, Position, Tile, TileType } from "./types";
 
 const rotate90 = (tile: Tile) => tile.map(([row, col]) => [col, -row]) as Tile;
@@ -84,11 +84,7 @@ export default class extends WithSize<Position, Move>()(CoreModel<Position, Move
     const tilePos = this.tilePositions(index);
     if (this.canPutTile(tilePos)) {
       const m = Math.max(...this.position) + 1;
-      const position = this.position.slice();
-      for (const i of tilePos) {
-        position[i] = m;
-      }
-      return position;
+      return fillAtIndices(this.position, tilePos, m);
     } else if (this.position[index] > 0) {
       const c = this.position[index];
       return this.position.map(x => x === c ? 0 : x);
@@ -116,7 +112,6 @@ export default class extends WithSize<Position, Move>()(CoreModel<Position, Move
       this.playA(index);
     }
   }
-
 
   setSinkCount = (i: number) => this.newGame(() => this.#sinkCount = i);
 

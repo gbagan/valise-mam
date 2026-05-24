@@ -1,5 +1,13 @@
 import { times } from "@gbagan/utils";
 
+export function fillAtIndices<A>(arr: readonly A[], indices: number[], val: A): A[] {
+  const res = [...arr];
+  for (const i of indices) {
+    res[i] = val;
+  }
+  return res;
+}
+
 export function swap<A>(arr: readonly A[], i: number, j: number): A[] {
   const res = [...arr];
   res[i] = arr[j];

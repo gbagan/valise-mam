@@ -1,10 +1,9 @@
 import { times } from "@gbagan/utils";
 
 export function swap<A>(arr: readonly A[], i: number, j: number): A[] {
-  const res = arr.slice();
-  const tmp = res[i];
-  res[i] = res[j];
-  res[j] = tmp;
+  const res = [...arr];
+  res[i] = arr[j];
+  res[j] = arr[i];
   return res; 
 }
 

@@ -1,4 +1,4 @@
-import { range } from '@gbagan/utils';
+import { range, replaceAt } from '@gbagan/utils';
 import { CoreModel } from '$lib/model/core.svelte';
 import type { IModel, Move, Position } from './types';
 import type { RandomGenerator } from '@gbagan/rng';
@@ -26,7 +26,7 @@ export default class extends CoreModel<Position, Move> implements IModel {
     const x = position[i];
     const y = position[j];
     if ([1, this.#baseCount-1, -1, -this.#baseCount+1].includes((x >> 1) - (y >> 1))) {
-      return position.with(i, y).with(j, x);
+      return replaceAt(position, [i, y], [j, x]);
     } else {
       return null;
     }

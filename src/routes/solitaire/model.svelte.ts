@@ -1,7 +1,7 @@
 import { CoreModel } from '$lib/model/core.svelte';
 import { Objective, WithScore } from '$lib/model/score.svelte';
 import { WithSize } from '$lib/model/size.svelte';
-import { arrayOf, count, times } from '@gbagan/utils';
+import { arrayOf, count, replaceAt, times } from '@gbagan/utils';
 import { diffCoords, generate2 } from '$lib/util';
 import { Board, type IModel, type Move, type Position } from './types';
 import type { RandomGenerator } from '@gbagan/rng';
@@ -77,11 +77,7 @@ export default class extends C2 implements IModel {
     if (!pfrom || !pbetween || !hto || pto) {
       return null;
     }
-    const position = this.position.slice();
-    position[from] = false;
-    position[between] = false;
-    position[to] = true;
-    return position;
+    return replaceAt(this.position, [from, false], [between, false], [to, true]);
   }
 
   protected initialPosition = () => this.position;

@@ -17,6 +17,8 @@
 
   const { board, config, rules, bestScore, custom, winTitle,
           model=$bindable()}: Props = $props();
+
+  $inspect(model.dialog);
 </script>
 
 {#snippet winPanel(title: string, visible: boolean)}
@@ -124,6 +126,7 @@
 
   .rules {
     width: 46rem;
+    font-family: 'Shantell Sans';
     font-size: 1.25rem;
     line-height: 1.75rem;
   

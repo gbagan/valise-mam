@@ -10,7 +10,7 @@ export abstract class CoreModel<Position, Move> implements ICoreModel<Position, 
   #redoHistory: Position[] = $state.raw([]);
   #help = $state.raw(false);
   #isVictoryShown = $state.raw(false);
-  #dialog = $state.raw(Dialog.None);
+  #dialog = $state(Dialog.Rules);
   #newGameAction: (() => void) | null = $state.raw(null);
   #locked: boolean = $state.raw(false);
   #rng: RandomGenerator = xoroshiro128Plus(42);
@@ -22,6 +22,7 @@ export abstract class CoreModel<Position, Move> implements ICoreModel<Position, 
 
   constructor(position: Position) {
     this.#position = $state.raw(position);
+    $inspect(this.dialog);
   }
 
   get position() {
@@ -139,7 +140,7 @@ export abstract class CoreModel<Position, Move> implements ICoreModel<Position, 
     this.#history = [];
     this.#redoHistory = [];
     this.#help = false;
-    this.#dialog = Dialog.None;
+    //this.#dialog = Dialog.None;
   }
 
   newGame(action?: () => void) {
@@ -149,7 +150,10 @@ export abstract class CoreModel<Position, Move> implements ICoreModel<Position, 
       return;
     }
 
-    this.resetAttributes();
+    if (action || this.#newGameAction) {
+      this.resetAttributes();
+      this.#dialog = Dialog.None;
+    }
 
     (action || this.#newGameAction || (() => {}))();
     this.onNewGame(this.#rng);

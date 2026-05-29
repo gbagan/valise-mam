@@ -79,15 +79,15 @@
 </g>
 
 <style>
-.object {
+  .object {
     pointer-events: inherit;
     &.draggable {
         cursor: grab;
     }
-}
+  }
 
-.link {
+  .link {
     cursor: pointer;
     fill: transparent;
-}
+  }
 </style>

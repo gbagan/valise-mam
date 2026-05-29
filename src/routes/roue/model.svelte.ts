@@ -1,11 +1,11 @@
-import { sleep, arrayOf } from "@gbagan/utils";
+import { sleep, arrayOf, count } from "@gbagan/utils";
 import { mod, swap } from '$lib/util';
 import { CoreModel } from '$lib/model/core.svelte';
 import type { IModel, Move, Position } from './types';
 
 export default class extends CoreModel<Position, Move> implements IModel {
   #size = $state(5);
-  #rotation = $state(0);
+  #rotation = $state(0);  
 
   constructor() {
     super([]);
@@ -25,7 +25,7 @@ export default class extends CoreModel<Position, Move> implements IModel {
     v !== null && mod(i + this.#rotation, this.#size) === v
   ));
   // comme isValidRotation mais avec seconde conditition en moins 
-  isValidRotation2 = $derived(this.aligned.filter(x => x).length === 1);
+  isValidRotation2 = $derived(count(this.aligned, x => x) === 1);
   // une rotation est valide si exactement une couleur est alignée et il y a une balle pour chaque couleur 
   isValidRotation = $derived(this.isValidRotation2 && this.position.every(v => v !== null)); 
   

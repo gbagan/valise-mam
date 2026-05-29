@@ -167,7 +167,10 @@
 {/snippet}
 
 {#snippet rules()}
-  todo
+  Le but du jeu <strong>Solitaire</strong> est le suivant:<br/>
+  un jeton peut <strong>sauter</strong> par-dessus un <strong>jeton adjacent</strong> pour atterrir dans un <strong>trou vide</strong>,
+  et le jeton sauté est alors <strong>retiré</strong> du plateau.
+  On répète ces sauts jusqu'à ne plus pouvoir jouer. L'objectif est de terminer avec un <strong>seul jeton restant</strong>.  
 {/snippet}
 
 <Template bind:model={model} {board} {config} {rules} {winTitle} {bestScore} />

@@ -92,7 +92,7 @@
 {/snippet}
 
 {#snippet rules()}
-  Le but de <strong>Bloque moi</strong> si tu peux est d'acculer chacun des jetons de l'adversaire au bord du plateau de telle
+  Le but de <strong>Bloque moi si tu peux</strong> est d'acculer chacun des jetons de l'adversaire au bord du plateau de telle
   façon qu'il ne puisse <strong>plus en déplacer</strong>.<br/>
   À chaque tour, tu peux déplacer un de tes jetons vers la <strong>gauche</strong>
   ou vers la <strong>droite</strong> d'autant de cases que tu veux mais tu

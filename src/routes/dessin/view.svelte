@@ -111,7 +111,7 @@
       {/if}
     </PointerTracker>
     <span class="title">{model.graph.title}</span>
-    <span class="raise-info">{model.raiseCount} levé{model.raiseCount > 0 ? "s" : ""} de crayon</span>
+    <span class="raise-info">{model.raiseCount} levé{model.raiseCount > 1 ? "s" : ""} de crayon</span>
     <button
       class="ui-button ui-button-primary raise"
       disabled={levelFinished || typeof model.position.at(-1) !== "number"}

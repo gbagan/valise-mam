@@ -39,7 +39,7 @@ export default class extends C2 implements IModel {
 
   constructor() {
     super([]);
-    this.resize(5, 5);
+    this.initWithSize(5, 5);
   }
 
   get mode() {

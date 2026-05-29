@@ -17,7 +17,7 @@ export default class extends C2 implements IModel {
 
   constructor() {
     super({left: 0, right: 0, top: 0, bottom: 0});
-    this.resize(6, 7);
+    this.initWithSize(6, 7);
   }
 
   get soap() {

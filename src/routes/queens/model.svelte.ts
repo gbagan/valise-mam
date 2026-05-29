@@ -31,7 +31,7 @@ export default class extends C2 implements IModel {
 
   constructor() {
     super([]);
-    this.resize(8, 8);
+    this.initWithSize(8, 8);
   }
 
   get selectedPiece() {

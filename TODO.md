@@ -21,10 +21,10 @@
 - [x] queens: quand on quitte le mode mixte, vérifier qu'il ne reste qu'une pièce choisie
 - [x] queens: pièce personnalisée
 - [x] solitaire: sur le cercle 5, le pion à droite ne peut pas être déplacé 
-- [ ] solitaire: ajouter les règles
+- [x] solitaire: ajouter les règles
 - [x] chemins: ajouter les curseurs
 - [x] roue des couleurs: gérer les rotations négatives
-- [ ] roue des couleurs: ajouter un indicateur pour savoir si la rotation est valide
+- [x] roue des couleurs: ajouter un indicateur pour savoir si la rotation est valide
 - [ ] roue des couleurs: ce sont les bonnes règles?
 - [x] roue des couleurs: refaire la roue extérieure
 - [x] dessin: implémenter les meilleurs scores

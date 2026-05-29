@@ -14,7 +14,7 @@ export default class extends WithSize<Position, Move>()(CoreModel<Position, Move
 
   constructor() {
     super([]);
-    this.resize(4, 6);
+    this.initWithSize(4, 6);
   }
 
   get exit() {

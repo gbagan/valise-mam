@@ -40,6 +40,15 @@ export function WithSize<Position, Move>() {
         return null;
       }
 
+      initWithSize(rows: number, columns: number, customSize?: boolean) {
+        this.#rows = rows;
+        this.#columns = columns;
+        if (customSize !== undefined) {
+          this.#customSize = customSize;
+        }
+        this.newGame();
+      }
+
       resize = (rows: number, columns: number, customSize?: boolean) => {
         let valid: boolean;
         if (!this.sizeLimit) {

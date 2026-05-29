@@ -15,7 +15,7 @@ export default class extends WithSize<Position, Move>()(CoreModel<Position, Move
 
   constructor() {
     super({light: [], played: [] });
-    this.resize(3, 3);
+    this.initWithSize(3, 3);
   }
 
   get mode() {

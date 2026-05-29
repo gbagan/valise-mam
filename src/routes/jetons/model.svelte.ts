@@ -13,7 +13,7 @@ const C2 = WithScore<Position, Move>()(C1);
 export default class extends C2 implements IModel {
   constructor() {
     super([]);
-    this.resize(4, 4);
+    this.initWithSize(4, 4);
   }
 
   protected play({ from, to }: Move) {

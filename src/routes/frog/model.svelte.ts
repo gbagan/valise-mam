@@ -21,7 +21,7 @@ export default class extends C2 implements IModel {
   
   constructor() {
     super(20);
-    this.resize(20, 0, true);
+    this.initWithSize(20, 0, true);
   }
   
   get moves(): readonly number[] {

@@ -34,7 +34,7 @@ export default class extends WithSize<Position, Move>()(CoreModel<Position, Move
 
   constructor() {
     super([]);
-    this.resize(5, 5);
+    this.initWithSize(5, 5);
   }
 
   get rotation() {

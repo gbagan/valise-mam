@@ -16,7 +16,7 @@ export default class extends C2 implements IModel {
   
   constructor() {
     super([]);
-    this.resize(6, 1);
+    this.initWithSize(6, 1);
   }
 
   get holes(): readonly boolean[] {

@@ -65,7 +65,7 @@ export default class extends C2 implements IModel {
 
   constructor() {
     super({ guards: [], attacked: null });
-    this.resize(6, 0, true);
+    this.initWithSize(6, 0, true);
   }
 
   get phase() {

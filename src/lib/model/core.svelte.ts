@@ -8,11 +8,11 @@ export abstract class CoreModel<Position, Move> implements ICoreModel<Position, 
   #position: Position;
   #history: Position[] = $state.raw([]);
   #redoHistory: Position[] = $state.raw([]);
-  #help = $state(false);
-  #isVictoryShown = $state(false);
-  #dialog = $state(Dialog.None);
-  #newGameAction: (() => void) | null = $state(null);
-  #locked: boolean = $state(false);
+  #help = $state.raw(false);
+  #isVictoryShown = $state.raw(false);
+  #dialog = $state.raw(Dialog.None);
+  #newGameAction: (() => void) | null = $state.raw(null);
+  #locked: boolean = $state.raw(false);
   #rng: RandomGenerator = xoroshiro128Plus(42);
   
   protected abstract play(m: Move): Position | null;

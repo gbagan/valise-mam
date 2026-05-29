@@ -177,6 +177,13 @@
       disabled={model.locked || !model.isValidRotation}
       onclick={model.check}
     >Valider</button>
+    <div class="valid-rotation">
+      {#if model.isValidRotation}
+        <span class="valid">✓</span>
+      {:else}
+        <span class="invalid">✗</span>
+      {/if}
+    </div>
   </div>
 {/snippet}
 
@@ -256,7 +263,7 @@
     }
   }
 
-  .roue-valid-rotation {
+  .valid-rotation {
     position: absolute;
     font-size: 4em;
     right: 0.5em;

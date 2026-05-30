@@ -17,7 +17,7 @@
     <Icon
       text="{rows}x{cols}"
       selected={!model.customSize && rows === model.rows && cols === model.columns}
-      onclick={() => model.resize(rows, cols)}
+      onclick={() => model.resize(rows, cols, false)}
     />
   {/each}
   {#if customSize}

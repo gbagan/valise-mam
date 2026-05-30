@@ -257,7 +257,7 @@
     bottom: 1rem;
     left: 1rem;
     font-size: 1.5rem;
-    color: blue;
+    color: var(--emph-color);
     padding: 0;
   }
 </style>

@@ -223,7 +223,7 @@
     font-size: 1.5rem;
     border: 0;
     background-color: transparent;
-    color: blue;
+    color: var(--emph-color);
     text-decoration: underline;
     cursor: pointer
   }

@@ -204,9 +204,9 @@
 {/snippet}
 
 {#snippet rules()}
-  Le but du jeu est de poser une bille sur chaque emplacement de la roue
-  et effectuer un tour complet de la roue en respectant la condition suivante:<br/>
-  à chaque moment durant la rotation de la roue, exactement une bille a sa couleur
+  Le but du jeu <strong>Roue des couleurs</strong> est de poser une <strong>bille</strong> sur chaque emplacement de la roue
+  et effectuer un <strong>tour complet</strong> de la roue en respectant la condition suivante:<br/>
+  à chaque moment durant la rotation de la roue, <strong>exactement</strong> une bille a sa couleur
   qui correspond avec la couleur de la roue.<br/>
   Tu peux tester en faisant varier le nombre de couleurs de la roue mais également
   en faisant varier le nombre de couleurs que tu utilises.

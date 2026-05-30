@@ -6,14 +6,61 @@
   font-display: swap;
 }
 
+:root {
+  --amber-400: #fbbf24;
+  --amber-700: #b45309;
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+  --blue-700: #1d4ed8;
+  --blue-800: #1e40af;
+  --blue-900: #1e3a8a;
+  --cyan-400: #22d3ee;
+  --fuchsia-400: #e879f9;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-900: #111827;
+  --green-400: #4ade80;
+  --green-500: #22c55e;
+  --indigo-400:  #818cf8;
+  --indigo-600: #534ab7;
+  --lime-300: #bef264;
+  --lime-400: #a3e635;
+  --orange-500: #f97316;
+  --red-500: #ef4444;
+  --red-600: #dc2626;
+  --sky-400: #38bdf8;
+  --slate-400: #94a3b8;
+  --yellow-300: #fde047;
+  --yellow-400: #facc15;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  --emph-color: var(--blue-700);
+  --tooltip-bg: #0000bf;
+  --handwritten: "Shantell Sans", "Monospaced Number", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  font-size: 2vmin;
+  font-family: var(--handwritten);
+
+  color: rgba(0, 0, 0, 0.65);
+  line-height: 1.15;
+}
+
+
 html, body {
   width: 100%;
   height: 100%;
   line-height: 1.15;
   color: rgba(0, 0, 0, 0.65);
   margin: 0;
-  font-size: 2vmin;
-  font-family: "Shantell Sans", "Monospaced Number", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
   user-select: none;
   touch-action: none;
 }
@@ -24,12 +71,6 @@ html, body {
   background-repeat: no-repeat;
 }
 
-:root {
-  font-size: 2vmin;
-  color: rgba(0, 0, 0, 0.65);
-  line-height: 1.15;
-}
-
 .ui-board {
   overflow: hidden;
   box-shadow: 0px 0px 5px 5px #bdc3c7;
@@ -38,7 +79,8 @@ html, body {
 
 .ui-button {
   display: inline-block;
-  font-family: "Shantell Sans";
+  font-size: 1rem;
+  font-family: var(--handwritten);
   font-weight: 400;
   text-align: center;
   cursor: pointer;
@@ -70,37 +112,38 @@ html, body {
   }
 
   &:hover, &:focus {
-    color: #40a9ff;
+    color: var(--blue-400);
     background-color: white;
-    border-color: #40a9ff;
+    border-color: var(--blue-400);
   }
   
   &:active {
-    color: #096dd9;
+    color: var(--blue-600);
     background-color: white;
-    border-color: #096dd9;
+    border-color: var(--blue-600);
   }
 
   &.ui-button-primary {
     color: #fff;
-    background-color: #1890ff;
-    border-color: #1890ff;
+    background-color: var(--blue-500);
+    border-color: var(--blue-500);
 
     &:hover, &:focus {
       color: #fff;
-      background-color: #40a9ff;
-      border-color: #40a9ff;
+      background-color: var(--blue-400);
+      border-color: var(--blue-400);
     }
+
     &:active {
       color: #fff;
-      background-color: #096dd9;
-      border-color: #096dd9;
+      background-color: var(--blue-600);
+      border-color: var(--blue-600);
     }
   }
   &:disabled {
     cursor: not-allowed;
     color: rgba(0, 0, 0, 0.25);
-    background-color: #f5f5f5;
-    border-color: #d9d9d9;
+    background-color: var(--gray-100);
+    border-color: var(--gray-300);
   }
 }

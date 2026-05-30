@@ -142,7 +142,7 @@
     position: absolute;
     left: 0;
     top: 0;
-    color: blue;
+    color: var(--emph-color);
     font-size: 1.5em;
     font-weight: bold;
   }

@@ -134,7 +134,7 @@
     position: absolute;
     top: 0;
     left: 0.5em;
-    color: blue;
+    color: var(--emph-color);
     font-size: 1.5rem;
   }
 </style>

@@ -172,8 +172,10 @@
 {/snippet}
 
 {#snippet rules()}
-  Le but du jeu est de dessiner le motif indiqué en pointillé en levant le moins souvent possible le crayon.<br/>
-  Pour lever le crayon, tu peux cliquer sur le bouton prévu pour ou utiliser le clic droit.
+  Trace le motif en pointillé <strong>sans lever le crayon</strong> !<br/>
+Choisis un sommet de départ, puis clique sur les sommets <strong>adjacents</strong>
+pour tracer les arêtes une à une.
+Si tu dois lever le crayon, utilise le <strong>clic droit</strong> ou le bouton dédié.
 {/snippet}
 
 <Template {model} {board} {config} {rules} {bestScore} {custom} {winTitle} />
@@ -231,7 +233,7 @@
     top: 1rem;
     right: 1rem;
     font-size: 1.5rem;
-    color: blue;
+    color: var(--emph-color);
     font-weight: bold;
   }
 

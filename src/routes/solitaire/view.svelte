@@ -141,7 +141,7 @@
 {/snippet}
 
 {#snippet config()}
-  <Config title="Les reines">
+  <Config title="Jeu du solitaire">
     <I.SelectGroup
       title="Plateau"
       values={[Board.Circle, Board.Grid3, Board.Random, Board.English, Board.French]}

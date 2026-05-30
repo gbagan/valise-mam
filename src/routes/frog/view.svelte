@@ -228,7 +228,7 @@
     position: absolute;
     bottom: 0.5em;
     left: 0.5em;
-    color: blue;
+    color: var(--emph-color);
     font-size: 1.3em;
   }
 </style>

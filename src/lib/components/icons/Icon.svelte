@@ -38,18 +38,18 @@
 </button>
 
 <style>
-.icon-symbol {
+  .icon-symbol {
     opacity: 0.8;
-}
+  }
 
-.icon {
+  .icon {
     line-height: 1.15;
     color: rgba(0, 0, 0, 0.65);
 
     position: relative;
     width: 3.6rem;
     height: 3.6rem;
-    border: thin solid gray;
+    border: thin solid var(--gray-500);
     display: inline-flex;
     align-items : center;
     justify-content: center;
@@ -62,37 +62,38 @@
     outline: 0;
 
     &.round {
-        display: flex;
-        border-radius: 50%;
+      display: flex;
+      border-radius: 50%;
     }
 
     &.selected {
-        border: medium solid blue;
+      border: medium solid blue;
     }
 
     &:disabled {
-        cursor: not-allowed;
-        .icon-text,.icon-symbol {
-            opacity: 0.5;
-        }
+      cursor: not-allowed;
+      .icon-text,.icon-symbol {
+        opacity: 0.5;
+      }
     }
 
     &.hidden {
         pointer-events: none;
         opacity: 0;
     }
-}
+  }
 
-.icon-text {
+  .icon-text {
     text-align: center;
     font-size: 1.5rem;
     font-weight: bold;
-}
+  }
 
-.tooltip {
+  .tooltip {
     font-weight: normal;
     font-size: 0.9rem;
-    background-color: #0000BF;
+    font-family: var(--handwritten);
+    background-color: var(--tooltip-bg);
     color: #fff;
     text-align: center;
     padding: 0.7rem 0.35rem;
@@ -108,18 +109,18 @@
     transition: opacity 0.3s ease-in 0.1s;
 
     &::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        margin-left: -0.35rem;
-        border-width: 0.35rem;
-        border-style: solid;
-        border-color: #0000BF transparent transparent transparent;
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -0.35rem;
+      border-width: 0.35rem;
+      border-style: solid;
+      border-color: var(--tooltip-bg) transparent transparent transparent;
     }
-}
+  }
 
-.icon:hover .tooltip {
+  .icon:hover .tooltip {
     opacity: 0.8;
-}
+  }
 </style>

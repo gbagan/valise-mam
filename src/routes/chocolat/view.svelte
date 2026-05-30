@@ -156,7 +156,7 @@
 
   .turn-message {
     position: absolute;
-    color: blue;
+    color: var(--emph-color);
     font-weight: bold;
     font-size: 1.5rem;
     top: -2rem;

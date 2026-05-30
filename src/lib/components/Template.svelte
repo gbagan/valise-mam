@@ -131,7 +131,7 @@
     line-height: 1.75rem;
   
     & :global(strong) {
-      color: blue;
+      color: var(--emph-color);
       font-weight: bold;
     }
   }

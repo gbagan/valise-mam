@@ -25,7 +25,7 @@
   oncontextmenu={e => e.preventDefault()} 
 >
   {#if text && text.startsWith("#")}
-    <svg style:width="100%" style:height="100%" style={style}>
+    <svg class="icon-symbol" {style}>
       <use href={text} />
     </svg>
   {:else if text}

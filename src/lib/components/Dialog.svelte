@@ -21,10 +21,10 @@
     </div>
     <div class="buttons">
       {#if onCancel}
-        <button class="ui-button ui-button-primary" onclick={onCancel}>Annuler</button>
+        <button class="ui-button" onclick={onCancel}>Annuler</button>
       {/if}
       {#if onOk}
-        <button class="ui-button ui-button-primary" onclick={onOk}>Ok</button>
+        <button class="ui-button" onclick={onOk}>Ok</button>
       {/if}
     </div>
   </div>

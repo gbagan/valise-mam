@@ -140,7 +140,7 @@
   .board {
     width: 75vmin;
     height: 75vmin;
-    box-shadow: 0px 0px 5px 5px #bdc3c7;
+    box-shadow: var(--centered-shadow);
   }
 
   .vertex {

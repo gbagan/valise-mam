@@ -163,17 +163,17 @@
       </g>
     </DndBoard>
     <button
-      class="ui-button ui-button-primary btn-left"
+      class="ui-button btn-left"
       disabled={model.locked}
       onclick={model.rotateLeft}
     >↶</button>
     <button
-      class="ui-button ui-button-primary btn-right"
+      class="ui-button btn-right"
       disabled={model.locked}
       onclick={model.rotateRight}
     >↷</button>
     <button
-      class="ui-button ui-button-primary btn-validate"
+      class="ui-button btn-validate"
       disabled={model.locked || !model.isValidRotation}
       onclick={model.check}
     >Valider</button>

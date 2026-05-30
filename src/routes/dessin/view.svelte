@@ -113,7 +113,7 @@
     <span class="title">{model.graph.title}</span>
     <span class="raise-info">{model.raiseCount} levé{model.raiseCount > 1 ? "s" : ""} de crayon</span>
     <button
-      class="ui-button ui-button-primary raise"
+      class="ui-button raise"
       disabled={levelFinished || typeof model.position.at(-1) !== "number"}
       onclick={() => model.playA("raise")}
     > Lever le crayon
@@ -213,10 +213,9 @@ Si tu dois lever le crayon, utilise le <strong>clic droit</strong> ou le bouton 
 
   .raise {
     position: absolute;
-    bottom: 1rem;
-    right: 1rem;
-    font-size: 1.7rem;
-    padding: 0;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    font-size: 1.5rem;
   }
 
   .title {

@@ -152,7 +152,7 @@
       {/if}
     </span>
     <button
-      class="ui-button ui-button-primary validate"
+      class="ui-button validate"
       disabled={model.guardCount === 0 || model.phase === Phase.Game 
                 && (model.rules === Rules.OneGuard)}
       onclick={model.validate}

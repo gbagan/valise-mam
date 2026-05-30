@@ -94,7 +94,7 @@
   .board {
     height: 80vmin;
     width: 80vmin;
-    background-color: lightgreen;
+    background-color: var(--green-300);
   }
 
   .base {

@@ -19,10 +19,8 @@
 <style>
   .card {
     padding: 0;
-    list-style: none;
-    transition: all .3s;
     border-radius: 2px;
-    border: 1px solid #e8e8e8;
+    box-shadow: var(--centered-shadow);
     background-color: white;
   }
 
@@ -30,12 +28,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-bottom: 1px solid #e8e8e8;
+    border-bottom: 2px solid #e8e8e8;
     padding: 0.5rem;
   }
 
   .title {
-    font-size: 2em;
+    font-size: 2rem;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -52,7 +50,7 @@
     .body {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      grid-gap: 0em 4em;
+      grid-gap: 0rem 4rem;
     }
   }
 </style>

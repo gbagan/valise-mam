@@ -9,7 +9,16 @@
 
   const levelFinished = $derived(model.isLevelFinished());
   
-  const colors = [ "blue", "red", "green", "magenta", "orange", "black", "cyan", "gray" ];
+  const colors = [
+    "var(--blue-600)",
+    "var(--red-500)",
+    "var(--green-500)",
+    "var(--purple-500)",
+    "var(--yellow-400",
+    "var(--slate-700)",
+    "var(--cyan-400)",
+    "var(--gray-400)"
+  ];
 
   const transformPeg = (position: number) => {
     const mid = position / 2 | 0;

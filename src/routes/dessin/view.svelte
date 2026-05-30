@@ -20,7 +20,16 @@
   let levelFinished = $derived(model.isLevelFinished());
   let winTitle = $derived(`Tu as réussi en ${model.raiseCount} levé${model.raiseCount > 1 ? "s" : ""}`);
 
-  const colors = [ "red", "green", "magenta", "orange", "gray", "cyan", "black", "blue" ];
+  const colors = [
+    "var(--red-500)",
+    "var(--green-500)",
+    "var(--purple-500)",
+    "var(--orange-500)",
+    "var(--gray-500)",
+    "var(--cyan-400)",
+    "var(--slate-700)",
+    "var(--blue-500)"
+  ];
 
   type PathDescription = {path: string, length: number, start: number};
 
@@ -60,10 +69,10 @@
   {#if !levelFinished && typeof model.position.at(-1) === "number"}
     {@const {x, y} =  model.graph.vertices[model.position.at(-1) as number] }
     <line
-      x1={x*100}
-      y1={y*100}
-      x2={x2*100}
-      y2={y2*100}
+      x1={100*x}
+      y1={100*y}
+      x2={100*x2}
+      y2={100*y2}
       class="line-to-pointer"
       stroke={colors[model.raiseCount] ?? "red"}
     />
@@ -101,10 +110,10 @@
           <!-- svelte-ignore a11y_click_events_have_key_events -->
           <!-- svelte-ignore a11y_no_static_element_interactions -->
           <circle
-            cx={x*100} cy={y*100}
+            cx={100*x} cy={100*y}
             r="3"
-            stroke={i === model.position.at(-1) ? "red" : "blue"}
-            fill="blue"
+            stroke={i === model.position.at(-1) ? "var(--red-500)" : "var(--blue-600)"}
+            fill="var(--blue-600)"
             onclick={() => model.playA(i)}
           />
         {/each}
@@ -173,9 +182,9 @@
 
 {#snippet rules()}
   Trace le motif en pointillé <strong>sans lever le crayon</strong> !<br/>
-Choisis un sommet de départ, puis clique sur les sommets <strong>adjacents</strong>
-pour tracer les arêtes une à une.
-Si tu dois lever le crayon, utilise le <strong>clic droit</strong> ou le bouton dédié.
+  Choisis un sommet de départ, puis clique sur les sommets <strong>adjacents</strong>
+  pour tracer les arêtes une à une.
+  Si tu dois lever le crayon, utilise le <strong>clic droit</strong> ou le bouton dédié.
 {/snippet}
 
 <Template {model} {board} {config} {rules} {bestScore} {custom} {winTitle} />
@@ -237,7 +246,7 @@ Si tu dois lever le crayon, utilise le <strong>clic droit</strong> ou le bouton 
   }
 
   .edge-no {
-    fill: blue;
+    fill: var(--blue-500);
     font-weight: bold;
     font-size: 6px;
     text-anchor: middle;

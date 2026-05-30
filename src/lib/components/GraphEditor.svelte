@@ -144,25 +144,25 @@
   }
 
   .vertex {
-    fill: blue;
-    stroke: blue;
+    fill: var(--blue-600);
+    stroke: var(--blue-600);
     &.selected {
-      stroke: red;
+      stroke: var(--red-500);
     }
   }
 
   .delete > .vertex:hover {
-    fill: gray;
-    stroke: gray;
+    fill: var(--gray-500);
+    stroke: var(--gray-500);
   }
 
   .edge {
-    stroke: red;
+    stroke: var(--red-500);
     stroke-width: 1.5;
   }
 
   .delete .edge:hover {
-    stroke: gray;
+    stroke: var(--gray-500);
   }
 
   .buttons {
@@ -172,7 +172,7 @@
   }
 
   .line-to-pointer {
-    stroke: red;
+    stroke: var(--red-500);
     stroke-width: 1.5;
     pointer-events: none;
     opacity: 0.6;

@@ -133,7 +133,7 @@
       stroke: green;
       stroke-width: 2;
       &:hover {
-          stroke: red;
+        stroke: red;
       }
     }
   }

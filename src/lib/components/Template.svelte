@@ -101,10 +101,10 @@
     background: white;
     white-space: nowrap;
     border-radius: 1rem;
-    border: thin solid red;
+    border: thin solid var(--red-500);
     font-size: 4rem;
     padding: 2rem;
-    color: red;
+    color: var(--red-500);
     display: block;
     opacity: 0;
     animation: win-animation 2.5s ease-in-out forwards;

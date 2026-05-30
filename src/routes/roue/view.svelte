@@ -265,14 +265,15 @@
   .valid-rotation {
     position: absolute;
     font-size: 4em;
+    font-weight: bold;
     right: 0.5em;
     bottom: 1.2em;
 
     .valid {
-        color: green;
+        color: var(--green-500);
     }
     .invalid {
-        color: red;
+        color: var(--red-500);
     }
   }
 </style>

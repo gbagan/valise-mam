@@ -164,8 +164,8 @@
   }
 
   .square {
-    fill: #b37b47;
-    stroke: black;
+    fill: var(--chocolat);
+    stroke: var(--slate-700);
     stroke-width: 3;
     x: 7px;
     y: 7px;
@@ -173,7 +173,7 @@
     height: 36px;
 
     &.soap {
-      fill: cyan;
+      fill: var(--cyan-300);
     }
 
     &.hidden {
@@ -182,15 +182,15 @@
   }
 
   .skull {
-    fill: #20AF20;
+    fill: var(--green-600);
   }
 
   .cutter {
-    fill: blue;
+    fill: var(--blue-600);
   }
 
   .cut-line {
-    stroke: red;
+    stroke: var(--red-600);
     stroke-width: 2;
     stroke-dasharray: 10;
     pointer-events: none;

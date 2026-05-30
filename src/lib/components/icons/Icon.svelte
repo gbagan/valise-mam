@@ -22,7 +22,7 @@
   class={["icon", {selected, round, large, hidden}]}
   {disabled}
   {onclick} {onpointerdown} {onpointerup} {onpointerleave}
-  oncontextmenu={e => e.preventDefault()} 
+  oncontextmenu={e => e.preventDefault()}
 >
   {#if text && text.startsWith("#")}
     <svg class="icon-symbol" {style}>

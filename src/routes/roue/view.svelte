@@ -104,7 +104,7 @@
 {/snippet}
 
 {#snippet board()}
-  <div class="board-ui board">
+  <div class="ui-board board">
     <DndBoard
       viewBox="-100 -120 200 260"
       bind:dragged={dragged}
@@ -218,7 +218,6 @@
   .board {
     height: 82.5vmin;
     width: 75vmin;
-    border: thin solid gray;
     position: relative;
   }
 

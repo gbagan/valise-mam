@@ -12,5 +12,4 @@ export interface IModel extends ICoreModel<Position, Move>, IScoreModel<Position
   isLevelFinished: () => boolean;
   acceptCustomGraph(graph: IGraph): void;
   setGraphIndex: (index: number | "custom") => void;
-
 }

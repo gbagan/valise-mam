@@ -15,16 +15,14 @@ html, body {
   font-size: 2vmin;
   font-family: "Shantell Sans", "Monospaced Number", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
   user-select: none;
-  -webkit-user-select: none;
   touch-action: none;
 }
 
 *, *::before, *::after {
-    box-sizing: border-box;
-    background-size: contain;
-    background-repeat: no-repeat;
+  box-sizing: border-box;
+  background-size: contain;
+  background-repeat: no-repeat;
 }
-
 
 :root {
   font-size: 2vmin;
@@ -33,76 +31,76 @@ html, body {
 }
 
 .ui-board {
-    overflow: hidden;
-    box-shadow: 0px 0px 5px 5px #bdc3c7;
-    position: relative;
+  overflow: hidden;
+  box-shadow: 0px 0px 5px 5px #bdc3c7;
+  position: relative;
 }
 
 .ui-button {
-    display: inline-block;
-    font-family: "Shantell Sans";
-    font-weight: 400;
-    text-align: center;
-    cursor: pointer;
-    border: 1px solid transparent;
-    white-space: nowrap;
-    padding: 0 1em;
-    border-radius: 0.25em;
-    height: 2em;
-    transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-    position: relative;
-    background: white;
-    border-color: #d9d9d9;
-    outline: 0;
+  display: inline-block;
+  font-family: "Shantell Sans";
+  font-weight: 400;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  padding: 0 1em;
+  border-radius: 0.25em;
+  height: 2em;
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+  position: relative;
+  background: white;
+  border-color: #d9d9d9;
+  outline: 0;
 
-    &:not(:disabled):hover {
-        text-decoration: none;
-    }
+  &:not(:disabled):hover {
+    text-decoration: none;
+  }
 
-    &:not(:disabled):active {
-        transition: none;
-    }
+  &:not(:disabled):active {
+    transition: none;
+  }
 
-    &:hover, &:active {
-        text-decoration: none;
-    }
+  &:hover, &:active {
+    text-decoration: none;
+  }
 
-    & > span {
-        pointer-events: none;
-    }
+  & > span {
+    pointer-events: none;
+  }
+
+  &:hover, &:focus {
+    color: #40a9ff;
+    background-color: white;
+    border-color: #40a9ff;
+  }
+  
+  &:active {
+    color: #096dd9;
+    background-color: white;
+    border-color: #096dd9;
+  }
+
+  &.ui-button-primary {
+    color: #fff;
+    background-color: #1890ff;
+    border-color: #1890ff;
 
     &:hover, &:focus {
-        color: #40a9ff;
-        background-color: white;
-        border-color: #40a9ff;
+      color: #fff;
+      background-color: #40a9ff;
+      border-color: #40a9ff;
     }
     &:active {
-        color: #096dd9;
-        background-color: white;
-        border-color: #096dd9;
+      color: #fff;
+      background-color: #096dd9;
+      border-color: #096dd9;
     }
-
-    &.ui-button-primary {
-        color: #fff;
-        background-color: #1890ff;
-        border-color: #1890ff;
-
-        &:hover, &:focus {
-            color: #fff;
-            background-color: #40a9ff;
-            border-color: #40a9ff;
-        }
-        &:active {
-            color: #fff;
-            background-color: #096dd9;
-            border-color: #096dd9;
-        }
-    }
-
-    &:disabled {
-        cursor: not-allowed;
-        color: rgba(0, 0, 0, 0.25);
-        background-color: #f5f5f5;
-        border-color: #d9d9d9;
-    }
+  }
+  &:disabled {
+    cursor: not-allowed;
+    color: rgba(0, 0, 0, 0.25);
+    background-color: #f5f5f5;
+    border-color: #d9d9d9;
+  }
 }

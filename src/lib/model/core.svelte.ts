@@ -22,7 +22,6 @@ export abstract class CoreModel<Position, Move> implements ICoreModel<Position, 
 
   constructor(position: Position) {
     this.#position = $state.raw(position);
-    $inspect(this.dialog);
   }
 
   get position() {

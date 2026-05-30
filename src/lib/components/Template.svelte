@@ -17,8 +17,6 @@
 
   const { board, config, rules, bestScore, custom, winTitle,
           model=$bindable()}: Props = $props();
-
-  $inspect(model.dialog);
 </script>
 
 {#snippet winPanel(title: string, visible: boolean)}

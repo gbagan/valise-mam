@@ -39,6 +39,7 @@
   --red-600: #dc2626;
   --sky-400: #38bdf8;
   --slate-400: #94a3b8;
+  --slate-700: #334155;
   --violet-500: #8b5cf6;
   --violet-600: #7c3aed;
   --violet-300: #c4b5fd;
@@ -49,6 +50,7 @@
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 
+  --main-color: var(--slate-700);
   --emph-color: var(--blue-700);
   --tooltip-bg: #0000bf;
   --handwritten: "Shantell Sans", "Monospaced Number", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -58,7 +60,7 @@
   font-size: 2vmin;
   font-family: var(--handwritten);
 
-  color: rgba(0, 0, 0, 0.65);
+  color: var(--main-color);
   line-height: 1.15;
 }
 
@@ -67,7 +69,6 @@ html, body {
   width: 100%;
   height: 100%;
   line-height: 1.15;
-  color: rgba(0, 0, 0, 0.65);
   margin: 0;
   user-select: none;
   touch-action: none;

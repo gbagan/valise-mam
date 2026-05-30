@@ -42,9 +42,13 @@
     opacity: 0.8;
   }
 
+  svg {
+    fill: var(--main-color);
+  }
+
   .icon {
     line-height: 1.15;
-    color: rgba(0, 0, 0, 0.65);
+    color: var(--main-color);
 
     position: relative;
     width: 3.6rem;

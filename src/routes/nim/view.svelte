@@ -41,7 +41,7 @@
     width="8"
     height="8"
     class="player"
-    fill={player === 0 ? "blue" : "red"}
+    fill={player === 0 ? "var(--blue-600)" : "var(--red-500)"}
     style:transform="translate({ (model.length === 5 ? 26 : 1) + 10 * j}px, {11 + 19 * i}px)"
   />
 {/snippet}

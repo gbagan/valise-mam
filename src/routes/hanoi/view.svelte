@@ -10,7 +10,16 @@
   const {model}: {model: IModel} = $props();
   let dragged: number | null = $state(null);
 
-  const colors = [ "blue", "red", "green", "magenta", "orange", "gray", "cyan" ];
+  const colors = [
+    "var(--blue-600)",
+    "var(--red-500)",
+    "var(--green-500)",
+    "var(--purple-500)",
+    "var(--yellow-400",
+    "var(--slate-700)",
+    "var(--cyan-400)",
+    "var(--gray-400)"
+  ];
 
   let stepCount = $derived(model.historyLength());
   let winTitle = $derived(`Tu as gagné en ${stepCount} étapes`);
@@ -19,9 +28,9 @@
 {#snippet tower(i: number)}
   <path
     d="M{i * 60 + 14} 99a3 3 0 0 1 0 -6h20a3 3 0 0 0 3 -3v-80a3 3 0 0 1 6 0v80 a3 3 0 0 0 3 3h20a3 3 0 0 1 0 6z"
-    stroke="blue"
+    stroke="var(--blue-700)"
     stroke-width="0.5"
-    fill="#d43"
+    fill="var(--amber-700)"
   />
 {/snippet}
 
@@ -122,7 +131,7 @@
   }
 
   .disk {
-    stroke: black;
+    stroke: var(--slate-800);
     rx: 5px;
     ry: 5px;
     &.dragged {

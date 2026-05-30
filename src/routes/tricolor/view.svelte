@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Model from './model.svelte';
   import Template from '$lib/components/Template.svelte';
   import * as I from '$lib/components/Icons';
   import Config from '$lib/components/Config.svelte';
@@ -11,7 +10,13 @@
   let hoverCell: number | null = $state(null);
   let levelFinished = $derived(model.isLevelFinished());
 
-  const colors = [ "green", "yellow", "red", "magenta", "blue" ];
+  const colors = [
+    "var(--green-500)",
+    "var(--yellow-400)",
+    "var(--red-500)",
+    "var(--purple-500)",
+    "var(--blue-600)"
+  ];
 
   function translateCell(i: number) {
     const x = 50 + 35 * Math.cos(2 *  i * Math.PI / model.size);
@@ -26,7 +31,7 @@
   <circle
     r="7.5"
     class={["cell", {finished: levelFinished}]}
-    stroke={hoverCell !== null && model.inRange(i, hoverCell) ? "lightgreen" : "black"}
+    stroke={hoverCell !== null && model.inRange(i, hoverCell) ? "var(--green-600)" : "var(--main-color)"}
     fill={levelFinished ? "" : colors[color]}
     style:transform={translateCell(i)}
     onclick={() => model.playA(i)}
@@ -49,7 +54,7 @@
       style:transform="translate({99 + 15 * (i - model.colorCount)}px, 92px)"
     />
   {/each}
-  <circle cx="95" cy="95" r="3" fill="green" />
+  <circle cx="95" cy="95" r="3" fill={colors[0]} />
 {/snippet}
 
 {#snippet board()}
@@ -122,11 +127,11 @@
   }
 
   @keyframes tricolorHola {
-    0%  { fill: green; }
-    20% { fill: yellow; }
-    40% { fill: red; }
-    60% { fill: magenta; }
-    80% { fill: blue; }
-    100%  { fill: green; }
+    0%  { fill: var(--green-500); }
+    20% { fill: var(--yellow-400); }
+    40% { fill: var(--red-500); }
+    60% { fill: var(--purple-500); }
+    80% { fill: var(--blue-600); }
+    100%  { fill: var(--green-500); }
   }
 </style>

@@ -26,7 +26,7 @@
 >
   {#if text && text.startsWith("#")}
     <svg style:width="100%" style:height="100%" style={style}>
-      <use href={text} class="icon-symbol" />
+      <use href={text} />
     </svg>
   {:else if text}
     <span class="icon-text">{text}</span>
@@ -38,10 +38,6 @@
 </button>
 
 <style>
-  .icon-symbol {
-    opacity: 0.8;
-  }
-
   svg {
     fill: var(--main-color);
   }

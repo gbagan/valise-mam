@@ -250,9 +250,11 @@
 
   .piece {
     pointer-events: none;
+    fill: var(--slate-700);
+    color: var(--slate-700);
     &.capturable {
-      fill: red;
-      color: red;
+      fill: var(--red-600);
+      color: var(--red-600);
     }
   }
 
@@ -261,7 +263,7 @@
     width: 50px;
     height: 50px;
     &.attacked {
-      fill: #e6e6e6
+      fill: #e6e6e6;
     }
     &.capturable {
       fill: rgb(224, 123, 162);

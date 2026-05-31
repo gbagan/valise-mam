@@ -218,7 +218,7 @@
     top: 18%;
     font-size: 1.5em;
     display: inline;
-    border: thick solid blue;
+    border: thick solid var(--blue-600);
     padding: 0.5em;
     border-radius: 0.5em;
     opacity: 0;

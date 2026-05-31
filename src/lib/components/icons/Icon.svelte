@@ -67,7 +67,7 @@
     }
 
     &.selected {
-      border: medium solid blue;
+      border: 4px solid var(--blue-600);
     }
 
     &:disabled {
@@ -78,8 +78,8 @@
     }
 
     &.hidden {
-        pointer-events: none;
-        opacity: 0;
+      pointer-events: none;
+      opacity: 0;
     }
   }
 

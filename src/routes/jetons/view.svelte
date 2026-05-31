@@ -130,17 +130,18 @@
     }
 
     &.droppable {
-      stroke: green;
+      stroke: var(--green-600);
       stroke-width: 2;
       &:hover {
-        stroke: red;
+        stroke: var(--blue-400);
       }
     }
   }
 
   .peg-text {
     font: bold 20px sans-serif;
-    fill: rgba(0, 0, 0, 0.65);
+    fill: var(--main-color);
+    opacity: 0.8;
     pointer-events: none;
     text-anchor: middle;
     dominant-baseline: middle;
@@ -148,7 +149,7 @@
 
   .cursor {
     pointer-events: none;
-    fill: orange;
+    fill: var(--orange-300);
     opacity: 0.7;
   }
 

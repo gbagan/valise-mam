@@ -30,7 +30,16 @@
     return used;
   })
 
-  const colors = [ "blue", "red", "magenta", "orange", "brown", "cyan", "gray", "black" ];
+  const colors = [
+    "var(--blue-600)",
+    "var(--red-500)",
+    "var(--green-500)",
+    "var(--purple-500)",
+    "var(--yellow-400",
+    "var(--slate-700)",
+    "var(--cyan-400)",
+    "var(--gray-400)"
+  ];
 
   function polarToCartesian(centerX: number, centerY: number, radius: number, angle: number): [number, number] {
     return [ centerX + radius * Math.cos(angle), centerY + radius * Math.sin(angle) ];
@@ -73,7 +82,7 @@
   <path
     d={pizza2(0, 0, 50, 80, 2 * Math.PI * (i - 0.5) / model.size, 2 * Math.PI * (i + 0.5) / model.size)}
     class={["wheel-part", {droppable}]}
-    fill={!aligned ? "#F0B27A" : model.isValidRotation2 ? "lightgreen" : "#F5B7B1"}
+    fill={!aligned ? "var(--orange-300)" : model.isValidRotation2 ? "var(--green-300)" : "var(--red-200)"}
     {onpointerdown} {onpointerup}
   />
 {/snippet}
@@ -86,7 +95,7 @@
     {onpointerdown}
     {onpointerup}
     fill={colors[color]}
-    stroke="black"
+    stroke="var(--main-color)"
     opacity={dragged2 ? "20%" : "100%"}
     pointer-events={dragged ? "none" : ""}
   />
@@ -97,7 +106,7 @@
     cx="-100"
     cy="-120"
     fill={colors[draggedColor!]}
-    stroke="black"
+    stroke="var(--main-color)"
     pointer-events="none"
     style={style}
   />
@@ -132,7 +141,7 @@
         <path
           d={pizza(0, 0, 50, 2 * Math.PI * (i - 0.5) / model.size, 2 * Math.PI * (i + 0.5) / model.size)}
           fill={color}
-          stroke="black"
+          stroke="var(--main-color)"
           pointer-events="none"
         />
       {/each}
@@ -254,7 +263,7 @@
   }
 
   .wheel-part {
-    stroke: black;
+    stroke: var(--main-color);
     &.droppable:hover {
       stroke: green;
       stroke-width: 3;

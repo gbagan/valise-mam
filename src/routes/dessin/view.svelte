@@ -74,7 +74,7 @@
       x2={100*x2}
       y2={100*y2}
       class="line-to-pointer"
-      stroke={colors[model.raiseCount] ?? "red"}
+      stroke={colors[model.raiseCount] ?? colors[0]}
     />
   {/if}
 {/snippet}
@@ -101,7 +101,7 @@
           stroke-dashoffset={!levelFinished ? "0" : 100 * length}
           style:animation-duration="{length}s"
           style:animation-delay="{start}s"
-          stroke={colors[i] ?? "red"}
+          stroke={colors[i] ?? colors[0]}
           onanimationend={i < pathDescriptions.length - 1 ? null : () => counter += 1}
         />
       {/each}
@@ -168,7 +168,7 @@
           y1={y1*100}
           y2={y2*100}
           class="line2"
-          stroke="red"
+          stroke={colors[0]}
         />
         <text x={50*(x1+x2)} y={50*(y1+y2)} class="edge-no">{i+1}</text>
       {/each}

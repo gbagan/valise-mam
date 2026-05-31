@@ -11,7 +11,7 @@
 - [x] gérer le cas des parties personnalisées: le score ne doit pas être sauvegardé
 - [x] le joueur peux commencer seulement si la partie n'a pas débuté
 - [x] bug après validation d'une nouvelle partie
-- [ ] valise: le tooltip doit être affiché quand on survole le <a> et non l'image entière
+- [x] valise: le tooltip doit être affiché quand on survole le <a> et non l'image entière
 - [x] désactiver SelectGroup et MultiSelectGroup quand locked=true
 - [x] nim: ajouter les icones manquantes
 - [x] frog: ajouter les icones manquantes

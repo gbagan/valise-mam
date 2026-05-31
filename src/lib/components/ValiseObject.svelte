@@ -73,6 +73,14 @@
             class="link"
           />
         </a>
+      {:else}
+        <rect
+          x={rectX ?? "0"}
+          y={rectY ?? "0"}
+          width={rectWidth ?? "100%"}
+          height={rectHeight ?? "100%"}
+          class="link"
+        />
       {/if}
     </svg>
   </g>
@@ -84,6 +92,10 @@
     &.draggable {
         cursor: grab;
     }
+  }
+
+  .symbol {
+    pointer-events: none;
   }
 
   .link {

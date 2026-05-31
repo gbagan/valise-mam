@@ -16,7 +16,7 @@
 - [x] nim: ajouter les icones manquantes
 - [x] frog: ajouter les icones manquantes
 - [x] changer le message de victoire pour nim et frog
-- [ ] noirblanc: sauvegarder le niveau
+- [x] noirblanc: sauvegarder le niveau
 - [x] queens: ajouter le curseur
 - [x] queens: quand on quitte le mode mixte, vérifier qu'il ne reste qu'une pièce choisie
 - [x] queens: pièce personnalisée

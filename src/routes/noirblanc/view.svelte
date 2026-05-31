@@ -4,6 +4,7 @@
   import Template from '$lib/components/Template.svelte';
   import * as I from '$lib/components/Icons';
   import Config from '$lib/components/Config.svelte';
+  import { onMount } from 'svelte';
 
   const {model}: {model: IModel} = $props();
 
@@ -15,6 +16,8 @@
     "Dimensions personnalisées", "Grille aléatoire"
   ];
   const levelTooltip = (i: number, unblocked: boolean) => unblocked ? levelTooltips[i] : "Difficulté non débloquée";
+
+  onMount(() => model.loadRecords());
 </script>
 
 {#snippet square(light: boolean, cross: boolean, style: string, onclick: () => void)}

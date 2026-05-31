@@ -1,16 +1,17 @@
 import { type SizeLimit } from '$lib/model/types';
-import { CoreModel } from '$lib/model/core.svelte';
+import { CoreModel, VERSION } from '$lib/model/core.svelte';
 import { WithSize } from '$lib/model/size.svelte';
 import { arrayOf } from '@gbagan/utils';
 import { diffCoords } from '$lib/util';
 import type { Mode, Move, Position } from './types';
+import { page } from '$app/state';
 
 const sizes: [number, number][] = [ [3, 3], [4, 4], [2, 10], [3, 10], [5, 5]]; 
 const sizeLimit: SizeLimit = { minRows: 2, minCols: 2, maxRows: 12, maxCols: 12 };
 
 export default class extends WithSize<Position, Move>()(CoreModel<Position, Move>) {
-  #mode: Mode = $state(0);
-  #level = $state(0); // le niveau en cours
+  #mode: Mode = $state.raw(0);
+  #level = $state.raw(0); // le niveau en cours
   #maxLevels = $state([ 0, 1, 1, 0 ]);
 
   constructor() {
@@ -86,7 +87,10 @@ export default class extends WithSize<Position, Move>()(CoreModel<Position, Move
         this.#level >= 4
           ? 6
           : this.#level + (this.#mode === 0 || this.#mode === 3 ? 1 : 2);
-      // todo saveToStorage
+      const routeId = page.route.id;
+      if (routeId) {
+        localStorage.setItem(routeId, JSON.stringify([VERSION, this.#maxLevels]));
+      }
       this.newGame(() => this.#level = Math.min(this.#level + 1, 6));
     }
   }
@@ -99,4 +103,24 @@ export default class extends WithSize<Position, Move>()(CoreModel<Position, Move
   changeLevel = (i: number) => this.newGame(() => {
     this.#level = i;
   });
+
+  loadRecords() {
+    const routeId = page.route.id;
+    if (!routeId) {
+      return;
+    }
+    const scores = localStorage.getItem(routeId);
+    let data;
+    if (!scores) {
+      return;
+    } 
+    try {
+      data = JSON.parse(scores);
+    } catch {
+      return
+    }
+    if (typeof Array.isArray(data) && data.length === 2 && data[0] === VERSION) {
+      this.#maxLevels = data[1];
+    }
+  }
 }

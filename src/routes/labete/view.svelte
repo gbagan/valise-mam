@@ -70,6 +70,7 @@
       width="40"
       height="40"
       class="pointer"
+      fill="var(--slate-800)"
       style:transform="translate({100*x}%, {100*y}%)"
     />
   {/if}
@@ -100,7 +101,15 @@
         {#each model.position as hasTrap, i}
           {@const [row, col] = coords(model.columns, i)}
           {#if hasTrap}
-            <use href="#trap" x={50*col+5} y={50*row+5} width="40" height="40" pointer-events="none" />
+            <use
+              href="#trap"
+              x={50*col+5}
+              y={50*row+5}
+              width="40"
+              height="40"
+              pointer-events="none"
+              fill="var(--slate-800)"
+            />
           {/if}
         {/each}
         {#each model.nonTrappedBeast as hasBeast, i}
@@ -234,13 +243,13 @@
     pointer-events: none;
 
     &.visible {
-      opacity: 0.6;
+      opacity: 0.7;
       transition: none;
     }
   }
 
   .square-borders {
-    stroke: black;
+    stroke: var(--slate-700);
     stroke-width: 0.5;
     fill: transparent;
   }
@@ -255,7 +264,7 @@
   }
 
   .zone {
-    stroke: black;
+    stroke: var(--slate-700);
     pointer-events: none;
     opacity: 0.4;
   }

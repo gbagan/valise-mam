@@ -176,7 +176,7 @@ export default class extends C2 implements IModel {
     switch (this.graphKind) {
       case GraphKind.Grid: return {minRows: 2, minCols: 2, maxRows: 5, maxCols: 5};
       //case "sun": return {minRows: 3, minC  ols: 0, maxRows: 6, maxCols: 0};
-      case GraphKind.Biclique: return {minRows: 1, minCols: 1, maxRows: 6, maxCols: 0};
+      case GraphKind.Biclique: return {minRows: 1, minCols: 1, maxRows: 6, maxCols: 6};
       case GraphKind.Custom: return {minRows: 0, minCols: 0, maxRows: 0, maxCols: 0};
       default: return {minRows: 3, minCols: 0, maxRows: 11, maxCols: 0};
     }

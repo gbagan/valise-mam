@@ -11,4 +11,5 @@ export interface IModel extends ICoreModel<Position, Move>, ISizeModel {
   isLevelFinished: () => boolean;
   changeMode: (mode: Mode) => void;
   changeLevel: (level: number) => void;
+  loadRecords: () => void;
 }

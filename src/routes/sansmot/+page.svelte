@@ -85,14 +85,14 @@
       fill="transparent"
       stroke="#000"
     />
-    <path d="M 0 300 v -200 h 100 Z" fill="blue" stroke="#000" style={f("a")} />
-    <path d="M 0 300 h 100 v -200 Z" fill="yellow" stroke="#000" style={f("b")} />
-    <path d="M 100 0 h 200 v 100 Z" fill="#00FF00" stroke="#000" style={f("c")} />
-    <path d="M 100 0 v 100 h 200 Z" fill="red" stroke="#000" style={f("d")} />
-    <path d="M 0 300 v -200 h 100 Z" fill="blue" stroke="#000" style={f("e")} />
-    <path d="M 0 300 h 100 v -200 Z" fill="yellow" stroke="#000" style={f("e")} />
-    <path d="M 100 0 h 200 v 100 Z" fill="#00FF00" stroke="#000" style={f("e")} />
-    <path d="M 100 0 v 100 h 200 0 Z" fill="red" stroke="#000" style={f("e")} />
+    <path d="M 0 300 v -200 h 100 Z" fill="var(--blue-600)" stroke="#000" style={f("a")} />
+    <path d="M 0 300 h 100 v -200 Z" fill="var(--yellow-300)" stroke="#000" style={f("b")} />
+    <path d="M 100 0 h 200 v 100 Z" fill="var(--green-500)" stroke="#000" style={f("c")} />
+    <path d="M 100 0 v 100 h 200 Z" fill="var(--red-500)" stroke="#000" style={f("d")} />
+    <path d="M 0 300 v -200 h 100 Z" fill="var(--blue-600)" stroke="#000" style={f("e")} />
+    <path d="M 0 300 h 100 v -200 Z" fill="var(--yellow-300)" stroke="#000" style={f("e")} />
+    <path d="M 100 0 h 200 v 100 Z" fill="var(--green-500)" stroke="#000" style={f("e")} />
+    <path d="M 100 0 v 100 h 200 0 Z" fill="var(--red-500)" stroke="#000" style={f("e")} />
     <text x="5" y="55" font-size="20" style={f("e")}>a</text>
     <text x="46" y="16" font-size="20" style={f("e")}>a</text>
     <text x="105" y="210" font-size="20" style={f("e")}>b</text>
@@ -106,9 +106,9 @@
   <h2 class="h2">Que raconte le théorème de Pythagore?</h2>
   <p class="center">
     <svg class="pytha-svg" viewBox="0 -100 200 250">
-      <path d="M 50 50 h 100 v 100 h -100 Z" fill="yellow" stroke="black" />
-      <path d="M 0 0 h 50 v 50 h -50 Z" fill="yellow" stroke="black" />
-      <path d="M 50 0 l 100 50 l 50 -100 l -100 -50 Z" fill="#00ff00" stroke="black" />
+      <path d="M 50 50 h 100 v 100 h -100 Z" fill="var(--yellow-300)" stroke="var(--slate-700)" />
+      <path d="M 0 0 h 50 v 50 h -50 Z" fill="var(--yellow-300)" stroke="var(--slate-700)" />
+      <path d="M 50 0 l 100 50 l 50 -100 l -100 -50 Z" fill="var(--green-500)" stroke="var(--slate-700)" />
       <text x="90" y="105" font-size="35">a²</text>
       <text x="18" y="35" font-size="35">b²</text>
       <text x="110" y="-10" font-size="35">c²</text>
@@ -123,14 +123,14 @@
 {#snippet carollAnimation()}
   {@const f = (x: string) => carollStyles[x][anim[x] ?? 0]}
   <svg class="caroll-svg" viewBox="-10 -10 1370 270">
-    <path d="M 400 100 h 250 v -100 Z" fill="orange" style={f("a")} />
-    <path d="M 400 200 h 150 v -50 h 100 v -50 h -250 Z" fill="red" style={f("b")} />
-    <path d="M 400 250 h 250 v -100 h -100 v 50 h -150 Z" fill="blue" style={f("c")} />
-    <path d="M 0 250 h 400 v -150 Z" fill="green" style={f("d")} />
-    <path d="M 400 100 h 250 v -100 Z" fill="orange" style={f("e")} />
-    <path d="M 400 200 h 150 v -50 h 100 v -50 h -250 Z" fill="red" style={f("e")} />
-    <path d="M 400 250 h 250 v -100 h -100 v 50 h -150 Z" fill="blue" style={f("e")} />
-    <path d="M 0 250 h 400 v -150 Z" fill="green" style={f("e")} />
+    <path d="M 400 100 h 250 v -100 Z" fill="var(--orange-300)" style={f("a")} />
+    <path d="M 400 200 h 150 v -50 h 100 v -50 h -250 Z" fill="var(--red-500)" style={f("b")} />
+    <path d="M 400 250 h 250 v -100 h -100 v 50 h -150 Z" fill="var(--blue-600)" style={f("c")} />
+    <path d="M 0 250 h 400 v -150 Z" fill="var(--green-500)" style={f("d")} />
+    <path d="M 400 100 h 250 v -100 Z" fill="var(--orange-300)" style={f("e")} />
+    <path d="M 400 200 h 150 v -50 h 100 v -50 h -250 Z" fill="var(--red-500)" style={f("e")} />
+    <path d="M 400 250 h 250 v -100 h -100 v 50 h -150 Z" fill="var(--blue-600)" style={f("e")} />
+    <path d="M 0 250 h 400 v -150 Z" fill="var(--green-500)" style={f("e")} />
     {#each range(0, 28) as i}
       <line x1={50 * i} y1={-10} x2={50 * i} y2={260} class="grid" />
     {/each}
@@ -181,18 +181,19 @@
   .link {
     width: 4rem;
     height: 4rem;
-    border: solid blue thick;
+    border: solid var(--blue-500) thick;
     text-align: center;
-    background-color: lightblue;
+    background-color: var(--blue-100);
   }
 
   .title {
     text-align: center;
-    color: #0066FF
+    color: var(--blue-600);
   }
 
   .h2 {
-    color: #009900
+    color: var(--green-600);
+    margin: 1rem 0;
   }
 
   .pytha-svg {
@@ -211,12 +212,13 @@
   }
 
   .grid {
-    stroke: black;
+    stroke: var(--slate-700);
     stroke-width: 1;
     stroke-dasharray: 10;
   }
 
   .anim-btn {
+    font-family: var(--handwritten);
     text-align: center;
     width: 100%;
     display: inline;

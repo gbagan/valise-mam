@@ -1,4 +1,4 @@
-- [x] PWA
+- [ ] PWA
 - [x] Vérifier que ça marche bien sur tablette
 - [x] Safari: queens: bug d'affichage des cases grises
 - [ ] Safari: roue des couleurs: les contours des parties survolés de

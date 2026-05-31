@@ -172,7 +172,7 @@
 
   .path {
     stroke-width: 8;
-    stroke: blue;
+    stroke: var(--blue-500);
     fill: none;
 
     &.animate {

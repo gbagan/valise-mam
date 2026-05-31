@@ -53,7 +53,7 @@
 
 {#snippet arrow(x1: number, y1: number, x2: number, y2: number)}
   <line {x1} {y1} {x2} {y2} class="line2" />
-  <path d={arrowPath(x1, y1, x2, y2)} fill="red" />
+  <path d={arrowPath(x1, y1, x2, y2)} fill="var(--red-500)" />
 {/snippet}
 
 {#snippet cursor(x: number, y: number)}
@@ -92,7 +92,7 @@
         {/each}
       {/if}
       {#each model.graph.vertices as {x, y}}
-        <circle cx={100*x} cy={100*y} r="3" fill="blue" />
+        <circle cx={100*x} cy={100*y} r="3" fill="var(--blue-600)" />
       {/each}
       {#each model.position.guards as guard}
         <use

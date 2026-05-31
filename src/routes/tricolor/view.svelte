@@ -50,7 +50,7 @@
     />
     <path
       d="M0 2H4V0l3 3l-3 3v-2h-4Z"
-      fill="black"
+      fill="var(--slate-700)  "
       style:transform="translate({99 + 15 * (i - model.colorCount)}px, 92px)"
     />
   {/each}

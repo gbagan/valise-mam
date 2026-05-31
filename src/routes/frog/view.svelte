@@ -73,10 +73,10 @@
 
 {#snippet spiralPath()}
   <g>
-    <path d={spiralDescription} fill="none" stroke="black" stroke-width="3"/>
-    <line x1="153" y1="9" x2="207" y2="20" stroke="black" stroke-dasharray="5" stroke-width="6"/>
-    <line x1="153" y1="7" x2="153" y2="39" stroke="black" stroke-width="3.0" />
-    <line x1="207" y1="18" x2="207" y2="50" stroke="black" stroke-width="3.0" />
+    <path d={spiralDescription} fill="none" stroke="var(--slate-700)" stroke-width="3"/>
+    <line x1="153" y1="9" x2="207" y2="20" stroke="var(--slate-700)" stroke-dasharray="5" stroke-width="6"/>
+    <line x1="153" y1="7" x2="153" y2="39" stroke="var(--slate-700)" stroke-width="3.0" />
+    <line x1="207" y1="18" x2="207" y2="50" stroke="var(--slate-700)" stroke-width="3.0" />
   </g>
 {/snippet}
 
@@ -120,6 +120,10 @@
   <div class="ui-board board"
     style:width="80vmin" style:height="80vmin">
     <svg viewBox="-190 -200 400 400">
+      <defs>
+        <radialGradient id="lilyg" cx="212" cy="202" fx="212" fy="202" r="168" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#b4c700"/><stop offset="1" stop-color="#1ec700"/></radialGradient>
+        <radialGradient id="lilyh" cx="212" cy="202" fx="212" fy="202" r="168" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e0f2fe"/><stop offset="1" stop-color="#67e8f9"/></radialGradient>
+      </defs>
       {@render spiralPath()}
       {#each cartesianPoints as p, i}
         {@render lily(i, p.x, p.y, false, false)}
@@ -191,7 +195,7 @@
   }
 
   .index {
-    fill: blue;
+    fill: var(--blue-600);
     font-size: 20;
     text-anchor: middle;
     pointer-events: none;

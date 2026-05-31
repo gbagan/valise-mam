@@ -32,9 +32,9 @@
 
   function tricolor(i: number): string {
     switch ((i % model.columns + model.help2 + (i / model.columns | 0)) % 3) {
-      case 0: return "red";
-      case 1: return "blue";
-      default: return "green";
+      case 0: return "var(--red-500)";
+      case 1: return "var(--blue-600)";
+      default: return "var(--green-500)";
     }
   }
 

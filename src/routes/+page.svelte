@@ -152,17 +152,17 @@
 {/snippet}
 
 <div class={["main-container", {open: isOpen}]}>
-    <div class="logo">
-      <svg style:width="100%" style:height="100%">
-        <use href="#logo" />
-      </svg>
+  <div class="logo">
+    <svg style:width="100%" style:height="100%">
+      <use href="#logo" />
+    </svg>
+  </div>
+  <div class="container">
+    {@render valise()}
+    <div class={["help", {visible: helpVisible}]}>
+      {help}
     </div>
-    <div class="container">
-      {@render valise()}
-      <div class={["help", {visible: helpVisible}]}>
-        {help}
-      </div>
-    </div>
+  </div>
 </div>
 
 <style>

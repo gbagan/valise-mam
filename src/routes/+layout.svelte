@@ -21,19 +21,16 @@
 </div>
 <style>
   .layout {
-    min-height: 100%;
-    width: 100%;
-    position: fixed;
+    height: 100vh;
+    width: 100vw;
     transform: scale(1);
-    top: 0;
-    left: 0;
     &.game {
       animation: linear 1s gameenter;
     }
     &.valise {
       animation: linear 1s valiseenter;
     }
-}
+  }
 
   @keyframes gameenter {
     from {

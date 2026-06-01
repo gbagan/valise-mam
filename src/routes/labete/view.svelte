@@ -15,7 +15,17 @@
 
   let winTitle = $derived(`Record: ${model.score()} pièges`);
 
-  const colors = [ "#5aa02c", "blue", "red", "yellow", "magenta", "cyan", "orange", "darkgreen", "grey" ];
+  const colors = [
+    "var(--lime-600)",
+    "var(--blue-600)",
+    "var(--red-500)",
+    "var(--yellow-300)",
+    "var(--purple-500)",
+    "var(--cyan-400)",
+    "var(--orange-400)",
+    "var(--pink-400)",
+    "var(--slate-500)"
+  ];
 
   function handleKeydown(e: KeyboardEvent) {
     if (e.code === "ArrowLeft") {

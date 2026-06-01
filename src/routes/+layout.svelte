@@ -21,8 +21,9 @@
 </div>
 <style>
   .layout {
-    height: 100vh;
-    width: 100vw;
+    position: fixed;
+    height: 100%;
+    width: 100%;
     transform: scale(1);
     &.game {
       animation: linear 1s gameenter;

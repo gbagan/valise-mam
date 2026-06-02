@@ -27,7 +27,7 @@ const pseudoRandomPick = <A>(arr: A[]) => arr[28921 % arr.length]
 
 const sizeLimit: SizeLimit = { minRows: 2, minCols: 2, maxRows: 9, maxCols: 9 };
 
-const C1 = WithSize<Position, Move>()(CoreModel<Position, Move>);
+const C1 = WithSize<Position, Move>(5, 5)(CoreModel<Position, Move>);
 const C2 = WithScore<Position, Move>()(C1);
 
 export default class extends C2 implements IModel {
@@ -39,7 +39,7 @@ export default class extends C2 implements IModel {
 
   constructor() {
     super([]);
-    this.initWithSize(5, 5);
+    this.newGame();
   }
 
   get mode() {

@@ -9,14 +9,14 @@ import { page } from '$app/state';
 const sizes: [number, number][] = [ [3, 3], [4, 4], [2, 10], [3, 10], [5, 5]]; 
 const sizeLimit: SizeLimit = { minRows: 2, minCols: 2, maxRows: 12, maxCols: 12 };
 
-export default class extends WithSize<Position, Move>()(CoreModel<Position, Move>) {
+export default class extends WithSize<Position, Move>(3, 3)(CoreModel<Position, Move>) {
   #mode: Mode = $state.raw(0);
   #level = $state.raw(0); // le niveau en cours
   #maxLevels = $state([ 0, 1, 1, 0 ]);
 
   constructor() {
     super({light: [], played: [] });
-    this.initWithSize(3, 3);
+    this.newGame();
   }
 
   get mode() {

@@ -8,7 +8,7 @@ import type { RandomGenerator } from '@gbagan/rng';
 
 const sizeLimit: SizeLimit = { minRows: 4, minCols: 4, maxRows: 10, maxCols: 10 };
 
-const C1 = WithSize<Position, Move>()(CoreModel<Position, Move>);
+const C1 = WithSize<Position, Move>(6, 7)(CoreModel<Position, Move>);
 const C2 = WithCombinatorial<Position, Move>()(C1);
 
 export default class extends C2 implements IModel {
@@ -17,7 +17,7 @@ export default class extends C2 implements IModel {
 
   constructor() {
     super({left: 0, right: 0, top: 0, bottom: 0});
-    this.initWithSize(6, 7);
+    this.newGame();
   }
 
   get soap() {

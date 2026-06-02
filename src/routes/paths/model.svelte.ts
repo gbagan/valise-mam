@@ -8,13 +8,13 @@ import type { RandomGenerator } from "@gbagan/rng";
 
 const sizeLimit: SizeLimit = { minRows: 2, minCols: 2, maxRows: 9, maxCols: 9 };
 
-export default class extends WithSize<Position, Move>()(CoreModel<Position, Move>) implements IModel {
+export default class extends WithSize<Position, Move>(4, 6)(CoreModel<Position, Move>) implements IModel {
   #exit: number | null = $state(null);
   #mode = $state(Mode.Mode1);
 
   constructor() {
     super([]);
-    this.initWithSize(4, 6);
+    this.newGame();
   }
 
   get exit() {

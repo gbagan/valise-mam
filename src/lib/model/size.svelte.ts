@@ -1,12 +1,12 @@
 import { type Constructor, CoreModel } from "./core.svelte";
 import type { ISizeModel, SizeLimit } from "./types";
 
-export function WithSize<Position, Move>() {
+export function WithSize<Position, Move>(rows: number, columns: number, customSize = false) {
   return function <TBase extends Constructor<CoreModel<Position, Move>>>(Base: TBase) {
     abstract class C extends Base implements ISizeModel {
-      #rows = $state(0);
-      #columns = $state(0);
-      #customSize = $state(false);
+      #rows = $state(rows);
+      #columns = $state(columns);
+      #customSize = $state(customSize);
 
       constructor(...args: any[]) {
         super(...args);
@@ -38,15 +38,6 @@ export function WithSize<Position, Move>() {
 
       get sizeLimit(): SizeLimit | null {
         return null;
-      }
-
-      initWithSize(rows: number, columns: number, customSize?: boolean) {
-        this.#rows = rows;
-        this.#columns = columns;
-        if (customSize !== undefined) {
-          this.#customSize = customSize;
-        }
-        this.newGame();
       }
 
       resize = (rows: number, columns: number, customSize?: boolean) => {

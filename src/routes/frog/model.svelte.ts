@@ -12,7 +12,7 @@ const sizeLimit: SizeLimit = {
   maxCols: 0,
 }
 
-const C1 = WithSize<Position, Move>()(CoreModel<Position, Move>);
+const C1 = WithSize<Position, Move>(20, 0, true)(CoreModel<Position, Move>);
 const C2 = WithCombinatorial<Position, Move>()(C1);
 
 export default class extends C2 implements IModel {
@@ -21,7 +21,7 @@ export default class extends C2 implements IModel {
   
   constructor() {
     super(20);
-    this.initWithSize(20, 0, true);
+    this.newGame();
   }
   
   get moves(): readonly number[] {

@@ -6,7 +6,7 @@ import { diffCoords, generate2 } from '$lib/util';
 import { Board, type IModel, type Move, type Position } from './types';
 import type { RandomGenerator } from '@gbagan/rng';
 
-const C1 = WithSize<Position, Move>()(CoreModel<Position, Move>);
+const C1 = WithSize<Position, Move>(6, 1)(CoreModel<Position, Move>);
 const C2 = WithScore<Position, Move>()(C1);
 
 export default class extends C2 implements IModel {
@@ -16,7 +16,7 @@ export default class extends C2 implements IModel {
   
   constructor() {
     super([]);
-    this.initWithSize(6, 1);
+    this.newGame();
   }
 
   get holes(): readonly boolean[] {

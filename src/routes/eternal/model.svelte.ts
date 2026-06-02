@@ -54,7 +54,7 @@ const biclique = (m: number, n: number): IGraph => new Graph(
   generate2(n, m, (i, j) => [i, j + n]),
 );
 
-const C1 = WithSize<Position, Move>()(CoreModel<Position, Move>);
+const C1 = WithSize<Position, Move>(6, 0, true)(CoreModel<Position, Move>);
 const C2 = WithTwoPlayers<Position, Move>()(C1);
 
 export default class extends C2 implements IModel {
@@ -65,7 +65,7 @@ export default class extends C2 implements IModel {
 
   constructor() {
     super({ guards: [], attacked: null });
-    this.initWithSize(6, 0, true);
+    this.newGame();
   }
 
   get phase() {

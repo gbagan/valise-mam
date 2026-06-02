@@ -19,7 +19,7 @@ function legalMoves(piece: Piece, x: number, y: number) {
 
 const sizeLimit: SizeLimit = { minRows:3, minCols: 3, maxRows: 9, maxCols: 9 };
 
-const C1 = WithSize<Position, Move>()(CoreModel<Position, Move>);
+const C1 = WithSize<Position, Move>(8, 8)(CoreModel<Position, Move>);
 const C2 = WithScore<Position, Move>()(C1);
 
 export default class extends C2 implements IModel {
@@ -31,7 +31,7 @@ export default class extends C2 implements IModel {
 
   constructor() {
     super([]);
-    this.initWithSize(8, 8);
+    this.newGame();
   }
 
   get selectedPiece() {

@@ -7,13 +7,13 @@ import type { IModel, Move, Position } from './types';
 
 const sizeLimit = { minRows: 1, minCols: 2, maxRows: 6, maxCols: 12 };
 
-const C1 = WithSize<Position, Move>()(CoreModel<Position, Move>);
+const C1 = WithSize<Position, Move>(4, 4)(CoreModel<Position, Move>);
 const C2 = WithScore<Position, Move>()(C1);
 
 export default class extends C2 implements IModel {
   constructor() {
     super([]);
-    this.initWithSize(4, 4);
+    this.newGame();
   }
 
   protected play({ from, to }: Move) {

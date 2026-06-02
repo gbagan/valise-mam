@@ -5,8 +5,8 @@
   type AnimationStep = [number, string, number];
 
   let anim: Record<string, number> = $state({});
-  let locked = $state(false);
-  let page: Page = $state(Page.Pythagore);
+  let locked = $state.raw(false);
+  let page: Page = $state.raw(Page.Pythagore);
 
   async function runAnim(animation: AnimationStep[]) {
     if (locked) {

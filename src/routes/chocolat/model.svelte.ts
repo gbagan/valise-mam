@@ -13,7 +13,7 @@ const C2 = WithCombinatorial<Position, Move>()(C1);
 
 export default class extends C2 implements IModel {
   #soap: readonly [number, number] | null = $state.raw(null);
-  #soapMode = $state(SoapMode.Corner);
+  #soapMode = $state.raw(SoapMode.Corner);
 
   constructor() {
     super({left: 0, right: 0, top: 0, bottom: 0});

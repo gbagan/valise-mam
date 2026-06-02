@@ -5,7 +5,7 @@ import graphs from "./graphs";
 import type { IModel, Move, Position } from "./types";
 
 export default class extends WithScore<Position, Move>()(CoreModel<Position, Move>) implements IModel {
-  #graphIndex: number | "custom" = $state(0);
+  #graphIndex: number | "custom" = $state.raw(0);
   #customGraph: IGraph = new Graph();
   
   constructor() {

@@ -7,8 +7,8 @@ import type { RandomGenerator } from '@gbagan/rng';
 
 const C = WithCombinatorial<Position, Move>()(CoreModel<Position, Move>);
 export default class extends C implements IModel {
-  #length = $state(10);
-  #pileCount = $state(4);
+  #length = $state.raw(10);
+  #pileCount = $state.raw(4);
   
   constructor() {
     super([]);

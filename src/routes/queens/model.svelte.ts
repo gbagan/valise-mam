@@ -1,9 +1,9 @@
+import { arrayOf, times } from "@gbagan/utils";
+import { diffCoords } from "$lib/util";
 import { CoreModel } from "$lib/model/core.svelte";
 import { Objective, WithScore } from "$lib/model/score.svelte";
 import { WithSize } from "$lib/model/size.svelte";
 import type { SizeLimit } from "$lib/model/types";
-import { arrayOf, times } from "@gbagan/utils";
-import { diffCoords } from "$lib/util";
 import { piecesList, type IModel, type Move, type Piece, type Position } from "./types";
 
 function legalMoves(piece: Piece, x: number, y: number) {
@@ -23,9 +23,9 @@ const C1 = WithSize<Position, Move>(8, 8)(CoreModel<Position, Move>);
 const C2 = WithScore<Position, Move>()(C1);
 
 export default class extends C2 implements IModel {
-  #selectedPiece: Piece = $state("Q");
-  #allowedPieces: Piece[] = $state(["R"]);
-  #multiPieces = $state(false);
+  #selectedPiece: Piece = $state.raw("Q");
+  #allowedPieces: Piece[] = $state.raw(["R"]);
+  #multiPieces = $state.raw(false);
   #customLocalMoves = $state(arrayOf(25, false));
   #customDirections = $state(arrayOf(9, false));
 

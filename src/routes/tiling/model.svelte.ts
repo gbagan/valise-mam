@@ -27,9 +27,9 @@ const translate = (tile: Tile, [row, col]: Coord) => tile.map(([r,c]) => [row + 
 const sizeLimit: SizeLimit = { minRows: 3, minCols: 3, maxRows: 10, maxCols: 10 };
 
 export default class extends WithSize<Position, Move>(5, 5)(CoreModel<Position, Move>) implements IModel {
-  #rotation = $state(0);
-  #tileType: TileType = $state("type1");
-  #sinkCount = $state(0);
+  #rotation = $state.raw(0);
+  #tileType: TileType = $state.raw("type1");
+  #sinkCount = $state.raw(0);
   #customTile: [number, number][] = $state([]);
 
   constructor() {

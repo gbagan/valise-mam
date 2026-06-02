@@ -6,7 +6,7 @@ type Position = readonly (readonly number[])[];
 type Move = {readonly from: number, readonly to: number};
 
 export default class extends CoreModel<Position, Move> implements IModel {
-  #diskCount = $state(4);
+  #diskCount = $state.raw(4);
   
   constructor() {
     super([]);

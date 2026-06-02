@@ -10,9 +10,9 @@ const C1 = WithSize<Position, Move>(6, 1)(CoreModel<Position, Move>);
 const C2 = WithScore<Position, Move>()(C1);
 
 export default class extends C2 implements IModel {
-  #holes: boolean[] = $state([]);
-  #help2 = $state(0);
-  #boardType = $state(Board.Circle);
+  #holes: boolean[] = $state.raw([]);
+  #help2 = $state.raw(0);
+  #boardType = $state.raw(Board.Circle);
   
   constructor() {
     super([]);

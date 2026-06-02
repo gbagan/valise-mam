@@ -16,7 +16,7 @@ const C1 = WithSize<Position, Move>(20, 0, true)(CoreModel<Position, Move>);
 const C2 = WithCombinatorial<Position, Move>()(C1);
 
 export default class extends C2 implements IModel {
-  #moves = $state([1, 2, 3]);
+  #moves = $state.raw([1, 2, 3]);
   #marked: boolean[] = $state([]);
   
   constructor() {

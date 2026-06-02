@@ -58,9 +58,9 @@ const C1 = WithSize<Position, Move>(6, 0, true)(CoreModel<Position, Move>);
 const C2 = WithTwoPlayers<Position, Move>()(C1);
 
 export default class extends C2 implements IModel {
-  #phase = $state(Phase.Preparation);
-  #graphKind = $state(GraphKind.Path);
-  #rules = $state(Rules.OneGuard);
+  #phase = $state.raw(Phase.Preparation);
+  #graphKind = $state.raw(GraphKind.Path);
+  #rules = $state.raw(Rules.OneGuard);
   #customGraph: IGraph = $state(new MutableGraph());
 
   constructor() {

@@ -9,8 +9,8 @@ import type { RandomGenerator } from "@gbagan/rng";
 const sizeLimit: SizeLimit = { minRows: 2, minCols: 2, maxRows: 9, maxCols: 9 };
 
 export default class extends WithSize<Position, Move>(4, 6)(CoreModel<Position, Move>) implements IModel {
-  #exit: number | null = $state(null);
-  #mode = $state(Mode.Mode1);
+  #exit: number | null = $state.raw(null);
+  #mode = $state.raw(Mode.Mode1);
 
   constructor() {
     super([]);

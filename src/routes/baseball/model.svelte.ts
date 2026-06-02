@@ -4,8 +4,8 @@ import type { IModel, Move, Position } from './types';
 import type { RandomGenerator } from '@gbagan/rng';
 
 export default class extends CoreModel<Position, Move> implements IModel {
-  #baseCount = $state(5);
-  #missingPeg = $state(0);
+  #baseCount = $state.raw(5);
+  #missingPeg = $state.raw(0);
 
   get baseCount() {
     return this.#baseCount;

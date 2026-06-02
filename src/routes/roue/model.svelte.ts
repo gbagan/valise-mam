@@ -4,8 +4,8 @@ import { CoreModel } from '$lib/model/core.svelte';
 import type { IModel, Move, Position } from './types';
 
 export default class extends CoreModel<Position, Move> implements IModel {
-  #size = $state(5);
-  #rotation = $state(0);  
+  #size = $state.raw(5);
+  #rotation = $state.raw(0);  
 
   constructor() {
     super([]);

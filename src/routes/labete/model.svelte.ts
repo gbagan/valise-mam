@@ -31,9 +31,9 @@ const C1 = WithSize<Position, Move>(5, 5)(CoreModel<Position, Move>);
 const C2 = WithScore<Position, Move>()(C1);
 
 export default class extends C2 implements IModel {
-  #mode = $state(Mode.Standard);
-  #beastType = $state(BeastType.Type1);
-  #selectedColor = $state(0);
+  #mode = $state.raw(Mode.Standard);
+  #beastType = $state.raw(BeastType.Type1);
+  #selectedColor = $state.raw(0);
   #squareColors: number[] = $state([]);
   #customBeast: Beast2 = $state([[]]);
 

@@ -4,10 +4,10 @@ import type { IModel, Move, Position } from './types';
 import type { RandomGenerator } from "@gbagan/rng";
 
 export default class extends CoreModel<Position, Move> implements IModel {
-  #size = $state(5);
-  #colorCount = $state(2);
-  #range = $state(1);
-  #shuffle = $state(false);
+  #size = $state.raw(5);
+  #colorCount = $state.raw(2);
+  #range = $state.raw(1);
+  #shuffle = $state.raw(false);
 
   constructor() {
     super([]);
